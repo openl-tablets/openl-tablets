@@ -173,19 +173,25 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
-            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig,
-                    RepositoryMode.PRODUCTION);
+            ConfigurationManager productionConfig = productionConfigManagerFactory
+                .getConfigurationManager(repositoryConfigName);
+            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
+                productionConfig,
+                RepositoryMode.PRODUCTION);
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
-                String message = String.format("Configuration '%s' is successfully deployed with id '%s' to repository '%s'",
-                        project.getName(), id.getName(), repo.getName());
+                String message = String.format(
+                    "Configuration '%s' is successfully deployed with id '%s' to repository '%s'",
+                    project.getName(),
+                    id.getName(),
+                    repo.getName());
                 FacesUtils.addInfoMessage(message);
 
                 productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
-                String msg = String.format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
+                String msg = String
+                    .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -209,8 +215,8 @@ public class DeploymentController {
         items = new ArrayList<DeploymentDescriptorItem>();
 
         for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getProjectName(), descriptor
-                    .getProjectVersion());
+            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getProjectName(),
+                descriptor.getProjectVersion());
             items.add(item);
         }
 
@@ -247,28 +253,18 @@ public class DeploymentController {
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
-    /* Deprecated
-        public SelectItem[] getProjectVersions() {
-            UserWorkspace workspace = RepositoryUtils.getWorkspace();
-            if (projectName != null) {
-                try {
-                    AProject project = workspace.getProject(projectName);
-                    // sort project versions in descending order (1.1 -> 0.0)
-                    List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
-                    Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
-
-                    List<SelectItem> selectItems = new ArrayList<SelectItem>();
-                    for (ProjectVersion version. : versions) {
-                        selectItems.add(new SelectItem(version.getVersionName()));
-                    }
-                    return selectItems.toArray(new SelectItem[selectItems.size()]);
-                } catch (ProjectException e) {
-                    log.error("Failed to get project versions!", e);
-                }
-            }
-            return new SelectItem[0];
-        }
-    */
+    /*
+     * Deprecated public SelectItem[] getProjectVersions() { UserWorkspace workspace = RepositoryUtils.getWorkspace();
+     * if (projectName != null) { try { AProject project = workspace.getProject(projectName); // sort project versions
+     * in descending order (1.1 -> 0.0) List<ProjectVersion> versions = new
+     * ArrayList<ProjectVersion>(project.getVersions()); Collections.sort(versions,
+     * RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
+     * 
+     * List<SelectItem> selectItems = new ArrayList<SelectItem>(); for (ProjectVersion version. : versions) {
+     * selectItems.add(new SelectItem(version.getVersionName())); } return selectItems.toArray(new
+     * SelectItem[selectItems.size()]); } catch (ProjectException e) { log.error("Failed to get project versions!", e);
+     * } } return new SelectItem[0]; }
+     */
     public List<ProjectVersion> getProjectVersions() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
@@ -310,7 +306,8 @@ public class DeploymentController {
                     if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
-                    repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
+                    repositoryTreeState.refreshNode(
+                        repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (ProjectException e) {
                     log.error("Failed to open project '{}'!", projectName, e);
                 }
@@ -320,8 +317,9 @@ public class DeploymentController {
         return null;
     }
 
-    private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project, String projectName,
-                                                      ProjectDescriptorImpl newItem) {
+    private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project,
+            String projectName,
+            ProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
@@ -382,8 +380,9 @@ public class DeploymentController {
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
-                    RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName,
+                productionConfig,
+                RepositoryMode.PRODUCTION);
             repos.add(config);
         }
 

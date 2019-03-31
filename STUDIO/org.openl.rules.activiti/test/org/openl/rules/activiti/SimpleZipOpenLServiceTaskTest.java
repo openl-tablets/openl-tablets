@@ -23,7 +23,7 @@ public class SimpleZipOpenLServiceTaskTest {
     private ProcessEngineConfiguration processEngineConfiguration;
 
     private ProcessEngine processEngine;
-    
+
     @Before
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
@@ -35,19 +35,20 @@ public class SimpleZipOpenLServiceTaskTest {
     }
 
     @Test
-    public void test(){
+    public void test() {
         Assert.assertNotNull(processEngine);
         Map<String, Object> variables = new HashMap<String, Object>();
-        
+
         variables.put("driverAge", "Standard Driver");
         variables.put("driverMaritalStatus", "Single");
-        
+
         processEngine.getRuntimeService().startProcessInstanceByKey("openLTaskServiceTest", variables);
-        
+
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
-        
-        DoubleValue result = (DoubleValue)processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
-        
+
+        DoubleValue result = (DoubleValue) processEngine.getRuntimeService()
+            .getVariable(task.getExecutionId(), "resultVariable");
+
         Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
     }
 }

@@ -16,7 +16,7 @@ public class UserContextTest {
         UserContext uc2 = new UserContext(cl1, ".");
         assertEquals(uc1, uc2);
         assertEquals(uc1.hashCode(), uc2.hashCode());
-        
+
         ClassLoader cl2 = new SimpleBundleClassLoader(classLoader);
         uc2 = new UserContext(cl2, ".");
         assertFalse(uc1.equals(uc2));

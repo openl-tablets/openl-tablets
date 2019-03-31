@@ -36,7 +36,8 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                 return true;
             }
         }
-        LOG.debug("Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
+        LOG.debug(
+            "Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
             folder.getPath());
         return false;
     }
@@ -74,7 +75,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         return module;
     }
 
-    private ProjectDescriptor createDescriptor(File folder) throws IOException{
+    private ProjectDescriptor createDescriptor(File folder) throws IOException {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder.getCanonicalFile());
         project.setName(folder.getName());

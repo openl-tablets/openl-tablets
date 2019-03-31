@@ -31,8 +31,8 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // method in return expression
         TableSyntaxNode firstTable = findTable("Rules String testDT(int arg)", null);
         ICell returnExpressionCell = firstTable.getGridTable().getCell(1, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(firstTable.getMetaInfoReader(),
-                returnExpressionCell)));
+        assertTrue(
+            CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(firstTable.getMetaInfoReader(), returnExpressionCell)));
         // method in return values
         TableSyntaxNode secondTable = findTable("Rules String testDT(int arg)", "test");
         MetaInfoReader secondMetaReader = secondTable.getMetaInfoReader();
@@ -53,10 +53,10 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         IOpenMethod firstMethodInOveloading = ((MethodUsage) firstMethodMeta.getUsedNodes().get(0)).getMethod();
 
         ICell secondMethodCell = returnColumn.getValueCell(1).getSource().getCell(0, 0);
-        CellMetaInfo secondMethodMeta =  getMetaInfo(metaInfoReader, secondMethodCell);
+        CellMetaInfo secondMethodMeta = getMetaInfo(metaInfoReader, secondMethodCell);
         IOpenMethod secondMethodInOveloading = ((MethodUsage) secondMethodMeta.getUsedNodes().get(0)).getMethod();
-        assertNotSame(firstMethodInOveloading.getInfo().getSourceUrl(), secondMethodInOveloading.getInfo()
-                .getSourceUrl());
+        assertNotSame(firstMethodInOveloading.getInfo().getSourceUrl(),
+            secondMethodInOveloading.getInfo().getSourceUrl());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
                     for (NodeUsage methodUsage : metaInfo.getUsedNodes()) {
                         cellWithMethodUsagesCount++;
                         if (methodUsage instanceof MethodUsage) {
-                            usedMethods.add(((MethodUsage)methodUsage).getMethod().getName());
+                            usedMethods.add(((MethodUsage) methodUsage).getMethod().getName());
                         }
                     }
                 }

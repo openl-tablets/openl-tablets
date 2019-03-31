@@ -7,7 +7,7 @@ package org.openl.rules.webstudio.properties;
  *
  */
 public interface ISystemValue {
-    
+
     Object getValue();
 
 }

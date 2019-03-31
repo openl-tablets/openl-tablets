@@ -15,25 +15,29 @@ import org.openl.runtime.IEngineWrapper;
 import static org.junit.Assert.*;
 
 public class ApiInstantiationTest {
-//    @Test
-//    public void testClassLoaders(){
-//        ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
-//        File projectFolder = new File("test-resources/excel/");
-//        assertTrue(resolvingStrategy.isRulesProject(projectFolder));
-//        ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
-//        RulesInstantiationStrategy instantiationStrategyFirst = RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(0));
-//        RulesInstantiationStrategy instantiationStrategySecond = RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(1));
-//        assertTrue(instantiationStrategyFirst.getClassLoader().getParent() == instantiationStrategySecond.getClassLoader().getParent());
-//        assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
-//        //reload parent class loader
-//        instantiationStrategyFirst.forcedReset();
-//        // parent class loader now also will be used in the second class loader
-//        assertTrue(instantiationStrategyFirst.getClassLoader().getParent() == instantiationStrategySecond.getClassLoader().getParent());
-//        assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
-//    }
+    // @Test
+    // public void testClassLoaders(){
+    // ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
+    // File projectFolder = new File("test-resources/excel/");
+    // assertTrue(resolvingStrategy.isRulesProject(projectFolder));
+    // ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
+    // RulesInstantiationStrategy instantiationStrategyFirst =
+    // RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(0));
+    // RulesInstantiationStrategy instantiationStrategySecond =
+    // RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(1));
+    // assertTrue(instantiationStrategyFirst.getClassLoader().getParent() ==
+    // instantiationStrategySecond.getClassLoader().getParent());
+    // assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
+    // //reload parent class loader
+    // instantiationStrategyFirst.forcedReset();
+    // // parent class loader now also will be used in the second class loader
+    // assertTrue(instantiationStrategyFirst.getClassLoader().getParent() ==
+    // instantiationStrategySecond.getClassLoader().getParent());
+    // assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
+    // }
 
     @Test
-    public void testXlsWithErrors() throws ClassNotFoundException{
+    public void testXlsWithErrors() throws ClassNotFoundException {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setClasspath(new ArrayList<PathEntry>());
         project.setProjectFolder(new File("test-resources/excel/"));
@@ -66,11 +70,11 @@ public class ApiInstantiationTest {
         assertTrue(instance instanceof ServiceClass);
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
-        ((IEngineWrapper)instance).getRuntimeEnv().setContext(context);
-        assertEquals("Good Evening, World!", ((ServiceClass)instance).hello1(19));
+        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
+        assertEquals("Good Evening, World!", ((ServiceClass) instance).hello1(19));
     }
-    
-    public interface ServiceClass{
+
+    public interface ServiceClass {
         String hello1(int hour);
     }
 }

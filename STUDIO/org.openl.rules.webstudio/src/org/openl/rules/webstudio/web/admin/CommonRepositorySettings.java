@@ -94,9 +94,9 @@ public class CommonRepositorySettings extends RepositorySettings {
 
         switch (repositoryType) {
             case LOCAL:
-                return defaultLocalUri != null ?
-                       defaultLocalUri :
-                       System.getProperty("webstudio.home") + File.separator + type + "-repository";
+                return defaultLocalUri != null ? defaultLocalUri
+                                               : System.getProperty(
+                                                   "webstudio.home") + File.separator + type + "-repository";
             case RMI:
                 return "//localhost:1099/" + type + "-repository";
             case WEBDAV:

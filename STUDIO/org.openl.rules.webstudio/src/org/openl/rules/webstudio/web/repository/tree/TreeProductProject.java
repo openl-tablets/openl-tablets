@@ -63,7 +63,7 @@ public class TreeProductProject extends TreeProductFolder {
 
     public String getModifiedBy() {
         ProjectVersion projectVersion = this.getData().getVersion();
-        /* zero*/
+        /* zero */
         if (projectVersion == null) {
             return null;
         }

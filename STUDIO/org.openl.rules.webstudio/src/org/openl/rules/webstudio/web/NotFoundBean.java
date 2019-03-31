@@ -36,6 +36,8 @@ public class NotFoundBean {
     }
 
     public enum Type {
-        PROJECT, MODULE, OTHER
+        PROJECT,
+        MODULE,
+        OTHER
     }
 }

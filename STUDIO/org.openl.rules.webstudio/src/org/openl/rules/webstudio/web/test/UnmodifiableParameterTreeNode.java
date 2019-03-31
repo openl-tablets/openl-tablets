@@ -12,9 +12,9 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
     private String warnMessage;
 
     public UnmodifiableParameterTreeNode(String fieldName,
-                                         Object value,
-                                         IOpenClass fieldType,
-                                         ParameterDeclarationTreeNode parent) {
+            Object value,
+            IOpenClass fieldType,
+            ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 

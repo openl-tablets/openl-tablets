@@ -30,7 +30,7 @@ public class VariationsResultType {
     public String[] getFailedVariationIDs() {
         return null;
     }
-    
+
     @JsonIgnore
     public String[] getAllProcessedVariationIDs() {
         return null;

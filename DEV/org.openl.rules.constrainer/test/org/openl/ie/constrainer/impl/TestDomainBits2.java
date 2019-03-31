@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 /**
  * <p>
  * Title:
@@ -180,9 +179,9 @@ public class TestDomainBits2 extends TestCase {
         // intersection of range to be removed and the domain is an empty set
         try {
             assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
-                                                                        // is to
-                                                                        // be
-                                                                        // done
+                                                                       // is to
+                                                                       // be
+                                                                       // done
         } catch (Failure f) {
             fail("it wouldn't ever happen");
         }
@@ -283,9 +282,8 @@ public class TestDomainBits2 extends TestCase {
         }
         // boolean[] oldbits = db.bits();
         boolean[] newbits = new boolean[db.size()];
-        db
-                .forceBits(bitsToBits2(new boolean[] { true, true, true, true, true, false, false, true, false, true,
-                        true }));
+        db.forceBits(
+            bitsToBits2(new boolean[] { true, true, true, true, true, false, false, true, false, true, true }));
         try {
             db.setMax(8);
             assertEquals(7, db.max());

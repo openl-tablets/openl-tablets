@@ -34,7 +34,7 @@ public class HelperTest {
         assertEquals("1", helper.format(1));
         assertEquals("0.1", helper.format(0.1));
         assertEquals("true", helper.format(true));
-        assertEquals("foo,bar", helper.format(new String[]{"foo", "bar"}));
+        assertEquals("foo,bar", helper.format(new String[] { "foo", "bar" }));
     }
 
     @Test
@@ -97,9 +97,7 @@ abstract class ContextMocker extends FacesContext {
     public static FacesContext mockFacesContext() {
         FacesContext context = mock(FacesContext.class);
         setCurrentInstance(context);
-        doAnswer(RELEASE)
-                .when(context)
-                .release();
+        doAnswer(RELEASE).when(context).release();
         return context;
     }
 }

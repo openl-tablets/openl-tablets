@@ -28,19 +28,19 @@ public final class ObjectViewer {
     private ObjectViewer() {
     }
 
-    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/
+    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon **/
     public static String displaySpreadsheetResult(final SpreadsheetResult res,
             Map<Point, ComparedResult> spreadsheetCellsForTest,
             String requestId) {
         return display(res, spreadsheetCellsForTest, true, requestId);
     }
 
-    /** Display SpreadsheetResult with filter for links to explanation for values*/
+    /** Display SpreadsheetResult with filter for links to explanation for values */
     public static String displaySpreadsheetResult(final SpreadsheetResult res, String requestId) {
         return display(res, null, true, requestId);
     }
 
-    /** Display SpreadsheetResult without any filters in the table**/
+    /** Display SpreadsheetResult without any filters in the table **/
     public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res) {
         return display(res, null, false, null);
     }
@@ -69,10 +69,11 @@ public final class ObjectViewer {
 
         ProjectModel model = WebStudioUtils.getWebStudio().getModel();
         TableSyntaxNode syntaxNode = model.getNode(gridtable.getUri());
-        MetaInfoReader metaInfoReader = syntaxNode == null ? EmptyMetaInfoReader.getInstance() : syntaxNode.getMetaInfoReader();
+        MetaInfoReader metaInfoReader = syntaxNode == null ? EmptyMetaInfoReader.getInstance()
+                                                           : syntaxNode.getMetaInfoReader();
 
-        TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]),
-                metaInfoReader);
+        TableModel tableModel = TableModel
+            .initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]), metaInfoReader);
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 

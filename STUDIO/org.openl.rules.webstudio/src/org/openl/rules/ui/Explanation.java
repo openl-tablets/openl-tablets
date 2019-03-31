@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Explanation {
 
-    private static final int MAX_LEVEL = 2; // Maximum expansion level for  formulas
+    private static final int MAX_LEVEL = 2; // Maximum expansion level for formulas
 
     private String expandArgument(ExplanationNumberValue<?> value,
             boolean isMultiplicative,
@@ -33,8 +33,8 @@ public class Explanation {
             return expandCast(value, level, indent);
         }
 
-        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || (value.isFormula() && value.getFormula()
-                .isMultiplicative() != isMultiplicative)) {
+        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || (value
+            .isFormula() && value.getFormula().isMultiplicative() != isMultiplicative)) {
             return explain(value, indent);
         }
 
@@ -84,8 +84,9 @@ public class Explanation {
         String url = mi != null ? mi.getSourceUrl() : null;
 
         if (url != null && name != null) {
-            String href = WebContext.getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
-                    + StringTool.encodeURL(url) + "&text=" + name;
+            String href = WebContext
+                .getContextPath() + "/faces/pages/modules/explain/showExplainTable.xhtml?uri=" + StringTool
+                    .encodeURL(url) + "&text=" + name;
             value = "<a href='" + href + "' title='Show in table' target='mainFrame' class='open'>" + value + "</a>";
         }
 

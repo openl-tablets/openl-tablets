@@ -25,16 +25,12 @@ public class CommentValidator {
     }
 
     public static CommentValidator forDesignRepo(Map<String, Object> config) {
-        return new CommentValidator(
-                ((String) config.get("design-repository.comment-validation-pattern")),
-                ((String) config.get("design-repository.invalid-comment-message"))
-        );
+        return new CommentValidator(((String) config.get("design-repository.comment-validation-pattern")),
+            ((String) config.get("design-repository.invalid-comment-message")));
     }
 
     static CommentValidator forDeployConfigRepo(Map<String, Object> config) {
-        return new CommentValidator(
-                ((String) config.get("deploy-config-repository.comment-validation-pattern")),
-                ((String) config.get("deploy-config-repository.invalid-comment-message"))
-        );
+        return new CommentValidator(((String) config.get("deploy-config-repository.comment-validation-pattern")),
+            ((String) config.get("deploy-config-repository.invalid-comment-message")));
     }
 }

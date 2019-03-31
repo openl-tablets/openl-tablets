@@ -18,18 +18,18 @@ public class TestTableCreationWizardDirect extends TestTableCreationWizard {
         if (node == null) {
             throw new IllegalArgumentException(String.format("Can`t find node with uri:%s ", tableUri));
         }
-        selectedNode = node;        
+        selectedNode = node;
     }
 
     private TableSyntaxNode selectedNode;
-        
+
     public void setSelectedNode(TableSyntaxNode selectedNode) {
         this.selectedNode = selectedNode;
     }
 
     @Override
     protected TableSyntaxNode getSelectedNode() {
-        return selectedNode;        
+        return selectedNode;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class TestTableCreationWizardDirect extends TestTableCreationWizard {
     }
 
     @Override
-    protected void onStart() {        
+    protected void onStart() {
         setTechnicalName(getDefaultTechnicalName());
     }
 

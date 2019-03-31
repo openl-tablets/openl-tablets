@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 public class TestDomainBits extends TestCase {
     private Constrainer C = new Constrainer("TestDomainBits");
     private IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
@@ -129,9 +128,9 @@ public class TestDomainBits extends TestCase {
         // intersection of range to be removed and the domain is an empty set
         try {
             assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
-                                                                        // is to
-                                                                        // be
-                                                                        // done
+                                                                       // is to
+                                                                       // be
+                                                                       // done
         } catch (Failure f) {
             fail("it wouldn't ever happen");
         }

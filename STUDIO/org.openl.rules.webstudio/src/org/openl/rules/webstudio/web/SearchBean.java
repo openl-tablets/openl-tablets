@@ -30,30 +30,42 @@ import org.openl.util.StringUtils;
 @RequestScoped
 public class SearchBean {
 
-    public static final String[] SEARCH_PARAMS = {
-        "query", "types", "header"
-    };
+    public static final String[] SEARCH_PARAMS = { "query", "types", "header" };
 
     // TODO Move table names to Rules Core
-    public static final String[] TABLE_NAMES = {
-        "Decision", "Spreadsheet",
-        "TBasic", "Column Match",
-        "Datatype", "Data",
-        "Method", "Test", "Run",
-        "Constants", "Conditions", "Actions", "Returns",
-        "Environment", "Properties",
-        "Other"
-    };
+    public static final String[] TABLE_NAMES = { "Decision",
+            "Spreadsheet",
+            "TBasic",
+            "Column Match",
+            "Datatype",
+            "Data",
+            "Method",
+            "Test",
+            "Run",
+            "Constants",
+            "Conditions",
+            "Actions",
+            "Returns",
+            "Environment",
+            "Properties",
+            "Other" };
 
-    public static final String[] TABLE_TYPES = {
-        XlsNodeTypes.XLS_DT.toString(), XlsNodeTypes.XLS_SPREADSHEET.toString(),
-        XlsNodeTypes.XLS_TBASIC.toString(), XlsNodeTypes.XLS_COLUMN_MATCH.toString(),
-        XlsNodeTypes.XLS_DATATYPE.toString(), XlsNodeTypes.XLS_DATA.toString(),
-        XlsNodeTypes.XLS_METHOD.toString(), XlsNodeTypes.XLS_TEST_METHOD.toString(), XlsNodeTypes.XLS_RUN_METHOD.toString(),
-        XlsNodeTypes.XLS_CONSTANTS.toString(), XlsNodeTypes.XLS_CONDITIONS.toString(), XlsNodeTypes.XLS_ACTIONS.toString(), XlsNodeTypes.XLS_RETURNS.toString(), 
-        XlsNodeTypes.XLS_ENVIRONMENT.toString(), XlsNodeTypes.XLS_PROPERTIES.toString(),
-        XlsNodeTypes.XLS_OTHER.toString()
-    };
+    public static final String[] TABLE_TYPES = { XlsNodeTypes.XLS_DT.toString(),
+            XlsNodeTypes.XLS_SPREADSHEET.toString(),
+            XlsNodeTypes.XLS_TBASIC.toString(),
+            XlsNodeTypes.XLS_COLUMN_MATCH.toString(),
+            XlsNodeTypes.XLS_DATATYPE.toString(),
+            XlsNodeTypes.XLS_DATA.toString(),
+            XlsNodeTypes.XLS_METHOD.toString(),
+            XlsNodeTypes.XLS_TEST_METHOD.toString(),
+            XlsNodeTypes.XLS_RUN_METHOD.toString(),
+            XlsNodeTypes.XLS_CONSTANTS.toString(),
+            XlsNodeTypes.XLS_CONDITIONS.toString(),
+            XlsNodeTypes.XLS_ACTIONS.toString(),
+            XlsNodeTypes.XLS_RETURNS.toString(),
+            XlsNodeTypes.XLS_ENVIRONMENT.toString(),
+            XlsNodeTypes.XLS_PROPERTIES.toString(),
+            XlsNodeTypes.XLS_OTHER.toString() };
 
     private static final SelectItem[] tableTypeItems;
     static {
@@ -70,8 +82,7 @@ public class SearchBean {
     public SearchBean() {
         initProperties();
 
-        if (((HttpServletRequest) FacesUtils.getRequest())
-                .getRequestURI().contains("search.xhtml"))  {
+        if (((HttpServletRequest) FacesUtils.getRequest()).getRequestURI().contains("search.xhtml")) {
             initSearchQuery();
             search();
         }
@@ -118,7 +129,7 @@ public class SearchBean {
         String tableHeader = FacesUtils.getRequestParameter(SEARCH_PARAMS[2]);
 
         if (StringUtils.isNotBlank(query)) {
-            // Replace all non-breaking spaces by breaking spaces 
+            // Replace all non-breaking spaces by breaking spaces
             String spaceToRemove = Character.toString((char) 160);
             query = query.replaceAll(spaceToRemove, " ");
 
@@ -133,10 +144,10 @@ public class SearchBean {
 
         // Init properties query
         Map<String, String> requestParams = FacesUtils.getRequestParameterMap();
-        for (Map.Entry<String, String> entry: requestParams.entrySet()) {
+        for (Map.Entry<String, String> entry : requestParams.entrySet()) {
             String paramName = entry.getKey();
-            if (!ArrayUtils.contains(SEARCH_PARAMS, paramName)
-                    && TablePropertyDefinitionUtils.isPropertyExist(paramName)) {
+            if (!ArrayUtils.contains(SEARCH_PARAMS, paramName) && TablePropertyDefinitionUtils
+                .isPropertyExist(paramName)) {
                 TableProperty property = getPropertyByName(paramName);
                 String propertyValue = entry.getValue();
                 property.setStringValue(propertyValue);

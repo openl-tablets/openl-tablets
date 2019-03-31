@@ -4,8 +4,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * OpenL Rules Project. Use root folder to access all folders and files of the
- * project.
+ * OpenL Rules Project. Use root folder to access all folders and files of the project.
  *
  * @author Aleh Bykhavets
  *

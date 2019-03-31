@@ -45,10 +45,12 @@ public class SourceGenerator {
         }
     }
 
-    public void generateSource(String sourceFilePath, String templateName, Map<String, Object> variables)
-            throws Exception {
+    public void generateSource(String sourceFilePath,
+            String templateName,
+            Map<String, Object> variables) throws Exception {
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(sourceFilePath), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(sourceFilePath),
+            StandardCharsets.UTF_8)) {
             String codeSnippet = generateSource(templateName, variables);
             writer.write(codeSnippet);
         }

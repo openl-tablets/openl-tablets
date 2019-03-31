@@ -42,15 +42,16 @@ public class InstantiationStrategiesReloadingTest {
     private static final MethodDescription GET_INT_FIELD = new MethodDescription("getIntField", null, int.class);
 
     private static MethodDescription getGetIntMethod(RulesInstantiationStrategy strategy) throws Exception {
-        return new MethodDescription("getInt", new Class[] { strategy.getClassLoader()
-            .loadClass("org.openl.example.TestBean") }, int.class);
+        return new MethodDescription("getInt",
+            new Class[] { strategy.getClassLoader().loadClass("org.openl.example.TestBean") },
+            int.class);
     }
 
     private static ProjectResolver resolver = ProjectResolver.instance();
     private ApiBasedInstantiationStrategy apiStrategy;
     private SingleModuleInstantiationStrategy dynamicStrategy;
 
-    private static SingleModuleInstantiationStrategy resolve(File folder) throws Exception{
+    private static SingleModuleInstantiationStrategy resolve(File folder) throws Exception {
         ProjectDescriptor project = resolver.resolve(folder);
         if (project != null) {
             List<PathEntry> classpath = project.getClasspath();
@@ -65,8 +66,9 @@ public class InstantiationStrategiesReloadingTest {
     }
 
     @Before
-    public void init() throws Exception{
-        apiStrategy = (ApiBasedInstantiationStrategy) resolve(new File("./test-resources/reloading-test/SimpleProject"));
+    public void init() throws Exception {
+        apiStrategy = (ApiBasedInstantiationStrategy) resolve(
+            new File("./test-resources/reloading-test/SimpleProject"));
         dynamicStrategy = resolve(new File("./test-resources/reloading-test/EngineProject"));
         List<Module> modules = new ArrayList<Module>(3);
         modules.add(apiStrategy.getModule());
@@ -165,10 +167,13 @@ public class InstantiationStrategiesReloadingTest {
             new MethodDescription[] { GET_INT_FIELD, GET_STRING_FIELD },
             new MethodDescription[0]);
         checkOriginal(dynamicStrategy.instantiate());
-        checkClass(dynamicStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
+        checkClass(dynamicStrategy.getInstanceClass(),
+            new MethodDescription[] { INVOKE, getGetIntMethod(dynamicStrategy) },
+            new MethodDescription[0]);
+        checkClass("org.openl.example.TestBean",
+            dynamicStrategy,
+            new MethodDescription[] { GET_INT_FIELD, GET_STRING_FIELD },
+            new MethodDescription[0]);
         makeChanges();
         apiStrategy.reset();
         checkModified(apiStrategy.instantiate());
@@ -181,10 +186,13 @@ public class InstantiationStrategiesReloadingTest {
             new MethodDescription[0]);
         dynamicStrategy.reset();
         checkModified(dynamicStrategy.instantiate());
-        checkClass(dynamicStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
+        checkClass(dynamicStrategy.getInstanceClass(),
+            new MethodDescription[] { INVOKE, getGetIntMethod(dynamicStrategy) },
+            new MethodDescription[0]);
+        checkClass("org.openl.example.TestBean",
+            dynamicStrategy,
+            new MethodDescription[] { GET_INT_FIELD, GET_STRING_FIELD },
+            new MethodDescription[0]);
     }
 
     @Test
@@ -198,10 +206,13 @@ public class InstantiationStrategiesReloadingTest {
             new MethodDescription[] { GET_INT_FIELD, GET_STRING_FIELD },
             new MethodDescription[0]);
         checkOriginal(dynamicStrategy.instantiate());
-        checkClass(dynamicStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
+        checkClass(dynamicStrategy.getInstanceClass(),
+            new MethodDescription[] { INVOKE, getGetIntMethod(dynamicStrategy) },
+            new MethodDescription[0]);
+        checkClass("org.openl.example.TestBean",
+            dynamicStrategy,
+            new MethodDescription[] { GET_INT_FIELD, GET_STRING_FIELD },
+            new MethodDescription[0]);
         makeChanges();
         apiStrategy.forcedReset();
         checkModified(apiStrategy.instantiate());

@@ -82,9 +82,9 @@ public class TreeFolder extends AbstractTreeNode {
 
     protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
         AProjectFolder filteredFolder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
-                folder.getProject(),
-                folder.getRepository(),
-                folder.getFolderPath());
+            folder.getProject(),
+            folder.getRepository(),
+            folder.getFolderPath());
         for (AProjectArtefact artefact : folder.getArtefacts()) {
             if (!filter.supports(artefact.getClass()) || filter.select(artefact)) {
                 filteredFolder.addArtefact(artefact);
@@ -93,8 +93,7 @@ public class TreeFolder extends AbstractTreeNode {
         return filteredFolder.getArtefacts();
     }
 
-
-    public void addChild(AProjectArtefact childArtefact){
+    public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
 
         String id = RepositoryUtils.getTreeNodeId(name);
@@ -108,7 +107,7 @@ public class TreeFolder extends AbstractTreeNode {
             add(treeFile);
         }
     }
-    
+
     @Override
     public void refresh() {
         super.refresh();

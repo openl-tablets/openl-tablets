@@ -500,7 +500,7 @@ public class DateToolTest {
                     { "1/1/0001", 1 },
                     { "2/28/1899", 9 },
                     { "5/14/3892", 20 },
-                    { "12/28/2013", 52}});
+                    { "12/28/2013", 52 } });
         }
 
         private final Date inputDate;
@@ -546,7 +546,7 @@ public class DateToolTest {
         public void before() {
             Locale.setDefault(Locale.US);
         }
-        
+
         @Test
         public void test_weekOfMonth() {
             int actual = DateTool.weekOfMonth(inputDate);

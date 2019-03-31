@@ -53,7 +53,7 @@ public class JcrProperty implements org.openl.rules.common.Property {
                     node.setProperty(name, c);
                     break;
                 case BOOLEAN:
-                    node.setProperty(name, (Boolean)value);
+                    node.setProperty(name, (Boolean) value);
                     break;
                 default:
                     // STRING
@@ -123,7 +123,7 @@ public class JcrProperty implements org.openl.rules.common.Property {
     public String getString() {
         return value.toString();
     }
-    
+
     @Override
     public void setValue(Date value) throws PropertyException {
         checkType(ValueType.DATE);

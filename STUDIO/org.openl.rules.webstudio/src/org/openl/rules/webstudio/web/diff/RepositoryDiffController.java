@@ -93,8 +93,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         init();
         List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsUW) {
-            excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
-                    excelArtefact.getName()));
+            excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(), excelArtefact.getName()));
         }
         return excelItems;
     }
@@ -102,8 +101,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     public List<SelectItem> getExcelFilesRepo() {
         List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsRepo) {
-            excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
-                    excelArtefact.getName()));
+            excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(), excelArtefact.getName()));
         }
         return excelItems;
     }
@@ -119,7 +117,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     public String init() {
         initProjectUW();
         initProjectRepo();
-        //setDiffTree(null);
+        // setDiffTree(null);
         return null;
     }
 
@@ -145,7 +143,10 @@ public class RepositoryDiffController extends AbstractDiffController {
             try {
                 projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
             } catch (Exception e) {
-                log.warn("Could not get project\"{}\" of version \"{}\"", projectUW.getName(), version.getVersionName(), e);
+                log.warn("Could not get project\"{}\" of version \"{}\"",
+                    projectUW.getName(),
+                    version.getVersionName(),
+                    e);
                 projectRepo = designTimeRepository.getProject(projectUW.getName());
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
@@ -169,8 +170,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         for (AProjectArtefact projectArtefact : projectArtefacts) {
             String artefactPath = projectArtefact.getArtefactPath().getStringValue();
             if (projectArtefact.isFolder()) {
-                excelArtefacts.addAll(getExcelArtefacts(project,
-                        projectArtefact.getArtefactPath().getStringValue()));
+                excelArtefacts.addAll(getExcelArtefacts(project, projectArtefact.getArtefactPath().getStringValue()));
             } else if (FileTypeHelper.isExcelFile(artefactPath)) {
                 excelArtefacts.add(projectArtefact);
             }
@@ -270,7 +270,9 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (cause == null) {
                 cause = e;
             }
-            String message = "Can't compare the files '" + FileUtils.getName(selectedExcelFileUW) + "' and '" + FileUtils.getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
+            String message = "Can't compare the files '" + FileUtils
+                .getName(selectedExcelFileUW) + "' and '" + FileUtils
+                    .getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
         }

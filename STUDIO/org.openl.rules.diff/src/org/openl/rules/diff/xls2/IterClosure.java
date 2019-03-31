@@ -8,8 +8,7 @@ package org.openl.rules.diff.xls2;
  */
 public interface IterClosure {
     /**
-     * Check whether tables are met some criteria and
-     * are moving into other place.
+     * Check whether tables are met some criteria and are moving into other place.
      * 
      * @param table1
      * @param table2

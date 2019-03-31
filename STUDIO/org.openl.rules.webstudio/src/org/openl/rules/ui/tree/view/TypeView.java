@@ -9,26 +9,24 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class TypeView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = {
-        new TableTreeNodeBuilder(),
-        new OpenMethodInstancesGroupTreeNodeBuilder(),
-        new TableInstanceTreeNodeBuilder(),
-        new TableVersionTreeNodeBuilder()
-    };
+    private final BaseTableTreeNodeBuilder[] sorters = { new TableTreeNodeBuilder(),
+            new OpenMethodInstancesGroupTreeNodeBuilder(),
+            new TableInstanceTreeNodeBuilder(),
+            new TableVersionTreeNodeBuilder() };
 
     @Override
     public String getName() {
-    	return "type";
+        return "type";
     }
 
     @Override
     public String getDisplayName() {
-    	return "Type";
+        return "Type";
     }
 
     @Override
     public String getDescription() {
-    	return "Organize projects by component type";
+        return "Organize projects by component type";
     }
 
     @Override

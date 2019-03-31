@@ -29,7 +29,7 @@ public class TableViewer {
     private LinkBuilder linkBuilder;
 
     private String mode;
-    
+
     private String view;
 
     private MetaInfoReader metaInfoReader;
@@ -43,7 +43,7 @@ public class TableViewer {
 
         switch (style.getHorizontalAlignment()) {
             case LEFT:
-                // Left by default    
+                // Left by default
                 break;
             case RIGHT:
                 cm.setHalign("right");
@@ -127,7 +127,8 @@ public class TableViewer {
             } else if (link(formattedValue)) {
                 // has Explanation link
                 content = formattedValue;
-            } else if (isShowLinks() && (CellMetaInfo.isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnHeader()))) {
+            } else if (isShowLinks() && (CellMetaInfo
+                .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnHeader()))) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
@@ -185,13 +186,14 @@ public class TableViewer {
                 }
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
-            
+
             if (metaInfo.isReturnHeader()) {
-                buff.append("<span class=\"title title-" + NodeType.OTHER.toString().toLowerCase() + " " + Constants.TABLE_EDITOR_META_INFO_CLASS + "\">");
+                buff.append("<span class=\"title title-" + NodeType.OTHER.toString()
+                    .toLowerCase() + " " + Constants.TABLE_EDITOR_META_INFO_CLASS + "\">");
                 buff.append("  &#9733;");
                 buff.append("<em>RETURN</em></span>");
             }
-            
+
             return buff.toString();
         } catch (RuntimeException e) {
             // Fallback to the formula without links
@@ -216,12 +218,12 @@ public class TableViewer {
 
         int h = IGridRegion.Tool.height(reg);
         int w = IGridRegion.Tool.width(reg);
-        
+
         boolean showHeader = true;
-        if ("business".equals(view)){
+        if ("business".equals(view)) {
             showHeader = false;
         }
-        
+
         TableModel tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRows);
 
@@ -360,8 +362,7 @@ public class TableViewer {
         }
 
         return bs1 == null ? bs2.getRgb()
-                : (bs2 == null ? bs1.getRgb()
-                        : (bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb()));
+                           : (bs2 == null ? bs1.getRgb() : (bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb()));
     }
 
     void setGrid(TableModel tm) {
@@ -488,9 +489,8 @@ public class TableViewer {
             return "none";
         }
 
-        return bs1 == null ? bs2.getStyle()
-                : (bs2 == null ? bs1.getStyle()
-                        : (bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle()));
+        return bs1 == null ? bs2
+            .getStyle() : (bs2 == null ? bs1.getStyle() : (bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle()));
     }
 
     int width(BorderStyle bs1, BorderStyle bs2) {

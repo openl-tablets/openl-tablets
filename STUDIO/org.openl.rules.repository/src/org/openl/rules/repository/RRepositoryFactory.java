@@ -13,6 +13,6 @@ public interface RRepositoryFactory extends Repository {
 
     /**
      * Initialize factory.
-     *  */
+     */
     void initialize() throws RRepositoryException;
 }

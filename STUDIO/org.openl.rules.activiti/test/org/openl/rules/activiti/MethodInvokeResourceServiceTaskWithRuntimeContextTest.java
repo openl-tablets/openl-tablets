@@ -48,13 +48,13 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        DoubleValue result = (DoubleValue) processEngine.getRuntimeService().getVariable(task.getExecutionId(),
-            "resultVariable");
+        DoubleValue result = (DoubleValue) processEngine.getRuntimeService()
+            .getVariable(task.getExecutionId(), "resultVariable");
 
         Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
-        
+
         processEngine.getTaskService().complete(task.getId());
-        
+
         variables = new HashMap<String, Object>();
 
         variables.put("usState", "NY");
@@ -65,8 +65,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        result = (DoubleValue) processEngine.getRuntimeService().getVariable(task.getExecutionId(),
-            "resultVariable");
+        result = (DoubleValue) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
         Assert.assertEquals(510.0d, result.doubleValue(), 1e-3);
     }

@@ -17,9 +17,9 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
 
     public SimpleParameterTreeNode(String fieldName,
-                                   Object value,
-                                   IOpenClass fieldType,
-                                   ParameterDeclarationTreeNode parent) {
+            Object value,
+            IOpenClass fieldType,
+            ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
@@ -44,19 +44,15 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         Class<?> instanceClass = type.getInstanceClass();
         if (boolean.class.isAssignableFrom(instanceClass)) {
             return "boolean";
-        } else if (Boolean.class.isAssignableFrom(instanceClass) ||
-                type instanceof DomainOpenClass ||
-                type instanceof JavaEnumDomain) {
+        } else if (Boolean.class
+            .isAssignableFrom(instanceClass) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
             return "selection";
         } else if (Date.class.isAssignableFrom(instanceClass)) {
             return "date";
-        } else if (Number.class.isAssignableFrom(instanceClass) ||
-                byte.class.isAssignableFrom(instanceClass) ||
-                short.class.isAssignableFrom(instanceClass) ||
-                int.class.isAssignableFrom(instanceClass) ||
-                long.class.isAssignableFrom(instanceClass) ||
-                float.class.isAssignableFrom(instanceClass) ||
-                double.class.isAssignableFrom(instanceClass)) {
+        } else if (Number.class.isAssignableFrom(instanceClass) || byte.class
+            .isAssignableFrom(instanceClass) || short.class.isAssignableFrom(instanceClass) || int.class
+                .isAssignableFrom(instanceClass) || long.class.isAssignableFrom(instanceClass) || float.class
+                    .isAssignableFrom(instanceClass) || double.class.isAssignableFrom(instanceClass)) {
             return "number";
         } else {
             return "string";
@@ -87,7 +83,8 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
             setValueForced(null);
         } else {
             try {
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType().getInstanceClass());
+                IString2DataConvertor convertor = String2DataConvertorFactory
+                    .getConvertor(getType().getInstanceClass());
                 setValueForced(convertor.parse(value, null));
             } catch (Exception e) {
                 // TODO message on UI

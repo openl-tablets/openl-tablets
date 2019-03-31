@@ -6,7 +6,7 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public interface RLock extends LockInfo{
+public interface RLock extends LockInfo {
     RLock NO_LOCK = new RLock() {
         @Override
         public Date getLockedAt() {
@@ -42,7 +42,7 @@ public interface RLock extends LockInfo{
 
     @Override
     boolean isLocked();
-    
+
     void lock(CommonUser user) throws RRepositoryException;
 
     void unlock(CommonUser user) throws RRepositoryException;

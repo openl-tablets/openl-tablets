@@ -6,7 +6,7 @@ package org.openl.rules.repository.jcr;
  * @author Aleh Bykhavets
  *
  */
-//TODO extract properties
+// TODO extract properties
 public interface JcrNT {
     // Node Types
     String NT_COMMON_ENTITY = "openl:entity";

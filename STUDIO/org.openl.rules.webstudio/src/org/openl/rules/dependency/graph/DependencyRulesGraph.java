@@ -14,9 +14,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 
 /**
- * Dependency rules graph, implemented using {@link org.jgrapht.graph.DefaultDirectedGraph}.
- * Vertexes are represented as {@link ExecutableMethod}, 
- * edges {@link DirectedEdge}.
+ * Dependency rules graph, implemented using {@link org.jgrapht.graph.DefaultDirectedGraph}. Vertexes are represented as
+ * {@link ExecutableMethod}, edges {@link DirectedEdge}.
  * 
  * @author DLiauchuk
  *
@@ -35,8 +34,8 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     }
 
     private void createGraph() {
-        EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> edgeFactory = 
-            new DirectedEdgeFactory<>(DirectedEdge.class);
+        EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> edgeFactory = new DirectedEdgeFactory<>(
+            DirectedEdge.class);
         graph = new DefaultDirectedGraph<>(edgeFactory);
     }
 
@@ -59,29 +58,29 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     }
 
     @Override
-    public DirectedEdge<ExecutableMethod> addEdge(
-            ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {        
+    public DirectedEdge<ExecutableMethod> addEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {
         return graph.addEdge(sourceVertex, targetVertex);
     }
 
     @Override
-    public boolean addEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex,
-            DirectedEdge<ExecutableMethod> e) {        
+    public boolean addEdge(ExecutableMethod sourceVertex,
+            ExecutableMethod targetVertex,
+            DirectedEdge<ExecutableMethod> e) {
         return graph.addEdge(sourceVertex, targetVertex, e);
     }
 
     @Override
-    public boolean addVertex(ExecutableMethod v) {        
+    public boolean addVertex(ExecutableMethod v) {
         return graph.addVertex(v);
     }
 
     @Override
-    public boolean containsEdge(DirectedEdge<ExecutableMethod> e) {        
+    public boolean containsEdge(DirectedEdge<ExecutableMethod> e) {
         return graph.containsEdge(e);
     }
 
     @Override
-    public boolean containsEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {        
+    public boolean containsEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {
         return graph.containsEdge(sourceVertex, targetVertex);
     }
 
@@ -91,60 +90,59 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     }
 
     @Override
-    public Set<DirectedEdge<ExecutableMethod>> edgeSet() {        
+    public Set<DirectedEdge<ExecutableMethod>> edgeSet() {
         return graph.edgeSet();
     }
 
     @Override
-    public Set<DirectedEdge<ExecutableMethod>> edgesOf(ExecutableMethod vertex) {        
+    public Set<DirectedEdge<ExecutableMethod>> edgesOf(ExecutableMethod vertex) {
         return graph.edgesOf(vertex);
     }
 
     @Override
     public Set<DirectedEdge<ExecutableMethod>> getAllEdges(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {        
+            ExecutableMethod targetVertex) {
         return graph.getAllEdges(sourceVertex, targetVertex);
     }
 
     @Override
-    public DirectedEdge<ExecutableMethod> getEdge(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {
+    public DirectedEdge<ExecutableMethod> getEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {
         return graph.getEdge(sourceVertex, targetVertex);
     }
 
     @Override
-    public EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> getEdgeFactory() {        
+    public EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> getEdgeFactory() {
         return graph.getEdgeFactory();
     }
 
     @Override
-    public ExecutableMethod getEdgeSource(DirectedEdge<ExecutableMethod> e) {        
+    public ExecutableMethod getEdgeSource(DirectedEdge<ExecutableMethod> e) {
         return graph.getEdgeSource(e);
     }
 
     @Override
-    public ExecutableMethod getEdgeTarget(DirectedEdge<ExecutableMethod> e) {        
+    public ExecutableMethod getEdgeTarget(DirectedEdge<ExecutableMethod> e) {
         return graph.getEdgeTarget(e);
     }
 
     @Override
-    public double getEdgeWeight(DirectedEdge<ExecutableMethod> e) {        
+    public double getEdgeWeight(DirectedEdge<ExecutableMethod> e) {
         return graph.getEdgeWeight(e);
     }
 
     @Override
-    public boolean removeAllEdges(Collection<? extends DirectedEdge<ExecutableMethod>> edges) {        
+    public boolean removeAllEdges(Collection<? extends DirectedEdge<ExecutableMethod>> edges) {
         return graph.removeAllEdges(edges);
     }
 
     @Override
     public Set<DirectedEdge<ExecutableMethod>> removeAllEdges(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {        
+            ExecutableMethod targetVertex) {
         return graph.removeAllEdges(sourceVertex, targetVertex);
     }
 
     @Override
-    public boolean removeAllVertices(Collection<? extends ExecutableMethod> vertices) {        
+    public boolean removeAllVertices(Collection<? extends ExecutableMethod> vertices) {
         return graph.removeAllVertices(vertices);
     }
 
@@ -154,35 +152,37 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
     }
 
     @Override
-    public DirectedEdge<ExecutableMethod> removeEdge(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {
+    public DirectedEdge<ExecutableMethod> removeEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {
         return graph.removeEdge(sourceVertex, targetVertex);
     }
 
     @Override
-    public boolean removeVertex(ExecutableMethod v) {        
+    public boolean removeVertex(ExecutableMethod v) {
         return graph.removeVertex(v);
     }
 
     @Override
-    public Set<ExecutableMethod> vertexSet() {        
+    public Set<ExecutableMethod> vertexSet() {
         return graph.vertexSet();
     }
-    
+
     @Override
-    public int inDegreeOf(ExecutableMethod arg0) {        
+    public int inDegreeOf(ExecutableMethod arg0) {
         return graph.inDegreeOf(arg0);
     }
+
     @Override
-    public Set<DirectedEdge<ExecutableMethod>> incomingEdgesOf(ExecutableMethod arg0) {        
+    public Set<DirectedEdge<ExecutableMethod>> incomingEdgesOf(ExecutableMethod arg0) {
         return graph.incomingEdgesOf(arg0);
     }
+
     @Override
-    public int outDegreeOf(ExecutableMethod arg0) {        
+    public int outDegreeOf(ExecutableMethod arg0) {
         return graph.outDegreeOf(arg0);
     }
+
     @Override
-    public Set<DirectedEdge<ExecutableMethod>> outgoingEdgesOf(ExecutableMethod arg0) {        
+    public Set<DirectedEdge<ExecutableMethod>> outgoingEdgesOf(ExecutableMethod arg0) {
         return graph.outgoingEdgesOf(arg0);
     }
 
@@ -190,14 +190,14 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
      * Filter incoming methods, finding {@link ExecutableMethod} and create graph.
      * 
      * @param methods {@link IOpenMethod}
-     * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods. 
+     * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods.
      */
     public static DependencyRulesGraph filterAndCreateGraph(Collection<IOpenMethod> methods) {
-        List<ExecutableMethod> rulesMethods = new ArrayList<>(); 
+        List<ExecutableMethod> rulesMethods = new ArrayList<>();
         if (methods != null && !methods.isEmpty()) {
             for (IOpenMethod method : methods) {
                 if (method instanceof ExecutableMethod) {
-                    rulesMethods.add((ExecutableMethod)method);
+                    rulesMethods.add((ExecutableMethod) method);
                 }
             }
             return new DependencyRulesGraph(rulesMethods);
@@ -205,7 +205,5 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
             throw new OpenlNotCheckedException("There is no rules for building graph.");
         }
     }
-    
-    
 
 }

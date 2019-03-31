@@ -8,7 +8,6 @@ import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.FastVector;
 
-
 /**
  * <p>
  * Title:

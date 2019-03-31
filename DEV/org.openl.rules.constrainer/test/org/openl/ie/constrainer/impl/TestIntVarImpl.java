@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 /**
  * <p>
  * Title:
@@ -52,8 +51,9 @@ public class TestIntVarImpl extends TestCase {
     }
 
     public void testForceMax() {
-        IntVar intvar = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_BIT_FAST), intvar1 = new IntVarImpl(C, -10,
-                10, "var1", IntVar.DOMAIN_BIT_SMALL), intvar2 = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_PLAIN);
+        IntVar intvar = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_BIT_FAST),
+                intvar1 = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_BIT_SMALL),
+                intvar2 = new IntVarImpl(C, -10, 10, "var1", IntVar.DOMAIN_PLAIN);
 
         try {
             intvar.setMax(9);
@@ -102,8 +102,8 @@ public class TestIntVarImpl extends TestCase {
     }
 
     public void testRemoveValue() {
-        Undo[] bit_fastUndo = new Undo[bit_fast.size() / 2 + 1], bit_smallUndo = new Undo[bit_fast.size() / 2 + 1], plainUndo = new Undo[bit_fast
-                .size() / 2 + 1];
+        Undo[] bit_fastUndo = new Undo[bit_fast.size() / 2 + 1], bit_smallUndo = new Undo[bit_fast.size() / 2 + 1],
+                plainUndo = new Undo[bit_fast.size() / 2 + 1];
         int counter = 0;
         for (int i = -10; i <= -1; i++) {
             bit_fastUndo[counter] = bit_fast.createUndo();
@@ -112,7 +112,8 @@ public class TestIntVarImpl extends TestCase {
                 bit_fast.removeValue(i);
                 bit_fast.removeValue(-i);
             } catch (Failure f) {
-                fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
+                fail(
+                    "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
             }
 
             bit_smallUndo[i - min] = bit_small.createUndo();
@@ -121,7 +122,8 @@ public class TestIntVarImpl extends TestCase {
                 bit_small.removeValue(i);
                 bit_small.removeValue(-i);
             } catch (Failure f) {
-                fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
+                fail(
+                    "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
             }
 
             plainUndo[i - min] = plain.createUndo();
@@ -239,8 +241,8 @@ public class TestIntVarImpl extends TestCase {
     }
 
     public void testSetMaxAndCreateUndo() {
-        Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()], plainUndo = new Undo[bit_fast
-                .size()];
+        Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
+                plainUndo = new Undo[bit_fast.size()];
 
         for (int i = 10; i >= -10; i--) {
             bit_fastUndo[max - i] = bit_fast.createUndo();
@@ -332,8 +334,8 @@ public class TestIntVarImpl extends TestCase {
     }
 
     public void testSetMinAndCreateUndo() {
-        Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()], plainUndo = new Undo[bit_fast
-                .size()];
+        Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
+                plainUndo = new Undo[bit_fast.size()];
 
         for (int i = -10; i <= 10; i++) {
             bit_fastUndo[i - min] = bit_fast.createUndo();

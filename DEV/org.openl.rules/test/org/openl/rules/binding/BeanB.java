@@ -2,15 +2,15 @@ package org.openl.rules.binding;
 
 public class BeanB {
     private String name;
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

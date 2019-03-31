@@ -10,19 +10,18 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * <p>
  * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
- * {@link org.openl.rules.security.Privileges#ADMIN} authority it will get
- * access even if it is not specified explicitly.
+ * {@link org.openl.rules.security.Privileges#ADMIN} authority it will get access even if it is not specified
+ * explicitly.
  * </p>
  * <p>
- * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix
- * indicating that it is a role. The prefix string is <Code>GROUP_</code>.
+ * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix indicating that it is a role. The prefix
+ * string is <Code>GROUP_</code>.
  * </p>
  * <p>
- * Abstains from voting if no configuration attribute commences with the role
- * prefix. Votes to grant access if there is an exact matching
- * {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
- * starting with the role prefix. Votes to deny access if there is no exact
- * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>.
+ * Abstains from voting if no configuration attribute commences with the role prefix. Votes to grant access if there is
+ * an exact matching {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
+ * starting with the role prefix. Votes to deny access if there is no exact matching <code>GrantedAuthority</code> to a
+ * <code>ConfigAttribute</code>.
  * </p>
  * <p>
  * All comparisons and prefixes are case sensitive.
@@ -32,8 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class AccessVoter implements AccessDecisionVoter<Object> {
     /**
-     * This implementation supports any type of class, because it does not query
-     * the presented secure object.
+     * This implementation supports any type of class, because it does not query the presented secure object.
      *
      * @param aClass the secure object
      *
@@ -55,8 +53,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
      * @param authentication Authentication (Principal)
      * @param object Ignored in current implementation
      * @param configAttributes attributes (required Authorities)
-     * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or
-     *         {@link #ACCESS_GRANTED}
+     * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or {@link #ACCESS_GRANTED}
      */
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {

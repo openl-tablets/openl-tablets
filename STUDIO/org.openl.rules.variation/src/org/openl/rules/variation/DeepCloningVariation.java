@@ -10,14 +10,12 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.rits.cloning.Cloner;
 
 /**
- * Variation that clones all arguments before the modification by another
- * variation(that is delegated.)
+ * Variation that clones all arguments before the modification by another variation(that is delegated.)
  * 
  * @author PUdalau, Marat Kamalov
  */
@@ -28,20 +26,20 @@ public class DeepCloningVariation extends Variation {
      * Suffix for generated variation ID if it have not been specified.
      */
     public static final String DEEP_CLONING_SUFFIX = "[Deep Cloning]";
-    
+
     private final Cloner cloner = ArgumentsClonerFactory.getCloner();
-    
+
     private Variation variation;
-    
+
     /**
      * Empty constructor required for WS data binding
      */
     public DeepCloningVariation() {
     }
-    
+
     /**
-     * Constructs deep-cloning variation with the generated ID(ID of delegated
-     * variation + {@link DeepCloningVariation#DEEP_CLONING_SUFFIX}).
+     * Constructs deep-cloning variation with the generated ID(ID of delegated variation +
+     * {@link DeepCloningVariation#DEEP_CLONING_SUFFIX}).
      * 
      * @param variation Delegated variation.
      */
@@ -89,7 +87,7 @@ public class DeepCloningVariation extends Variation {
         }
         return variation.currentValue(clonedParams);
     }
-    
+
     @Override
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
     }
@@ -100,7 +98,7 @@ public class DeepCloningVariation extends Variation {
     public Variation getDelegatedVariation() {
         return variation;
     }
-    
+
     public void setDelegatedVariation(Variation variation) {
         this.variation = variation;
     }

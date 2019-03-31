@@ -33,10 +33,10 @@ public class SimpleDiffTreePrinter extends DiffTreePrinter {
             DiffStatus s = e.getDiffStatus();
             writeStatus(s);
 
-            /*write(" ");
-            write(e.isHierarhyEqual() ? "H" : "-");
-            write(e.isChildrenEqual() ? "C" : "-");
-            write(e.isSelfEqual() ? "S" : "-");*/
+            /*
+             * write(" "); write(e.isHierarhyEqual() ? "H" : "-"); write(e.isChildrenEqual() ? "C" : "-");
+             * write(e.isSelfEqual() ? "S" : "-");
+             */
 
             write(" ");
             Projection p = e.getProjection();

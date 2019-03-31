@@ -22,17 +22,13 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
     }
 
     protected void printSession(HttpSession session) {
-        log.debug("\n" +
-                        "  id           : {}\n" +
-                        "  creation time: {}\n" +
-                        "  accessed time: {}\n" +
-                        "  max inactive : {}\n" +
-                        "  has rulesUserSession? {}",
-                session.getId(),
-                session.getCreationTime(),
-                session.getLastAccessedTime(),
-                session.getMaxInactiveInterval(),
-                getUserRules(session) != null);
+        log.debug(
+            "\n" + "  id           : {}\n" + "  creation time: {}\n" + "  accessed time: {}\n" + "  max inactive : {}\n" + "  has rulesUserSession? {}",
+            session.getId(),
+            session.getCreationTime(),
+            session.getLastAccessedTime(),
+            session.getMaxInactiveInterval(),
+            getUserRules(session) != null);
     }
 
     // Global (one for all, in scope of web application)

@@ -17,8 +17,9 @@ public class WorkspaceUserImpl implements WorkspaceUser {
     }
 
     /**
-     * Compare two users. <p/> Note: comparison is based on name of users, not
-     * IDs.
+     * Compare two users.
+     * <p/>
+     * Note: comparison is based on name of users, not IDs.
      */
     @Override
     public int compareTo(WorkspaceUser o) {

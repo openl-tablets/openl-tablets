@@ -28,7 +28,8 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static Repository newFactory(Map<String, Object> cfg, RepositoryMode repositoryMode) throws RRepositoryException {
+    public static Repository newFactory(Map<String, Object> cfg,
+            RepositoryMode repositoryMode) throws RRepositoryException {
         String type;
         switch (repositoryMode) {
             case DESIGN:
@@ -57,7 +58,6 @@ public class RepositoryFactoryInstatiator {
         } catch (UnsupportedEncodingException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
-
 
         try {
             Map<String, String> params = new HashMap<>();

@@ -9,7 +9,7 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
         private String separatorEscaper;
 
         public MultiChoiceParam(String[] choices, String[] displayValues, String separator, String separatorEscaper) {
-            
+
             super(choices, displayValues);
             this.separator = separator;
             this.setSeparatorEscaper(separatorEscaper);
@@ -45,8 +45,9 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     @Override
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
         TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
-                CE_MULTISELECT);
-        typeResponse.setParams(new MultiChoiceParam(getChoices(), getDisplayValues(),
+            CE_MULTISELECT);
+        typeResponse.setParams(new MultiChoiceParam(getChoices(),
+            getDisplayValues(),
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
         return typeResponse;

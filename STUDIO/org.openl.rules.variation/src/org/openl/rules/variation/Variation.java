@@ -10,25 +10,26 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
- * Common variations class. It should have unique ID and handle two phases:
- * modifying arguments before the calculations and rolling back changes after
- * execution.
+ * Common variations class. It should have unique ID and handle two phases: modifying arguments before the calculations
+ * and rolling back changes after execution.
  * 
- * To store previous values of changed fields there can be used stack passed as
- * argument(if it is needed.)
+ * To store previous values of changed fields there can be used stack passed as argument(if it is needed.)
  * 
  * @author PUdalau, Marat Kamalov
  */
 
 @XmlRootElement
-@XmlSeeAlso({ArgumentReplacementVariation.class, NoVariation.class, ComplexVariation.class, JXPathVariation.class, DeepCloningVariation.class})
+@XmlSeeAlso({ ArgumentReplacementVariation.class,
+        NoVariation.class,
+        ComplexVariation.class,
+        JXPathVariation.class,
+        DeepCloningVariation.class })
 public abstract class Variation {
     private String variationID;
 
@@ -71,8 +72,7 @@ public abstract class Variation {
      * Modifies original arguments before the calculation.
      * 
      * @param originalArguments Original arguments for calculation.
-     * @param stack The Stack instance to store previous values of changed
-     *            fields.
+     * @param stack The Stack instance to store previous values of changed fields.
      * @return Modified arguments.
      */
     public abstract Object[] applyModification(Object[] originalArguments);

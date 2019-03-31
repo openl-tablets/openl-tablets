@@ -22,8 +22,7 @@ public class ModulePageBean {
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
     /**
-     * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from
-     *         Environment table
+     * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table
      */
     public Map<String, Set<String>> getTableSyntaxNodes() {
         Set<String> values;

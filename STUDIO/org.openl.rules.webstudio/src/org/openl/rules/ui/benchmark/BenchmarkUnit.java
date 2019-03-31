@@ -3,9 +3,8 @@ package org.openl.rules.ui.benchmark;
 public abstract class BenchmarkUnit {
 
     /**
-     * return not null if this is a part of the chain; it means that multiple
-     * executions(iterations) can be done only on the whole chain from the very
-     * beginning
+     * return not null if this is a part of the chain; it means that multiple executions(iterations) can be done only on
+     * the whole chain from the very beginning
      */
 
     public String[] chain() {
@@ -58,8 +57,7 @@ public abstract class BenchmarkUnit {
     }
 
     /**
-     * This is the method you usually want to redefine. There can be cases
-     * though when you want to redefine runNtimes.
+     * This is the method you usually want to redefine. There can be cases though when you want to redefine runNtimes.
      * 
      * @throws Exception
      */

@@ -39,7 +39,7 @@ public class TreeDProject extends TreeFile {
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedBy() : null;
     }
-    
+
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {
@@ -52,7 +52,7 @@ public class TreeDProject extends TreeFile {
 
     public String getModifiedBy() {
         ProjectVersion projectVersion = (getProject()).getVersion();
-        /* zero*/
+        /* zero */
         if (projectVersion == null) {
             return null;
         }
@@ -60,7 +60,6 @@ public class TreeDProject extends TreeFile {
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedBy() : null;
     }
-    
 
     @Override
     public String getIconLeaf() {

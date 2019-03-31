@@ -64,8 +64,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * TODO Remove JSF dependency TODO Separate user session from app session TODO
- * Move settings to separate UserSettings class
+ * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
+ * class
  *
  * @author snshor
  */
@@ -79,7 +79,7 @@ public class WebStudio {
             return o1.getName().compareTo(o2.getName());
         }
     };
-    
+
     private final RulesTreeView typeView = new TypeView();
     private final RulesTreeView fileView = new FileView();
     private final RulesTreeView categoryView = new CategoryView();
@@ -380,11 +380,9 @@ public class WebStudio {
     }
 
     /**
-     * Returns path on the file system to user workspace this instance of web
-     * studio works with.
+     * Returns path on the file system to user workspace this instance of web studio works with.
      *
-     * @return path to openL projects workspace, i.e. folder containing openL
-     *         projects.
+     * @return path to openL projects workspace, i.e. folder containing openL projects.
      */
     public String getWorkspacePath() {
         return workspacePath;
@@ -400,7 +398,7 @@ public class WebStudio {
         }
         return projects;
     }
-    
+
     public void removeBenchmark(int i) {
         benchmarks.remove(i);
     }
@@ -493,7 +491,8 @@ public class WebStudio {
         if (project == null) {
             return null;
         }
-        return CollectionUtils.findFirst(project.getModules(), module -> module.getName() != null && module.getName().equals(moduleName));
+        return CollectionUtils.findFirst(project.getModules(),
+            module -> module.getName() != null && module.getName().equals(moduleName));
     }
 
     public String updateModule() {
@@ -835,8 +834,7 @@ public class WebStudio {
      * Checks if there is any project with specified name in repository.
      *
      * @param name physical or logical project name
-     * @return true only if there is a project with specified name and it is not
-     *         current project
+     * @return true only if there is a project with specified name and it is not current project
      */
     public boolean isProjectExists(final String name) {
         HttpSession session = FacesUtils.getSession();
@@ -1121,6 +1119,5 @@ public class WebStudio {
             return Collections.emptyList();
         }
     }
-
 
 }

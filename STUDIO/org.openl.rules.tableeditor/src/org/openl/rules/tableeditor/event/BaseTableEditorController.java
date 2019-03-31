@@ -62,8 +62,13 @@ public class BaseTableEditorController {
             // This method is invoked only while editing the table. So we can assume that mode is EDIT.
             mode = Constants.MODE_EDIT;
         }
-        return TableModel.initializeTableModel(table, null, numRows, editor.getLinkBuilder(), mode, editor.getView(),
-                editorModel.getMetaInfoReader());
+        return TableModel.initializeTableModel(table,
+            null,
+            numRows,
+            editor.getLinkBuilder(),
+            mode,
+            editor.getView(),
+            editorModel.getMetaInfoReader());
     }
 
     protected String render(String editorId) {

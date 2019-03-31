@@ -9,12 +9,12 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class TypeNamePair {
 
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     private String type;
 
     private boolean iterable;
 
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = WizardUtils.INVALID_NAME_OF_PARAMETER_MESSAGE)
     private String name;
 
@@ -57,7 +57,7 @@ public class TypeNamePair {
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof TypeNamePair)) {
             return false;
         }
@@ -67,23 +67,25 @@ public class TypeNamePair {
             return false;
         }
 
-        if (this.name == null && tnp.getName() == null && this.type == null && tnp.type == null &&
-                this.isIterable() == tnp.isIterable()) {
+        if (this.name == null && tnp.getName() == null && this.type == null && tnp.type == null && this
+            .isIterable() == tnp.isIterable()) {
             return true;
         }
 
-        if (this.name == null && tnp.getName() == null && this.type.equals(tnp.type) && this.isIterable() == tnp.isIterable()) {
+        if (this.name == null && tnp.getName() == null && this.type.equals(tnp.type) && this.isIterable() == tnp
+            .isIterable()) {
             return true;
         }
-        
-        if (this.name.equals(tnp.getName()) && this.type == null & tnp.type == null && this.isIterable() == tnp.isIterable()) {
+
+        if (this.name.equals(tnp.getName()) && this.type == null & tnp.type == null && this.isIterable() == tnp
+            .isIterable()) {
             return true;
         }
 
         if (this.name.equals(tnp.getName()) && this.type.equals(tnp.type) && this.isIterable() == tnp.isIterable()) {
             return true;
         }
-        
+
         return false;
     }
 

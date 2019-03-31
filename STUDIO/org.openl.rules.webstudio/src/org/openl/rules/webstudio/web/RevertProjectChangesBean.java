@@ -24,8 +24,9 @@ public class RevertProjectChangesBean {
 
     private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
 
-    public String dateModifiedPattern = WebStudioUtils.getWebStudio().getSystemConfigManager()
-            .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
+    public String dateModifiedPattern = WebStudioUtils.getWebStudio()
+        .getSystemConfigManager()
+        .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
     }
@@ -43,8 +44,7 @@ public class RevertProjectChangesBean {
             String sourceName = historyMap.get(modifiedOn).getName();
 
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
-            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(
-                    new Date(modifiedOn));
+            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(modifiedOn));
             historyItem.setVersion(modifiedOn);
             historyItem.setModifiedOn(modifiedOnStr);
             historyItem.setSourceName(sourceName);
@@ -105,10 +105,9 @@ public class RevertProjectChangesBean {
                     }
                 }
 
-                UploadExcelDiffController diffController =
-                        (UploadExcelDiffController) FacesUtils.getBackingBean("uploadExcelDiffController");
-                diffController.compare(
-                        Arrays.asList(file1ToCompare, file2ToCompare));
+                UploadExcelDiffController diffController = (UploadExcelDiffController) FacesUtils
+                    .getBackingBean("uploadExcelDiffController");
+                diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

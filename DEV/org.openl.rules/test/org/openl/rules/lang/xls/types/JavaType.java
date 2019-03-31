@@ -1,7 +1,7 @@
 package org.openl.rules.lang.xls.types;
 
 public class JavaType {
-    
+
     String jstring;
 
     public String getJstring() {

@@ -13,10 +13,10 @@ public class TestTable {
     public void canRetrieveTestSuiteForIncorrectFieldArrayAccess() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
-                .setExecutionMode(false)
-                .setProject("test-resources/org/openl/rules/table")
-                .setModule("EPBDS-7145")
-                .build();
+            .setExecutionMode(false)
+            .setProject("test-resources/org/openl/rules/table")
+            .setModule("EPBDS-7145")
+            .build();
         IOpenClass openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClassWithErrors();
 
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);

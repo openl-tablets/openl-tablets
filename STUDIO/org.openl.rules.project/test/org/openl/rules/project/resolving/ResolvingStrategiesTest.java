@@ -14,7 +14,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 public class ResolvingStrategiesTest {
 
     @Test
-    public void testDescriptor() throws Exception{
+    public void testDescriptor() throws Exception {
         ProjectDescriptorBasedResolvingStrategy strategy = new ProjectDescriptorBasedResolvingStrategy();
         File projectFolder = new File("test-resources/descriptor");
         assertTrue(strategy.isRulesProject(projectFolder));
@@ -30,7 +30,7 @@ public class ResolvingStrategiesTest {
     }
 
     @Test
-    public void testSimple() throws Exception{
+    public void testSimple() throws Exception {
         ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
         File projectFolder = new File("test-resources/excel/");
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));

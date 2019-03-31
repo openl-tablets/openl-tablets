@@ -28,8 +28,9 @@ public class DavexRepositoryConfigImpl implements RepositoryConfig {
         this(uri, CacheBehaviour.INVALIDATE, DEFAULT_ITEM_CACHE_SIZE);
     }
 
-    public DavexRepositoryConfigImpl(String uri, CacheBehaviour cacheBehaviour, int itemCacheSize)
-            throws RepositoryException {
+    public DavexRepositoryConfigImpl(String uri,
+            CacheBehaviour cacheBehaviour,
+            int itemCacheSize) throws RepositoryException {
         this.cacheBehaviour = cacheBehaviour;
         this.itemCacheSize = itemCacheSize;
         service = createService(uri);

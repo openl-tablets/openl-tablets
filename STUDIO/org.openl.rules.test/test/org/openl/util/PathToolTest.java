@@ -23,7 +23,8 @@ public class PathToolTest {
 
         String originalPath = url.getPath();
         String parent = "tst/org/";
-        String expected = originalPath.substring(0, originalPath.lastIndexOf(parent) + parent.length()) + "include/XyZ.java";
+        String expected = originalPath.substring(0,
+            originalPath.lastIndexOf(parent) + parent.length()) + "include/XyZ.java";
         assertEquals(expected, PathTool.mergePath(originalPath, "./../include/XyZ.java"));
 
         assertEquals("../include/foo.xls", PathTool.mergePath("../include/", "foo.xls"));

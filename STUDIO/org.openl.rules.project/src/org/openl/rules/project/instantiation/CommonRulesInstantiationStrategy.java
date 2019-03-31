@@ -9,20 +9,18 @@ import org.openl.runtime.AEngineFactory;
 public abstract class CommonRulesInstantiationStrategy implements RulesInstantiationStrategy {
 
     /**
-     * <code>Class</code> object of interface or class corresponding to rules
-     * with all published methods and fields.
+     * <code>Class</code> object of interface or class corresponding to rules with all published methods and fields.
      */
     private Class<?> serviceClass;
 
     /**
-     * Flag indicating is it execution mode or not. In execution mode all meta
-     * info that is not used in rules running is being cleaned.
+     * Flag indicating is it execution mode or not. In execution mode all meta info that is not used in rules running is
+     * being cleaned.
      */
     private boolean executionMode;
 
     /**
-     * <code>ClassLoader</code> that is used in strategy to compile and
-     * instantiate Openl rules.
+     * <code>ClassLoader</code> that is used in strategy to compile and instantiate Openl rules.
      */
     protected ClassLoader classLoader;
 
@@ -34,8 +32,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     private Map<String, Object> externalParameters;
 
     /**
-     * Creates rules instantiation strategy with empty {@link ClassLoader}.(See
-     * {@link #getClassLoader()} for more<br>
+     * Creates rules instantiation strategy with empty {@link ClassLoader}.(See {@link #getClassLoader()} for more<br>
      * information which classLoader will be used).
      * 
      * @param executionMode {@link #executionMode}
@@ -66,7 +63,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     @Override
-    public ClassLoader getClassLoader() throws RulesInstantiationException{
+    public ClassLoader getClassLoader() throws RulesInstantiationException {
         if (classLoader == null) {
             classLoader = initClassLoader();
         }
@@ -88,14 +85,14 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     @Override
     public Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        try{
+        try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
             if (isServiceClassDefined()) {
                 return getServiceClass();
             } else {
                 return getGeneratedRulesClass();
             }
-        }finally{
+        } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
@@ -135,9 +132,8 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     }
 
     /**
-     * Inner implementation. Creates instance of class handling all rules
-     * invocations. The class will be instance of class got with
-     * {@link #getServiceClass()}.
+     * Inner implementation. Creates instance of class handling all rules invocations. The class will be instance of
+     * class got with {@link #getServiceClass()}.
      * 
      * @param rulesClass
      * @param useExisting
@@ -156,15 +152,15 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public void setExternalParameters(Map<String, Object> parameters) {
         this.externalParameters = parameters;
     }
-    
+
     @Override
     public CompiledOpenClass compile() throws RulesInstantiationException {
-    	return compileInternal(getEngineFactory());
+        return compileInternal(getEngineFactory());
     }
-    
+
     protected abstract AEngineFactory getEngineFactory() throws RulesInstantiationException;
 
-	protected final CompiledOpenClass compileInternal(AEngineFactory engineFactory) throws RulesInstantiationException {
+    protected final CompiledOpenClass compileInternal(AEngineFactory engineFactory) throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
@@ -173,6 +169,5 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-    
-    
+
 }

@@ -7,7 +7,7 @@ import org.openl.util.ASelector;
  * 
  * @author Aliaksandr Antonik.
  */
-public class AllFilter<T> extends ASelector<T> implements IFilter<T>  {
+public class AllFilter<T> extends ASelector<T> implements IFilter<T> {
     /**
      * Returns <code>true</code> for any object, including <code>null</code>.
      * 

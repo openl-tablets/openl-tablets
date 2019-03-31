@@ -51,7 +51,8 @@ public class ExecutionModeTest {
 
     @Test
     public void testTBasicExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/algorithm/Test_Factorial.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
+            "./test/rules/algorithm/Test_Factorial.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -62,27 +63,27 @@ public class ExecutionModeTest {
         assertEquals(120, result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("modification",
-            new IOpenClass[] { JavaOpenClass.INT });
-        if (openMethod instanceof Algorithm){
+        IOpenMethod openMethod = moduleOpenClass.getMethod("modification", new IOpenClass[] { JavaOpenClass.INT });
+        if (openMethod instanceof Algorithm) {
             assertNull(((Algorithm) openMethod).getBoundNode());
-        }else{
-            if (openMethod instanceof OpenMethodDispatcher){
-               OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
-               for (IOpenMethod m : openMethodDispatcher.getCandidates()){
-                   if (m instanceof Algorithm){
-                       assertNull(((Algorithm) m).getBoundNode());
-                   }
-               }
+        } else {
+            if (openMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+                for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
+                    if (m instanceof Algorithm) {
+                        assertNull(((Algorithm) m).getBoundNode());
+                    }
+                }
             }
         }
     }
 
     @Test
     public void testSpreadsheetExecution() throws NoSuchMethodException,
-                                          InvocationTargetException,
-                                          IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
+                                           InvocationTargetException,
+                                           IllegalAccessException {
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
+            "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -94,24 +95,24 @@ public class ExecutionModeTest {
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("calc", new IOpenClass[] {});
-        if (openMethod instanceof Spreadsheet){
+        if (openMethod instanceof Spreadsheet) {
             assertNull(((Spreadsheet) openMethod).getBoundNode());
-        }else{
-            if (openMethod instanceof OpenMethodDispatcher){
-               OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
-               for (IOpenMethod m : openMethodDispatcher.getCandidates()){
-                   if (m instanceof Spreadsheet){
-                       assertNull(((Spreadsheet) m).getBoundNode());
-                   }
-               }
+        } else {
+            if (openMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+                for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
+                    if (m instanceof Spreadsheet) {
+                        assertNull(((Spreadsheet) m).getBoundNode());
+                    }
+                }
             }
         }
     }
 
     @Test
     public void testColumnMatchExecution() throws NoSuchMethodException,
-                                          InvocationTargetException,
-                                          IllegalAccessException {
+                                           InvocationTargetException,
+                                           IllegalAccessException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/cmatch1/match4-1.xls");
         engineFactory.setExecutionMode(true);
 
@@ -125,23 +126,24 @@ public class ExecutionModeTest {
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("runColumnMatch",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT });
-        if (openMethod instanceof ColumnMatch){
+        if (openMethod instanceof ColumnMatch) {
             assertNull(((ColumnMatch) openMethod).getBoundNode());
-        }else{
-            if (openMethod instanceof OpenMethodDispatcher){
-               OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
-               for (IOpenMethod m : openMethodDispatcher.getCandidates()){
-                   if (m instanceof ColumnMatch){
-                       assertNull(((ColumnMatch) m).getBoundNode());
-                   }
-               }
+        } else {
+            if (openMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+                for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
+                    if (m instanceof ColumnMatch) {
+                        assertNull(((ColumnMatch) m).getBoundNode());
+                    }
+                }
             }
         }
     }
 
     @Test
     public void testOverloaded() {
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/Overload.xls", ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/Overload.xls",
+            ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = (ITestI) engineFactory.newInstance();
@@ -169,12 +171,14 @@ public class ExecutionModeTest {
     @Test
     public void testSkipedTables() {
         // in execution mode test tables and run tables have to be skipped
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/testmethod/UserExceptionTest.xlsx");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
+            "./test/rules/testmethod/UserExceptionTest.xlsx");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenField testMethod = moduleOpenClass.getField("driverRiskTest1");
         assertNull(testMethod);
-        RulesEngineFactory<?> factory2 = new RulesEngineFactory<Object>("./test/rules/overload/RunMethodOverloadSupport.xls");
+        RulesEngineFactory<?> factory2 = new RulesEngineFactory<Object>(
+            "./test/rules/overload/RunMethodOverloadSupport.xls");
         factory2.setExecutionMode(true);
         IOpenClass moduleOpenClass2 = factory2.getCompiledOpenClass().getOpenClass();
         IOpenField runMethod = moduleOpenClass2.getField("driverRiskTest");
@@ -187,13 +191,14 @@ public class ExecutionModeTest {
         engineFactory.setExecutionMode(true);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod methodWithError = moduleOpenClass.getMethod("npe", new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        IOpenMethod methodWithError = moduleOpenClass.getMethod("npe",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         assertNotNull(methodWithError);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("npe", Integer.class);
         assertNotNull(method);
         Object instance = engineFactory.newInstance();
-        method.invoke(instance, new Object[] {null});
+        method.invoke(instance, new Object[] { null });
     }
 }

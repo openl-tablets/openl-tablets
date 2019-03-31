@@ -34,9 +34,13 @@ public class OpenLJUnitTest {
             for (ITestUnit testUnit : res.getTestUnits()) {
                 if (!testUnit.getErrors().isEmpty()) {
                     assertEquals(1, testUnit.getErrors().size());
-                    assertTrue(testUnit.getErrors().get(0).getSummary().contains(
-                        "Object '0' is outside of a valid domain") || testUnit.getErrors().get(0).getSummary().contains(
-                            "Object '0.0' is outside of a valid domain"));
+                    assertTrue(testUnit.getErrors()
+                        .get(0)
+                        .getSummary()
+                        .contains("Object '0' is outside of a valid domain") || testUnit.getErrors()
+                            .get(0)
+                            .getSummary()
+                            .contains("Object '0.0' is outside of a valid domain"));
                 }
             }
         }

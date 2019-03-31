@@ -5,8 +5,7 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 public class MultilineEditor implements ICellEditor {
 
     /**
-     * @return bean containing information that will be processed on the client
-     *         to initialize JS editor
+     * @return bean containing information that will be processed on the client to initialize JS editor
      */
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {

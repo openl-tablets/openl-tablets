@@ -84,10 +84,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 if (!BucketVersioningConfiguration.ENABLED.equals(status)) {
                     try {
                         s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
-                                new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+                            new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
                     } catch (SdkClientException e) {
                         // Possibly don't have permission
-                        String message = "Bucket versioning status: " + status + ". Can't enable versioning. Error message: " + e.getMessage();
+                        String message = "Bucket versioning status: " + status + ". Can't enable versioning. Error message: " + e
+                            .getMessage();
                         log.warn(message);
                     }
                 }
@@ -99,7 +100,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             // Check the connection
             s3.listObjectsV2(bucketName);
             list("");
-            monitor = new ChangesMonitor( new S3RevisionGetter(), listenerTimerPeriod);
+            monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
         } catch (SdkClientException | IOException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
@@ -113,9 +114,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             VersionListing versionListing = null;
 
             do {
-                versionListing = versionListing == null ?
-                                 s3.listVersions(bucketName, path) :
-                                 s3.listNextBatchOfVersions(versionListing);
+                versionListing = versionListing == null ? s3.listVersions(bucketName, path)
+                                                        : s3.listNextBatchOfVersions(versionListing);
                 List<S3VersionSummary> versionSummaries = versionListing.getVersionSummaries();
                 if (versionSummaries.isEmpty()) {
                     return result;
@@ -151,9 +151,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             S3VersionSummary latest = null;
 
             do {
-                versionListing = versionListing == null ?
-                                 s3.listVersions(bucketName, name) :
-                                 s3.listNextBatchOfVersions(versionListing);
+                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
+                                                        : s3.listNextBatchOfVersions(versionListing);
                 List<S3VersionSummary> versionSummaries = versionListing.getVersionSummaries();
                 if (versionSummaries.isEmpty()) {
                     return null;
@@ -265,9 +264,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             VersionListing versionListing = null;
 
             do {
-                versionListing = versionListing == null ?
-                                 s3.listVersions(bucketName, name) :
-                                 s3.listNextBatchOfVersions(versionListing);
+                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
+                                                        : s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
                     if (versionSummary.getKey().equals(name)) {
                         result.add(createFileData(versionSummary));
@@ -293,9 +291,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
             S3VersionSummary summary = null;
             do {
-                versionListing = versionListing == null ?
-                                 s3.listVersions(bucketName, name) :
-                                 s3.listNextBatchOfVersions(versionListing);
+                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
+                                                        : s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
                     if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
                         return createFileData(versionSummary);
@@ -316,9 +313,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
             S3VersionSummary summary = null;
             do {
-                versionListing = versionListing == null ?
-                                 s3.listVersions(bucketName, name) :
-                                 s3.listNextBatchOfVersions(versionListing);
+                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
+                                                        : s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
                     if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
                         InputStream content = null;
@@ -362,7 +358,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
-            CopyObjectRequest request = new CopyObjectRequest(bucketName, srcName, version, bucketName, destData.getName());
+            CopyObjectRequest request = new CopyObjectRequest(bucketName,
+                srcName,
+                version,
+                bucketName,
+                destData.getName());
             CopyObjectResult result = s3.copyObject(request);
 
             onModified();
@@ -397,9 +397,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         VersionListing versionListing = null;
 
         do {
-            versionListing = versionListing == null ?
-                             s3.listVersions(bucketName, name) :
-                             s3.listNextBatchOfVersions(versionListing);
+            versionListing = versionListing == null ? s3.listVersions(bucketName, name)
+                                                    : s3.listNextBatchOfVersions(versionListing);
             for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
                 if (versionSummary.getKey().equals(name)) {
                     s3.deleteVersion(bucketName, name, versionSummary.getVersionId());

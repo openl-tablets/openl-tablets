@@ -88,14 +88,14 @@ public class TreeBean {
         }
         return utilityTablePredicate;
     }
-    
+
     private static class UtilityTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
         private boolean hideUtilityTables;
-        
+
         public UtilityTablePredicate(boolean hideUtilityTables) {
-            this.hideUtilityTables = hideUtilityTables; 
+            this.hideUtilityTables = hideUtilityTables;
         }
-        
+
         @Override
         public boolean evaluate(ITreeElement tableNode) {
             if (tableNode.isLeaf() && tableNode.getObject() instanceof ISyntaxNode) {
@@ -105,8 +105,8 @@ public class TreeBean {
                         return true;
                     }
                 }
-                
-                //Always hide dispatcher tables
+
+                // Always hide dispatcher tables
                 if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
                     if (DispatcherTablesBuilder.isDispatcherTable((TableSyntaxNode) tableNode.getObject())) {
                         return true;

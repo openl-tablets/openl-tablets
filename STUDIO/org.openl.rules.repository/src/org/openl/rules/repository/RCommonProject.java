@@ -13,17 +13,15 @@ public interface RCommonProject {
     void commit(CommonUser user) throws RRepositoryException;
 
     /**
-     * Marks the project for deletion. Project is too important to be deleted so
-     * easily.
+     * Marks the project for deletion. Project is too important to be deleted so easily.
      *
      * @throws RDeleteException if failed
      */
     void delete(CommonUser user) throws RRepositoryException;
 
     /**
-     * Erases the project from the repository completely. Before erasing the
-     * project must be marked for deletion. I.e. {@link #delete()} should be
-     * invoked. Otherwise this method will throw exception.
+     * Erases the project from the repository completely. Before erasing the project must be marked for deletion. I.e.
+     * {@link #delete()} should be invoked. Otherwise this method will throw exception.
      *
      * @throws RDeleteException if failed
      */
@@ -41,11 +39,9 @@ public interface RCommonProject {
     boolean isLocked() throws RRepositoryException;
 
     /**
-     * Returns whether the project is marked for deletion. If a project is
-     * marked for deletion, it should not be used.
+     * Returns whether the project is marked for deletion. If a project is marked for deletion, it should not be used.
      *
-     * @return <code>true</code> if project is marked for deletion;
-     *         <code>false</code> otherwise
+     * @return <code>true</code> if project is marked for deletion; <code>false</code> otherwise
      */
     boolean isMarked4Deletion() throws RRepositoryException;
 

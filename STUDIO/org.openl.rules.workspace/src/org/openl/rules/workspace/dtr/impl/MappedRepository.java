@@ -164,7 +164,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+        return toExternal(mapping,
+            delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
     }
 
     @Override
@@ -346,9 +347,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public void initialize() throws RRepositoryException {
         try {
             Map<String, String> newMapping = readExternalToInternalMap(delegate,
-                    repositoryMode,
-                    configFile,
-                    baseFolder);
+                repositoryMode,
+                configFile,
+                baseFolder);
 
             setExternalToInternal(newMapping);
         } catch (IOException e) {
@@ -359,18 +360,18 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     /**
      * Load mapping from properties file.
      *
-     * @param delegate   original repository
+     * @param delegate original repository
      * @param repositoryMode Repository mode: design or deploy config.
      * @param configFile properties file
      * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
-    private Map<String, String>  readExternalToInternalMap(FolderRepository delegate,
-            RepositoryMode repositoryMode, String configFile,
+    private Map<String, String> readExternalToInternalMap(FolderRepository delegate,
+            RepositoryMode repositoryMode,
+            String configFile,
             String baseFolder) throws IOException {
-        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ?
-                                                            baseFolder : baseFolder + "/";
+        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
         Map<String, String> externalToInternal = new HashMap<>();
         FileItem fileItem = delegate.read(configFile);
         if (fileItem == null) {
@@ -425,12 +426,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     /**
-     * Detect existing projects and Deploy Configurations based on rules.xml and {@link ArtefactProperties#DESCRIPTORS_FILE}.
-     * If there are several projects with same name, suffix will be added to them
+     * Detect existing projects and Deploy Configurations based on rules.xml and
+     * {@link ArtefactProperties#DESCRIPTORS_FILE}. If there are several projects with same name, suffix will be added
+     * to them
      *
-     * @param delegate       repository to detect projects
-     * @param repositoryMode repository mode. If design repository, rules.xml will be searched, otherwise {@link ArtefactProperties#DESCRIPTORS_FILE}
-     * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @param delegate repository to detect projects
+     * @param repositoryMode repository mode. If design repository, rules.xml will be searched, otherwise
+     *            {@link ArtefactProperties#DESCRIPTORS_FILE}
+     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return generated mapping
      */
     private Map<String, String> generateExternalToInternalMap(FolderRepository delegate,

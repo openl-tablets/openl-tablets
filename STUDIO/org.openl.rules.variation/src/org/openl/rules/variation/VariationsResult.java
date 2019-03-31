@@ -10,7 +10,6 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,9 +24,8 @@ import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 
 /**
- * Container of result from calculation with variations. Stores results for each
- * particular variation + original result(means without variations) that can be
- * retrieved by special ID, see {@link NoVariation#ORIGINAL_CALCULATION}.
+ * Container of result from calculation with variations. Stores results for each particular variation + original
+ * result(means without variations) that can be retrieved by special ID, see {@link NoVariation#ORIGINAL_CALCULATION}.
  * 
  * Also stores exceptions for variation that was failed.
  * 
@@ -86,7 +84,7 @@ public class VariationsResult<T> {
     public Map<String, T> getVariationResults() {
         return Collections.unmodifiableMap(variationResults);
     }
-    
+
     public void setVariationResults(Map<String, T> variationResults) {
         this.variationResults = variationResults;
     }
@@ -97,7 +95,7 @@ public class VariationsResult<T> {
     public Map<String, String> getVariationFailures() {
         return Collections.unmodifiableMap(variationFailures);
     }
-    
+
     public void setVariationFailures(Map<String, String> variationFailures) {
         this.variationFailures = variationFailures;
     }
@@ -190,8 +188,7 @@ public class VariationsResult<T> {
     }
 
     /**
-     * @return IDs of all processed variations: successfully calculated and
-     *         failed ones.
+     * @return IDs of all processed variations: successfully calculated and failed ones.
      */
     @XmlTransient
     public String[] getAllProcessedVariationIDs() {

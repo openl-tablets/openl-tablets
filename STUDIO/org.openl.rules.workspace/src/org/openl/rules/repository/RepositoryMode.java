@@ -5,7 +5,8 @@ public enum RepositoryMode {
     DEPLOY_CONFIG,
     PRODUCTION;
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return name().toLowerCase();
     }
 

@@ -140,7 +140,7 @@ public class DispatchingTest {
     }
 
     public void calcBenchmark() {
-        IRuntimeEnv runtimeEnv = ((IEngineWrapper)instance).getRuntimeEnv();
+        IRuntimeEnv runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
 
         IRulesRuntimeContext context1 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context1.setCountry(CountriesEnum.US);

@@ -12,7 +12,7 @@ public class ArrayLoadTest {
 
     @Test
     public void testMultiRowArrayLoad() {
-        ITestI instance =  TestUtils.create(SRC, ITestI.class);
+        ITestI instance = TestUtils.create(SRC, ITestI.class);
 
         Customer[] customers = instance.getCustomers();
         assertEquals(2, customers.length);

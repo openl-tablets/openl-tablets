@@ -78,8 +78,8 @@ public class TableEditor {
             Collection<IGridFilter> collection = (Collection<IGridFilter>) filtersParam;
             filters = collection.toArray(new IGridFilter[0]);
         } else {
-            throw new IllegalArgumentException(String.format("Unsupported type of parameter \"%s\"",
-                    Constants.ATTRIBUTE_FILTERS));
+            throw new IllegalArgumentException(
+                String.format("Unsupported type of parameter \"%s\"", Constants.ATTRIBUTE_FILTERS));
         }
     }
 

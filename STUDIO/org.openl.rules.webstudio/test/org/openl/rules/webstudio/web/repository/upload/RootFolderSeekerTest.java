@@ -30,7 +30,6 @@ public class RootFolderSeekerTest {
         assertEquals(null, folderExtractor.extractFromRootFolder(null));
     }
 
-
     @Test
     public void testFilesInRootDirectory() {
         Set<String> folderNames = new HashSet<String>();

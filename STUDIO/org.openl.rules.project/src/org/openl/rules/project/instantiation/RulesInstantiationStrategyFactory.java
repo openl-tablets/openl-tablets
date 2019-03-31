@@ -8,18 +8,22 @@ public final class RulesInstantiationStrategyFactory {
     }
 
     /**
-     * @return {@link SingleModuleInstantiationStrategy} instance that will compile
-     *         {@link Module}
+     * @return {@link SingleModuleInstantiationStrategy} instance that will compile {@link Module}
      */
     public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode) {
         return getStrategy(moduleInfo, executionMode, null);
     }
 
-    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode, IDependencyManager dependencyManager) {
+    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         return getStrategy(moduleInfo, executionMode, dependencyManager, null);
     }
 
-    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
+    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo,
+            boolean executionMode,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader) {
         return new ApiBasedInstantiationStrategy(moduleInfo, executionMode, dependencyManager, classLoader);
     }
 }

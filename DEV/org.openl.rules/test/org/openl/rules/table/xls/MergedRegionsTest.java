@@ -24,8 +24,7 @@ import org.openl.util.StringUtils;
 import static org.junit.Assert.*;
 
 /**
- * Tests correctness of resizing and moving merged regions during
- * removing/inserting of columns and rows.
+ * Tests correctness of resizing and moving merged regions during removing/inserting of columns and rows.
  * 
  * Test format: see in "MergedRegions.xls"
  * 
@@ -34,9 +33,8 @@ import static org.junit.Assert.*;
 public class MergedRegionsTest {
 
     /**
-     * Description of test case: region to do action(insert or remove), region
-     * with expected result, first row/column to do action, number of
-     * rows/columns
+     * Description of test case: region to do action(insert or remove), region with expected result, first row/column to
+     * do action, number of rows/columns
      */
     private static class TestDesctiption {
         private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
@@ -100,8 +98,7 @@ public class MergedRegionsTest {
     /**
      * Service exception.
      * 
-     * Signals that difference between result cell and expected cell has been
-     * detected.
+     * Signals that difference between result cell and expected cell has been detected.
      * 
      */
     private static class DifferentCellsException extends Exception {
@@ -143,29 +140,30 @@ public class MergedRegionsTest {
         return result;
     }
 
-    private void compareTablesByCell(IGridRegion testRegion, IGridRegion expectedRegion, XlsSheetGridModel grid)
-            throws DifferentCellsException {
+    private void compareTablesByCell(IGridRegion testRegion,
+            IGridRegion expectedRegion,
+            XlsSheetGridModel grid) throws DifferentCellsException {
         int height = Math.max(IGridRegion.Tool.height(testRegion), IGridRegion.Tool.height(expectedRegion));
         int width = Math.max(IGridRegion.Tool.width(testRegion), IGridRegion.Tool.width(expectedRegion));
         for (int row = 0; row <= height; row++) {
             for (int column = 0; column <= width; column++) {
                 XlsCell resultCell = (XlsCell) grid.getCell(testRegion.getLeft() + column, testRegion.getTop() + row);
-                XlsCell expectedCell = (XlsCell) grid.getCell(expectedRegion.getLeft() + column, expectedRegion
-                        .getTop()
-                        + row);
-                Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column, testRegion.getTop()
-                        + row, grid.getSheetSource().getSheet());
-                Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column, expectedRegion
-                        .getTop()
-                        + row, grid.getSheetSource().getSheet());
-                if (resultCell != expectedCell
-                        && StringUtils.notEquals(resultCell.getStringValue(), expectedCell.getStringValue())) {
+                XlsCell expectedCell = (XlsCell) grid.getCell(expectedRegion.getLeft() + column,
+                    expectedRegion.getTop() + row);
+                Cell resultXLSCell = PoiExcelHelper.getOrCreateCell(testRegion.getLeft() + column,
+                    testRegion.getTop() + row,
+                    grid.getSheetSource().getSheet());
+                Cell expectedXLSCell = PoiExcelHelper.getOrCreateCell(expectedRegion.getLeft() + column,
+                    expectedRegion.getTop() + row,
+                    grid.getSheetSource().getSheet());
+                if (resultCell != expectedCell && StringUtils.notEquals(resultCell.getStringValue(),
+                    expectedCell.getStringValue())) {
                     // non top left cells of merged regions will be skipped in
                     // comparing by POI due to the second check
                     // TODO:remove the second check when the bug with non empty
                     // cells in merged regions will be resolved
-                    if (!isEqualCells(resultCell, expectedCell, grid)
-                            || !isEqualCellsInPOI(resultXLSCell, expectedXLSCell)) {
+                    if (!isEqualCells(resultCell, expectedCell, grid) || !isEqualCellsInPOI(resultXLSCell,
+                        expectedXLSCell)) {
                         throw new DifferentCellsException(resultCell, expectedCell);
                     }
                 }
@@ -182,7 +180,7 @@ public class MergedRegionsTest {
             return false;
         }
         if (grid.isPartOfTheMergedRegion(first.getAbsoluteColumn(), first.getAbsoluteRow()) != grid
-                .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
+            .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
             return false;
         }
         String firstValue = first.getStringValue();
@@ -231,8 +229,11 @@ public class MergedRegionsTest {
         }
     }
 
-    private void testActions(XlsWorkbookSourceCodeModule workbook, XlsSheetGridModel grid, IGridTable table,
-            TestDesctiption test, IUndoableGridTableAction removeRowsActions) {
+    private void testActions(XlsWorkbookSourceCodeModule workbook,
+            XlsSheetGridModel grid,
+            IGridTable table,
+            TestDesctiption test,
+            IUndoableGridTableAction removeRowsActions) {
         try {
             removeRowsActions.doAction(table);
             compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
@@ -241,8 +242,8 @@ public class MergedRegionsTest {
         } catch (DifferentCellsException e) {
             if (saveAfterFailure) {
                 try {
-                    workbook.saveAs(String.format("test/rules/MergedRegionsAfter%s.xls", grid.getSheetSource()
-                            .getSheetName()));
+                    workbook.saveAs(
+                        String.format("test/rules/MergedRegionsAfter%s.xls", grid.getSheetSource().getSheetName()));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -254,16 +255,17 @@ public class MergedRegionsTest {
     @Test
     public void testDeleteRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
-                workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+            new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
+            workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(8, tests.size());
         IGridTable table = grid.getTables()[0];
         MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction removeRowsAction = GridTool.removeRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table.getGrid(), metaInfoWriter);
+            IUndoableGridTableAction removeRowsAction = GridTool
+                .removeRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, removeRowsAction);
         }
     }
@@ -271,16 +273,17 @@ public class MergedRegionsTest {
     @Test
     public void testInsertRows() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
-                workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+            new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
+            workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction insertRowsAction = GridTool.insertRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table.getGrid(), metaInfoWriter);
+            IUndoableGridTableAction insertRowsAction = GridTool
+                .insertRows(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, insertRowsAction);
         }
     }
@@ -288,16 +291,17 @@ public class MergedRegionsTest {
     @Test
     public void testDeleteColumns() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
-                workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+            new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
+            workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(6, tests.size());
         IGridTable table = grid.getTables()[0];
         MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction removeColumnsAction = GridTool.removeColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
+            IUndoableGridTableAction removeColumnsAction = GridTool
+                .removeColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, removeColumnsAction);
         }
     }
@@ -305,16 +309,17 @@ public class MergedRegionsTest {
     @Test
     public void testInsertColumn() {
         XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
-        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
-                workbook);
+        XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(
+            new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
+            workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
         MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
-            IUndoableGridTableAction insertColumnsAction = GridTool.insertColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
+            IUndoableGridTableAction insertColumnsAction = GridTool
+                .insertColumns(test.getCount(), test.getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, insertColumnsAction);
         }
     }

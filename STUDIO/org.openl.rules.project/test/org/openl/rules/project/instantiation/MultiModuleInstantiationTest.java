@@ -33,15 +33,16 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
+            strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setLob("lob3");
-        Method method = serviceClass.getMethod("driverRiskPremium", new Class<?>[] { IRulesRuntimeContext.class,
-                String.class });
+        Method method = serviceClass.getMethod("driverRiskPremium",
+            new Class<?>[] { IRulesRuntimeContext.class, String.class });
         Object result = method.invoke(instance, new Object[] { context, "High Risk Driver" });
 
         assertEquals(new DoubleValue(400), result);
@@ -66,7 +67,9 @@ public class MultiModuleInstantiationTest {
         File root = new File("test-resources/multi-module-support/test2");
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModulesInFolder(root), null, true);
+            listModulesInFolder(root),
+            null,
+            true);
 
         Class<?> serviceClass = strategy.getInstanceClass();
         Object instance = strategy.instantiate();
@@ -99,7 +102,9 @@ public class MultiModuleInstantiationTest {
         File root = new File("test-resources/multi-module-support/test2");
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-                listModulesInFolder(root), null, true);
+            listModulesInFolder(root),
+            null,
+            true);
         strategy.setServiceClass(MultimoduleInterface.class);
         Object instantiate = strategy.instantiate();
         assertNotNull(instantiate);
@@ -120,7 +125,8 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
+            strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

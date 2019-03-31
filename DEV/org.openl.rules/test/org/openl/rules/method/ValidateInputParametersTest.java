@@ -23,27 +23,32 @@ public class ValidateInputParametersTest {
         engineFactory = new RulesEngineFactory<Object>(SRC);
     }
 
-    @Test(expected=OutsideOfValidDomainException.class)
+    @Test(expected = OutsideOfValidDomainException.class)
     public void test() {
-        IOpenMethod method = engineFactory.getCompiledOpenClass().getOpenClass().getMethod("SHTable", new IOpenClass[] {JavaOpenClass.STRING});
-        
+        IOpenMethod method = engineFactory.getCompiledOpenClass()
+            .getOpenClass()
+            .getMethod("SHTable", new IOpenClass[] { JavaOpenClass.STRING });
+
         Assert.assertNotNull(method);
-        
+
         Object target = engineFactory.newEngineInstance();
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        method.invoke(target, new Object[] {"ONE2"}, env);
+        method.invoke(target, new Object[] { "ONE2" }, env);
 
     }
-    
-    @Test(expected=OutsideOfValidDomainException.class)
+
+    @Test(expected = OutsideOfValidDomainException.class)
     public void testArray() {
-        IOpenMethod method = engineFactory.getCompiledOpenClass().getOpenClass().getMethod("DTTable2", new IOpenClass[] {JavaOpenClass.getOpenClass(JavaOpenClass.makeArrayClass(String.class))});
-        
+        IOpenMethod method = engineFactory.getCompiledOpenClass()
+            .getOpenClass()
+            .getMethod("DTTable2",
+                new IOpenClass[] { JavaOpenClass.getOpenClass(JavaOpenClass.makeArrayClass(String.class)) });
+
         Assert.assertNotNull(method);
-        
+
         Object target = engineFactory.newEngineInstance();
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        method.invoke(target, new Object[] {new String[] {"ONE", "ONE2"}}, env);
+        method.invoke(target, new Object[] { new String[] { "ONE", "ONE2" } }, env);
 
     }
 }

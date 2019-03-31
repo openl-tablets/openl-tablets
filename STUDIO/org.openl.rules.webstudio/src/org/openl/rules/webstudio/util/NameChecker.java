@@ -10,14 +10,14 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  * @author Aleh Bykhavets
  */
 public final class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']'};
+    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']' };
     private static String forbiddenChars;
-    public static final String BAD_NAME_MSG = "Name can not contain forbidden characters ("
-            + NameChecker.getForbiddenCharacters() + "), start with space, end with space or dot!";
+    public static final String BAD_NAME_MSG = "Name can not contain forbidden characters (" + NameChecker
+        .getForbiddenCharacters() + "), start with space, end with space or dot!";
     public static final String FOLDER_EXISTS = "Cannot create folder because folder with such name already exists.";
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
-    public static final String BAD_PROJECT_NAME_MSG = "Project name can not contain forbidden characters ("
-            + NameChecker.getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
+    public static final String BAD_PROJECT_NAME_MSG = "Project name can not contain forbidden characters (" + NameChecker
+        .getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
 
     private NameChecker() {
     }
@@ -56,7 +56,7 @@ public final class NameChecker {
             return false;
         }
 
-        //check empty name
+        // check empty name
         if (artefactName.isEmpty()) {
             return false;
         }
@@ -111,7 +111,7 @@ public final class NameChecker {
                     return true;
                 }
             }
-            //Such folder isn't present
+            // Such folder isn't present
             return false;
         }
     }

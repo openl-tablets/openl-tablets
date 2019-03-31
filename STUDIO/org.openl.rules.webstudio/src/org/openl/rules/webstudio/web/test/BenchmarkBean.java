@@ -39,7 +39,7 @@ public class BenchmarkBean {
 
     private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
-                .getNumberOfTests();
+            .getNumberOfTests();
     }
 
     public void addLastBenchmark() {
@@ -63,8 +63,11 @@ public class BenchmarkBean {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 try {
                     BenchmarkInfo buLast = studio.getModel().benchmarkSingleTest(testSuite, i, 3000);
-                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, tableId, testName, testInfo,
-                            testSuite.getTest(i).getExecutionParams());
+                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast,
+                        tableId,
+                        testName,
+                        testInfo,
+                        testSuite.getTest(i).getExecutionParams());
                     studio.addBenchmark(biv);
                     benchmarkResults.add(biv);
                 } catch (Exception e) {

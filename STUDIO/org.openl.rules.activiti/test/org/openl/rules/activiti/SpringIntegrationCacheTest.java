@@ -39,13 +39,13 @@ public class SpringIntegrationCacheTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
         Assert.assertEquals("result task", task.getName());
-        
+
         Double result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
         Assert.assertEquals(500d, result, 1e-8);
 
         processEngine.getTaskService().complete(task.getId());
-        
+
         processEngine.getRepositoryService().deleteDeployment(deployment.getId(), true);
-        
+
     }
 }

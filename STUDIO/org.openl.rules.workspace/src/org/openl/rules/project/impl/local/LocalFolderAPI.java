@@ -70,7 +70,8 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         File newFile = new File(source, name);
 
         if (newFile.isFile()) {
-            throw new ProjectException(String.format("The file '%s' exists in the folder.", newFile.getAbsolutePath()), new IOException());
+            throw new ProjectException(String.format("The file '%s' exists in the folder.", newFile.getAbsolutePath()),
+                new IOException());
         }
 
         try {
@@ -97,12 +98,12 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         }
         return artefacts;
     }
-    
+
     @Override
     public FolderAPI getVersion(CommonVersion version) {
-        return (FolderAPI)super.getVersion(version);
+        return (FolderAPI) super.getVersion(version);
     }
-    
+
     @Override
     public boolean isModified() {
         if (super.isModified()) {

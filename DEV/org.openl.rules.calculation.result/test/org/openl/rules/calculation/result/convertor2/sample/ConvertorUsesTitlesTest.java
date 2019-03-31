@@ -23,13 +23,14 @@ public class ConvertorUsesTitlesTest {
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
+            ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
         assertEquals(2, result.getHeight());
         assertEquals(3, result.getWidth());
-        
+
         ResultConvertor resultConvertor = new ResultConvertor();
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();
@@ -37,34 +38,36 @@ public class ConvertorUsesTitlesTest {
         assertEquals("Row1", steps.get(0).getStepName());
         assertEquals("Row2", steps.get(1).getStepName());
     }
-    
+
     @Test
     public void whiteListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
+            ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
         assertEquals(2, result.getHeight());
         assertEquals(3, result.getWidth());
-        
+
         ResultConvertorWithWhiteList resultConvertor = new ResultConvertorWithWhiteList();
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();
         assertEquals(1, steps.size());
         assertEquals("Row1", steps.get(0).getStepName());
     }
-    
+
     @Test
     public void blackListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
+            ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
         assertEquals(2, result.getHeight());
         assertEquals(3, result.getWidth());
-        
+
         ResultConvertorWithBlackList resultConvertor = new ResultConvertorWithBlackList();
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();

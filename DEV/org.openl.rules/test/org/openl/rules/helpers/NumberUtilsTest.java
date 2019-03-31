@@ -63,7 +63,7 @@ public class NumberUtilsTest {
     public void testBigDecimal() {
         assertEquals(36, NumberUtils.getScale(new BigDecimal("12.123456789123456789123456789123456789")));
         assertEquals(35,
-                NumberUtils.getScale(new BigDecimalValue(new BigDecimal("12.12345678912345678912345678912345678"))));
+            NumberUtils.getScale(new BigDecimalValue(new BigDecimal("12.12345678912345678912345678912345678"))));
     }
 
     @Test

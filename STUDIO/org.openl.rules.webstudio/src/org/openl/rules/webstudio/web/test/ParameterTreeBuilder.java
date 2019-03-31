@@ -38,7 +38,10 @@ import org.richfaces.model.TreeNodeImpl;
 @RequestScoped
 public class ParameterTreeBuilder {
     public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {
-        ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(), config.getValue(), config.getFieldNameInParent(), config.getParent());
+        ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(),
+            config.getValue(),
+            config.getFieldNameInParent(),
+            config.getParent());
         if (customNode != null) {
             return customNode;
         }
@@ -58,15 +61,20 @@ public class ParameterTreeBuilder {
     }
 
     private static ParameterDeclarationTreeNode createComplexBeanNode(ParameterRenderConfig config) {
-        if (config.getType().getInstanceClass() != null && IRulesRuntimeContext.class.isAssignableFrom(config.getType().getInstanceClass())) {
+        if (config.getType().getInstanceClass() != null && IRulesRuntimeContext.class
+            .isAssignableFrom(config.getType().getInstanceClass())) {
             return new ContextParameterTreeNode(config);
         }
         if (canConstruct(config.getType())) {
             return new ComplexParameterTreeNode(config);
         } else {
-            UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
-            node.setWarnMessage(String.format("Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
-                    config.getType().getDisplayName(INamedThing.SHORT)));
+            UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(),
+                config.getValue(),
+                config.getType(),
+                config.getParent());
+            node.setWarnMessage(String.format(
+                "Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
+                config.getType().getDisplayName(INamedThing.SHORT)));
             return node;
         }
     }
@@ -96,7 +104,9 @@ public class ParameterTreeBuilder {
         Object value = config.getValue();
         IOpenClass fieldType = config.getType();
 
-        if (parent == null || Utils.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
+        if (parent == null || Utils.isCollection(parent.getType()) || parent.getType()
+            .getField(fieldName)
+            .isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
@@ -105,7 +115,8 @@ public class ParameterTreeBuilder {
         }
     }
 
-    private static ParameterDeclarationTreeNode getOpenLCustomNode(IOpenClass fieldType, Object value,
+    private static ParameterDeclarationTreeNode getOpenLCustomNode(IOpenClass fieldType,
+            Object value,
             String fieldName,
             ParameterDeclarationTreeNode parent) {
         Class<?> instanceClass = fieldType.getInstanceClass();
@@ -132,8 +143,8 @@ public class ParameterTreeBuilder {
                 return Utils.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
                 ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-                        .keyField(param.getKeyField())
-                        .build();
+                    .keyField(param.getKeyField())
+                    .build();
 
                 return createComplexBeanNode(config).getDisplayedValue();
             }
@@ -147,10 +158,10 @@ public class ParameterTreeBuilder {
 
         if (param != null) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
-                    .keyField(param.getKeyField())
-                    .hasExplainLinks(hasExplainLinks)
-                    .requestId(requestId)
-                    .build();
+                .keyField(param.getKeyField())
+                .hasExplainLinks(hasExplainLinks)
+                .requestId(requestId)
+                .build();
             ParameterDeclarationTreeNode treeNode = createNode(config);
             root.addChild(param.getName(), treeNode);
         }
@@ -188,8 +199,9 @@ public class ParameterTreeBuilder {
         if (value instanceof ParameterWithValueDeclaration) {
             Object singlValue = value;
             if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
+                    .getAggregateInfo()
+                    .getIterator(((ParameterWithValueDeclaration) value).getValue());
 
                 if (iterator.hasNext()) {
                     singlValue = iterator.next();
@@ -210,8 +222,9 @@ public class ParameterTreeBuilder {
         if (value instanceof ParameterWithValueDeclaration) {
             StringBuilder result = new StringBuilder();
             if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
-                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
-                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
+                    .getAggregateInfo()
+                    .getIterator(((ParameterWithValueDeclaration) value).getValue());
                 ProjectModel model = WebStudioUtils.getWebStudio().getModel();
                 while (iterator.hasNext()) {
                     Object singleValue = iterator.next();
@@ -220,8 +233,8 @@ public class ParameterTreeBuilder {
                         GridTable gridTable = (GridTable) singleValue;
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
-                        HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
-                                TableRenderer(TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
+                        HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(
+                            TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     } else if (singleValue instanceof SubGridTable) {
@@ -229,8 +242,8 @@ public class ParameterTreeBuilder {
                         GridTable gridTable = new GridTable(sgTable.getRegion(), sgTable.getGrid());
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
-                        HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
-                                TableRenderer(TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
+                        HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(
+                            TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     }

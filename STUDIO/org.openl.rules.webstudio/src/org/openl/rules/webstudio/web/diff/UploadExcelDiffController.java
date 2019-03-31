@@ -43,14 +43,16 @@ public class UploadExcelDiffController extends ExcelDiffController {
         // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
             // Clear selection to handle NPE bug. See EPBDS-3992 for details.
-            UITree treeComponent = (UITree) FacesContext.getCurrentInstance().getViewRoot().findComponent("diffTreeForm:newTree");
+            UITree treeComponent = (UITree) FacesContext.getCurrentInstance()
+                .getViewRoot()
+                .findComponent("diffTreeForm:newTree");
             treeComponent.setSelection(new ArrayList<>());
 
             deleteTempFiles();
             List<File> filesToCompare = new ArrayList<>();
             for (UploadedFile uploadedFile : uploadedFiles) {
-                File fileToCompare = FileTool.toTempFile(
-                        uploadedFile.getInputStream(), FileUtils.getName(uploadedFile.getName()));
+                File fileToCompare = FileTool.toTempFile(uploadedFile.getInputStream(),
+                    FileUtils.getName(uploadedFile.getName()));
                 filesToCompare.add(fileToCompare);
                 // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
                 // is destroyed (on session timeout) or before next comparison.

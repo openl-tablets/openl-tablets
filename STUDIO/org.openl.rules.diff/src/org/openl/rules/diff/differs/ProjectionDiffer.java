@@ -12,8 +12,7 @@ import org.openl.rules.diff.hierarchy.Projection;
  */
 public interface ProjectionDiffer {
     /**
-     * Compare two projections from different sources.
-     * Both is assumed to be of the same type and not null.
+     * Compare two projections from different sources. Both is assumed to be of the same type and not null.
      * 
      * @param original original projection
      * @param other comparing projection

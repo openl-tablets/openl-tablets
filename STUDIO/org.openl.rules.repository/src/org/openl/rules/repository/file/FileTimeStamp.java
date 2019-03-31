@@ -21,4 +21,3 @@ class FileTimeStamp {
         return !file.exists() || file.isDirectory() || file.lastModified() != lastModified;
     }
 }
-

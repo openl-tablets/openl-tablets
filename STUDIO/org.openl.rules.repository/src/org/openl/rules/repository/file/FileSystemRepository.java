@@ -13,8 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A simple implementation of a file-system-based repository. This repository
- * does not support versioning.
+ * A simple implementation of a file-system-based repository. This repository does not support versioning.
  *
  * @author Yury Molchan
  */
@@ -24,7 +23,6 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private File root;
     private int rootPathLength;
     private ChangesMonitor monitor;
-
 
     public void setRoot(File root) {
         this.root = root;
@@ -109,7 +107,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             deleted = false;
         }
         // Delete empty parent folders
-        while (!(file = file.getParentFile()).equals(root) && file.delete());
+        while (!(file = file.getParentFile()).equals(root) && file.delete())
+            ;
         return deleted;
     }
 

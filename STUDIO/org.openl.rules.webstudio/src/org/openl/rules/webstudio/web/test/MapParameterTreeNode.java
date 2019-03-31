@@ -54,7 +54,8 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         int nextChildNum = childrenMap.size();
 
         ParameterDeclarationTreeNode node = createNode(null, value);
-        ListIterator<ParameterDeclarationTreeNode> iterator = new ArrayList<>(childrenMap.values()).listIterator(nextChildNum);
+        ListIterator<ParameterDeclarationTreeNode> iterator = new ArrayList<>(childrenMap.values())
+            .listIterator(nextChildNum);
         if (iterator.hasPrevious()) {
             ParameterDeclarationTreeNode lastChild = iterator.previous();
             ParameterDeclarationTreeNode lastKey = lastChild.getChild("key");
@@ -78,7 +79,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
 
     @Override
     public void removeChild(ParameterDeclarationTreeNode toDelete) {
-        for (Iterator<ParameterDeclarationTreeNode> iterator = getChildren().iterator(); iterator.hasNext(); ) {
+        for (Iterator<ParameterDeclarationTreeNode> iterator = getChildren().iterator(); iterator.hasNext();) {
             ParameterDeclarationTreeNode node = iterator.next();
             if (node == toDelete) {
                 Entry value = (Entry) node.getValue();
@@ -97,8 +98,9 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         Entry element = new Entry(getMap(), key, value);
 
-        ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(JavaOpenClass.getOpenClass(element.getClass()), element)
-                .keyField(config.getKeyField())
+        ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(
+            JavaOpenClass.getOpenClass(element.getClass()),
+            element).keyField(config.getKeyField())
                 .parent(this)
                 .hasExplainLinks(config.isHasExplainLinks())
                 .requestId(config.getRequestId())

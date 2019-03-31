@@ -10,7 +10,7 @@ import org.openl.dependency.loader.IDependencyLoader;
 public class RulesProjectDependencyManager extends DependencyManager {
 
     private List<IDependencyLoader> loaders = new ArrayList<>();
-    
+
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
         return loaders;
@@ -19,10 +19,10 @@ public class RulesProjectDependencyManager extends DependencyManager {
     public void setDependencyLoaders(List<IDependencyLoader> loaders) {
         this.loaders = loaders;
     }
-    
+
     @Override
     public Collection<String> getAllDependencies() {
         return null;
     }
-    
+
 }

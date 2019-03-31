@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 import org.openl.types.java.JavaOpenClass;
 
 public final class CodeGenTools {
-    
+
     private CodeGenTools() {
     }
 

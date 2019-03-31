@@ -88,9 +88,8 @@ public class AProjectArtefact {
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        return fileDatas.isEmpty() ?
-               createProjectVersion(null) :
-               createProjectVersion(fileDatas.get(fileDatas.size() - 1));
+        return fileDatas.isEmpty() ? createProjectVersion(null)
+                                   : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
     }
 
     public ProjectVersion getFirstVersion() {
@@ -159,7 +158,9 @@ public class AProjectArtefact {
         }
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
         String version = fileData.getVersion();
-        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii, fileData.isDeleted());
+        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
+            rvii,
+            fileData.isDeleted());
         projectVersion.setVersionComment(fileData.getComment());
         return projectVersion;
     }
@@ -172,11 +173,11 @@ public class AProjectArtefact {
     }
 
     public void lock() throws ProjectException {
-        // Do  nothing
+        // Do nothing
     }
 
     public void unlock() throws ProjectException {
-        // Do  nothing
+        // Do nothing
     }
 
     public boolean isLocked() {
@@ -220,8 +221,8 @@ public class AProjectArtefact {
     }
 
     /**
-     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
-     * Checks that lockedUser is LOCAL and current user is DEFAULT
+     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL". Checks that lockedUser
+     * is LOCAL and current user is DEFAULT
      * 
      * @param lockedUser - owner of the lock
      * @param currentUser - current user trying to unlock

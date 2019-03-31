@@ -14,9 +14,9 @@ import org.openl.util.StringUtils;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
-            Pattern.DOTALL);
-    private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern.compile(
-            "^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
+        Pattern.DOTALL);
+    private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern
+        .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
 
     private final RulesDeploySerializerFactory serializerFactory;
 

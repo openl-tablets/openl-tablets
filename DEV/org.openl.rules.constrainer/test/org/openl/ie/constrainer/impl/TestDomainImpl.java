@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 public class TestDomainImpl extends TestCase {
     private Constrainer C = new Constrainer("TestDomainImpl");
     private IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
@@ -94,9 +93,9 @@ public class TestDomainImpl extends TestCase {
         // intersection of range to be removed and the domain is an empty set
         try {
             assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
-                                                                        // is to
-                                                                        // be
-                                                                        // done
+                                                                       // is to
+                                                                       // be
+                                                                       // done
         } catch (Failure f) {
             fail("it wouldn't ever happen");
         }
@@ -145,8 +144,8 @@ public class TestDomainImpl extends TestCase {
         // neither left nor right end of the domain
         try {
             assertTrue(!di.removeRange(newmin + 1, newmax - 1)); // nothing
-                                                                    // is to be
-                                                                    // done
+                                                                 // is to be
+                                                                 // done
             assertEquals(newmin, di.min());// hasn't changed
             assertEquals(newmax, di.max());// hasn't changed
             assertEquals(newsize, di.size());// hasn't changed

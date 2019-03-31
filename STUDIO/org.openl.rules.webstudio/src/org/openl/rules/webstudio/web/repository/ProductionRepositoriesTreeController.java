@@ -13,10 +13,10 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 @ManagedBean
 @SessionScoped
 public class ProductionRepositoriesTreeController {
-    @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
+    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
-    @ManagedProperty(value="#{productionRepositoriesTreeState}")
+    @ManagedProperty(value = "#{productionRepositoriesTreeState}")
     private ProductionRepositoriesTreeState productionRepositoriesTreeState;
 
     public ProductionRepositoriesTreeState getProductionRepositoriesTreeState() {
@@ -34,7 +34,7 @@ public class ProductionRepositoriesTreeController {
      */
     public List<TreeNode> getRulesProjects() {
         TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
-        return selectedNode == null ? Collections.<TreeNode>emptyList() : selectedNode.getChildNodes();
+        return selectedNode == null ? Collections.<TreeNode> emptyList() : selectedNode.getChildNodes();
     }
 
     public String selectRulesProject() {
@@ -44,15 +44,15 @@ public class ProductionRepositoriesTreeController {
         if (selectedNode == null) {
             return null;
         }
-        if (selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) ||
-                selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
+        if (selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) || selectedNode.getType()
+            .equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
             for (TreeNode node : selectedNode.getChildNodes()) {
                 if (node.getName().equals(projectName)) {
                     repositorySelectNodeStateHolder.setSelectedNode(node);
                     break;
                 }
             }
-        } 
+        }
 
         return null;
     }
@@ -73,7 +73,7 @@ public class ProductionRepositoriesTreeController {
     public void setRepositorySelectNodeStateHolder(RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
-    
+
     public String refreshTree() {
         productionRepositoriesTreeState.invalidateTree();
 

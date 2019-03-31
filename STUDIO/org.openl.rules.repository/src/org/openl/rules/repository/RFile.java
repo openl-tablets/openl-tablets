@@ -14,8 +14,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public interface RFile extends REntity {
 
     /**
-     * Gets content of the file. It is highly apreciated to close stream right
-     * after it is no longer needed.
+     * Gets content of the file. It is highly apreciated to close stream right after it is no longer needed.
      *
      * @return content stream with content of file
      * @throws RRepositoryException if failed

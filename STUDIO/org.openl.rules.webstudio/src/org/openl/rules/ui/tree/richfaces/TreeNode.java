@@ -26,7 +26,14 @@ public class TreeNode extends TreeNodeImpl {
         this(false, name, title, url, state, numErrors, type, active);
     }
 
-    public TreeNode(boolean isLeaf, String name, String title, String url, int state, int numErrors, String type, boolean active) {
+    public TreeNode(boolean isLeaf,
+            String name,
+            String title,
+            String url,
+            int state,
+            int numErrors,
+            String type,
+            boolean active) {
         this(isLeaf);
         this.name = name;
         this.title = title;

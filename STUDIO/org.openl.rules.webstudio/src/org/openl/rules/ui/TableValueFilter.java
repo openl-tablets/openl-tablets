@@ -29,8 +29,8 @@ class TableValueFilter extends AGridFilter {
 
         int relativeColumn = cell.getColumn() - startX;
         int relativeRow = cell.getRow() - startY;
-        if (relativeColumn < 0 || relativeColumn >= table.getWidth() ||
-                relativeRow < 0 || relativeRow >= table.getHeight()) {
+        if (relativeColumn < 0 || relativeColumn >= table.getWidth() || relativeRow < 0 || relativeRow >= table
+            .getHeight()) {
             // Sometimes the style of a cell outside of a table is retrieved to draw borders of a table, for such cells
             // value is empty - don't modify the cell, keep empty.
             return cell;
@@ -54,7 +54,7 @@ class TableValueFilter extends AGridFilter {
             cell.setObjectValue(v);
             if (v != null) {
                 cell.setFormattedValue(String.valueOf(v));
-            }else{
+            } else {
                 cell.setFormattedValue("null");
             }
         }

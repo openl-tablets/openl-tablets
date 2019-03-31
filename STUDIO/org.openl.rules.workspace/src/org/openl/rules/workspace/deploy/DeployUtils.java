@@ -21,7 +21,8 @@ public final class DeployUtils {
     private DeployUtils() {
     }
 
-    public static Collection<Deployment> getLastDeploymentProjects(Repository repository, String deployPath) throws RRepositoryException {
+    public static Collection<Deployment> getLastDeploymentProjects(Repository repository,
+            String deployPath) throws RRepositoryException {
 
         Map<String, Deployment> latestDeployments = new HashMap<>();
         Map<String, Integer> versionsList = new HashMap<>();
@@ -71,10 +72,10 @@ public final class DeployUtils {
                     throw new RRepositoryException(e.getMessage(), e);
                 }
                 Deployment deployment = new Deployment(repository,
-                        folderPath,
-                        deploymentName,
-                        commonVersion,
-                        folderStructure);
+                    folderPath,
+                    deploymentName,
+                    commonVersion,
+                    folderStructure);
                 latestDeployments.put(deploymentName, deployment);
             }
         }
@@ -82,7 +83,9 @@ public final class DeployUtils {
         return latestDeployments.values();
     }
 
-    public static int getNextDeploymentVersion(Repository repository, String project, String deployPath) throws RRepositoryException {
+    public static int getNextDeploymentVersion(Repository repository,
+            String project,
+            String deployPath) throws RRepositoryException {
         Collection<Deployment> lastDeploymentProjects = getLastDeploymentProjects(repository, deployPath);
         int version = 1;
         String prefix = project + SEPARATOR;

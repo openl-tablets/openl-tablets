@@ -111,40 +111,40 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private List<IGridFilter> buildFilters() {
-        short[] resultColor = new short[]{0, 0xaa, 0};
+        short[] resultColor = new short[] { 0, 0xaa, 0 };
 
-        FontGridFilter successfulFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(successfulChecks),
-                false))
-                .setFontColor(resultColor)
-                .setItalic(true)
-                .setBold(false)
-                .build();
-        FontGridFilter unsuccessfulFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(unsuccessfulChecks),
-                false))
-                .setFontColor(IColorFilter.RED)
-                .setItalic(true)
-                .setBold(false)
-                .build();
-        FontGridFilter resultFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-                false))
-                .setFontColor(resultColor)
-                .setItalic(false)
-                .setBold(true)
-                .build();
-        FontGridFilter indexedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(indexedRegions),
-                false))
-                .setUnderlined(true)
-                .build();
+        FontGridFilter successfulFontFilter = new FontGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(successfulChecks), false))
+            .setFontColor(resultColor)
+            .setItalic(true)
+            .setBold(false)
+            .build();
+        FontGridFilter unsuccessfulFontFilter = new FontGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(unsuccessfulChecks), false))
+            .setFontColor(IColorFilter.RED)
+            .setItalic(true)
+            .setBold(false)
+            .build();
+        FontGridFilter resultFontFilter = new FontGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(resultRegions), false))
+            .setFontColor(resultColor)
+            .setItalic(false)
+            .setBold(true)
+            .build();
+        FontGridFilter indexedFontFilter = new FontGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(indexedRegions), false))
+            .setUnderlined(true)
+            .build();
 
-        CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-                true))
-                .setBorderStyle(BorderStyle.DOTTED)
-                .build();
-        CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
-                false))
-                .setBorderStyle(BorderStyle.THICK)
-                .setBorderRGB(resultColor)
-                .build();
+        CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(resultRegions), true))
+            .setBorderStyle(BorderStyle.DOTTED)
+            .build();
+        CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder()
+            .setSelector(new RegionGridSelector(toArray(resultRegions), false))
+            .setBorderStyle(BorderStyle.THICK)
+            .setBorderRGB(resultColor)
+            .build();
 
         List<IGridFilter> filters = new ArrayList<>();
         filters.add(successfulFontFilter);
@@ -159,22 +159,21 @@ public class DecisionTableTraceFilterFactory {
         filters.add(createColorFilter(toArray(allCheckedRegions), IColorFilter.WHITE, ColorGridFilter.BACKGROUND));
         if (!successfulSelectedRegions.isEmpty()) {
             filters.add(createColorFilter(toArray(successfulSelectedRegions), resultColor, ColorGridFilter.BACKGROUND));
-            FontGridFilter selectedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(successfulSelectedRegions),
-                    false))
-                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                    .setFontColor(IColorFilter.WHITE)
-                    .build();
+            FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
+                .setSelector(new RegionGridSelector(toArray(successfulSelectedRegions), false))
+                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                .setFontColor(IColorFilter.WHITE)
+                .build();
             filters.add(selectedFontFilter);
         }
         if (!unsuccessfulSelectedRegions.isEmpty()) {
-            filters.add(createColorFilter(toArray(unsuccessfulSelectedRegions),
-                    IColorFilter.RED,
-                    ColorGridFilter.BACKGROUND));
-            FontGridFilter selectedFontFilter = new FontGridFilter.Builder().setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions),
-                    false))
-                    .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                    .setFontColor(IColorFilter.WHITE)
-                    .build();
+            filters.add(
+                createColorFilter(toArray(unsuccessfulSelectedRegions), IColorFilter.RED, ColorGridFilter.BACKGROUND));
+            FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
+                .setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions), false))
+                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                .setFontColor(IColorFilter.WHITE)
+                .build();
             filters.add(selectedFontFilter);
         }
         filters.add(new ColorGridFilter(new RegionGridSelector(toArray(allCheckedRegions), true), defaultColorFilter));

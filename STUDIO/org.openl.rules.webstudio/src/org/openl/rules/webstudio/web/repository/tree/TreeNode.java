@@ -31,6 +31,7 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
      * @return self-reference on the node
      */
     TreeNode add(TreeNode child);
+
     void removeChildren();
 
     /**
@@ -41,6 +42,7 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
     List<TreeNode> getChildNodes();
 
     AProjectArtefact getData();
+
     void setData(AProjectArtefact data);
 
     String getId();
@@ -53,10 +55,13 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
     String getName();
 
     TreeNode getParent();
+
     void setParent(TreeNode parent);
 
     String getVersionName();
+
     Collection<ProjectVersion> getVersions();
+
     boolean hasVersions();
 
     boolean isLeafOnly();

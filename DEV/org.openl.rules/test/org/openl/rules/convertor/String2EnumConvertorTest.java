@@ -41,6 +41,15 @@ public class String2EnumConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    private enum EnumVal { VAL1, val2, Val3 }
-    private enum EnumRes { RES1, res2, Val3 }
+    private enum EnumVal {
+        VAL1,
+        val2,
+        Val3
+    }
+
+    private enum EnumRes {
+        RES1,
+        res2,
+        Val3
+    }
 }

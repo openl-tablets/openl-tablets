@@ -15,8 +15,8 @@ import org.openl.rules.context.IRulesRuntimeContext;
 public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassDecoration() throws Exception {
-        Class<?> enhanced = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class, Thread.currentThread()
-            .getContextClassLoader());
+        Class<?> enhanced = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class,
+            Thread.currentThread().getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
     }
 
@@ -33,7 +33,8 @@ public class RulesServiceEnhancerHelperTest {
             // supported.
             assertArrayEquals(enhanced.getAnnotations(), simple.getAnnotations());
             for (Method method : simple.getMethods()) {
-                assertArrayEquals(getEnhancedMethod(method, simple, enhanced).getAnnotations(), method.getAnnotations());
+                assertArrayEquals(getEnhancedMethod(method, simple, enhanced).getAnnotations(),
+                    method.getAnnotations());
             }
         }
     }
@@ -46,11 +47,11 @@ public class RulesServiceEnhancerHelperTest {
 
     @Test
     public void testServiceClassUndecoration() throws Exception {
-        Class<?> undecorated = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced.class, Thread.currentThread()
-            .getContextClassLoader());
+        Class<?> undecorated = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced.class,
+            Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced.class, undecorated, true);
-        Class<?> undecorated2 = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced2.class, Thread.currentThread()
-            .getContextClassLoader());
+        Class<?> undecorated2 = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced2.class,
+            Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced2.class, undecorated2, true);
     }
 

@@ -45,16 +45,16 @@ public class MessagesBean {
         }
         return StringUtils.EMPTY;
     }
-    
+
     public String getStacktrace() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-            return ExceptionUtils.getStackTrace((Throwable)errorMessage.getError());
+            return ExceptionUtils.getStackTrace((Throwable) errorMessage.getError());
         }
         return StringUtils.EMPTY;
     }
-    
+
     public boolean isHasStacktrace() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
         if (message instanceof OpenLErrorMessage) {
@@ -63,7 +63,7 @@ public class MessagesBean {
         }
         return false;
     }
-    
+
     public String[] getErrorCode() {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
 
@@ -99,7 +99,8 @@ public class MessagesBean {
             code = module.getCode();
         }
 
-        // Support the case when cell with error is empty (code == ""). See example in EPBDS-2481 (need to add column Condition).
+        // Support the case when cell with error is empty (code == ""). See example in EPBDS-2481 (need to add column
+        // Condition).
         // But error message containing link to table entirely must not show "Edit cell containing error" link.
         return getErrorUri() != null && (code != null || module instanceof StringSourceCodeModule);
     }
@@ -138,7 +139,6 @@ public class MessagesBean {
         return errorUri;
     }
 
-
     private String[] getErrorCode(ILocation location, IOpenSourceCodeModule sourceModule) {
         String code = StringUtils.EMPTY;
         if (sourceModule != null) {
@@ -151,18 +151,16 @@ public class MessagesBean {
         int pstart = 0;
         int pend = code.length();
 
-        if (StringUtils.isNotBlank(code)
-                && location != null && location.isTextLocation()) {
+        if (StringUtils.isNotBlank(code) && location != null && location.isTextLocation()) {
             TextInfo info = new TextInfo(code);
             pstart = location.getStart().getAbsolutePosition(info);
             pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
         }
 
         if (pend != 0) {
-            return new String[] {
-                    code.substring(0, pstart),
+            return new String[] { code.substring(0, pstart),
                     code.substring(pstart, pend),
-                    code.substring(pend, code.length())};
+                    code.substring(pend, code.length()) };
         }
 
         return new String[0];

@@ -10,7 +10,8 @@ import java.util.Date;
  */
 public abstract class DateInterval {
 
-    DateInterval() { /* NON */ }
+    DateInterval() {
+        /* NON */ }
 
     /**
      * Calculate a difference in full days. The result are always integer.

@@ -9,9 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 
 /**
- * This class provides default conversion of MS Excel formats to Java formats.
- * There is no way for practical and technical reasons to map it completely
- * 100%. Therefore this class will be supplemented by pre-defined hardcoded
+ * This class provides default conversion of MS Excel formats to Java formats. There is no way for practical and
+ * technical reasons to map it completely 100%. Therefore this class will be supplemented by pre-defined hardcoded
  * mapping for most of embedded MS Excel formats.
  *
  * @author snshor

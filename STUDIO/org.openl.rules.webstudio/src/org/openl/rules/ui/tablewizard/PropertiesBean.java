@@ -12,8 +12,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 /**
- * Bean that handles property selection (in "copy table",
- * "create new property table").
+ * Bean that handles property selection (in "copy table", "create new property table").
  * 
  * @author PUdalau
  */
@@ -26,8 +25,7 @@ public class PropertiesBean {
     /**
      * Creates PropertiesBean with specified pack of possible properties.
      * 
-     * @param possibleProperties List of property names that can be contained by
-     *            this bean.
+     * @param possibleProperties List of property names that can be contained by this bean.
      */
     public PropertiesBean(List<String> possibleProperties) {
         possibleToAddProps = new TreeSet<>(possibleProperties);
@@ -71,14 +69,13 @@ public class PropertiesBean {
     private TablePropertyDefinition getPropByName(String name) {
         return TablePropertyDefinitionUtils.getPropertyByName(name);
     }
-    
+
     public List<String> getPossibleToAddProperties() {
         return new ArrayList<>(possibleToAddProps);
     }
 
     /**
-     * @return List of {@link SelectItem} that represents all properties that
-     *         can be added to bean.
+     * @return List of {@link SelectItem} that represents all properties that can be added to bean.
      */
     public List<SelectItem> getPropertiesThatCanBeAdded() {
         List<SelectItem> propertyNames = new ArrayList<>();
@@ -93,16 +90,17 @@ public class PropertiesBean {
      */
     public void addProperty() {
         TablePropertyDefinition propDefinition = getPropByName(propNameToAdd);
-        Class<?> propType = propDefinition.getType() == null ? String.class : propDefinition.getType()
-                .getInstanceClass();
-        properties
-                .add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType)
-                        .displayName(propDefinition.getDisplayName()).format(propDefinition.getFormat()).build());
+        Class<?> propType = propDefinition.getType() == null ? String.class
+                                                             : propDefinition.getType().getInstanceClass();
+        properties.add(new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType)
+            .displayName(propDefinition.getDisplayName())
+            .format(propDefinition.getFormat())
+            .build());
         possibleToAddProps.remove(propNameToAdd);
     }
-    
+
     /**
-     * Adds new property into the bean. 
+     * Adds new property into the bean.
      */
     public void addProperty(TableProperty property) {
         properties.add(property);

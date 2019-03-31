@@ -28,7 +28,8 @@ public class ProjectDescriptorTransformer implements ResourceTransformer {
     @Override
     public InputStream transform(AProjectResource resource) throws ProjectException {
         if (isProjectDescriptor(resource)) {
-            // Read the stream to memory and try to parse it and then change project name. If it can't be parsed return original rules.xml.
+            // Read the stream to memory and try to parse it and then change project name. If it can't be parsed return
+            // original rules.xml.
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             try {
                 IOUtils.copyAndClose(resource.getContent(), outputStream);
@@ -38,8 +39,9 @@ public class ProjectDescriptorTransformer implements ResourceTransformer {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
-                        .getSerializer(resource);
+                IProjectDescriptorSerializer serializer = WebStudioUtils
+                    .getBean(ProjectDescriptorSerializerFactory.class)
+                    .getSerializer(resource);
                 ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(newProjectName);
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));

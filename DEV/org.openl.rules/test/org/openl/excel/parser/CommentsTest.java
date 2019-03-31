@@ -14,7 +14,7 @@ public class CommentsTest {
 
     @Test
     public void commentWithDomInXls() {
-        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLS)){
+        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLS)) {
             ICellComment comment = readComment(reader);
 
             assertNotNull(comment);
@@ -24,7 +24,7 @@ public class CommentsTest {
 
     @Test
     public void commentWithDomInXlsx() {
-        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLSX)){
+        try (ExcelReader reader = ExcelReaderFactory.fullReadFactory().create(XLSX)) {
             ICellComment comment = readComment(reader);
 
             assertNotNull(comment);

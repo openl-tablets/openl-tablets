@@ -176,6 +176,7 @@ public class Cell implements ICell {
     public Date getNativeDate() {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public double getNativeNumber() {
         throw new UnsupportedOperationException();
@@ -201,9 +202,9 @@ public class Cell implements ICell {
     }
 
     @Override
-	public ICell getTopLeftCellFromRegion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ICell getTopLeftCellFromRegion() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

@@ -4,11 +4,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * A context against which dot-path expressions are computed in
- * <code>DomainTree</code>. E.g. if the context contains an object <i>driver</i>
- * of type <code>Driver</code>, a user can construct expressions like
- * <code>driver.age</code>, <code>driver.address.zipcode</code> provided
- * the corresponding classes contain required properties.
+ * A context against which dot-path expressions are computed in <code>DomainTree</code>. E.g. if the context contains an
+ * object <i>driver</i> of type <code>Driver</code>, a user can construct expressions like <code>driver.age</code>,
+ * <code>driver.address.zipcode</code> provided the corresponding classes contain required properties.
  *
  * @author Aliaksandr Antonik.
  */

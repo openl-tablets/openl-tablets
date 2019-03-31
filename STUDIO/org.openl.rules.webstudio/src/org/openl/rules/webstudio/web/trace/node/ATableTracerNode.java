@@ -14,7 +14,11 @@ public class ATableTracerNode extends SimpleTracerObject {
         this(type, prefix, method, params, null);
     }
 
-    ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params, IRuntimeContext context) {
+    ATableTracerNode(String type,
+            String prefix,
+            ExecutableRulesMethod method,
+            Object[] params,
+            IRuntimeContext context) {
         super(type);
         this.prefix = prefix;
         this.method = method;
@@ -42,7 +46,7 @@ public class ATableTracerNode extends SimpleTracerObject {
         }
         ITracerObject parent = getParent();
         if (parent instanceof ATableTracerNode) {
-            return ((ATableTracerNode)parent).getTraceObject();
+            return ((ATableTracerNode) parent).getTraceObject();
         }
         throw new IllegalStateException("The executable method is not defined");
     }

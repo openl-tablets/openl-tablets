@@ -25,11 +25,9 @@ import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
- * Utilities for the export of the Constrainer model/problem. Experimental
- * version for ILOG Solver. Uses the names of the expressions as their export
- * presentation (???).
+ * Utilities for the export of the Constrainer model/problem. Experimental version for ILOG Solver. Uses the names of
+ * the expressions as their export presentation (???).
  */
 public class ModelExport {
     IntExpArray _vars;

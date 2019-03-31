@@ -21,8 +21,6 @@ package org.openl.ie.constrainer;
  * An interface for the constrained integer and floating-point expressions.
  */
 
-
-
 public interface Expression extends Subject, EventOfInterest.Constants, java.io.Serializable {
     /**
      * The MIN tracing mask for the traced variables.

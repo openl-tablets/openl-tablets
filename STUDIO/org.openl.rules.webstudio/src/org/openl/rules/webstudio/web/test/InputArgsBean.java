@@ -104,11 +104,14 @@ public class InputArgsBean {
         }
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
-        Object value = ParameterTreeBuilder.canConstruct(fieldType) ? fieldType.newInstance(new SimpleVM().getRuntimeEnv()) : null;
+        Object value = ParameterTreeBuilder.canConstruct(fieldType)
+                                                                    ? fieldType
+                                                                        .newInstance(new SimpleVM().getRuntimeEnv())
+                                                                    : null;
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-                .fieldNameInParent(currentNode.getName())
-                .parent(parent)
-                .build();
+            .fieldNameInParent(currentNode.getName())
+            .parent(parent)
+            .build();
         ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(config);
         currentNode.setValueForced(newNode.getValueForced());
 
@@ -145,7 +148,8 @@ public class InputArgsBean {
 
     public ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
-        ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature().getNumberOfParameters()];
+        ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature()
+            .getNumberOfParameters()];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
@@ -175,8 +179,8 @@ public class InputArgsBean {
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(args[i].getType(), args[i].getValue())
-                    .fieldNameInParent(args[i].getName())
-                    .build();
+                .fieldNameInParent(args[i].getName())
+                .build();
             argTreeNodes[i] = ParameterTreeBuilder.createNode(config);
         }
         return argTreeNodes;

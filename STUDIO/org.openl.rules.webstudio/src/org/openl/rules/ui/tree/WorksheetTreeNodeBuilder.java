@@ -5,7 +5,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
 
 /**
- * Builds tree node for work sheet. 
+ * Builds tree node for work sheet.
  */
 public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 

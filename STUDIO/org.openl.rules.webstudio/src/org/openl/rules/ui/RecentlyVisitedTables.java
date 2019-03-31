@@ -125,11 +125,11 @@ public class RecentlyVisitedTables {
         public String getId() {
             return id;
         }
-        
+
         public String getType() {
             return type;
         }
-        
+
         public String getName() {
             return name;
         }
@@ -138,8 +138,8 @@ public class RecentlyVisitedTables {
             String tableName = table.getDisplayName();
 
             if (tableName == null || tableName.isEmpty()) {
-                tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
-                    , XlsNodeTypes.getEnumByValue(table.getType()));
+                tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue(),
+                    XlsNodeTypes.getEnumByValue(table.getType()));
             }
 
             String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
@@ -151,13 +151,16 @@ public class RecentlyVisitedTables {
                     String propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                     if (propValue != null && !propValue.isEmpty()) {
-                        dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
+                        dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                            .append(dimensionProp)
+                            .append(" = ")
+                            .append(propValue);
                     }
                 }
             }
 
             if (dimensionBuilder.length() > 0) {
-                return tableName +"["+ dimensionBuilder.toString() +"]";
+                return tableName + "[" + dimensionBuilder.toString() + "]";
             } else {
                 return tableName;
             }
@@ -168,20 +171,20 @@ public class RecentlyVisitedTables {
             if (obj == null) {
                 return false;
             }
-            
+
             if (obj == this) {
                 return true;
             }
-            
+
             if (obj.getClass() != getClass()) {
                 return false;
             }
-            
+
             VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
-            
-            return  Objects.equals(getId(), wrapper.getId());
+
+            return Objects.equals(getId(), wrapper.getId());
         }
-        
+
         @Override
         public int hashCode() {
             return Objects.hashCode(getId());

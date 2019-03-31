@@ -33,7 +33,6 @@ import junit.framework.TestCase;
  */
 public class ParserTest extends TestCase {
 
-
     private static ISyntaxNode search(ISyntaxNode topNode, String type) {
         Class<?> c = null;
         if (topNode.getType().equals(type)) {
@@ -103,29 +102,26 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends ISyntaxNode> T  _testOperator(String src, final String type) throws OpenConfigurationException {
- 
+    public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenConfigurationException {
+
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         return (T) search(pc.getTopNode(), type);
     }
 
-
-    public void _testErrorMsg(String src, String messageStart)
-    {
+    public void _testErrorMsg(String src, String messageStart) {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         SyntaxNodeException[] errors = pc.getErrors();
 
         if (errors.length == 0)
-          throw new RuntimeException("This expression must produce an error!");
+            throw new RuntimeException("This expression must produce an error!");
 
         String message = errors[0].getMessage();
 
         if (!message.startsWith(messageStart))
             throw new RuntimeException(String.format("'%s' should start with '%s'", message, messageStart));
-
 
     }
 
@@ -147,7 +143,11 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testNumberParseAndBind(INodeBinder binder, String src, Object res, Class<?> clazz, final String type) throws Exception {
+    public void _testNumberParseAndBind(INodeBinder binder,
+            String src,
+            Object res,
+            Class<?> clazz,
+            final String type) throws Exception {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
@@ -158,7 +158,6 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
         Assert.assertEquals(res, literalBoundNode.getValue());
     }
-
 
     public void testArray() {
         _testType("new int[10]", "op.new.array");
@@ -205,9 +204,6 @@ public class ParserTest extends TestCase {
         _testType("if (x) a();", "control.if");
     }
 
-
-
-
     public void testLiteral() throws OpenConfigurationException {
         // we should remove suffix the next line produces NumberFormatException
         // Assert.assertEquals(new Long(5), Long.decode("5L"));
@@ -223,11 +219,10 @@ public class ParserTest extends TestCase {
         _testLiteral("2001-01-01 11:40:33.744", "2001-01-01 11:40:33.744", "literal.datetime");
 
     }
-    
+
     public void testRange() throws OpenConfigurationException {
-      _testType("$Step1:$Step7","range.variable");
+        _testType("$Step1:$Step7", "range.variable");
     }
-    
 
     public void testLocation() throws OpenConfigurationException {
         String test1 = "\tx";
@@ -249,7 +244,7 @@ public class ParserTest extends TestCase {
     public void testOperator() throws OpenConfigurationException {
         BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
         Assert.assertNotNull(binaryNode);
-        
+
         binaryNode = _testOperator("x-3", "op.binary.subtract");
         Assert.assertNotNull(binaryNode);
 
@@ -278,10 +273,22 @@ public class ParserTest extends TestCase {
     public void testNumberParseAndBind() throws Exception {
         _testNumberParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class, "literal.integer");
         _testNumberParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class, "literal.integer");
-        _testNumberParseAndBind(new IntNodeBinder(), "10000000000000000000", new BigInteger("10000000000000000000"), BigInteger.class, "literal.integer");
-        
-        _testNumberParseAndBind(new DoubleNodeBinder(), "1e+308", Double.valueOf("1e+308"), double.class, "literal.real");
-        _testNumberParseAndBind(new DoubleNodeBinder(), "2e+308", new BigDecimal("2e+308"), BigDecimal.class, "literal.real");
+        _testNumberParseAndBind(new IntNodeBinder(),
+            "10000000000000000000",
+            new BigInteger("10000000000000000000"),
+            BigInteger.class,
+            "literal.integer");
+
+        _testNumberParseAndBind(new DoubleNodeBinder(),
+            "1e+308",
+            Double.valueOf("1e+308"),
+            double.class,
+            "literal.real");
+        _testNumberParseAndBind(new DoubleNodeBinder(),
+            "2e+308",
+            new BigDecimal("2e+308"),
+            BigDecimal.class,
+            "literal.real");
     }
 
 }

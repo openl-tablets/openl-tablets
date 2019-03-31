@@ -43,6 +43,7 @@ public class MainBean {
     private String requestId;
 
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
+
     public MainBean() {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(FacesUtils.getContextPath());
@@ -78,7 +79,6 @@ public class MainBean {
         studio.init(branchName, projectName, moduleName);
     }
 
-
     public String getVersionComment() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = studio.getCurrentProject();
@@ -86,7 +86,6 @@ public class MainBean {
         if (project != null && project.isOpenedOtherVersion()) {
             return Comments.restoredFrom(project.getHistoryVersion());
         }
-
 
         return "";
     }

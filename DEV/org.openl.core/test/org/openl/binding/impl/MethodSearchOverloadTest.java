@@ -486,34 +486,175 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     @Test
     public void testTwoArguments() {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", byte.class, boxed, "GenericByte", "GenericShort", "GenericInteger", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            byte.class,
+            boxed,
+            "GenericByte",
+            "GenericShort",
+            "GenericInteger",
+            "GenericLong",
+            "GenericFloat",
+            "Double",
+            "GenericBigInteger",
+            "BigDecimal");
         assertMethod(target, "m2", byte.class, nonNumbers, NF, "long", NF, "Double");
-        assertMethod(target, "m2", byte.class, valued, "GenericByteValue", "GenericShortValue", "GenericIntValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue", "GenericBigIntegerValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            byte.class,
+            valued,
+            "GenericByteValue",
+            "GenericShortValue",
+            "GenericIntValue",
+            "GenericLongValue",
+            "GenericFloatValue",
+            "GenericDoubleValue",
+            "GenericBigIntegerValue",
+            "GenericBigDecimalValue");
 
         assertMethod(target, "m2", short.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", short.class, boxed, "GenericShort", "GenericShort", "GenericInteger", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            short.class,
+            boxed,
+            "GenericShort",
+            "GenericShort",
+            "GenericInteger",
+            "GenericLong",
+            "GenericFloat",
+            "Double",
+            "GenericBigInteger",
+            "BigDecimal");
         assertMethod(target, "m2", short.class, nonNumbers, NF, "long", NF, "Double");
-        assertMethod(target, "m2", short.class, valued, "GenericShortValue", "GenericShortValue", "GenericIntValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue", "GenericBigIntegerValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            short.class,
+            valued,
+            "GenericShortValue",
+            "GenericShortValue",
+            "GenericIntValue",
+            "GenericLongValue",
+            "GenericFloatValue",
+            "GenericDoubleValue",
+            "GenericBigIntegerValue",
+            "GenericBigDecimalValue");
 
         assertMethod(target, "m2", int.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", int.class, boxed, "GenericInteger", "GenericInteger", "GenericInteger", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            int.class,
+            boxed,
+            "GenericInteger",
+            "GenericInteger",
+            "GenericInteger",
+            "GenericLong",
+            "GenericFloat",
+            "Double",
+            "GenericBigInteger",
+            "BigDecimal");
         assertMethod(target, "m2", int.class, nonNumbers, NF, "long", NF, "GenericInteger");
-        assertMethod(target, "m2", int.class, valued, "GenericIntValue", "GenericIntValue", "GenericIntValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue", "GenericBigIntegerValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            int.class,
+            valued,
+            "GenericIntValue",
+            "GenericIntValue",
+            "GenericIntValue",
+            "GenericLongValue",
+            "GenericFloatValue",
+            "GenericDoubleValue",
+            "GenericBigIntegerValue",
+            "GenericBigDecimalValue");
 
         assertMethod(target, "m2", long.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", long.class, boxed, "GenericLong", "GenericLong", "GenericLong", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            long.class,
+            boxed,
+            "GenericLong",
+            "GenericLong",
+            "GenericLong",
+            "GenericLong",
+            "GenericFloat",
+            "Double",
+            "GenericBigInteger",
+            "BigDecimal");
         assertMethod(target, "m2", long.class, nonNumbers, NF, "long", NF, "GenericLong");
-        assertMethod(target, "m2", long.class, valued, "GenericLongValue", "GenericLongValue", "GenericLongValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue", "GenericBigIntegerValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            long.class,
+            valued,
+            "GenericLongValue",
+            "GenericLongValue",
+            "GenericLongValue",
+            "GenericLongValue",
+            "GenericFloatValue",
+            "GenericDoubleValue",
+            "GenericBigIntegerValue",
+            "GenericBigDecimalValue");
 
         assertMethod(target, "m2", float.class, primitives, "double", "double", "double", "double", "double", "double");
-        assertMethod(target, "m2", float.class, boxed, "GenericFloat", "GenericFloat", "GenericFloat", "GenericFloat", "GenericFloat", "Double", "BigDecimal", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            float.class,
+            boxed,
+            "GenericFloat",
+            "GenericFloat",
+            "GenericFloat",
+            "GenericFloat",
+            "GenericFloat",
+            "Double",
+            "BigDecimal",
+            "BigDecimal");
         assertMethod(target, "m2", float.class, nonNumbers, NF, "double", NF, "GenericFloat");
-        assertMethod(target, "m2", float.class, valued, "GenericFloatValue", "GenericFloatValue", "GenericFloatValue", "GenericFloatValue", "GenericFloatValue", "GenericDoubleValue", "GenericBigDecimalValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            float.class,
+            valued,
+            "GenericFloatValue",
+            "GenericFloatValue",
+            "GenericFloatValue",
+            "GenericFloatValue",
+            "GenericFloatValue",
+            "GenericDoubleValue",
+            "GenericBigDecimalValue",
+            "GenericBigDecimalValue");
 
-        assertMethod(target, "m2", double.class, primitives, "double", "double", "double", "double", "double", "double");
-        assertMethod(target, "m2", double.class, boxed, "Double", "Double", "Double", "Double", "Double", "Double", "BigDecimal", "BigDecimal");
+        assertMethod(target,
+            "m2",
+            double.class,
+            primitives,
+            "double",
+            "double",
+            "double",
+            "double",
+            "double",
+            "double");
+        assertMethod(target,
+            "m2",
+            double.class,
+            boxed,
+            "Double",
+            "Double",
+            "Double",
+            "Double",
+            "Double",
+            "Double",
+            "BigDecimal",
+            "BigDecimal");
         assertMethod(target, "m2", double.class, nonNumbers, NF, "double", NF, "Double");
-        assertMethod(target, "m2", double.class, valued, "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericBigDecimalValue", "GenericBigDecimalValue");
+        assertMethod(target,
+            "m2",
+            double.class,
+            valued,
+            "GenericDoubleValue",
+            "GenericDoubleValue",
+            "GenericDoubleValue",
+            "GenericDoubleValue",
+            "GenericDoubleValue",
+            "GenericDoubleValue",
+            "GenericBigDecimalValue",
+            "GenericBigDecimalValue");
     }
 
     @Test
@@ -601,14 +742,76 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
 
     @Test
     public void testGenericsVararg() {
-        assertMethod(target, "singleGenVararg", primitives, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]");
-        assertMethod(target, "singleGenVararg", boxed, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]", "BigInteger[]", "BigDecimal[]");
+        assertMethod(target,
+            "singleGenVararg",
+            primitives,
+            "Byte[]",
+            "Short[]",
+            "Integer[]",
+            "Long[]",
+            "Float[]",
+            "Double[]");
+        assertMethod(target,
+            "singleGenVararg",
+            boxed,
+            "Byte[]",
+            "Short[]",
+            "Integer[]",
+            "Long[]",
+            "Float[]",
+            "Double[]",
+            "BigInteger[]",
+            "BigDecimal[]");
         assertMethod(target, "singleGenVararg", nonNumbers, "Boolean[]", "Character[]", "Boolean[]", "Character[]");
-        assertMethod(target, "singleGenVararg", valued, "ByteValue[]", "ShortValue[]", "IntValue[]", "LongValue[]", "FloatValue[]", "DoubleValue[]", "BigIntegerValue[]", "BigDecimalValue[]");
-        assertMethod(target, "singleGenVararg", primitivesArray, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]");
-        assertMethod(target, "singleGenVararg", boxedArray, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]", "BigInteger[]", "BigDecimal[]");
-        assertMethod(target, "singleGenVararg", nonNumbersArray, "Boolean[]", "Character[]", "Boolean[]", "Character[]");
-        assertMethod(target, "singleGenVararg", valuedArray, "ByteValue[]", "ShortValue[]", "IntValue[]", "LongValue[]", "FloatValue[]", "DoubleValue[]", "BigIntegerValue[]", "BigDecimalValue[]");
+        assertMethod(target,
+            "singleGenVararg",
+            valued,
+            "ByteValue[]",
+            "ShortValue[]",
+            "IntValue[]",
+            "LongValue[]",
+            "FloatValue[]",
+            "DoubleValue[]",
+            "BigIntegerValue[]",
+            "BigDecimalValue[]");
+        assertMethod(target,
+            "singleGenVararg",
+            primitivesArray,
+            "Byte[]",
+            "Short[]",
+            "Integer[]",
+            "Long[]",
+            "Float[]",
+            "Double[]");
+        assertMethod(target,
+            "singleGenVararg",
+            boxedArray,
+            "Byte[]",
+            "Short[]",
+            "Integer[]",
+            "Long[]",
+            "Float[]",
+            "Double[]",
+            "BigInteger[]",
+            "BigDecimal[]");
+        assertMethod(target,
+            "singleGenVararg",
+            nonNumbersArray,
+            "Boolean[]",
+            "Character[]",
+            "Boolean[]",
+            "Character[]");
+        assertMethod(target,
+            "singleGenVararg",
+            valuedArray,
+            "ByteValue[]",
+            "ShortValue[]",
+            "IntValue[]",
+            "LongValue[]",
+            "FloatValue[]",
+            "DoubleValue[]",
+            "BigIntegerValue[]",
+            "BigDecimalValue[]");
         assertNotFound(target, "singleGenVararg", List.class);
     }
 }

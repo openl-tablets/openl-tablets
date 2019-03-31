@@ -74,8 +74,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-
-        String devStr = printDevView(new Integer[]{1,2,3,4,5});
+        String devStr = printDevView(new Integer[] { 1, 2, 3, 4, 5 });
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
@@ -89,7 +88,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(new int[] {1,2,3,4,5});
+        String devStr = printDevView(new int[] { 1, 2, 3, 4, 5 });
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 

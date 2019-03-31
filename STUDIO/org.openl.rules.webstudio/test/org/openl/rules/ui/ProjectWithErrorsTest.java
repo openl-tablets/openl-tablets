@@ -30,7 +30,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
     @Parameterized.Parameters(name = "singleModuleMode: {0}")
     public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][]{{true}, {false}});
+        return Arrays.asList(new Object[][] { { true }, { false } });
     }
 
     @Before
@@ -46,7 +46,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         pm.setModuleInfo(getModules().get(0));
         if (singleModuleMode) {
             pm.useSingleModuleMode();
-        }else {
+        } else {
             pm.useMultiModuleMode();
         }
     }
@@ -72,33 +72,21 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         Sheet sheet = book.createSheet(SHEET_NAME);
 
         // Correct tables
-        String expenseDatatypeTable[][] = {
-                {"Datatype Expense"},
-                {"String", "area"}
-        };
+        String expenseDatatypeTable[][] = { { "Datatype Expense" }, { "String", "area" } };
 
-        String greetingMethodTable[][] = {
-                {"Method String getGreeting(String name)"},
-                {"Return \"Hi, \" + name;"}
-        };
-        String greetingTestTable[][] = {
-                {"Test getGreeting getGreetingTest"},
-                {"name", "_res_"},
-                {"Name", "Result"},
-                {"John", "Hi, John"}
-        };
+        String greetingMethodTable[][] = { { "Method String getGreeting(String name)" },
+                { "Return \"Hi, \" + name;" } };
+        String greetingTestTable[][] = { { "Test getGreeting getGreetingTest" },
+                { "name", "_res_" },
+                { "Name", "Result" },
+                { "John", "Hi, John" } };
 
         // Tables with errors
-        String incorrectDatatypeTable[][] = {
-                {"Datatype Incorrect"},
-                {"NotExistedType", "area"}
-        };
-        String incorrectTestTable[][] = {
-                {"Test notExistedMethod getGreetingTest"},
-                {"name", "_res_"},
-                {"Name", "Result"},
-                {"John", "Hi, John"}
-        };
+        String incorrectDatatypeTable[][] = { { "Datatype Incorrect" }, { "NotExistedType", "area" } };
+        String incorrectTestTable[][] = { { "Test notExistedMethod getGreetingTest" },
+                { "name", "_res_" },
+                { "Name", "Result" },
+                { "John", "Hi, John" } };
 
         createTable(sheet, expenseDatatypeTable);
         createTable(sheet, incorrectDatatypeTable);

@@ -21,7 +21,7 @@ public class RefToTracerNodeObject implements ITracerObject {
 
     @Override
     public void addChild(ITracerObject child) {
-        //no need to add children to the reference node. It must be competed!
+        // no need to add children to the reference node. It must be competed!
     }
 
     @Override

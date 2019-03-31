@@ -15,15 +15,15 @@ public class RootFolderExtractor {
     private Set<String> folderNames;
     private String rootName;
     private PathFilter filter;
-    
-    public RootFolderExtractor(Set<String> folderNames, PathFilter filter) {        
+
+    public RootFolderExtractor(Set<String> folderNames, PathFilter filter) {
         this.folderNames = folderNames;
         this.filter = filter;
         initRootFolderPath();
     }
-    
+
     /**
-     * Inits the root folder name is exists from the set of folder names. 
+     * Inits the root folder name is exists from the set of folder names.
      */
     private void initRootFolderPath() {
         if (needToExtract()) {
@@ -36,15 +36,15 @@ public class RootFolderExtractor {
             }
         }
     }
-    
+
     /**
      * Extracs the folder from the root folder(if exists).
-     
+     * 
      * 
      * @param folderName folder name to be extracted from the root folder.
-     * @return extracted folder name from the root folder.<br> 
-     * E.g. folderName: <code>org/package/sources/</code>.
-     * if the root folder is <code>org</code>, the result will be <code>package/sources/</code>.
+     * @return extracted folder name from the root folder.<br>
+     *         E.g. folderName: <code>org/package/sources/</code>. if the root folder is <code>org</code>, the result
+     *         will be <code>package/sources/</code>.
      */
     public String extractFromRootFolder(String folderName) {
         String result = null;
@@ -58,9 +58,8 @@ public class RootFolderExtractor {
     }
 
     /**
-     * Check if there is a single root folder in the set of folder names.
-     * Algorithm: if there is only one folder path which contains first found symbol '/', and it`s number
-     * is equal to path length.
+     * Check if there is a single root folder in the set of folder names. Algorithm: if there is only one folder path
+     * which contains first found symbol '/', and it`s number is equal to path length.
      * 
      * @return true if there is a single root folder in the set of folder names
      */

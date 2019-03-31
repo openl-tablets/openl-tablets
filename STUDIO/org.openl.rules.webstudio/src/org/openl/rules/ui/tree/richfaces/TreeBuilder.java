@@ -12,7 +12,6 @@ abstract class TreeBuilder {
 
     private CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
 
-
     TreeBuilder() {
     }
 
@@ -43,9 +42,9 @@ abstract class TreeBuilder {
                 continue;
             }
             TreeNode rfChild = buildNode(child);
-            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) ||
-                    IProjectTypes.PT_WORKBOOK.equals(rfChild.getType())) {
-                //skip workbook or worksheet node if it has no children nodes
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
+                .equals(rfChild.getType())) {
+                // skip workbook or worksheet node if it has no children nodes
                 if (!rfChild.getChildrenKeysIterator().hasNext()) {
                     continue;
                 }

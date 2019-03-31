@@ -21,9 +21,8 @@ public class CellStyleCreator {
 
     public XlsCellStyle getCellStyle(JSONObject style) {
         if (style != null) {
-            Workbook workbook = gridModel.getSheetSource()
-                    .getWorkbookSource().getWorkbook();
-            
+            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+
             if (workbook instanceof HSSFWorkbook) {
                 CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
@@ -41,20 +40,21 @@ public class CellStyleCreator {
                 cellStyle.setBorderLeft(HTMLToExcelStyleCoverter.getBorderLeft(style));
                 cellStyle.setAlignment(HTMLToExcelStyleCoverter.getAlignment(style));
                 cellStyle.setFont(HTMLToExcelStyleCoverter.getFont(style, workbook));
- 
+
                 return new XlsCellStyle(cellStyle, workbook);
             } else if (workbook instanceof XSSFWorkbook) {
                 XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook)));
+                cellStyle
+                    .setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook)));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getXSSFTopBorderColor(style, xssfWorkbook));
                 cellStyle.setRightBorderColor(HTMLToExcelStyleCoverter.getXSSFRightBorderColor(style, xssfWorkbook));
                 cellStyle.setBottomBorderColor(HTMLToExcelStyleCoverter.getXSSFBottomBorderColor(style, xssfWorkbook));
                 cellStyle.setLeftBorderColor(HTMLToExcelStyleCoverter.getXSSFLeftBorderColor(style, xssfWorkbook));
-                
+
                 cellStyle.setBorderTop(HTMLToExcelStyleCoverter.getBorderTop(style));
                 cellStyle.setBorderRight(HTMLToExcelStyleCoverter.getBorderRight(style));
                 cellStyle.setBorderBottom(HTMLToExcelStyleCoverter.getBorderBottom(style));
@@ -67,8 +67,7 @@ public class CellStyleCreator {
 
             return new XlsCellStyle(PoiExcelHelper.createCellStyle(workbook), workbook);
         } else {
-            Workbook workbook = gridModel.getSheetSource()
-                    .getWorkbookSource().getWorkbook();
+            Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             return new XlsCellStyle(cellStyle, workbook);

@@ -1,6 +1,5 @@
 package org.openl.rules.variation;
 
-
 /*
  * #%L
  * OpenL - Variation
@@ -10,7 +9,6 @@ package org.openl.rules.variation;
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
-
 
 /**
  * Checked exception for variation API

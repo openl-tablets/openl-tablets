@@ -24,8 +24,9 @@ public class SessionTimeoutFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {
@@ -36,15 +37,15 @@ public class SessionTimeoutFilter implements Filter {
             }
         }
 
-        if (request.getRequestedSessionId() != null &&
-                !(request.isRequestedSessionIdValid() || request.getSession().isNew())) {
+        if (request.getRequestedSessionId() != null && !(request.isRequestedSessionIdValid() || request.getSession()
+            .isNew())) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             String redirectUrl = request.getContextPath() + redirectPage;
             log.info("Session Expired: redirect to {} page", redirectPage);
 
             // Handle Ajax requests
-            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
-                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
+            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest") // jQuery / Prototype
+                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) { // JSF 2 / RichFaces
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {

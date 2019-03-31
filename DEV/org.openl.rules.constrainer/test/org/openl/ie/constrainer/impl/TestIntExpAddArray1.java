@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 public class TestIntExpAddArray1 extends TestCase {
     private Constrainer C = new Constrainer("TestIntExpAddArray1");
 

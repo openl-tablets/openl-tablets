@@ -10,20 +10,19 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 
 public class DatatypeTableTest extends BaseOpenlBuilderHelper {
-    
+
     private static String src = "test/rules/datatype/DatatypeTableTest.xls";
-    
+
     public DatatypeTableTest() {
-        super(src);        
+        super(src);
     }
-    
+
     @Test
     public void testCanAccessDatatype() {
         IOpenClass openClass = getCompiledOpenClass().getOpenClass();
         assertNotNull("There is Driver datatype", openClass.findType("Driver"));
     }
-    
-    
+
     @Test
     public void testDatatypeMember() {
         TableSyntaxNode node = findTable("Datatype Driver");
@@ -32,9 +31,7 @@ public class DatatypeTableTest extends BaseOpenlBuilderHelper {
         } else {
             fail();
         }
-        
+
     }
-    
-  
 
 }

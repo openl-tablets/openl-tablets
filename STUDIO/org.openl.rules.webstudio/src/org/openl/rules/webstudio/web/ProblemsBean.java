@@ -41,8 +41,9 @@ public class ProblemsBean {
 
             TreeNode root = new TreeNode();
             Collection<OpenLMessage> messages = model.getModuleMessages();
-            
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
+                Severity.ERROR);
 
             if (!errorMessages.isEmpty()) {
                 TreeNode errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
@@ -50,7 +51,8 @@ public class ProblemsBean {
                 root.addChild(nodeCount++, errorsRoot);
             }
 
-            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
+                Severity.WARN);
             if (!warnMessages.isEmpty()) {
                 TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warnMessages.size());
                 addMessageNodes(warningsRoot, WARNING_NODE_NAME, warnMessages, model);

@@ -12,8 +12,7 @@ public interface PropertiesContainer {
      * Adds property into the container.
      *
      * @param property adding property
-     * @throws PropertyException if property with the same name exists already
-     *             and value cannot be updated.
+     * @throws PropertyException if property with the same name exists already and value cannot be updated.
      */
     void addProperty(Property property) throws PropertyException;
 

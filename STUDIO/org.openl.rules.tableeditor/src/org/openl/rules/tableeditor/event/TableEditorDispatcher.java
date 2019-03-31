@@ -35,9 +35,8 @@ public class TableEditorDispatcher implements PhaseListener {
 
         String uri = request.getRequestURI();
         if (uri.contains(Constants.TABLE_EDITOR_PATTERN)) {
-            String path = uri.substring(uri
-                    .indexOf(Constants.TABLE_EDITOR_PATTERN)
-                    + Constants.TABLE_EDITOR_PATTERN.length());
+            String path = uri
+                .substring(uri.indexOf(Constants.TABLE_EDITOR_PATTERN) + Constants.TABLE_EDITOR_PATTERN.length());
             if (path.startsWith(AJAX_MATCH)) {
                 handleAjaxRequest(context, response, path);
             } else {

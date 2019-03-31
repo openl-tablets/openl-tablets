@@ -7,8 +7,7 @@ import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 
 /**
- * Maps ID and Total premium from sub-steps. By default, ID is taken from
- * step#1, and Total from step#SIZE-1
+ * Maps ID and Total premium from sub-steps. By default, ID is taken from step#1, and Total from step#SIZE-1
  * 
  * @author tkrivickas
  * 
@@ -51,8 +50,8 @@ public class CompoundStepPostProcessor {
     }
 
     private boolean allNestedCompounds(List<CalculationStep> nestedSteps) {
-        return nestedSteps.get(0) instanceof CompoundStep
-                && nestedSteps.get(nestedSteps.size() - 1) instanceof CompoundStep;
+        return nestedSteps.get(0) instanceof CompoundStep && nestedSteps
+            .get(nestedSteps.size() - 1) instanceof CompoundStep;
     }
 
 }

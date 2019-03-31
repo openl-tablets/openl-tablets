@@ -26,5 +26,5 @@ public class ExtensionRuntimeException extends RuntimeException {
     public ExtensionRuntimeException(Throwable cause) {
         super(cause);
     }
-    
+
 }

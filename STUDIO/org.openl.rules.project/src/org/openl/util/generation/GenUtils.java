@@ -14,7 +14,7 @@ import java.util.List;
  * Created by ymolchan on 17.05.2017.
  */
 public final class GenUtils {
-    
+
     private GenUtils() {
     }
 
@@ -26,7 +26,10 @@ public final class GenUtils {
         return parameterNames;
     }
 
-    public static String[] getParameterNames(Method method, IOpenClass openClass, boolean hasContext, boolean hasVariations) {
+    public static String[] getParameterNames(Method method,
+            IOpenClass openClass,
+            boolean hasContext,
+            boolean hasVariations) {
         for (IOpenMethod m : openClass.getMethods()) {
             if (m.getName().equals(method.getName())) {
                 int i = 0;
@@ -42,7 +45,8 @@ public final class GenUtils {
                         skipRuntimeContextParameter = true;
                         continue;
                     }
-                    if (j == method.getParameterTypes().length && hasVariations && clazz.isAssignableFrom(VariationsPack.class)) {
+                    if (j == method.getParameterTypes().length && hasVariations && clazz
+                        .isAssignableFrom(VariationsPack.class)) {
                         variationPackIsLastParameter = true;
                         continue;
                     }
@@ -56,7 +60,7 @@ public final class GenUtils {
                     }
                     i++;
                 }
-                if (f && i != numberOfParameters){
+                if (f && i != numberOfParameters) {
                     f = false;
                 }
                 if (f) {

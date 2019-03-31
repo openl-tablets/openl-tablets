@@ -18,14 +18,16 @@ public class TableModel {
     private IGridTable gridTable;
 
     private int numRowsToDisplay = -1;
-    
+
     private final boolean showHeader;
 
     public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
         return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, MetaInfoReader metaInfoReader) {
+    public static TableModel initializeTableModel(IGridTable table,
+            IGridFilter[] filters,
+            MetaInfoReader metaInfoReader) {
         return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader);
     }
 
@@ -60,7 +62,7 @@ public class TableModel {
 
         return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader).buildModel(table, numRows);
     }
-    
+
     public boolean isShowHeader() {
         return showHeader;
     }

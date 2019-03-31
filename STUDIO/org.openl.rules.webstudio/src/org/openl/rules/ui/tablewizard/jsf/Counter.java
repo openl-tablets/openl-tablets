@@ -27,8 +27,7 @@ public class Counter {
     }
 
     /**
-     * Resets counter. The method is named in this way to allow JSF pages call
-     * it so: <code>#{counter.reset}</code>
+     * Resets counter. The method is named in this way to allow JSF pages call it so: <code>#{counter.reset}</code>
      *
      * @return <code>true</code>
      */

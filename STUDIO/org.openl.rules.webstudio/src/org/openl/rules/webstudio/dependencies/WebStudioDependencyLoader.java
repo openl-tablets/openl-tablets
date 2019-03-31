@@ -18,7 +18,10 @@ import org.openl.types.NullOpenClass;
 
 final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
 
-    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean isProject) {
+    WebStudioDependencyLoader(String dependencyName,
+            Collection<Module> modules,
+            boolean singleModuleMode,
+            boolean isProject) {
         super(dependencyName, modules, singleModuleMode, false, isProject);
     }
 
@@ -29,9 +32,10 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
         simpleBundleClassLoader.addClassLoader(projectClassLoader);
         return simpleBundleClassLoader;
     }
-    
+
     @Override
-    protected CompiledDependency onCompilationFailure(Exception ex, AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+    protected CompiledDependency onCompilationFailure(Exception ex,
+            AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
         ClassLoader classLoader = dependencyManager.getClassLoader(getModules().iterator().next().getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
     }
@@ -41,9 +45,8 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
             Exception ex) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
-            String message = String.format("Failed to load dependent module '%s': %s",
-                dependencyName,
-                openLMessage.getSummary());
+            String message = String
+                .format("Failed to load dependent module '%s': %s", dependencyName, openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
@@ -51,10 +54,11 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
-            return new CompiledDependency(dependencyName, new CompiledOpenClass(NullOpenClass.the,
-                messages,
-                new SyntaxNodeException[0],
-                new SyntaxNodeException[0]));
+            return new CompiledDependency(dependencyName,
+                new CompiledOpenClass(NullOpenClass.the,
+                    messages,
+                    new SyntaxNodeException[0],
+                    new SyntaxNodeException[0]));
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

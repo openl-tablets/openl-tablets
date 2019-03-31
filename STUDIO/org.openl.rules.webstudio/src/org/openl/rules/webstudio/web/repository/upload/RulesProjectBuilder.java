@@ -22,7 +22,12 @@ public class RulesProjectBuilder {
             // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
             AProject createdProject = workspace.createProject(projectName);
             LockEngine lockEngine = workspace.getProjectsLockEngine();
-            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData(), lockEngine);
+            project = new RulesProject(workspace,
+                workspace.getLocalWorkspace().getRepository(),
+                null,
+                createdProject.getRepository(),
+                createdProject.getFileData(),
+                lockEngine);
         }
         project.open();
     }
@@ -77,7 +82,8 @@ public class RulesProjectBuilder {
 
     public void save() throws ProjectException {
         WorkspaceUser user = workspace.getUser();
-        // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
+        // Override comment to avoid reusing of comment from previous version (we create a new project but it can
+        // contain
         // unerasable history for example in Git).
         project.getFileData().setComment(Comments.createProject(project.getName()));
         project.save(user);
@@ -86,8 +92,8 @@ public class RulesProjectBuilder {
 
     private void checkName(String artefactName) throws ProjectException {
         if (!NameChecker.checkName(artefactName)) {
-            throw new ProjectException("File or folder name '" + artefactName + "' is invalid. "
-                    + NameChecker.BAD_NAME_MSG);
+            throw new ProjectException(
+                "File or folder name '" + artefactName + "' is invalid. " + NameChecker.BAD_NAME_MSG);
         }
     }
 

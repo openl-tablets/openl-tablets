@@ -7,8 +7,23 @@ import junit.framework.TestCase;
 public class NameCheckerTest extends TestCase {
 
     public void testCheckNameBad() {
-        final String[] badNames = { "\\f", "f/g", "f*", "?f*", "g?", "f:x", "f;x", "a<b", "a>b", "a\tb", "a\nv", "a%b",
-                " test", "test ", "test.", "test..", "test..." };
+        final String[] badNames = { "\\f",
+                "f/g",
+                "f*",
+                "?f*",
+                "g?",
+                "f:x",
+                "f;x",
+                "a<b",
+                "a>b",
+                "a\tb",
+                "a\nv",
+                "a%b",
+                " test",
+                "test ",
+                "test.",
+                "test..",
+                "test..." };
 
         for (String s : badNames) {
             boolean res = NameChecker.checkName(s);

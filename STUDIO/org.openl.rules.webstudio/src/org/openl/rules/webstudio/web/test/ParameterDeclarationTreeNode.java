@@ -54,15 +54,15 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
         setValue(value);
         reset();
     }
-    
-    public Object getValueForced(){
-        if(isValueNull()){
+
+    public Object getValueForced() {
+        if (isValueNull()) {
             return null;
-        }else{
+        } else {
             return constructValueInternal();
         }
     }
-    
+
     protected abstract Object constructValueInternal();
 
     public abstract String getNodeType();
@@ -80,36 +80,36 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
         }
         return buff.toString();
     }
-    
-    public void reset(){
+
+    public void reset() {
         children = null;
     }
 
-    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildrenMap(){
-        if(children == null){
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildrenMap() {
+        if (children == null) {
             children = initChildrenMap();
         }
         return children;
     }
 
     protected abstract LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap();
-    
+
     @Override
     public void addChild(Object key, TreeNode node) {
-        if(node instanceof ParameterDeclarationTreeNode){
-            getChildrenMap().put(key, (ParameterDeclarationTreeNode)node);
+        if (node instanceof ParameterDeclarationTreeNode) {
+            getChildrenMap().put(key, (ParameterDeclarationTreeNode) node);
         }
     }
-    
+
     @Override
     public ParameterDeclarationTreeNode getChild(Object key) {
         return getChildrenMap().get(key);
     }
-    
-    public Collection<ParameterDeclarationTreeNode> getChildren(){
+
+    public Collection<ParameterDeclarationTreeNode> getChildren() {
         return getChildrenMap().values();
     }
-    
+
     @Override
     public Iterator<Object> getChildrenKeysIterator() {
         return getChildrenMap().keySet().iterator();
@@ -119,10 +119,10 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     public int indexOf(Object key) {
         Iterator<Object> keysIterator = getChildrenKeysIterator();
         int i = 0;
-        while(keysIterator.hasNext()){
-            if(keysIterator.next() == key){
+        while (keysIterator.hasNext()) {
+            if (keysIterator.next() == key) {
                 return i;
-            }else{
+            } else {
                 i++;
             }
         }

@@ -46,8 +46,8 @@ public class MethodInvokeResourceServiceTaskTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        DoubleValue result = (DoubleValue) processEngine.getRuntimeService().getVariable(task.getExecutionId(),
-            "resultVariable");
+        DoubleValue result = (DoubleValue) processEngine.getRuntimeService()
+            .getVariable(task.getExecutionId(), "resultVariable");
 
         Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
     }

@@ -19,8 +19,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
     @Deprecated
     int getState(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
-        if (pte.getTableSyntaxNode() != null
-                && WebStudioUtils.getProjectModel().isTestable(pte.getTableSyntaxNode())) {
+        if (pte.getTableSyntaxNode() != null && WebStudioUtils.getProjectModel().isTestable(pte.getTableSyntaxNode())) {
             return 2; // has tests
         }
         return super.getState(element);

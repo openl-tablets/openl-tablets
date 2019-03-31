@@ -16,7 +16,8 @@ public class TraceFormatterTest {
     @Test
     public void getDisplayNameTest() {
         Spreadsheet spreadsheet = createNodeMock();
-        SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory.getTracedObject(spreadsheet, null, null, null, null);
+        SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory
+            .getTracedObject(spreadsheet, null, null, null, null);
         SpreadsheetCell cell = createCellMock();
         SimpleTracerObject leafNode = TracedObjectFactory.getTracedObject(null, cell, null, null, null);
         spreadsheetTraceObject.addChild(leafNode);
@@ -34,12 +35,10 @@ public class TraceFormatterTest {
         assertEquals("$Value$Vehicle_Premiums = {0.95}", TraceFormatter.getDisplayName(leafNode));
 
         leafNode.setResult(new DoubleValue[] { new DoubleValue(0.95), new DoubleValue(0.55) });
-        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}",
-            TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}", TraceFormatter.getDisplayName(leafNode));
 
         leafNode.setResult(new double[][] { { 0.95, 0.55 }, { 1.95, 1.55 } });
-        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}",
-            TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}", TraceFormatter.getDisplayName(leafNode));
     }
 
     protected SpreadsheetCell createCellMock() {

@@ -29,8 +29,8 @@ class ExpectedResultFilter extends AGridFilter {
             StringBuilder formattedValue = new StringBuilder(60);
             boolean isOk = (result.getStatus() == TestStatus.TR_OK);
             if (isOk) {
-                formattedValue.append("<i class=\"case-success\"></i> ").append(XlsDataFormatterFactory.getFormattedValue(cell,
-                        cell.getMetaInfo()));
+                formattedValue.append("<i class=\"case-success\"></i> ")
+                    .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo()));
             } else {
                 Object expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration) {

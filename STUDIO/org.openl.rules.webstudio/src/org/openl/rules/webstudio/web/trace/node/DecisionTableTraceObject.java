@@ -7,7 +7,7 @@ import org.openl.runtime.IRuntimeContext;
 public class DecisionTableTraceObject extends ATableTracerNode {
 
     DecisionTableTraceObject(IDecisionTable decisionTable, Object[] params, IRuntimeContext context) {
-        super("decisiontable", "DT", (ExecutableRulesMethod)decisionTable, params, context);
+        super("decisiontable", "DT", (ExecutableRulesMethod) decisionTable, params, context);
     }
 
 }

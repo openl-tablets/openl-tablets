@@ -36,26 +36,29 @@ public class LaunchFileServlet extends HttpServlet {
     private transient final Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+                                                                                   IOException {
         doPost(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-            IOException {
+                                                                                    IOException {
         if (!isGranted(EDIT_TABLES)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
         WebStudio ws = getWebStudio(request);
-        if (ws == null) return;
+        if (ws == null)
+            return;
 
         ProjectModel model = ws.getModel();
 
         String id = request.getParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = model.getTableById(id);
-        if (table == null) return;
+        if (table == null)
+            return;
 
         String uri = table.getUri();
 
@@ -79,7 +82,7 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
-        decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); //Support '+' sign in file names;
+        decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); // Support '+' sign in file names;
 
         String wbPath;
         String wbName;

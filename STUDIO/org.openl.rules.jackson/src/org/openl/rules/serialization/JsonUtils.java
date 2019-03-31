@@ -22,10 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 
 public final class JsonUtils {
-    
+
     private JsonUtils() {
     }
-    
+
     private static final class DefaultObjectMapperHolder {
         private static final ObjectMapper INSTANCE;
         static {

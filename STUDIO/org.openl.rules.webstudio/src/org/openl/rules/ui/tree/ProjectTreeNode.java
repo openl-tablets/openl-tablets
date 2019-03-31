@@ -13,7 +13,11 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
     private TableSyntaxNode tableSyntaxNode;
     private Object problems;
 
-    public ProjectTreeNode(String[] displayName, String type, String uri, Object problems, int nameCount,
+    public ProjectTreeNode(String[] displayName,
+            String type,
+            String uri,
+            Object problems,
+            int nameCount,
             TableSyntaxNode tsn) {
 
         setType(type);
@@ -56,7 +60,7 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         }
 
         Iterable<? extends ITreeElement<Object>> children = getChildren();
-        for (ITreeElement<Object> treeNode: children) {
+        for (ITreeElement<Object> treeNode : children) {
             if (treeNode instanceof ProjectTreeNode) {
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
                 if (projectTreeNode.hasProblems()) {
@@ -81,7 +85,7 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         }
 
         Iterable<? extends ITreeElement<Object>> children = getChildren();
-        for (ITreeElement<Object> treeNode: children) {
+        for (ITreeElement<Object> treeNode : children) {
             if (treeNode instanceof ProjectTreeNode) {
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
                 result += projectTreeNode.getNumErrors();
@@ -101,6 +105,5 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
     public TableSyntaxNode getTableSyntaxNode() {
         return tableSyntaxNode;
     }
-    
-    
+
 }

@@ -5,8 +5,7 @@ import java.util.List;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * OpenL Rules Folder. It can have sub folders and files. Sub folders and files
- * are treated separately.
+ * OpenL Rules Folder. It can have sub folders and files. Sub folders and files are treated separately.
  *
  * @author Aleh Bykhavets
  *
@@ -34,8 +33,7 @@ public interface RFolder extends REntity {
     /**
      * Deletes the folder, sub folders and all files.
      * <p>
-     * Root folder cannot be deleted. Still, on delete it removes all its
-     * content, i.e. sub folders and all files.
+     * Root folder cannot be deleted. Still, on delete it removes all its content, i.e. sub folders and all files.
      *
      * @throws RRepositoryException
      */

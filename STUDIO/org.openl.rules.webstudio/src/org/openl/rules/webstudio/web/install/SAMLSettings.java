@@ -20,9 +20,14 @@ public class SAMLSettings {
             String samlServerMetadataUrl,
             int requestTimeout,
             String keystoreFilePath,
-            String keystorePassword, String keystoreSpAlias,
-            String keystoreSpPassword, String defaultGroup,
-            String usernameAttribute, String firstNameAttribute, String secondNameAttribute, String groupsAttribute,
+            String keystorePassword,
+            String keystoreSpAlias,
+            String keystoreSpPassword,
+            String defaultGroup,
+            String usernameAttribute,
+            String firstNameAttribute,
+            String secondNameAttribute,
+            String groupsAttribute,
             String authenticationContexts,
             boolean localLogout) {
         this.webStudioUrl = webStudioUrl;
@@ -70,10 +75,8 @@ public class SAMLSettings {
     }
 
     public void setKeystoreFilePath(String keystoreFilePath) {
-        if (keystoreFilePath == null
-                || keystoreFilePath.startsWith("classpath:")
-                || keystoreFilePath.startsWith("file:")
-                || keystoreFilePath.startsWith("url:")) {
+        if (keystoreFilePath == null || keystoreFilePath.startsWith("classpath:") || keystoreFilePath
+            .startsWith("file:") || keystoreFilePath.startsWith("url:")) {
             this.keystoreFilePath = keystoreFilePath;
         } else {
             this.keystoreFilePath = "file:" + keystoreFilePath;

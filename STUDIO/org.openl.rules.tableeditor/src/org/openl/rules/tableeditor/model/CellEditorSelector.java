@@ -46,7 +46,7 @@ public class CellEditorSelector {
             if (domain instanceof EnumDomain) {
                 Object[] allObjects = ((EnumDomain<?>) domain).getEnum().getAllObjects();
 
-                if (allObjects instanceof String[]) { 
+                if (allObjects instanceof String[]) {
                     String[] allObjectValues = (String[]) allObjects;
 
                     if (meta.isMultiValue()) {
@@ -67,7 +67,7 @@ public class CellEditorSelector {
                     String[] allObjectValues = new String[allObjects.length];
                     for (int i = 0; i < allObjects.length; i++) {
                         Object value = allObjects[i];
-                        allObjectValues[i] = value instanceof  String ? (String) value : formatter.format(value);
+                        allObjectValues[i] = value instanceof String ? (String) value : formatter.format(value);
                     }
 
                     if (meta.isMultiValue()) {
@@ -84,11 +84,13 @@ public class CellEditorSelector {
                     if (!meta.isMultiValue()) {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
                         Number maxValue = NumberUtils.getMaxValue(instanceClass);
-                        result = factory.makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
+                        result = factory
+                            .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
                     } else {
                         // Numeric Array
-                        return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC,
-                                IntegerValuesUtils.isIntegerValue(instanceClass));
+                        return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR,
+                            ICellEditor.CE_NUMERIC,
+                            IntegerValuesUtils.isIntegerValue(instanceClass));
                     }
                 }
 
@@ -108,7 +110,7 @@ public class CellEditorSelector {
                 if (meta.isMultiValue()) {
                     result = factory.makeMultiSelectEditor(values, displayValues);
                 } else {
-                    result = factory.makeComboboxEditor(values, displayValues); 
+                    result = factory.makeComboboxEditor(values, displayValues);
                 }
 
                 // Range

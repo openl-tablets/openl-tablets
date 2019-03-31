@@ -22,7 +22,7 @@ class LinkMaker extends AGridFilter {
             int rootID = Explanator.getUniqueId(requestId, (ExplanationNumberValue<?>) value);
             String url = "javascript: explain(\'?rootID=" + rootID + "')";
             cell.setFormattedValue("<a href=\"" + url + "\">" + XlsDataFormatterFactory.getFormattedValue(cell,
-                    cell.getMetaInfo()) + "</a>");
+                cell.getMetaInfo()) + "</a>");
         }
         return cell;
     }

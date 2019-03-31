@@ -10,8 +10,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 /**
- * Generator class that uses the Velocity engine to generate code snippets.
- * Implemented using singleton pattern.
+ * Generator class that uses the Velocity engine to generate code snippets. Implemented using singleton pattern.
  * 
  * @author Alexey Gamanovich
  * 

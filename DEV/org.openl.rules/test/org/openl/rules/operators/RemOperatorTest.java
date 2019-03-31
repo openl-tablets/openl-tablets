@@ -94,16 +94,13 @@ public class RemOperatorTest {
     @Test
     public void testFloatValue() {
         assertEquals("passed", instance.testRemFloatValue(new FloatValue((float) 4.44), new FloatValue((float) 2.22)));
-        assertEquals("not passed",
-            instance.testRemFloatValue(new FloatValue((float) 5.57), new FloatValue(44)));
+        assertEquals("not passed", instance.testRemFloatValue(new FloatValue((float) 5.57), new FloatValue(44)));
     }
 
     @Test
     public void testDoubleValue() {
-        assertEquals("passed",
-            instance.testRemDoubleValue(new DoubleValue(4.44), new DoubleValue(2.22)));
-        assertEquals("not passed",
-            instance.testRemDoubleValue(new DoubleValue(5.57), new DoubleValue(44)));
+        assertEquals("passed", instance.testRemDoubleValue(new DoubleValue(4.44), new DoubleValue(2.22)));
+        assertEquals("not passed", instance.testRemDoubleValue(new DoubleValue(5.57), new DoubleValue(44)));
     }
 
     @Test

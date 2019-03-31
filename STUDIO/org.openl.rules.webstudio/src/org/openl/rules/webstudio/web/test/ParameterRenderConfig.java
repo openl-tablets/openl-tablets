@@ -41,10 +41,13 @@ public class ParameterRenderConfig {
     }
 
     /**
-     * Get the field of a complex object that can be represented as a simple representation of an object.
-     * For example this field often is used as a foreign key in Data and Test tables.
-     * Key field is shown in parentheses. For example if key field of a Driver type is firstName,
-     * the object is displayed as: <pre>Driver (John), Driver (Jill)</pre>
+     * Get the field of a complex object that can be represented as a simple representation of an object. For example
+     * this field often is used as a foreign key in Data and Test tables. Key field is shown in parentheses. For example
+     * if key field of a Driver type is firstName, the object is displayed as:
+     * 
+     * <pre>
+     * Driver (John), Driver (Jill)
+     * </pre>
      *
      * @see ComplexParameterTreeNode#getDisplayedValue()
      * @see ComplexParameterTreeNode#ComplexParameterTreeNode(ParameterRenderConfig)
@@ -77,8 +80,8 @@ public class ParameterRenderConfig {
     }
 
     /**
-     * Returns unique request id associated with specific test execution.
-     * Every test execution stores explanation info in session. We must be able to retrieve and remove that explanation info from session.
+     * Returns unique request id associated with specific test execution. Every test execution stores explanation info
+     * in session. We must be able to retrieve and remove that explanation info from session.
      *
      * @see SpreadsheetResultTreeNode#getDisplayedValue()
      * @see org.openl.rules.ui.Explanator#getUniqueId(String, ExplanationNumberValue)
@@ -100,7 +103,7 @@ public class ParameterRenderConfig {
         /**
          * Create new builder
          *
-         * @param type  Parameter type. Can't be null.
+         * @param type Parameter type. Can't be null.
          * @param value Parameter value.
          * @see #getType()
          */

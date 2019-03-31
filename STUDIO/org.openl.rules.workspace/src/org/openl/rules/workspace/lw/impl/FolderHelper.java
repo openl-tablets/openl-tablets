@@ -24,9 +24,8 @@ public final class FolderHelper {
     }
 
     /**
-     * Clears the folder's content.
-     * The folder itself will not be deleted.
-     * If you want to delete a folder itself, use {@link #deleteFolder(File)} instead
+     * Clears the folder's content. The folder itself will not be deleted. If you want to delete a folder itself, use
+     * {@link #deleteFolder(File)} instead
      *
      * @param folder folder, which content will be deleted
      * @return true if all content is deleted and false if at least one file or sub-folder cannot be deleted.
@@ -61,8 +60,8 @@ public final class FolderHelper {
     }
 
     /**
-     * Deletes the folder and it's content recursively.
-     * If you do not want to delete a folder itself, use {@link #clearFolder(File)} instead
+     * Deletes the folder and it's content recursively. If you do not want to delete a folder itself, use
+     * {@link #clearFolder(File)} instead
      *
      * @param folder the folder, that will be deleted
      * @return true if the folder is deleted and false if the folder cannot be deleted.

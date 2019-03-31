@@ -1,6 +1,5 @@
 package org.openl.rules.common.impl;
 
-
 import java.util.Date;
 
 import org.openl.rules.common.VersionInfo;
@@ -10,7 +9,7 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
 
     private Date createdAt;
     private String createdBy;
-    
+
     private Date modifiedAt;
     private String modifiedBy;
 
@@ -20,7 +19,7 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
         this.modifiedAt = null;
         this.modifiedBy = null;
     }
-    
+
     public RepositoryVersionInfoImpl(Date createdAt, String createdBy, Date modifiedAt, String modifiedBy) {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
@@ -37,7 +36,7 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
     public String getCreatedBy() {
         return createdBy;
     }
-    
+
     @Override
     public Date getModifiedAt() {
         return modifiedAt;

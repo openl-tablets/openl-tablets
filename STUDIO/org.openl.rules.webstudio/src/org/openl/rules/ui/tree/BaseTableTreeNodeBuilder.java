@@ -22,11 +22,14 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
         String type = getType(nodeObject);
         if (type.equals(IProjectTypes.PT_FOLDER)) {
-            projectTreeNode = new ProjectTreeNode(displayNames, type, null,
-                    getProblems(nodeObject), i, null);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, null, getProblems(nodeObject), i, null);
         } else {
-            projectTreeNode = new ProjectTreeNode(displayNames, type, getUrl(nodeObject),
-                    getProblems(nodeObject), i, tableSyntaxNode);
+            projectTreeNode = new ProjectTreeNode(displayNames,
+                type,
+                getUrl(nodeObject),
+                getProblems(nodeObject),
+                i,
+                tableSyntaxNode);
         }
 
         projectTreeNode.setObject(nodeObject);

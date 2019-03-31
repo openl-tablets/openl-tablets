@@ -25,7 +25,10 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         projectDescriptors.addAll(getDependentProjects(module));
 
         ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
-        WebStudioWorkspaceRelatedDependencyManager dependencyManager = new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors, rootClassLoader, singleModuleMode);
+        WebStudioWorkspaceRelatedDependencyManager dependencyManager = new WebStudioWorkspaceRelatedDependencyManager(
+            projectDescriptors,
+            rootClassLoader,
+            singleModuleMode);
         dependencyManager.setExternalParameters(studio.getSystemConfigManager().getProperties());
         dependencyManager.setExecutionMode(false);
 
@@ -56,7 +59,9 @@ public class WebStudioWorkspaceDependencyManagerFactory {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' is not found", dependencyDescriptor.getName(), project.getName());
+                    log.warn("Dependency '{}' for project '{}' is not found",
+                        dependencyDescriptor.getName(),
+                        project.getName());
                 }
             }
         }

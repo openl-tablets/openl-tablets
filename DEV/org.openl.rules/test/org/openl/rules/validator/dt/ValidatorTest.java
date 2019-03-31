@@ -215,8 +215,8 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         String tableName = "Rules void testCountries(CountriesEnum country)";
         Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
 
-        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<CountriesEnum>(new CountriesEnum[] { CountriesEnum.AR,
-                CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA });
+        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<CountriesEnum>(
+            new CountriesEnum[] { CountriesEnum.AR, CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA });
         EnumDomainAdaptor enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
         domains.put("country", enumDomainAdaptor1);
         domains.put("countryLocal1", enumDomainAdaptor1);

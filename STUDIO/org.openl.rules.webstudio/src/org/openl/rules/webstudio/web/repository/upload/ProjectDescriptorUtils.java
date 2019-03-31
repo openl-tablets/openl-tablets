@@ -9,12 +9,15 @@ public final class ProjectDescriptorUtils {
     }
 
     public static String getErrorMessage(XStreamException e) {
-        StringBuilder message = new StringBuilder("Can't parse project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + '.');
+        StringBuilder message = new StringBuilder(
+            "Can't parse project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + '.');
         if (e.getCause() instanceof SAXParseException) {
             SAXParseException parseException = (SAXParseException) e.getCause();
-            message.append(" Line number: ").append(parseException.getLineNumber())
-                    .append(", column number: ").append(parseException.getColumnNumber())
-                    .append(".");
+            message.append(" Line number: ")
+                .append(parseException.getLineNumber())
+                .append(", column number: ")
+                .append(parseException.getColumnNumber())
+                .append(".");
         }
         return message.toString();
     }

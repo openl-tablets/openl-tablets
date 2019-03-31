@@ -75,8 +75,9 @@ public class BinderTest extends TestCase {
         Assert.assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
     }
 
-    public void _testNoErrorModule(String testCode, Class<?> targetClass, String parser)
-            throws OpenConfigurationException {
+    public void _testNoErrorModule(String testCode,
+            Class<?> targetClass,
+            String parser) throws OpenConfigurationException {
 
         OpenL op = OpenL.getInstance(parser);
 

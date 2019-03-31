@@ -35,8 +35,7 @@ public class SpreadsheetColumnExtractorTest {
     @Test
     public void testSetterName() {
         String ecpectedName1 = "setId";
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(null,
-            getConfiguration());
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(null, getConfiguration());
         assertEquals(ecpectedName1, extractor.getSetterName("id"));
         assertEquals(ecpectedName1, extractor.getSetterName("ID"));
         assertEquals(ecpectedName1, extractor.getSetterName("Id"));

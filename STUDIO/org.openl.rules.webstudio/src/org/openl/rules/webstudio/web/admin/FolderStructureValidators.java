@@ -10,7 +10,8 @@ public class FolderStructureValidators {
     public void pathInRepository(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
 
-        FacesUtils.validate(StringUtils.isEmpty(path) || !path.startsWith("/"), "Path in repository can't start with '/'");
+        FacesUtils.validate(StringUtils.isEmpty(path) || !path.startsWith("/"),
+            "Path in repository can't start with '/'");
     }
 
     public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {

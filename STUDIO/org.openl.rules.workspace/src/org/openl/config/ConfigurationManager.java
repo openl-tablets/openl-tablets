@@ -42,13 +42,18 @@ public class ConfigurationManager implements PropertiesHolder {
         this(useSystemProperties, propsLocation, defaultPropsLocation, false);
     }
 
-    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation,
-                                boolean autoSave) {
+    public ConfigurationManager(boolean useSystemProperties,
+            String propsLocation,
+            String defaultPropsLocation,
+            boolean autoSave) {
         this(useSystemProperties, propsLocation, null, defaultPropsLocation, autoSave);
     }
 
-    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String propsInContextLocation, String defaultPropsLocation,
-                                boolean autoSave) {
+    public ConfigurationManager(boolean useSystemProperties,
+            String propsLocation,
+            String propsInContextLocation,
+            String defaultPropsLocation,
+            boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
         this.propsInContextLocation = propsInContextLocation;
@@ -157,7 +162,7 @@ public class ConfigurationManager implements PropertiesHolder {
 
     public Map<String, Object> getProperties(boolean cross) {
         Map<String, Object> properties = new HashMap<>();
-        for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext(); ) {
+        for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
 
             if (!cross || configurationToSave.getProperty(key) != null) {
@@ -261,7 +266,8 @@ public class ConfigurationManager implements PropertiesHolder {
     static void setPassword(PropertiesHolder propertiesHolder, String key, String pass) {
         try {
             String repoPassKey = getRepoPassKey(propertiesHolder);
-            propertiesHolder.setProperty(key, StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.encode(pass, repoPassKey));
+            propertiesHolder.setProperty(key,
+                StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.encode(pass, repoPassKey));
         } catch (Exception e) {
             Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
             log.error("Error when setting password property: {}", key, e);

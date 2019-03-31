@@ -40,7 +40,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
     @Parameterized.Parameters(name = "singleModuleMode: {0}")
     public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][]{{true}, {false}});
+        return Arrays.asList(new Object[][] { { true }, { false } });
     }
 
     @Before
@@ -54,7 +54,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
         when(ws.isChangeableModuleMode()).thenReturn(true);
 
-        //EhCacheUtils.createCache();
+        // EhCacheUtils.createCache();
 
         pm = new ProjectModel(ws);
         for (Module module : modules) {
@@ -69,7 +69,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
     @After
     public void tearDown() throws Exception {
-        //EhCacheUtils.shutdownCache();
+        // EhCacheUtils.shutdownCache();
     }
 
     @Test
@@ -78,7 +78,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         pm.setModuleInfo(expenseModule);
         if (singleModuleMode) {
             pm.useSingleModuleMode();
-        }else {
+        } else {
             pm.useMultiModuleMode();
         }
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
@@ -102,7 +102,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         pm.setModuleInfo(mainModule);
         if (singleModuleMode) {
             pm.useSingleModuleMode();
-        }else {
+        } else {
             pm.useMultiModuleMode();
         }
         assertEquals(singleModuleMode, pm.isSingleModuleMode());
@@ -155,10 +155,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createExpenseModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String expenseTable[][] = {
-                {"Datatype Expense"}, 
-                {"String", "area"}
-        };
+        String expenseTable[][] = { { "Datatype Expense" }, { "String", "area" } };
 
         createTable(sheet, expenseTable);
         writeBook(book, EXPENSE_MODULE_FILE_NAME);
@@ -167,14 +164,8 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createMainModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String environmentTable[][] = {
-                {"Environment"}, 
-                {"dependency", "ExpenseModule"}
-        };
-        String dataTable[][] = {
-                {"Data Expense a"}, 
-                {"area", "Area", "Test area"}
-        };
+        String environmentTable[][] = { { "Environment" }, { "dependency", "ExpenseModule" } };
+        String dataTable[][] = { { "Data Expense a" }, { "area", "Area", "Test area" } };
 
         createTable(sheet, environmentTable);
         createTable(sheet, dataTable);

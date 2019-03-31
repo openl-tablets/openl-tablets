@@ -155,7 +155,11 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     @Override
-    protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor, T target, Object[] params, E env, Object source) {
+    protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
         if (!isOn()) {
             return;
         }

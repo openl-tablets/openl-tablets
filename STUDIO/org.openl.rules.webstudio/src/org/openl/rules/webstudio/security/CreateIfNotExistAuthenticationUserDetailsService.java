@@ -47,8 +47,8 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                 String firstName = StringUtils.trimToEmpty(user.getFirstName());
                 String lastName = StringUtils.trimToEmpty(user.getLastName());
 
-                if (!firstName.equals(StringUtils.trimToEmpty(dbUser.getFirstName()))
-                        || !lastName.equals(StringUtils.trimToEmpty(dbUser.getLastName()))) {
+                if (!firstName.equals(StringUtils.trimToEmpty(dbUser.getFirstName())) || !lastName
+                    .equals(StringUtils.trimToEmpty(dbUser.getLastName()))) {
                     // Convert authorities to groups. We don't want to loose them.
                     Collection<Privilege> privileges = new ArrayList<>();
                     for (GrantedAuthority authority : dbUser.getAuthorities()) {
@@ -56,11 +56,8 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                         privileges.add(group);
                     }
 
-                    SimpleUser userToUpdate = new SimpleUser(user.getFirstName(),
-                            user.getLastName(),
-                            user.getUsername(),
-                            null,
-                            privileges);
+                    SimpleUser userToUpdate = new SimpleUser(user
+                        .getFirstName(), user.getLastName(), user.getUsername(), null, privileges);
                     userManagementService.updateUser(userToUpdate);
                     userDetails = userToUpdate;
                 }

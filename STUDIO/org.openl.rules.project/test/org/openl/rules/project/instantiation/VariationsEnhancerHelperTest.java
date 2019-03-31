@@ -27,7 +27,9 @@ public class VariationsEnhancerHelperTest {
             assertArrayEquals(enhanced.getAnnotations(), simple.getAnnotations());
             for (Method method : simple.getMethods()) {
                 if (!VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(method)) {
-                    assertArrayEquals(VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(simple, method).getAnnotations(),
+                    assertArrayEquals(
+                        VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(simple, method)
+                            .getAnnotations(),
                         method.getAnnotations());
                 }
             }
@@ -36,11 +38,11 @@ public class VariationsEnhancerHelperTest {
 
     @Test
     public void testServiceClassDecoration() throws Exception {
-        Class<?> enhanced = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class, Thread.currentThread()
-            .getContextClassLoader());
+        Class<?> enhanced = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class,
+            Thread.currentThread().getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
-        Class<?> enhanced2 = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface2.class, Thread.currentThread()
-            .getContextClassLoader());
+        Class<?> enhanced2 = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface2.class,
+            Thread.currentThread().getContextClassLoader());
         checkEnhancement(enhanced2, SimpleInterface2.class, false);
         checkEnhancement(InterfaceFullyEnhanced.class, SimpleInterface.class, true);
         checkEnhancement(InterfacePartiallyEnhanced.class, SimpleInterface.class, true);
@@ -50,17 +52,17 @@ public class VariationsEnhancerHelperTest {
 
     @Test
     public void testServiceClassUndecoration() throws Exception {
-        Class<?> undecorateFully1 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(InterfaceFullyEnhanced.class,
-            Thread.currentThread().getContextClassLoader());
+        Class<?> undecorateFully1 = VariationInstantiationStrategyEnhancerHelper
+            .undecorateClass(InterfaceFullyEnhanced.class, Thread.currentThread().getContextClassLoader());
         checkEnhancement(InterfaceFullyEnhanced.class, undecorateFully1, true);
-        Class<?> undecoratePartially1 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(InterfacePartiallyEnhanced.class,
-            Thread.currentThread().getContextClassLoader());
+        Class<?> undecoratePartially1 = VariationInstantiationStrategyEnhancerHelper
+            .undecorateClass(InterfacePartiallyEnhanced.class, Thread.currentThread().getContextClassLoader());
         checkEnhancement(InterfacePartiallyEnhanced.class, undecoratePartially1, true);
-        Class<?> undecorateFully2 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(Interface2FullyEnhanced.class,
-            Thread.currentThread().getContextClassLoader());
+        Class<?> undecorateFully2 = VariationInstantiationStrategyEnhancerHelper
+            .undecorateClass(Interface2FullyEnhanced.class, Thread.currentThread().getContextClassLoader());
         checkEnhancement(Interface2FullyEnhanced.class, undecorateFully2, true);
-        Class<?> undecoratePartially2 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(Interface2PartiallyEnhanced.class,
-            Thread.currentThread().getContextClassLoader());
+        Class<?> undecoratePartially2 = VariationInstantiationStrategyEnhancerHelper
+            .undecorateClass(Interface2PartiallyEnhanced.class, Thread.currentThread().getContextClassLoader());
         checkEnhancement(Interface2PartiallyEnhanced.class, undecoratePartially2, true);
     }
 

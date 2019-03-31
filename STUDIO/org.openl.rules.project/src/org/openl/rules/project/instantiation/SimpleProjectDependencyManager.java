@@ -23,7 +23,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     private Collection<ProjectDescriptor> projectDescriptors;
     private Collection<String> dependencyNames = null;
-    
+
     private boolean singleModuleMode = false;
     private boolean executionMode = true;
 
@@ -34,11 +34,11 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
         }
         return dependencyNames;
     }
-    
+
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects,
-                                          ClassLoader rootClassLoader,
-                                          boolean singleModuleMode,
-                                          boolean executionMode) {
+            ClassLoader rootClassLoader,
+            boolean singleModuleMode,
+            boolean executionMode) {
         super(rootClassLoader);
         if (projects == null) {
             throw new IllegalArgumentException("projects must not be null!");
@@ -51,7 +51,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     @Override
     public Collection<ProjectDescriptor> getProjectDescriptors() {
-        if (dependencyLoaders == null){
+        if (dependencyLoaders == null) {
             initDependencyLoaders();
         }
         return projectDescriptors;
@@ -59,7 +59,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders == null){
+        if (dependencyLoaders == null) {
             initDependencyLoaders();
         }
         return dependencyLoaders;
@@ -75,16 +75,14 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                     Collection<Module> modulesOfProject = project.getModules();
                     if (!modulesOfProject.isEmpty()) {
                         for (final Module m : modulesOfProject) {
-                            dependencyLoaders.add(new SimpleProjectDependencyLoader(m.getName(),
-                                Arrays.asList(m),
-                                singleModuleMode,
-                                executionMode,
-                                false));
+                            dependencyLoaders.add(new SimpleProjectDependencyLoader(m
+                                .getName(), Arrays.asList(m), singleModuleMode, executionMode, false));
                             dependencyNames.add(m.getName());
                         }
                     }
 
-                    String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
+                    String dependencyName = ProjectExternalDependenciesHelper
+                        .buildDependencyNameForProjectName(project.getName());
                     IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
                         project.getModules(),
                         singleModuleMode,

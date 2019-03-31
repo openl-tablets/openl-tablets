@@ -24,7 +24,7 @@ public class LocalRepository extends FileSystemRepository {
     public List<FileData> list(String path) throws IOException {
         List<FileData> list = super.list(path);
 
-        for (Iterator<FileData> iterator = list.iterator(); iterator.hasNext(); ) {
+        for (Iterator<FileData> iterator = list.iterator(); iterator.hasNext();) {
             FileData fileData = iterator.next();
             if (propertiesEngine.isPropertyFile(fileData.getName())) {
                 // Property files must be hidden
@@ -143,7 +143,8 @@ public class LocalRepository extends FileSystemRepository {
                 Properties properties = new Properties();
                 properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
                 properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
-                properties.setProperty(MODIFIED_AT_PROPERTY, new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
+                properties.setProperty(MODIFIED_AT_PROPERTY,
+                    new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
                 properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
                 if (fileData.getComment() != null) {
                     properties.setProperty(COMMENT_PROPERTY, fileData.getComment());

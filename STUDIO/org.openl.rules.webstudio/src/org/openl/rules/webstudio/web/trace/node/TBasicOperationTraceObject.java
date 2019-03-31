@@ -14,7 +14,6 @@ public class TBasicOperationTraceObject extends SimpleTracerObject {
     private String operationName;
     private int operationRow;
 
-
     TBasicOperationTraceObject(AlgorithmOperationSource sourceCode, String nameForDebug) {
         super("tbasicOperation");
         this.nameForDebug = nameForDebug;
@@ -24,7 +23,12 @@ public class TBasicOperationTraceObject extends SimpleTracerObject {
         this.uri = sourceCode.getSourceUri();
     }
 
-    TBasicOperationTraceObject(String nameForDebug, IGridRegion gridRegion, String operationName, int operationRow, String uri, HashMap<String, Object> fieldValues) {
+    TBasicOperationTraceObject(String nameForDebug,
+            IGridRegion gridRegion,
+            String operationName,
+            int operationRow,
+            String uri,
+            HashMap<String, Object> fieldValues) {
         super("tbasicOperation");
         this.nameForDebug = nameForDebug;
         this.gridRegion = gridRegion;

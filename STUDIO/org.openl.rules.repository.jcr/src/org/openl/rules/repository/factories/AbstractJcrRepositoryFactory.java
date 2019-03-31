@@ -15,11 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is Abstract class with common code for Local and RMI methods of
- * accessing any JCR-170 compliant instance.
+ * This is Abstract class with common code for Local and RMI methods of accessing any JCR-170 compliant instance.
  * <p>
- * It performs basic insanity checks. For example, it verifies that OpenL node
- * types are registered in using JCR.
+ * It performs basic insanity checks. For example, it verifies that OpenL node types are registered in using JCR.
  *
  * @author Aleh Bykhavets
  *
@@ -48,8 +46,8 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
     }
 
     /**
-     * Checks whether the JCR instance is prepared for OpenL. If it is the first
-     * time, then there are no openL node types, yet.
+     * Checks whether the JCR instance is prepared for OpenL. If it is the first time, then there are no openL node
+     * types, yet.
      *
      * @throws RepositoryException if failed
      */
@@ -100,7 +98,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
             session = createSession();
             init(session);
         } catch (RepositoryException e) {
-            if (session != null){
+            if (session != null) {
                 session.logout();
             }
             throw new RRepositoryException("Failed to get Repository Instance", e);
@@ -125,7 +123,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
 
     /**
      * @deprecated Correct implementation shouldn't rely on finalize() method, it's a bad practice. Close repository
-     * yourself when it's not needed, don't rely on JVM.
+     *             yourself when it's not needed, don't rely on JVM.
      */
     @Deprecated
     @Override
@@ -144,8 +142,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
     }
 
     /**
-     * Sets repository reference. Must be called before invoking
-     * {@link #initialize()} method.
+     * Sets repository reference. Must be called before invoking {@link #initialize()} method.
      *
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start

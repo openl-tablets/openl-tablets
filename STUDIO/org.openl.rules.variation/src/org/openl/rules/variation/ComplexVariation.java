@@ -12,11 +12,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * #L%
  */
 
-
-
 /**
- * Complex variation combines multiple variations that all will be applied to
- * arguments sequentially.
+ * Complex variation combines multiple variations that all will be applied to arguments sequentially.
  * 
  * @author PUdalau
  */
@@ -26,7 +23,7 @@ public class ComplexVariation extends Variation {
 
     public ComplexVariation() {
     }
-    
+
     /**
      * Constructs complex variation with the specified ID.
      * 
@@ -75,7 +72,7 @@ public class ComplexVariation extends Variation {
         }
         return values;
     }
-    
+
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         Object[] arguments = originalArguments;
@@ -88,9 +85,9 @@ public class ComplexVariation extends Variation {
     @Override
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         Object[] values;
-        if (previousValue instanceof Object[]){
+        if (previousValue instanceof Object[]) {
             values = (Object[]) previousValue;
-        }else{
+        } else {
             throw new IllegalStateException();
         }
         for (int i = variations.length - 1; i >= 0; i--) {
@@ -101,7 +98,7 @@ public class ComplexVariation extends Variation {
     public Variation[] getVariations() {
         return variations;
     }
-    
+
     public void setVariations(Variation[] variations) {
         this.variations = variations;
     }

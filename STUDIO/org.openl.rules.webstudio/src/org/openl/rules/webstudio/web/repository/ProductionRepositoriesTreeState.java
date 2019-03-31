@@ -59,21 +59,26 @@ public class ProductionRepositoriesTreeState {
 
         root = new TreeRepository("", "", filter, "root");
 
-        /*get list of production repos*/
+        /* get list of production repos */
         for (RepositoryConfiguration repoConfig : getRepositories()) {
             String prName = repoConfig.getName();
-            TreeRepository productionRepository = new TreeRepository(prName, prName, filter, UiConst.TYPE_PRODUCTION_REPOSITORY);
+            TreeRepository productionRepository = new TreeRepository(prName,
+                prName,
+                filter,
+                UiConst.TYPE_PRODUCTION_REPOSITORY);
             productionRepository.setData(null);
 
             root.addChild(prName, productionRepository);
 
-            /*Get repo's deployment configs*/
+            /* Get repo's deployment configs */
             IFilter<AProjectArtefact> filter = this.filter;
             List<AProjectFolder> repoList = getPRepositoryProjects(repoConfig);
             Collections.sort(repoList, RepositoryUtils.ARTEFACT_COMPARATOR);
 
             for (AProjectFolder project : repoList) {
-                TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(), project.getName(), filter);
+                TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(),
+                    project.getName(),
+                    filter);
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
                 productionRepository.add(tpdp);
@@ -105,8 +110,9 @@ public class ProductionRepositoriesTreeState {
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
-                    RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName,
+                productionConfig,
+                RepositoryMode.PRODUCTION);
             repos.add(config);
         }
 
@@ -116,7 +122,7 @@ public class ProductionRepositoriesTreeState {
     }
 
     public TreeRepository getRoot() {
-        //buildTree();
+        // buildTree();
         return root;
     }
 
@@ -127,7 +133,7 @@ public class ProductionRepositoriesTreeState {
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<>(event.getNewSelection());
 
-        /*If there are no selected nodes*/
+        /* If there are no selected nodes */
         if (selection.isEmpty()) {
             return;
         }

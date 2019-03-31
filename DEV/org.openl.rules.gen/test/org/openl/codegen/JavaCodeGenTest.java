@@ -13,19 +13,17 @@ public class JavaCodeGenTest extends TestCase {
         // fail("Not yet implemented");
     }
 
-    public void testGenLiteralArray() 
-    {
-        Assert.assertEquals("new Object[] {}", cg.genLiteralArray(new Object[]{},ctr, sb()).toString());
-        Assert.assertEquals("new Object[] {1, 'a'}", cg.genLiteralArray(new Object[]{1, 'a'},ctr, sb()).toString());
+    public void testGenLiteralArray() {
+        Assert.assertEquals("new Object[] {}", cg.genLiteralArray(new Object[] {}, ctr, sb()).toString());
+        Assert.assertEquals("new Object[] {1, 'a'}", cg.genLiteralArray(new Object[] { 1, 'a' }, ctr, sb()).toString());
         Assert.assertEquals("new Object[][] {new Object[] {1, 'a'}, new Object[] {\"xxx\"}}",
-                cg.genLiteralArray(new Object[][]{{1, 'a'}, {"xxx"}},ctr, sb()).toString());
-        
+            cg.genLiteralArray(new Object[][] { { 1, 'a' }, { "xxx" } }, ctr, sb()).toString());
+
         Assert.assertEquals("new Object[][] {new Object[] {1, 'a', 3.0, 255L}, new Object[] {\"xxx\"}}",
-                cg.genLiteralArray(new Object[][]{{1, 'a', 3.0, 255L}, {"xxx"}},ctr, sb()).toString());
+            cg.genLiteralArray(new Object[][] { { 1, 'a', 3.0, 255L }, { "xxx" } }, ctr, sb()).toString());
     }
 
-    public void testGenLiteralChar() 
-    {
+    public void testGenLiteralChar() {
         Assert.assertEquals("'\\''", cg.genLiteralChar('\'', sb()).toString());
     }
 
@@ -33,17 +31,17 @@ public class JavaCodeGenTest extends TestCase {
         cg.setDoublePrecision(4);
         Assert.assertEquals("12.0", cg.genLiteralDouble(12.0, sb()).toString());
         Assert.assertEquals("11.99", cg.genLiteralDouble(11.99, sb()).toString());
-        Assert.assertEquals("3.3333", cg.genLiteralDouble(10.0/3, sb()).toString());
-        Assert.assertEquals("6.6667", cg.genLiteralDouble(20.0/3, sb()).toString());
+        Assert.assertEquals("3.3333", cg.genLiteralDouble(10.0 / 3, sb()).toString());
+        Assert.assertEquals("6.6667", cg.genLiteralDouble(20.0 / 3, sb()).toString());
         cg.setDoublePrecision(2);
-        Assert.assertEquals("6.67", cg.genLiteralDouble(20.0/3, sb()).toString());
+        Assert.assertEquals("6.67", cg.genLiteralDouble(20.0 / 3, sb()).toString());
         cg.setDoublePrecision(5);
-        Assert.assertEquals("6.66667", cg.genLiteralDouble(20.0/3, sb()).toString());
+        Assert.assertEquals("6.66667", cg.genLiteralDouble(20.0 / 3, sb()).toString());
     }
 
     public void testGenLiteralInt() {
         Assert.assertEquals("554", cg.genLiteralInt(554, sb()).toString());
-        
+
     }
 
     public void testGenLiteralString() {
@@ -51,8 +49,10 @@ public class JavaCodeGenTest extends TestCase {
         Assert.assertEquals("\"a\\'\\\"\\n\"", cg.genLiteralString("a\'\"\n", sb()).toString());
         String baseLongStr = "0123456789";
         String longStr = makeLongStr(baseLongStr, 20);
-        Assert.assertEquals("\"" + makeLongStr(baseLongStr, 8) + "\"\r\n" + " + \"" + makeLongStr(baseLongStr, 8)
-                + "\"\r\n" + " + \"" + makeLongStr(baseLongStr, 4) + "\"", cg.genLiteralString(longStr, sb()).toString());
+        Assert.assertEquals(
+            "\"" + makeLongStr(baseLongStr, 8) + "\"\r\n" + " + \"" + makeLongStr(baseLongStr,
+                8) + "\"\r\n" + " + \"" + makeLongStr(baseLongStr, 4) + "\"",
+            cg.genLiteralString(longStr, sb()).toString());
     }
 
     String makeLongStr(String base, int n) {
@@ -64,7 +64,7 @@ public class JavaCodeGenTest extends TestCase {
     }
 
     public void testGenLiteralNull() {
-        Assert.assertEquals("null", cg.genLiteralNull( sb()).toString());
+        Assert.assertEquals("null", cg.genLiteralNull(sb()).toString());
     }
 
     public void testGenMethod() {

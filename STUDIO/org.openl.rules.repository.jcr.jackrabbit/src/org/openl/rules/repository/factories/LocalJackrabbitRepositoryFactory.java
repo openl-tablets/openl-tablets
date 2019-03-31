@@ -19,8 +19,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
- * repository.
+ * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit repository.
  *
  * @author Aleh Bykhavets
  */
@@ -61,8 +60,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     // ------ private methods ------
 
     /**
-     * Starts Jackrabbit repository. If there was no repository it will be
-     * created automatically. (this is how Jacrabbit works)
+     * Starts Jackrabbit repository. If there was no repository it will be created automatically. (this is how Jacrabbit
+     * works)
      *
      * @throws RepositoryException if failed
      */

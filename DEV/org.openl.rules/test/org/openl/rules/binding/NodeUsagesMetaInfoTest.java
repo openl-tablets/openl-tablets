@@ -60,7 +60,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assetsCompare = findTable("Spreadsheet SpreadsheetResult AssetsCompare ()");
         totalAssets = findTable("Spreadsheet SpreadsheetResult TotalAssets ()");
-        miscAssets = findTable("Spreadsheet SpreadsheetResult MiscAssets (SpreadsheetResultTotalAssets totalAssets1, SpreadsheetResult totalAssets2)");
+        miscAssets = findTable(
+            "Spreadsheet SpreadsheetResult MiscAssets (SpreadsheetResultTotalAssets totalAssets1, SpreadsheetResult totalAssets2)");
 
         dataBMetaReader = dataB.getMetaInfoReader();
         dataCMetaReader = dataC.getMetaInfoReader();
@@ -262,12 +263,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     /**
      * This method tests:
      * <ol>
-     *     <li>Description and url for CustomSpreadsheetResult type</li>
-     *     <li>Description above '=' symbol</li>
-     *     <li>Reference to other spreadsheet</li>
-     *     <li>Description for the field of <i>other</i> custom spreadsheet result</li>
-     *     <li>Description for the field of <i>current</i> spreadsheet referenced by <i>column name</i> only</li>
-     *     <li>Description for the field of <i>current</i> spreadsheet referenced by <i>column name and row name</i></li>
+     * <li>Description and url for CustomSpreadsheetResult type</li>
+     * <li>Description above '=' symbol</li>
+     * <li>Reference to other spreadsheet</li>
+     * <li>Description for the field of <i>other</i> custom spreadsheet result</li>
+     * <li>Description for the field of <i>current</i> spreadsheet referenced by <i>column name</i> only</li>
+     * <li>Description for the field of <i>current</i> spreadsheet referenced by <i>column name and row name</i></li>
      * </ol>
      */
     @Test
@@ -293,10 +294,13 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
-        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total (other spreadsheet)
+        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+                                                                                                          // (other
+                                                                                                          // spreadsheet)
 
         // TotalAssets2011
-        assertFalse(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 4))));
+        assertFalse(CellMetaInfo.isCellContainsNodeUsages(
+            getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 4))));
 
         // Change in %
         usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 5)).getUsedNodes();
@@ -310,8 +314,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     /**
      * This method tests:
      * <ol>
-     *     <li>Description for the field of <i>current</i> spreadsheet referenced by <i>row name</i> only</li>
-     *     <li>Description for cell ranges</li>
+     * <li>Description for the field of <i>current</i> spreadsheet referenced by <i>row name</i> only</li>
+     * <li>Description for cell ranges</li>
      * </ol>
      */
     @Test
@@ -319,16 +323,16 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         List<? extends NodeUsage> usedNodes;
 
         // USD
-        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(),
-                totalAssets.getGridTable().getCell(3, 2)).getUsedNodes();
+        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(), totalAssets.getGridTable().getCell(3, 2))
+            .getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("Double $Amount", usedNodes.get(1).getDescription()); // Amount
         assertEquals("Double $Exchange Rate", usedNodes.get(2).getDescription()); // $Exchange Rate
 
         // Total
-        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(),
-                totalAssets.getGridTable().getCell(3, 7)).getUsedNodes();
+        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(), totalAssets.getGridTable().getCell(3, 7))
+            .getUsedNodes();
         assertEquals(2, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("Long[] $USD:$GLD", usedNodes.get(1).getDescription()); // $USD:$GLD (cell range)
@@ -337,8 +341,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     /**
      * This method tests:
      * <ol>
-     *     <li>Link to other custom spreadsheet table from the field exists</li>
-     *     <li>Description for the field of other non-custom spreadsheet result</li>
+     * <li>Link to other custom spreadsheet table from the field exists</li>
+     * <li>Description for the field of other non-custom spreadsheet result</li>
      * </ol>
      */
     @Test
@@ -352,7 +356,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNull(usedNodes.get(0).getUri());
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals(totalAssets.getUri(), usedNodes.get(1).getUri());
-        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total (other spreadsheet)
+        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+                                                                                                          // (other
+                                                                                                          // spreadsheet)
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
 
         // TotalAssets2
@@ -360,7 +366,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Object", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
-        assertEquals("Spreadsheet\nObject $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total (other spreadsheet)
+        assertEquals("Spreadsheet\nObject $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+                                                                                                // (other spreadsheet)
     }
 
     @Test

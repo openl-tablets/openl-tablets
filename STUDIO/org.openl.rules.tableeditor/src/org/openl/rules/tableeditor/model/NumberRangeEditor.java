@@ -64,8 +64,8 @@ public class NumberRangeEditor implements ICellEditor {
             try {
                 DetailedDoubleRangeParser parser = new DetailedDoubleRangeParser();
                 range = parser.parse(input);
-                if (range.getMax().equals(Double.POSITIVE_INFINITY)
-                        || range.getMin().equals(Double.NEGATIVE_INFINITY)) {
+                if (range.getMax().equals(Double.POSITIVE_INFINITY) || range.getMin()
+                    .equals(Double.NEGATIVE_INFINITY)) {
                     return input;
                 }
                 if (range.getMax().equals(range.getMin())) {

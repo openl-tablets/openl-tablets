@@ -22,7 +22,7 @@ public class DirectedEdgeFactory<V> implements EdgeFactory<V, DirectedEdge<V>> {
             edge.setTargetVertex(targetVertex);
 
             return edge;
-        } catch(Exception exception) {
+        } catch (Exception exception) {
             throw new RuntimeException("Edge factory failed", exception);
         }
     }

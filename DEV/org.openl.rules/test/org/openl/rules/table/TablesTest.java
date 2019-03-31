@@ -71,8 +71,7 @@ public class TablesTest extends TestCase {
             Assert.assertEquals(1, row222.getHeight());
             Assert.assertEquals(3, row222.getWidth());
 
-            ILogicalTable invRow2 = LogicalTableHelper.logicalTable(
-                    new TransposedGridTable(row2.getSource()));
+            ILogicalTable invRow2 = LogicalTableHelper.logicalTable(new TransposedGridTable(row2.getSource()));
 
             Assert.assertEquals(2, invRow2.getHeight());
             Assert.assertEquals(1, invRow2.getWidth());
@@ -102,7 +101,7 @@ public class TablesTest extends TestCase {
     }
 
     private void subtestRegion(ILogicalTable testHeader1) throws Exception {
-        
+
         ILogicalTable bb = testHeader1.getSubtable(1, 0, 1, 1);
 
         Assert.assertEquals(2, bb.getHeight());

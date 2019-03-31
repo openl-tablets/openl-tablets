@@ -1,4 +1,4 @@
-    package org.openl.rules.variation;
+package org.openl.rules.variation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,10 +12,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * #L%
  */
 
-
 /**
- * Empty variation that represents original calculation without any changes of
- * arguments.
+ * Empty variation that represents original calculation without any changes of arguments.
  * 
  * @author PUdalau, Marat Kamalov
  */
@@ -23,8 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class NoVariation extends Variation {
     /**
-     * ID for original calculation. Can be used for retrieving result of
-     * calculation without variations.
+     * ID for original calculation. Can be used for retrieving result of calculation without variations.
      */
     public static final String ORIGINAL_CALCULATION = "Original calculation";
 

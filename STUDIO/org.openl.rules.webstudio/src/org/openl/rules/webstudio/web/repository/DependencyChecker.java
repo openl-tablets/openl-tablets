@@ -109,8 +109,8 @@ public class DependencyChecker {
         if (projectVersions.get(projectName) == null) {
             // project with such name wasn't found in the repository
             if (item != null) {
-                item.setMessages("Cannot find project <b>" + StringEscapeUtils.escapeHtml4(projectName)
-                        + "</b> in the repository!");
+                item.setMessages(
+                    "Cannot find project <b>" + StringEscapeUtils.escapeHtml4(projectName) + "</b> in the repository!");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             }
             return false;
@@ -126,8 +126,8 @@ public class DependencyChecker {
             if (!projectVersions.containsKey(dependentProject.getName())) {
                 // dependent project is absent
                 if (item != null) {
-                    item.setMessages("Dependent project <b>" + StringEscapeUtils.escapeHtml4(dependentProject.getName())
-                            + "</b> should be added too!");
+                    item.setMessages("Dependent project <b>" + StringEscapeUtils
+                        .escapeHtml4(dependentProject.getName()) + "</b> should be added too!");
                     item.setStyleForMessages(UiConst.STYLE_WARNING);
                 }
                 return false;

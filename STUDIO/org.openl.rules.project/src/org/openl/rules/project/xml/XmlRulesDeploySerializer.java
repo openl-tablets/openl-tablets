@@ -28,13 +28,13 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.omitField(RulesDeploy.class, "log");
 
         xstream.setMode(XStream.NO_REFERENCES);
-        
+
         xstream.aliasType("publisher", RulesDeploy.PublisherType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy.class);
         xstream.aliasType(MODULE_NAME, RulesDeploy.WildcardPattern.class);
-        
+
         xstream.aliasField(LAZY_MODULES_FOR_COMPILATION, RulesDeploy.class, "lazyModulesForCompilationPatterns");
-        
+
         xstream.aliasField("name", RulesDeploy.WildcardPattern.class, "value");
         xstream.useAttributeFor(RulesDeploy.WildcardPattern.class, "value");
     }

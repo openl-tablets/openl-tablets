@@ -14,7 +14,7 @@ import org.openl.types.impl.MethodKey;
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
     private static final String TABLE_INSTANCE_NAME = "Table Instance";
-    
+
     /**
      * {@inheritDoc}
      */
@@ -79,12 +79,16 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      */
     @Override
     public boolean isUnique(TableSyntaxNode tsn) {
-        return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_DATA.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_TEST_METHOD.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These tables don't have versions and can't be grouped
+        return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType()) || XlsNodeTypes.XLS_DATATYPE.toString()
+            .equals(tsn.getType()) || XlsNodeTypes.XLS_DATA.toString()
+                .equals(tsn.getType()) || XlsNodeTypes.XLS_TEST_METHOD.toString()
+                    .equals(tsn.getType()) || XlsNodeTypes.XLS_ENVIRONMENT.toString()
+                        .equals(tsn.getType()) || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These
+                                                                                                          // tables
+                                                                                                          // don't have
+                                                                                                          // versions
+                                                                                                          // and can't
+                                                                                                          // be grouped
                 || tsn.getMember() == null; // When table contains syntax errors and can't be grouped with other tables.
     }
 
@@ -102,13 +106,13 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
 
             MethodKey methodKey = new MethodKey((IOpenMethod) tableSyntaxNode.getMember());
-            
+
             String keyString = methodKey.toString();
-            
+
             Object nodeObject = makeObject(tableSyntaxNode);
 
             String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
-            for(int i = 0; i < displayNames.length; i++){
+            for (int i = 0; i < displayNames.length; i++) {
                 displayNames[i] += keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);

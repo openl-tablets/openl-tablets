@@ -70,8 +70,7 @@ import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
 
 /**
- * Repository tree controller. Used for retrieving data for repository tree and
- * performing repository actions.
+ * Repository tree controller. Used for retrieving data for repository tree and performing repository actions.
  *
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
@@ -280,8 +279,8 @@ public class RepositoryTreeController {
             if (selectedProject instanceof ADeploymentProject) {
                 return false;
             }
-            AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+            AProject newVersion = userWorkspace.getDesignTimeRepository()
+                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -311,8 +310,8 @@ public class RepositoryTreeController {
         }
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
-            AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+            AProject newVersion = userWorkspace.getDesignTimeRepository()
+                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
             List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -420,7 +419,8 @@ public class RepositoryTreeController {
                 return null;
             }
             if (!NameChecker.checkName(projectName)) {
-                FacesUtils.addErrorMessage("Specified name is not a valid Deploy Configuration name." + " " + NameChecker.BAD_NAME_MSG);
+                FacesUtils.addErrorMessage(
+                    "Specified name is not a valid Deploy Configuration name." + " " + NameChecker.BAD_NAME_MSG);
                 return null;
             }
             if (userWorkspace.hasDDProject(projectName)) {
@@ -509,8 +509,7 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            } else if (userWorkspace
-                .hasProject(projectName)) {
+            } else if (userWorkspace.hasProject(projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
             }
             return msg;
@@ -521,8 +520,7 @@ public class RepositoryTreeController {
     }
 
     /*
-     * Because of renaming 'Deployment project' to 'Deploy Configuration' the
-     * method was renamed too.
+     * Because of renaming 'Deployment project' to 'Deploy Configuration' the method was renamed too.
      */
     public String deleteDeploymentConfiguration() {
         String projectName = FacesUtils.getRequestParameter("deploymentProjectName");
@@ -531,7 +529,7 @@ public class RepositoryTreeController {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             // projectInTree must be initialized before project was deleted
             TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
+                .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
             project.delete(userWorkspace.getUser());
             if (repositoryTreeState.isHideDeleted()) {
                 repositoryTreeState.deleteNode(projectInTree);
@@ -585,8 +583,11 @@ public class RepositoryTreeController {
         if (projectDescriptorArtifact instanceof AProjectResource) {
             IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory.getSerializer(selectedProject);
 
-            String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath().withoutFirstSegment() .getStringValue();
-            if (projectDescriptorPath.equals(aProjectArtefact.getArtefactPath().withoutFirstSegment().getStringValue())) {
+            String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath()
+                .withoutFirstSegment()
+                .getStringValue();
+            if (projectDescriptorPath
+                .equals(aProjectArtefact.getArtefactPath().withoutFirstSegment().getStringValue())) {
                 // There is no need to unregister itself
                 return;
             }
@@ -621,7 +622,7 @@ public class RepositoryTreeController {
         AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
         String childName = FacesUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
-                .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
+            .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
 
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
@@ -655,7 +656,7 @@ public class RepositoryTreeController {
             }
             projectArtefact.delete();
             TreeNode parent = selectedNode.getParent();
-            if (parent != null && parent.getData() != null ){
+            if (parent != null && parent.getData() != null) {
                 parent.refresh();
             }
             if (selectedNode != activeProjectNode) {
@@ -777,7 +778,8 @@ public class RepositoryTreeController {
                             fileData.setName(projectName);
                             if (!repository.delete(fileData)) {
                                 if (repository.check(fileData.getName()) != null) {
-                                    log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
+                                    log.warn(
+                                        "Can't close project because resource '" + fileData.getName() + "' is used");
                                 }
                             }
                         } catch (Exception e) {
@@ -827,7 +829,8 @@ public class RepositoryTreeController {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
                 Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
-                if (project instanceof RulesProject && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
+                if (project instanceof RulesProject && mainRepo.supports()
+                    .branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
                     // Delete secondary branch
                     ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
                 } else {
@@ -873,8 +876,8 @@ public class RepositoryTreeController {
         String zipFileName = null;
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
-            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+            AProject forExport = userWorkspace.getDesignTimeRepository()
+                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (Exception e) {
@@ -903,8 +906,8 @@ public class RepositoryTreeController {
         OutputStream os = null;
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
-            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                new CommonVersionImpl(version));
+            AProject forExport = userWorkspace.getDesignTimeRepository()
+                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -974,8 +977,8 @@ public class RepositoryTreeController {
 
             AProject forExport;
             if (hasVersions && currentRevision == null) {
-                forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                forExport = userWorkspace.getDesignTimeRepository()
+                    .getProject(selectedProject.getName(), new CommonVersionImpl(version));
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1056,7 +1059,6 @@ public class RepositoryTreeController {
         if (project != null && project.isOpenedOtherVersion()) {
             return Comments.restoredFrom(project.getHistoryVersion());
         }
-
 
         return "";
     }
@@ -1228,7 +1230,8 @@ public class RepositoryTreeController {
                     charset = StandardCharsets.UTF_8;
                 }
 
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter, charset);
+                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
+                    .getProjectDescriptorOrNull(file, zipFilter, charset);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
                 }
@@ -1356,7 +1359,8 @@ public class RepositoryTreeController {
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter, zipCharsetDetector).uploadProject();
+            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter, zipCharsetDetector)
+                .uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
             } else
@@ -1403,9 +1407,8 @@ public class RepositoryTreeController {
             clearUploadedFiles();
         } catch (Exception e) {
             /*
-             * If an error is IOException then an error will not be written to
-             * the console. This error throw when upload file is exist in the
-             * upload folder
+             * If an error is IOException then an error will not be written to the console. This error throw when upload
+             * file is exist in the upload folder
              */
             if (e.getCause() == null || !e.getCause().getClass().equals(java.io.IOException.class)) {
                 log.error("Error adding file to user workspace.", e);
@@ -1426,7 +1429,8 @@ public class RepositoryTreeController {
                 AProjectArtefact projectDescriptorArtifact = selectedProject
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource) {
-                    IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory.getSerializer(selectedProject);
+                    IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory
+                        .getSerializer(selectedProject);
 
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
                     content = resource.getContent();
@@ -1596,9 +1600,11 @@ public class RepositoryTreeController {
     }
 
     /**
-     * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration tab).
+     * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration
+     * tab).
      *
-     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)} is invoked
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)}
+     *         is invoked
      */
     public boolean isCurrentProjectSelected() {
         if (currentProject != getSelectedProject()) {
@@ -1677,8 +1683,8 @@ public class RepositoryTreeController {
     public List<SelectItem> getProjectBranches() {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
-                .getRepository()).getBranches(selectedProject.getName());
+        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
+            .getBranches(selectedProject.getName());
 
         return Arrays.asList(FacesUtils.createSelectItems(branches));
     }
@@ -1707,7 +1713,8 @@ public class RepositoryTreeController {
         }
     }
 
-    public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
+    public void setProjectDescriptorSerializerFactory(
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 

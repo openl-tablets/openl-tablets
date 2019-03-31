@@ -7,8 +7,8 @@ import org.openl.rules.ui.benchmark.BenchmarkUnit;
 import java.util.Objects;
 
 /**
- * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and
- * URI of a table that was used to measure the benchmark.
+ * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and URI of a table that was used to measure
+ * the benchmark.
  * 
  * @author NSamatov
  */
@@ -23,9 +23,12 @@ public class BenchmarkInfoView {
     public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String tableId, String testName, String testInfo) {
         this(benchmarkInfo, tableId, testName, testInfo, new ParameterWithValueDeclaration[0]);
     }
-    
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String tableId, String testName,
-            String testInfo, ParameterWithValueDeclaration params[]) {
+
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo,
+            String tableId,
+            String testName,
+            String testInfo,
+            ParameterWithValueDeclaration params[]) {
         this.benchmarkInfo = benchmarkInfo;
         this.tableId = tableId;
         this.testName = testName;
@@ -90,8 +93,7 @@ public class BenchmarkInfoView {
 
         BenchmarkInfoView other = (BenchmarkInfoView) obj;
 
-        return Objects.equals(benchmarkInfo, other.benchmarkInfo) &&
-                Objects.equals(tableId, other.tableId);
+        return Objects.equals(benchmarkInfo, other.benchmarkInfo) && Objects.equals(tableId, other.tableId);
     }
 
     // delegated methods

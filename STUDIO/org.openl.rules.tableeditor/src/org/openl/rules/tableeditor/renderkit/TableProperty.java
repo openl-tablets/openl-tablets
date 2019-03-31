@@ -39,7 +39,7 @@ public class TableProperty {
     private String inheritedTableName;
 
     public TableProperty(TablePropertyDefinition propDefinition) {
-    	this.name = propDefinition.getName();
+        this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
         this.type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
         this.group = propDefinition.getGroup();
@@ -93,11 +93,10 @@ public class TableProperty {
 
     /**
      * 
-     * @return <code>TRUE</code> if property value can be overriden on TABLE
-     *         level.
+     * @return <code>TRUE</code> if property value can be overriden on TABLE level.
      */
     public boolean isCanBeOverridenInTable() {
-        return PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);        
+        return PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
     }
 
     public boolean isFolderLevelProperty() {
@@ -107,7 +106,7 @@ public class TableProperty {
     public boolean isProjectLevelProperty() {
         return InheritanceLevel.PROJECT.equals(inheritanceLevel);
     }
-    
+
     public boolean isModuleLevelProperty() {
         return InheritanceLevel.MODULE.equals(inheritanceLevel);
     }
@@ -115,7 +114,7 @@ public class TableProperty {
     public boolean isCategoryLevelProperty() {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
     }
-    
+
     public boolean isExternalPropery() {
         return InheritanceLevel.EXTERNAL.equals(inheritanceLevel);
     }
@@ -137,8 +136,8 @@ public class TableProperty {
     }
 
     /**
-     * This method must be used for all the cases when you need to display
-     * property on UI. It converts its value from any type to string.
+     * This method must be used for all the cases when you need to display property on UI. It converts its value from
+     * any type to string.
      * 
      * @return
      */
@@ -146,23 +145,23 @@ public class TableProperty {
         return getStringValue();
     }
 
-    public String getStringValue() {        
+    public String getStringValue() {
         String result = StringUtils.EMPTY;
         if (value != null) {
-            result = FormattersManager.getFormatter(type, getFormat()).format(value); 
-        }        
+            result = FormattersManager.getFormatter(type, getFormat()).format(value);
+        }
         return result;
     }
 
     /**
-     * Setter for the property value as {@link String}. Income value will be parsed to the appropriate type.
-     * That can be found calling {@link #getType()} method.
+     * Setter for the property value as {@link String}. Income value will be parsed to the appropriate type. That can be
+     * found calling {@link #getType()} method.
      * 
      * @param value value of the property as String.
      */
     public void setStringValue(String value) {
         if (StringUtils.isNotBlank(value)) {
-            this.value = FormattersManager.getFormatter(type, getFormat()).parse(value);            
+            this.value = FormattersManager.getFormatter(type, getFormat()).parse(value);
         } else {
             this.value = null;
         }
@@ -197,7 +196,7 @@ public class TableProperty {
             displayValues = EnumUtils.getValues(instanceClass);
         }
 
-        if(values != null) {
+        if (values != null) {
             for (int i = 0; i < values.length; i++) {
                 items.add(new SelectItem(values[i], displayValues[i]));
             }
@@ -215,15 +214,14 @@ public class TableProperty {
     }
 
     /**
-     * This is a setter for the value of the property. Value must be always typify. 
-     * This method is commonly used from UI. If property <code>{@link #isDateType()}</code>, 
-     * <code>{@link #isBooleanType()}</code> UI controls will be typify, and the income 
-     * value will be of the appropriate type. And if the income value is String we try 
-     * to parse it to the appropriate type.
-     *  
-     * @param value a value of the property. 
+     * This is a setter for the value of the property. Value must be always typify. This method is commonly used from
+     * UI. If property <code>{@link #isDateType()}</code>, <code>{@link #isBooleanType()}</code> UI controls will be
+     * typify, and the income value will be of the appropriate type. And if the income value is String we try to parse
+     * it to the appropriate type.
+     * 
+     * @param value a value of the property.
      */
-    public void setValue(Object value) {         
+    public void setValue(Object value) {
         if (value instanceof String) {
             String valueStr = (String) value;
             if (StringUtils.isNotBlank(valueStr)) {
@@ -266,11 +264,11 @@ public class TableProperty {
     public boolean isEnumArray() {
         return type != null && type.isArray() && type.getComponentType().isEnum();
     }
-    
-    /**     
+
+    /**
      * Checks if the current type is <code>String[]</code>
      * 
-     * @return true if type is <code>String[]</code>     
+     * @return true if type is <code>String[]</code>
      */
     public boolean isStringArray() {
         return type != null && type.isArray() && String.class.equals(type.getComponentType());
@@ -317,12 +315,12 @@ public class TableProperty {
     }
 
     public String getInheritedTableId() {
-		return inheritedTableId;
-	}
+        return inheritedTableId;
+    }
 
     public void setInheritedTableId(String inheritedTableId) {
-		this.inheritedTableId = inheritedTableId;
-	}
+        this.inheritedTableId = inheritedTableId;
+    }
 
     /**
      * Builder for TableProperties
@@ -332,12 +330,12 @@ public class TableProperty {
      */
     public static class TablePropertyBuilder {
         // Required parameters
-        private String name;        
+        private String name;
         private Class<?> type;
-        
+
         // Optional parameters
         private String displayName;
-        private Object value;        
+        private Object value;
         private String group;
         private String format;
         private String deprecation;
@@ -415,11 +413,7 @@ public class TableProperty {
 
     @Override
     public String toString() {
-        return new StringBuilder()
-            .append(getDisplayName())
-            .append(" : ")
-            .append(getDisplayValue())
-            .toString();
+        return new StringBuilder().append(getDisplayName()).append(" : ").append(getDisplayValue()).toString();
     }
 
     public String getInheritedTableName() {

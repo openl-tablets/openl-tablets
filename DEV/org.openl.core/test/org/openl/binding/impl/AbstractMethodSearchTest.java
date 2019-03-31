@@ -57,7 +57,7 @@ public abstract class AbstractMethodSearchTest {
         Object[] args = toArgs(classes);
         assertInvoke(expected, target, methodName, classes, args);
     }
-    
+
     final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>[] classes, Object[] args) {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 

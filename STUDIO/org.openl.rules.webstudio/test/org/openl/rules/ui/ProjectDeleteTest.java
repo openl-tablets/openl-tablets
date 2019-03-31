@@ -29,7 +29,8 @@ public class ProjectDeleteTest {
     @Before
     public void init() throws Exception {
         // FIXME Currently IBM implementation of java for version 1.6 isn't supported
-        Assume.assumeFalse(System.getProperty("java.vendor").startsWith("IBM") && System.getProperty("java.specification.version").equals("1.6"));
+        Assume.assumeFalse(System.getProperty("java.vendor")
+            .startsWith("IBM") && System.getProperty("java.specification.version").equals("1.6"));
 
         // Prepare the project: copy it to the working folder
         projectFolder = tempFolder.getRoot();

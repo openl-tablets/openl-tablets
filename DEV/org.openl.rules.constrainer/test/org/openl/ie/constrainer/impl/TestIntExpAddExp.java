@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 /**
  * <p>
  * Title:
@@ -44,8 +43,8 @@ public class TestIntExpAddExp extends TestCase {
     }
 
     public void testAttachDetachObserver() {
-        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(-10, 10,
-                "intvar", IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExp sum = new IntExpAddExp(intvar1, intvar2);
         class TestObserver extends Observer {
             private int counter = 0;
@@ -98,8 +97,8 @@ public class TestIntExpAddExp extends TestCase {
     } // end of testAttachObserver()
 
     public void testCalc_MaxAndCalc_Min() {
-        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(-10, 10,
-                "intvar", IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
 
         assertEquals(20, sum.calc_max());
@@ -117,8 +116,8 @@ public class TestIntExpAddExp extends TestCase {
     }
 
     public void testMaxMin() {
-        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(-10, 10,
-                "intvar", IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExp sum = new IntExpAddExp(intvar1, intvar2);
         assertEquals(10 * 2, sum.max());
         assertEquals(-10 * 2, sum.min());
@@ -136,8 +135,8 @@ public class TestIntExpAddExp extends TestCase {
     }
 
     public void testSetMax() {
-        IntVar intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(1, 10, "intvar",
-                IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
         // assigning values to
@@ -194,8 +193,8 @@ public class TestIntExpAddExp extends TestCase {
     }
 
     public void testSetMin() {
-        IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(-10, -1,
-                "intvar", IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
         // assigning values to
@@ -252,8 +251,8 @@ public class TestIntExpAddExp extends TestCase {
     }
 
     public void testSetValue() {
-        IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST), intvar2 = C.addIntVar(-10, -1,
-                "intvar", IntVar.DOMAIN_BIT_FAST);
+        IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
+                intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
         IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
         try {
             sum.setValue(-1);

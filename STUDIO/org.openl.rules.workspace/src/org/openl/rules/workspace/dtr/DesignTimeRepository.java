@@ -9,7 +9,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 /**
- * Design Time Repository. <p/> Version Storage for development phase. <p/>
+ * Design Time Repository.
+ * <p/>
+ * Version Storage for development phase.
+ * <p/>
  * Rules and Deployment projects are treated separately.
  *
  * @author Aleh Bykhavets
@@ -55,14 +58,14 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * Checks whether the DTR has deployment project with specified name.
      *
      * @param name name of deployment project to be checked
-     * @return <code>true</code> if deployment project with specified name
-     *         exists already
+     * @return <code>true</code> if deployment project with specified name exists already
      */
     boolean hasDDProject(String name);
 
-    
     void addListener(DesignTimeRepositoryListener listener);
+
     void removeListener(DesignTimeRepositoryListener listener);
+
     List<DesignTimeRepositoryListener> getListeners();
 
     Repository getRepository();

@@ -84,11 +84,11 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         importedClasses = WizardUtils.getImportedClasses();
-        
+
         Collection<String> allClasses = domainTree.getAllClasses();
 
         Iterator<String> classIterator = allClasses.iterator();
-        
+
         String typeName, className;
 
         while (classIterator.hasNext()) {
@@ -135,7 +135,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         // validate current page before switching to next one
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             updateNodesForeignKey(tree.getRoot());
-            
+
             if (!isColumnConfigValid())
                 return null;
         }
@@ -160,9 +160,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         domainTree = null;
         domainTypes = null;
-        
+
         importedClasses = null;
-        
+
         super.reset();
     }
 
@@ -176,8 +176,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     * Get a foreign key table variants for type "typeName". That types are
-     * searched in current project.
+     * Get a foreign key table variants for type "typeName". That types are searched in current project.
      * 
      * @param typeName type of a table
      * @return possible foreign key table array
@@ -191,7 +190,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             if (tbl.getMember() == null) {
                 continue;
             }
-            
+
             IOpenClass from = tbl.getMember().getType().getComponentClass();
 
             if (typeName.equals(from.getDisplayName(INamedThing.SHORT))) {
@@ -202,15 +201,14 @@ public class DataTableCreationWizard extends TableCreationWizard {
                 }
             }
         }
-        
+
         Collections.sort(tableNames);
 
         return FacesUtils.createSelectItems(tableNames);
     }
 
     /**
-     * Check if there is a foreign key table variants for type "typeName". That types are
-     * searched in current project.
+     * Check if there is a foreign key table variants for type "typeName". That types are searched in current project.
      * 
      * @param typeName type of a table
      * @return true if there is found a foreign key table variants for type "typeName"
@@ -218,7 +216,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     public boolean hasForeignKeyTables(String typeName) {
         return getForeignKeyTables(typeName).length > 0;
     }
-    
+
     /**
      * Get foreign key table columns for the type "typeName". Just a fields of it's type.
      * 
@@ -273,8 +271,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     * Count recursively a fields count that will be present in a result xls
-     * file
+     * Count recursively a fields count that will be present in a result xls file
      * 
      * @param rootNode root node of a data table type
      * @return total fields count including child ones
@@ -299,20 +296,21 @@ public class DataTableCreationWizard extends TableCreationWizard {
         if (tableOpenClass == null || tableOpenClass.isSimple()) {
             tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
         } else {
-            DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass, tableType,
-                    new DataTableUserDefinedTypeField.PredefinedTypeChecker() {
-                        @Override
-                        public boolean isPredefined(IOpenClass type) {
-                            return getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null;
-                        }
-                    });
+            DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass,
+                tableType,
+                new DataTableUserDefinedTypeField.PredefinedTypeChecker() {
+                    @Override
+                    public boolean isPredefined(IOpenClass type) {
+                        return getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null;
+                    }
+                });
 
             tree.setRoot(new DataTableTreeNode(field, true));
         }
     }
 
     /**
-     * Get user-defined type from opened project by it's name 
+     * Get user-defined type from opened project by it's name
      * 
      * @param type type name
      * @return OpenClass for given type or null if type is not user-defined
@@ -323,7 +321,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
                 return dataType;
             }
         }
-        
+
         for (IOpenClass dataType : importedClasses) {
             if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
@@ -334,8 +332,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     * Validate column configuration page.
-     * If it is not valid, validation error messages will be added to a page
+     * Validate column configuration page. If it is not valid, validation error messages will be added to a page
      * 
      * @return true if it valid
      */
@@ -374,8 +371,10 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
                 if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
-                    FacesUtils.addMessage(clientId, "Validation Error: ", "Fill foreign key or uncheck the checkbox",
-                            FacesMessage.SEVERITY_ERROR);
+                    FacesUtils.addMessage(clientId,
+                        "Validation Error: ",
+                        "Fill foreign key or uncheck the checkbox",
+                        FacesMessage.SEVERITY_ERROR);
                     return false;
                 }
 
@@ -385,20 +384,20 @@ public class DataTableCreationWizard extends TableCreationWizard {
             return true;
         }
     }
-    
+
     private void updateNodesForeignKey(DataTableTreeNode node) {
         if (!node.isEditForeignKey()) {
             node.setForeignKeyTable(null);
             node.setForeignKeyColumn(null);
         }
-        
+
         if (!node.isLeaf()) {
             Iterator<Object> it = node.getChildrenKeysIterator();
 
             while (it.hasNext()) {
                 updateNodesForeignKey((DataTableTreeNode) node.getChild(it.next()));
             }
-            
+
         }
     }
 

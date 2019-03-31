@@ -80,7 +80,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             this.provideRuntimeContext = provideRuntimeContext;
             return this;
         }
-        
+
         public SimpleProjectEngineFactoryBuilder<T> setProvideVariations(boolean provideVariations) {
             this.provideVariations = provideVariations;
             return this;
@@ -127,14 +127,14 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     }
 
     private SimpleProjectEngineFactory(File project,
-                                       File workspace,
-                                       ClassLoader classLoader,
-                                       String module,
-                                       Class<T> interfaceClass,
-                                       Map<String, Object> externalParameters,
-                                       boolean provideRuntimeContext,
-                                       boolean provideVariations,
-                                       boolean executionMode) {
+            File workspace,
+            ClassLoader classLoader,
+            String module,
+            Class<T> interfaceClass,
+            Map<String, Object> externalParameters,
+            boolean provideRuntimeContext,
+            boolean provideVariations,
+            boolean executionMode) {
         if (project == null) {
             throw new IllegalArgumentException("project arg must not be null!");
         }
@@ -161,26 +161,29 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 case 0:
                     throw new IllegalStateException("There are no modules to instantiate.");
                 case 1:
-                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), isExecutionMode(), dependencyManager, classLoader);
+                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory
+                        .getStrategy(modules.iterator().next(), isExecutionMode(), dependencyManager, classLoader);
                     break;
                 default:
-                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, classLoader, isExecutionMode());
+                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+                        dependencyManager,
+                        classLoader,
+                        isExecutionMode());
             }
         }
         return rulesInstantiationStrategy;
     }
 
     private List<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
-                                                         Collection<ProjectDescriptor> projectsInWorkspace) {
+            Collection<ProjectDescriptor> projectsInWorkspace) {
         List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         addDependentProjects(projectDescriptors, project, projectsInWorkspace);
         return projectDescriptors;
     }
 
-    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors, 
-                                      ProjectDescriptor project,
-                                      Collection<ProjectDescriptor> projectsInWorkspace) {
+    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors,
+            ProjectDescriptor project,
+            Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
                 boolean found = false;
@@ -193,7 +196,9 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' hasn't been found", dependencyDescriptor.getName(), project.getName());
+                    log.warn("Dependency '{}' for project '{}' hasn't been found",
+                        dependencyDescriptor.getName(),
+                        project.getName());
                 }
             }
         }
@@ -219,7 +224,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
-        SimpleProjectDependencyManager dependencyManager =  new SimpleProjectDependencyManager(projectDescriptors, classLoader, isSingleModuleMode(), isExecutionMode());
+        SimpleProjectDependencyManager dependencyManager = new SimpleProjectDependencyManager(projectDescriptors,
+            classLoader,
+            isSingleModuleMode(),
+            isExecutionMode());
         dependencyManager.setExternalParameters(getExternalParameters());
         return dependencyManager;
     }
@@ -291,7 +299,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
             if (pd == null) {
-                throw new ProjectResolvingException("Failed to resolve project. Defined location is not a OpenL project.");
+                throw new ProjectResolvingException(
+                    "Failed to resolve project. Defined location is not a OpenL project.");
             }
             this.projectDescriptor = pd;
         }
@@ -301,7 +310,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected RulesInstantiationStrategy instantiationStrategy;
 
     protected final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
-            ProjectResolvingException {
+                                                                                            ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = null;
             if (!isSingleModuleMode()) {
@@ -319,19 +328,19 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     throw new RulesInstantiationException("Module hasn't been found in project!");
                 }
             }
-            
-            if (isProvideVariations()){
+
+            if (isProvideVariations()) {
                 instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
             }
-            
+
             if (isProvideRuntimeContext()) {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
 
             Map<String, Object> parameters = new HashMap<>(externalParameters);
             if (!isSingleModuleMode()) {
-                parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(externalParameters,
-                        getProjectDescriptor().getModules());
+                parameters = ProjectExternalDependenciesHelper
+                    .getExternalParamsWithProjectDependencies(externalParameters, getProjectDescriptor().getModules());
             }
             instantiationStrategy.setExternalParameters(parameters);
             try {
@@ -348,8 +357,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     @Override
     public CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException,
-            ProjectResolvingException,
-            ClassNotFoundException {
+                                                    ProjectResolvingException,
+                                                    ClassNotFoundException {
         return getRulesInstantiationStrategy().compile();
     }
 

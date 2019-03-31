@@ -6,8 +6,7 @@ import org.openl.rules.calculation.result.convertor2.NestedSpreadsheedColumnExtr
 import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetConfiguration;
 
 /**
- * Injects implementation of post processing of converted results to
- * {@link NestedSpreadsheedColumnExtractor}
+ * Injects implementation of post processing of converted results to {@link NestedSpreadsheedColumnExtractor}
  * 
  * @author tkrivickas, Marat Kamalov
  * 
@@ -17,7 +16,8 @@ public class NestedSpreadsheedColumnExtractorWithPostProcessing extends NestedSp
     private CompoundStepPostProcessor compoundStepPostProcessor = new CompoundStepPostProcessor();
 
     NestedSpreadsheedColumnExtractorWithPostProcessing(int nestingLevel,
-            NestedSpreadsheetConfiguration<?, ?> configuration, ColumnToExtract column) {
+            NestedSpreadsheetConfiguration<?, ?> configuration,
+            ColumnToExtract column) {
         super(nestingLevel, configuration, column);
     }
 

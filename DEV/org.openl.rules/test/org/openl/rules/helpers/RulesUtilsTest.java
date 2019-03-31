@@ -1263,8 +1263,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongValueMod() {
-        assertEquals(new LongValue(1),
-            instance.testModLongValue(new LongValue(10), new LongValue(3)));
+        assertEquals(new LongValue(1), instance.testModLongValue(new LongValue(10), new LongValue(3)));
     }
 
     @Test
@@ -1617,18 +1616,12 @@ public class RulesUtilsTest {
     @Test
     public void testLongTypeSlice() {
         assertArrayEquals(new long[] { 3, 4, 5, 6, 7 },
-            instance.testSliceLongType(
-                new long[] { 1, 2, 3, 4, 5, 6, 7 },
-                2));
+            instance.testSliceLongType(new long[] { 1, 2, 3, 4, 5, 6, 7 }, 2));
     }
 
     @Test
     public void testLongTypeSliceEndIndex() {
-        assertArrayEquals(new long[] { 3, 4, 5 },
-            instance.testSliceLongType(
-                new long[] { 1, 2, 3, 4, 5, 6, 7 },
-                2,
-                5));
+        assertArrayEquals(new long[] { 3, 4, 5 }, instance.testSliceLongType(new long[] { 1, 2, 3, 4, 5, 6, 7 }, 2, 5));
     }
 
     @Test
@@ -1667,33 +1660,14 @@ public class RulesUtilsTest {
     @Test
     public void testDoubleTypeSlice() {
         assertArrayEquals(new double[] { 3.3, 4.4, 5.5, 6.6, 7.7 },
-            instance
-                .testSliceDoubleType(
-                    new double[] { 1.1,
-                            2.2,
-                            3.3,
-                            4.4,
-                            5.5,
-                            6.6,
-                            7.7 },
-                    2),
+            instance.testSliceDoubleType(new double[] { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7 }, 2),
             0.0001f);
     }
 
     @Test
     public void testDoubleTypeSliceEndIndex() {
         assertArrayEquals(new double[] { 3.3, 4.4, 5.5 },
-            instance
-                .testSliceDoubleType(
-                    new double[] { 1.1,
-                            2.2,
-                            3.3,
-                            4.4,
-                            5.5,
-                            6.6,
-                            7.7 },
-                    2,
-                    5),
+            instance.testSliceDoubleType(new double[] { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7 }, 2, 5),
             0.0001f);
     }
 
@@ -4629,7 +4603,6 @@ public class RulesUtilsTest {
         assertEquals(1441.33f, RulesUtils.parseFormattedDouble("1,441.33", "#,##0.00"), 0.01);
     }
 
-
     @Test
     public void testCopy() {
         assertEquals(RulesUtils.copy("1.1"), "1.1");
@@ -4742,8 +4715,10 @@ public class RulesUtilsTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             NotSerial notSerial = (NotSerial) o;
             return Objects.equals(myString, notSerial.myString);
         }
@@ -4793,7 +4768,7 @@ public class RulesUtilsTest {
                 return false;
             MyClass myClass = (MyClass) o;
             return Objects.equals(myString, myClass.myString) && Objects.equals(myDate, myClass.myDate) && Arrays
-                    .equals(points, myClass.points);
+                .equals(points, myClass.points);
         }
 
         @Override

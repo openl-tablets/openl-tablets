@@ -30,7 +30,7 @@ public class DataTableTreeNode implements TreeNode {
     public DataTableTreeNode(DataTableField value, boolean root) {
         this.value = value;
         this.root = root;
-        
+
         editForeignKey = value.isComplex(); // set default value
     }
 
@@ -112,8 +112,7 @@ public class DataTableTreeNode implements TreeNode {
     /**
      * Set if we should show to a user a foreign key input text field
      * 
-     * @param editForeignKey if true, then show foreign key input text field
-     *            else hide it
+     * @param editForeignKey if true, then show foreign key input text field else hide it
      */
     public void setEditForeignKey(boolean editForeignKey) {
         this.editForeignKey = editForeignKey;
@@ -145,7 +144,7 @@ public class DataTableTreeNode implements TreeNode {
     public void setForeignKeyTable(String table) {
         value.setForeignKeyTable(table);
     }
-    
+
     public String getForeignKeyTable() {
         return value.getForeignKeyTable();
     }
@@ -153,7 +152,7 @@ public class DataTableTreeNode implements TreeNode {
     public void setForeignKeyColumn(String column) {
         value.setForeignKeyColumn(column);
     }
-    
+
     public String getForeignKeyColumn() {
         return value.getForeignKeyColumn();
     }

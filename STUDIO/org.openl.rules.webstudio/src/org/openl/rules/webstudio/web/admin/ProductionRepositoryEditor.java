@@ -39,12 +39,13 @@ public class ProductionRepositoryEditor {
     public void reload() {
         productionRepositoryConfigurations.clear();
 
-        String[] repositoryConfigNames = split(configManager.getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+        String[] repositoryConfigNames = split(
+            configManager.getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                    productionConfig,
-                    RepositoryMode.PRODUCTION);
+                productionConfig,
+                RepositoryMode.PRODUCTION);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -52,6 +53,7 @@ public class ProductionRepositoryEditor {
     public void deleteProductionRepository(String configName) {
         deleteProductionRepository(configName, null);
     }
+
     public void deleteProductionRepository(String configName, Callback callback) {
         Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
         while (it.hasNext()) {
@@ -132,13 +134,14 @@ public class ProductionRepositoryEditor {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-                getProductionConfigManager(newConfigName), RepositoryMode.PRODUCTION);
+            getProductionConfigManager(newConfigName),
+            RepositoryMode.PRODUCTION);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 
         // Rename link to a file in system config
-        String[] configNames = split(configManager
-                .getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+        String[] configNames = split(
+            configManager.getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (int i = 0; i < configNames.length; i++) {
             if (configNames[i].equals(prodConfig.getConfigName())) {
                 // Found necessary link - rename it

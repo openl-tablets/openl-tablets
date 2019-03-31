@@ -71,7 +71,10 @@ public class TreeProject extends TreeFolder {
         return status.getDisplayValue();
     }
 
-    public TreeProject(String id, String name, IFilter<AProjectArtefact> filter, ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+    public TreeProject(String id,
+            String name,
+            IFilter<AProjectArtefact> filter,
+            ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         super(id, name, filter);
         this.projectDescriptorResolver = projectDescriptorResolver;
     }

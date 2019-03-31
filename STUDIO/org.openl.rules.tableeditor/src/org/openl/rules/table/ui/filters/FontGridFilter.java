@@ -26,9 +26,8 @@ public class FontGridFilter extends AGridFilter {
     private Boolean strikeout;
 
     /**
-     * Initialize a filter with some parameters. If any parameter is null, it is
-     * not changed when filtering. Instead this constructor usage of a builder is
-     * preferred.
+     * Initialize a filter with some parameters. If any parameter is null, it is not changed when filtering. Instead
+     * this constructor usage of a builder is preferred.
      * 
      * @param selector
      * @param fontColor
@@ -41,8 +40,15 @@ public class FontGridFilter extends AGridFilter {
      * @param strikeout
      * @see Builder
      */
-    protected FontGridFilter(IGridSelector selector, short[] fontColor, Integer size, Integer incrementSize,
-            String name, Boolean italic, Boolean bold, Boolean underlined, Boolean strikeout) {
+    protected FontGridFilter(IGridSelector selector,
+            short[] fontColor,
+            Integer size,
+            Integer incrementSize,
+            String name,
+            Boolean italic,
+            Boolean bold,
+            Boolean underlined,
+            Boolean strikeout) {
         super(selector);
 
         this.fontColor = fontColor;
@@ -56,8 +62,15 @@ public class FontGridFilter extends AGridFilter {
     }
 
     private FontGridFilter(Builder builder) {
-        this(builder.selector, builder.fontColor, builder.size, builder.incrementSize, builder.name, builder.italic,
-                builder.bold, builder.underlined, builder.strikeout);
+        this(builder.selector,
+            builder.fontColor,
+            builder.size,
+            builder.incrementSize,
+            builder.name,
+            builder.italic,
+            builder.bold,
+            builder.underlined,
+            builder.strikeout);
     }
 
     @Override
@@ -100,8 +113,8 @@ public class FontGridFilter extends AGridFilter {
     }
 
     /**
-     * A builder that creates a FontGridFilter object. If any parameter is
-     * omitted, it is not used in filtering grid format.
+     * A builder that creates a FontGridFilter object. If any parameter is omitted, it is not used in filtering grid
+     * format.
      * 
      * @author NSamatov
      */
@@ -142,8 +155,7 @@ public class FontGridFilter extends AGridFilter {
         }
 
         /**
-         * Set font size. Do not use in conjunction with
-         * {@link #setIncrementSize(int)}
+         * Set font size. Do not use in conjunction with {@link #setIncrementSize(int)}
          * 
          * @param size new size of a font
          * @return this builder
@@ -154,8 +166,7 @@ public class FontGridFilter extends AGridFilter {
         }
 
         /**
-         * Increment a font's size to a given value. Do not use in conjunction
-         * with {@link #setSize(int)}
+         * Increment a font's size to a given value. Do not use in conjunction with {@link #setSize(int)}
          * 
          * @param incrementSize increment size
          * @return this builder
@@ -196,7 +207,7 @@ public class FontGridFilter extends AGridFilter {
         public FontGridFilter build() {
             if (size != null && incrementSize != null) {
                 throw new IllegalArgumentException(
-                        "Only one of \"size\" and \"incrementSize\" paremeters should be initialized");
+                    "Only one of \"size\" and \"incrementSize\" paremeters should be initialized");
             }
 
             return new FontGridFilter(this);

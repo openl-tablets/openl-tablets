@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Defines a table definition entity, which contains several parameters and
- * logic. Examples of such artifacts are conditions, action, return value for
- * decision table.
+ * Defines a table definition entity, which contains several parameters and logic. Examples of such artifacts are
+ * conditions, action, return value for decision table.
  *
  * @author Aliaksandr Antonik.
  */

@@ -29,8 +29,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final FileFilter localWorkspaceFileFilter;
     private final LocalRepository localRepository;
 
-    public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter,
-                              FileFilter localWorkspaceFileFilter) {
+    public LocalWorkspaceImpl(WorkspaceUser user,
+            File location,
+            FileFilter localWorkspaceFolderFilter,
+            FileFilter localWorkspaceFileFilter) {
         this.user = user;
         this.location = location;
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;

@@ -27,13 +27,14 @@ public final class RepositoryValidators {
     }
 
     /**
-     * Same as {@link #validate(RepositoryConfiguration, java.util.List)} but don't check for name uniqueness (for example for Design repository).
+     * Same as {@link #validate(RepositoryConfiguration, java.util.List)} but don't check for name uniqueness (for
+     * example for Design repository).
      *
      * @param config Repository configuration
      * @throws RepositoryValidationException if repository was configured incorrectly
      */
     public static void validate(RepositoryConfiguration config) throws RepositoryValidationException {
-        validate(config, Collections.<RepositoryConfiguration>emptyList());
+        validate(config, Collections.<RepositoryConfiguration> emptyList());
     }
 
     /**
@@ -51,8 +52,8 @@ public final class RepositoryValidators {
         }
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format(
-                    "Repository name '%s' contains illegal characters. Please, correct repository name",
-                    prodConfig.getName());
+                "Repository name '%s' contains illegal characters. Please, correct repository name",
+                prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
@@ -61,7 +62,7 @@ public final class RepositoryValidators {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one",
-                            prodConfig.getName());
+                        prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -89,7 +90,7 @@ public final class RepositoryValidators {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one",
-                            prodConfig.getName());
+                        prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
@@ -99,7 +100,8 @@ public final class RepositoryValidators {
                         // Different users can access different schemas
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one", path);
+                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one",
+                                path);
                             throw new RepositoryValidationException(msg);
                         }
                     }
@@ -134,7 +136,8 @@ public final class RepositoryValidators {
         try {
             /* Close connection to jcr before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), RepositoryMode.PRODUCTION);
+            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(),
+                RepositoryMode.PRODUCTION);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);
@@ -150,22 +153,22 @@ public final class RepositoryValidators {
 
                 if (resultException instanceof LoginException) {
                     if (!settings.isSecure()) {
-                        throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                                + "\" : Connection is secure. Please, insert login and password");
+                        throw new RepositoryValidationException("Repository \"" + repoConfig
+                            .getName() + "\" : Connection is secure. Please, insert login and password");
                     } else {
-                        throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                                + "\" : Invalid login or password. Please, check login and password");
+                        throw new RepositoryValidationException("Repository \"" + repoConfig
+                            .getName() + "\" : Invalid login or password. Please, check login and password");
                     }
                 } else if (resultException instanceof FailedLoginException) {
-                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                            + "\" : Invalid login or password. Please, check login and password");
+                    throw new RepositoryValidationException("Repository \"" + repoConfig
+                        .getName() + "\" : Invalid login or password. Please, check login and password");
                 } else if (resultException instanceof ConnectException) {
                     throw new RepositoryValidationException("Connection refused. Please, check repository URL");
                 }
             }
 
-            throw new RepositoryValidationException("Repository \"" + repoConfig.getName() + "\" : "
-                    + resultException.getMessage());
+            throw new RepositoryValidationException(
+                "Repository \"" + repoConfig.getName() + "\" : " + resultException.getMessage());
         }
     }
 }

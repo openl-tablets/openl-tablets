@@ -19,8 +19,9 @@ public class SecurityFilter extends DelegatingFilterProxy {
     private Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterChain filterChain) throws IOException, ServletException {
         try {
             super.doFilter(servletRequest, servletResponse, filterChain);
         } catch (RuntimeException e) {

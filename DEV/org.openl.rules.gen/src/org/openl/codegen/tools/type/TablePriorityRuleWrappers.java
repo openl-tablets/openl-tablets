@@ -38,13 +38,15 @@ public class TablePriorityRuleWrappers {
 
                     if (operationName.equalsIgnoreCase(ASimplePriorityRule.MIN_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                                ASimplePriorityRule.MIN_OPERATION_NAME, propertyName));
+                            ASimplePriorityRule.MIN_OPERATION_NAME,
+                            propertyName));
                     } else if (operationName.equalsIgnoreCase(ASimplePriorityRule.MAX_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                                ASimplePriorityRule.MAX_OPERATION_NAME, propertyName));
+                            ASimplePriorityRule.MAX_OPERATION_NAME,
+                            propertyName));
                     } else {
-                        throw new IllegalArgumentException(String.format(
-                                "Wrong priority rule: [%s]. Unknown operator: [%s]", priorityRule, operationName));
+                        throw new IllegalArgumentException(String
+                            .format("Wrong priority rule: [%s]. Unknown operator: [%s]", priorityRule, operationName));
                     }
                 }
             } catch (Exception e) {
@@ -59,8 +61,8 @@ public class TablePriorityRuleWrappers {
         for (String priorityRule : priorityRules) {
             try {
                 if (priorityRule.startsWith(JavaClassTablesComparator.PREFIX)) {
-                    wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule, priorityRule.substring(
-                            JavaClassTablesComparator.PREFIX.length()).trim()));
+                    wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule,
+                        priorityRule.substring(JavaClassTablesComparator.PREFIX.length()).trim()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

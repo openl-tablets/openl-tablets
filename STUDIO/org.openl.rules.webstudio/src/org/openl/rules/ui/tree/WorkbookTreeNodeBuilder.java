@@ -18,7 +18,7 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        
+
         XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) nodeObject;
 
         return new String[] { wb.getDisplayName(), wb.getUri(), wb.getUri() };
@@ -45,9 +45,9 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getUrl(Object nodeObject) {
-        
+
         XlsWorkbookSourceCodeModule workbook = (XlsWorkbookSourceCodeModule) nodeObject;
-        
+
         return workbook.getUri();
     }
 

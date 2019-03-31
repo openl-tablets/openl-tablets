@@ -51,7 +51,9 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         String firstName = ctx.getStringAttribute("givenName");
         String lastName = ctx.getStringAttribute("sn");
 
-        Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx, username, userDetails.getAuthorities());
+        Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
+            username,
+            userDetails.getAuthorities());
 
         Collection<Privilege> privileges = new ArrayList<>(userAuthorities.size());
         for (GrantedAuthority authority : userAuthorities) {
@@ -106,12 +108,13 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             DistinguishedName searchBaseDn = new DistinguishedName(searchRoot);
 
             // This search must be done using DirContext with java.naming.ldap.attributes.binary attribute is set to
-            // "objectSid" because in current implementation of ActiveDirectoryLdapAuthenticationProvider the object "userData"
+            // "objectSid" because in current implementation of ActiveDirectoryLdapAuthenticationProvider the object
+            // "userData"
             // contains objectSid attribute with String type and is broken.
             NamingEnumeration<SearchResult> userSearch = context.search(searchBaseDn,
-                    "(&(objectClass=user)(userPrincipalName={0}))",
-                    new Object[] { bindPrincipal },
-                    searchControls);
+                "(&(objectClass=user)(userPrincipalName={0}))",
+                new Object[] { bindPrincipal },
+                searchControls);
             if (!userSearch.hasMoreElements()) {
                 log.warn("Can't find account '" + username + "'. Skip nested groups and primary group search.");
                 return null;
@@ -124,15 +127,15 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             if (primaryGroupSid != null) {
                 // Find nested groups + primary group
                 groupsSearch = context.search(searchBaseDn,
-                        "(&(objectClass=group)(|(member:1.2.840.113556.1.4.1941:={0})(objectSid={1})))",
-                        new Object[] { userData.getDn(), primaryGroupSid },
-                        searchControls);
+                    "(&(objectClass=group)(|(member:1.2.840.113556.1.4.1941:={0})(objectSid={1})))",
+                    new Object[] { userData.getDn(), primaryGroupSid },
+                    searchControls);
             } else {
                 // Find nested groups without primary group
                 groupsSearch = context.search(searchBaseDn,
-                        "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={0}))",
-                        new Object[] { userData.getDn() },
-                        searchControls);
+                    "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={0}))",
+                    new Object[] { userData.getDn() },
+                    searchControls);
             }
 
             // Fill authorities using search result
@@ -213,7 +216,9 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     /**
      * Get SID of a primary group based on primaryGroupId and objectSid of current user.
      *
-     * @see <a href="https://support.microsoft.com/en-us/help/297951/how-to-use-the-primarygroupid-attribute-to-find-the-primary-group-for">How to use the PrimaryGroupID attribute to find the primary group for a user</a>
+     * @see <a href=
+     *      "https://support.microsoft.com/en-us/help/297951/how-to-use-the-primarygroupid-attribute-to-find-the-primary-group-for">How
+     *      to use the PrimaryGroupID attribute to find the primary group for a user</a>
      */
     private String getPrimaryGroupSid(Attributes attributes) throws NamingException {
         Attribute attrPrimaryGroupId = attributes.get("primaryGroupId");
@@ -230,17 +235,15 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     /**
-     * The binary data is in the form:
-     * byte[0] - revision level
-     * byte[1] - count of sub-authorities
-     * byte[2-7] - 48 bit identifier authority (big-endian)
-     * and then count x 32 bit sub authorities (little-endian)
+     * The binary data is in the form: byte[0] - revision level byte[1] - count of sub-authorities byte[2-7] - 48 bit
+     * identifier authority (big-endian) and then count x 32 bit sub authorities (little-endian)
      * <p>
      * The String value is: S-Revision-Authority-SubAuthority[n]...
      * <p>
      *
      * @see <a href="https://technet.microsoft.com/en-us/library/cc962011.aspx">Security Identifier Structure</a>
-     * @see <a href="https://blogs.msdn.microsoft.com/oldnewthing/20040315-00/?p=40253">How do I convert a SID between binary and string forms?</a>
+     * @see <a href="https://blogs.msdn.microsoft.com/oldnewthing/20040315-00/?p=40253">How do I convert a SID between
+     *      binary and string forms?</a>
      */
     private static String decodeSid(byte[] sid) {
         final StringBuilder strSid = new StringBuilder("S-");
@@ -263,7 +266,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
         // Sub authorities (little-endian)
         int offset = 8;
-        final int authSize = 4; //4 bytes for each sub auth
+        final int authSize = 4; // 4 bytes for each sub auth
         for (int j = 0; j < subAuthoritiesCount; j++) {
             long subAuthority = 0;
             for (int k = 0; k < authSize; k++) {

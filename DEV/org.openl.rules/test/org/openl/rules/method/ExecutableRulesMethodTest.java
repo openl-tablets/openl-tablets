@@ -89,7 +89,7 @@ public class ExecutableRulesMethodTest {
         String value2 = instance.Random2(Boolean.TRUE);
         Assert.assertFalse(value1.equals(value2));
     }
-    
+
     final static class SimpleRulesRuntimeEnvUtils {
         private SimpleRulesRuntimeEnvUtils() {
         }
@@ -101,15 +101,17 @@ public class ExecutableRulesMethodTest {
                     runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
                 } else {
                     try {
-                        runtimeEnv = (IRuntimeEnv) instance.getClass().getMethod("getRuntimeEnvironment").invoke(instance);
+                        runtimeEnv = (IRuntimeEnv) instance.getClass()
+                            .getMethod("getRuntimeEnvironment")
+                            .invoke(instance);
                     } catch (Exception e) {
                         throw new OpenlNotCheckedException(e);
                     }
                 }
                 return runtimeEnv;
             }
-            throw new OpenlNotCheckedException("Instance must implement " + IEngineWrapper.class
-                .getCanonicalName() + "!");
+            throw new OpenlNotCheckedException(
+                "Instance must implement " + IEngineWrapper.class.getCanonicalName() + "!");
         }
 
         public static boolean isMethodArgumentsCacheEnable(Object instance) {

@@ -38,8 +38,8 @@ public class PropertiesTableInExecutionModeTest {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        IOpenMethod method = compiledOpenClass.getOpenClass().getMethod("hello1",
-                new IOpenClass[] { JavaOpenClass.INT });
+        IOpenMethod method = compiledOpenClass.getOpenClass()
+            .getMethod("hello1", new IOpenClass[] { JavaOpenClass.INT });
         if (method != null) {
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             assertNotNull(tableProperties);
@@ -80,8 +80,8 @@ public class PropertiesTableInExecutionModeTest {
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
         for (Entry<String, IOpenField> field : fields.entrySet()) {
             if (field.getValue() instanceof PropertiesOpenField) {
-                ITableProperties properties = (ITableProperties) field.getValue().get(
-                        compiledOpenClass.getOpenClass().newInstance(env), env);
+                ITableProperties properties = (ITableProperties) field.getValue()
+                    .get(compiledOpenClass.getOpenClass().newInstance(env), env);
                 String scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
             }

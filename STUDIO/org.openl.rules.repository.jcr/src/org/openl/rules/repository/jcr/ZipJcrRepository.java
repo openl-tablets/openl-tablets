@@ -55,8 +55,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     protected void init(Session session) throws RepositoryException {
         this.session = session;
         int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.NODE_REMOVED;
-        String[] nodeTypeName = {JcrNT.NT_COMMON_ENTITY};
-        session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, "/", true, null, nodeTypeName, false);
+        String[] nodeTypeName = { JcrNT.NT_COMMON_ENTITY };
+        session.getWorkspace()
+            .getObservationManager()
+            .addEventListener(this, eventTypes, "/", true, null, nodeTypeName, false);
     }
 
     @Override
@@ -76,7 +78,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 for (FolderAPI deployment : projects) {
                     for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
                         if (artefactAPI instanceof FolderAPI) {
-                            result.add(createFileData(path + "/" + deployment.getName() + "/" + artefactAPI.getName(), artefactAPI));
+                            result.add(createFileData(path + "/" + deployment.getName() + "/" + artefactAPI.getName(),
+                                artefactAPI));
                         }
                     }
                 }
@@ -106,7 +109,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { n.getName() })));
                 }
             } catch (RepositoryException e) {
                 log.debug("Failed to get a child node.", e);
@@ -336,7 +339,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 return true;
             } else {
                 if (!artefact.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION)) {
-                    throw new ProjectException("Project ''{0}'' isn't marked for deletion. The method deleteHistory() in JCR Repository is supported only for undelete and erase.", null, name);
+                    throw new ProjectException(
+                        "Project ''{0}'' isn't marked for deletion. The method deleteHistory() in JCR Repository is supported only for undelete and erase.",
+                        null,
+                        name);
                 }
                 artefact.removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
                 return true;
@@ -377,13 +383,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return new CommonUserImpl("system");
     }
 
-    private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException, FileNotFoundException {
+    private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException,
+                                                                      FileNotFoundException {
         FolderAPI project;
         try {
             Node root = session.getRootNode();
             Node n = checkFolder(root, name, false);
             if (n != null) {
-                project = new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name.substring(name.lastIndexOf("/") + 1)}));
+                project = new JcrFolderAPI(n,
+                    new ArtefactPathImpl(new String[] { name.substring(name.lastIndexOf("/") + 1) }));
             } else if (create) {
                 project = createArtifact(root, name);
             } else {
@@ -400,7 +408,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             int lastSeparator = path.lastIndexOf("/");
             Node parent;
             String name;
-            if (lastSeparator >=0) {
+            if (lastSeparator >= 0) {
                 String folder = path.substring(0, lastSeparator);
                 name = path.substring(lastSeparator + 1);
                 parent = checkFolder(root, folder, true);
@@ -411,13 +419,16 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             Node node = NodeUtil.createNode(parent, name, JcrNT.NT_APROJECT, true);
             root.save();
             node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create an artifact ''{0}''", e, path);
         }
     }
 
-    private void deleteAbsentFiles(List<String> newFiles, FolderAPI folder, String prefix, CommonUser user) throws ProjectException {
+    private void deleteAbsentFiles(List<String> newFiles,
+            FolderAPI folder,
+            String prefix,
+            CommonUser user) throws ProjectException {
         for (ArtefactAPI artefact : folder.getArtefacts()) {
             if (artefact instanceof ResourceAPI) {
                 if (!newFiles.contains(prefix + artefact.getName())) {
@@ -461,9 +472,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return new FileItem(fileData, new ByteArrayInputStream(out.toByteArray()));
     }
 
-    private void writeFolderToZip(FolderAPI folder, ZipOutputStream zipOutputStream, String pathPrefix) throws
-                                                                                                        IOException,
-                                                                                                        ProjectException {
+    private void writeFolderToZip(FolderAPI folder,
+            ZipOutputStream zipOutputStream,
+            String pathPrefix) throws IOException, ProjectException {
         Collection<? extends ArtefactAPI> artefacts = folder.getArtefacts();
         for (ArtefactAPI artefact : artefacts) {
             if (artefact instanceof ResourceAPI) {
@@ -484,7 +495,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     private Node checkFolder(Node root, String aPath, boolean create) throws RepositoryException {
         Node node = root;
         String[] paths = aPath.split("/");
-       for (String path : paths) {
+        for (String path : paths) {
             if (path.length() == 0) {
                 continue; // first element (root folder) or illegal path
             }
@@ -557,7 +568,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public void close() {
         setListener(null);
-        // Session can be null if failed to initialize repository. But this method can still be called during finalization.
+        // Session can be null if failed to initialize repository. But this method can still be called during
+        // finalization.
         if (session != null) {
             try {
                 Workspace workspace = session.getWorkspace();

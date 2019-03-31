@@ -10,7 +10,6 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.jxpath.CompiledExpression;
@@ -18,10 +17,9 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
 
 /**
- * Variation implementation using to find fields to modify JXpath (See
- * {@link http://commons.apache.org/jxpath/}). Note: path can not point on root
- * object(path "."), only fields modifications supported. If you want to replace
- * entire argument you should use {@link ArgumentReplacementVariation}.
+ * Variation implementation using to find fields to modify JXpath (See {@link http://commons.apache.org/jxpath/}). Note:
+ * path can not point on root object(path "."), only fields modifications supported. If you want to replace entire
+ * argument you should use {@link ArgumentReplacementVariation}.
  * 
  * @author PUdalau, Marat Kamalov
  */
@@ -62,9 +60,8 @@ public class JXPathVariation extends Variation {
     @Override
     public Object currentValue(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
-                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
-                    + originalArguments.length);
+            throw new VariationRuntimeException(
+                "Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -74,9 +71,8 @@ public class JXPathVariation extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
-                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
-                    + originalArguments.length);
+            throw new VariationRuntimeException(
+                "Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -87,9 +83,8 @@ public class JXPathVariation extends Variation {
     @Override
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         if (updatedArgumentIndex >= modifiedArguments.length) {
-            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
-                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
-                    + modifiedArguments.length);
+            throw new VariationRuntimeException(
+                "Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + modifiedArguments.length);
         }
         JXPathContext context = JXPathContext.newContext(modifiedArguments[updatedArgumentIndex]);
         compiledExpression.setValue(context, previousValue);
@@ -101,7 +96,7 @@ public class JXPathVariation extends Variation {
     public int getUpdatedArgumentIndex() {
         return updatedArgumentIndex;
     }
-    
+
     public void setUpdatedArgumentIndex(int updatedArgumentIndex) {
         this.updatedArgumentIndex = updatedArgumentIndex;
     }
@@ -112,7 +107,7 @@ public class JXPathVariation extends Variation {
     public String getPath() {
         return path;
     }
-    
+
     public void setPath(String path) {
         this.path = path;
     }
@@ -123,7 +118,7 @@ public class JXPathVariation extends Variation {
     public Object getValueToSet() {
         return valueToSet;
     }
-    
+
     public void setValueToSet(Object valueToSet) {
         this.valueToSet = valueToSet;
     }

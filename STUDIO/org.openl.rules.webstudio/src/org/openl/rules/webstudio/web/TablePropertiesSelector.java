@@ -23,8 +23,7 @@ class TablePropertiesSelector extends ASelector<TableSyntaxNode> {
     }
 
     /**
-     * Check if table properties consists all the values for properties from
-     * defined properties.
+     * Check if table properties consists all the values for properties from defined properties.
      */
     @Override
     public boolean select(TableSyntaxNode node) {

@@ -19,49 +19,54 @@ import org.openl.rules.project.model.ProjectDescriptor;
 public class RulesModuleDependencyLoader implements IDependencyLoader {
 
     private Map<String, Module> modulesMap = new HashMap<>();
-    
+
     public RulesModuleDependencyLoader(Collection<Module> modules) {
         init(modules);
     }
-    
+
     @Override
-    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) throws OpenLCompilationException{
+    public CompiledDependency load(String dependencyName,
+            IDependencyManager dependencyManager) throws OpenLCompilationException {
 
         Module dependencyModule = findDependencyModule(dependencyName);
-        
-        if(dependencyModule != null) {
-     
+
+        if (dependencyModule != null) {
+
             try {
                 ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                
+
                 // create classloader for the dependency. With the parent for current module.
                 //
                 ProjectDescriptor project = dependencyModule.getProject();
-                SimpleBundleClassLoader moduleClassLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), oldClassLoader);
+                SimpleBundleClassLoader moduleClassLoader = new SimpleBundleClassLoader(project.getClassPathUrls(),
+                    oldClassLoader);
 
-                SingleModuleInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(dependencyModule, 
-                    dependencyManager.isExecutionMode(), dependencyManager, moduleClassLoader);
+                SingleModuleInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(
+                    dependencyModule,
+                    dependencyManager.isExecutionMode(),
+                    dependencyManager,
+                    moduleClassLoader);
                 strategy.setExternalParameters(dependencyManager.getExternalParameters());
                 CompiledOpenClass compiledOpenClass = strategy.compile();
-                
+
                 return new CompiledDependency(dependencyName, compiledOpenClass);
             } catch (Exception e) {
-                throw new OpenlNotCheckedException(String.format("Failed to load dependency '%s'!", dependencyName) , e);
+                throw new OpenlNotCheckedException(String.format("Failed to load dependency '%s'!", dependencyName), e);
             }
         }
 
         return null;
     }
-    
-    protected Module findDependencyModule(String moduleName){
+
+    protected Module findDependencyModule(String moduleName) {
         return modulesMap.get(moduleName);
     }
-    
+
     private void init(Collection<Module> modules) {
         for (Module module : modules) {
             String key = module.getName();
             modulesMap.put(key, module);
         }
     }
-    
+
 }

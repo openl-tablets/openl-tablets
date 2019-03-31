@@ -20,8 +20,10 @@ public class CustomTemplatesResolver extends TemplatesResolver {
     public static final String PROJECT_TEMPLATES_FOLDER = "project-templates";
 
     private final Logger log = LoggerFactory.getLogger(CustomTemplatesResolver.class);
-    private final String templatesPath = new File(System.getProperty("webstudio.home"), PROJECT_TEMPLATES_FOLDER).getPath();
-    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(new TemplateResourceLoader());
+    private final String templatesPath = new File(System.getProperty("webstudio.home"), PROJECT_TEMPLATES_FOLDER)
+        .getPath();
+    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
+        new TemplateResourceLoader());
 
     @Override
     protected List<String> resolveCategories() {

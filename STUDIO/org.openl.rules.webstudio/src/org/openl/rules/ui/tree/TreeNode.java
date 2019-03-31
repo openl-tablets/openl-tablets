@@ -26,7 +26,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     private T object;
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public void addChild(Object key, ITreeNode<T> child) {

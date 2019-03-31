@@ -39,7 +39,10 @@ public class AProjectFolder extends AProjectArtefact {
      *
      * @param artefacts pre-initialized artefact collection
      */
-    public AProjectFolder(Map<String, AProjectArtefact> artefacts, AProject project, Repository repository, String folderPath) {
+    public AProjectFolder(Map<String, AProjectArtefact> artefacts,
+            AProject project,
+            Repository repository,
+            String folderPath) {
         this(project, repository, folderPath, null);
         this.artefacts = artefacts;
     }
@@ -79,7 +82,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     private void addResource(String name, AProjectResource resource) throws ProjectException {
-        InputStream content = resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent();
+        InputStream content = resourceTransformer != null ? resourceTransformer.transform(resource)
+                                                          : resource.getContent();
         AProjectResource addedResource = addResource(name, content);
         addedResource.setResourceTransformer(resourceTransformer);
     }
@@ -93,7 +97,8 @@ public class AProjectFolder extends AProjectArtefact {
             fileData.setName(fullName);
             Repository repository = getRepository();
             if (repository.check(fullName) != null) {
-                throw new ProjectException(String.format("The file '%s' exists in the folder.", name), new IOException());
+                throw new ProjectException(String.format("The file '%s' exists in the folder.", name),
+                    new IOException());
             }
             fileData = repository.save(fileData, content);
             AProjectResource createdResource = new AProjectResource(getProject(), repository, fileData);
@@ -130,9 +135,9 @@ public class AProjectFolder extends AProjectArtefact {
             AProjectFolder folder = (AProjectFolder) artefacts.get(name);
             if (folder == null) {
                 folder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
-                        artefact.getProject(),
-                        artefact.getRepository(),
-                        folderPath + "/" + name);
+                    artefact.getProject(),
+                    artefact.getRepository(),
+                    folderPath + "/" + name);
                 artefacts.put(name, folder);
             }
             folder.addArtefact(artefact);
@@ -210,7 +215,8 @@ public class AProjectFolder extends AProjectArtefact {
                 if (getRepository().supports().folders()) {
                     fileDatas = ((FolderRepository) getRepository()).listFiles(folderPath, getFileData().getVersion());
                 } else {
-                    throw new UnsupportedOperationException("Can't get internal artifacts for historic project version");
+                    throw new UnsupportedOperationException(
+                        "Can't get internal artifacts for historic project version");
                 }
             } else {
                 fileDatas = getRepository().list(folderPath);

@@ -73,7 +73,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
             this.props = state.props;
             this.modified = state.modified;
             this.creationDate = state.creationDate;
-            
+
             for (Property property : state.properties) {
                 try {
                     this.properties.addProperty(property);
@@ -85,7 +85,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
             }
         } else {
             // TODO consider exception throwing
-            log.error("Incorrect type of stateHolder. Was: '{}', but should be 'ArtefactStateHolder", stateHolder.getClass().getName());
+            log.error("Incorrect type of stateHolder. Was: '{}', but should be 'ArtefactStateHolder",
+                stateHolder.getClass().getName());
         }
     }
 
@@ -231,12 +232,12 @@ public class LocalArtefactAPI implements ArtefactAPI {
     public void removeAllProperties() throws PropertyException {
         properties.removeAll();
     }
-    
-    private File getProjectLocation(){
+
+    private File getProjectLocation() {
         String projectName = getArtefactPath().segment(0);
         return new File(workspace.getLocation(), projectName);
     }
-    
+
     @Override
     public void commit(CommonUser user, int revision) throws ProjectException {
         modified = false;
@@ -252,7 +253,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         }
     }
 
-    private void load(){
+    private void load() {
         new StatePersistance(this, getProjectLocation()).load();
     }
 
@@ -262,7 +263,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
     }
 
     public boolean isModified() {
-        if(!new StatePersistance(this, getProjectLocation()).isStateSaved()){
+        if (!new StatePersistance(this, getProjectLocation()).isStateSaved()) {
             return true;
         }
         return modified || creationDate != source.lastModified();
@@ -273,18 +274,20 @@ public class LocalArtefactAPI implements ArtefactAPI {
         int segmentId = path.segmentCount();
 
         if (segmentId > 1) {
-            LocalArtefactAPI parentArtefactAPI = new LocalArtefactAPI(source.getParentFile(), path.withoutSegment(segmentId - 1), workspace);
+            LocalArtefactAPI parentArtefactAPI = new LocalArtefactAPI(source.getParentFile(),
+                path.withoutSegment(segmentId - 1),
+                workspace);
             Map<String, InheritedProperty> inheritedProps = new HashMap<>();
-            
+
             inheritedProps.putAll(parentArtefactAPI.getInheritedProps());
-            
+
             if (parentArtefactAPI.getProps() != null) {
                 Map<String, Object> parentProp = parentArtefactAPI.getProps();
-                
-                for (Map.Entry<String, Object> entry: parentProp.entrySet()) {
+
+                for (Map.Entry<String, Object> entry : parentProp.entrySet()) {
                     InheritedProperty inhProp = new InheritedProperty(entry.getValue(),
-                            (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT ),
-                            parentArtefactAPI.getName() );
+                        (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT),
+                        parentArtefactAPI.getName());
                     inheritedProps.put(entry.getKey(), inhProp);
                 }
             }
@@ -294,8 +297,8 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
         return new HashMap<>();
     }
-    
-    public void clearModifyStatus() { 
+
+    public void clearModifyStatus() {
         modified = false;
         creationDate = source.lastModified();
         save();

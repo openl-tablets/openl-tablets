@@ -30,8 +30,7 @@ import org.openl.vm.IRuntimeEnv;
 public class ModuleTest extends TestCase {
 
     /**
-     * Attributes of this class are referenced in expressions from Person
-     * context
+     * Attributes of this class are referenced in expressions from Person context
      */
     public class Address {
         String street;
@@ -91,8 +90,7 @@ public class ModuleTest extends TestCase {
     }
 
     /**
-     * Sample data model to use in expressions Person is container, contains one
-     * address object
+     * Sample data model to use in expressions Person is container, contains one address object
      */
     public class Person {
         String name;
@@ -127,8 +125,7 @@ public class ModuleTest extends TestCase {
     }
 
     /**
-     * Sample assert expressions in OGNL and OpenL. Note the syntax difference,
-     * and "context." prefix within OpenL
+     * Sample assert expressions in OGNL and OpenL. Note the syntax difference, and "context." prefix within OpenL
      */
     public final static String OGNL_EXPR = "address.zip == 10001";
 
@@ -139,8 +136,7 @@ public class ModuleTest extends TestCase {
     public final static String NEG_OPENL_EXPR = "!context.address.zip.equals(\"90210\")";
 
     /**
-     * Sample get expression in OGNL and OpenL. Note "context." prefix within
-     * OpenL
+     * Sample get expression in OGNL and OpenL. Note "context." prefix within OpenL
      */
     public final static String OGNL_GET_ADDRESS = "address";
 
@@ -179,8 +175,8 @@ public class ModuleTest extends TestCase {
     }
 
     /**
-     * Execute specified OpenL expression within given context object. Note:
-     * context object must be refence by "contex." pefrix from expressions
+     * Execute specified OpenL expression within given context object. Note: context object must be refence by "contex."
+     * pefrix from expressions
      *
      * @param context context obj
      * @param expr expression string
@@ -218,18 +214,15 @@ public class ModuleTest extends TestCase {
     }
 
     /**
-     * 1) You don't have to specify return type(use JavaOpenClass.VOID instead,
-     * in this case openl returns the value of the last expression) 2) New OpenL
-     * bex grammar can access attributes of the parameters(actually you can even
-     * regulate the depth of the search, if nested attributes need to be
-     * accessed, the only limitation is that the name has to be unique in the
-     * context, otherwise, the chain syntax still is required)
+     * 1) You don't have to specify return type(use JavaOpenClass.VOID instead, in this case openl returns the value of
+     * the last expression) 2) New OpenL bex grammar can access attributes of the parameters(actually you can even
+     * regulate the depth of the search, if nested attributes need to be accessed, the only limitation is that the name
+     * has to be unique in the context, otherwise, the chain syntax still is required)
      *
      * @see http://openl-tablets.sourceforge.net/bex505.shtml
      *
-     * 3) Once method is created it can be used multiple times(the instance of
-     * IRuntimeEnv need to be created each time or once per thread, but it does
-     * not have significant performance overhead)
+     *      3) Once method is created it can be used multiple times(the instance of IRuntimeEnv need to be created each
+     *      time or once per thread, but it does not have significant performance overhead)
      *
      */
 
@@ -359,18 +352,17 @@ public class ModuleTest extends TestCase {
      */
     public void testOpenLMath() {
         /*
-         * This invocation does not work with primitive values, e.g. in
-         * arithemtic expressions
+         * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
         // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
         Object obj = executeOpenLExprression(order, MATH_OPENL, JavaOpenClass.getOpenClass(Double.class)); // <--
-                                                                                                            // problematic,
-                                                                                                            // we
-                                                                                                            // have
-                                                                                                            // to
-                                                                                                            // know
+                                                                                                           // problematic,
+                                                                                                           // we
+                                                                                                           // have
+                                                                                                           // to
+                                                                                                           // know
         // expresion return type before we invoke it
         // thats something we dont know (and can't) in BLS
         double value = ((Double) obj).doubleValue();
@@ -379,8 +371,7 @@ public class ModuleTest extends TestCase {
 
     public void testOpenLOGNLMath() {
         /*
-         * This invocation does not work with primitive values, e.g. in
-         * arithemtic expressions
+         * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
         // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic

@@ -20,9 +20,9 @@ public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
             Repository repository;
             String webDavUrl = this.uri;
             try {
-                //FIXME Doesn't work on the secure mode
+                // FIXME Doesn't work on the secure mode
                 repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(webDavUrl));
-                //repository = JcrUtils.getRepository(confWebdavUrl.getValue());
+                // repository = JcrUtils.getRepository(confWebdavUrl.getValue());
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
@@ -37,7 +37,7 @@ public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
     /** {@inheritDoc} */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
-        throw new RepositoryException("Cannot initialize node types via WebDav."
-                + "\nPlease, add OpenL node types definition manually or via command line tool.");
+        throw new RepositoryException(
+            "Cannot initialize node types via WebDav." + "\nPlease, add OpenL node types definition manually or via command line tool.");
     }
 }

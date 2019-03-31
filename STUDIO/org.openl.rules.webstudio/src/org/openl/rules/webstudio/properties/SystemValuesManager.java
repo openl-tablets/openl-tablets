@@ -20,17 +20,17 @@ public final class SystemValuesManager {
     public static final String CURRENT_USER_DESCRIPTOR = "currentUser";
     public static final String CURRENT_DATE_DESCRIPTOR = "currentDate";
 
-    private SystemValuesManager() {        
-        for (TablePropertyDefinition propDef :TablePropertyDefinitionUtils.getSystemProperties()) {
+    private SystemValuesManager() {
+        for (TablePropertyDefinition propDef : TablePropertyDefinitionUtils.getSystemProperties()) {
             if (CURRENT_USER_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
                 if (!systemValues.containsKey(CURRENT_USER_DESCRIPTOR)) {
                     systemValues.put(CURRENT_USER_DESCRIPTOR, new CurrentUserValue());
-                }                
+                }
             } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
                 if (!systemValues.containsKey(CURRENT_DATE_DESCRIPTOR)) {
                     systemValues.put(CURRENT_DATE_DESCRIPTOR, new CurrentDateValue());
                 }
-            }            
+            }
         }
     }
 
@@ -50,7 +50,7 @@ public final class SystemValuesManager {
         ISystemValue systemValue = systemValues.get(descriptor);
         if (systemValue != null) {
             result = systemValue.getValue();
-        } 
+        }
         return result;
     }
 

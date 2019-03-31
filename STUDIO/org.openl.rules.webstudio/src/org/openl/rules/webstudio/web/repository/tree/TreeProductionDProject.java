@@ -18,14 +18,14 @@ import org.openl.rules.webstudio.filter.IFilter;
 
 public class TreeProductionDProject extends TreeProductFolder {
     private IFilter<AProjectArtefact> filter;
-    
+
     public TreeProductionDProject(String id, String name, IFilter<AProjectArtefact> filter) {
         super(id, name, filter);
         this.filter = filter;
     }
 
     private Map<Object, TreeNode> elements;
-    
+
     @Override
     public String getType() {
         return UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT;
@@ -62,7 +62,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     }
 
     @Override
-    public void addChild(AProjectArtefact childArtefact){
+    public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
         String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact instanceof AProjectFolder) {
@@ -92,7 +92,7 @@ public class TreeProductionDProject extends TreeProductFolder {
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedBy() : null;
     }
-    
+
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {
@@ -105,7 +105,7 @@ public class TreeProductionDProject extends TreeProductFolder {
 
     public String getModifiedBy() {
         ProjectVersion projectVersion = (getProject()).getVersion();
-        /* zero*/
+        /* zero */
         if (projectVersion == null) {
             return null;
         }

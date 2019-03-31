@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The simplest {@link RulesInstantiationStrategyFactory} for module that
- * contains only Excel file.
+ * The simplest {@link RulesInstantiationStrategyFactory} for module that contains only Excel file.
  *
  * @author PUdalau
  */
@@ -36,9 +35,9 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     }
 
     public ApiBasedInstantiationStrategy(Module module,
-                                         boolean executionMode,
-                                         IDependencyManager dependencyManager,
-                                         ClassLoader classLoader) {
+            boolean executionMode,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
     }
 
@@ -79,7 +78,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         URL url = URLSourceCodeModule.toUrl(sourceFile);
         return new ModuleFileSourceCodeModule(url, getModule().getName());
     }
- 
+
     @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
@@ -90,14 +89,15 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
-        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
+        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
+            .equals(serviceClass))) {
             if (getModule().getExtension() != null) {
-                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory.getExtensionDescriptor(getModule().getExtension(),
-                        getClassLoader());
-    
+                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
+                    .getExtensionDescriptor(getModule().getExtension(), getClassLoader());
+
                 IOpenSourceCodeModule source = extensionDescriptor.getSourceCode(getModule());
                 source.setParams(prepareExternalParameters());
-    
+
                 String openlName = extensionDescriptor.getOpenLName();
                 engineFactory = new RulesEngineFactory<>(openlName, source, serviceClass);
             } else {
@@ -110,9 +110,10 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             // Information for interface generation, if generation required.
             Module m = getModule();
             MethodFilter methodFilter = m.getMethodFilter();
-            if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils.isNotEmpty(methodFilter.getIncludes()))) {
-                String[] includes = new String[]{};
-                String[] excludes = new String[]{};
+            if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils
+                .isNotEmpty(methodFilter.getIncludes()))) {
+                String[] includes = new String[] {};
+                String[] excludes = new String[] {};
                 includes = methodFilter.getIncludes().toArray(includes);
                 excludes = methodFilter.getExcludes().toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

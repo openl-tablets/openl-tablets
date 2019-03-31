@@ -47,9 +47,9 @@ public class TablePropertyDefinitionWrapper {
     }
 
     public boolean isEnum() {
-        return org.openl.rules.enumeration.Enum.class.equals(tablePropertyDefinition.getType().getInstanceClass())
-                || org.openl.rules.enumeration.Enum[].class
-                        .equals(tablePropertyDefinition.getType().getInstanceClass());
+        return org.openl.rules.enumeration.Enum.class
+            .equals(tablePropertyDefinition.getType().getInstanceClass()) || org.openl.rules.enumeration.Enum[].class
+                .equals(tablePropertyDefinition.getType().getInstanceClass());
     }
 
     public String getEnumName() {

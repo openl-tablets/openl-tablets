@@ -21,11 +21,15 @@ public class StatePersistance {
 
     private File getPropertiesFile(LocalArtefactAPI artefact) {
         if (artefact.isFolder()) {
-            return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
-                    + (File.separator + FolderHelper.FOLDER_PROPERTIES_FILE));
+            return new File(propertiesLocation,
+                artefact.getArtefactPath()
+                    .withoutFirstSegment()
+                    .getStringValue() + (File.separator + FolderHelper.FOLDER_PROPERTIES_FILE));
         } else {
-            return new File(propertiesLocation, artefact.getArtefactPath().withoutFirstSegment().getStringValue()
-                    + FolderHelper.RESOURCE_PROPERTIES_EXT);
+            return new File(propertiesLocation,
+                artefact.getArtefactPath()
+                    .withoutFirstSegment()
+                    .getStringValue() + FolderHelper.RESOURCE_PROPERTIES_EXT);
         }
     }
 
@@ -68,8 +72,7 @@ public class StatePersistance {
     /**
      * Checks if state of the artefact was saved.
      *
-     * @return <code>true</code> if state of the artefact was previously saved
-     * and <code>false</code> otherwise.
+     * @return <code>true</code> if state of the artefact was previously saved and <code>false</code> otherwise.
      */
     public boolean isStateSaved() {
         return getPropertiesFile(artefact).exists();

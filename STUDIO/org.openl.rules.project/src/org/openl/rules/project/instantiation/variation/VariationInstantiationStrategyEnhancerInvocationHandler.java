@@ -40,11 +40,12 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
     private final Map<Method, Method> methodsMap;
     private final Object serviceClassInstance;
 
-    VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance) {
+    VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
+            Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
     }
-    
+
     @Override
     public Object getTarget() {
         return serviceClassInstance;
@@ -86,13 +87,12 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
             try {
                 VariationsResult<Object> variationsResults = new VariationsResult<>();
-                VariationsResult<Object> singleVariation = calculateSingleVariation(member, arguments, new NoVariation());
+                VariationsResult<Object> singleVariation = calculateSingleVariation(member,
+                    arguments,
+                    new NoVariation());
                 merge(variationsResults, singleVariation);
                 if (variationsPack != null) {
-                    final VariationCalculationTask[] tasks = createTasks(member,
-                        variationsPack,
-                        arguments,
-                        runtimeEnv);
+                    final VariationCalculationTask[] tasks = createTasks(member, variationsPack, arguments, runtimeEnv);
                     if (tasks.length > 0) {
                         ServiceMT.getInstance().executeAll(tasks);
                         for (VariationCalculationTask task : tasks) {
@@ -159,27 +159,26 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             VariationsPack variationsPack,
             Object[] arguments,
             SimpleRulesRuntimeEnv parentRuntimeEnv) {
-        final Collection<VariationCalculationTask> tasks = new ArrayList<>(
-            variationsPack.getVariations().size());
+        final Collection<VariationCalculationTask> tasks = new ArrayList<>(variationsPack.getVariations().size());
         boolean f = false;
         for (Variation variation : variationsPack.getVariations()) {
             final IRuntimeEnv runtimeEnv = parentRuntimeEnv.clone();
 
-                if (Proxy.isProxyClass(serviceClassInstance.getClass())) {
-                    final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy
-                        .getInvocationHandler(serviceClassInstance);
-                    handler.setRuntimeEnv(runtimeEnv);
-                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
-                    simpleRulesRuntimeEnv.setOriginalCalculation(false);
-                    simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
-                    simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();
-                } else {
-                    if (!f) {
-                        log.warn(
-                            "Variation features aren't supported for Wrapper classses. This functionality was depricated!");
-                        f = true;
-                    }
+            if (Proxy.isProxyClass(serviceClassInstance.getClass())) {
+                final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy
+                    .getInvocationHandler(serviceClassInstance);
+                handler.setRuntimeEnv(runtimeEnv);
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
+                simpleRulesRuntimeEnv.setOriginalCalculation(false);
+                simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();
+            } else {
+                if (!f) {
+                    log.warn(
+                        "Variation features aren't supported for Wrapper classses. This functionality was depricated!");
+                    f = true;
+                }
             }
 
             final VariationCalculationTask item = new VariationCalculationTask(member,
@@ -208,7 +207,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             this.variation = variation;
             this.runtimeEnv = runtimeEnv;
         }
-        
+
         @Override
         protected VariationsResult<Object> compute() {
             OpenLRulesInvocationHandler handler = null;

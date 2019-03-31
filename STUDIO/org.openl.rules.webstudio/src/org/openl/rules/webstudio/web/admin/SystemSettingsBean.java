@@ -67,11 +67,13 @@ public class SystemSettingsBean {
 
         designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN);
 
-        deployConfigRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DEPLOY_CONFIG);
+        deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
+            configManager,
+            RepositoryMode.DEPLOY_CONFIG);
 
         productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
-                productionConfigManagerFactory,
-                productionRepositoryFactoryProxy);
+            productionConfigManagerFactory,
+            productionRepositoryFactoryProxy);
 
         validator = new SystemSettingsValidator(this);
     }
@@ -137,7 +139,8 @@ public class SystemSettingsBean {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean.parseBoolean(configManager.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return !Boolean
+            .parseBoolean(configManager.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
@@ -159,11 +162,11 @@ public class SystemSettingsBean {
     public void setDispatchingValidationEnabled(boolean dispatchingValidationEnabled) {
         configManager.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
     }
-    
-    public boolean isDispatchingValidationEnabled(){
+
+    public boolean isDispatchingValidationEnabled() {
         return OpenLSystemProperties.isDispatchingValidationEnabled(configManager.getProperties());
     }
-    
+
     public boolean isRunTestsInParallel() {
         return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
     }
@@ -177,7 +180,8 @@ public class SystemSettingsBean {
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
-        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, Integer.parseInt(StringUtils.trim(testRunThreadCount)));
+        configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY,
+            Integer.parseInt(StringUtils.trim(testRunThreadCount)));
     }
 
     public boolean isAutoCompile() {
@@ -193,23 +197,26 @@ public class SystemSettingsBean {
             repositoryTreeState.invalidateTree();
 
             RepositoryValidators.validate(designRepositoryConfiguration);
-            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration, designTimeRepository,
-                    RepositoryMode.DESIGN);
+            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration,
+                designTimeRepository,
+                RepositoryMode.DESIGN);
 
             if (!isUseDesignRepo()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                 RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration,
-                        designTimeRepository,
-                        RepositoryMode.DEPLOY_CONFIG);
+                    designTimeRepository,
+                    RepositoryMode.DEPLOY_CONFIG);
             }
 
             productionRepositoryEditor.validate();
             productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
-                @Override public void onDelete(String configName) {
+                @Override
+                public void onDelete(String configName) {
                     deploymentManager.removeRepository(configName);
                 }
 
-                @Override public void onRename(String oldConfigName, String newConfigName) {
+                @Override
+                public void onRename(String oldConfigName, String newConfigName) {
                     deploymentManager.removeRepository(oldConfigName);
                     deploymentManager.addRepository(newConfigName);
                 }
@@ -242,7 +249,7 @@ public class SystemSettingsBean {
 
         productionRepositoryEditor.revertChanges();
 
-        // We cannot invoke configManager.restoreDefaults(): in this case some 
+        // We cannot invoke configManager.restoreDefaults(): in this case some
         // settings (such as user.mode etc) not edited in this page
         // will be reverted too. We should revert only settings edited in Administration page
         for (String setting : AdministrationSettings.getAllSettings()) {
@@ -271,12 +278,14 @@ public class SystemSettingsBean {
 
     public void deleteProductionRepository(String configName) {
         try {
-            productionRepositoryEditor.deleteProductionRepository(configName, new ProductionRepositoryEditor.Callback() {
-                @Override public void onDelete(String configName) {
-                    /* Delete Production repo from tree */
-                    productionRepositoriesTreeController.deleteProdRepo(configName);
-                }
-            });
+            productionRepositoryEditor.deleteProductionRepository(configName,
+                new ProductionRepositoryEditor.Callback() {
+                    @Override
+                    public void onDelete(String configName) {
+                        /* Delete Production repo from tree */
+                        productionRepositoriesTreeController.deleteProdRepo(configName);
+                    }
+                });
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             FacesUtils.addErrorMessage(e.getMessage());

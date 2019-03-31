@@ -10,7 +10,6 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 /**
  * Container of all variations for calculations.
  * 
- * Serves as the additional input parameter for special method that represents
- * "calculation with variations".
+ * Serves as the additional input parameter for special method that represents "calculation with variations".
  * 
  * See {@link VariationsEnhancer}
  * 
@@ -53,8 +51,8 @@ public final class VariationsPack {
         }
         for (Variation v : variations) {
             if (variation.getVariationID().equals(v.getVariationID())) {
-                throw new VariationException("Variation pack already contains variation with this variationID="
-                        + variation.getVariationID());
+                throw new VariationException(
+                    "Variation pack already contains variation with this variationID=" + variation.getVariationID());
             }
         }
         variations.add(variation);
@@ -88,7 +86,7 @@ public final class VariationsPack {
     public List<Variation> getVariations() {
         return variations;
     }
-    
+
     public void setVariations(List<Variation> variations) {
         this.variations = variations;
     }

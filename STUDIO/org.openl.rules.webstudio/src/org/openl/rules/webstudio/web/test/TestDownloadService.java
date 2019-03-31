@@ -109,7 +109,16 @@ public class TestDownloadService {
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/"; // //EPBDS-7613
         }
-        return new NewCookie(cookieName, StringTool.encodeURL(value), contextPath, null, 1, null, -1, null, false, false);
+        return new NewCookie(cookieName,
+            StringTool.encodeURL(value),
+            contextPath,
+            null,
+            1,
+            null,
+            -1,
+            null,
+            false,
+            false);
     }
 
 }

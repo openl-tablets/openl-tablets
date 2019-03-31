@@ -18,9 +18,9 @@ public class ContextPropertyDefinitionWrapper {
     }
 
     public boolean isEnum() {
-        return org.openl.rules.enumeration.Enum.class.equals(contextPropertyDefinition.getType().getInstanceClass())
-                || org.openl.rules.enumeration.Enum[].class.equals(contextPropertyDefinition.getType()
-                        .getInstanceClass());
+        return org.openl.rules.enumeration.Enum.class
+            .equals(contextPropertyDefinition.getType().getInstanceClass()) || org.openl.rules.enumeration.Enum[].class
+                .equals(contextPropertyDefinition.getType().getInstanceClass());
     }
 
     public String getEnumName() {

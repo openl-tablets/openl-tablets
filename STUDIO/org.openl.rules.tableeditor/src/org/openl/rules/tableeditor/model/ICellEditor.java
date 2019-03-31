@@ -6,7 +6,7 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
  *
  * @author snshor
  *
- * This interface is base interface for all cell editors that are created by Table Editor.
+ *         This interface is base interface for all cell editors that are created by Table Editor.
  *
  */
 
@@ -27,8 +27,7 @@ public interface ICellEditor {
 
     /**
      *
-     * @return bean containing information that will be processed on the client
-     *         to initialize JS editor
+     * @return bean containing information that will be processed on the client to initialize JS editor
      */
     EditorTypeResponse getEditorTypeAndMetadata();
 

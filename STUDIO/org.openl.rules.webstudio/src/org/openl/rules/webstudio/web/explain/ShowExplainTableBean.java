@@ -43,8 +43,8 @@ public class ShowExplainTableBean {
         for (IGridTable gridTable : compositeGrid.getGridTables()) {
             if (gridTable.getGrid() instanceof CompositeGrid) {
                 IGridRegion region2 = findInCompositeGrid((CompositeGrid) gridTable.getGrid(), p1, region);
-                if (region2 != null){
-                    IGridRegion region3 =  compositeGrid.getMappedRegion(i);
+                if (region2 != null) {
+                    IGridRegion region3 = compositeGrid.getMappedRegion(i);
                     int top = region.getTop() - region2.getTop() + region3.getTop();
                     int bottom = region.getBottom() - region2.getTop() + region3.getTop();
                     int left = region.getLeft() - region2.getLeft() + region3.getLeft();
@@ -53,12 +53,18 @@ public class ShowExplainTableBean {
                 }
             } else {
                 if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
-                    IGridRegion region2 =  gridTable.getRegion();
-                    IGridRegion region3 =  compositeGrid.getMappedRegion(i);
+                    IGridRegion region2 = gridTable.getRegion();
+                    IGridRegion region3 = compositeGrid.getMappedRegion(i);
                     IGridRegion tmp = region;
-                    if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0){//if one cell find merged region
-                        IGridRegion margedRegion = gridTable.getGrid().getRegionContaining(region.getLeft(), region.getTop());
-                        if (margedRegion != null){
+                    if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0) {// if
+                                                                                                                 // one
+                                                                                                                 // cell
+                                                                                                                 // find
+                                                                                                                 // merged
+                                                                                                                 // region
+                        IGridRegion margedRegion = gridTable.getGrid()
+                            .getRegionContaining(region.getLeft(), region.getTop());
+                        if (margedRegion != null) {
                             tmp = margedRegion;
                         }
                     }
@@ -73,24 +79,28 @@ public class ShowExplainTableBean {
         }
         return null;
     }
-    
+
     public IGridFilter getFilter() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
         XlsUrlParser p1 = new XlsUrlParser();
         p1.parse(uri);
         IGridRegion region = IGridRegion.Tool.makeRegion(p1.getRange());
-        
+
         if (table.getGridTable().getGrid() instanceof CompositeGrid) {
             CompositeGrid compositeGrid = (CompositeGrid) table.getGridTable().getGrid();
             IGridRegion r = findInCompositeGrid(compositeGrid, p1, region);
-            if (r != null){
+            if (r != null) {
                 region = r;
             }
-        }else{
-            if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0){ //is one cell find merged region
-                IGridRegion margedRegion = table.getGridTable().getGrid().getRegionContaining(region.getLeft(), region.getTop());
-                if (margedRegion != null){
+        } else {
+            if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0) { // is one cell
+                                                                                                          // find merged
+                                                                                                          // region
+                IGridRegion margedRegion = table.getGridTable()
+                    .getGrid()
+                    .getRegionContaining(region.getLeft(), region.getTop());
+                if (margedRegion != null) {
                     region = margedRegion;
                 }
             }

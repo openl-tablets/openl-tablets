@@ -19,7 +19,7 @@ public class TestUnitTest {
         TestDescription test = mock(TestDescription.class);
         when(test.isExpectedResultDefined()).thenReturn(true);
         when(test.getExpectedResult()).thenReturn(new DoubleValue(0.93));
-        when(test.getFields()).thenReturn(Collections.<IOpenField>singletonList(new ThisField(JavaOpenClass.DOUBLE)));
+        when(test.getFields()).thenReturn(Collections.<IOpenField> singletonList(new ThisField(JavaOpenClass.DOUBLE)));
 
         ITestUnit unit = new TestUnit(test, 0.93, null, 100);
 

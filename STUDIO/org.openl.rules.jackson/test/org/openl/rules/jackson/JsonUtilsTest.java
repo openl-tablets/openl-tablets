@@ -28,12 +28,14 @@ public class JsonUtilsTest {
             "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"]}",
             json);
 
-        SpreadsheetResult spResult = JsonUtils.fromJSON("{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}", SpreadsheetResult.class);
+        SpreadsheetResult spResult = JsonUtils.fromJSON(
+            "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}",
+            SpreadsheetResult.class);
 
         Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
         Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
         Assert.assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
-        
+
         spResult = JsonUtils.fromJSON(json, SpreadsheetResult.class);
 
         Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());

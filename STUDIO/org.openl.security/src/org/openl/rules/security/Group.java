@@ -2,7 +2,6 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
-
 /**
  * An authority containing several other authorities
  * 
@@ -14,7 +13,7 @@ public interface Group extends Privilege {
 
     Collection<Privilege> getPrivileges();
 
-    //List<Group> getGroups();
+    // List<Group> getGroups();
 
     /**
      * Returns true if this group contains given privilege

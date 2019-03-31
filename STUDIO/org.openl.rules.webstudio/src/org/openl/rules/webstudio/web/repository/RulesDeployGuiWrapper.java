@@ -46,7 +46,6 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setServiceName(serviceName);
     }
 
-
     public String getAnnotationTemplateClassName() {
         return rulesDeploy.getAnnotationTemplateClassName();
     }
@@ -70,7 +69,7 @@ public class RulesDeployGuiWrapper {
     public void setServiceClass(String serviceClass) {
         rulesDeploy.setServiceClass(serviceClass);
     }
-    
+
     public String getRmiServiceClass() {
         return rulesDeploy.getRmiServiceClass();
     }
@@ -125,8 +124,8 @@ public class RulesDeployGuiWrapper {
     }
 
     public PublisherType[] getAvailablePublishers() {
-        if (version.compareTo(SupportedVersion.V5_15) <=0) {
-            return new PublisherType[] {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
+        if (version.compareTo(SupportedVersion.V5_15) <= 0) {
+            return new PublisherType[] { PublisherType.WEBSERVICE, PublisherType.RESTFUL };
         }
 
         return PublisherType.values();

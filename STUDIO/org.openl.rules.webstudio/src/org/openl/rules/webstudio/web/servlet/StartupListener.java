@@ -30,15 +30,16 @@ public class StartupListener implements ServletContextListener {
 
     private void initSystemProperties() {
         ConfigurationManager cm = new ConfigurationManager(true,
-                System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+            System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         Map<String, Object> properties = cm.getProperties(true);
 
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
-        boolean configured = System.getProperty("webstudio.configured") != null
-                && System.getProperty("webstudio.configured").equals("true");
+        boolean configured = System.getProperty("webstudio.configured") != null && System
+            .getProperty("webstudio.configured")
+            .equals("true");
         // If webstudio.mode isn't defined, use either webstudio-beans.xml or installer-beans.xml.
         // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
         String webStudioMode = System.getProperty("webstudio.mode");
@@ -47,17 +48,20 @@ public class StartupListener implements ServletContextListener {
         }
 
         // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
-        // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded directly
-        // from property files and then redefine property if needed (in Install Wizard for example). It'll be set globally
+        // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded
+        // directly
+        // from property files and then redefine property if needed (in Install Wizard for example). It'll be set
+        // globally
         // later when configuration will be finished.
         if (configured) {
             ConfigurationManager systemConfig = new ConfigurationManager(true,
-                    System.getProperty("webstudio.home") + "/system-settings/system.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                System.getProperty("webstudio.home") + "/system-settings/system.properties",
+                System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
             String userMode = systemConfig.getStringProperty("user.mode");
             System.setProperty("user.mode", userMode);
 
-            String repoPassKey = StringUtils.trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+            String repoPassKey = StringUtils
+                .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
             // Make it globally available. It will not be changed during application execution.
             System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
         }

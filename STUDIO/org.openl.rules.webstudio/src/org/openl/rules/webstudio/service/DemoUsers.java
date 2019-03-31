@@ -16,10 +16,10 @@ import org.openl.rules.security.SimpleUser;
  */
 public class DemoUsers {
     /**
-     * It's assumed that demo users are stored in in-memory database and are destroyed on JVM shutdown.
-     * This global static variable is needed to create demo users only once.
-     * After administration settings change context is refreshed and this bean is invoked again. This time it must keep
-     * previous changes, no need to create demo users again.
+     * It's assumed that demo users are stored in in-memory database and are destroyed on JVM shutdown. This global
+     * static variable is needed to create demo users only once. After administration settings change context is
+     * refreshed and this bean is invoked again. This time it must keep previous changes, no need to create demo users
+     * again.
      */
     private static boolean initialized = false;
 

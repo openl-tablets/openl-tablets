@@ -43,7 +43,8 @@ public class MultiNestedSpreadsheetResultTest {
         conf = new NestedSpreadsheetConfiguration<CodeStep, CompoundStep>(columnsToExtract) {
 
             @Override
-            protected RowExtractor<CodeStep> initSimpleRowExtractor(List<SpreadsheetColumnExtractor<CodeStep>> simpleExtractors) {
+            protected RowExtractor<CodeStep> initSimpleRowExtractor(
+                    List<SpreadsheetColumnExtractor<CodeStep>> simpleExtractors) {
 
                 return new RowExtractor<CodeStep>(simpleExtractors) {
 
@@ -62,7 +63,8 @@ public class MultiNestedSpreadsheetResultTest {
             }
 
             @Override
-            protected RowExtractor<CompoundStep> initCompoundRowExtractor(List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
+            protected RowExtractor<CompoundStep> initCompoundRowExtractor(
+                    List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
 
                 return new RowExtractor<CompoundStep>(compoundExtractors) {
 
@@ -73,7 +75,7 @@ public class MultiNestedSpreadsheetResultTest {
 
                     @Override
                     protected CompoundStep afterExtract(CompoundStep step) {
-                        // Do nothing                        
+                        // Do nothing
                         return step;
                     }
                 };
@@ -85,8 +87,7 @@ public class MultiNestedSpreadsheetResultTest {
     public void test() {
         SpreadsheetResult res = getMockSpreadsheetResult();
 
-        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<>(1,
-            conf);
+        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<>(1, conf);
         List<CalculationStep> result = conv.process(res);
 
         assertEquals("firstNested", ((CodeStep) result.get(0)).getCode());
@@ -115,9 +116,11 @@ public class MultiNestedSpreadsheetResultTest {
         assertEquals("firstNested", ((CodeStep) result.get(0)).getCode());
         assertEquals(2, ((CompoundStep) result.get(1)).getSteps().size());
         assertEquals("nestedColumn2_1",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps().get(0)).getCode());
+            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps().get(0))
+                .getCode());
         assertEquals("nestedColumn2_2",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps().get(0)).getCode());
+            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps().get(0))
+                .getCode());
     }
 
     private SpreadsheetResult getMockSpreadsheetResult() {

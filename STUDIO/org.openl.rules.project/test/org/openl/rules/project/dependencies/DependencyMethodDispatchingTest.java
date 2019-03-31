@@ -16,11 +16,11 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 public class DependencyMethodDispatchingTest {
 
     private static final String AMBIGUOUS_METHOD_MESSAGE = "Ambiguous dispatch for method";
+
     /**
-     * Checks that one module includes another as dependency. Both of them
-     * contains the identical methods by signatures, without dimension
-     * properties. The expected result: both methods will be wrapped with
-     * dispatcher and ambigious method exception will be thrown at runtime.
+     * Checks that one module includes another as dependency. Both of them contains the identical methods by signatures,
+     * without dimension properties. The expected result: both methods will be wrapped with dispatcher and ambigious
+     * method exception will be thrown at runtime.
      */
     @Test
     public void testAmbigiousMethodException() throws Exception {
@@ -28,7 +28,8 @@ public class DependencyMethodDispatchingTest {
         // mode based on methods selecting in java code
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/testMethodDispatching").build();
+            .setProject("test-resources/dependencies/testMethodDispatching")
+            .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Method method = null;
@@ -47,11 +48,9 @@ public class DependencyMethodDispatchingTest {
     }
 
     /**
-     * Check that main module contains overloaded by property table. Dependency
-     * contains the invokable table(start) that calls the table that is
-     * overloaded by property. Checks, that on invoke the table from dependency
-     * module will work. As it was compiled separately, and know nothing about
-     * the overloaded table in main module.
+     * Check that main module contains overloaded by property table. Dependency contains the invokable table(start) that
+     * calls the table that is overloaded by property. Checks, that on invoke the table from dependency module will
+     * work. As it was compiled separately, and know nothing about the overloaded table in main module.
      */
     @Test
     public void testMethodDispatching() {

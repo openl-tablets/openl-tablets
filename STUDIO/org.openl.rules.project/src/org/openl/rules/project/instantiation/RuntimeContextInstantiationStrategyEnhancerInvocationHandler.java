@@ -13,21 +13,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The implementation of {@link InvocationHandler} which used by
- * {@link RuntimeContextInstantiationStrategyEnhancer} class to construct proxy of service class.
+ * The implementation of {@link InvocationHandler} which used by {@link RuntimeContextInstantiationStrategyEnhancer}
+ * class to construct proxy of service class.
  */
 class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler {
 
-    private final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
+    private final Logger log = LoggerFactory
+        .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
 
-    public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance) {
+    public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
+            Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
     }
-    
+
     @Override
     public Object getTarget() {
         return serviceClassInstance;
@@ -67,7 +69,8 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IO
             IRulesRuntimeContextConsumer wrapper = (IRulesRuntimeContextConsumer) serviceInstance;
             wrapper.setRuntimeContext(context);
         } else {
-            log.error("Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
+            log.error(
+                "Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
         }
     }
 

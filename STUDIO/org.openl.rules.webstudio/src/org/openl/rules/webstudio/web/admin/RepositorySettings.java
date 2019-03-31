@@ -61,7 +61,8 @@ public abstract class RepositorySettings {
     }
 
     protected void revert(ConfigurationManager configurationManager) {
-        configurationManager.removeProperties(VERSION_IN_DEPLOYMENT_NAME, COMMENT_VALIDATION_PATTERN, INVALID_COMMENT_MESSAGE);
+        configurationManager
+            .removeProperties(VERSION_IN_DEPLOYMENT_NAME, COMMENT_VALIDATION_PATTERN, INVALID_COMMENT_MESSAGE);
         load(configurationManager);
     }
 

@@ -82,7 +82,10 @@ public class RepositoryConfiguration {
                 newSettings = new GitRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode, repositoryType);
+                newSettings = new CommonRepositorySettings(configManager,
+                    CONFIG_PREFIX,
+                    repositoryMode,
+                    repositoryType);
                 break;
         }
 

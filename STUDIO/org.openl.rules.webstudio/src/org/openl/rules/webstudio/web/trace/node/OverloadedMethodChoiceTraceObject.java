@@ -8,8 +8,7 @@ import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 
 /**
- * Trace object for step of choosing the method from overloaded by properties
- * group of tables.
+ * Trace object for step of choosing the method from overloaded by properties group of tables.
  *
  * @author PUdalau
  */

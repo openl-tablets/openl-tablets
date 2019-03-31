@@ -110,7 +110,7 @@ public class TestBean {
 
         if (ranResults != null && ranResults.length > 0) {
             lastPage = testsPerPage == ALL ? DEFAULT_PAGE
-                    : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+                                           : ((int) Math.ceil((double) ranResults.length / testsPerPage));
         }
 
         int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
@@ -128,7 +128,7 @@ public class TestBean {
 
         testsFailuresPerTest = studio.getTestsFailuresPerTest();
         int failuresPerTest = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_FAILURES_NUMBER,
-                testsFailuresPerTest);
+            testsFailuresPerTest);
         if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
         }
@@ -226,14 +226,14 @@ public class TestBean {
 
     public boolean isComplexResult(Object objTestUnit) {
         Object actualValue = getActualResultInternal(objTestUnit);
-        ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual",
-                actualValue
-        );
+        ParameterWithValueDeclaration param = new ParameterWithValueDeclaration("actual", actualValue);
         return !param.getType().isSimple() && !isResultThrowable(objTestUnit);
     }
 
     public String getFormattedSpreadsheetResult(SpreadsheetResult spreadsheetResult) {
-        return spreadsheetResult == null ? "" : ObjectViewer.displaySpreadsheetResult(spreadsheetResult, mainBean.getRequestId());
+        return spreadsheetResult == null ? ""
+                                         : ObjectViewer.displaySpreadsheetResult(spreadsheetResult,
+                                             mainBean.getRequestId());
     }
 
     public String getFormattedSpreadsheetResultFromTestUnit(ITestUnit objTestUnit) {
@@ -243,7 +243,8 @@ public class TestBean {
             if (actualResultInternal instanceof SpreadsheetResult) {
                 SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
-                return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates, mainBean.getRequestId());
+                return ObjectViewer
+                    .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates, mainBean.getRequestId());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -284,9 +285,9 @@ public class TestBean {
                 Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
                 StringBuilder sb = new StringBuilder();
                 sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(columnNames[j])
-                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(rowNames[i]);
+                    .append(columnNames[j])
+                    .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                    .append(rowNames[i]);
                 absoluteCoordinates.put(sb.toString(), absolute);
             }
         }
@@ -344,7 +345,8 @@ public class TestBean {
     }
 
     public boolean isTest() {
-        return StringUtils.isNotBlank(uri) && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
+        return StringUtils
+            .isNotBlank(uri) && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
     }
 
     public boolean isExpired() {

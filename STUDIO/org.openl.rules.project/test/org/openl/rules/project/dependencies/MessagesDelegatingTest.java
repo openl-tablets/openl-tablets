@@ -114,8 +114,9 @@ public class MessagesDelegatingTest {
 
     private boolean hasDuplicatedMethodException(CompiledOpenClass compiledOpenClass) {
         boolean hasDuplicatedMethodException = false;
-        
-        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
+
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
+            .filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
         for (OpenLMessage error : errorMessages) {
             if (error instanceof OpenLErrorMessage) {
                 Throwable cause = ((OpenLErrorMessage) error).getError().getCause();

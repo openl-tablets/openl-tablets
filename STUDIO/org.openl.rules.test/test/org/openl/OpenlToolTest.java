@@ -40,16 +40,16 @@ public class OpenlToolTest extends TestCase {
         String name = "abc";
         IMethodSignature signature = IMethodSignature.VOID;
         IOpenClass declaringClass = null;
-        
+
         IBindingContext cxt = openl.getBinder().makeBindingContext();
 
-        IOpenMethod m = OpenLManager.makeMethodWithUnknownType(openl, srcCode.asSourceCodeModule(), name, signature,
-                declaringClass,  cxt);
+        IOpenMethod m = OpenLManager
+            .makeMethodWithUnknownType(openl, srcCode.asSourceCodeModule(), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.INT, m.getType());
 
         srcCode = new StringValue("if (true) return 5.0; else return 9.1;");
-        m = OpenLManager.makeMethodWithUnknownType(openl, srcCode.asSourceCodeModule(), name, signature, declaringClass,
-                 cxt);
+        m = OpenLManager
+            .makeMethodWithUnknownType(openl, srcCode.asSourceCodeModule(), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.DOUBLE, m.getType());
 
     }

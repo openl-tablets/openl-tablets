@@ -39,13 +39,12 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     private static final String DECORATED_CLASS_NAME_SUFFIX = "$VariationsDecorated";
 
     /**
-     * Checks whether the specified interface was enhanced with variations or
-     * not(if there exists at least one enhanced method).
+     * Checks whether the specified interface was enhanced with variations or not(if there exists at least one enhanced
+     * method).
      *
      * @param clazz Interface to check.
-     * @return <code>true</code> if at least one method of interface is method
-     * for calculations with variations and <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if at least one method of interface is method for calculations with variations and
+     *         <code>false</code> otherwise.
      */
     public static boolean isDecoratedClass(Class<?> clazz) {
         for (Method method : clazz.getMethods()) {
@@ -60,14 +59,14 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * Checks whether the specified method is enhanced with variations.
      *
      * @param method The method to check.
-     * @return <code>true</code> if method has the {@link VariationsPack} as the
-     * last parameter and returns {@link VariationsResult} and
-     * <code>false</code> otherwise.
+     * @return <code>true</code> if method has the {@link VariationsPack} as the last parameter and returns
+     *         {@link VariationsResult} and <code>false</code> otherwise.
      */
     public static boolean isDecoratedMethod(Method method) {
         int paramsLength = method.getParameterTypes().length;
-        if (paramsLength == 0 || method.getParameterTypes()[paramsLength - 1] != VariationsPack.class
-                || !method.getReturnType().equals(VariationsResult.class)) {
+        if (paramsLength == 0 || method.getParameterTypes()[paramsLength - 1] != VariationsPack.class || !method
+            .getReturnType()
+            .equals(VariationsResult.class)) {
             return false;
         } else {
             return true;
@@ -75,13 +74,11 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     /**
-     * Undecorates methods signatures of given clazz. Undecoration implies that
-     * all methods that was enhanced with variations will be removed from servce
-     * class.
+     * Undecorates methods signatures of given clazz. Undecoration implies that all methods that was enhanced with
+     * variations will be removed from servce class.
      *
-     * @param clazz       class to undecorate
-     * @param classLoader The classloader where generated class should be
-     *                    placed.
+     * @param clazz class to undecorate
+     * @param classLoader The classloader where generated class should be placed.
      * @return new class with undecorated methods signatures
      * @throws Exception
      */
@@ -99,8 +96,9 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         return innerUndecorateInterface(className, clazz, classLoader);
     }
 
-    private static Class<?> innerUndecorateInterface(String className, Class<?> original, ClassLoader classLoader)
-            throws Exception {
+    private static Class<?> innerUndecorateInterface(String className,
+            Class<?> original,
+            ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
@@ -124,8 +122,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * Check that method should be ignored by enhancer.
      *
      * @param method method to check
-     * @return <code>true</code> if method should be ignored; <code>false</code>
-     * - otherwise
+     * @return <code>true</code> if method should be ignored; <code>false</code> - otherwise
      */
     private static boolean isIgnored(Method method) {
         // Ignore methods what are inherited from Object.class
@@ -134,14 +131,11 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     /**
-     * Decorates methods signatures of given clazz. New decorated class will
-     * have both original methods and decorated methods with
-     * {@link VariationsPack} as the last parameter and {@link VariationsResult}
-     * as the return type.
+     * Decorates methods signatures of given clazz. New decorated class will have both original methods and decorated
+     * methods with {@link VariationsPack} as the last parameter and {@link VariationsResult} as the return type.
      *
-     * @param clazz       class to decorate
-     * @param classLoader The classloader where generated class should be
-     *                    placed.
+     * @param clazz class to decorate
+     * @param classLoader The classloader where generated class should be placed.
      * @return new class with decorated methods signatures
      * @throws Exception
      */
@@ -180,11 +174,12 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = VariationsResult.class;
-            Class<?>[] newParams = new Class<?>[]{VariationsPack.class};
+            Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(paramTypes, newParams);
 
             RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
-            RuleInfo ruleInfoOriginal = InterfaceGenerator.createRuleInfo(methodName, paramTypes, method.getReturnType());
+            RuleInfo ruleInfoOriginal = InterfaceGenerator
+                .createRuleInfo(methodName, paramTypes, method.getReturnType());
 
             rules.add(ruleInfoEnhanced);
             rules.add(ruleInfoOriginal);
@@ -194,21 +189,18 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     /**
-     * Searches for method that will be executed instead of method in enhanced
-     * interface.
+     * Searches for method that will be executed instead of method in enhanced interface.
      *
-     * @param simpleClass     Class without variations injection.
+     * @param simpleClass Class without variations injection.
      * @param decoratedMethod Method enhanced with variations.
-     * @return Corresponding method in original interface for method from
-     * enhanced interface.
-     * @throws Exception Possible exception from java reflection caused wrong
-     *                   method accessing.
+     * @return Corresponding method in original interface for method from enhanced interface.
+     * @throws Exception Possible exception from java reflection caused wrong method accessing.
      */
     public static Method getMethodForDecoration(Class<?> simpleClass, Method decoratedMethod) throws Exception {
         Class<?>[] parameterTypes = decoratedMethod.getParameterTypes();
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(decoratedMethod)) {
             return simpleClass.getMethod(decoratedMethod.getName(),
-                    Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
+                Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
         } else {
             return simpleClass.getMethod(decoratedMethod.getName(), parameterTypes);
         }
@@ -217,8 +209,8 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     // FIXME skip decorated methods
 
     /**
-     * {@link ClassWriter} for creation undecorated class: all decorated with
-     * variations methods will be removed from interface.
+     * {@link ClassWriter} for creation undecorated class: all decorated with variations methods will be removed from
+     * interface.
      *
      * @author PUdalau
      */

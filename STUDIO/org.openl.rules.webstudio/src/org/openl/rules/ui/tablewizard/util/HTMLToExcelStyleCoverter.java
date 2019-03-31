@@ -82,12 +82,12 @@ public class HTMLToExcelStyleCoverter {
     public static Font getFont(JSONObject style, Workbook wb) {
         boolean boldWeight = false;
         short color = HSSFColor.HSSFColorPredefined.BLACK.getIndex();
-        short fontHeight = 10*20;
+        short fontHeight = 10 * 20;
         String name = "Arial";
         boolean italic = false;
         boolean strikeout = false;
         short typeOffset = Font.SS_NONE;
-        byte underline = Font.U_NONE; 
+        byte underline = Font.U_NONE;
 
         try {
             if (!style.isNull("fontWeight")) {
@@ -109,7 +109,7 @@ public class HTMLToExcelStyleCoverter {
             if (!style.isNull("color")) {
                 String rgbColor = style.getString("color");
 
-                if(StringUtils.isNotEmpty(rgbColor)) {
+                if (StringUtils.isNotEmpty(rgbColor)) {
                     color = getColorIndex(stringRGBToShort(rgbColor), wb);
                 }
             }
@@ -124,8 +124,8 @@ public class HTMLToExcelStyleCoverter {
                 if (StringUtils.isNotEmpty(fontSize)) {
                     fontHeight = Short.parseShort(fontSize);
 
-                    //convert to px
-                    fontHeight = (short) ((fontHeight/1.2) * 20);
+                    // convert to px
+                    fontHeight = (short) ((fontHeight / 1.2) * 20);
                 }
 
             }
@@ -137,7 +137,7 @@ public class HTMLToExcelStyleCoverter {
                     italic = true;
                 }
             }
-            //TODO add initialization of strikeout, typeOffset, underline
+            // TODO add initialization of strikeout, typeOffset, underline
         } catch (JSONException ignored) {
 
         }
@@ -155,7 +155,7 @@ public class HTMLToExcelStyleCoverter {
             font.setStrikeout(strikeout);
             font.setTypeOffset(typeOffset);
             font.setUnderline(underline);
-        } 
+        }
 
         return font;
     }
@@ -169,7 +169,7 @@ public class HTMLToExcelStyleCoverter {
             } else {
                 return BorderStyle.NONE;
             }
-            //TODO add code for dotted and double border
+            // TODO add code for dotted and double border
         }
 
         return BorderStyle.NONE;
@@ -181,12 +181,15 @@ public class HTMLToExcelStyleCoverter {
             HSSFPalette palette = hssfWorkbook.getCustomPalette();
 
             HSSFColor hssfColor = palette.findColor((byte) rgbColor[0], (byte) rgbColor[1], (byte) rgbColor[2]);
-            if (hssfColor == null ) {
+            if (hssfColor == null) {
                 try {
                     hssfColor = palette.addColor((byte) rgbColor[0], (byte) rgbColor[1], (byte) rgbColor[2]);
                 } catch (Exception e) {
                     HSSFColor similarColor = palette.findSimilarColor(rgbColor[0], rgbColor[1], rgbColor[2]);
-                    palette.setColorAtIndex(similarColor.getIndex(), (byte) rgbColor[0], (byte) rgbColor[1], (byte) rgbColor[2]);
+                    palette.setColorAtIndex(similarColor.getIndex(),
+                        (byte) rgbColor[0],
+                        (byte) rgbColor[1],
+                        (byte) rgbColor[2]);
                     hssfColor = palette.getColor(similarColor.getIndex());
                 }
             }
@@ -217,8 +220,8 @@ public class HTMLToExcelStyleCoverter {
     }
 
     private static BorderStyle getBorder(JSONObject style, String position) {
-        String borderType = "border"+position+"Style";
-        String borderSize = "border"+position+"Width";
+        String borderType = "border" + position + "Style";
+        String borderSize = "border" + position + "Width";
 
         if (!style.isNull(borderType)) {
             try {
@@ -241,8 +244,7 @@ public class HTMLToExcelStyleCoverter {
         return BorderStyle.NONE;
     }
 
-    public static XSSFColor getXSSFBackgroundColor(JSONObject style,
-            XSSFWorkbook workbook) {
+    public static XSSFColor getXSSFBackgroundColor(JSONObject style, XSSFWorkbook workbook) {
         return getXSSFColorByHtmlStyleName("backgroundColor", style, workbook);
     }
 
@@ -250,38 +252,33 @@ public class HTMLToExcelStyleCoverter {
         return getXSSFColorByHtmlStyleName("borderTopColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFRightBorderColor(JSONObject style,
-            XSSFWorkbook workbook) {
+    public static XSSFColor getXSSFRightBorderColor(JSONObject style, XSSFWorkbook workbook) {
         return getXSSFColorByHtmlStyleName("borderRightColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFBottomBorderColor(JSONObject style,
-            XSSFWorkbook workbook) {
+    public static XSSFColor getXSSFBottomBorderColor(JSONObject style, XSSFWorkbook workbook) {
         return getXSSFColorByHtmlStyleName("borderBottomColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFLeftBorderColor(JSONObject style,
-            XSSFWorkbook workbook) {
+    public static XSSFColor getXSSFLeftBorderColor(JSONObject style, XSSFWorkbook workbook) {
         return getXSSFColorByHtmlStyleName("borderLeftColor", style, workbook);
     }
-    
-    private static XSSFColor getXSSFColorByHtmlStyleName(String styleName,
-            JSONObject style,
-            XSSFWorkbook workbook) {
+
+    private static XSSFColor getXSSFColorByHtmlStyleName(String styleName, JSONObject style, XSSFWorkbook workbook) {
         if (!style.isNull(styleName)) {
             try {
                 if (StringUtils.isNotEmpty(style.getString(styleName))) {
                     short[] rgb = stringRGBToShort(style.getString(styleName));
                     return PoiExcelHelper.getColor(rgb, workbook);
                 } else {
-                    return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
+                    return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
                 }
             } catch (JSONException e) {
-                return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
+                return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
             }
         }
 
-        return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
+        return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
     }
 
     public static short getColorByHtmlStyleName(String styleName, JSONObject style, Workbook workbook) {
@@ -298,16 +295,17 @@ public class HTMLToExcelStyleCoverter {
 
     public static Font getXSSFFont(JSONObject style, XSSFWorkbook workbook) {
         boolean boldWeight = false;
-        // Use indexed color instead of Color.BLACK because of the bug https://issues.apache.org/bugzilla/show_bug.cgi?id=52079
+        // Use indexed color instead of Color.BLACK because of the bug
+        // https://issues.apache.org/bugzilla/show_bug.cgi?id=52079
         XSSFColor color = null;
         short indexedColor = Font.COLOR_NORMAL;
 
-        short fontHeight = 10*20;
+        short fontHeight = 10 * 20;
         String name = "Arial";
         boolean italic = false;
         boolean strikeout = false;
         short typeOffset = Font.SS_NONE;
-        byte underline = Font.U_NONE; 
+        byte underline = Font.U_NONE;
 
         try {
             if (!style.isNull("fontWeight")) {
@@ -329,7 +327,7 @@ public class HTMLToExcelStyleCoverter {
             if (!style.isNull("color")) {
                 String rgbColor = style.getString("color");
 
-                if(StringUtils.isNotEmpty(rgbColor)) {
+                if (StringUtils.isNotEmpty(rgbColor)) {
                     color = PoiExcelHelper.getColor(stringRGBToShort(rgbColor), workbook);
                     indexedColor = color.getIndexed();
                 }
@@ -345,8 +343,8 @@ public class HTMLToExcelStyleCoverter {
                 if (StringUtils.isNotEmpty(fontSize)) {
                     fontHeight = Short.parseShort(fontSize);
 
-                    //convert to px
-                    fontHeight = (short) ((fontHeight/1.2) * 20);
+                    // convert to px
+                    fontHeight = (short) ((fontHeight / 1.2) * 20);
                 }
 
             }
@@ -358,15 +356,16 @@ public class HTMLToExcelStyleCoverter {
                     italic = true;
                 }
             }
-            //TODO add initialization of strikeout, typeOffset, underline
+            // TODO add initialization of strikeout, typeOffset, underline
         } catch (JSONException ignored) {
 
         }
-        //FIXME equals fronts never find
-        XSSFFont font = workbook.findFont(boldWeight, indexedColor, fontHeight, name, italic, strikeout, typeOffset, underline);
+        // FIXME equals fronts never find
+        XSSFFont font = workbook
+            .findFont(boldWeight, indexedColor, fontHeight, name, italic, strikeout, typeOffset, underline);
 
-        if (font == null || color != null && !font.getXSSFColor().equals(color) ||
-                color == null && font.getXSSFColor().getIndexed() != indexedColor) {
+        if (font == null || color != null && !font.getXSSFColor().equals(color) || color == null && font.getXSSFColor()
+            .getIndexed() != indexedColor) {
             font = workbook.createFont();
 
             if (color != null) {

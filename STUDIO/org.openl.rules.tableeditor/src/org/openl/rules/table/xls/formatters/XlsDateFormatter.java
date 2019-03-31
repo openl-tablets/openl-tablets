@@ -18,13 +18,13 @@ public class XlsDateFormatter extends DateFormatter {
         xlsFormat = xlsFormat.replace('m', 'M');
         xlsFormat = xlsFormat.replaceAll("\\\\-", "-");
         xlsFormat = xlsFormat.replaceAll(";@", "");
-        xlsFormat = xlsFormat.replaceAll("\\\\ "," ");
+        xlsFormat = xlsFormat.replaceAll("\\\\ ", " ");
         xlsFormat = date_ptrn.matcher(xlsFormat).replaceAll("");
         return xlsFormat;
     }
 
     public XlsDateFormatter(String xlsFormat) {
         super(convertToJavaFormat(xlsFormat));
-    }    
+    }
 
 }

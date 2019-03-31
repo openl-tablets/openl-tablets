@@ -19,10 +19,10 @@ public class DomainTreePath {
 
     private String dotExpression;
 
-    @ManagedProperty(value="#{tableCreatorWizardManager.wizard.domainTree}")
+    @ManagedProperty(value = "#{tableCreatorWizardManager.wizard.domainTree}")
     private DomainTree domainTree;
 
-    @ManagedProperty(value="#{tableCreatorWizardManager.wizard.parameters}")
+    @ManagedProperty(value = "#{tableCreatorWizardManager.wizard.parameters}")
     private List<TypeNamePair> parameters;
 
     private DomainTreeContext context;

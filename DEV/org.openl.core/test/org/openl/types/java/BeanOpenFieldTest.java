@@ -34,7 +34,6 @@ public class BeanOpenFieldTest {
         assertTrue(fieldsMap.containsKey("Flag"));
     }
 
-
     class BeanJavaSpecification {
         private String fieldName;
         private boolean flag;

@@ -3,14 +3,16 @@ package org.openl.rules.webstudio.security;
 import org.springframework.security.core.Authentication;
 
 /**
- * Is intended to hold current user credentials during authentication process.
- * Cleared after authentication process is finished.
+ * Is intended to hold current user credentials during authentication process. Cleared after authentication process is
+ * finished.
  *
  * <p>
  * Difference from SecurityContextHolder:
  * <ul>
- *   <li>SecurityContextHolder holds Authentication object only <strong>after</strong> successful authentication. In some cases it doesn't contain password (for example in AD).</li>
- *   <li>AuthenticationHolder holds Authentication object <strong>during</strong> authentication process, and after it doesn't hold. Should contain password.</li>
+ * <li>SecurityContextHolder holds Authentication object only <strong>after</strong> successful authentication. In some
+ * cases it doesn't contain password (for example in AD).</li>
+ * <li>AuthenticationHolder holds Authentication object <strong>during</strong> authentication process, and after it
+ * doesn't hold. Should contain password.</li>
  * </ul>
  * </p>
  *

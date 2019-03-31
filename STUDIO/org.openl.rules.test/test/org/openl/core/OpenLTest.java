@@ -133,7 +133,7 @@ public final class OpenLTest {
         }
 
         File[] files = sourceDir.listFiles();
-//         files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
+        // files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
 
         for (File file : files) {
             final long startTime = System.nanoTime();
@@ -272,7 +272,8 @@ public final class OpenLTest {
                                         sourceFile,
                                         "\n   #{}  \n Actual: {} \n Expected: {}",
                                         testcase.getTest().getId(),
-                                        testcase.getActualResult(), testcase.getExpectedResult());
+                                        testcase.getActualResult(),
+                                        testcase.getExpectedResult());
                                 }
                             }
                         } else {

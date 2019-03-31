@@ -21,7 +21,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final ParameterRenderConfig config;
 
     public ComplexParameterTreeNode(ParameterRenderConfig config) {
-        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent(), config.getKeyField());
+        super(config
+            .getFieldNameInParent(), config.getValue(), config.getType(), config.getParent(), config.getKeyField());
         this.config = config;
 
         Object key = null;
@@ -109,17 +110,17 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     /**
-     * Finds a reference of a field's value to any of it's parents or object
-     * itself. If field value is not referenced to any of it's parents,
-     * function will return null.
+     * Finds a reference of a field's value to any of it's parents or object itself. If field value is not referenced to
+     * any of it's parents, function will return null.
      *
-     * @param fieldValue    field value
-     * @param parentObject  object that contains a field
+     * @param fieldValue field value
+     * @param parentObject object that contains a field
      * @param referenceName reference
      * @return reference name to a parent or null
      */
-    private String getReferenceNameToParent(Object fieldValue, ParameterDeclarationTreeNode parentObject,
-                                            String referenceName) {
+    private String getReferenceNameToParent(Object fieldValue,
+            ParameterDeclarationTreeNode parentObject,
+            String referenceName) {
         // Check reference, not value - that's why "==" instead of "equals".
         if (parentObject.getValue() == fieldValue) {
             return referenceName;

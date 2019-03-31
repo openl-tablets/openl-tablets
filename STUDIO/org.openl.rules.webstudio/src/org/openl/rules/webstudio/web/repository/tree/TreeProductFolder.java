@@ -14,7 +14,7 @@ public class TreeProductFolder extends TreeFolder {
     }
 
     @Override
-    public void addChild(AProjectArtefact childArtefact){
+    public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
 
         String id = RepositoryUtils.getTreeNodeId(name);
@@ -28,7 +28,7 @@ public class TreeProductFolder extends TreeFolder {
             add(treeFile);
         }
     }
-    
+
     @Override
     public String getType() {
         return UiConst.TYPE_PRODUCTION_FOLDER;

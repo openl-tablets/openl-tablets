@@ -142,11 +142,11 @@ public class JavaOpenClassTest {
 
     @Test
     public void superClassBeanFieldsTest() {
-        //when
+        // when
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
         IOpenField openField = beanAOpenClass.getField("B");
         assertNotNull(openField);
-        //then
+        // then
         Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
         assertNotNull(fieldMap);
         assertEquals(6, fieldMap.size());
@@ -269,15 +269,21 @@ public class JavaOpenClassTest {
 
     public interface BeanAInterface {
         int getB();
+
         void setB(int b);
+
         int getBa();
+
         void setBa(int ba);
+
         int getBB();
+
         void setBB(int BB);
     }
 
     public interface BeanXInterface extends BeanAInterface {
         int getX();
+
         void setX(int x);
     }
 }

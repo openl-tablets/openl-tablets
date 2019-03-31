@@ -14,8 +14,15 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class TestFloatCalc extends TestCase {
-    private double[] temp = new double[] { 1.0, 2.123, Math.E, Math.PI, Math.sqrt(10), 5.125, Math.PI * Math.E,
-            Math.pow(Math.PI, Math.E), Math.pow(Math.E, Math.PI) };
+    private double[] temp = new double[] { 1.0,
+            2.123,
+            Math.E,
+            Math.PI,
+            Math.sqrt(10),
+            5.125,
+            Math.PI * Math.E,
+            Math.pow(Math.PI, Math.E),
+            Math.pow(Math.E, Math.PI) };
     protected double[] ascendant = null;
     protected double[] descendant = null;
 
@@ -29,8 +36,15 @@ public class TestFloatCalc extends TestCase {
 
     @Override
     public void setUp() {
-        double[] temp = new double[] { 1.0, 2.123, Math.E, Math.PI, Math.sqrt(10), 5.125, Math.PI * Math.E,
-                Math.pow(Math.PI, Math.E), Math.pow(Math.E, Math.PI) };
+        double[] temp = new double[] { 1.0,
+                2.123,
+                Math.E,
+                Math.PI,
+                Math.sqrt(10),
+                5.125,
+                Math.PI * Math.E,
+                Math.pow(Math.PI, Math.E),
+                Math.pow(Math.E, Math.PI) };
 
         ascendant = new double[temp.length * 2 + 1];
         descendant = new double[temp.length * 2 + 1];
@@ -66,7 +80,7 @@ public class TestFloatCalc extends TestCase {
             result = FloatCalc.sqrMin(min, max);
             assertTrue("sqrMin(" + max + "," + min + ")= " + result + ">" + max + "*" + max, result <= max * max);
             assertTrue("sqrMin(" + max + "," + min + ")= " + result + ">" + min + "*" + min,
-                    result <= descendant[i + 1] * descendant[i + 1]);
+                result <= descendant[i + 1] * descendant[i + 1]);
         }
         result = FloatCalc.sqrMin(-1, 1);
         assertEquals("sqrMin(-1,1) = " + result, 0, result, Double.MIN_VALUE);

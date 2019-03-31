@@ -8,8 +8,7 @@ import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * Remote Jackrabbit Repository Factory. It accesses remote Jackrabbit instance
- * via RMI.
+ * Remote Jackrabbit Repository Factory. It accesses remote Jackrabbit instance via RMI.
  *
  * @author Aleh Bykhavets
  *
@@ -40,7 +39,7 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory
     /** {@inheritDoc} */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
-        throw new RepositoryException("Cannot initialize node types via RMI."
-                + "\nPlease, add OpenL node types definition manually or via command line tool.");
+        throw new RepositoryException(
+            "Cannot initialize node types via RMI." + "\nPlease, add OpenL node types definition manually or via command line tool.");
     }
 }

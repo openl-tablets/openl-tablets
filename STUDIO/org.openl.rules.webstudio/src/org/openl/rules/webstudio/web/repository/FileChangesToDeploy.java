@@ -60,7 +60,8 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
                     if (designRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
-                        FolderRepository repository = RepositoryUtils.getRepositoryForVersion((FolderRepository) designRepo, rulesPath, projectName, version);
+                        FolderRepository repository = RepositoryUtils
+                            .getRepositoryForVersion((FolderRepository) designRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             log.warn("Can't find files in project {}", projectName);
@@ -70,7 +71,8 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
                         // Project in design repository is stored as a zip file
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
-                            throw new FileNotFoundException("File '" + rulesPath + projectName + "' for version " + version + " is not found");
+                            throw new FileNotFoundException(
+                                "File '" + rulesPath + projectName + "' for version " + version + " is not found");
                         }
                         IOUtils.closeQuietly(openedStream);
                         ZipInputStream stream = new ZipInputStream(srcPrj.getStream());

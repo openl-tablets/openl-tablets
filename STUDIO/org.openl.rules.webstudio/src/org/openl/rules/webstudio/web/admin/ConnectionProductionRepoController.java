@@ -29,7 +29,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
             return;
         }
 
-        //repoConfig.save();
+        // repoConfig.save();
         addProductionRepoToMainConfig(repoConfig);
         clearForm();
     }
@@ -75,7 +75,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 }
             }
 
-            if(!checker.isRepoThere()) {
+            if (!checker.isRepoThere()) {
                 setErrorMessage(errorMessage);
                 return false;
             }
@@ -97,7 +97,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         return true;
     }
 
-    public static class RepoDirChecker{
+    public static class RepoDirChecker {
         private String root;
         private boolean hasRepoDir = false;
         private boolean hasVersionDir = false;

@@ -1,6 +1,5 @@
 package org.openl.rules.common;
 
-
 public class PropertyException extends CommonException {
     private static final long serialVersionUID = -125302643337515712L;
 

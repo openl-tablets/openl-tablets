@@ -21,11 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class tries to detect charset for zips compressed with non-UTF-8 encoding.
- * First of all it iterates all entries to check that they can be opened with UTF-8.
- * If it was unsuccessful, it uses rules.xml module paths to check correctness of chosen encoding.
- * If rules.xml is absent it compares file paths in the zip with existing project files (when updating existing project
- * with zip).
+ * This class tries to detect charset for zips compressed with non-UTF-8 encoding. First of all it iterates all entries
+ * to check that they can be opened with UTF-8. If it was unsuccessful, it uses rules.xml module paths to check
+ * correctness of chosen encoding. If rules.xml is absent it compares file paths in the zip with existing project files
+ * (when updating existing project with zip).
  */
 public class ZipCharsetDetector {
     private final Logger log = LoggerFactory.getLogger(ZipCharsetDetector.class);
@@ -37,7 +36,7 @@ public class ZipCharsetDetector {
      * Create zip charset detector.
      *
      * @param charsetNames additional charsets to check.
-     * @param zipFilter    path filter to filter out technical folders. If null, all files in the zip will be accepted.
+     * @param zipFilter path filter to filter out technical folders. If null, all files in the zip will be accepted.
      */
     public ZipCharsetDetector(String[] charsetNames, PathFilter zipFilter) {
         this.charsets = getAvailableCharsets(charsetNames);
@@ -48,7 +47,8 @@ public class ZipCharsetDetector {
      * Detect charset for the given zip. File names will be compared with rules.xml if it exists.
      *
      * @param source source for zip.
-     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be detected
+     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be
+     *         detected
      */
     public Charset detectCharset(ZipSource source) {
         return detectCharset(source, null);
@@ -58,9 +58,10 @@ public class ZipCharsetDetector {
      * Detect charset for given zip. File names will be compared with rules.xml if it exists. If it absents zip files
      * will be compared with <code>existingFiles</code>
      *
-     * @param source        source for zip.
+     * @param source source for zip.
      * @param existingFiles Existing file names to check. Can be null.
-     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be detected
+     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be
+     *         detected
      */
     public Charset detectCharset(ZipSource source, Collection<String> existingFiles) {
         // Check if zip stream can be opened with UTF-8 without error
@@ -83,8 +84,8 @@ public class ZipCharsetDetector {
             final List<String> defaultEntryNames = getEntryNames(source, defaultCharset);
 
             Collection<String> projectDescriptorFiles = getRulesXmlFiles(source,
-                    defaultCharset,
-                    new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
+                defaultCharset,
+                new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
 
             Collection<String> filesToCompare = new HashSet<>();
             if (projectDescriptorFiles != null) {
@@ -205,13 +206,12 @@ public class ZipCharsetDetector {
     }
 
     /**
-     * 1) Convert entry names from one charset to another.
-     * 2) Extract folder names from root (when all files are inside one folder)
-     * 3) Skip filtered out files
+     * 1) Convert entry names from one charset to another. 2) Extract folder names from root (when all files are inside
+     * one folder) 3) Skip filtered out files
      *
      * @param entryNames all entry names
-     * @param from       source charset
-     * @param to         target charset
+     * @param from source charset
+     * @param to target charset
      * @return folder names as they must be located in the project from the root
      */
     private Collection<String> convertEntryNames(List<String> entryNames, Charset from, Charset to) {

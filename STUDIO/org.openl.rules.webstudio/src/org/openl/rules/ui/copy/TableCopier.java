@@ -88,10 +88,11 @@ public class TableCopier extends TableCreationWizard {
 
         ITableProperties tableProperties = table.getProperties();
         for (String possiblePropertyName : propertiesManager.getPossibleToAddProperties()) {
-            TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(possiblePropertyName);
+            TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils
+                .getPropertyByName(possiblePropertyName);
             if (propDefinition != null && !propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
-                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ?
-                        tableProperties.getPropertyValue(possiblePropertyName) : null;
+                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ? tableProperties
+                    .getPropertyValue(possiblePropertyName) : null;
 
                 if (tableProperties.getTableProperties().containsKey(possiblePropertyName)) {
                     Class<?> propertyType = null;
@@ -104,8 +105,12 @@ public class TableCopier extends TableCreationWizard {
                     String format = propDefinition.getFormat();
                     boolean dimensional = propDefinition.isDimensional();
 
-                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(possiblePropertyName, propertyType).value(
-                            propertyValue).displayName(displayName).format(format).dimensional(dimensional).build();
+                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(possiblePropertyName,
+                        propertyType).value(propertyValue)
+                            .displayName(displayName)
+                            .format(format)
+                            .dimensional(dimensional)
+                            .build();
 
                     definedProperties.add(tableProperty);
                 }
@@ -127,16 +132,17 @@ public class TableCopier extends TableCreationWizard {
                     String compareToFieldId = getInputIdJS(compareToField);
                     TableProperty compareToProperty = getProperty(prop.getName());
                     String compareToPropertyDisplayName = compareToProperty == null ? ""
-                            : compareToProperty.getDisplayName();
+                                                                                    : compareToProperty
+                                                                                        .getDisplayName();
                     validation.append("new Validation(")
-                            .append(inputId)
-                            .append(", '")
-                            .append(validator)
-                            .append("', '', {compareToFieldId:")
-                            .append(compareToFieldId)
-                            .append(",messageParams:'")
-                            .append(compareToPropertyDisplayName)
-                            .append("'})");
+                        .append(inputId)
+                        .append(", '")
+                        .append(validator)
+                        .append("', '', {compareToFieldId:")
+                        .append(compareToFieldId)
+                        .append(",messageParams:'")
+                        .append(compareToPropertyDisplayName)
+                        .append("'})");
                 }
             }
         }
@@ -152,8 +158,8 @@ public class TableCopier extends TableCreationWizard {
 
                 // check if the property can be defined in current type of table
                 // and if property can be defined on TABLE level.
-                if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tableType)
-                        && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
+                if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tableType) && PropertiesChecker
+                    .isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
                     possibleProperties.add(propDefinition.getName());
                 }
             }
@@ -179,12 +185,12 @@ public class TableCopier extends TableCreationWizard {
      * Creates new table.
      *
      * @param sourceCodeModule excel sheet to save in
-     * @param model            table model
+     * @param model table model
      * @return URI of new table.
      * @throws CreateTableException if unable to create a table
      */
-    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
-            throws CreateTableException {
+    protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule,
+            ProjectModel model) throws CreateTableException {
         IGridTable originalTable = model.getGridTable(table.getUri());
         originalTable.edit();
         TableSyntaxNode baseNode = model.getNode(table.getUri());
@@ -216,8 +222,10 @@ public class TableCopier extends TableCreationWizard {
             buildedPropForNewTable = buildProperties();
         }
 
-        IGridTable gridTable = originalTable.getSubtable(0, logicBaseTableStartRow, originalTable.getWidth(),
-                originalTable.getHeight() - logicBaseTableStartRow);
+        IGridTable gridTable = originalTable.getSubtable(0,
+            logicBaseTableStartRow,
+            originalTable.getWidth(),
+            originalTable.getHeight() - logicBaseTableStartRow);
 
         // calculate new table size
         int tableWidth = originalTable.getWidth();
@@ -254,7 +262,7 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Creates new header.
      *
-     * @param header    old header
+     * @param header old header
      * @param tableType type of table
      * @return new header
      */
@@ -283,7 +291,7 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Parses table header for technical name
      *
-     * @param header    table header to parse
+     * @param header table header to parse
      * @param tableType type of table
      * @return technical name of table
      */
@@ -291,7 +299,8 @@ public class TableCopier extends TableCreationWizard {
         String result = null;
         String headerIntern;
         String[] headerTokens;
-        if (!XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType) && !XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
+        if (!XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType) && !XlsNodeTypes.XLS_OTHER.toString()
+            .equals(tableType)) {
             headerIntern = header.replaceFirst("\\(.*\\)", "");
             headerTokens = StringUtils.split(headerIntern);
             result = headerTokens[headerTokens.length - 1];
@@ -352,8 +361,8 @@ public class TableCopier extends TableCreationWizard {
     }
 
     private String getInputIdJS(String propName) {
-        return "$j('#" + propsTable.getParent().getId() + "').find('input[type=hidden][name=id][value="
-                + propName + "]').parent().find('input:first').id";
+        return "$j('#" + propsTable.getParent()
+            .getId() + "').find('input[type=hidden][name=id][value=" + propName + "]').parent().find('input:first').id";
     }
 
     private TableProperty getCurrentProp() {

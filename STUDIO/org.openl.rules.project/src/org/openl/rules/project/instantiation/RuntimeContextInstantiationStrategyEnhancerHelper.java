@@ -46,12 +46,10 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     /**
      * Undecorates methods signatures of given class.
      *
-     * @param clazz       interface to undecorate
-     * @param classLoader The classloader where generated class should be
-     *                    placed.
-     * @return new class with undecorated methods signatures: removed
-     * {@link IRulesRuntimeContext} as the first parameter for each
-     * method.
+     * @param clazz interface to undecorate
+     * @param classLoader The classloader where generated class should be placed.
+     * @return new class with undecorated methods signatures: removed {@link IRulesRuntimeContext} as the first
+     *         parameter for each method.
      * @throws Exception
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
@@ -68,8 +66,9 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
         return innerUndecorateInterface(className, clazz, classLoader);
     }
 
-    private static Class<?> innerUndecorateInterface(String className, Class<?> original, ClassLoader classLoader)
-            throws Exception {
+    private static Class<?> innerUndecorateInterface(String className,
+            Class<?> original,
+            ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
@@ -93,8 +92,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      * Check that method should be ignored by enhancer.
      *
      * @param method method to check
-     * @return <code>true</code> if method should be ignored; <code>false</code>
-     * - otherwise
+     * @return <code>true</code> if method should be ignored; <code>false</code> - otherwise
      */
     private static boolean isIgnored(Method method) {
         // Ignore methods what are inherited from Object.class
@@ -105,12 +103,10 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     /**
      * Decorates methods signatures of given clazz.
      *
-     * @param clazz       class to decorate
-     * @param classLoader The classloader where generated class should be
-     *                    placed.
-     * @return new class with decorated methods signatures: added
-     * {@link IRulesRuntimeContext} as the first parameter for each
-     * method.
+     * @param clazz class to decorate
+     * @param classLoader The classloader where generated class should be placed.
+     * @return new class with decorated methods signatures: added {@link IRulesRuntimeContext} as the first parameter
+     *         for each method.
      * @throws Exception
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
@@ -148,7 +144,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
             Class<?>[] paramTypes = method.getParameterTypes();
             Class<?> returnType = method.getReturnType();
-            Class<?>[] newParams = new Class<?>[]{IRulesRuntimeContext.class};
+            Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, paramTypes);
 
             RuleInfo ruleInfo = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
@@ -160,8 +156,8 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     }
 
     /**
-     * {@link ClassWriter} for creation undecorated class: for removing
-     * {@link IRulesRuntimeContext} from signature of each method.
+     * {@link ClassWriter} for creation undecorated class: for removing {@link IRulesRuntimeContext} from signature of
+     * each method.
      *
      * @author PUdalau
      */

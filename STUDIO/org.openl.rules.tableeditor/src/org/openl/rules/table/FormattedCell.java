@@ -23,10 +23,10 @@ public class FormattedCell implements ICell {
 
     @Override
     public ICell getTopLeftCellFromRegion() {
-		return delegate.getTopLeftCellFromRegion();
-	}
+        return delegate.getTopLeftCellFromRegion();
+    }
 
-	private ICellFont font;
+    private ICellFont font;
 
     private ICellStyle style;
 

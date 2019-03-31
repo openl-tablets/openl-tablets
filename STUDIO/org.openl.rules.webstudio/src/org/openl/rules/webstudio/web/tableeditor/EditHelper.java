@@ -16,11 +16,13 @@ public final class EditHelper {
     private EditHelper() {
     }
 
-    public static boolean updateSystemProperties(IOpenLTable table, TableEditorModel tableEditorModel,
-                                                 String userMode) {
+    public static boolean updateSystemProperties(IOpenLTable table,
+            TableEditorModel tableEditorModel,
+            String userMode) {
         boolean result = true;
         if (table.isCanContainProperties()) {
-            List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
+            List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils
+                .getSystemProperties();
             for (TablePropertyDefinition systemProperty : systemPropertiesDefinitions) {
                 result = updateSystemValue(tableEditorModel, systemProperty, userMode);
             }
@@ -28,8 +30,9 @@ public final class EditHelper {
         return result;
     }
 
-    private static boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition systemProperty,
-                                             String userMode) {
+    private static boolean updateSystemValue(TableEditorModel editorModel,
+            TablePropertyDefinition systemProperty,
+            String userMode) {
         final Logger log = LoggerFactory.getLogger(EditHelper.class);
         boolean result = false;
         String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
@@ -47,7 +50,9 @@ public final class EditHelper {
                         result = true;
                     }
                 } catch (Exception e) {
-                    String message = String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(), systemValue);
+                    String message = String.format("Can`t update system property '%s' with value '%s'",
+                        systemProperty.getName(),
+                        systemValue);
                     log.error(message, e);
                     throw new IllegalStateException(message, e);
                 }

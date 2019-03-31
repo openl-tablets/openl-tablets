@@ -31,7 +31,7 @@ public class DTRuleTraceObject extends ATableTracerNode {
     public IBaseCondition getCondition() {
         return condition;
     }
-    
+
     public boolean isIndexed() {
         return indexed;
     }

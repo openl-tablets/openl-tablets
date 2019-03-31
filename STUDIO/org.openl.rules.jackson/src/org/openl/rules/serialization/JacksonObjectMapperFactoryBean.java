@@ -112,18 +112,14 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         /*
-         * mapper.addMixInAnnotations(SpreadsheetResult.class,
-         * SpreadSheetResultType.class); mapper.addMixInAnnotations(Point.class,
-         * PointType.class); mapper.addMixInAnnotations(DoubleRange.class,
-         * DoubleRangeType.class); mapper.addMixInAnnotations(IntRange.class,
-         * IntRangeType.class);
+         * mapper.addMixInAnnotations(SpreadsheetResult.class, SpreadSheetResultType.class);
+         * mapper.addMixInAnnotations(Point.class, PointType.class); mapper.addMixInAnnotations(DoubleRange.class,
+         * DoubleRangeType.class); mapper.addMixInAnnotations(IntRange.class, IntRangeType.class);
          */
 
         /*
-         * mapper.addMixInAnnotations(IRulesRuntimeContext.class,
-         * IRulesRuntimeContextType.class);
-         * mapper.addMixInAnnotations(org.openl.rules.ruleservice.context.
-         * IRulesRuntimeContext.class,
+         * mapper.addMixInAnnotations(IRulesRuntimeContext.class, IRulesRuntimeContextType.class);
+         * mapper.addMixInAnnotations(org.openl.rules.ruleservice.context. IRulesRuntimeContext.class,
          * org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.
          * ruleservice.context.IRulesRuntimeContextType.class);
          */
@@ -138,12 +134,10 @@ public class JacksonObjectMapperFactoryBean {
     }
 
     /**
-     * Create instance of ISO-8601 date time format using following pattern:
-     * "yyyy-MM-dd'T'HH:mm:ss.SSSZ" Time zones in ISO-8601 are represented as
-     * local time (with the location unspecified), as UTC, or as an offset from
-     * UTC. If no UTC relation information is given with a time representation,
-     * the time is assumed to be in local time. Examples, when local Time Zone
-     * is +2:
+     * Create instance of ISO-8601 date time format using following pattern: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" Time zones in
+     * ISO-8601 are represented as local time (with the location unspecified), as UTC, or as an offset from UTC. If no
+     * UTC relation information is given with a time representation, the time is assumed to be in local time. Examples,
+     * when local Time Zone is +2:
      * 
      * <pre>
      *     2016-12-31T22:00:00 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
@@ -152,9 +146,7 @@ public class JacksonObjectMapperFactoryBean {
      *     2016-12-31T22:00:00+0300 corresponds to 2016-12-31T21:00:00+0200 in local Time Zone
      * </pre>
      *
-     * @see <a href=
-     *      "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601
-     *      Time zone designators</a>
+     * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
      * @return
      */
     private static DateFormat getISO8601Format() {

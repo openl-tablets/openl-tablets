@@ -18,11 +18,9 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
     private final String[] extensions;
 
     /**
-     * Constructs new instance of the class. Parses a list of extentions from
-     * <code>extensionList</code>.
+     * Constructs new instance of the class. Parses a list of extentions from <code>extensionList</code>.
      *
-     * @param extensionList <i>;</i> separated list of accepted file
-     *            extensions.
+     * @param extensionList <i>;</i> separated list of accepted file extensions.
      */
     public RepositoryFileExtensionFilter(String extensionList) {
         // set of parsed extensions

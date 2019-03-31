@@ -3,10 +3,9 @@ package org.openl.rules.tableeditor.model;
 /**
  * @author snshor
  *
- * Provides interface for table editor creator. An implementation can differ in
- * different scenarios It allows to separate an actual implementation from the
- * caller, for example, the call to makeCodeEditor() may return simple
- * multi-line editor for now
+ *         Provides interface for table editor creator. An implementation can differ in different scenarios It allows to
+ *         separate an actual implementation from the caller, for example, the call to makeCodeEditor() may return
+ *         simple multi-line editor for now
  */
 
 public interface ICellEditorFactory {
@@ -45,7 +44,7 @@ public interface ICellEditorFactory {
     ICellEditor makeBooleanEditor();
 
     ICellEditor makeArrayEditor(String separator, String entryEditor, boolean intOnly);
-    
+
     ICellEditor makeNumberRangeEditor(String entryEditor, String initialValue);
 
 }

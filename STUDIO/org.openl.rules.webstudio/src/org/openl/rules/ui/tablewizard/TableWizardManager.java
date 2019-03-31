@@ -9,7 +9,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Aliaksandr Antonik.
  */
-@ManagedBean(name="tableCreatorWizardManager")
+@ManagedBean(name = "tableCreatorWizardManager")
 @SessionScoped
 public class TableWizardManager extends BaseTableWizardManager {
 
@@ -46,13 +46,13 @@ public class TableWizardManager extends BaseTableWizardManager {
             this.tableType = TableType.DATATYPE;
         }
     }
-    
+
     @Override
     public String start() {
         tableType = TableType.DATATYPE;
         return "wizardSelect";
     }
-    
+
     @Override
     public String startWizard() {
         reload();

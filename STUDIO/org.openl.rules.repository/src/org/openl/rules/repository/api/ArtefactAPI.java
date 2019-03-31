@@ -16,7 +16,7 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
-public interface ArtefactAPI{
+public interface ArtefactAPI {
     void addProperty(String name, ValueType type, Object value) throws PropertyException;
 
     /**
@@ -74,15 +74,18 @@ public interface ArtefactAPI{
     ProjectVersion getVersion(int index) throws RRepositoryException;
 
     LockInfo getLockInfo();
-    
+
     void commit(CommonUser user, int revision) throws ProjectException;
+
     void lock(CommonUser user) throws ProjectException;
 
     void unlock(CommonUser user) throws ProjectException;
+
     ArtefactAPI getVersion(CommonVersion version) throws ProjectException;
 
     Map<String, Object> getProps();
+
     void setProps(Map<String, Object> props) throws PropertyException;
-    
+
     Map<String, InheritedProperty> getInheritedProps();
 }

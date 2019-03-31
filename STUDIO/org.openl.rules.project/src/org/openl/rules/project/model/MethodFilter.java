@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MethodFilter{
+public class MethodFilter {
     private Collection<String> includes;
     private Collection<String> excludes;
 

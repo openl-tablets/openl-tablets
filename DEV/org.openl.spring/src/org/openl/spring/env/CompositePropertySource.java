@@ -9,8 +9,8 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 
 /**
- * Holds collections of {@link PropertySource}. Add {@link PropertySource} at
- * the beginof the list. Implemented for support Spring 3.2.
+ * Holds collections of {@link PropertySource}. Add {@link PropertySource} at the beginof the list. Implemented for
+ * support Spring 3.2.
  * 
  * @author Yury Molchan
  */
@@ -29,8 +29,7 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
     }
 
     /**
-     * No needs to return this wrapper if no or one {@link PropertySource} was
-     * added.
+     * No needs to return this wrapper if no or one {@link PropertySource} was added.
      */
     PropertySource<?> get() {
         if (propertySources.isEmpty()) {
@@ -76,10 +75,8 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
 
     @Override
     public String toString() {
-        return String.format("%s [name='%s', propertySources=%s]",
-            getClass().getSimpleName(),
-            this.name,
-            this.propertySources);
+        return String
+            .format("%s [name='%s', propertySources=%s]", getClass().getSimpleName(), this.name, this.propertySources);
     }
 
 }

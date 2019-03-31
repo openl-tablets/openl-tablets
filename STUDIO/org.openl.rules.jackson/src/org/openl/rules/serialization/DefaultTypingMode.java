@@ -10,7 +10,8 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-
 public enum DefaultTypingMode {
-    ENABLE, SMART, DISABLE;
+    ENABLE,
+    SMART,
+    DISABLE;
 }

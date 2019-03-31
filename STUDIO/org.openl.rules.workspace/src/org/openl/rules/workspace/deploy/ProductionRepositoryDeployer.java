@@ -25,9 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 /**
- * This class allows to deploy a zip-based project to a production repository.
- * By default configuration of destination repository is get from
- * "deployer.properties" file.
+ * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
+ * repository is get from "deployer.properties" file.
  *
  * @author Yury Molchan
  */
@@ -37,8 +36,7 @@ public class ProductionRepositoryDeployer {
     public static final String DEPLOY_PATH_PROPERTY = "production-repository.base.path";
 
     /**
-     * Deploys a new project to the production repository. If the project exists
-     * then it will be skipped to deploy.
+     * Deploys a new project to the production repository. If the project exists then it will be skipped to deploy.
      *
      * @param zipFile the project to deploy
      * @param config the configuration file name
@@ -54,8 +52,7 @@ public class ProductionRepositoryDeployer {
     }
 
     /**
-     * Deploys a new or redeploys an existing project to the production
-     * repository.
+     * Deploys a new or redeploys an existing project to the production repository.
      *
      * @param zipFile the project to deploy
      * @param config the configuration file name
@@ -95,6 +92,7 @@ public class ProductionRepositoryDeployer {
         }
 
     }
+
     public void deployInternal(File zipFile,
             Repository deployRepo,
             boolean skipExist,

@@ -21,15 +21,15 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 /**
- * Servlet filter to load web resources (images, html, etc). First, attempt is
- * made to load resource from classpath and then from web application root.
+ * Servlet filter to load web resources (images, html, etc). First, attempt is made to load resource from classpath and
+ * then from web application root.
  * 
  * @author Andrey Naumenko
  */
 public class WebResourceFilter implements Filter {
     private static final String WEBRESOURCE_PREFIX = "/webresource";
-    private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("^(.+?);jsessionid=\\w+$", Pattern.CASE_INSENSITIVE);
-
+    private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("^(.+?);jsessionid=\\w+$",
+        Pattern.CASE_INSENSITIVE);
 
     private FilterConfig filterConfig;
 
@@ -39,7 +39,7 @@ public class WebResourceFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
+                                                                                              ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getRequestURI();

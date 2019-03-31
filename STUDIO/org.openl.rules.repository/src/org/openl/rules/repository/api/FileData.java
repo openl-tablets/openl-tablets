@@ -21,8 +21,8 @@ public class FileData {
     private String branch;
 
     /**
-     * The full path of the file from the root folder. The path MUST not start
-     * from the '/' symbol. The allowed folder separator is '/' symbol.
+     * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder
+     * separator is '/' symbol.
      * 
      * @return the full path name from the root folder.
      */
@@ -35,8 +35,8 @@ public class FileData {
     }
 
     /**
-     * The file size in bytes. The size of the deleted file is undefined, but can
-     * be equals to the size of the deleted file.
+     * The file size in bytes. The size of the deleted file is undefined, but can be equals to the size of the deleted
+     * file.
      * 
      * @return the file size.
      */
@@ -90,8 +90,8 @@ public class FileData {
     }
 
     /**
-     * The version of the file. This value is get from the repository system.
-     * The latest file in the history MUST have the latest modification time.
+     * The version of the file. This value is get from the repository system. The latest file in the history MUST have
+     * the latest modification time.
      * 
      * Can be empty. Cannot be modified from the client side.
      * 
@@ -106,8 +106,7 @@ public class FileData {
     }
 
     /**
-     * The mark that the file was deleted. This value is get from the repository
-     * system.
+     * The mark that the file was deleted. This value is get from the repository system.
      *
      * Cannot be modified from the client side.
      * 
@@ -122,8 +121,7 @@ public class FileData {
     }
 
     /**
-     * Branch where the file can be found.
-     * If repository doesn't support branching, it will be null.
+     * Branch where the file can be found. If repository doesn't support branching, it will be null.
      *
      * @return branch name
      */

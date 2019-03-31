@@ -12,9 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The simplest way of multimodule instantiation strategy. There will be created
- * virtual module that depends on each predefined module(means virtual module
- * will have dependency for each module).
+ * The simplest way of multimodule instantiation strategy. There will be created virtual module that depends on each
+ * predefined module(means virtual module will have dependency for each module).
  *
  * @author PUdalau
  */
@@ -24,12 +23,15 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     private RulesEngineFactory<?> engineFactory;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
-                                                  IDependencyManager dependencyManager,
-                                                  ClassLoader classLoader, boolean executionMode) {
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            boolean executionMode) {
         super(modules, dependencyManager, classLoader, executionMode);
     }
 
-    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager, boolean executionMode) {
+    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
+            IDependencyManager dependencyManager,
+            boolean executionMode) {
         super(modules, dependencyManager, executionMode);
     }
 
@@ -57,7 +59,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
     }
 
-
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -79,7 +80,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
             log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
-        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
+        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
+            .equals(serviceClass))) {
             engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
 
@@ -98,8 +100,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[]{};
-                String[] excludes = new String[]{};
+                String[] includes = new String[] {};
+                String[] excludes = new String[] {};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

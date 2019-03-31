@@ -464,7 +464,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             }
 
             statement.executeUpdate();
-            
+
             data.setVersion(null);
             invokeListener();
             return data;

@@ -138,7 +138,7 @@ public class DataTableBindHelperTest {
         assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\"]:c:d"));
         assertFalse(matches(DataTableBindHelper.THIS_MAP_ACCESS_PATTERN, "[\"k\":]:c:d"));
     }
-    
+
     @Test
     public void collectionAccessByKeyPatternTest() {
         assertTrue(matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, "a[\"k\"]:b"));

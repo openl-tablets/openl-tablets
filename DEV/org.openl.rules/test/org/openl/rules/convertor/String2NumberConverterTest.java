@@ -87,7 +87,6 @@ public class String2NumberConverterTest {
         assertEquals(-9223372036854775809d, result);
     }
 
-
     @Test
     public void testParsePercents() {
         String2NumberConverter<Number> converter = getNumberConverter();

@@ -13,7 +13,10 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     private ProjectFile[] files;
     private PathFilter pathFilter;
 
-    public ExcelFilesProjectCreator(String projectName, UserWorkspace userWorkspace, PathFilter pathFilter, ProjectFile... files) {
+    public ExcelFilesProjectCreator(String projectName,
+            UserWorkspace userWorkspace,
+            PathFilter pathFilter,
+            ProjectFile... files) {
         super(projectName, userWorkspace);
         this.pathFilter = pathFilter;
         this.files = files;

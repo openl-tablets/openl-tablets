@@ -35,8 +35,8 @@ public class XmlProjectDescriptorSerializer_v5_13 extends BaseProjectDescriptorS
         xstream.omitField(ProjectDescriptor_v5_13.class, "log");
         xstream.omitField(ProjectDescriptor_v5_13.class, "classLoader");
         xstream.omitField(ProjectDescriptor_v5_13.class, "projectFolder");
-        xstream.omitField(Module_v5_13.class, "type"); //type was deprecated in rules.xml
-        xstream.omitField(Module_v5_13.class, "properties"); //properties doesn't supported by rules.xml
+        xstream.omitField(Module_v5_13.class, "type"); // type was deprecated in rules.xml
+        xstream.omitField(Module_v5_13.class, "properties"); // properties doesn't supported by rules.xml
         xstream.omitField(Module_v5_13.class, "wildcardName"); // runtime properties
         xstream.omitField(Module_v5_13.class, "wildcardRulesRootPath"); // runtime properties
         xstream.omitField(Module_v5_13.class, "project"); // runtime properties
@@ -49,9 +49,8 @@ public class XmlProjectDescriptorSerializer_v5_13 extends BaseProjectDescriptorS
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.aliasField(PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor_v5_13.class, "propertiesFileNamePattern");
-        xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR,
-                ProjectDescriptor_v5_13.class,
-                "propertiesFileNameProcessor");
+        xstream
+            .aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor_v5_13.class, "propertiesFileNameProcessor");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
         xstream.alias("value", String.class);
 

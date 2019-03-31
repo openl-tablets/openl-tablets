@@ -5,8 +5,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Register this bean as managed bean with application scope to get possibility
- * to access user's info in JSF EL.
+ * Register this bean as managed bean with application scope to get possibility to access user's info in JSF EL.
  *
  * @author Andrey Naumenko
  */

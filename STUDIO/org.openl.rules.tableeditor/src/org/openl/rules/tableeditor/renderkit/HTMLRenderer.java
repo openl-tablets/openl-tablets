@@ -48,11 +48,9 @@ public class HTMLRenderer {
         return render(editor, null, null, null);
     }
 
-    public String render(TableEditor editor, String cellToEdit,
-            List<ActionLink> actionLinks, String errorCell) {
+    public String render(TableEditor editor, String cellToEdit, List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
-        result.append("<div>")
-            .append(renderCSS("css/tableeditor.min.css"));
+        result.append("<div>").append(renderCSS("css/tableeditor.min.css"));
 
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
@@ -64,12 +62,15 @@ public class HTMLRenderer {
         String mode = editor.getMode();
 
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId()
-           // Name of js variable can't contain ':' symbol
-          .replaceAll(":", "_");
+            // Name of js variable can't contain ':' symbol
+            .replaceAll(":", "_");
 
         result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode));
 
-        result.append("<div id='").append(editor.getId()).append(Constants.TABLE_EDITOR_WRAPPER_PREFIX).append("' class='te_editor_wrapper'></div>");
+        result.append("<div id='")
+            .append(editor.getId())
+            .append(Constants.TABLE_EDITOR_WRAPPER_PREFIX)
+            .append("' class='te_editor_wrapper'></div>");
 
         IOpenLTable openLTable = editor.getTable();
         if (openLTable != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
@@ -83,15 +84,21 @@ public class HTMLRenderer {
             IGridFilter[] filters = editor.getFilters();
             IGridTable table = openLTable.getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder(),
-                    mode, editor.getView(), openLTable.getMetaInfoReader());
+            TableModel tableModel = TableModel.initializeTableModel(table,
+                filters,
+                numRows,
+                editor.getLinkBuilder(),
+                mode,
+                editor.getView(),
+                openLTable.getMetaInfoReader());
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
 
                 result.append("<div id=\"").append(tableId).append("\">");
-                result.append(tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId(), editor.getRowIndex()));
+                result.append(
+                    tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId(), editor.getRowIndex()));
                 result.append("</div>");
 
                 String beforeEdit = getEditorJSAction(editor.getOnBeforeEdit());
@@ -103,17 +110,12 @@ public class HTMLRenderer {
 
                 String relativeCellToEdit = getRelativeCellToEdit(cellToEdit, table, tableModel);
 
-                String actions = "{beforeEdit:" + beforeEdit
-                        + ",beforeSave:" + beforeSave
-                        + ",afterSave:" + afterSave
-                        + ",error:" + error
-                        + ",requestStart:" + requestStart
-                        + ",requestEnd:" + requestEnd
-                        + "}";
+                String actions = "{beforeEdit:" + beforeEdit + ",beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + ",requestStart:" + requestStart + ",requestEnd:" + requestEnd + "}";
 
-                result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
-                        + internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","
-                        + (Constants.MODE_EDIT.equals(mode) ? 1 : 0) + "," + editor.isEditable() + ");"));
+                result.append(renderJSBody(
+                    "var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \"" + internalPath(
+                        "ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + "," + (Constants.MODE_EDIT
+                            .equals(mode) ? 1 : 0) + "," + editor.isEditable() + ");"));
             }
         }
 
@@ -150,8 +152,8 @@ public class HTMLRenderer {
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + menuId.replaceFirst(Constants.ID_POSTFIX_MENU, "");
 
         String editLink = "<tr><td><a href=\"javascript:" + editorJsVar + ".toEditMode();\">Edit</a></td></tr>";
-        String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">"
-                + (editable ? editLink : "");
+        String menuBegin = "<div id=\"" + menuId + "\" style=\"display:none;\">" + "<table cellpadding=\"1px\">" + (editable ? editLink
+                                                                                                                             : "");
         String menuEnd = "</table>" + "</div>";
 
         result.append(menuBegin).append(actionLinks == null ? "" : renderAddActionLinks(actionLinks)).append(menuEnd);
@@ -166,8 +168,13 @@ public class HTMLRenderer {
         StringBuilder result = new StringBuilder();
 
         for (ActionLink link : links) {
-            result.append("<tr><td>").append("<a href=\"").append(link.getAction()).append("\">")
-                    .append(link.getName()).append("</a>").append("</td></tr>");
+            result.append("<tr><td>")
+                .append("<a href=\"")
+                .append(link.getAction())
+                .append("\">")
+                .append(link.getName())
+                .append("</a>")
+                .append("</td></tr>");
         }
 
         return result.toString();
@@ -181,34 +188,43 @@ public class HTMLRenderer {
         return "";
     }
 
-    public String getSingleSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
+    public String getSingleSelectComponentCode(String componentId,
+            String[] values,
+            String[] displayValues,
+            String value) {
 
         String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
         String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
-        String params = String.format(
-                "{choices : [%s], displayValues : [%s]}",
-                choisesString, displayValuesString);
+        String params = String.format("{choices : [%s], displayValues : [%s]}", choisesString, displayValuesString);
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
-        return String.format("new DropdownEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
-                .escapeEcmaScript(value));
+        return String.format("new DropdownEditor('', '%s', %s, '%s', '');",
+            id,
+            params,
+            StringEscapeUtils.escapeEcmaScript(value));
     }
 
-    public String getMultiSelectComponentCode(String componentId, String[] values, String[] displayValues, String value) {
+    public String getMultiSelectComponentCode(String componentId,
+            String[] values,
+            String[] displayValues,
+            String value) {
 
         String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
         String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
         String params = String.format(
-                "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
-                choisesString, displayValuesString);
+            "{choices : [%s], displayValues : [%s], separator : \",\", separatorEscaper : \"&#92;&#92;&#92;&#92;\"}",
+            choisesString,
+            displayValuesString);
 
         String id = componentId == null ? StringUtils.EMPTY : componentId;
 
-        return String.format("new MultiselectEditor('', '%s', %s, '%s', '');", id, params, StringEscapeUtils
-                .escapeEcmaScript(value));
+        return String.format("new MultiselectEditor('', '%s', %s, '%s', '');",
+            id,
+            params,
+            StringEscapeUtils.escapeEcmaScript(value));
     }
 
     protected String getEditorJSAction(String action) {
@@ -218,59 +234,109 @@ public class HTMLRenderer {
     protected String renderEditorToolbar(String editorId, String editorJsVar, String mode) {
         StringBuilder result = new StringBuilder();
 
-        final String toolbarItemSeparator = "<img src=" + internalPath("img/toolbarSeparator.gif")
-                + " class=\"item_separator\"></img>";
+        final String toolbarItemSeparator = "<img src=" + internalPath(
+            "img/toolbarSeparator.gif") + " class=\"item_separator\"></img>";
 
-        result.append("<div style=\"").append(mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "").append("\" class=\"te_toolbar\">")
-            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save changes"))
-            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo changes"))
-            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo changes"))
-
-            .append(toolbarItemSeparator)
-
-            .append(renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
-                    "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row after")) // TODO: rename method names and fields to "after"
-            .append(renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
-                    "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
-
-            .append(toolbarItemSeparator)
-
-            .append(renderEditorToolbarItem(editorId + "_insert_column_before", editorJsVar, "img/insert_column.gif",
-                    "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)", "Insert column before"))
-            .append(renderEditorToolbarItem(editorId + "_remove_column", editorJsVar, "img/delete_column.gif",
-                    "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)", "Remove column"))
+        result.append("<div style=\"")
+            .append(mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "")
+            .append("\" class=\"te_toolbar\">")
+            .append(
+                renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save changes"))
+            .append(
+                renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo changes"))
+            .append(renderEditorToolbarItem(editorId + "_redo",
+                editorJsVar,
+                "img/Redo.gif",
+                "undoredo(true)",
+                "Redo changes"))
 
             .append(toolbarItemSeparator)
 
-            .append(renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
-                    "setAlignment('left', this)", "Align the text to the left"))
-            .append(renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
-                    "setAlignment('center', this)", "Center the text"))
-            .append(renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
-                    "setAlignment('right', this)", "Align the text to the right"))
+            .append(renderEditorToolbarItem(editorId + "_insert_row_before",
+                editorJsVar,
+                "img/insert_row.gif",
+                "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)",
+                "Insert row after")) // TODO: rename method names and fields to "after"
+            .append(renderEditorToolbarItem(editorId + "_remove_row",
+                editorJsVar,
+                "img/delete_row.gif",
+                "doTableOperation(TableEditor.Operations.REMOVE_ROW)",
+                "Remove row"))
 
             .append(toolbarItemSeparator)
 
-            .append(renderEditorToolbarItem(editorId + "_font_bold", editorJsVar, "img/bold.png",
-                    "setFontBold('" + editorId + "_font_bold" + "')", "Make the text bold"))
-            .append(renderEditorToolbarItem(editorId + "_font_italic", editorJsVar, "img/italic.png",
-                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italicize the text"))
-            .append(renderEditorToolbarItem(editorId + "_font_underline", editorJsVar, "img/underline.png",
-                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline the text"))
+            .append(renderEditorToolbarItem(editorId + "_insert_column_before",
+                editorJsVar,
+                "img/insert_column.gif",
+                "doTableOperation(TableEditor.Operations.INSERT_COLUMN_BEFORE)",
+                "Insert column before"))
+            .append(renderEditorToolbarItem(editorId + "_remove_column",
+                editorJsVar,
+                "img/delete_column.gif",
+                "doTableOperation(TableEditor.Operations.REMOVE_COLUMN)",
+                "Remove column"))
 
             .append(toolbarItemSeparator)
 
-            .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
-                    "selectFillColor('" + editorId + "_fill_color" + "')", "Color the cell background"))
-            .append(renderEditorToolbarItem(editorId + "_font_color", editorJsVar, "img/fontColor.png",
-                    "selectFontColor('" + editorId + "_font_color" + "')", "Color the cell text"))
+            .append(renderEditorToolbarItem(editorId + "_align_left",
+                editorJsVar,
+                "img/alLeft.gif",
+                "setAlignment('left', this)",
+                "Align the text to the left"))
+            .append(renderEditorToolbarItem(editorId + "_align_center",
+                editorJsVar,
+                "img/alCenter.gif",
+                "setAlignment('center', this)",
+                "Center the text"))
+            .append(renderEditorToolbarItem(editorId + "_align_right",
+                editorJsVar,
+                "img/alRight.gif",
+                "setAlignment('right', this)",
+                "Align the text to the right"))
 
             .append(toolbarItemSeparator)
 
-            .append(renderEditorToolbarItem(editorId + "_decrease_indent", editorJsVar, "img/indent_left.gif",
-                    "indent('-1')", "Decrease indent"))
-            .append(renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
-                    "indent('1')", "Increase indent"))
+            .append(renderEditorToolbarItem(editorId + "_font_bold",
+                editorJsVar,
+                "img/bold.png",
+                "setFontBold('" + editorId + "_font_bold" + "')",
+                "Make the text bold"))
+            .append(renderEditorToolbarItem(editorId + "_font_italic",
+                editorJsVar,
+                "img/italic.png",
+                "setFontItalic('" + editorId + "_font_italic" + "')",
+                "Italicize the text"))
+            .append(renderEditorToolbarItem(editorId + "_font_underline",
+                editorJsVar,
+                "img/underline.png",
+                "setFontUnderline('" + editorId + "_font_underline" + "')",
+                "Underline the text"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_fill_color",
+                editorJsVar,
+                "img/fillColor.png",
+                "selectFillColor('" + editorId + "_fill_color" + "')",
+                "Color the cell background"))
+            .append(renderEditorToolbarItem(editorId + "_font_color",
+                editorJsVar,
+                "img/fontColor.png",
+                "selectFontColor('" + editorId + "_font_color" + "')",
+                "Color the cell text"))
+
+            .append(toolbarItemSeparator)
+
+            .append(renderEditorToolbarItem(editorId + "_decrease_indent",
+                editorJsVar,
+                "img/indent_left.gif",
+                "indent('-1')",
+                "Decrease indent"))
+            .append(renderEditorToolbarItem(editorId + "_increase_indent",
+                editorJsVar,
+                "img/indent_right.gif",
+                "indent('1')",
+                "Increase indent"))
 
             .append("</div>");
 
@@ -280,10 +346,15 @@ public class HTMLRenderer {
     protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
         editor = (editor == null || editor.equals("")) ? "" : editor + ".";
         StringBuilder result = new StringBuilder();
-        result.append("<img id=\"").append(itemId)
-            .append("\" src=\"").append(internalPath(imgSrc))
-            .append("\" title=\"").append(title)
-            .append("\" onclick=\"").append(editor).append(action)
+        result.append("<img id=\"")
+            .append(itemId)
+            .append("\" src=\"")
+            .append(internalPath(imgSrc))
+            .append("\" title=\"")
+            .append(title)
+            .append("\" onclick=\"")
+            .append(editor)
+            .append(action)
             .append("\" class='te_toolbar_item te_toolbar_item_disabled'")
             .append("></img>");
         return result.toString();
@@ -363,9 +434,10 @@ public class HTMLRenderer {
             for (int row = 0; row < tableModel.getCells().length; row++) {
                 s.append("<tr>\n");
                 if (rowIndex != null) {
-                    s.append("<td style='padding-left:5px; padding-right:5px; border: none; width: 1px; vertical-align: middle; text-align: right;'>");
+                    s.append(
+                        "<td style='padding-left:5px; padding-right:5px; border: none; width: 1px; vertical-align: middle; text-align: right;'>");
                     long rowToPrint = row - rowIndex + 2;
-                    if (!tableModel.isShowHeader()){
+                    if (!tableModel.isShowHeader()) {
                         rowToPrint = row - rowIndex + 4;
                     }
                     if (rowToPrint > 0) {
@@ -399,8 +471,11 @@ public class HTMLRenderer {
                     }
 
                     StringBuilder cellId = new StringBuilder();
-                    cellId.append(editorId).append(Constants.ID_POSTFIX_CELL)
-                        .append(String.valueOf(row + 1)).append(":").append(col + 1);
+                    cellId.append(editorId)
+                        .append(Constants.ID_POSTFIX_CELL)
+                        .append(String.valueOf(row + 1))
+                        .append(":")
+                        .append(col + 1);
 
                     s.append(" id=\"").append(cellId).append("\"");
                     if (cell.getComment() != null) {
@@ -411,9 +486,11 @@ public class HTMLRenderer {
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
                         s.append("<script type=\"text/javascript\">")
-                                .append("new Tooltip('").append(cellId).append("','")
-                                .append(StringEscapeUtils.escapeEcmaScript(cell.getComment().replaceAll("\\n", "<br/>")))
-                                .append("', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
+                            .append("new Tooltip('")
+                            .append(cellId)
+                            .append("','")
+                            .append(StringEscapeUtils.escapeEcmaScript(cell.getComment().replaceAll("\\n", "<br/>")))
+                            .append("', {hideOn:['mouseout','dblclick'], position:'right_bottom', maxWidth:'160px'});")
                             .append("</script>");
                     }
                 }
@@ -423,11 +500,11 @@ public class HTMLRenderer {
 
             if (tableModel.getNumRowsToDisplay() > -1) {
                 s.append("<div class='te_bigtable_mes'>")
-                .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first ")
-                .append(tableModel.getNumRowsToDisplay())
-                .append(" rows).</div>")
-                .append("<div>To view the full table, use 'Open In Excel'.</div>")
-                .append("</div>");
+                    .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first ")
+                    .append(tableModel.getNumRowsToDisplay())
+                    .append(" rows).</div>")
+                    .append("<div>To view the full table, use 'Open In Excel'.</div>")
+                    .append("</div>");
             }
 
             return s.toString();

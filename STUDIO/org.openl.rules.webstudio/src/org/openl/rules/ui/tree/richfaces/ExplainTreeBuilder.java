@@ -16,13 +16,12 @@ public class ExplainTreeBuilder extends TreeBuilder {
     @Override
     String getType(ITreeElement<?> element) {
         String type = super.getType(element);
-        return type
-                .replace('.', '_')
-                .replace(Formulas.ADD.toString(), "plus")
-                .replace(Formulas.SUBTRACT.toString(), "minus")
-                .replace(Formulas.MULTIPLY.toString(), "mul")
-                .replace(Formulas.DIVIDE.toString(), "div")
-                .replace(Formulas.REM.toString(), "rem");
+        return type.replace('.', '_')
+            .replace(Formulas.ADD.toString(), "plus")
+            .replace(Formulas.SUBTRACT.toString(), "minus")
+            .replace(Formulas.MULTIPLY.toString(), "mul")
+            .replace(Formulas.DIVIDE.toString(), "div")
+            .replace(Formulas.REM.toString(), "rem");
     }
 
     @Override
@@ -39,7 +38,9 @@ public class ExplainTreeBuilder extends TreeBuilder {
     @Override
     String getUrl(ITreeElement<?> element) {
         ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) element;
-        String url = explanationValue == null || explanationValue.getMetaInfo() == null ? null : explanationValue.getMetaInfo().getSourceUrl();
+        String url = explanationValue == null || explanationValue.getMetaInfo() == null ? null
+                                                                                        : explanationValue.getMetaInfo()
+                                                                                            .getSourceUrl();
         if (StringUtils.isNotBlank(url)) {
             return getUrlToElement(element, url);
         }
@@ -47,8 +48,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     }
 
     private String getUrlToElement(ITreeElement<?> element, String url) {
-        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE
-                + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
-                + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
+        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE + Constants.REQUEST_PARAM_URI + "=" + StringTool
+            .encodeURL("" + url) + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }
 }

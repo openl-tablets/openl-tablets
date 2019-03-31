@@ -1,8 +1,7 @@
 package org.openl.rules.repository.api;
 
 /**
- * Example of usage:
- * if (repository.supports().branches()) return ((BranchRepository) repository).getBranch();
+ * Example of usage: if (repository.supports().branches()) return ((BranchRepository) repository).getBranch();
  *
  * @see BranchRepository
  * @see FolderRepository

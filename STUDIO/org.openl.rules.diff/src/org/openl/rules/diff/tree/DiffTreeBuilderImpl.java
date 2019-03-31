@@ -20,7 +20,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
     @Override
     public DiffTreeNode compare(Projection p1, Projection p2) {
-        return compare(new Projection[]{p1, p2});
+        return compare(new Projection[] { p1, p2 });
     }
 
     @Override
@@ -70,7 +70,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         node.setChildren(diffChildren);
 
         for (DiffTreeNode child : diffChildren) {
-            buildSubTree((DiffTreeNodeImpl)child);
+            buildSubTree((DiffTreeNodeImpl) child);
         }
     }
 
@@ -184,7 +184,6 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
     }
 
-
     /**
      * ProjectionKey distinct Projections by name and type.
      */
@@ -209,8 +208,10 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (!(obj instanceof ProjectionKey)) return false;
+            if (obj == this)
+                return true;
+            if (!(obj instanceof ProjectionKey))
+                return false;
             ProjectionKey other = (ProjectionKey) obj;
 
             return type.equals(other.type) && name.equals(other.name);

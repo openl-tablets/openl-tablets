@@ -71,5 +71,5 @@ public abstract class BaseWizard {
         onFinish();
         return null;
     }
-    
+
 }

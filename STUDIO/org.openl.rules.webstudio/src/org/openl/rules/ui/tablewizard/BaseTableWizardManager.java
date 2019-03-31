@@ -40,7 +40,7 @@ public abstract class BaseTableWizardManager {
 
     protected void reload() {
         tableUri = null;
-        init();        
+        init();
     }
 
     protected void init() {

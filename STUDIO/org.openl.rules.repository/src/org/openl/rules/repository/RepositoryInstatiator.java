@@ -8,14 +8,12 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.StringUtils;
 
 /**
- * A factory to create repositories using Java reflection. This instantiator
- * uses the following workflow:
+ * A factory to create repositories using Java reflection. This instantiator uses the following workflow:
  * <ol>
  * <li>Create a repository instance, using the default constructor</li>
  * <li>Check the instance on implementing {@link Repository} interface</li>
- * <li>Set all parameters using set-methods like Java beans. These methods must
- * apply one String argument. The order of method invocation is undefined. Blank
- * parameters are skipped.</li>
+ * <li>Set all parameters using set-methods like Java beans. These methods must apply one String argument. The order of
+ * method invocation is undefined. Blank parameters are skipped.</li>
  * <li>Invoke initialize() method</li>
  * <li></li>
  * </ol>
@@ -83,7 +81,10 @@ public class RepositoryInstatiator {
                                     // Can't convert using this method. Skip.
                                 } catch (InvocationTargetException e1) {
                                     // The underlying method throws an exception
-                                    throw new IllegalStateException("Failed to invoke " + setter + "(" + parameterTypes[0].getSimpleName() +") method in: " + clazz, e1);
+                                    throw new IllegalStateException(
+                                        "Failed to invoke " + setter + "(" + parameterTypes[0]
+                                            .getSimpleName() + ") method in: " + clazz,
+                                        e1);
                                 }
                             }
                         }
@@ -96,7 +97,8 @@ public class RepositoryInstatiator {
         }
     }
 
-    private static Object convert(Class<?> parameterType, String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private static Object convert(Class<?> parameterType,
+            String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method valueOfMethod = parameterType.getMethod("valueOf", String.class);
         return valueOfMethod.invoke(null, value);
     }

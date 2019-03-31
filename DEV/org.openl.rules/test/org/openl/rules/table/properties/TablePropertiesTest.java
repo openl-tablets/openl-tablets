@@ -49,7 +49,8 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private Map<String, Object> initDefaultProperties() {
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
+        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
+            .getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
@@ -118,8 +119,8 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
         Date dateValue = new Date(4098);
         result = getPropertyValueAsString(PROPERTY_EFFECTIVE_DATE, dateValue);
-        SimpleDateFormat sDF = new SimpleDateFormat(TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE)
-            .getFormat());
+        SimpleDateFormat sDF = new SimpleDateFormat(
+            TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
         assertEquals(sDF.format(dateValue), result);
 
         result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, new Boolean(true));

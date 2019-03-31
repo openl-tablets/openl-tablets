@@ -195,9 +195,9 @@ public class MathUtilsTest {
                 null,
                 BigDecimal.valueOf(7) };
         assertEquals(BigDecimal.valueOf(4.5), MathUtils.median(values));
-        values = new BigDecimal[] { BigDecimal.valueOf(4)};
+        values = new BigDecimal[] { BigDecimal.valueOf(4) };
         assertEquals(new BigDecimal(4), MathUtils.median(values));
-        values = new BigDecimal[] { BigDecimal.valueOf(4), BigDecimal.valueOf(5)};
+        values = new BigDecimal[] { BigDecimal.valueOf(4), BigDecimal.valueOf(5) };
         assertEquals(new BigDecimal(4.5), MathUtils.median(values));
     }
 
@@ -509,7 +509,7 @@ public class MathUtilsTest {
 
     @Test
     public void testBigForT() {
-        Long[] mas = new Long[] {10L, 45L, 4L, 44L, 22L};
+        Long[] mas = new Long[] { 10L, 45L, 4L, 44L, 22L };
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
         assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.big(mas, 3));
@@ -534,7 +534,7 @@ public class MathUtilsTest {
             assertEquals("There is no position '0' in the given array", e.getMessage());
         }
 
-        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L};
+        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L };
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
         assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.big(mas, 3));
@@ -587,7 +587,7 @@ public class MathUtilsTest {
 
     @Test
     public void testSmallForT() {
-        Long[] mas = new Long[] {10L, 45L, 4L, 44L, 22L};
+        Long[] mas = new Long[] { 10L, 45L, 4L, 44L, 22L };
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));
         assertEquals(Long.valueOf(10), MathUtils.small(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.small(mas, 3));
@@ -612,7 +612,7 @@ public class MathUtilsTest {
             assertEquals("There is no position '0' in the given array", e.getMessage());
         }
 
-        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L};
+        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L };
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));
         assertEquals(Long.valueOf(10), MathUtils.small(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.small(mas, 3));
@@ -624,7 +624,7 @@ public class MathUtilsTest {
     public void testSumForByte() {
         byte[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new byte[] {1, 2, 3};
+        arr = new byte[] { 1, 2, 3 };
         assertEquals(Byte.valueOf("6"), MathUtils.sum(arr));
     }
 
@@ -632,7 +632,7 @@ public class MathUtilsTest {
     public void testSumForShort() {
         short[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new short[] {1, 2, 3};
+        arr = new short[] { 1, 2, 3 };
         assertEquals(Short.valueOf("6"), MathUtils.sum(arr));
     }
 
@@ -640,7 +640,7 @@ public class MathUtilsTest {
     public void testSumForInt() {
         int[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new int[] {1, 2, 3};
+        arr = new int[] { 1, 2, 3 };
         assertEquals(Integer.valueOf("6"), MathUtils.sum(arr));
     }
 
@@ -648,7 +648,7 @@ public class MathUtilsTest {
     public void testSumForLong() {
         long[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new long[] {1, 2, 3};
+        arr = new long[] { 1, 2, 3 };
         assertEquals(Long.valueOf("6"), MathUtils.sum(arr));
     }
 
@@ -656,7 +656,7 @@ public class MathUtilsTest {
     public void testSumForFloat() {
         float[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new float[] {1.1f, 2.2f, 3.3f};
+        arr = new float[] { 1.1f, 2.2f, 3.3f };
         assertEquals(Float.valueOf("6.6"), MathUtils.sum(arr), 0.1);
     }
 
@@ -664,7 +664,7 @@ public class MathUtilsTest {
     public void testSumForDouble() {
         double[] arr = null;
         assertNull(MathUtils.sum(arr));
-        arr = new double[] {1.1d, 2.2d, 3.3d};
+        arr = new double[] { 1.1d, 2.2d, 3.3d };
         assertEquals(Double.valueOf("6.6"), MathUtils.sum(arr), 0.1);
     }
 
@@ -672,8 +672,8 @@ public class MathUtilsTest {
     public void testSortForT() {
         Long[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new Long[] {1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L};
-        Long[] expectedArr = new Long[] {1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L};
+        arr = new Long[] { 1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L };
+        Long[] expectedArr = new Long[] { 1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L };
         assertArrayEquals(expectedArr, MathUtils.sort(arr));
     }
 
@@ -681,8 +681,8 @@ public class MathUtilsTest {
     public void testSortForLong() {
         long[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new long[] {1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L};
-        long[] expectedArr = new long[] {1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L};
+        arr = new long[] { 1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L };
+        long[] expectedArr = new long[] { 1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L };
         assertArrayEquals(expectedArr, MathUtils.sort(arr));
     }
 
@@ -690,8 +690,8 @@ public class MathUtilsTest {
     public void testSortForByte() {
         byte[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new byte[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
-        byte[] expectedArr = new byte[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        arr = new byte[] { 1, 9, 8, 5, 2, 8, 9, 10, 6 };
+        byte[] expectedArr = new byte[] { 1, 2, 5, 6, 8, 8, 9, 9, 10 };
         assertArrayEquals(expectedArr, MathUtils.sort(arr));
     }
 
@@ -699,8 +699,8 @@ public class MathUtilsTest {
     public void testSortForShort() {
         short[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new short[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
-        short[] expectedArr = new short[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        arr = new short[] { 1, 9, 8, 5, 2, 8, 9, 10, 6 };
+        short[] expectedArr = new short[] { 1, 2, 5, 6, 8, 8, 9, 9, 10 };
         assertArrayEquals(expectedArr, MathUtils.sort(arr));
     }
 
@@ -708,8 +708,8 @@ public class MathUtilsTest {
     public void testSortForInt() {
         int[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new int[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
-        int[] expectedArr = new int[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        arr = new int[] { 1, 9, 8, 5, 2, 8, 9, 10, 6 };
+        int[] expectedArr = new int[] { 1, 2, 5, 6, 8, 8, 9, 9, 10 };
         assertArrayEquals(expectedArr, MathUtils.sort(arr));
     }
 
@@ -717,8 +717,8 @@ public class MathUtilsTest {
     public void testSortForFloat() {
         float[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new float[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
-        float[] expectedArr = new float[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        arr = new float[] { 1, 9, 8, 5, 2, 8, 9, 10, 6 };
+        float[] expectedArr = new float[] { 1, 2, 5, 6, 8, 8, 9, 9, 10 };
         assertArrayEquals(expectedArr, MathUtils.sort(arr), 0.1f);
     }
 
@@ -726,8 +726,8 @@ public class MathUtilsTest {
     public void testSortForDouble() {
         double[] arr = null;
         assertNull(MathUtils.sort(arr));
-        arr = new double[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
-        double[] expectedArr = new double[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        arr = new double[] { 1, 9, 8, 5, 2, 8, 9, 10, 6 };
+        double[] expectedArr = new double[] { 1, 2, 5, 6, 8, 8, 9, 9, 10 };
         assertArrayEquals(expectedArr, MathUtils.sort(arr), 0.1f);
     }
 

@@ -34,7 +34,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         return process(fileName, fileNamePattern);
     }
 
-    ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException, NoMatchFileNameException {
+    ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException,
+                                                                      NoMatchFileNameException {
         if (fileNamePattern == null) {
             fileNamePattern = EMPTY_STRING;
         }

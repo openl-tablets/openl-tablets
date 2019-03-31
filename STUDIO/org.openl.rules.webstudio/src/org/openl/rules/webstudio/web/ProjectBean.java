@@ -74,7 +74,6 @@ public class ProjectBean {
     @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
     private RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
-
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
     private final Logger log = LoggerFactory.getLogger(ProjectBean.class);
@@ -430,7 +429,7 @@ public class ProjectBean {
                 }
             }
             File rulesXmlFile = new File(projectFolder,
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             if (rulesXmlFile.exists()) {
                 clean(newProjectDescriptor);
                 save(newProjectDescriptor);
@@ -534,7 +533,8 @@ public class ProjectBean {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                AProjectResource artefact = (AProjectResource) project
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 artefact.setContent(inputStream);
             } else {
                 // new
@@ -548,8 +548,9 @@ public class ProjectBean {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
                 rulesDeployContent = artefact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
-                        .deserialize(rulesDeployContent);
-                artefact.setContent(new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes("UTF-8")));
+                    .deserialize(rulesDeployContent);
+                artefact.setContent(
+                    new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes("UTF-8")));
             }
 
             refreshProject(project.getName());
@@ -614,7 +615,8 @@ public class ProjectBean {
 
             MethodFilter methodFilter = module.getMethodFilter();
             if (methodFilter != null) {
-                if (CollectionUtils.isEmpty(methodFilter.getIncludes()) && CollectionUtils.isEmpty(methodFilter.getExcludes())) {
+                if (CollectionUtils.isEmpty(methodFilter.getIncludes()) && CollectionUtils
+                    .isEmpty(methodFilter.getExcludes())) {
                     module.setMethodFilter(null);
                 } else if (CollectionUtils.isEmpty(methodFilter.getIncludes())) {
                     methodFilter.setIncludes(null);
@@ -635,7 +637,8 @@ public class ProjectBean {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-    public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
+    public void setProjectDescriptorSerializerFactory(
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 
@@ -884,7 +887,7 @@ public class ProjectBean {
                 module,
                 module.getRulesRootPath().getPath());
         } catch (IOException e) {
-            if (log.isErrorEnabled()){
+            if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
             return Collections.emptyList();
@@ -951,7 +954,8 @@ public class ProjectBean {
     private ProjectDescriptor getOriginalProjectDescriptor() {
         ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
         try {
-            File file = new File(descriptor.getProjectFolder(), ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            File file = new File(descriptor.getProjectFolder(),
+                ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             return projectDescriptorManager.readOriginalDescriptor(file);
         } catch (FileNotFoundException ignored) {
             return descriptor;

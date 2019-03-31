@@ -45,7 +45,6 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public abstract boolean isOpened();
-    
 
     /** is opened other version? (not last) */
     public boolean isOpenedOtherVersion() {
@@ -83,20 +82,15 @@ public abstract class UserWorkspaceProject extends AProject {
     public ProjectStatus getStatus() {
         if (isLocalOnly()) {
             return ProjectStatus.LOCAL;
-        }
-        else if (isDeleted()) {
+        } else if (isDeleted()) {
             return ProjectStatus.ARCHIVED;
-        }
-        else if (isModified()) {
+        } else if (isModified()) {
             return ProjectStatus.EDITING;
-        }
-        else if (isOpenedOtherVersion()) {
+        } else if (isOpenedOtherVersion()) {
             return ProjectStatus.VIEWING_VERSION;
-        }
-        else if (isOpened()) {
+        } else if (isOpened()) {
             return ProjectStatus.VIEWING;
-        }
-        else {
+        } else {
             return ProjectStatus.CLOSED;
         }
     }

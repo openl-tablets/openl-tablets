@@ -27,7 +27,8 @@ public class RulesServiceEnhancerTest {
         module.setRulesRootPath(new PathEntry("test-resources/excel/Rules.xls"));
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
+            strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 

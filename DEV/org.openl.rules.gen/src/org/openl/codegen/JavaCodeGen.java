@@ -288,8 +288,14 @@ public class JavaCodeGen implements ICodeGen {
      */
     public StringBuilder genInitFixedSizeArrayVar(String name, String className, int size, StringBuilder sb) {
 
-        sb.append(name).append(" = ").append("new ").append(className).append('[').append(size).append(']')
-                .append(END_OF_EXPR);
+        sb.append(name)
+            .append(" = ")
+            .append("new ")
+            .append(className)
+            .append('[')
+            .append(size)
+            .append(']')
+            .append(END_OF_EXPR);
 
         return sb;
     }
@@ -342,7 +348,11 @@ public class JavaCodeGen implements ICodeGen {
         return genLevel;
     }
 
-    public StringBuilder genSetNewObjectInArray(int i, String aryName, Object bean, String className, StringBuilder sb) {
+    public StringBuilder genSetNewObjectInArray(int i,
+            String aryName,
+            Object bean,
+            String className,
+            StringBuilder sb) {
         sb.append(aryName);
 
         genConstIndexExpr(i, sb);
@@ -388,7 +398,10 @@ public class JavaCodeGen implements ICodeGen {
         return sb.append(' ').append(op).append(' ');
     }
 
-    public String genInitializeBeanArray(String aryName, Object[] beans, Class<?> beanClass, Collection<String> props,
+    public String genInitializeBeanArray(String aryName,
+            Object[] beans,
+            Class<?> beanClass,
+            Collection<String> props,
             StringBuilder sb) {
 
         BeanInfo info = null;
@@ -426,8 +439,12 @@ public class JavaCodeGen implements ICodeGen {
         return sb.toString();
     }
 
-    public StringBuilder genBeanInArray(int i, String aryName, Object bean, String className,
-            List<PropertyDescriptor> pdlist, StringBuilder sb) {
+    public StringBuilder genBeanInArray(int i,
+            String aryName,
+            Object bean,
+            String className,
+            List<PropertyDescriptor> pdlist,
+            StringBuilder sb) {
 
         startLine(sb);
         genSetNewObjectInArray(i, aryName, bean, className, sb);
@@ -470,8 +487,11 @@ public class JavaCodeGen implements ICodeGen {
 
     @Override
     public StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb) {
-        return sb.append("new ").append(Constraints.class.getName()).append("(\"").append(value.getConstraintsStr())
-                .append("\")");
+        return sb.append("new ")
+            .append(Constraints.class.getName())
+            .append("(\"")
+            .append(value.getConstraintsStr())
+            .append("\")");
     }
 
     @Override
@@ -486,8 +506,11 @@ public class JavaCodeGen implements ICodeGen {
 
     @Override
     public StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb) {
-        return sb.append("new ").append(MatchingExpression.class.getName()).append("(\"")
-                .append(value.getMatchExpressionStr()).append("\")");
+        return sb.append("new ")
+            .append(MatchingExpression.class.getName())
+            .append("(\"")
+            .append(value.getMatchExpressionStr())
+            .append("\")");
     }
 
     @Override

@@ -9,8 +9,7 @@ import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 
 /**
- * Request scope managed bean providing logic for explain tree page of OpenL
- * Studio.
+ * Request scope managed bean providing logic for explain tree page of OpenL Studio.
  */
 @ManagedBean
 @RequestScoped

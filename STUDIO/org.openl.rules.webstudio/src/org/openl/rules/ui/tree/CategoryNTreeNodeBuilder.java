@@ -49,7 +49,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
      */
     @Override
     public String getType(Object sorterObject) {
-        //return "category." + categoryLevel;
+        // return "category." + categoryLevel;
         return IProjectTypes.PT_FOLDER;
     }
 

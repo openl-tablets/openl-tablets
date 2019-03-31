@@ -28,11 +28,11 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     private final List<String> moduleNames = new ArrayList<>();
 
     private Collection<ProjectDescriptor> projectDescriptors = null;
-    
+
     private Collection<String> dependencyNames = null;
 
     private boolean singleModuleMode = false;
-    
+
     @Override
     public Collection<String> getAllDependencies() {
         if (dependencyLoaders == null) {
@@ -40,7 +40,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
         }
         return dependencyNames;
     }
-    
+
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
             boolean singleModuleMode) {
@@ -85,17 +85,20 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
                     if (!modulesOfProject.isEmpty()) {
                         for (final Module m : modulesOfProject) {
                             dependencyLoaders.add(new WebStudioDependencyLoader(m.getName(),
-                                    Collections.singletonList(m),
-                                    singleModuleMode, false));
+                                Collections.singletonList(m),
+                                singleModuleMode,
+                                false));
                             dependencyNames.add(m.getName());
                             moduleNames.add(m.getName());
                         }
                     }
 
-                    String dependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(project.getName());
+                    String dependencyName = ProjectExternalDependenciesHelper
+                        .buildDependencyNameForProjectName(project.getName());
                     IDependencyLoader projectLoader = new WebStudioDependencyLoader(dependencyName,
-                            project.getModules(),
-                            singleModuleMode, true);
+                        project.getModules(),
+                        singleModuleMode,
+                        true);
                     projectDescriptors.add(project);
                     dependencyLoaders.add(projectLoader);
                 } catch (Exception e) {
@@ -109,7 +112,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
         Collection<CompiledDependency> dependencies = new ArrayList<>();
 
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
-            CompiledDependency compiledDependency = ((WebStudioDependencyLoader) dependencyLoader).getCompiledDependency();
+            CompiledDependency compiledDependency = ((WebStudioDependencyLoader) dependencyLoader)
+                .getCompiledDependency();
             if (compiledDependency != null) {
                 dependencies.add(compiledDependency);
             }

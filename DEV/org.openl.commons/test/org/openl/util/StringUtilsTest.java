@@ -13,84 +13,128 @@ import static org.junit.Assert.*;
 public class StringUtilsTest {
     @Test
     public void testToBytes() throws Exception {
-        assertArrayEquals("Returned array is not empty", new byte[]{}, StringUtils.toBytes(""));
-        assertArrayEquals("Returned array is not valid", new byte[]{0x20}, StringUtils.toBytes(" "));
-        assertArrayEquals("Returned array is not valid", new byte[]{0x30}, StringUtils.toBytes("0"));
-        assertArrayEquals("Returned array is not valid", new byte[]{0x2D, 0x3F, 0x21, 0x22, 0x28, 0x29}, StringUtils.toBytes("-?!\"()"));
-        assertArrayEquals("Returned array is not valid", new byte[]{0x41, 0x61, 0x2C, 0x20, 0x5A, 0x7A, 0x2E}, StringUtils.toBytes("Aa, Zz."));
-        assertArrayEquals("Returned array is not valid", new byte[]{(byte) 0xD0, (byte) 0x90, (byte) 0xD0, (byte) 0xB0, 0x2C, 0x20, (byte) 0xD0, (byte) 0xAF, (byte) 0xD1, (byte) 0x8F, 0x2E}, StringUtils.toBytes("Аа, Яя."));
+        assertArrayEquals("Returned array is not empty", new byte[] {}, StringUtils.toBytes(""));
+        assertArrayEquals("Returned array is not valid", new byte[] { 0x20 }, StringUtils.toBytes(" "));
+        assertArrayEquals("Returned array is not valid", new byte[] { 0x30 }, StringUtils.toBytes("0"));
+        assertArrayEquals("Returned array is not valid",
+            new byte[] { 0x2D, 0x3F, 0x21, 0x22, 0x28, 0x29 },
+            StringUtils.toBytes("-?!\"()"));
+        assertArrayEquals("Returned array is not valid",
+            new byte[] { 0x41, 0x61, 0x2C, 0x20, 0x5A, 0x7A, 0x2E },
+            StringUtils.toBytes("Aa, Zz."));
+        assertArrayEquals("Returned array is not valid",
+            new byte[] { (byte) 0xD0,
+                    (byte) 0x90,
+                    (byte) 0xD0,
+                    (byte) 0xB0,
+                    0x2C,
+                    0x20,
+                    (byte) 0xD0,
+                    (byte) 0xAF,
+                    (byte) 0xD1,
+                    (byte) 0x8F,
+                    0x2E },
+            StringUtils.toBytes("Аа, Яя."));
     }
 
     @Test
     public void testSplit() throws Exception {
         assertNull(StringUtils.split(null, ' '));
         assertNull(StringUtils.split(null, '*'));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("", '*'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a.b.c", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a..b.c", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a:b:c"}, StringUtils.split("a:b:c", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b c", ' '));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a..b.c.", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("..a..b.c..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a.", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(".a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a.", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a..", '.'));
+        assertArrayEquals("Returned array is not empty", new String[] {}, StringUtils.split("", '*'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a.b.c", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a..b.c", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a:b:c" }, StringUtils.split("a:b:c", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a b c", ' '));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a..b.c.", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("..a..b.c..", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a..", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a.", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split(".a", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("..a", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("..a.", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("..a..", '.'));
 
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(" \t\r\n", '*'));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(" \t\r\n *  * * \t\n", '*'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(" a .b .c ", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(" a . . b . c ", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a : b : c"}, StringUtils.split(" a : b : c ", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b \t\r\nc", ' '));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a. .b.c .", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(". . a..b.c..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t..\n", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\na", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a ", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(". a. ", '.'));
+        assertArrayEquals("Returned array is not empty", new String[] {}, StringUtils.split(" \t\r\n", '*'));
+        assertArrayEquals("Returned array is not empty",
+            new String[] {},
+            StringUtils.split(" \t\r\n *  * * \t\n", '*'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split(" a .b .c ", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split(" a . . b . c ", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a : b : c" },
+            StringUtils.split(" a : b : c ", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a b \t\r\nc", ' '));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a. .b.c .", '.'));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split(". . a..b.c..", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a\t..\n", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a\t", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("\na", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("  a", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("  a ", '.'));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split(". a. ", '.'));
     }
 
     @Test
     public void testSplitWS() throws Exception {
         assertNull(StringUtils.split(null));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(""));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("  \n\r  \t \r\n  \t\t"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b c"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a \tb\nc"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a:b:c"}, StringUtils.split("a:b:c"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a\tb\rc"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a\n\nb c\n"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("\t\ta  b c  "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a  "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(" a"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\t a\n\r"));
+        assertArrayEquals("Returned array is not empty", new String[] {}, StringUtils.split(""));
+        assertArrayEquals("Returned array is not empty", new String[] {}, StringUtils.split("  \n\r  \t \r\n  \t\t"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a", "b", "c" }, StringUtils.split("a b c"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a", "b", "c" }, StringUtils.split("a \tb\nc"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a:b:c" }, StringUtils.split("a:b:c"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a", "b", "c" }, StringUtils.split("a\tb\rc"));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("a\n\nb c\n"));
+        assertArrayEquals("Returned array is not valid",
+            new String[] { "a", "b", "c" },
+            StringUtils.split("\t\ta  b c  "));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a  "));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("a "));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split(" a"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("  a"));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("  a "));
+        assertArrayEquals("Returned array is not valid", new String[] { "a" }, StringUtils.split("\t a\n\r"));
     }
 
     @Test
     public void testJoinObject() throws Exception {
         assertEquals("Returned string is not valid", null, StringUtils.join((Object[]) null, "*"));
-        assertEquals("Returned string is not valid", "", StringUtils.join(new Object[]{}, "*"));
-        assertEquals("Returned string is not valid", "", StringUtils.join(new Object[]{null}, "*"));
-        assertEquals("Returned string is not valid", ",", StringUtils.join(new Object[]{null, null}, ","));
-        assertEquals("Returned string is not valid", "a--b--c", StringUtils.join(new Object[]{"a", "b", "c"}, "--"));
-        assertEquals("Returned string is not valid", "abc", StringUtils.join(new Object[]{"a", "b", "c"}, null));
-        assertEquals("Returned string is not valid", "abc", StringUtils.join(new Object[]{"a", "b", "c"}, ""));
-        assertEquals("Returned string is not valid", ",,a", StringUtils.join(new Object[]{null, "", "a"}, ","));
+        assertEquals("Returned string is not valid", "", StringUtils.join(new Object[] {}, "*"));
+        assertEquals("Returned string is not valid", "", StringUtils.join(new Object[] { null }, "*"));
+        assertEquals("Returned string is not valid", ",", StringUtils.join(new Object[] { null, null }, ","));
+        assertEquals("Returned string is not valid", "a--b--c", StringUtils.join(new Object[] { "a", "b", "c" }, "--"));
+        assertEquals("Returned string is not valid", "abc", StringUtils.join(new Object[] { "a", "b", "c" }, null));
+        assertEquals("Returned string is not valid", "abc", StringUtils.join(new Object[] { "a", "b", "c" }, ""));
+        assertEquals("Returned string is not valid", ",,a", StringUtils.join(new Object[] { null, "", "a" }, ","));
     }
 
     @Test
     public void testJoinIterable() throws Exception {
-        assertEquals("Returned string is not valid", null, StringUtils.join((Iterable<?>)null, "*"));
+        assertEquals("Returned string is not valid", null, StringUtils.join((Iterable<?>) null, "*"));
         assertEquals("Returned string is not valid", "", StringUtils.join(Arrays.asList(), "*"));
-        assertEquals("Returned string is not valid", "", StringUtils.join(Arrays.asList(new Object[]{null}), "*"));
+        assertEquals("Returned string is not valid", "", StringUtils.join(Arrays.asList(new Object[] { null }), "*"));
         assertEquals("Returned string is not valid", "*", StringUtils.join(Arrays.asList(null, null), "*"));
         assertEquals("Returned string is not valid", "a--b--c", StringUtils.join(Arrays.asList("a", "b", "c"), "--"));
         assertEquals("Returned string is not valid", "abc", StringUtils.join(Arrays.asList("a", "b", "c"), null));
@@ -202,7 +246,6 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "boo", StringUtils.trimToEmpty("    boo    "));
     }
 
-
     @Test
     public void testRemoveStart() throws Exception {
         assertEquals("Returned string is not valid", null, StringUtils.removeStart(null, "$"));
@@ -212,7 +255,9 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", " буу    ", StringUtils.removeStart("    буу    ", "   "));
         assertEquals("Returned string is not valid", "example.com", StringUtils.removeStart("www.example.com", "www."));
         assertEquals("Returned string is not valid", "example.com", StringUtils.removeStart("example.com", "www."));
-        assertEquals("Returned string is not valid", "www.example.com", StringUtils.removeStart("www.example.com", "example"));
+        assertEquals("Returned string is not valid",
+            "www.example.com",
+            StringUtils.removeStart("www.example.com", "example"));
     }
 
     @Test
@@ -224,7 +269,9 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "    буу ", StringUtils.removeEnd("    буу    ", "   "));
         assertEquals("Returned string is not valid", "www.example", StringUtils.removeEnd("www.example.com", ".com"));
         assertEquals("Returned string is not valid", "www.example", StringUtils.removeEnd("www.example", ".com"));
-        assertEquals("Returned string is not valid", "www.example.com", StringUtils.removeEnd("www.example.com", "example"));
+        assertEquals("Returned string is not valid",
+            "www.example.com",
+            StringUtils.removeEnd("www.example.com", "example"));
     }
 
     @Test
@@ -253,9 +300,9 @@ public class StringUtilsTest {
         assertEquals("2.2", StringUtils.print(2.2, new StringBuilder(10)).toString());
         assertEquals("NaN", StringUtils.print(Float.NaN, new StringBuilder(10)).toString());
         assertEquals("[]", StringUtils.print(new int[0], new StringBuilder(10)).toString());
-        assertEquals("[c]", StringUtils.print(new char[] {'c'}, new StringBuilder(10)).toString());
-        assertEquals("[3.0, 5.5]", StringUtils.print(new double[] {3, 5.5}, new StringBuilder(10)).toString());
-        assertEquals("[3, null]", StringUtils.print(new Integer[] {3, null}, new StringBuilder(10)).toString());
+        assertEquals("[c]", StringUtils.print(new char[] { 'c' }, new StringBuilder(10)).toString());
+        assertEquals("[3.0, 5.5]", StringUtils.print(new double[] { 3, 5.5 }, new StringBuilder(10)).toString());
+        assertEquals("[3, null]", StringUtils.print(new Integer[] { 3, null }, new StringBuilder(10)).toString());
         assertEquals("[null]", StringUtils.print(new Object[1], new StringBuilder(10)).toString());
     }
 }

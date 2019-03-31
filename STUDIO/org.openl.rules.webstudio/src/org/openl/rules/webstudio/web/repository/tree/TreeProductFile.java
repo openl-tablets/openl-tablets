@@ -7,7 +7,7 @@ public class TreeProductFile extends TreeFile {
     public TreeProductFile(String id, String name) {
         super(id, name);
     }
-    
+
     @Override
     public String getType() {
         return UiConst.TYPE_PRODUCTION_FILE;

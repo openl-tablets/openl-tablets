@@ -39,13 +39,11 @@ public final class AdministrationSettings {
             }
         }
 
-        settingNames.addAll(Arrays.asList(
-                CUSTOM_SPREADSHEET_TYPE_PROPERTY,
-                RUN_TESTS_IN_PARALLEL,
-                TEST_RUN_THREAD_COUNT_PROPERTY,
-                DISPATCHING_MODE_PROPERTY,
-                AUTO_COMPILE
-        ));
+        settingNames.addAll(Arrays.asList(CUSTOM_SPREADSHEET_TYPE_PROPERTY,
+            RUN_TESTS_IN_PARALLEL,
+            TEST_RUN_THREAD_COUNT_PROPERTY,
+            DISPATCHING_MODE_PROPERTY,
+            AUTO_COMPILE));
 
         allSettings = Collections.unmodifiableCollection(settingNames);
     }
@@ -59,5 +57,6 @@ public final class AdministrationSettings {
         return allSettings;
     }
 
-    private AdministrationSettings() {}
+    private AdministrationSettings() {
+    }
 }

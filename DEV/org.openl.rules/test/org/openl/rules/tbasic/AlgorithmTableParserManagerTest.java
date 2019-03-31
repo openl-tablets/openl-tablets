@@ -16,11 +16,11 @@ public class AlgorithmTableParserManagerTest {
     @Test
     public final void testGetAlgorithmSpecification() {
         TableParserSpecificationBean[] specifications = AlgorithmTableParserManager.getInstance()
-                .getAlgorithmSpecification();
+            .getAlgorithmSpecification();
         assertNotNull(specifications);
 
         TableParserSpecificationBean[] theSameSpecifications = AlgorithmTableParserManager.getInstance()
-                .getAlgorithmSpecification();
+            .getAlgorithmSpecification();
         assertNotNull(theSameSpecifications);
         assertArrayEquals(specifications, theSameSpecifications);
     }
@@ -43,7 +43,8 @@ public class AlgorithmTableParserManagerTest {
 
         assertNotNull(conversionRules);
 
-        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.getInstance().getFixedConversionRules();
+        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.getInstance()
+            .getFixedConversionRules();
 
         assertNotNull(theSameConversionRules);
         assertArrayEquals(conversionRules, theSameConversionRules);

@@ -29,7 +29,7 @@ public interface ArtefactProperties {
 
     // Properties for Project
     String PROP_PRJ_MARKED_4_DELETION = "marked4deletion";
-    
+
     // Deployment Descriptor
     String DESCRIPTORS_FILE = "openl_repository_descriptors.xml";
     String VERSION_COMMENT = "versionComment";

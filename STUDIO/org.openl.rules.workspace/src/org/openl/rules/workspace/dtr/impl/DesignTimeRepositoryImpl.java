@@ -78,9 +78,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 deployConfigRepository = repository;
             } else {
                 deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
-                        flatDeployConfig,
-                        DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
-                        deploymentConfigurationLocation);
+                    flatDeployConfig,
+                    DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
+                    deploymentConfigurationLocation);
             }
 
             addListener(new DesignTimeRepositoryListener() {
@@ -103,8 +103,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(RepositoryMode repositoryMode, boolean flatStructure, String folderConfig, String baseFolder) throws
-                                                                                                                                RRepositoryException {
+    private Repository createRepo(RepositoryMode repositoryMode,
+            boolean flatStructure,
+            String folderConfig,
+            String baseFolder) throws RRepositoryException {
         Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
         if (!flatStructure && repo.supports().folders()) {
             // Nested folder structure is supported for FolderRepository only

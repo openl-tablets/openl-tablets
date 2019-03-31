@@ -28,7 +28,6 @@ public final class NodeUtil {
         return node.isNodeType(JcrNT.MIX_VERSIONABLE);
     }
 
-
     protected static Node createFileNode(Node parentNode, String nodeName) throws RepositoryException {
         Node n = createNode(parentNode, nodeName, JcrNT.NT_FILE, true);
         setupFileNode(n);
@@ -38,15 +37,17 @@ public final class NodeUtil {
     /**
      * Creates node of given node type.
      *
-     * @param parentNode    parent node, where new node is going to be added
-     * @param name          name of new node
-     * @param type          node type of new node
+     * @param parentNode parent node, where new node is going to be added
+     * @param name name of new node
+     * @param type node type of new node
      * @param isVersionable whether new node is versionable
      * @return reference on newly created node
      * @throws RepositoryException if operation failed
      */
-    public static Node createNode(Node parentNode, String name, String type, boolean isVersionable)
-            throws RepositoryException {
+    public static Node createNode(Node parentNode,
+            String name,
+            String type,
+            boolean isVersionable) throws RepositoryException {
         if (parentNode.hasNode(name)) {
             throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already!");
         }
@@ -75,7 +76,9 @@ public final class NodeUtil {
 
     protected static InputStream getFileNodeContent(Node node) throws RRepositoryException {
         try {
-            return node.getNode(ArtefactProperties.PROP_RES_CONTENT).getProperty(ArtefactProperties.PROP_RES_DATA).getStream();
+            return node.getNode(ArtefactProperties.PROP_RES_CONTENT)
+                .getProperty(ArtefactProperties.PROP_RES_DATA)
+                .getStream();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Content!", e);
         }
@@ -129,8 +132,7 @@ public final class NodeUtil {
      * Inquire whether given version is 'root'.
      *
      * @param v version to be checked
-     * @return <code>true</code> if the version is root; <code>false</code>
-     * otherwise;
+     * @return <code>true</code> if the version is root; <code>false</code> otherwise;
      * @throws RepositoryException if operation failed
      */
     protected static boolean isRootVersion(Version v) throws RepositoryException {
@@ -205,7 +207,7 @@ public final class NodeUtil {
     /**
      * Checkout node and parent (if needed).
      *
-     * @param node       reference on node to be checked in
+     * @param node reference on node to be checked in
      * @param openParent whether parent should be checked out
      * @throws RepositoryException if operation failed
      */

@@ -25,7 +25,7 @@ public class ConfigurationManagerFactoryTest {
         ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(CONFIG);
         Map<String, Object> properties = configurationManager.getProperties();
-        assertTrue(properties.size()>3);
+        assertTrue(properties.size() > 3);
         assertEquals("org.slf4j", properties.get("groupId"));
         assertEquals("slf4j-api", properties.get("artifactId"));
     }

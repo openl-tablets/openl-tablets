@@ -14,20 +14,7 @@ import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.util.IOUtils;
 
 public class ProjectDescriptorHelperTest {
-    private static String XML = "<descriptors>\n" +
-            "  <descriptor>\n" +
-            "    <projectName>project1</projectName>\n" +
-            "    <projectVersion>3.5.11</projectVersion>\n" +
-            "  </descriptor>\n" +
-            "  <descriptor>\n" +
-            "    <projectName>project2</projectName>\n" +
-            "    <projectVersion>17</projectVersion>\n" +
-            "  </descriptor>\n" +
-            "  <descriptor>\n" +
-            "    <projectName>project0</projectName>\n" +
-            "    <projectVersion>0</projectVersion>\n" +
-            "  </descriptor>\n" +
-            "</descriptors>";
+    private static String XML = "<descriptors>\n" + "  <descriptor>\n" + "    <projectName>project1</projectName>\n" + "    <projectVersion>3.5.11</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <projectName>project2</projectName>\n" + "    <projectVersion>17</projectVersion>\n" + "  </descriptor>\n" + "  <descriptor>\n" + "    <projectName>project0</projectName>\n" + "    <projectVersion>0</projectVersion>\n" + "  </descriptor>\n" + "</descriptors>";
 
     @Test
     public void serialize() throws IOException {
@@ -44,7 +31,7 @@ public class ProjectDescriptorHelperTest {
         String xml = IOUtils.toStringAndClose(stream);
         Assert.assertEquals("<descriptors/>", xml);
 
-        stream = ProjectDescriptorHelper.serialize(Collections.<ProjectDescriptor>emptyList());
+        stream = ProjectDescriptorHelper.serialize(Collections.<ProjectDescriptor> emptyList());
         xml = IOUtils.toStringAndClose(stream);
         Assert.assertEquals("<descriptors/>", xml);
 

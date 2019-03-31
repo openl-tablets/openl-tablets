@@ -1,6 +1,5 @@
 package org.openl.rules.activiti;
 
-
 import java.lang.reflect.Method;
 
 import org.activiti.engine.delegate.DelegateExecution;

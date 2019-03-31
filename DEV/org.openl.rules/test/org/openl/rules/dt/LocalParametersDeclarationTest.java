@@ -42,7 +42,8 @@ public class LocalParametersDeclarationTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<ILocalParametersDeclarationTest>(
-                SRC, ILocalParametersDeclarationTest.class);
+            SRC,
+            ILocalParametersDeclarationTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

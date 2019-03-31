@@ -19,7 +19,7 @@ import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
 public final class XlsDataFormatterFactory {
-    
+
     private XlsDataFormatterFactory() {
     }
 
@@ -27,11 +27,10 @@ public final class XlsDataFormatterFactory {
     private static DataFormatter dataFormatter = new DataFormatter(locale);
 
     /**
-     * Determine formatter depending on type retrieved from Excel.
-     * Warning! Don't invoke this method from core. It can be memory and time consuming operation. Formatting values
-     * only from UI is allowed.
+     * Determine formatter depending on type retrieved from Excel. Warning! Don't invoke this method from core. It can
+     * be memory and time consuming operation. Formatting values only from UI is allowed.
      *
-     * @param cell         formatting cell
+     * @param cell formatting cell
      * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
@@ -51,16 +50,16 @@ public final class XlsDataFormatterFactory {
                     formatter = numberFormatter;
                 }
 
-            // Date
+                // Date
             } else if (instanceClass == Date.class) {
                 formatter = getDateFormatter(cell);
 
-            // Boolean
+                // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
                 BooleanFormatter booleanFormatter = new BooleanFormatter();
                 formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter) : booleanFormatter;
 
-            // Enum
+                // Enum
             } else if (instanceClass.isEnum()) {
                 IFormatter enumFormatter = new EnumFormatter(instanceClass);
                 // Enum Array
@@ -120,9 +119,8 @@ public final class XlsDataFormatterFactory {
     }
 
     /**
-     * Get formatted value in a user-friendly format
-     * Warning! Don't invoke this method from core. It can be memory and time consuming operation. Formatting values
-     * only from UI is allowed.
+     * Get formatted value in a user-friendly format Warning! Don't invoke this method from core. It can be memory and
+     * time consuming operation. Formatting values only from UI is allowed.
      *
      * @param cell formatting cell
      * @param meta meta info for the cell

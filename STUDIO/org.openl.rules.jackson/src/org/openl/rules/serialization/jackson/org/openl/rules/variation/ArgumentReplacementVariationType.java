@@ -14,8 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not
- * usual bean and should be initialized through non-default constructor.
+ * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not usual bean and should be initialized
+ * through non-default constructor.
  * 
  * @author Marat Kamalov
  */

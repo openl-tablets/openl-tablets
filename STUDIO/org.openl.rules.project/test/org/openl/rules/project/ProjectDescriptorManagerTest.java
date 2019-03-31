@@ -53,7 +53,7 @@ public class ProjectDescriptorManagerTest {
         assertNotNull(descriptor.getModules());
         assertEquals(2, descriptor.getModules().size());
         Module module = descriptor.getModules().get(0);
-        if (!"MyModule2".equals(module.getName())){
+        if (!"MyModule2".equals(module.getName())) {
             module = descriptor.getModules().get(1);
         }
         assertNotNull(module.getMethodFilter());
@@ -63,7 +63,7 @@ public class ProjectDescriptorManagerTest {
         Iterator<String> itr = module.getMethodFilter().getIncludes().iterator();
         String value = itr.next();
         assertEquals("*", value);
-        
+
         assertNotNull(descriptor.getDependencies());
         assertEquals(1, descriptor.getDependencies().size());
         ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().iterator().next();
@@ -129,33 +129,7 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = "<project>" + "\n" +
-                        "  <name>name1</name>" + "\n" +
-                        "  <comment>comment1</comment>" + "\n" + 
-                        "  <modules>" + "\n" + 
-                        "    <module>" + "\n" +
-                        "      <name>name1</name>" + "\n" + 
-                        "      <rules-root path=\"path1\"/>" + "\n" +
-                        "      <method-filter>"+ "\n" +
-                        "        <includes>"+ "\n" +
-                        "          <value>*</value>"+ "\n" +
-                        "        </includes>"+ "\n" +
-                        "      </method-filter>"+ "\n" +
-                        "    </module>" + "\n" + 
-                        "  </modules>" + "\n" + 
-                        "  <classpath>" + "\n" +
-                        "    <entry path=\"path1\"/>" + "\n" + 
-                        "    <entry path=\"path2\"/>" + "\n" + 
-                        "  </classpath>" + "\n" + 
-                        "  <dependencies>" + "\n" +
-                        "    <dependency>" + "\n" +
-                        "      <name>someProjectName</name>" + "\n" +
-                        "      <autoIncluded>false</autoIncluded>" + "\n" +
-                        "    </dependency>" + "\n" +
-                        "  </dependencies>" + "\n" +
-                        "  <properties-file-name-pattern>{lob}</properties-file-name-pattern>" + "\n" +
-                        "  <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>" + "\n" +
-                        "</project>";
+        String expected = "<project>" + "\n" + "  <name>name1</name>" + "\n" + "  <comment>comment1</comment>" + "\n" + "  <modules>" + "\n" + "    <module>" + "\n" + "      <name>name1</name>" + "\n" + "      <rules-root path=\"path1\"/>" + "\n" + "      <method-filter>" + "\n" + "        <includes>" + "\n" + "          <value>*</value>" + "\n" + "        </includes>" + "\n" + "      </method-filter>" + "\n" + "    </module>" + "\n" + "  </modules>" + "\n" + "  <classpath>" + "\n" + "    <entry path=\"path1\"/>" + "\n" + "    <entry path=\"path2\"/>" + "\n" + "  </classpath>" + "\n" + "  <dependencies>" + "\n" + "    <dependency>" + "\n" + "      <name>someProjectName</name>" + "\n" + "      <autoIncluded>false</autoIncluded>" + "\n" + "    </dependency>" + "\n" + "  </dependencies>" + "\n" + "  <properties-file-name-pattern>{lob}</properties-file-name-pattern>" + "\n" + "  <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>" + "\n" + "</project>";
         assertEquals(expected, dest.toString());
     }
 
@@ -186,7 +160,8 @@ public class ProjectDescriptorManagerTest {
     @Test
     public void testClassPathUrls() throws Exception {
         ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-        ProjectDescriptor projectDescriptor = projectDescriptorManager.readDescriptor("./test-resources/descriptor/rules-clspth.xml");
+        ProjectDescriptor projectDescriptor = projectDescriptorManager
+            .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
         URL[] classPathUrls = projectDescriptor.getClassPathUrls();
         assertEquals(9, classPathUrls.length);
 

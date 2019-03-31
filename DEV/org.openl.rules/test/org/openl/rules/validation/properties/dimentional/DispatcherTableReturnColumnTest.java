@@ -45,8 +45,7 @@ public class DispatcherTableReturnColumnTest {
         assertEquals("=aMethod$7()", retColumn.getRuleValue(7, 9));
     }
 
-    private DispatcherTableReturnColumn createDTColumn(IOpenClass type,
-            IMethodSignature signature) {
+    private DispatcherTableReturnColumn createDTColumn(IOpenClass type, IMethodSignature signature) {
         return new DispatcherTableReturnColumn(type, "aMethod", signature);
     }
 }

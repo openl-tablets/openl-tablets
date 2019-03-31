@@ -16,6 +16,7 @@ public interface FolderAPI extends ArtefactAPI {
     ResourceAPI addResource(String name, InputStream content) throws ProjectException;
 
     Collection<? extends ArtefactAPI> getArtefacts();
+
     @Override
     FolderAPI getVersion(CommonVersion version) throws ProjectException;
 }

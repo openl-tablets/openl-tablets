@@ -22,7 +22,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         return rulesDeploy;
     }
 
-
     @Override
     public RulesDeploy_v5_11 toOldVersion(RulesDeploy currentVersion) {
         RulesDeploy_v5_11 rulesDeploy = new RulesDeploy_v5_11();

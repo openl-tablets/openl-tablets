@@ -17,12 +17,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * Workaround for WebSphere
- * Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project"
- * instead of "Empty Project") but JarEntry.getName() not encoded - in that cases
- * PathMatchingResourcePatternResolver cannot find the resource.
- * See the line with "Workaround" keyword for details.
- * TODO remove this class when the bug is fixed without workaround
+ * Workaround for WebSphere Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project" instead
+ * of "Empty Project") but JarEntry.getName() not encoded - in that cases PathMatchingResourcePatternResolver cannot
+ * find the resource. See the line with "Workaround" keyword for details. TODO remove this class when the bug is fixed
+ * without workaround
  *
  * @author NSamatov
  */
@@ -30,8 +28,8 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
     private final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
 
     @Override
-    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource, String subPattern)
-            throws IOException {
+    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
+            String subPattern) throws IOException {
         URLConnection con = rootDirResource.getURL().openConnection();
         JarFile jarFile;
         String jarFileUrl;
@@ -74,7 +72,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 rootEntryPath = rootEntryPath + "/";
             }
             Set<Resource> result = new LinkedHashSet<>(8);
-            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
+            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
                 JarEntry entry = entries.nextElement();
                 String entryPath = entry.getName();
                 if (entryPath.startsWith(rootEntryPath)) {

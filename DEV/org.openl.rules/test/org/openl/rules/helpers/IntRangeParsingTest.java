@@ -30,15 +30,15 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-10, 1), new IntRange("[-10-2)"));
         assertEquals(new IntRange(-9, 2), new IntRange("(-10 - 2]"));
     }
-    
-    private void checkWrong(String x){
+
+    private void checkWrong(String x) {
         try {
             IntRangeParser.getInstance().parse(x);
             Assert.fail();
         } catch (Exception e) {
         }
     }
-    
+
     @Test
     public void testFails() {
         checkWrong(",");
@@ -46,13 +46,13 @@ public class IntRangeParsingTest {
         checkWrong("1,");
         checkWrong("1,1,");
         checkWrong(",1,1");
-        
+
         checkWrong("[,1,1 .. 1]");
         checkWrong("[1,1 .. 1,]");
         checkWrong("[1,1 .. ,1]");
         checkWrong("[,1 .. 1]");
         checkWrong("[1, .. 1]");
-        
+
         checkWrong(">,1");
         checkWrong("<1,");
         checkWrong("<,1,1,");
@@ -155,7 +155,7 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-100, 499), new IntRange("-100 and more less than 500"));
         assertEquals(new IntRange(3, 5), new IntRange("more than 2 5 or less"));
         assertEquals(new IntRange(-19, -11), new IntRange("less than -10 more than -20"));
-//        assertEquals(new IntRange(32, 41), new IntRange("41 or less and more than 31"));
+        // assertEquals(new IntRange(32, 41), new IntRange("41 or less and more than 31"));
     }
 
     @Test

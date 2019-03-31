@@ -73,7 +73,8 @@ public class DeploymentManager implements InitializingBean {
             Repository deployRepo = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
             StringBuilder sb = new StringBuilder(project.getName());
             ProjectVersion projectVersion = project.getVersion();
-            boolean includeVersionInDeploymentName = repositoryFactoryProxy.isIncludeVersionInDeploymentName( repositoryConfigName);
+            boolean includeVersionInDeploymentName = repositoryFactoryProxy
+                .isIncludeVersionInDeploymentName(repositoryConfigName);
             String deploymentsPath = repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName);
             if (projectVersion != null) {
                 if (includeVersionInDeploymentName) {
@@ -97,9 +98,9 @@ public class DeploymentManager implements InitializingBean {
 
                 Repository designRepo = designRepository.getRepository();
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
-                        designRepo,
-                        rulesPath,
-                        deploymentPath)) {
+                    designRepo,
+                    rulesPath,
+                    deploymentPath)) {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(userName);
@@ -127,7 +128,12 @@ public class DeploymentManager implements InitializingBean {
                         dest.setComment(project.getFileData().getComment());
 
                         if (designRepo.supports().folders()) {
-                            archiveAndSave((FolderRepository) designRepo, rulesPath, projectName, version, deployRepo, dest);
+                            archiveAndSave((FolderRepository) designRepo,
+                                rulesPath,
+                                projectName,
+                                version,
+                                deployRepo,
+                                dest);
                         } else {
                             FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                             stream = srcPrj.getStream();
@@ -148,7 +154,12 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private void archiveAndSave(FolderRepository designRepo, String rulesPath, String projectName, String version, Repository deployRepo, FileData dest) throws ProjectException {
+    private void archiveAndSave(FolderRepository designRepo,
+            String rulesPath,
+            String projectName,
+            String version,
+            Repository deployRepo,
+            FileData dest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.archive(designRepo, rulesPath, projectName, version, out);
@@ -161,11 +172,12 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private List<FileData> findProjectsToDelete(List<FileData> existingProjects, Collection<ProjectDescriptor> projectsToDeploy) {
+    private List<FileData> findProjectsToDelete(List<FileData> existingProjects,
+            Collection<ProjectDescriptor> projectsToDeploy) {
         List<FileData> projectsToDelete = new ArrayList<>(existingProjects);
         // Filter out projects that will be replaced with a new version
         for (ProjectDescriptor projectToDeploy : projectsToDeploy) {
-            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext(); ) {
+            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext();) {
                 String folderPath = it.next().getName();
                 String projectName = folderPath.substring(folderPath.lastIndexOf("/") + 1);
                 if (projectName.equals(projectToDeploy.getProjectName())) {
@@ -207,10 +219,10 @@ public class DeploymentManager implements InitializingBean {
                 }
             } catch (Throwable e) {
                 log.error(
-                        "Project loading from repository was failed! Project with name \"{}\" in deploy configuration \"{}\" was skipped!",
-                        pd.getProjectName(),
-                        deploymentConfiguration.getName(),
-                        e);
+                    "Project loading from repository was failed! Project with name \"{}\" in deploy configuration \"{}\" was skipped!",
+                    pd.getProjectName(),
+                    deploymentConfiguration.getName(),
+                    e);
             }
         }
 

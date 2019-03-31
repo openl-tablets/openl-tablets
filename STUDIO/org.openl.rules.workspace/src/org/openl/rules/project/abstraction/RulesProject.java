@@ -27,10 +27,14 @@ public class RulesProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
 
     public RulesProject(UserWorkspace userWorkspace,
-            LocalRepository localRepository, FileData localFileData,
-            Repository designRepository, FileData designFileData, LockEngine lockEngine) {
-        super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
-                localFileData != null ? localFileData : designFileData);
+            LocalRepository localRepository,
+            FileData localFileData,
+            Repository designRepository,
+            FileData designFileData,
+            LockEngine lockEngine) {
+        super(userWorkspace.getUser(),
+            localFileData != null ? localRepository : designRepository,
+            localFileData != null ? localFileData : designFileData);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
@@ -117,11 +121,13 @@ public class RulesProject extends UserWorkspaceProject {
             for (FileData fileData : localRepository.list(localFolderName)) {
                 if (!localRepository.delete(fileData)) {
                     if (localRepository.check(fileData.getName()) != null) {
-                        throw new ProjectException("Can't close project because resource '" + fileData.getName() + "' is used");
+                        throw new ProjectException(
+                            "Can't close project because resource '" + fileData.getName() + "' is used");
                     }
                 }
             }
-            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
+            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder
+            // last time
             localRepository.getProjectState(localFolderName).notifyModified();
         } catch (IOException e) {
             throw new ProjectException("Not possible to read the directory", e);
@@ -144,7 +150,7 @@ public class RulesProject extends UserWorkspaceProject {
                 deleteFromLocalRepository();
             }
         } finally {
-          refresh();
+            refresh();
         }
     }
 
@@ -167,18 +173,17 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     /**
-     * Try to lock the project if it's not locked already.
-     * Doesn't overwrite lock info if the user was locked already.
+     * Try to lock the project if it's not locked already. Doesn't overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
      * @throws ProjectException if can't lock the project
      */
     public boolean tryLock() throws ProjectException {
-            if (isLocalOnly()) {
-                // No need to lock local only projects. Other users don't see it.
-                return true;
-            }
-            return lockEngine.tryLock(getName(), getUser().getUserName());
+        if (isLocalOnly()) {
+            // No need to lock local only projects. Other users don't see it.
+            return true;
+        }
+        return lockEngine.tryLock(getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
@@ -320,7 +325,8 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public ArtefactPath getArtefactPath() {
-        // Return artefact name inside the project including project name. In the case of project it's just project name.
+        // Return artefact name inside the project including project name. In the case of project it's just project
+        // name.
         if (isOpened()) {
             return super.getArtefactPath();
         } else {

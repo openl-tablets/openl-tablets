@@ -57,7 +57,7 @@ public class FormattersManagerTest {
 
     @Test
     public void testArray() {
-        Integer[] intArray = new Integer[]{12, 34};
+        Integer[] intArray = new Integer[] { 12, 34 };
         IFormatter formatter = FormattersManager.getFormatter(intArray);
         assertTrue(formatter instanceof ArrayFormatter);
     }
@@ -77,8 +77,8 @@ public class FormattersManagerTest {
         assertEquals("2", FormattersManager.format(BigDecimal.valueOf(2)));
         assertEquals("true", FormattersManager.format(true));
         assertEquals("1.2105263157894737", FormattersManager.format(23d / 19d));
-        assertEquals("07/12/1980", FormattersManager.format(new GregorianCalendar(1980,6,12).getTime()));
-        assertEquals("foo,bar", FormattersManager.format(new String[]{"foo", "bar"}));
+        assertEquals("07/12/1980", FormattersManager.format(new GregorianCalendar(1980, 6, 12).getTime()));
+        assertEquals("foo,bar", FormattersManager.format(new String[] { "foo", "bar" }));
         assertEquals("Object(id=0)[]", FormattersManager.format(new Object()));
         assertEquals("Arrays.ArrayList<String>{BAR, FOO}", FormattersManager.format(Arrays.asList("BAR", "FOO")));
     }

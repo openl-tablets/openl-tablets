@@ -10,7 +10,6 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 /**
  * Variation API runtime exception
  * 

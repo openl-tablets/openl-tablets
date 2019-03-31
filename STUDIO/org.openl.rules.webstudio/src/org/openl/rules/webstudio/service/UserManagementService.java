@@ -25,8 +25,11 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<User> users = userDao.getAllUsers();
         List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
         for (User user : users) {
-            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
+            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(),
+                user.getSurname(),
+                user.getLoginName(),
+                user.getPasswordHash(),
+                PrivilegesEvaluator.createPrivileges(user));
             resultUsers.add(resultUser);
         }
         return resultUsers;
@@ -36,10 +39,12 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<User> users = userDao.getAllUsers();
         List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
         for (User user : users) {
-            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
-            if (resultUser.hasPrivilege(Privileges.ADMIN.name())
-                    || resultUser.hasPrivilege(privilege)) {
+            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(),
+                user.getSurname(),
+                user.getLoginName(),
+                user.getPasswordHash(),
+                PrivilegesEvaluator.createPrivileges(user));
+            if (resultUser.hasPrivilege(Privileges.ADMIN.name()) || resultUser.hasPrivilege(privilege)) {
                 resultUsers.add(resultUser);
             }
         }

@@ -30,8 +30,12 @@ public final class PassCoder {
     }
 
     public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
-            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-            UnsupportedEncodingException, InvalidAlgorithmParameterException {
+                                                                        NoSuchPaddingException,
+                                                                        InvalidKeyException,
+                                                                        IllegalBlockSizeException,
+                                                                        BadPaddingException,
+                                                                        UnsupportedEncodingException,
+                                                                        InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToEncrypt)) {
             return "";
         }
@@ -46,8 +50,12 @@ public final class PassCoder {
     }
 
     public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
-            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-            UnsupportedEncodingException, InvalidAlgorithmParameterException {
+                                                                        NoSuchPaddingException,
+                                                                        InvalidKeyException,
+                                                                        IllegalBlockSizeException,
+                                                                        BadPaddingException,
+                                                                        UnsupportedEncodingException,
+                                                                        InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToDecrypt)) {
             return "";
         }
@@ -62,7 +70,7 @@ public final class PassCoder {
     }
 
     private static SecretKeySpec getKey(String privateKey) throws UnsupportedEncodingException,
-            NoSuchAlgorithmException {
+                                                           NoSuchAlgorithmException {
         byte[] key = privateKey.getBytes(encoding);
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         key = sha.digest(key);

@@ -25,8 +25,8 @@ public final class ProjectExportHelper {
     public static File export(WorkspaceUser user, AProject project) throws ProjectException {
         File zipFile = null;
         try {
-            String zipComment = "Project '" + project.getName() + "' version " + project.getFileData().getVersion()
-                    + "\nExported by " + user.getUserName();
+            String zipComment = "Project '" + project.getName() + "' version " + project.getFileData()
+                .getVersion() + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");
             packIntoZip(zipFile, project, zipComment);
@@ -40,7 +40,8 @@ public final class ProjectExportHelper {
         }
     }
 
-    private static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException, ProjectException {
+    private static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException,
+                                                                                     ProjectException {
         Collection<AProjectArtefact> artefacts = dir.getArtefacts();
         if (artefacts.isEmpty()) {
             return;
@@ -58,7 +59,8 @@ public final class ProjectExportHelper {
         }
     }
 
-    private static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException, ProjectException {
+    private static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException,
+                                                                                         ProjectException {
         ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
@@ -75,7 +77,8 @@ public final class ProjectExportHelper {
         zipOutputStream.closeEntry();
     }
 
-    private static void packIntoZip(File zipFile, AProject project, String zipComment) throws IOException, ProjectException {
+    private static void packIntoZip(File zipFile, AProject project, String zipComment) throws IOException,
+                                                                                       ProjectException {
         FileOutputStream fileOutputStream = null;
         ZipOutputStream zipOutputStream = null;
 
@@ -90,7 +93,8 @@ public final class ProjectExportHelper {
             } else {
                 FileItem fileItem;
                 if (project.isHistoric()) {
-                    fileItem = project.getRepository().readHistory(project.getFolderPath(), project.getFileData().getVersion());
+                    fileItem = project.getRepository()
+                        .readHistory(project.getFolderPath(), project.getFileData().getVersion());
                 } else {
                     fileItem = project.getRepository().read(project.getFolderPath());
                 }

@@ -42,13 +42,13 @@ public class AProjectResource extends AProjectArtefact {
 
     @Override
     public boolean isFolder() {
-    	return false;
+        return false;
     }
 
     @Override
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         super.update(artefact, user);
-        AProjectResource resource = (AProjectResource)artefact;
+        AProjectResource resource = (AProjectResource) artefact;
         setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
     }
 

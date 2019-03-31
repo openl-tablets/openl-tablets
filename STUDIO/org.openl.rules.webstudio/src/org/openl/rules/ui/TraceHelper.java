@@ -28,8 +28,8 @@ public class TraceHelper {
     private void cacheTree(ITracerObject treeNode) {
         traceTreeCache.put(traceTreeCache.size(), treeNode);
         if (treeNode instanceof RefToTracerNodeObject) {
-            //no need to add children nodes of reference node to the treeCache
-            //because they will be added from original node
+            // no need to add children nodes of reference node to the treeCache
+            // because they will be added from original node
             return;
         }
         Iterable<ITracerObject> children = treeNode.getChildren();

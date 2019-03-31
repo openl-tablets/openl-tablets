@@ -23,8 +23,7 @@ public final class AccessManager {
      * Inquires whether current user has specified privilege.
      *
      * @param authority privilege to check.
-     * @return <code>true</code> if current user has the privilege;
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if current user has the privilege; <code>false</code> otherwise.
      */
     public static boolean isGranted(GrantedAuthority authority) {
         String privilege = authority.getAuthority();
@@ -41,8 +40,8 @@ public final class AccessManager {
     }
 
     /**
-     * Sets static <code>accessDecisionManager</code> property for further use
-     * in <code>check</code> methods. It is used in the Spring configuration.
+     * Sets static <code>accessDecisionManager</code> property for further use in <code>check</code> methods. It is used
+     * in the Spring configuration.
      *
      * @param accessDecisionManager <code>AccessDecisionManager</code> instance.
      */

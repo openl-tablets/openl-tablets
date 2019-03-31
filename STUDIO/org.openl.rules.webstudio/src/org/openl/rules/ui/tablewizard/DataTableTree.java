@@ -15,8 +15,7 @@ public class DataTableTree {
     private UITree currentTreeNode;
 
     /**
-     * Root node for UI to build a tree. Will be initialized when
-     * {@link #setRoot(DataTableTreeNode)} is invoked
+     * Root node for UI to build a tree. Will be initialized when {@link #setRoot(DataTableTreeNode)} is invoked
      * 
      * @return root node
      */

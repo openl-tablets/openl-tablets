@@ -6,7 +6,6 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 
-
 public class RepositoryProjectVersionImpl implements ProjectVersion {
     private static final long serialVersionUID = -5156747482692477220L;
     public static final String DELIMETER = ".";
@@ -16,7 +15,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private String revision;
     private transient String versionName;
     private VersionInfo versionInfo;
-    
+
     private Map<String, Object> versionProperties;
     private String versionComment;
     private boolean deleted = false;
@@ -42,17 +41,19 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionInfo = versionInfo;
     }
 
-    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment,
+    public RepositoryProjectVersionImpl(CommonVersion version,
+            VersionInfo versionInfo,
+            String versionComment,
             Map<String, Object> versionProperties) {
         revision = version.getRevision();
         this.major = version.getMajor();
         this.minor = version.getMinor();
-        
+
         this.versionInfo = versionInfo;
         this.versionComment = versionComment;
         this.versionProperties = versionProperties;
     }
-    
+
     public RepositoryProjectVersionImpl() {
         this("0", null, false);
     }
@@ -69,7 +70,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
             return 0;
         }
 
-        /*Revision with #0 always should be at last place*/
+        /* Revision with #0 always should be at last place */
         if (revision.equals("0")) {
             return -1;
         }
@@ -118,11 +119,14 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
-                versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
-                        .toString();
+                versionName = new StringBuilder().append(major)
+                    .append(".")
+                    .append(minor)
+                    .append(".")
+                    .append(revision)
+                    .toString();
             } else {
-                versionName = new StringBuilder().append(revision)
-                        .toString();
+                versionName = new StringBuilder().append(revision).toString();
             }
         }
 
@@ -142,7 +146,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     public Map<String, Object> getVersionProperties() {
         return versionProperties;
     }
-    
+
     public void setVersionProperties(Map<String, Object> versionProperties) {
         this.versionProperties = versionProperties;
     }

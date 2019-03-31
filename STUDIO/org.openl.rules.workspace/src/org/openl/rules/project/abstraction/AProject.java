@@ -364,7 +364,7 @@ public class AProject extends AProjectFolder {
                         FileItem fileItem;
                         if (projectFrom.isHistoric()) {
                             fileItem = projectFrom.getRepository()
-                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                                .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
                             fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
@@ -416,7 +416,7 @@ public class AProject extends AProjectFolder {
             FileItem fileItem;
             if (projectFrom.isHistoric()) {
                 fileItem = projectFrom.getRepository()
-                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
             } else {
                 fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
             }
@@ -434,8 +434,7 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws
-                                                                                           IOException,
+    private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws IOException,
                                                                                            ProjectException {
         if ((artefact instanceof AProjectResource)) {
             AProjectResource resource = (AProjectResource) artefact;
@@ -461,9 +460,8 @@ public class AProject extends AProjectFolder {
     }
 
     /**
-     * Override folder structure.
-     * For example FileSystemRepository by default contains projects as folders. But sometimes it can contain
-     * projects as zips (See an example in FileSystemDataSource).
+     * Override folder structure. For example FileSystemRepository by default contains projects as folders. But
+     * sometimes it can contain projects as zips (See an example in FileSystemDataSource).
      */
     public void overrideFolderStructure(Boolean folderStructure) {
         this.folderStructure = folderStructure;

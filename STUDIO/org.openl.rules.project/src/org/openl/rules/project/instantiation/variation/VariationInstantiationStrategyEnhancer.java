@@ -17,8 +17,8 @@ import java.util.Map;
 /**
  * Auxiliary class for support of variations.
  * <p/>
- * It uses specified service class or generated one to map methods with injected
- * variations to original methods of compiled rules.
+ * It uses specified service class or generated one to map methods with injected variations to original methods of
+ * compiled rules.
  *
  * @author PUdalau, Marat Kamalov
  */
@@ -29,8 +29,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
     /**
      * Constructs new instance of variations enhancer.
      *
-     * @param instantiationStrategy instantiation strategy which used to
-     *                              instantiate original service
+     * @param instantiationStrategy instantiation strategy which used to instantiate original service
      */
     public VariationInstantiationStrategyEnhancer(RulesInstantiationStrategy instantiationStrategy) {
         super(instantiationStrategy);
@@ -50,15 +49,15 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
             return true;
         } else {
-            throw new ValidationServiceClassException("Variation result return type and variation pack parameter is required in each variation method!");
+            throw new ValidationServiceClassException(
+                "Variation result return type and variation pack parameter is required in each variation method!");
         }
     }
 
     @Override
     protected Class<?> undecorateServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
         try {
-            return VariationInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass,
-                    classLoader);
+            return VariationInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass, classLoader);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to remove variation methods.", e);
         }
@@ -73,16 +72,15 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
     @Override
     protected InvocationHandler makeInvocationHandler(Object originalInstance) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
-                getOriginalInstantiationStrategy().getInstanceClass());
+            getOriginalInstantiationStrategy().getInstanceClass());
         return new VariationInstantiationStrategyEnhancerInvocationHandler(methodsMap, originalInstance);
     }
 
     /**
-     * Gets methods map where keys are interface class methods and values -
-     * original service class methods.
+     * Gets methods map where keys are interface class methods and values - original service class methods.
      *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass   original service class
+     * @param serviceClass original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) throws Exception {
@@ -93,11 +91,13 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         Method[] serviceMethods = interfaceClass.getDeclaredMethods();
         for (Method serviceMethod : serviceMethods) {
             try {
-                Method originalMethod = VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(serviceClass, serviceMethod);
+                Method originalMethod = VariationInstantiationStrategyEnhancerHelper
+                    .getMethodForDecoration(serviceClass, serviceMethod);
                 methodMap.put(serviceMethod, originalMethod);
             } catch (Exception e) {
-                throw new RulesInstantiationException("Failed to find corresrponding method in original class for method '" + MethodUtil.printMethod(serviceMethod.getName() + "'!",
-                        serviceMethod.getParameterTypes()));
+                throw new RulesInstantiationException(
+                    "Failed to find corresrponding method in original class for method '" + MethodUtil
+                        .printMethod(serviceMethod.getName() + "'!", serviceMethod.getParameterTypes()));
             }
         }
 

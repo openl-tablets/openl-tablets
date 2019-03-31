@@ -32,7 +32,7 @@ import org.openl.util.StringUtils;
  */
 public class DatatypeTableCreationWizard extends TableCreationWizard {
 
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String technicalName;
 
@@ -43,7 +43,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
-
 
     public String getTechnicalName() {
         return technicalName;
@@ -91,11 +90,11 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        
+
         List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
-        
+
         List<String> datatypes = new ArrayList<>(types.size());
         for (IOpenClass datatype : types) {
             if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
@@ -107,7 +106,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
                 datatypes.add(datatype.getDisplayName(INamedThing.SHORT));
             }
         }
-        
+
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
         Collection<String> allClasses = domainTree.getAllClasses();
         for (IOpenClass type : importedClasses) {

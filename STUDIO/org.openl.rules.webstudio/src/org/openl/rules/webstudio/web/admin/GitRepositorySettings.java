@@ -57,9 +57,9 @@ public class GitRepositorySettings extends RepositorySettings {
         String type = getTypePrefix(repositoryMode);
 
         String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
-        String defaultLocalPath = localPath != null ?
-                                  localPath :
-                                  System.getProperty("webstudio.home") + File.separator + type + "-repository";
+        String defaultLocalPath = localPath != null ? localPath
+                                                    : System.getProperty(
+                                                        "webstudio.home") + File.separator + type + "-repository";
 
         uri = configManager.getStringProperty(URI);
         login = configManager.getStringProperty(LOGIN);
@@ -192,19 +192,17 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(
-                URI,
-                LOGIN,
-                PASSWORD,
-                USER_DISPLAY_NAME,
-                USER_EMAIL,
-                LOCAL_REPOSITORY_PATH,
-                BRANCH,
-                TAG_PREFIX,
-                LISTENER_TIMER_PERIOD,
-                COMMENT_PATTERN,
-                SETTINGS_PATH
-        );
+        configurationManager.removeProperties(URI,
+            LOGIN,
+            PASSWORD,
+            USER_DISPLAY_NAME,
+            USER_EMAIL,
+            LOCAL_REPOSITORY_PATH,
+            BRANCH,
+            TAG_PREFIX,
+            LISTENER_TIMER_PERIOD,
+            COMMENT_PATTERN,
+            SETTINGS_PATH);
         load(configurationManager);
     }
 

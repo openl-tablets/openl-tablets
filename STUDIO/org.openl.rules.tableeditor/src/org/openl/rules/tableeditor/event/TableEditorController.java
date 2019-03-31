@@ -47,8 +47,7 @@ public class TableEditorController extends BaseTableEditorController {
     private static final String ERROR_SET_STYLE = "Failed to set style.";
     private static final String ERROR_INSERT_ROW = "Can not insert row.";
     private static final String ERROR_INSERT_COLUMN = "Can not insert column.";
-    private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
-            + " Please close module Excel file and try again.";
+    private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE + " Please close module Excel file and try again.";
 
     public String insertRowBefore() {
         int row = getRow();
@@ -194,8 +193,7 @@ public class TableEditorController extends BaseTableEditorController {
         int col = getCol();
         String editorId = getEditorId();
         TableEditorModel editorModel = startEditing(editorId);
-        if (editorModel != null
-                && row >= 0 && col >= 0) {
+        if (editorModel != null && row >= 0 && col >= 0) {
             editorModel.removeRows(1, row, col);
             return pojo2json(new TableModificationResponse(render(editorId), editorModel));
         }
@@ -284,8 +282,7 @@ public class TableEditorController extends BaseTableEditorController {
             }
             formatter = new FormulaFormatter(formulaResultFormatter);
 
-        } else if (ICellEditor.CE_TEXT.equals(cellEditor)
-                || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
+        } else if (ICellEditor.CE_TEXT.equals(cellEditor) || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
             formatter = new DefaultFormatter();
         } else if (cellEditor == null) {
             // Format must be same as in DateEditor.js
@@ -314,8 +311,8 @@ public class TableEditorController extends BaseTableEditorController {
             if (StringUtils.isBlank(value)) {
                 ITableProperties props = editorModel.getTable().getProperties();
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
-                if (InheritanceLevel.MODULE.equals(inheritanceLevel)
-                        || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
+                if (InheritanceLevel.MODULE.equals(inheritanceLevel) || InheritanceLevel.CATEGORY
+                    .equals(inheritanceLevel)) {
                     String inheritedValue = props.getPropertyValueAsString(name);
                     response.setInheritedValue(inheritedValue);
                 }
@@ -450,11 +447,9 @@ public class TableEditorController extends BaseTableEditorController {
                 short[] color = parseColor(colorStr);
                 short[] currentColor = style != null ? style.getFillForegroundColor() : null;
 
-                if (color.length == 3 &&
-                        (currentColor == null ||
-                                (color[0] != currentColor[0] || // red
-                                        color[1] != currentColor[1] || // green
-                                        color[2] != currentColor[2]))) { // blue
+                if (color.length == 3 && (currentColor == null || (color[0] != currentColor[0] || // red
+                        color[1] != currentColor[1] || // green
+                        color[2] != currentColor[2]))) { // blue
                     try {
                         editorModel.setFillColor(row, col, color);
                     } catch (Exception e) {
@@ -482,11 +477,9 @@ public class TableEditorController extends BaseTableEditorController {
                 short[] color = parseColor(colorStr);
                 short[] currentColor = font != null ? font.getFontColor() : null;
 
-                if (color.length == 3 &&
-                        (currentColor == null ||
-                                (color[0] != currentColor[0] || // red
-                                        color[1] != currentColor[1] || // green
-                                        color[2] != currentColor[2]))) { // blue
+                if (color.length == 3 && (currentColor == null || (color[0] != currentColor[0] || // red
+                        color[1] != currentColor[1] || // green
+                        color[2] != currentColor[2]))) { // blue
                     try {
                         editorModel.setFontColor(row, col, color);
                     } catch (Exception e) {
@@ -552,19 +545,20 @@ public class TableEditorController extends BaseTableEditorController {
         TableModificationResponse response = new TableModificationResponse(null, editorModel);
         if (hasEmptyRow(editorModel)) {
             response.setMessage("Sorry! Can't save the table with empty row inside.");
-        } else try {
-            if (beforeSave()) {
-                String newId = editorModel.save();
-                afterSave(newId);
-                response.setId(newId);
+        } else
+            try {
+                if (beforeSave()) {
+                    String newId = editorModel.save();
+                    afterSave(newId);
+                    response.setId(newId);
+                }
+            } catch (IOException e) {
+                log.warn(ERROR_SAVE_TABLE, e);
+                response.setMessage(ERROR_OPENED_EXCEL);
+            } catch (Exception e) {
+                log.error(ERROR_SAVE_TABLE, e);
+                response.setMessage(ERROR_SAVE_TABLE);
             }
-        } catch (IOException e) {
-            log.warn(ERROR_SAVE_TABLE, e);
-            response.setMessage(ERROR_OPENED_EXCEL);
-        } catch (Exception e) {
-            log.error(ERROR_SAVE_TABLE, e);
-            response.setMessage(ERROR_SAVE_TABLE);
-        }
         return pojo2json(response);
     }
 
@@ -611,10 +605,9 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         String afterSaveAction = editorModel.getAfterSaveAction();
         if (afterSaveAction != null) {
-            FacesUtils.invokeMethodExpression(
-                    afterSaveAction,
-                    StringUtils.isNotBlank(newId) ? new String[]{newId} : null,
-                    StringUtils.isNotBlank(newId) ? new Class[]{String.class} : null);
+            FacesUtils.invokeMethodExpression(afterSaveAction,
+                StringUtils.isNotBlank(newId) ? new String[] { newId } : null,
+                StringUtils.isNotBlank(newId) ? new Class[] { String.class } : null);
         }
 
         removeEditorModel();
@@ -730,8 +723,10 @@ public class TableEditorController extends BaseTableEditorController {
             super(null, null, model);
         }
 
-        public PropertyModificationResponse(String response, String status, TableEditorModel model,
-                                            String inheritedValue) {
+        public PropertyModificationResponse(String response,
+                String status,
+                TableEditorModel model,
+                String inheritedValue) {
             super(response, status, model);
             this.inheritedValue = inheritedValue;
         }

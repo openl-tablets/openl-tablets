@@ -78,10 +78,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             String deploymentsTreeId = "2nd - Deploy Configurations";
             String dpName = "Deploy Configurations";
-            deploymentRepository = new TreeRepository(deploymentsTreeId, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+            deploymentRepository = new TreeRepository(deploymentsTreeId,
+                dpName,
+                filter,
+                UiConst.TYPE_DEPLOYMENT_REPOSITORY);
             deploymentRepository.setData(null);
 
-            //Such keys are used for correct order of repositories.
+            // Such keys are used for correct order of repositories.
             root.add(rulesRepository);
             root.add(deploymentRepository);
 
@@ -121,9 +124,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
         } catch (Exception e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            String message = "Can't build repository tree. " + (rootCause == null ?
-                                                                e.getMessage() :
-                                                                rootCause.getMessage());
+            String message = "Can't build repository tree. " + (rootCause == null ? e.getMessage()
+                                                                                  : rootCause.getMessage());
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
             setSelectedNode(rulesRepository);
@@ -300,8 +302,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<>(event.getNewSelection());
-        
-        /*If there are no selected nodes*/
+
+        /* If there are no selected nodes */
         if (selection.isEmpty()) {
             return;
         }
@@ -357,7 +359,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
             AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
             if (artefact != null) {
-                AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact : artefact.getProject();
+                AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
+                                                                            : artefact.getProject();
 
                 String name = project.getName();
                 try {
@@ -377,7 +380,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    private void invalidateSelectionIfDeleted(String name, Collection<? extends UserWorkspaceProject> existingProjects) {
+    private void invalidateSelectionIfDeleted(String name,
+            Collection<? extends UserWorkspaceProject> existingProjects) {
         UserWorkspaceProject existing = null;
         for (UserWorkspaceProject existingProject : existingProjects) {
             if (name.equals(existingProject.getName())) {
@@ -404,7 +408,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     // For any project
     public boolean getCanEdit() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
+            .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
 
@@ -430,7 +435,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(DELETE_DEPLOYMENT);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
+            DELETE_DEPLOYMENT);
     }
 
     public boolean getCanSaveDeployment() {
@@ -459,7 +465,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(DELETE_PROJECTS);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
+            DELETE_PROJECTS);
     }
 
     public boolean getCanErase() {
@@ -468,7 +475,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {
+        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
+            .isOpenedForEditing() || selectedProject.isOpened()) {
             return false;
         }
 
@@ -530,8 +538,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return getSelectedProject().isDeleted() && isGranted(EDIT_PROJECTS);
     }
 
-
-    //for any project artefact
+    // for any project artefact
     public boolean getCanModify() {
         AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
@@ -540,7 +547,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return (project.isOpenedForEditing() && isGranted(EDIT_PROJECTS));
     }
 
-    //for deployment project
+    // for deployment project
     public boolean getCanDeploy() {
         return !getSelectedProject().isModified() && isGranted(DEPLOY_PROJECTS);
     }
@@ -571,10 +578,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     /**
-     * Returns true if both are true:
-     * 1) Old project version is opened
-     * and
-     * 2) project isn't modified yet.
+     * Returns true if both are true: 1) Old project version is opened and 2) project isn't modified yet.
      *
      * Otherwise return false
      */

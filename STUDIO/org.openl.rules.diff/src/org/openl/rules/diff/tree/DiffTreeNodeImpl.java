@@ -2,7 +2,6 @@ package org.openl.rules.diff.tree;
 
 import java.util.List;
 
-
 public class DiffTreeNodeImpl implements DiffTreeNode {
     private List<DiffTreeNode> children;
     private DiffElement[] elements;

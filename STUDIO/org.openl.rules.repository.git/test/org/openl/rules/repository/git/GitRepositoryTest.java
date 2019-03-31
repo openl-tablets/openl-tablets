@@ -51,10 +51,7 @@ public class GitRepositoryTest {
             // create initial commit in master
             createNewFile(parent, "file-in-master", "root");
             git.add().addFilepattern(".").call();
-            RevCommit commit = git.commit()
-                    .setMessage("Initial")
-                    .setCommitter("user1", "user1@mail.to")
-                    .call();
+            RevCommit commit = git.commit().setMessage("Initial").setCommitter("user1", "user1@mail.to").call();
             addTag(git, commit, 1);
 
             // create first commit in test branch
@@ -66,9 +63,9 @@ public class GitRepositoryTest {
             File file2 = createNewFile(rulesFolder, "file2", "Hello!");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                    .setMessage("Initial commit in test branch")
-                    .setCommitter("user1", "user1@mail.to")
-                    .call();
+                .setMessage("Initial commit in test branch")
+                .setCommitter("user1", "user1@mail.to")
+                .call();
             addTag(git, commit, 2);
 
             // create second commit
@@ -76,10 +73,10 @@ public class GitRepositoryTest {
             createNewFile(new File(rulesFolder, "folder"), "file3", "In folder");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                    .setAll(true)
-                    .setMessage("Second modification")
-                    .setCommitter("user2", "user2@gmail.to")
-                    .call();
+                .setAll(true)
+                .setMessage("Second modification")
+                .setCommitter("user2", "user2@gmail.to")
+                .call();
             addTag(git, commit, 3);
 
             // create commit in master
@@ -87,9 +84,9 @@ public class GitRepositoryTest {
             createNewFile(rulesFolder, "file1master", "root");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                    .setMessage("Additional commit in master")
-                    .setCommitter("user1", "user1@mail.to")
-                    .call();
+                .setMessage("Additional commit in master")
+                .setCommitter("user1", "user1@mail.to")
+                .call();
             addTag(git, commit, 4);
         }
 
@@ -164,7 +161,7 @@ public class GitRepositoryTest {
         assertEquals("Rules_2", file2Rev2.getVersion());
         assertEquals("user1", file2Rev2.getAuthor());
         assertEquals("Initial commit in test branch", file2Rev2.getComment());
-        assertEquals("Expected file content: 'Hello!'",6, file2Rev2.getSize());
+        assertEquals("Expected file content: 'Hello!'", 6, file2Rev2.getSize());
 
         files = repo.listFiles("rules/project1/", "Rules_3");
         assertNotNull(files);
@@ -180,7 +177,7 @@ public class GitRepositoryTest {
         assertEquals("Rules_3", file2Rev3.getVersion());
         assertEquals("user2", file2Rev3.getAuthor());
         assertEquals("Second modification", file2Rev3.getComment());
-        assertEquals("Expected file content: 'Hello World!'",12, file2Rev3.getSize());
+        assertEquals("Expected file content: 'Hello World!'", 12, file2Rev3.getSize());
 
         FileData file3Rev3 = find(files, "rules/project1/folder/file3");
         assertEquals("Rules_3", file3Rev3.getVersion());
@@ -266,9 +263,8 @@ public class GitRepositoryTest {
     @Test
     public void saveFolder() throws IOException {
         List<FileChange> changes = Arrays.asList(
-                new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                new FileChange("rules/project1/file2", IOUtils.toInputStream("Modified"))
-        );
+            new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+            new FileChange("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -328,9 +324,7 @@ public class GitRepositoryTest {
         assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
-        assertEquals("Actual project changes must be 5.",
-                5,
-                repo.listHistory(projectPath).size());
+        assertEquals("Actual project changes must be 5.", 5, repo.listHistory(projectPath).size());
 
         // Erase the project
         toDelete.setName(projectPath);
@@ -385,8 +379,10 @@ public class GitRepositoryTest {
 
     @Test
     public void readHistory() throws IOException {
-        assertEquals("Hello!", IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_2").getStream()));
-        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_3").getStream()));
+        assertEquals("Hello!",
+            IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_2").getStream()));
+        assertEquals("Hello World!",
+            IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_3").getStream()));
         assertNull(repo.readHistory("rules/project1/file2", "Rules_1"));
     }
 
@@ -506,16 +502,18 @@ public class GitRepositoryTest {
             FileData saved2;
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 saved2 = repository2.save(createFileData("rules/project-second/file2", text),
-                        IOUtils.toInputStream(text));
+                    IOUtils.toInputStream(text));
             }
 
             // First user doesn't suspect that second user already committed his changes
             FileData saved1 = repository1.save(createFileData("rules/project-first/file1", text),
-                    IOUtils.toInputStream(text));
+                IOUtils.toInputStream(text));
 
             // Check that the changes of both users are persist and merged
             assertNotEquals("Versions of two changes must be different.", saved1.getVersion(), saved2.getVersion());
-            assertEquals("5 files existed and 2 files must be added (must be 7 files in total).", 7, repository1.list("").size());
+            assertEquals("5 files existed and 2 files must be added (must be 7 files in total).",
+                7,
+                repository1.list("").size());
             assertEquals("Rules_6", saved1.getVersion());
             assertEquals("Rules_5", saved2.getVersion());
         }

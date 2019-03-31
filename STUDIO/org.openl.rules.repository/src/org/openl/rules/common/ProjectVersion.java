@@ -9,6 +9,6 @@ public interface ProjectVersion extends Serializable, CommonVersion {
     boolean isDeleted();
 
     VersionInfo getVersionInfo();
-    
+
     Map<String, Object> getVersionProperties();
 }

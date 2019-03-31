@@ -90,14 +90,12 @@ public class TopClassOpenMethodWrapperCacheTest {
         assertNotNull(openClass3);
         assertNotNull(m3);
 
-
         // Check when a class can be GC-ed, but method is still used
         openClass3 = null;
         gc();
         assertEquals(0, cache.cache.size());
         assertNull(openClass3);
         assertNotNull(m3);
-
 
         m3 = null;
         gc();

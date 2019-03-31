@@ -24,7 +24,7 @@ public class TableViewMenuBean {
     public TableViewMenuBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        filterHolder  = studio.getModel().getFilterHolder();
+        filterHolder = studio.getModel().getFilterHolder();
         String filterType = FacesUtils.getRequestParameter("filterType");
         if (filterType != null) {
             int ftype = Integer.parseInt(filterType);
@@ -43,10 +43,10 @@ public class TableViewMenuBean {
     }
 
     private void initRequestParams() {
-        String[] menuParams = {"transparency", "filterType"};
+        String[] menuParams = { "transparency", "filterType" };
         requestParams = WebTool.listRequestParams(FacesUtils.getRequest(), menuParams);
 
-        String[] menuParamsView = {"transparency", "filterType", "view"};
+        String[] menuParamsView = { "transparency", "filterType", "view" };
         requestParamsView = WebTool.listRequestParams(FacesUtils.getRequest(), menuParamsView);
     }
 

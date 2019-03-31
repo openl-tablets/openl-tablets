@@ -10,27 +10,25 @@ import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
 public class FileView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = {
-        new WorkbookTreeNodeBuilder(),
-        new WorksheetTreeNodeBuilder(),
-        new OpenMethodInstancesGroupTreeNodeBuilder(),
-        new TableInstanceTreeNodeBuilder(),
-        new TableVersionTreeNodeBuilder()
-    };
+    private final BaseTableTreeNodeBuilder[] sorters = { new WorkbookTreeNodeBuilder(),
+            new WorksheetTreeNodeBuilder(),
+            new OpenMethodInstancesGroupTreeNodeBuilder(),
+            new TableInstanceTreeNodeBuilder(),
+            new TableVersionTreeNodeBuilder() };
 
     @Override
     public String getName() {
-    	return "file";
+        return "file";
     }
-    
+
     @Override
     public String getDisplayName() {
-    	return "File";
+        return "File";
     }
 
     @Override
     public String getDescription() {
-    	return "Organize projects by physical location";
+        return "Organize projects by physical location";
     }
 
     @Override

@@ -20,8 +20,7 @@ import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
- * Request scope managed bean providing logic for trace tree page of OpenL
- * Studio.
+ * Request scope managed bean providing logic for trace tree page of OpenL Studio.
  */
 @Service
 @Path("/trace/")

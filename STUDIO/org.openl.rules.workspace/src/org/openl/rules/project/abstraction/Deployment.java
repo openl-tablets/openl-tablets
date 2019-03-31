@@ -16,8 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class representing deployment from ProductionRepository. Deployment is set of
- * logically grouped rules projects.
+ * Class representing deployment from ProductionRepository. Deployment is set of logically grouped rules projects.
  *
  * @author PUdalau
  */

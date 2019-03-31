@@ -3,11 +3,9 @@ package org.openl.rules.datatype.binding;
 import org.openl.rules.table.*;
 
 /**
- * Default implementation for IGridTable.
- * Is based on the two-dimensional array, the analog of the grid.
+ * Default implementation for IGridTable. Is based on the two-dimensional array, the analog of the grid.
  *
- * The purpose of the implementation: use it for test, without creating
- * underlying excel sheet.
+ * The purpose of the implementation: use it for test, without creating underlying excel sheet.
  *
  * Supports merged cells horizontally and vertically.
  *
@@ -119,8 +117,7 @@ public class MockGridTable extends AGridTable {
             if (nextRowValue == null) {
                 i++;
                 row++;
-            }
-            else {
+            } else {
                 return i;
             }
         }
@@ -136,13 +133,12 @@ public class MockGridTable extends AGridTable {
      */
     private int rightEmptyCells(int column, int row) {
         int i = 0;
-        while(column + 1 < getWidth()) { // Last Column in the row
+        while (column + 1 < getWidth()) { // Last Column in the row
             Object next = values[row][column + 1];
             if (next == null) {
                 i++;
                 column++;
-            }
-            else {
+            } else {
                 return i;
             }
 
@@ -185,9 +181,7 @@ public class MockGridTable extends AGridTable {
     }
 
     /**
-     * Stub implementation for the IGrid
-     * just getCell is implemented
-     * to avoid NPE
+     * Stub implementation for the IGrid just getCell is implemented to avoid NPE
      */
     private class TestGrid extends AGrid {
 

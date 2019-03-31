@@ -18,7 +18,9 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies1() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test1/module").setExecutionMode(false).build();
+            .setProject("test-resources/dependencies/test1/module")
+            .setExecutionMode(false)
+            .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
 
@@ -31,7 +33,9 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies2() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test2/module").setExecutionMode(false).build();
+            .setProject("test-resources/dependencies/test2/module")
+            .setExecutionMode(false)
+            .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Object instance = factory.newInstance();

@@ -14,16 +14,27 @@ public class AliasDatatypeTest {
 
     public interface ITest {
         int test1(String state);
+
         int test2(int age);
+
         int test3(IntRange age);
+
         int method1();
+
         int method2();
+
         boolean method3(int z);
+
         String method4(String x);
+
         String method5(String x);
+
         int testStringAliasType(String state);
+
         int testAliasTypeAsArrays(String state);
+
         int testIntAliasType(int i);
+
         int testIntRangeAliasType2(int i);
     }
 

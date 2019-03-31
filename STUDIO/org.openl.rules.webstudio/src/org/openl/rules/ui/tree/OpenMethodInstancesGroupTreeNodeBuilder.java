@@ -71,7 +71,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode;
     }
-    
+
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
@@ -125,7 +125,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
             Object nodeObject = makeObject(tableSyntaxNode);
 
             String[] displayNames = new String[3];
-            for(int k = 0; k < displayNames.length; k++){
+            for (int k = 0; k < displayNames.length; k++) {
                 displayNames[k] = folderName + keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);

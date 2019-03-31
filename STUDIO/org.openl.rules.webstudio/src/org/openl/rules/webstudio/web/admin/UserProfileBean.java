@@ -43,10 +43,10 @@ public class UserProfileBean extends UsersBean {
     private String currentPassword;
     private String userPassword;
 
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String userFirstName;
 
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String userLastName;
 
     public UserProfileBean() {
@@ -66,7 +66,7 @@ public class UserProfileBean extends UsersBean {
                 user = userManagementService.loadUserByUsername(getUsername());
             } catch (UsernameNotFoundException e) {
                 log.warn("User details for user '" + getUsername() + "' can't be retrieved.");
-                user = new SimpleUser(null, null, getUsername(), null, Collections.<Privilege>emptyList());
+                user = new SimpleUser(null, null, getUsername(), null, Collections.<Privilege> emptyList());
             }
         }
         setFirstName(user.getFirstName());
@@ -120,7 +120,11 @@ public class UserProfileBean extends UsersBean {
             userLastName = getLastName();
         }
 
-        simpleUser = new SimpleUser(getUserFirstName(), getUserLastName(), getUsername(), currentPassword, getPriveleges());
+        simpleUser = new SimpleUser(getUserFirstName(),
+            getUserLastName(),
+            getUsername(),
+            currentPassword,
+            getPriveleges());
         userManagementService.updateUser(simpleUser);
 
         Authentication authentication = currentUserInfo.getAuthentication();
@@ -138,8 +142,7 @@ public class UserProfileBean extends UsersBean {
     }
 
     /**
-     * Validates newPassword and confirmPassword on identity. If newPassword
-     * isEmty, then validation isn't needed
+     * Validates newPassword and confirmPassword on identity. If newPassword isEmty, then validation isn't needed
      */
     public void passwordsValidator(FacesContext context, UIComponent component, Object value) {
         newPassword = (String) value;

@@ -2,7 +2,6 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
-
 public class SimpleGroup implements Group {
 
     private static final long serialVersionUID = 1L;

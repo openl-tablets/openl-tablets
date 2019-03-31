@@ -51,12 +51,12 @@ public class RulesDeploy_v5_17 {
     }
 
     public String getVersion() {
-		return version;
-	}
+        return version;
+    }
 
     public void setVersion(String version) {
-		this.version = version;
-	}
+        this.version = version;
+    }
 
     public Boolean isProvideRuntimeContext() {
         return isProvideRuntimeContext;

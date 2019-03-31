@@ -28,7 +28,7 @@ public class StringCastsTest {
 
     @Before
     public void before() {
-        factory  = new CastFactory();
+        factory = new CastFactory();
         factory.setMethodFactory(JavaOpenClass.getOpenClass(StringOperators.class));
     }
 

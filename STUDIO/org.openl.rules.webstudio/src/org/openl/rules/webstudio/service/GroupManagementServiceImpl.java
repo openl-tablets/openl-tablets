@@ -83,7 +83,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
                     // Persisting group should not include itself
                     includedGroups.add(includedGroup);
                 } else {
-                    // Save all privileges of itself persisting group 
+                    // Save all privileges of itself persisting group
                     Set<String> includedPrivileges = includedGroup.getPrivileges();
                     if (includedPrivileges != null) {
                         privileges.addAll(includedPrivileges);

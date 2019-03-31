@@ -13,35 +13,35 @@ import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
  */
 public class SimpleRowExtractorFactory {
 
-	/**
-	 * Creates an new instance of {@link SimpleRowExtractor}
-	 */
-	public static RowExtractor<SimpleStep> newInstance(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
-		return new SimpleRowExtractor(columnExtractors);
-	}
+    /**
+     * Creates an new instance of {@link SimpleRowExtractor}
+     */
+    public static RowExtractor<SimpleStep> newInstance(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
+        return new SimpleRowExtractor(columnExtractors);
+    }
 
-	/**
-	 * Extracts simple (non-compound) rows
-	 * 
-	 * @author tkrivickas
-	 * 
-	 */
-	static class SimpleRowExtractor extends RowExtractor<SimpleStep> {
+    /**
+     * Extracts simple (non-compound) rows
+     * 
+     * @author tkrivickas
+     * 
+     */
+    static class SimpleRowExtractor extends RowExtractor<SimpleStep> {
 
-		SimpleRowExtractor(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
-			super(columnExtractors);
-		}
+        SimpleRowExtractor(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
+            super(columnExtractors);
+        }
 
-		@Override
-		protected SimpleStep makeRowInstance() {
-			return new SimpleStep();
-		}
+        @Override
+        protected SimpleStep makeRowInstance() {
+            return new SimpleStep();
+        }
 
-		@Override
-		protected SimpleStep afterExtract(SimpleStep step) {
-		    return step;
-		}
+        @Override
+        protected SimpleStep afterExtract(SimpleStep step) {
+            return step;
+        }
 
-	}
+    }
 
 }

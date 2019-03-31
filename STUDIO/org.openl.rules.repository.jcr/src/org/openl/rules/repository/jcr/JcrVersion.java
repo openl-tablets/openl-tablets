@@ -26,10 +26,10 @@ public class JcrVersion implements RVersion {
     private CommonVersionImpl version;
 
     protected static void create(Node node) throws RepositoryException {
-        //node.setProperty(ArtefactProperties.PROP_VERSION, 0);
+        // node.setProperty(ArtefactProperties.PROP_VERSION, 0);
         long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
         node.setProperty(ArtefactProperties.PROP_VERSION, l);
-        
+
         node.setProperty(ArtefactProperties.PROP_REVISION, 0);
     }
 
@@ -120,7 +120,7 @@ public class JcrVersion implements RVersion {
             major = MAX_MM_INT;
             minor = MAX_MM_INT;
         }
-        
+
         try {
             revision = node.getProperty(ArtefactProperties.PROP_REVISION).getLong();
         } catch (RepositoryException e) {
@@ -163,7 +163,7 @@ public class JcrVersion implements RVersion {
 
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
-    
+
     @Override
     public int getMajor() {
         return version.getMajor();

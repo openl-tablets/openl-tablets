@@ -39,19 +39,22 @@ public class CellStylesCountTest {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
-        assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
+        assertTrue("Styles count should be less than " + MAX_STYLES,
+            wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 
     @Test
     public void testTableBuilder() throws Exception {
-        DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
+        DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(
+            new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
 
         builder.beginTable(DatatypeAliasTableBuilder.MIN_WIDTH, TableBuilder.HEADER_HEIGHT);
         builder.writeHeader("a1", "a2");
         builder.writeValue("value");
         builder.endTable();
 
-        assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
+        assertTrue("Styles count should be less than " + MAX_STYLES,
+            wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 
     @Test
@@ -59,7 +62,8 @@ public class CellStylesCountTest {
         Cell cellFrom = PoiExcelHelper.getOrCreateCell(0, 0, new XlsSheetSourceCodeModule(0, wbSrc).getSheet());
 
         PoiExcelHelper.cloneStyleFrom(cellFrom);
-        assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
+        assertTrue("Styles count should be less than " + MAX_STYLES,
+            wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 
     @Test
@@ -71,7 +75,8 @@ public class CellStylesCountTest {
         writer.setCellToWrite(PoiExcelHelper.getOrCreateCell(0, 0, sheetSource.getSheet()));
         writer.setValueToWrite(new Date());
         writer.writeCellValue();
-        assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
+        assertTrue("Styles count should be less than " + MAX_STYLES,
+            wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 
     @Test
@@ -79,6 +84,7 @@ public class CellStylesCountTest {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         new CellStyleCreator(grid).getCellStyle(null);
-        assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
+        assertTrue("Styles count should be less than " + MAX_STYLES,
+            wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 }

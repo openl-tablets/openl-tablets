@@ -14,8 +14,6 @@ import static junit.framework.TestCase.assertNull;
  */
 public class DatatypeSorterTest {
 
-
-
     @Test
     public void testOrderDatatypes_Inheritance_Null() {
         assertNull(DatatypesSorter.sort(null, null));
@@ -32,17 +30,23 @@ public class DatatypeSorterTest {
         String[][] independent = new String[1][1];
         independent[0][0] = "Datatype Independent";
 
-        TableSyntaxNode[] ordered = DatatypesSorter.sort(
-                new TableSyntaxNode[]{
-                        getTableSyntaxNode(child),
+        TableSyntaxNode[] ordered = DatatypesSorter
+            .sort(
+                new TableSyntaxNode[] { getTableSyntaxNode(child),
                         getTableSyntaxNode(independent),
-                        getTableSyntaxNode(parent)},
+                        getTableSyntaxNode(parent) },
                 null);
 
         assertEquals(3, ordered.length);
-        assertEquals("Parent should be compiled first", "Datatype TypeParent", ordered[0].getHeader().getModule().getCode());
-        assertEquals("Child position goes after parent", "Datatype TypeChild extends TypeParent", ordered[1].getHeader().getModule().getCode());
-        assertEquals("Independent datatype position is not changed", "Datatype Independent", ordered[2].getHeader().getModule().getCode());
+        assertEquals("Parent should be compiled first",
+            "Datatype TypeParent",
+            ordered[0].getHeader().getModule().getCode());
+        assertEquals("Child position goes after parent",
+            "Datatype TypeChild extends TypeParent",
+            ordered[1].getHeader().getModule().getCode());
+        assertEquals("Independent datatype position is not changed",
+            "Datatype Independent",
+            ordered[2].getHeader().getModule().getCode());
     }
 
     @Test
@@ -71,11 +75,11 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = DatatypesSorter.sort(
-                        new TableSyntaxNode[]{
-                                getTableSyntaxNode(table1),
-                                getTableSyntaxNode(table2),
-                                getTableSyntaxNode(table3)},
+        TableSyntaxNode[] ordered = DatatypesSorter
+            .sort(
+                new TableSyntaxNode[] { getTableSyntaxNode(table1),
+                        getTableSyntaxNode(table2),
+                        getTableSyntaxNode(table3) },
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
@@ -114,11 +118,11 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = DatatypesSorter.sort(
-                        new TableSyntaxNode[]{
-                                getTableSyntaxNode(table1),
-                                getTableSyntaxNode(table2),
-                                getTableSyntaxNode(table3)},
+        TableSyntaxNode[] ordered = DatatypesSorter
+            .sort(
+                new TableSyntaxNode[] { getTableSyntaxNode(table1),
+                        getTableSyntaxNode(table2),
+                        getTableSyntaxNode(table3) },
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Dependence", ordered[0].getHeader().getModule().getCode());
@@ -137,7 +141,6 @@ public class DatatypeSorterTest {
         tableParent[2][0] = "TypeChild";
         tableParent[2][1] = "typeChild";
 
-
         String[][] tableChild = new String[3][2];
         tableChild[0][0] = "Datatype TypeChild extends TypeParent";
         tableChild[0][1] = null;
@@ -147,11 +150,8 @@ public class DatatypeSorterTest {
         tableChild[2][1] = "flag";
 
         // Shouldn't throw StackOverflowError
-        TableSyntaxNode[] ordered = DatatypesSorter.sort(
-                        new TableSyntaxNode[]{
-                                getTableSyntaxNode(tableParent),
-                                getTableSyntaxNode(tableChild)},
-                null);
+        TableSyntaxNode[] ordered = DatatypesSorter
+            .sort(new TableSyntaxNode[] { getTableSyntaxNode(tableParent), getTableSyntaxNode(tableChild) }, null);
         assertEquals(2, ordered.length);
         assertEquals("Datatype TypeChild extends TypeParent", ordered[0].getHeader().getModule().getCode());
         assertEquals("Datatype TypeParent", ordered[1].getHeader().getModule().getCode());
@@ -183,11 +183,11 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = DatatypesSorter.sort(
-                        new TableSyntaxNode[]{
-                                getTableSyntaxNode(table1),
-                                getTableSyntaxNode(table2),
-                                getTableSyntaxNode(table3)},
+        TableSyntaxNode[] ordered = DatatypesSorter
+            .sort(
+                new TableSyntaxNode[] { getTableSyntaxNode(table1),
+                        getTableSyntaxNode(table2),
+                        getTableSyntaxNode(table3) },
                 null);
         assertEquals(3, ordered.length);
         assertEquals("Datatype Independent", ordered[0].getHeader().getModule().getCode());

@@ -11,29 +11,27 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class CategoryDetailedView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = {
-        new ModulePropertiesTableNodeBuilder(), 
-        new CategoryNTreeNodeBuilder(0, "-"),
-        new CategoryNTreeNodeBuilder(1, "-"),
-        new CategoryPropertiesTableNodeBuilder(), 
-        new OpenMethodInstancesGroupTreeNodeBuilder(),
-        new TableInstanceTreeNodeBuilder(),
-        new TableVersionTreeNodeBuilder()
-    };
+    private final BaseTableTreeNodeBuilder[] sorters = { new ModulePropertiesTableNodeBuilder(),
+            new CategoryNTreeNodeBuilder(0, "-"),
+            new CategoryNTreeNodeBuilder(1, "-"),
+            new CategoryPropertiesTableNodeBuilder(),
+            new OpenMethodInstancesGroupTreeNodeBuilder(),
+            new TableInstanceTreeNodeBuilder(),
+            new TableVersionTreeNodeBuilder() };
 
     @Override
     public String getName() {
-    	return "categoryDetailed";
+        return "categoryDetailed";
     }
-    
+
     @Override
     public String getDisplayName() {
-    	return "Category Detailed";
+        return "Category Detailed";
     }
 
     @Override
     public String getDescription() {
-    	return "Provides more detailed categorized view";
+        return "Provides more detailed categorized view";
     }
 
     @Override

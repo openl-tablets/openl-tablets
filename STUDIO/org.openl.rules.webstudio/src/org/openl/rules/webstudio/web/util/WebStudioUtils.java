@@ -26,7 +26,6 @@ public abstract class WebStudioUtils {
     private static final String STUDIO_ATTR = "studio";
     private static final String TRACER_NAME = "tracer";
 
-
     public static RulesUserSession getRulesUserSession(HttpSession session) {
         if (session == null) {
             return null;
@@ -39,10 +38,12 @@ public abstract class WebStudioUtils {
         if (rulesUserSession == null && create) {
             rulesUserSession = new RulesUserSession();
 
-            rulesUserSession.setUserName(((CurrentUserInfo) WebApplicationContextUtils
-                    .getWebApplicationContext(session.getServletContext()).getBean("currentUserInfo")).getUserName());
+            rulesUserSession.setUserName(
+                ((CurrentUserInfo) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
+                    .getBean("currentUserInfo")).getUserName());
             rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
-                    .getWebApplicationContext(session.getServletContext()).getBean("workspaceManager"));
+                .getWebApplicationContext(session.getServletContext())
+                .getBean("workspaceManager"));
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
         }
         return rulesUserSession;
@@ -70,7 +71,6 @@ public abstract class WebStudioUtils {
 
         return traceHelper;
     }
-
 
     public static WebStudio getWebStudio(boolean create) {
         return getWebStudio(FacesUtils.getSession(create), create);

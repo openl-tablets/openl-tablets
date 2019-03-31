@@ -28,12 +28,10 @@ import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.util.StringValueResolver;
 
 /**
- * Replacement of
- * {@link org.springframework.context.support.PropertySourcesPlaceholderConfigurer}.
- * Allows to combine environment properties, default application properties and
- * external application properties. Application properties can be get as
- * combinations of locations and names. If a location is a folder then it is
- * concatenated with each name. For example:
+ * Replacement of {@link org.springframework.context.support.PropertySourcesPlaceholderConfigurer}. Allows to combine
+ * environment properties, default application properties and external application properties. Application properties
+ * can be get as combinations of locations and names. If a location is a folder then it is concatenated with each name.
+ * For example:
  * <p>
  * application name (from the Spring application context): WebStudio<br>
  * Spring active profiles: prod, qa<br>
@@ -60,11 +58,9 @@ import org.springframework.util.StringValueResolver;
  * </p>
  * This class can be used in the following ways:
  * <ul>
- * <li>In the web.xml, using
- * {@linkplain org.springframework.web.context.ContextLoader#CONTEXT_INITIALIZER_CLASSES_PARAM
+ * <li>In the web.xml, using {@linkplain org.springframework.web.context.ContextLoader#CONTEXT_INITIALIZER_CLASSES_PARAM
  * "contextInitializerClasses"} context parameter.</li>
- * <li>In Spring configuration, declaring
- * {@code <bean class="org.openl.spring.env.PropertySourcesLoader"/>} bean.</li>
+ * <li>In Spring configuration, declaring {@code <bean class="org.openl.spring.env.PropertySourcesLoader"/>} bean.</li>
  * </ul>
  * Default resolving order (next resource overides previous):
  * <ul>
@@ -77,10 +73,8 @@ import org.springframework.util.StringValueResolver;
  * </ol>
  * </li>
  * <li>Application externalized configuration. <br>
- * Can be overridden using {@code openl.config.name} or
- * {@code spring.config.name} properties for names. <br>
- * And {@code openl.config.location} or {@code spring.config.location}
- * properties for folders and locations.
+ * Can be overridden using {@code openl.config.name} or {@code spring.config.name} properties for names. <br>
+ * And {@code openl.config.location} or {@code spring.config.location} properties for folders and locations.
  * <ol>
  * <li>classpath:application.properties</li>
  * <li>classpath:application-{profile}.properties</li>
@@ -117,8 +111,7 @@ import org.springframework.util.StringValueResolver;
  * <li>file:${openl.home}/{appName}-{profile}.properties</li>
  * </ol>
  * </li>
- * <li>OpenL loadProperties config. It is used to load initial configurations of
- * this class.
+ * <li>OpenL loadProperties config. It is used to load initial configurations of this class.
  * <ol>
  * <li>classpath:openl-loadProperties-config.properties</li>
  * <li>${openl.config.loadProperties}</li>
@@ -177,11 +170,14 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private void loadProperties(MutablePropertySources propertySources, Environment env) {
         PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env == null ? null : env.getActiveProfiles();
-        PropertyResourceResolver resolver = new PropertyResourceResolver(propertyResolver, getAppName(appContext), profiles);
+        PropertyResourceResolver resolver = new PropertyResourceResolver(propertyResolver,
+            getAppName(appContext),
+            profiles);
 
         log.info("Loading default properties...");
         CompositePropertySource defaultProps = new CompositePropertySource(OPENL_DEFAULT_PROPS);
-        List<String> locations = resolver.resolvePlaceholders("classpath*:openl-default.properties", "${openl.config.default}");
+        List<String> locations = resolver.resolvePlaceholders("classpath*:openl-default.properties",
+            "${openl.config.default}");
         for (String location : locations) {
             addResource(defaultProps, location);
         }
@@ -219,10 +215,10 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private void addResource(CompositePropertySource propertySource, String location) {
-            PropertySource<?> found = find(location, appContext);
-            // To preserve overriding order we iterate from the end.
-            // The next resource should override the previous.
-            propertySource.addFirst(found);
+        PropertySource<?> found = find(location, appContext);
+        // To preserve overriding order we iterate from the end.
+        // The next resource should override the previous.
+        propertySource.addFirst(found);
     }
 
     /**

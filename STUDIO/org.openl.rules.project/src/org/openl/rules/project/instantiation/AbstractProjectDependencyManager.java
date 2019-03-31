@@ -33,24 +33,24 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
     public LinkedHashSet<DependencyReference> getDependencyReferences() {
         return dependencyReferences;
     }
-    
-    public static class DependencyReference{
+
+    public static class DependencyReference {
         String reference;
         String dependency;
-        
+
         public DependencyReference(String dependency, String reference) {
             this.dependency = dependency;
             this.reference = reference;
         }
-        
+
         public String getDependency() {
             return dependency;
         }
-        
+
         public String getReference() {
             return reference;
         }
-        
+
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -59,6 +59,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             result = prime * result + ((dependency == null) ? 0 : dependency.hashCode());
             return result;
         }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj)
@@ -81,9 +82,9 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             return true;
         }
     }
-    
+
     private final ClassLoader rootClassLoader;
-    
+
     protected AbstractProjectDependencyManager(ClassLoader rootClassLoader) {
         this.rootClassLoader = rootClassLoader;
     }
@@ -104,14 +105,14 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         return compiledDependency;
     }
 
-    private CompiledDependency throwCompilationError(IDependency dependency, String dependencyName) throws OpenLCompilationException {
+    private CompiledDependency throwCompilationError(IDependency dependency,
+            String dependencyName) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
         OpenLCompilationException exception = new OpenLCompilationException(
-                String.format("Dependency with name '%s' hasn't been found.", dependencyName),
-                null,
-                node.getSourceLocation(),
-                node.getModule()
-        );
+            String.format("Dependency with name '%s' hasn't been found.", dependencyName),
+            null,
+            node.getSourceLocation(),
+            node.getModule());
 
         if (node.getParent() instanceof TableSyntaxNode) {
             ((TableSyntaxNode) node.getParent()).addError(SyntaxNodeExceptionUtils.createError(exception, node));
@@ -134,8 +135,9 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
         }
-        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;  
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
+        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(),
+            parentClassLoader);
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 if (getProjectDescriptors() != null) {
@@ -152,49 +154,49 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         classLoaders.put(project.getName(), classLoader);
         return classLoader;
     }
-    
+
     private List<ClassLoader> oldClassLoaders = new ArrayList<>();
 
     @Override
-    public synchronized void reset(IDependency dependency){
+    public synchronized void reset(IDependency dependency) {
         final String dependencyName = dependency.getNode().getIdentifier();
-        for (ProjectDescriptor projectDescriptor : getProjectDescriptors()){
-            String projectDependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(
-                projectDescriptor.getName());
-            if (dependencyName.equals(projectDependencyName)){
-                for (Module module : projectDescriptor.getModules()){
+        for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
+            String projectDependencyName = ProjectExternalDependenciesHelper
+                .buildDependencyNameForProjectName(projectDescriptor.getName());
+            if (dependencyName.equals(projectDependencyName)) {
+                for (Module module : projectDescriptor.getModules()) {
                     reset(new Dependency(DependencyType.MODULE,
                         new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)));
                 }
                 ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
-                if (classLoader != null){
+                if (classLoader != null) {
                     oldClassLoaders.add(classLoader);
                 }
                 classLoaders.remove(projectDescriptor.getName());
                 break;
             }
         }
-        
+
         List<DependencyReference> dependenciesToReset = new ArrayList<>();
         List<DependencyReference> dependenciesRefernciesToClear = new ArrayList<>();
-        for (DependencyReference dependencyReference : getDependencyReferences()){
-            if (dependencyReference.getReference().equals(dependencyName)){
+        for (DependencyReference dependencyReference : getDependencyReferences()) {
+            if (dependencyReference.getReference().equals(dependencyName)) {
                 dependenciesToReset.add(dependencyReference);
             }
-            if (dependencyReference.getDependency().equals(dependencyName)){
+            if (dependencyReference.getDependency().equals(dependencyName)) {
                 dependenciesRefernciesToClear.add(dependencyReference);
             }
         }
-        
-        for (DependencyReference dependencyReference : dependenciesToReset){
+
+        for (DependencyReference dependencyReference : dependenciesToReset) {
             reset(new Dependency(DependencyType.MODULE,
                 new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)));
         }
-        
+
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             SimpleProjectDependencyLoader simpleProjectDependencyLoader = ((SimpleProjectDependencyLoader) dependencyLoader);
-            if (simpleProjectDependencyLoader.getDependencyName().equals(dependencyName)){
-                for (DependencyReference dependencyReference : dependenciesRefernciesToClear){
+            if (simpleProjectDependencyLoader.getDependencyName().equals(dependencyName)) {
+                for (DependencyReference dependencyReference : dependenciesRefernciesToClear) {
                     getDependencyReferences().remove(dependencyReference);
                 }
                 simpleProjectDependencyLoader.reset();
@@ -202,18 +204,18 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             }
         }
     }
-    
+
     @Override
-    public synchronized void resetAll(){
-        for (ClassLoader classLoader : oldClassLoaders){
+    public synchronized void resetAll() {
+        for (ClassLoader classLoader : oldClassLoaders) {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
         oldClassLoaders.clear();
-        for (ClassLoader classLoader : classLoaders.values()){
+        for (ClassLoader classLoader : classLoaders.values()) {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
         classLoaders.clear();
-        
+
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             ((SimpleProjectDependencyLoader) dependencyLoader).reset();
         }

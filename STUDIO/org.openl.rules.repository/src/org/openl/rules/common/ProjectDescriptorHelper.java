@@ -29,8 +29,9 @@ public class ProjectDescriptorHelper {
         for (ProjectDescriptor descriptor : descriptors) {
             builder.append("  <descriptor>\n");
             builder.append("    <projectName>").append(descriptor.getProjectName()).append("</projectName>\n");
-            builder.append("    <projectVersion>").append(descriptor.getProjectVersion().getVersionName()).append(
-                "</projectVersion>\n");
+            builder.append("    <projectVersion>")
+                .append(descriptor.getProjectVersion().getVersionName())
+                .append("</projectVersion>\n");
             builder.append("  </descriptor>\n");
         }
         builder.append("</descriptors>");

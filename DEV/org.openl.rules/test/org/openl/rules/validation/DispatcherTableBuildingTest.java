@@ -28,7 +28,8 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
 
     @BeforeClass
     public static void init() {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
+            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
     }
 
     private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {

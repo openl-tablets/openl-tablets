@@ -27,7 +27,8 @@ public final class XSSFOptimizer {
             List<CTXf> newStyleXfs = new ArrayList<>();
             List<CTCellStyle> newCellStyles = new ArrayList<>();
 
-            // TODO: Consider removing <xf> styles in <cellXfs> that isn't referenced from any cell's "s" attribute (<c s="33">)
+            // TODO: Consider removing <xf> styles in <cellXfs> that isn't referenced from any cell's "s" attribute (<c
+            // s="33">)
 
             TreeSet<Integer> usedStyleXfs = new TreeSet<>();
             for (CTXf xf : xfs) {
@@ -43,7 +44,7 @@ public final class XSSFOptimizer {
                 newStyleXfs.add(styleXf);
 
                 // Change xfId in <cellStyle xfId=""> if exists such named style
-                for (Iterator<CTCellStyle> iterator = cellStyleArray.iterator(); iterator.hasNext(); ) {
+                for (Iterator<CTCellStyle> iterator = cellStyleArray.iterator(); iterator.hasNext();) {
                     CTCellStyle style = iterator.next();
                     if (style.getXfId() == usedStyleXf) {
                         style.setXfId(newXfId);

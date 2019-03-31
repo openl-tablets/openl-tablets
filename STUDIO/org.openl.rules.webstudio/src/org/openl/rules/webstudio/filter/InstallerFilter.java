@@ -31,15 +31,16 @@ public class InstallerFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        boolean configured = System.getProperty("webstudio.configured") != null
-                && System.getProperty("webstudio.configured").equals("true");
+        boolean configured = System.getProperty("webstudio.configured") != null && System
+            .getProperty("webstudio.configured")
+            .equals("true");
 
-        if (wizardRoot != null && !configured
-                && request.getRequestURL().indexOf(wizardRoot) < 0) {
+        if (wizardRoot != null && !configured && request.getRequestURL().indexOf(wizardRoot) < 0) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
 
             String redirectUrl = request.getContextPath() + wizardRoot + "index.xhtml";
@@ -47,8 +48,8 @@ public class InstallerFilter extends GenericFilterBean {
             log.info("WebStudio configuration: Redirect to Installation wizard");
 
             // Handle Ajax requests
-            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
-                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
+            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest") // jQuery / Prototype
+                    || StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) { // JSF 2 / RichFaces
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {

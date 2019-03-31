@@ -38,7 +38,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             String projectName,
             UserWorkspace userWorkspace,
             PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) throws IOException{
+            ZipCharsetDetector zipCharsetDetector) throws IOException {
         super(projectName, userWorkspace);
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
@@ -74,7 +74,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
         return false;
     }
 
-    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) throws ProjectException {
+    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames,
+            PathFilter zipFilter) throws ProjectException {
         RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
         return new ZipRulesProjectBuilder(getUserWorkspace(), getProjectName(), zipFilter, folderExtractor);
     }
@@ -87,7 +88,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         }
 
         boolean skipped = false;
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
             try {
                 ZipEntry item = items.nextElement();
                 sortedNames.add(item.getName());
@@ -108,7 +109,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
-            FacesUtils.addErrorMessage("Project was not created. Zip file contains " + invalidNames.size() + " files/folders with incorrect names:");
+            FacesUtils.addErrorMessage("Project was not created. Zip file contains " + invalidNames
+                .size() + " files/folders with incorrect names:");
 
             /*
              * Display first 20 files/folders with incorrect names
@@ -191,7 +193,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             return invalidNames;
         }
 
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
             try {
                 ZipEntry item = items.nextElement();
 

@@ -12,14 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Auxiliary class which enhances rule service with ability to use rule service
- * method with rules runtime context during method invocation. The class is used
- * by engine to expose rules services as web service.
+ * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during
+ * method invocation. The class is used by engine to expose rules services as web service.
  * <p/>
- * Enhancer class decorates methods of original service class and exposes new
- * methods signatures instead of original methods. New method signature has one
- * more parameter - rules runtime context. While service method invocation
- * engine do the following steps:
+ * Enhancer class decorates methods of original service class and exposes new methods signatures instead of original
+ * methods. New method signature has one more parameter - rules runtime context. While service method invocation engine
+ * do the following steps:
  * <ul>
  * <li>recognize context parameter;</li>
  * <li>recognize original service method to invoke using method signature;</li>
@@ -36,8 +34,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
     /**
      * Constructs new instance of instantiation strategy.
      *
-     * @param instantiationStrategy instantiation strategy which used to
-     *                              instantiate original service
+     * @param instantiationStrategy instantiation strategy which used to instantiate original service
      */
     public RuntimeContextInstantiationStrategyEnhancer(RulesInstantiationStrategy instantiationStrategy) {
         super(instantiationStrategy);
@@ -79,16 +76,15 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
     @Override
     protected InvocationHandler makeInvocationHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
-                getOriginalInstantiationStrategy().getInstanceClass());
+            getOriginalInstantiationStrategy().getInstanceClass());
         return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);
     }
 
     /**
-     * Gets methods map where keys are interface class methods and values -
-     * original service class methods.
+     * Gets methods map where keys are interface class methods and values - original service class methods.
      *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass   original service class
+     * @param serviceClass original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
@@ -102,7 +98,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
             String interfaceMethodName = serviceMethod.getName();
             Class<?>[] serviceMethodParameterTypes = serviceMethod.getParameterTypes();
 
-            Class<?>[] newParams = new Class<?>[]{IRulesRuntimeContext.class};
+            Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, serviceMethodParameterTypes);
 
             Method interfaceMethod;

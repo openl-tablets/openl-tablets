@@ -11,13 +11,13 @@ public class PropertyNode extends TreeNode {
         this.title = title;
     }
 
-//    @Override
+    // @Override
     @Override
     public DiffStatus getStatus() {
         return DiffStatus.DIFFERS;
     }
 
-//    @Override
+    // @Override
     @Override
     public String getIcon() {
         // TODO use UiConst.ICON_DIFF_DIFFERS
@@ -25,13 +25,13 @@ public class PropertyNode extends TreeNode {
         return icon;
     }
 
-//    @Override
+    // @Override
     @Override
     public String getName() {
         return title;
     }
 
-//    @Override
+    // @Override
     @Override
     public String getType() {
         return "property";

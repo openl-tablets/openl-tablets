@@ -15,17 +15,17 @@ import javax.jcr.*;
 import java.util.*;
 
 /**
- * Implementation of JCR Entity. It is linked with node in JCR implementation,
- * always.
+ * Implementation of JCR Entity. It is linked with node in JCR implementation, always.
  *
  * @author Aleh Bykhavets
  */
 public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private final Logger log = LoggerFactory.getLogger(JcrEntityAPI.class);
     /*
-    private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE, ArtefactProperties.PROP_EXPIRATION_DATE, 
-        ArtefactProperties.PROP_LINE_OF_BUSINESS, ArtefactProperties.VERSION_COMMENT};
-    */
+     * private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE,
+     * ArtefactProperties.PROP_EXPIRATION_DATE, ArtefactProperties.PROP_LINE_OF_BUSINESS,
+     * ArtefactProperties.VERSION_COMMENT};
+     */
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
 
@@ -139,8 +139,8 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     private void loadProps() throws RepositoryException {
         Node n = node();
-        
-        /*Set attrs*/
+
+        /* Set attrs */
         for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
@@ -301,7 +301,8 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public ProjectVersion getVersion() {
         // FIXME
         RVersion rv = getActiveVersion();
-        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy().getUserName());
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(),
+            rv.getCreatedBy().getUserName());
 
         return new RepositoryProjectVersionImpl(rv, rvii);
     }
@@ -328,9 +329,13 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return vers;
     }
 
-    private RepositoryProjectVersionImpl createRepositoryProjectVersion(RVersion rv, Date modifiedAt, String modifiedBy) {
-        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
-                .getUserName(), modifiedAt, modifiedBy);
+    private RepositoryProjectVersionImpl createRepositoryProjectVersion(RVersion rv,
+            Date modifiedAt,
+            String modifiedBy) {
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(),
+            rv.getCreatedBy().getUserName(),
+            modifiedAt,
+            modifiedBy);
         String versionComment = "";
         Map<String, Object> versionProperties = new HashMap<>();
 
@@ -421,7 +426,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         for (String propertyName : propertyNames) {
             removeProperty(propertyName);
         }
-        
+
         try {
             for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
                 String propName = ArtefactProperties.PROP_ATTRIBUTE + i;

@@ -20,10 +20,10 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 /**
  * Project Descriptor serializer/deserializer.
  * <p>
- * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained:
- * 1) from each project settings (stored inside ".settings" folder)
- * 2) from default.openl.compatibility.version property of WebStudio configuration.
- * Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory instead.
+ * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained: 1) from each project
+ * settings (stored inside ".settings" folder) 2) from default.openl.compatibility.version property of WebStudio
+ * configuration. Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory
+ * instead.
  */
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 
@@ -41,16 +41,14 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private final boolean postProcess;
 
     /**
-     * Create Project Descriptor Serializer
-     * Note: please consider using ProjectDescriptorSerializerFactory instead
+     * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      */
     public XmlProjectDescriptorSerializer() {
         this(true);
     }
 
     /**
-     * Create Project Descriptor Serializer
-     * Note: please consider using ProjectDescriptorSerializerFactory instead
+     * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      *
      * @param postProcess is post processing of project descriptor is needed
      */
@@ -69,7 +67,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");
         xstream.omitField(ProjectDescriptor.class, "projectFolder");
-        xstream.omitField(Module.class, "properties"); //properties doesn't supported by rules.xml
+        xstream.omitField(Module.class, "properties"); // properties doesn't supported by rules.xml
         xstream.omitField(Module.class, "wildcardName"); // runtime properties
         xstream.omitField(Module.class, "wildcardRulesRootPath"); // runtime properties
         xstream.omitField(Module.class, "project"); // runtime properties

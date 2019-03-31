@@ -48,14 +48,14 @@ public class RulesDeploy {
     public void setPublishers(PublisherType[] publishers) {
         this.publishers = publishers;
     }
-    
+
     public String getVersion() {
-		return version;
-	}
-    
+        return version;
+    }
+
     public void setVersion(String version) {
-		this.version = version;
-	}
+        this.version = version;
+    }
 
     public Boolean isProvideRuntimeContext() {
         return isProvideRuntimeContext;
@@ -76,7 +76,7 @@ public class RulesDeploy {
     public String getServiceName() {
         return serviceName;
     }
-    
+
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -116,7 +116,7 @@ public class RulesDeploy {
     public String getInterceptingTemplateClassName() {
         return interceptingTemplateClassName;
     }
-    
+
     public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
         this.interceptingTemplateClassName = interceptingTemplateClassName;
     }
@@ -124,7 +124,7 @@ public class RulesDeploy {
     public String getAnnotationTemplateClassName() {
         return annotationTemplateClassName;
     }
-    
+
     public void setAnnotationTemplateClassName(String annotationTemplateClassName) {
         this.annotationTemplateClassName = annotationTemplateClassName;
     }
@@ -132,17 +132,17 @@ public class RulesDeploy {
     public WildcardPattern[] getLazyModulesForCompilationPatterns() {
         return lazyModulesForCompilationPatterns;
     }
-    
+
     public void setLazyModulesForCompilationPatterns(WildcardPattern[] lazyModulesForCompilationPatterns) {
         this.lazyModulesForCompilationPatterns = lazyModulesForCompilationPatterns;
     }
-    
+
     public String getGroups() {
         return groups;
     }
-    
+
     public void setGroups(String groups) {
         this.groups = groups;
     }
-    
+
 }

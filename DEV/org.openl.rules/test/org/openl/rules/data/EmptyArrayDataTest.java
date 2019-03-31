@@ -38,14 +38,14 @@ public class EmptyArrayDataTest {
 
         String[] strings2 = (String[]) getStringsMethod.invoke(myDatas[1]);
         Assert.assertEquals(0, strings2.length);
-        
+
         Method getPrimitivesMethod = policyClazz.getMethod("getPrimitives");
 
         long[] primitives = (long[]) getPrimitivesMethod.invoke(myDatas[0]);
         Assert.assertEquals(0, primitives.length);
 
         Method getPrimitives2Method = policyClazz.getMethod("getPrimitives2");
-        
+
         int[][] primitives2 = (int[][]) getPrimitives2Method.invoke(myDatas[0]);
         Assert.assertEquals(0, primitives2.length);
     }

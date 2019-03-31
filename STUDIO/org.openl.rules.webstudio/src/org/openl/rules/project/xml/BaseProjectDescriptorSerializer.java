@@ -18,7 +18,8 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
     private final boolean postProcess;
     private final ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter;
 
-    public BaseProjectDescriptorSerializer(boolean postProcess, ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter) {
+    public BaseProjectDescriptorSerializer(boolean postProcess,
+            ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter) {
         this.postProcess = postProcess;
         this.projectDescriptorVersionConverter = projectDescriptorVersionConverter;
         xstream = new XStream(new DomDriver()) {

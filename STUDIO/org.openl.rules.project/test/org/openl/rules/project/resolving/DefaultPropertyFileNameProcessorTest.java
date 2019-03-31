@@ -46,26 +46,29 @@ public class DefaultPropertyFileNameProcessorTest {
     public void lobTest() throws Exception {
         DefaultPropertiesFileNameProcessor processor = new DefaultPropertiesFileNameProcessor();
 
-        ITableProperties props = processor.process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03", "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%");
-        assertArrayEquals(props.getLob(), new String[]{"AL"});
-        assertArrayEquals(props.getState(), new UsStatesEnum[]{UsStatesEnum.NY});
+        ITableProperties props = processor.process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03",
+            "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%");
+        assertArrayEquals(props.getLob(), new String[] { "AL" });
+        assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.NY });
         assertEquals(props.getNature(), "BL-CL-GL");
-        assertEquals(props.getEffectiveDate(), new Date(118,06,01,0,0,0));
-        assertEquals(props.getStartRequestDate(), new Date(118,04,03,0,0,0));
+        assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(118, 04, 03, 0, 0, 0));
 
-        props = processor.process("AL,BL-CL,GL-DE,OH-20180701-20170621", "%lob%-%nature%-%state%-%effectiveDate:yyyyMMdd%-%startRequestDate:yyyyMMdd%");
-        assertArrayEquals(props.getLob(), new String[]{"AL", "BL"});
-        assertArrayEquals(props.getState(), new UsStatesEnum[]{UsStatesEnum.DE,UsStatesEnum.OH});
+        props = processor.process("AL,BL-CL,GL-DE,OH-20180701-20170621",
+            "%lob%-%nature%-%state%-%effectiveDate:yyyyMMdd%-%startRequestDate:yyyyMMdd%");
+        assertArrayEquals(props.getLob(), new String[] { "AL", "BL" });
+        assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.DE, UsStatesEnum.OH });
         assertEquals(props.getNature(), "CL,GL");
-        assertEquals(props.getEffectiveDate(), new Date(118,06,01,0,0,0));
-        assertEquals(props.getStartRequestDate(), new Date(117,05,21,0,0,0));
+        assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(117, 05, 21, 0, 0, 0));
 
-        props = processor.process("AL,BL-CL,GL-CA-20072019-21062020", "%lob%-%state%-%effectiveDate:ddMMyy%-%startRequestDate:ddMMyyyy%");
-        assertArrayEquals(props.getLob(), new String[]{"AL", "BL-CL","GL"});
-        assertArrayEquals(props.getState(), new UsStatesEnum[]{UsStatesEnum.CA});
+        props = processor.process("AL,BL-CL,GL-CA-20072019-21062020",
+            "%lob%-%state%-%effectiveDate:ddMMyy%-%startRequestDate:ddMMyyyy%");
+        assertArrayEquals(props.getLob(), new String[] { "AL", "BL-CL", "GL" });
+        assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.CA });
         assertNull(props.getNature());
-        assertEquals(props.getEffectiveDate(), new Date(119,06,20,0,0,0));
-        assertEquals(props.getStartRequestDate(), new Date(120,05,21,0,0,0));
+        assertEquals(props.getEffectiveDate(), new Date(119, 06, 20, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(120, 05, 21, 0, 0, 0));
     }
 
     @Test

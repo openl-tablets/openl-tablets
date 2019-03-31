@@ -8,19 +8,19 @@ import org.openl.rules.ui.IProjectTypes;
 import org.openl.util.StringUtils;
 
 /**
- * Builder for module properties table. 
+ * Builder for module properties table.
  * 
  * @author DLiauchuk
  *
  */
 public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
-    
+
     private static final String FOLDER_NAME = "Module Properties";
     private static final String MODULE_PROPERTIES_TABLE = "Module Properties Table";
-    
+
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        return new String[]{FOLDER_NAME, FOLDER_NAME, FOLDER_NAME};
+        return new String[] { FOLDER_NAME, FOLDER_NAME, FOLDER_NAME };
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public Object getProblems(Object nodeObject) {        
+    public Object getProblems(Object nodeObject) {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
@@ -46,7 +46,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public int getWeight(Object nodeObject) {        
+    public int getWeight(Object nodeObject) {
         return 0;
     }
 
@@ -54,18 +54,19 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode;
     }
-    
+
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
-        return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
+        return XlsNodeTypes.XLS_PROPERTIES.toString()
+            .equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
     }
-    
+
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         String folderName = FOLDER_NAME;
         return makeFolderNode(folderName);
     }
-    
+
     public static boolean isModulePropertyTable(TableSyntaxNode tableSyntaxNode) {
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
@@ -77,9 +78,14 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
         }
         return result;
     }
-    
+
     private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, IProjectTypes.PT_FOLDER, null, null, 0, null);
+        return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
+            IProjectTypes.PT_FOLDER,
+            null,
+            null,
+            0,
+            null);
     }
 
 }

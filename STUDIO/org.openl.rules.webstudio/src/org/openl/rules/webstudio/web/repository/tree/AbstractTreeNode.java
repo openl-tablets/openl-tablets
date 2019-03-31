@@ -17,10 +17,9 @@ import org.openl.rules.project.abstraction.RulesProject;
 import com.google.common.collect.Iterators;
 
 /**
- * This abstract class implements basic functionality of {@link TreeNode}
- * interface. Every particular tree node should extends this class and adds own
- * implementation for UI related methods: {@link #getType()},
- * {@link #getIcon()}, and {@link #getIconLeaf()}.
+ * This abstract class implements basic functionality of {@link TreeNode} interface. Every particular tree node should
+ * extends this class and adds own implementation for UI related methods: {@link #getType()}, {@link #getIcon()}, and
+ * {@link #getIconLeaf()}.
  *
  * <p>
  * Derived classes is going to be used in richfaces:
@@ -77,9 +76,8 @@ public abstract class AbstractTreeNode implements TreeNode {
     private TreeNode parent;
 
     /**
-     * When <code>true</code> then the node cannot have children. Any
-     * operation that implies adding/getting/removing children will lead to
-     * {@link UnsupportedOperationException}.
+     * When <code>true</code> then the node cannot have children. Any operation that implies adding/getting/removing
+     * children will lead to {@link UnsupportedOperationException}.
      */
     private boolean isLeafOnly;
 
@@ -96,8 +94,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     /**
-     * Creates tree node. Can control whether the node is LeafOnly (i.e. cannot
-     * have children) or usual one.
+     * Creates tree node. Can control whether the node is LeafOnly (i.e. cannot have children) or usual one.
      *
      * @param id id to distinguish the node among others
      * @param name display name of the node
@@ -151,16 +148,14 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     /**
-     * When the node is in LeafOnly mode, i.e. cannot have children, this method
-     * will throw exception.
+     * When the node is in LeafOnly mode, i.e. cannot have children, this method will throw exception.
      * <p>
-     * This method is used internally in {@link #addChild(Object, TreeNode)},
-     * {@link #getChild(Object)}, and {@link #removeChild(Object)} methods.
+     * This method is used internally in {@link #addChild(Object, TreeNode)}, {@link #getChild(Object)}, and
+     * {@link #removeChild(Object)} methods.
      * <p>
      * Note, that method {@link #getChildrenKeysIterator()()} must work in any case.
      *
-     * @throws UnsupportedOperationException if the node is LeafOnly and current
-     *             operation implies work with children
+     * @throws UnsupportedOperationException if the node is LeafOnly and current operation implies work with children
      */
     private void checkLeafOnly() {
         if (isLeafOnly) {
@@ -190,14 +185,14 @@ public abstract class AbstractTreeNode implements TreeNode {
     public TreeNode getChild(Object id) {
         checkLeafOnly();
 
-        if (getElements().containsKey(id)){
+        if (getElements().containsKey(id)) {
             return getElements().get(id);
-        } else if (id instanceof String){
-            String idAsString = (String)id;
-            if(getElements().containsKey(FOLDER_PREFIX + idAsString)){
+        } else if (id instanceof String) {
+            String idAsString = (String) id;
+            if (getElements().containsKey(FOLDER_PREFIX + idAsString)) {
                 return getElements().get(FOLDER_PREFIX + idAsString);
             }
-            if(getElements().containsKey(FILE_PREFIX + idAsString)){
+            if (getElements().containsKey(FILE_PREFIX + idAsString)) {
                 return getElements().get(FILE_PREFIX + idAsString);
             }
         }
@@ -231,8 +226,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     /**
-     * Returns URL of image that will be displayed with the node when it has at
-     * least one child.
+     * Returns URL of image that will be displayed with the node when it has at least one child.
      *
      * <pre>
      * &lt;rich:treeNode &lt;b&gt;icon=&quot;#{item.icon}&quot;&lt;/b&gt; ... &gt;
@@ -243,8 +237,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     public abstract String getIcon();
 
     /**
-     * Returns URL of image that will be displayed with the node when
-     * {@link #isLeaf()} is true.
+     * Returns URL of image that will be displayed with the node when {@link #isLeaf()} is true.
      *
      * <pre>
      * &lt;rich:treeNode &lt;b&gt;iconLeaf=&quot;#{item.iconLeaf}&quot;&lt;/b&gt; ... &gt;
@@ -298,14 +291,14 @@ public abstract class AbstractTreeNode implements TreeNode {
     public Collection<ProjectVersion> getVersions() {
         if (data != null) {
             RulesProject project = findProjectContainingCurrentArtefact();
-            
+
             List<ProjectVersion> result;
             if (project != data && project != null) {
                 result = project.getVersions();
             } else {
                 result = getData().getVersions();
             }
-            
+
             Collections.reverse(result);
             return result;
         } else {
@@ -324,7 +317,8 @@ public abstract class AbstractTreeNode implements TreeNode {
                 if (data.isFolder()) {
                     return false;
                 } else {
-                    List<ProjectVersion> versions = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                    List<ProjectVersion> versions = project
+                        .getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                     return !versions.isEmpty();
                 }
             } else {
@@ -383,7 +377,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     @Override
-    public void refresh(){
+    public void refresh() {
         data.refresh();
     }
 }

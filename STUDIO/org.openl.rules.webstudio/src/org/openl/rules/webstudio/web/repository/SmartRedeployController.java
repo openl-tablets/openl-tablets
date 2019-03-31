@@ -159,25 +159,25 @@ public class SmartRedeployController {
             int cmp = descrVersion.compareTo(project.getVersion());
 
             if (cmp == 0) {
-                    if (StringUtils.isEmpty(repositoryConfigName)) {
-                        item.setDisabled(true);
-                        item.setMessages("Repository is not selected");
-                    } else if (deploymentProject.isModified()) {
-                        // prevent loosing of user's changes
-                        item.setDisabled(true);
-                        item.setMessages("Opened for Editing");
-                        item.setStyleForMessages(UiConst.STYLE_WARNING);
-                        item.setStyleForName(UiConst.STYLE_WARNING);
+                if (StringUtils.isEmpty(repositoryConfigName)) {
+                    item.setDisabled(true);
+                    item.setMessages("Repository is not selected");
+                } else if (deploymentProject.isModified()) {
+                    // prevent loosing of user's changes
+                    item.setDisabled(true);
+                    item.setMessages("Opened for Editing");
+                    item.setStyleForMessages(UiConst.STYLE_WARNING);
+                    item.setStyleForName(UiConst.STYLE_WARNING);
+                } else {
+                    if (checker.check()) {
+                        item.setMessages("This project revision is already deployed");
                     } else {
-                        if (checker.check()) {
-                            item.setMessages("This project revision is already deployed");
-                        } else {
-                            item.setMessages("Dependent projects should be added to deploy configuration!");
-                            item.setStyleForMessages(UiConst.STYLE_ERROR);
-                            item.setStyleForName(UiConst.STYLE_ERROR);
-                            item.setDisabled(true);
-                        }
+                        item.setMessages("Dependent projects should be added to deploy configuration!");
+                        item.setStyleForMessages(UiConst.STYLE_ERROR);
+                        item.setStyleForName(UiConst.STYLE_ERROR);
+                        item.setDisabled(true);
                     }
+                }
             } else {
                 if (!isGranted(EDIT_DEPLOYMENT)) {
                     // Don't have permission to edit deploy configuration -
@@ -200,9 +200,11 @@ public class SmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        item.setMessages("Can be updated to " + project.getVersion().getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
+                        item.setMessages("Can be updated to " + project.getVersion()
+                            .getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
                     } else {
-                        item.setMessages("Project version will be updated. Dependent projects should be added to deploy configuration!");
+                        item.setMessages(
+                            "Project version will be updated. Dependent projects should be added to deploy configuration!");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
@@ -221,7 +223,8 @@ public class SmartRedeployController {
                 if (dependencies == null || dependencies.isEmpty()) {
                     item.setMessages("Create deploy configuration and deploy");
                 } else {
-                    item.setMessages("Create deploy configuration. You should add dependent projects to created deploy configuration after that.");
+                    item.setMessages(
+                        "Create deploy configuration. You should add dependent projects to created deploy configuration after that.");
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
@@ -230,7 +233,7 @@ public class SmartRedeployController {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            }  catch (XStreamException e) {
+            } catch (XStreamException e) {
                 log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
@@ -281,14 +284,13 @@ public class SmartRedeployController {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
                 String message = String.format("Project '%s' is successfully deployed with id '%s' to repository '%s'",
-                        project.getName(),
-                        id.getName(),
-                        repositoryName);
+                    project.getName(),
+                    id.getName(),
+                    repositoryName);
                 FacesUtils.addInfoMessage(message);
             } catch (Exception e) {
-                String msg = String.format("Failed to deploy '%s' to repository '%s'",
-                        project.getName(),
-                        repositoryName);
+                String msg = String
+                    .format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -301,9 +303,11 @@ public class SmartRedeployController {
     }
 
     protected String getRepositoryName(String repositoryConfigName) {
-        ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
-        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig,
-                RepositoryMode.PRODUCTION);
+        ConfigurationManager productionConfig = productionConfigManagerFactory
+            .getConfigurationManager(repositoryConfigName);
+        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
+            productionConfig,
+            RepositoryMode.PRODUCTION);
         return repo.getName();
     }
 
@@ -355,7 +359,7 @@ public class SmartRedeployController {
             }
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
-                    .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
+                .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -406,8 +410,9 @@ public class SmartRedeployController {
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
-                    RepositoryMode.PRODUCTION);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName,
+                productionConfig,
+                RepositoryMode.PRODUCTION);
             repos.add(config);
         }
 
@@ -460,7 +465,8 @@ public class SmartRedeployController {
         return productionRepositoriesTreeController;
     }
 
-    public void setProductionRepositoriesTreeController(ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 

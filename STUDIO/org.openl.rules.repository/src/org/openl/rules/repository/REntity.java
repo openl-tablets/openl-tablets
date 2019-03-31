@@ -11,8 +11,7 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * Abstract Entity. It defines common properties and methods for OpenL Rules
- * Project/Folder/File.
+ * Abstract Entity. It defines common properties and methods for OpenL Rules Project/Folder/File.
  *
  * @author Aleh Bykhavets
  *
@@ -22,8 +21,8 @@ public interface REntity {
     void addProperty(String name, ValueType type, Object value) throws RRepositoryException;
 
     /**
-     * Deletes entity. Also can delete other entities. For example, deleting a
-     * folder will lead to deleting all its sub entities.
+     * Deletes entity. Also can delete other entities. For example, deleting a folder will lead to deleting all its sub
+     * entities.
      *
      * @throws RRepositoryException if failed
      */
@@ -37,24 +36,21 @@ public interface REntity {
     RVersion getActiveVersion();
 
     /**
-     * Gets effective date for rules entity. If effective date isn't set method
-     * returns <code>null</code>
+     * Gets effective date for rules entity. If effective date isn't set method returns <code>null</code>
      *
      * @return effective date or <code>null</code>
      */
     Date getEffectiveDate();
 
     /**
-     * Gets expiration date for rules entity. If expiration date isn't set
-     * method returns <code>null</code>
+     * Gets expiration date for rules entity. If expiration date isn't set method returns <code>null</code>
      *
      * @return expiration date or <code>null</code>
      */
     Date getExpirationDate();
 
     /**
-     * Gets line of business for rules entity. If line of business isn't set
-     * method returns <code>null</code>
+     * Gets line of business for rules entity. If line of business isn't set method returns <code>null</code>
      *
      * @return line of business or <code>null</code>
      */
@@ -93,8 +89,7 @@ public interface REntity {
     void removeProperty(String name) throws RRepositoryException;
 
     /**
-     * Sets effective date for rules entity. Effective date can be disabled if
-     * <code>null</code> is passed.
+     * Sets effective date for rules entity. Effective date can be disabled if <code>null</code> is passed.
      *
      * @param date new effective date or <code>null</code>
      * @throws RRepositoryException if failed
@@ -102,8 +97,7 @@ public interface REntity {
     void setEffectiveDate(Date date) throws RRepositoryException;
 
     /**
-     * Sets expiration date for rules entity. expiration date can be disabled if
-     * <code>null</code> is passed.
+     * Sets expiration date for rules entity. expiration date can be disabled if <code>null</code> is passed.
      *
      * @param date new expiration date or <code>null</code>
      * @throws RRepositoryException if failed
@@ -111,8 +105,7 @@ public interface REntity {
     void setExpirationDate(Date date) throws RRepositoryException;
 
     /**
-     * Sets line of business for rules entity. Line of business can be disabled
-     * if <code>null</code> is passed.
+     * Sets line of business for rules entity. Line of business can be disabled if <code>null</code> is passed.
      *
      * @throws RRepositoryException if failed
      */

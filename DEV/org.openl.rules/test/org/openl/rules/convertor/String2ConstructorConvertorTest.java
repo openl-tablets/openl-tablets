@@ -11,7 +11,7 @@ public class String2ConstructorConvertorTest {
     public void testParse() {
         String2ConstructorConvertor<Integer> converter = new String2ConstructorConvertor<>(Integer.class);
         Integer result = converter.parse("123", null);
-        assertEquals((Integer)123, result);
+        assertEquals((Integer) 123, result);
     }
 
     @Test

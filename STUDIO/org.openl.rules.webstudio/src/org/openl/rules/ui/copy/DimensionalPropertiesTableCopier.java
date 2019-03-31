@@ -35,8 +35,9 @@ public class DimensionalPropertiesTableCopier extends TableCopier {
         List<TableProperty> properties = new ArrayList<>();
 
         for (TableProperty property : getPropertiesManager().getProperties()) {
-            if (property.isDimensional() && PropertiesChecker.isPropertySuitableForTableType(property.getName(), getTable().getType()) 
-                    && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, property.getName())) {
+            if (property.isDimensional() && PropertiesChecker.isPropertySuitableForTableType(property.getName(),
+                getTable().getType()) && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE,
+                    property.getName())) {
                 properties.add(property);
             }
         }

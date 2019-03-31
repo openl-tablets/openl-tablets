@@ -17,8 +17,7 @@ import java.util.Map;
 /**
  * Repository Factory Proxy.
  * <p/>
- * Takes actual factory description from <i>rules-production.properties</i>
- * file.
+ * Takes actual factory description from <i>rules-production.properties</i> file.
  */
 public class ProductionRepositoryFactoryProxy {
 

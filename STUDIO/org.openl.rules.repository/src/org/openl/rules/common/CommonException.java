@@ -3,10 +3,9 @@ package org.openl.rules.common;
 import java.text.MessageFormat;
 
 /**
- * There are no CommonException(String pattern, Object... params) constructor
- * since it will lead to ambiguous case with Throwable. Thus, Throwable can be
- * placed in "Object..." and will be treated like parameter for result message,
- * not a <code>cause</code>. That kind of bug is hard to detect.
+ * There are no CommonException(String pattern, Object... params) constructor since it will lead to ambiguous case with
+ * Throwable. Thus, Throwable can be placed in "Object..." and will be treated like parameter for result message, not a
+ * <code>cause</code>. That kind of bug is hard to detect.
  *
  * If you cannot provide Throwable just use <code>null</code>.
  *
@@ -21,12 +20,11 @@ public class CommonException extends Exception {
     }
 
     /**
-     * Constructs a new exception with the specified detail message. The cause
-     * is not initialized, and may subsequently be initialized by a call to
-     * {@link #initCause}.
+     * Constructs a new exception with the specified detail message. The cause is not initialized, and may subsequently
+     * be initialized by a call to {@link #initCause}.
      *
-     * @param message the detail message. The detail message is saved for later
-     *            retrieval by the {@link #getMessage()} method.
+     * @param message the detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
+     *            method.
      */
     public CommonException(String message) {
         super(message);

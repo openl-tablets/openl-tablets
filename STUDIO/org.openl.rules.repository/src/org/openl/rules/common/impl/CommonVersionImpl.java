@@ -29,9 +29,7 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     /**
-     * x -> revision
-     * x.y -> major.minor
-     * x.y.z -> major.minor.revision
+     * x -> revision x.y -> major.minor x.y.z -> major.minor.revision
      */
     public CommonVersionImpl(String s) {
         if (!s.matches("\\d+\\.\\d+(\\.\\d+.*)?")) {
@@ -53,12 +51,12 @@ public class CommonVersionImpl implements CommonVersion {
 
     @Override
     public int compareTo(CommonVersion o) {
-        /*Version with the same Revisions always equal*/
+        /* Version with the same Revisions always equal */
         if (revision.equals(o.getRevision())) {
             return 0;
         }
 
-        /*Revision with num 0 always should be at last place*/
+        /* Revision with num 0 always should be at last place */
         if (revision.equals("0")) {
             return -1;
         } else if (o.getRevision().equals("0")) {
@@ -118,8 +116,12 @@ public class CommonVersionImpl implements CommonVersion {
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
-                versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
-                        .toString();
+                versionName = new StringBuilder().append(major)
+                    .append(".")
+                    .append(minor)
+                    .append(".")
+                    .append(revision)
+                    .toString();
             } else {
                 versionName = new StringBuilder().append(revision).toString();
             }

@@ -15,7 +15,6 @@ public class BenchmarkInfo {
     long msSum;
     double ms2Sum;
 
-
     public void collect(long times, long ms) {
         timesSum += times;
         msSum += ms;

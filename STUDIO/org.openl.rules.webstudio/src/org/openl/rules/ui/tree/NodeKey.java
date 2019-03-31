@@ -19,7 +19,7 @@ public class NodeKey implements Comparable<Object> {
      * Creates new node key.
      *
      * @param weight node weight
-     * @param value  triple of names
+     * @param value triple of names
      */
     public NodeKey(int weight, String[] value) {
         this.weight = weight;
@@ -65,8 +65,10 @@ public class NodeKey implements Comparable<Object> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         NodeKey nodeKey = (NodeKey) o;
 

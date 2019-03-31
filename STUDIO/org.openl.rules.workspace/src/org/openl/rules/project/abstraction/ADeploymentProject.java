@@ -22,15 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class stores only deploy configuration, not deployed projects!
- * For the latter see {@link Deployment} class.
+ * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
-    /* this button is used for rendering the save button (only for deploy configuration)*/
+    /* this button is used for rendering the save button (only for deploy configuration) */
     private boolean modifiedDescriptors = false;
 
     private final LockEngine lockEngine;
@@ -44,10 +43,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         this.lockEngine = lockEngine;
     }
 
-    public ADeploymentProject(WorkspaceUser user,
-            Repository repository,
-            FileData fileData,
-            LockEngine lockEngine) {
+    public ADeploymentProject(WorkspaceUser user, Repository repository, FileData fileData, LockEngine lockEngine) {
         super(user, repository, fileData);
         this.lockEngine = lockEngine;
     }
@@ -123,7 +119,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public boolean isOpened() {
-        return openedVersion != null; //|| isOpenedForEditing();
+        return openedVersion != null; // || isOpenedForEditing();
     }
 
     @Override
@@ -139,7 +135,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 fileData.setSize(out.size());
 
                 FileChange change = new FileChange(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
-                        new ByteArrayInputStream(out.toByteArray()));
+                    new ByteArrayInputStream(out.toByteArray()));
                 setFileData(((FolderRepository) getRepository()).save(fileData, Collections.singletonList(change)));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);

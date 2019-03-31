@@ -94,7 +94,7 @@ public class DefaultPropertyDefinitionsTest {
             }
         }
     }
-    
+
     @Test
     public void versionPropertiesNodeTypeTest() {
         Set<XlsNodeTypes> dimensionalPropertiesNodeTypes = new HashSet<>();

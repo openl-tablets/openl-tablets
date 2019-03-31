@@ -32,8 +32,9 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
      * @return newly created instance
      * @throws RepositoryException if fails
      */
-    protected static JcrFileAPI createFile(JcrFolderAPI parent, String nodeName, ArtefactPath path)
-            throws RepositoryException {
+    protected static JcrFileAPI createFile(JcrFolderAPI parent,
+            String nodeName,
+            ArtefactPath path) throws RepositoryException {
         Node parentNode = parent.node();
         Node n = NodeUtil.createFileNode(parentNode, nodeName);
 

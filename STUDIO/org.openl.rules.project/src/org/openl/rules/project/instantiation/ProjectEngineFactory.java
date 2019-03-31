@@ -18,7 +18,7 @@ public interface ProjectEngineFactory<T> {
     Map<String, Object> getExternalParameters();
 
     CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException,
-                                            ProjectResolvingException,
-                                            ClassNotFoundException;
+                                             ProjectResolvingException,
+                                             ClassNotFoundException;
 
 }

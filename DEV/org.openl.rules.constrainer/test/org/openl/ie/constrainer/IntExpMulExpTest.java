@@ -22,7 +22,6 @@ import org.openl.ie.constrainer.impl.IntExpMulExp;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
-
 public class IntExpMulExpTest extends TestCase {
 
     Constrainer c;
@@ -35,9 +34,11 @@ public class IntExpMulExpTest extends TestCase {
 
     int[] _min2 = { 3, -4, -4, -4, };
     int[] _max2 = { 4, -3, 3, 3, };
+
     public IntExpMulExpTest(String name) {
         super(name);
     }
+
     /**
      * Tests that product's min,max is min,max of the domain(v1)*domain(v2).
      */
@@ -67,6 +68,7 @@ public class IntExpMulExpTest extends TestCase {
         Assert.assertEquals("min", prodMin, product.min());
         Assert.assertEquals("max", prodMax, product.max());
     }
+
     @Override
     protected void setUp() throws Exception {
         c = new Constrainer("IntExpMulExpTest");

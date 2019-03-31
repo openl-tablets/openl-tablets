@@ -14,7 +14,7 @@ import org.openl.util.StringUtils;
 @RequestScoped
 public class TreeViewBean {
 
-    private static final String[] usedParams={"title", "treePage", "mainPage", "mainFrame", "relWidth"};
+    private static final String[] usedParams = { "title", "treePage", "mainPage", "mainFrame", "relWidth" };
 
     public String getTreePage() {
         return getPageUrl("treePage");

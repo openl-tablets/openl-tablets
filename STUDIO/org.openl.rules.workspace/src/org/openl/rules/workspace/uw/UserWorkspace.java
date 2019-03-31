@@ -46,7 +46,7 @@ public interface UserWorkspace extends ProjectsContainer {
     void removeWorkspaceListener(UserWorkspaceListener listener);
 
     void uploadLocalProject(String name) throws ProjectException;
-    
+
     WorkspaceUser getUser();
 
     @Override

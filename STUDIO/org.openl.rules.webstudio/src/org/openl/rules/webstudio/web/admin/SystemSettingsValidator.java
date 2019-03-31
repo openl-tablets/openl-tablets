@@ -117,7 +117,8 @@ public class SystemSettingsValidator {
             FileUtils.deleteQuietly(root);
         }
         if (!hasAccess) {
-            FacesUtils.addErrorMessage("Can't get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
+            FacesUtils.addErrorMessage(
+                "Can't get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
         }
     }
 

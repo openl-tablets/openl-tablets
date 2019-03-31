@@ -20,15 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 
 /**
- * This class is similar to {@link ClassReader} from ASM framework. But it can
- * be used only for interface generation.
+ * This class is similar to {@link ClassReader} from ASM framework. But it can be used only for interface generation.
  * <p/>
- * {@link InterfaceTransformer} uses base class that will be transformed,
- * classname for new class and {@link ClassVisitor} that will handle class
- * creation.
+ * {@link InterfaceTransformer} uses base class that will be transformed, classname for new class and
+ * {@link ClassVisitor} that will handle class creation.
  * <p/>
- * {@link InterfaceTransformer} reads methods with
- * signatures,constants,annotations and passes them to {@link ClassVisitor}.
+ * {@link InterfaceTransformer} reads methods with signatures,constants,annotations and passes them to
+ * {@link ClassVisitor}.
  *
  * @author PUdalau
  */
@@ -40,8 +38,7 @@ public class InterfaceTransformer {
 
     /**
      * @param interfaceToTransform Base class for generations.
-     * @param className Name for new class(java notation: with .(dot) as the
-     *            delimiter).
+     * @param className Name for new class(java notation: with .(dot) as the delimiter).
      */
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
         this.interfaceToTransform = interfaceToTransform;
@@ -56,8 +53,7 @@ public class InterfaceTransformer {
     }
 
     /**
-     * Reads class and passes class generation instructions to
-     * <code>classVisitor</code>. Similar to
+     * Reads class and passes class generation instructions to <code>classVisitor</code>. Similar to
      * org.objectweb.asm.ClassReader.accept(...)
      *
      * @param classVisitor Visitor to consume writing instructions.
@@ -77,15 +73,16 @@ public class InterfaceTransformer {
         for (Field field : interfaceToTransform.getFields()) {
             if (isConstantField(field)) {
                 try {
-                    FieldVisitor fieldVisitor = classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
+                    FieldVisitor fieldVisitor = classVisitor.visitField(
+                        Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
                         field.getName(),
                         Type.getDescriptor(field.getType()),
                         null,
                         field.get(null));
                     if (fieldVisitor != null) {
                         for (Annotation annotation : field.getAnnotations()) {
-                            AnnotationVisitor av = fieldVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                                true);
+                            AnnotationVisitor av = fieldVisitor
+                                .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                             processAnnotation(annotation, av);
                         }
                     }
@@ -104,8 +101,8 @@ public class InterfaceTransformer {
                 null);
             if (methodVisitor != null) {
                 for (Annotation annotation : method.getAnnotations()) {
-                    AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                        true);
+                    AnnotationVisitor av = methodVisitor
+                        .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                     processAnnotation(annotation, av);
                 }
                 if (processParamAnnotation) {
@@ -150,7 +147,9 @@ public class InterfaceTransformer {
         }
     }
 
-    private static void visitNonArrayAnnotationAttribute(AnnotationVisitor av, String attributeName, Object attributeValue) {
+    private static void visitNonArrayAnnotationAttribute(AnnotationVisitor av,
+            String attributeName,
+            Object attributeValue) {
         Class<? extends Object> attributeType = attributeValue.getClass();
         if (attributeValue instanceof Class) {
             av.visit(attributeName, Type.getType((Class<?>) attributeValue));
@@ -160,7 +159,7 @@ public class InterfaceTransformer {
             Annotation annotation = (Annotation) attributeValue;
             AnnotationVisitor av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
             processAnnotation(annotation, av1);
-        }else {
+        } else {
             av.visit(attributeName, attributeValue);
         }
     }

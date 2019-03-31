@@ -12,13 +12,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * #L%
  */
 
-
-
 /**
  * Variation for replacement of value of some argument.
  * 
- * It was introduced because field modification variations can not modify root
- * object(argument of method).
+ * It was introduced because field modification variations can not modify root object(argument of method).
  * 
  * @author PUdalau
  */
@@ -26,12 +23,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ArgumentReplacementVariation extends Variation {
     private int updatedArgumentIndex;
     private Object valueToSet;
+
     /**
      * Constructs variation
      */
     public ArgumentReplacementVariation() {
     }
-    
+
     /**
      * Constructs variation.
      * 
@@ -57,9 +55,8 @@ public class ArgumentReplacementVariation extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
-                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
-                    + originalArguments.length);
+            throw new VariationRuntimeException(
+                "Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
         }
         originalArguments[updatedArgumentIndex] = valueToSet;
         return originalArguments;
@@ -76,7 +73,7 @@ public class ArgumentReplacementVariation extends Variation {
     public int getUpdatedArgumentIndex() {
         return updatedArgumentIndex;
     }
-    
+
     public void setUpdatedArgumentIndex(int updatedArgumentIndex) {
         this.updatedArgumentIndex = updatedArgumentIndex;
     }
@@ -87,7 +84,7 @@ public class ArgumentReplacementVariation extends Variation {
     public Object getValueToSet() {
         return valueToSet;
     }
-    
+
     public void setValueToSet(Object valueToSet) {
         this.valueToSet = valueToSet;
     }

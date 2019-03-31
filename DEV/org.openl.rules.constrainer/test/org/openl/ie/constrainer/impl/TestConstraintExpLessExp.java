@@ -9,7 +9,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-
 public class TestConstraintExpLessExp extends TestCase {
     private Constrainer C = new Constrainer("TestConstraintExpLessExp");
 
@@ -22,8 +21,8 @@ public class TestConstraintExpLessExp extends TestCase {
     }
 
     public void testExecute() {
-        IntVar var = C.addIntVar(0, 10, "var1", IntVar.DOMAIN_BIT_FAST), var2 = C.addIntVar(-2, -1, "var2"), var3 = C
-                .addIntVar(0, 10, "var3", IntVar.DOMAIN_BIT_FAST);
+        IntVar var = C.addIntVar(0, 10, "var1", IntVar.DOMAIN_BIT_FAST), var2 = C.addIntVar(-2, -1, "var2"),
+                var3 = C.addIntVar(0, 10, "var3", IntVar.DOMAIN_BIT_FAST);
         try {
             C.postConstraint(new ConstraintExpLessExp(var, var2, 0));
             fail("the second variable is always less then the first one");

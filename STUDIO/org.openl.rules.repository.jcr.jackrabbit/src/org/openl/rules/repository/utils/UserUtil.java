@@ -41,8 +41,8 @@ public class UserUtil {
 
             userManager.createUser(name, password, new PrincipalImpl(name), null);
 
-            AccessControlPolicy[] accessControlPolicies = accessControlManager.getPolicies(session.getRootNode()
-                .getPath());
+            AccessControlPolicy[] accessControlPolicies = accessControlManager
+                .getPolicies(session.getRootNode().getPath());
 
             /* Delete all priveleges from root node */
             for (AccessControlPolicy accessControlPolicy : accessControlPolicies) {

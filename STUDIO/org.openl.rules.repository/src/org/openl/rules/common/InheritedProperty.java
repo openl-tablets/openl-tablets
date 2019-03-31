@@ -8,7 +8,7 @@ public class InheritedProperty implements Serializable {
     private Object value;
     private ArtefactType typeOfNode;
     private String nameOfNode;
-    
+
     public InheritedProperty(Object value, ArtefactType typeOfNode, String nameOfNode) {
         this.value = value;
         this.typeOfNode = typeOfNode;
@@ -38,6 +38,5 @@ public class InheritedProperty implements Serializable {
     public void setNameOfNode(String nameOfNode) {
         this.nameOfNode = nameOfNode;
     }
-    
-    
+
 }

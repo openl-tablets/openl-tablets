@@ -8,7 +8,8 @@ public class ListItem<T> {
     private boolean selected;
     private T item;
 
-    public ListItem() {}
+    public ListItem() {
+    }
 
     public ListItem(boolean selected, T item) {
         this.selected = selected;

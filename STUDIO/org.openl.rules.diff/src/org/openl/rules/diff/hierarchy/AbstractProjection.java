@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
 public class AbstractProjection implements Projection {
     private String name;
     private String type;
@@ -20,37 +19,37 @@ public class AbstractProjection implements Projection {
         children = new ArrayList<>();
     }
 
-//    @Override
+    // @Override
     @Override
     public List<Projection> getChildren() {
         return Collections.unmodifiableList(children);
     }
 
-//    @Override
+    // @Override
     @Override
     public String getType() {
         return type;
     }
 
-//    @Override
+    // @Override
     @Override
     public String getName() {
         return name;
     }
 
-//    @Override
+    // @Override
     @Override
     public Collection<ProjectionProperty> getProperties() {
         return properties.getAll();
     }
 
-//  @Override
+    // @Override
     @Override
     public ProjectionProperty getProperty(String propertyName) {
         return properties.get(propertyName);
     }
 
-//  @Override
+    // @Override
     @Override
     public Object getPropertyValue(String propertyName) {
         ProjectionProperty p = properties.get(propertyName);

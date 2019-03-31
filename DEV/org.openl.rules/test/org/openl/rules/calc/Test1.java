@@ -42,7 +42,9 @@ public class Test1 {
 
     public interface ITestCalc {
         SpreadsheetResult calc1(int a, int b);
+
         SpreadsheetResult calc2(int a, int b);
+
         SpreadsheetResult calc3(int a, int b);
     }
 }

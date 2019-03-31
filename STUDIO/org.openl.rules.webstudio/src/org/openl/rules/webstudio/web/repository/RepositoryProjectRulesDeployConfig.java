@@ -99,7 +99,8 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             UserWorkspaceProject project = getProject();
 
-            InputStream inputStream = IOUtils.toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
+            InputStream inputStream = IOUtils
+                .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -121,7 +122,8 @@ public class RepositoryProjectRulesDeployConfig {
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
         if (project.getRepository() instanceof FileSystemRepository) {
-            File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(), project.getFolderPath());
+            File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(),
+                project.getFolderPath());
             return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();

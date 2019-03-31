@@ -14,8 +14,7 @@ public interface RDeploymentDescriptorProject extends RCommonProject, REntity {
     RVersion getActiveVersion();
 
     /**
-     * Gets collection of descriptors for projects that are included in this
-     * deploy configuration.
+     * Gets collection of descriptors for projects that are included in this deploy configuration.
      *
      * @return project descriptors
      */

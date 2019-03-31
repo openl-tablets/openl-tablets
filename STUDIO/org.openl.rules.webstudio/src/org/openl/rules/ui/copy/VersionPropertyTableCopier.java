@@ -26,7 +26,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         super(table);
         checkPropertiesExistance();
     }
-    
+
     public Version getOriginalVersion() {
         // get the version of copying table
         //
@@ -38,10 +38,10 @@ public class VersionPropertyTableCopier extends TableCopier {
         }
         return tableVersion;
     }
-    
+
     @Override
     public Version getMinNextVersion() {
-        Version originalVersion = getOriginalVersion();        
+        Version originalVersion = getOriginalVersion();
         originalVersion.setVariant(originalVersion.getVariant() + 1);
         return originalVersion;
     }
@@ -64,9 +64,10 @@ public class VersionPropertyTableCopier extends TableCopier {
         if (versionProperty == null) {
             // Property "version" is absent in base table
             versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME,
-                    TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
+                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
                     .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
-                    .value(getOriginalVersion().toString()).build();
+                    .value(getOriginalVersion().toString())
+                    .build();
             getPropertiesManager().addProperty(versionProperty);
         }
     }
@@ -82,13 +83,13 @@ public class VersionPropertyTableCopier extends TableCopier {
         // set original table property 'active' to false
         //
         properties.put(ACTIVE_PROP_NAME, "false");
-        
-        // reset the original version value (should be done for table that didn`t have 
+
+        // reset the original version value (should be done for table that didn`t have
         // this property before)
         //
-        Version version = getOriginalVersion();        
+        Version version = getOriginalVersion();
         properties.put(VERSION_PROP_NAME, version.toString());
-        
+
         updatePropertiesForOriginalTable(properties);
     }
 

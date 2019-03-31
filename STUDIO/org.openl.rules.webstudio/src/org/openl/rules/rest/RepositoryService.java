@@ -83,7 +83,8 @@ public class RepositoryService {
             ProjectDescription projectDescription = getProjectDescription(prj);
             result.add(projectDescription);
         }
-        return Response.ok(new GenericEntity<List<ProjectDescription>>(result) {}).build();
+        return Response.ok(new GenericEntity<List<ProjectDescription>>(result) {
+        }).build();
     }
 
     /**
@@ -121,7 +122,8 @@ public class RepositoryService {
     @GET
     @Path("project/{name}/{version}")
     @Produces("application/zip")
-    public Response getProject(@PathParam("name") final String name, @PathParam("version") final String version) throws WorkspaceException {
+    public Response getProject(@PathParam("name") final String name,
+            @PathParam("version") final String version) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
@@ -165,9 +167,8 @@ public class RepositoryService {
     }
 
     /**
-     * Uploads a zipped project to a design repository. The upload will be
-     * performed if the project in the design repository is not locked by other
-     * user.
+     * Uploads a zipped project to a design repository. The upload will be performed if the project in the design
+     * repository is not locked by other user.
      * 
      * @param name a project name to update
      * @param zipFile a zipped project
@@ -217,9 +218,8 @@ public class RepositoryService {
     }
 
     /**
-     * Uploads a zipped project to a design repository. The upload will be
-     * performed if the project in the design repository is not locked by other
-     * user.
+     * Uploads a zipped project to a design repository. The upload will be performed if the project in the design
+     * repository is not locked by other user.
      *
      * @param zipFile a zipped project
      * @param comment a revision comment
@@ -228,8 +228,8 @@ public class RepositoryService {
     @Path("project")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response addProject(@Context UriInfo uriInfo,
-                               @Multipart(value = "file") File zipFile,
-                               @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
+            @Multipart(value = "file") File zipFile,
+            @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
         File zipFolder = null;
         try {
             // Temp folders
@@ -244,10 +244,16 @@ public class RepositoryService {
                 name = getProjectName(rules);
             }
             if (StringUtils.isBlank(name)) {
-                return Response.status(Status.NOT_ACCEPTABLE).entity("The uploaded file does not contain Project Name in the rules.xml ").build();
+                return Response.status(Status.NOT_ACCEPTABLE)
+                    .entity("The uploaded file does not contain Project Name in the rules.xml ")
+                    .build();
             }
 
-            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name), name, new FileInputStream(zipFile), zipFile.length(), comment);
+            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name),
+                name,
+                new FileInputStream(zipFile),
+                zipFile.length(),
+                comment);
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
@@ -258,9 +264,8 @@ public class RepositoryService {
     }
 
     /**
-     * Uploads a zipped project to a design repository. The upload will be
-     * performed if the project in the design repository is not locked by other
-     * user.
+     * Uploads a zipped project to a design repository. The upload will be performed if the project in the design
+     * repository is not locked by other user.
      *
      * @param zipFile a zipped project
      */
@@ -270,7 +275,11 @@ public class RepositoryService {
         return addProject(uriInfo, zipFile, null);
     }
 
-    private Response addProject(String uri, String name, InputStream zipFile, long zipSize, String comment) throws WorkspaceException {
+    private Response addProject(String uri,
+            String name,
+            InputStream zipFile,
+            long zipSize,
+            String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
@@ -345,8 +354,7 @@ public class RepositoryService {
     }
 
     /**
-     * Locks the given project. The lock will be set if this project is not
-     * locked.
+     * Locks the given project. The lock will be set if this project is not locked.
      * 
      * @param name a project name to lock
      */
@@ -367,15 +375,15 @@ public class RepositoryService {
     }
 
     /**
-     * Unlocks the given project. The unlock will be set if this project is
-     * locked by current user.
+     * Unlocks the given project. The unlock will be set if this project is locked by current user.
      * 
      * @param name a project name to unlock.
      */
     @POST
     @Path("unlockProject/{name}")
     public Response unlockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
-        // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify the project's state.
+        // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify
+        // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();

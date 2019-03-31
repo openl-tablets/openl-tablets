@@ -30,7 +30,10 @@ public class TestTBasicVM {
         SimpleVM simpleVm = new SimpleVM();
         IRuntimeEnv simpleOpenLEnvironment = simpleVm.getRuntimeEnv();
 
-        TBasicContextHolderEnv environment = new TBasicContextHolderEnv(simpleOpenLEnvironment, thisTarget, params, tvm);
+        TBasicContextHolderEnv environment = new TBasicContextHolderEnv(simpleOpenLEnvironment,
+            thisTarget,
+            params,
+            tvm);
 
         tvm.run(environment);
     }

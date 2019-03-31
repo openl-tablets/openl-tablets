@@ -14,7 +14,7 @@ public interface ITreeNode<T> extends ITreeElement<T> {
      * 
      * @param key node key
      * @param child tree node to add
-     * @return 
+     * @return
      */
     void addChild(Object key, ITreeNode<T> child);
 

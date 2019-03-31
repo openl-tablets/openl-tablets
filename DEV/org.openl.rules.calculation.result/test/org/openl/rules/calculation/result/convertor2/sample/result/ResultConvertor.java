@@ -37,14 +37,14 @@ public class ResultConvertor {
     }
 
     private void init() {
-    	// columns that should be extracted for all levels
-    	//
+        // columns that should be extracted for all levels
+        //
         List<ColumnToExtract> columnsToExtract = new ArrayList<>();
         columnsToExtract.add(new ColumnToExtract(CODE_COLUMN, String.class));
         columnsToExtract.add(new ColumnToExtract(FORMULA_COLUMN, Double.class));
         columnsToExtract.add(new ColumnToExtract(VALUE_COLUMN, Double.class));
         columnsToExtract.add(new ColumnToExtract(TEXT_COLUMN, String.class));
-        
+
         // add additional column for extraction on vehicle level
         //
         List<ColumnToExtract> columnsOnVehicleLevel = new ArrayList<>(columnsToExtract);
@@ -57,7 +57,7 @@ public class ResultConvertor {
         columnsToExtractForLevels.put(3, columnsToExtract);
 
         NestedSpreadsheetConfiguration<SimpleStep, CompoundStep> configuration = new NestedSpreadsheetConfiguration<SimpleStep, CompoundStep>(
-                columnsToExtractForLevels) {
+            columnsToExtractForLevels) {
             @Override
             protected RowExtractor<CompoundStep> initCompoundRowExtractor(
                     List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
@@ -69,9 +69,10 @@ public class ResultConvertor {
                     List<SpreadsheetColumnExtractor<SimpleStep>> simpleExtractors) {
                 return SimpleRowExtractorFactory.newInstance(simpleExtractors);
             }
-            
+
             @Override
-            protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel, ColumnToExtract column) {
+            protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel,
+                    ColumnToExtract column) {
                 return new NestedSpreadsheedColumnExtractorWithPostProcessing(nestingLevel, this, column);
             }
         };

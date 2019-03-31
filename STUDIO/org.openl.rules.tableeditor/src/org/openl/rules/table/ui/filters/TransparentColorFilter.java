@@ -4,7 +4,6 @@
  */
 package org.openl.rules.table.ui.filters;
 
-
 /**
  * @author snshor
  *
