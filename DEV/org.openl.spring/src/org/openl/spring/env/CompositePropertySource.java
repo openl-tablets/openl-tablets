@@ -65,7 +65,7 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
 
     @Override
     public String[] getPropertyNames() {
-        Set<String> names = new LinkedHashSet<String>();
+        Set<String> names = new LinkedHashSet<>();
         for (PropertySource<?> propertySource : this.propertySources) {
             if (propertySource instanceof EnumerablePropertySource) {
                 names.addAll(Arrays.asList(((EnumerablePropertySource<?>) propertySource).getPropertyNames()));

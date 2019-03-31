@@ -3,7 +3,6 @@ package org.openl.rules.workspace.lw;
 import java.io.File;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 

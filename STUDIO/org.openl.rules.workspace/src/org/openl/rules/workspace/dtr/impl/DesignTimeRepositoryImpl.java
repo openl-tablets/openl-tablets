@@ -236,12 +236,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             result = new ArrayList<>(projects.values());
         }
 
-        Collections.sort(result, new Comparator<AProject>() {
-            @Override
-            public int compare(AProject o1, AProject o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        Collections.sort(result, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         return result;
     }

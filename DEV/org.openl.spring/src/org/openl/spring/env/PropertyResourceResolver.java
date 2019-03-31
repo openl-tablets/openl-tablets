@@ -11,17 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 /**
- * A helper which resolves ${...} placeholders with values from property
- * resources (system & environment properties, init-params, predefined
- * properties files...), then converts a comma delimited string to a list of
- * values and replaces and {appName} and {profile} tags with values from the
- * application context.
+ * A helper which resolves ${...} placeholders with values from property resources (system & environment properties,
+ * init-params, predefined properties files...), then converts a comma delimited string to a list of values and replaces
+ * and {appName} and {profile} tags with values from the application context.
  * <p>
- * For example. If value is
- * <i>file:${user.home}/{appName}-{profile}.properties</i>, where {appName} is
- * "webstudio", and Spring active propfile is "prod, test", then result will be
- * the list of values: <i>["file:/home/openl/webstudio-prod.properties",
- * "file:/home/openl/webstudio-test.properties"]</i>
+ * For example. If value is <i>file:${user.home}/{appName}-{profile}.properties</i>, where {appName} is "webstudio", and
+ * Spring active propfile is "prod, test", then result will be the list of values:
+ * <i>["file:/home/openl/webstudio-prod.properties", "file:/home/openl/webstudio-test.properties"]</i>
  * </p>
  * 
  * @author Yury Molchan
@@ -51,11 +47,11 @@ public class PropertyResourceResolver {
         if (CollectionUtils.isEmpty(values)) {
             return Collections.emptyList();
         }
-        ArrayList<String> result = new ArrayList<String>(32);
+        ArrayList<String> result = new ArrayList<>(32);
         for (String value : values) {
             String resolved = resolver.resolvePlaceholders(value);
             if (StringUtils.isBlank(resolved)) {
-                log.debug("!       Empty: '{}'", new Object[]{value});
+                log.debug("!       Empty: '{}'", value);
                 continue;
             }
             String[] splitted = StringUtils.split(resolved, ',');
@@ -69,15 +65,14 @@ public class PropertyResourceResolver {
 
     private List<String> resolveTags(String value) {
         String withApp = resolveAppName(value);
-        List<String> withProfiles = resolveProfile(withApp);
-        return withProfiles;
+        return resolveProfile(withApp);
     }
 
     private String resolveAppName(String value) {
         if (value.contains(APP_NAME_TAG)) {
             String appName = getAppName();
             if (StringUtils.isBlank(appName)) {
-                log.debug("- No app name: '{}'", new Object[]{value});
+                log.debug("- No app name: '{}'", value);
                 value = "";
             } else {
                 value = value.replace(APP_NAME_TAG, appName);
@@ -93,11 +88,11 @@ public class PropertyResourceResolver {
         if (value.contains(PROFILE_TAG)) {
             String[] profiles = getProfiles();
             if (CollectionUtils.isEmpty(profiles)) {
-                log.debug("- No profiles: '{}'", new Object[]{value});
+                log.debug("- No profiles: '{}'", value);
                 return Collections.emptyList();
             } else {
                 int size = profiles.length;
-                ArrayList<String> result = new ArrayList<String>(size);
+                ArrayList<String> result = new ArrayList<>(size);
                 for (String profile : profiles) {
                     result.add(value.replace(PROFILE_TAG, profile));
                 }

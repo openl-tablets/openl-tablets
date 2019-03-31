@@ -14,15 +14,14 @@ public class FileNamePathFilter implements PathFilter {
     private final Collection<Pattern> patterns;
 
     public FileNamePathFilter(Collection<String> filenames) {
-        patterns = new ArrayList<Pattern>();
+        patterns = new ArrayList<>();
         for (String filename : filenames) {
             patterns.add(Pattern.compile("(.*/)?" + filename));
         }
     }
 
     /**
-     * The filter method. Checks a filename in form of:
-     * <i>root_folder/sub_folder/.../[file_name]</i>.
+     * The filter method. Checks a filename in form of: <i>root_folder/sub_folder/.../[file_name]</i>.
      *
      * @param filename file or directory name
      *

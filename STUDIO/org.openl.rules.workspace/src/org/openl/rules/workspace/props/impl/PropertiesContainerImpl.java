@@ -14,7 +14,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     private HashMap<String, Property> properties;
 
     public PropertiesContainerImpl() {
-        properties = new HashMap<String, Property>();
+        properties = new HashMap<>();
     }
 
     /** {@inheritDoc} */

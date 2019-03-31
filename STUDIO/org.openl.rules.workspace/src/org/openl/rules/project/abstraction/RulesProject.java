@@ -154,10 +154,10 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void lock() throws ProjectException {
-            // No need to lock local only projects. Other users don't see it.
-            if (!isLocalOnly()) {
-                lockEngine.tryLock(getName(), getUser().getUserName());
-            }
+        // No need to lock local only projects. Other users don't see it.
+        if (!isLocalOnly()) {
+            lockEngine.tryLock(getName(), getUser().getUserName());
+        }
     }
 
     @Override

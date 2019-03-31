@@ -19,7 +19,7 @@ import java.util.Map;
  *         TODO Separate configuration sets from the manager
  */
 public class ConfigurationManager implements PropertiesHolder {
-    public static String REPO_PASS_KEY = "repository.encode.decode.key";
+    public static final String REPO_PASS_KEY = "repository.encode.decode.key";
 
     private final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 

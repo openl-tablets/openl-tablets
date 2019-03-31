@@ -14,7 +14,7 @@ public class FolderNamePathFilter implements PathFilter {
     private final Collection<Pattern> patterns;
 
     public FolderNamePathFilter(Collection<String> folderNames) {
-        patterns = new ArrayList<Pattern>();
+        patterns = new ArrayList<>();
         for (String folderName : folderNames) {
             patterns.add(Pattern.compile("(.*/)?" + folderName + "/.*"));
         }
