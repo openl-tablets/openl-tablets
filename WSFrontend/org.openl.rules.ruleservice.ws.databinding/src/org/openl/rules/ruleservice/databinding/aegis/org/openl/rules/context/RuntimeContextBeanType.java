@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context;
  * #L%
  */
 
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -26,10 +25,8 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 
 /**
- * Defines IRulesRuntime context deserialization from XML: new
- * {@link DefaultRulesRuntimeContext} will be used(By default Aegis creates
- * Proxy that does not provide some necessary methods, e.g. <code>clone()</code>
- * ).
+ * Defines IRulesRuntime context deserialization from XML: new {@link DefaultRulesRuntimeContext} will be used(By
+ * default Aegis creates Proxy that does not provide some necessary methods, e.g. <code>clone()</code> ).
  * 
  * @author PUdalau
  */
@@ -39,13 +36,13 @@ public class RuntimeContextBeanType extends BeanType {
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    private static BeanTypeInfo getBeanTypeInfo(){
+    private static BeanTypeInfo getBeanTypeInfo() {
         BeanTypeInfo bti = new BeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI());
         bti.setExtensibleAttributes(false);
         bti.setExtensibleElements(false);
         return bti;
     }
-    
+
     public RuntimeContextBeanType() {
         super(getBeanTypeInfo());
         setTypeClass(TYPE_CLASS);
@@ -67,9 +64,8 @@ public class RuntimeContextBeanType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
-                    context.getGlobalContext(),
-                    defaultType);
+                AegisType type = TypeUtil
+                    .getReadType(childReader.getXMLStreamReader(), context.getGlobalContext(), defaultType);
                 if (type != null) {
                     String propertyName = qName.getLocalPart();
                     Object propertyValue = type.readObject(childReader, context);

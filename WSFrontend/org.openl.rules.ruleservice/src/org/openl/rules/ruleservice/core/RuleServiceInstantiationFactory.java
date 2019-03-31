@@ -1,10 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
-
 /**
- * Interface for OpenL instantiation factory, that is used by RuleService.
- * Implementations should create OpenLService instantiated objects from
- * ServiceDescriptions.
+ * Interface for OpenL instantiation factory, that is used by RuleService. Implementations should create OpenLService
+ * instantiated objects from ServiceDescriptions.
  * 
  * @author Marat Kamalov
  * 
@@ -18,6 +16,5 @@ public interface RuleServiceInstantiationFactory {
      * @return
      * @throws RuleServiceInstantiationException
      */
-    OpenLService createService(ServiceDescription serviceDescription)
-            throws RuleServiceInstantiationException;
+    OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException;
 }

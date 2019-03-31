@@ -13,8 +13,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * Class designed for testing rules. This test requires
- * JavaClassRuleServicePublisher publisher in spring context.
+ * Class designed for testing rules. This test requires JavaClassRuleServicePublisher publisher in spring context.
  * 
  * @author Marat Kamalov
  * 
@@ -91,8 +90,10 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @return result of invocation
      * @throws MethodInvocationException exception on rule execution fail.
      */
-    protected Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)
-            throws MethodInvocationException {
+    protected Object execute(String serviceName,
+            String ruleName,
+            Class<?>[] inputParamsTypes,
+            Object[] params) throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
@@ -100,7 +101,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
             throw new IllegalArgumentException("ruleName argument can't be null");
         }
         return getJavaClassRuleServicePublisher().getFrontend()
-                .execute(serviceName, ruleName, inputParamsTypes, params);
+            .execute(serviceName, ruleName, inputParamsTypes, params);
     }
 
     /**

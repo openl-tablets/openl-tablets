@@ -13,10 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates
- * decision to RulesInstantiationStrategyFactory if one module in service.
- * Returns LazyMultiModuleInstantiationStrategy strategy if more than one module
- * in service.
+ * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates decision to
+ * RulesInstantiationStrategyFactory if one module in service. Returns LazyMultiModuleInstantiationStrategy strategy if
+ * more than one module in service.
  * 
  * 
  * @author Marat Kamalov
@@ -37,7 +36,8 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
 
     /** {@inheritDoc} */
     @Override
-    public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription, IDependencyManager dependencyManager) {
+    public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription,
+            IDependencyManager dependencyManager) {
         Collection<Module> modules = serviceDescription.getModules();
         int moduleSize = modules.size();
         if (moduleSize == 0) {

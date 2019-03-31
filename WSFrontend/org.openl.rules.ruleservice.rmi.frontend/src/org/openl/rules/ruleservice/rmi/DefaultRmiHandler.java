@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.rmi;
  * #L%
  */
 
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -26,16 +25,14 @@ public interface DefaultRmiHandler extends Remote {
      * 
      * @param serviceNmae Name of deployed service
      * @param ruleName Technical name of the rule to execute
-     * @param inputParamsTypes Types of method input parameters to discover
-     *            method
+     * @param inputParamsTypes Types of method input parameters to discover method
      * @param params Parameters for method execution
      * @return Result of execution
      */
     Object execute(String ruleName, Class<?>[] inputParamsTypes, Object[] params) throws RemoteException;
 
     /**
-     * Executes method with specified parameters. Method discovery is done based
-     * on parameters types.
+     * Executes method with specified parameters. Method discovery is done based on parameters types.
      * 
      * @param serviceNmae Name of deployed service
      * @param ruleName Technical name of the rule to execute

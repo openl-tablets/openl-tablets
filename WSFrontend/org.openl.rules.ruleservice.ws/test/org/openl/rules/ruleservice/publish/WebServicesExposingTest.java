@@ -16,7 +16,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration( initializers = PropertySourcesLoader.class, locations = { "classpath:openl-ruleservice-beans.xml", "classpath:openl-ruleservice-logging-beans.xml" })
+@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = { "classpath:openl-ruleservice-beans.xml",
+        "classpath:openl-ruleservice-logging-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
@@ -24,15 +25,15 @@ public class WebServicesExposingTest implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
     @Test
     public void testServerPrototypes() {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
         serviceManager.start();
-        JAXWSRuleServicePublisher webServicesRuleServicePublisher = applicationContext.getBean(
-                JAXWSRuleServicePublisher.class);
+        JAXWSRuleServicePublisher webServicesRuleServicePublisher = applicationContext
+            .getBean(JAXWSRuleServicePublisher.class);
         ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
         ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
         assertTrue(firstServer != secondServer);
@@ -40,7 +41,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "classpath:openl-ruleservice-beans.xml");
+            "classpath:openl-ruleservice-beans.xml");
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         serviceManager.start();
         System.out.print("Press enter for server stop:");

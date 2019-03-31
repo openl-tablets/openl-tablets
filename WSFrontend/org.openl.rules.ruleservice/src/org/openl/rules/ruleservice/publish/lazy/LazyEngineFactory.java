@@ -43,8 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Prebinds openclass and creates LazyMethod and LazyField that will compile
- * neccessary modules on demand.
+ * Prebinds openclass and creates LazyMethod and LazyField that will compile neccessary modules on demand.
  *
  * @author PUdalau, Marat Kamalov
  */
@@ -86,8 +85,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     /**
-     * Added to allow using openl that is different from default, such as
-     * org.openl.xls.ce
+     * Added to allow using openl that is different from default, such as org.openl.xls.ce
      *
      * @param modules
      * @param openlName `
@@ -211,8 +209,9 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         for (Module module : modules) {
             String modulePath = module.getRulesRootPath().getPath();
             try {
-                if (FilenameUtils.normalize(sourceUrl).equals(FilenameUtils
-                    .normalize(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
+                if (FilenameUtils.normalize(sourceUrl)
+                    .equals(FilenameUtils
+                        .normalize(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
                     return module;
                 }
             } catch (Exception e) {
@@ -322,9 +321,9 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     @Override
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
-        if (!(interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptor.class)
-                || interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptors.class)
-                || interfaceMethod.isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
+        if (!(interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptor.class) || interfaceMethod
+            .isAnnotationPresent(ServiceCallAfterInterceptors.class) || interfaceMethod
+                .isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
             super.validateReturnType(openMethod, interfaceMethod);
         }
     }

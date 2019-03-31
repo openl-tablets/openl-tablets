@@ -9,7 +9,7 @@ public final class ServiceDescriptionHolder {
 
     private ServiceDescriptionHolder() {
     }
-    
+
     public static ServiceDescriptionHolder getInstance() {
         return INSTANCE;
     }

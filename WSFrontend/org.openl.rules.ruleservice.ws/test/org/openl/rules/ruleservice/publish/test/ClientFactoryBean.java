@@ -10,8 +10,8 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Creates rating service client proxy object. Designed as Spring factory bean.
- * Uses CXF ClientProxyFactoryBean for building client object.
+ * Creates rating service client proxy object. Designed as Spring factory bean. Uses CXF ClientProxyFactoryBean for
+ * building client object.
  * 
  * Set "logging" property to true for logging enable.
  * 

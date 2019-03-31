@@ -3,9 +3,8 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /***
- * Abstract implementation ServiceMethodAfterAdvice that can be usefull if you
- * should intercept only after throwing situation. After throwing situation is
- * implemented.
+ * Abstract implementation ServiceMethodAfterAdvice that can be usefull if you should intercept only after throwing
+ * situation. After throwing situation is implemented.
  * 
  * @author Marat Kamalov
  * 

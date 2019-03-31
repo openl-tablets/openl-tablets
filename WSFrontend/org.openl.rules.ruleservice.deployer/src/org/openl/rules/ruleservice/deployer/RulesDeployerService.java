@@ -43,6 +43,7 @@ public class RulesDeployerService implements Closeable {
 
     /**
      * Initializes repository using target properties
+     * 
      * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
@@ -54,20 +55,20 @@ public class RulesDeployerService implements Closeable {
         params.put("login", properties.getProperty("production-repository.login"));
         params.put("password", properties.getProperty("production-repository.password"));
         // AWS S3 specific
-        params.put("bucketName",properties.getProperty("production-repository.bucket-name"));
-        params.put("regionName",properties.getProperty("production-repository.region-name"));
-        params.put("accessKey",properties.getProperty("production-repository.access-key"));
-        params.put("secretKey",properties.getProperty("production-repository.secret-key"));
+        params.put("bucketName", properties.getProperty("production-repository.bucket-name"));
+        params.put("regionName", properties.getProperty("production-repository.region-name"));
+        params.put("accessKey", properties.getProperty("production-repository.access-key"));
+        params.put("secretKey", properties.getProperty("production-repository.secret-key"));
         // Git specific
-        params.put("localRepositoryPath",properties.getProperty("production-repository.local-repository-path"));
-        params.put("branch",properties.getProperty("production-repository.branch"));
-        params.put("tagPrefix",properties.getProperty("production-repository.tag-prefix"));
-        params.put("commentPattern",properties.getProperty("production-repository.comment-pattern"));
+        params.put("localRepositoryPath", properties.getProperty("production-repository.local-repository-path"));
+        params.put("branch", properties.getProperty("production-repository.branch"));
+        params.put("tagPrefix", properties.getProperty("production-repository.tag-prefix"));
+        params.put("commentPattern", properties.getProperty("production-repository.comment-pattern"));
         // AWS S3 and Git specific
-        params.put("listener-timer-period",properties.getProperty("production-repository.listener-timer-period"));
+        params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
 
-        this.deployRepo = RepositoryInstatiator
-                .newRepository(properties.getProperty("production-repository.factory"), params);
+        this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
+            params);
     }
 
     /**
@@ -75,7 +76,8 @@ public class RulesDeployerService implements Closeable {
      *
      * @param name original ZIP file name
      * @param in zip input stream
-     * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it will be overridden.
+     * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it
+     *            will be overridden.
      */
     public void deploy(String name, InputStream in, boolean overridable) throws Exception {
         deployInternal(name, in, overridable);
@@ -143,9 +145,7 @@ public class RulesDeployerService implements Closeable {
 
             InputStream inputStream = deployment.getInputStream();
             inputStream.reset();
-            doDeploy(deployPath + deploymentName + '/' + projectName,
-                deployment.getContentSize(),
-                inputStream);
+            doDeploy(deployPath + deploymentName + '/' + projectName, deployment.getContentSize(), inputStream);
         } finally {
             IOUtils.closeQuietly(zipStream);
         }

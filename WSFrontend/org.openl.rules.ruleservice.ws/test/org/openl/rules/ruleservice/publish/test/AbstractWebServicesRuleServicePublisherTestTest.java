@@ -18,7 +18,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = { "classpath:openl-ruleservice-logging-beans.xml", "classpath:openl-ruleservice-beans.xml", "classpath:openl-ruleservice-override-beans.xml"})
+@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = {
+        "classpath:openl-ruleservice-logging-beans.xml",
+        "classpath:openl-ruleservice-beans.xml",
+        "classpath:openl-ruleservice-override-beans.xml" })
 @DirtiesContext
 @Ignore
 public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWebServicesRuleServicePublisherTest {
@@ -32,10 +35,9 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
         boolean isInstance = service.getServiceClass().isInstance(client);
         assertTrue(isInstance);
         /*
-         * Tutorial4Interface tutorial4 = (Tutorial4Interface) client; String[]
-         * coverages = tutorial4.getCoverage(); assertEquals(2,
-         * coverages.length); String[] theftRating =
-         * tutorial4.getTheft_rating(); assertEquals(3, theftRating.length);
+         * Tutorial4Interface tutorial4 = (Tutorial4Interface) client; String[] coverages = tutorial4.getCoverage();
+         * assertEquals(2, coverages.length); String[] theftRating = tutorial4.getTheft_rating(); assertEquals(3,
+         * theftRating.length);
          */
         Method method = service.getServiceClass().getMethod("getCoverage", IRulesRuntimeContext.class);
         Object result = method.invoke(client, RulesRuntimeContextFactory.buildRulesRuntimeContext());
@@ -46,12 +48,11 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
 
     @Test
     public void testDynamicClientInvocation() throws Exception {
-        /*Client client = getDynamicClientByServiceName(SERVICE_NAME_TUTORIAL4);
-        assertNotNull(client);
-        Object result = client.invoke("getCoverage")[0];
-        Method method = Thread.currentThread().getContextClassLoader()
-                .loadClass("org.openl.rules.tutorial4.ArrayOfString").getMethod("getString");
-        List<?> listResult = (List<?>) method.invoke(result, new DefaultRulesRuntimeContext());
-        assertEquals(2, listResult.size());*/
+        /*
+         * Client client = getDynamicClientByServiceName(SERVICE_NAME_TUTORIAL4); assertNotNull(client); Object result =
+         * client.invoke("getCoverage")[0]; Method method = Thread.currentThread().getContextClassLoader()
+         * .loadClass("org.openl.rules.tutorial4.ArrayOfString").getMethod("getString"); List<?> listResult = (List<?>)
+         * method.invoke(result, new DefaultRulesRuntimeContext()); assertEquals(2, listResult.size());
+         */
     }
 }

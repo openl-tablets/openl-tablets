@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.core;
 
-
 /**
  * Exception for instantiation issues.
  * 

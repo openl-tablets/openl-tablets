@@ -9,11 +9,11 @@ public final class ServiceManagerStarterBean implements InitializingBean {
     public void setServiceManager(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
     }
-    
+
     public ServiceManager getServiceManager() {
         return serviceManager;
     }
-    
+
     @Override
     public void afterPropertiesSet() throws Exception {
         serviceManager.start();

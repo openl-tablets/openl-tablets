@@ -12,7 +12,7 @@ import org.openl.rules.ruleservice.logging.TypeConvertor;
 @Target(ElementType.METHOD)
 public @interface SetterValue {
     String value() default "";
-    
+
     Class<? extends TypeConvertor<String, ?>> convertor() default DefaultStringConvertor.class;
 
     PublisherType[] publisherTypes() default { PublisherType.WEBSERVICE, PublisherType.RESTFUL };

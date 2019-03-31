@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Local temporary file system storage for deployments. Clears all data on first
- * initialization. Thread safe implementation.
+ * Local temporary file system storage for deployments. Clears all data on first initialization. Thread safe
+ * implementation.
  *
  * @author Marat Kamalov
  */
@@ -57,9 +57,8 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets path to folder to load deployments in directory. Extract the value
-     * with key <i>ruleservice.deployment.storage.dir</i> from configuration
-     * file. If such a key is missing returns default value
+     * Gets path to folder to load deployments in directory. Extract the value with key
+     * <i>ruleservice.deployment.storage.dir</i> from configuration file. If such a key is missing returns default value
      * <tt>/tmp/rules-deploy</tt>.
      *
      * @return path to load in directory
@@ -69,8 +68,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Generates folder name for deployment by given deployment name and common
-     * version.
+     * Generates folder name for deployment by given deployment name and common version.
      *
      * @return folder name
      */
@@ -79,8 +77,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets deployment from storage. If deployment doesn't exists in storage
-     * returns null.
+     * Gets deployment from storage. If deployment doesn't exists in storage returns null.
      *
      * @return deployment from storage or null if doens't exists
      */

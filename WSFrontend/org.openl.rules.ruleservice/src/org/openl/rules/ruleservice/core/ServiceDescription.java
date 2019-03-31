@@ -84,7 +84,7 @@ public final class ServiceDescription {
             builder.modules,
             builder.deployment,
             builder.configuration,
-            builder.publishers.toArray(new String[]{}));
+            builder.publishers.toArray(new String[] {}));
     }
 
     /**
@@ -122,7 +122,7 @@ public final class ServiceDescription {
     public String getServiceClassName() {
         return serviceClassName;
     }
-    
+
     /**
      * Returns RMI service class name.
      * 
@@ -133,8 +133,8 @@ public final class ServiceDescription {
     }
 
     /**
-     * Returns provideRuntimeContext value. This value is define that service
-     * methods first argument is IRulesRuntimeContext.
+     * Returns provideRuntimeContext value. This value is define that service methods first argument is
+     * IRulesRuntimeContext.
      * 
      * @return
      */
@@ -145,8 +145,7 @@ public final class ServiceDescription {
     /**
      * This flag defines whether variations will be supported or not.
      * 
-     * @return <code>true</code> if variations should be injected in service
-     *         class, and <code>false</code> otherwise.
+     * @return <code>true</code> if variations should be injected in service class, and <code>false</code> otherwise.
      */
     public boolean isProvideVariations() {
         return provideVariations;
@@ -173,7 +172,7 @@ public final class ServiceDescription {
     public DeploymentDescription getDeployment() {
         return deployment;
     }
-    
+
     public String[] getPublishers() {
         return publishers;
     }
@@ -231,7 +230,7 @@ public final class ServiceDescription {
 
         public void setPublishers(String[] publishers) {
             this.publishers = new HashSet<String>();
-            if (publishers != null){
+            if (publishers != null) {
                 for (String publisher : publishers) {
                     this.publishers.add(publisher);
                 }

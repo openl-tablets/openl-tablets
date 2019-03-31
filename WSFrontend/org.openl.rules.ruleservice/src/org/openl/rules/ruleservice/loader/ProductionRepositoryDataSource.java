@@ -20,9 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Repository data source. Uses
- * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository. Thread
- * safe implementation.
+ * Repository data source. Uses ProductionRepositoryFactoryProxy.getRepositoryInstance() repository. Thread safe
+ * implementation.
  *
  * @author Marat Kamalov
  */
@@ -65,7 +64,8 @@ public class ProductionRepositoryDataSource implements DataSource {
                     commonVersion = new CommonVersionImpl(version);
                 } else {
                     commonVersion = null;
-                    log.error("WebServices are configured to include version in deployment name, but version isn't found in the name.");
+                    log.error(
+                        "WebServices are configured to include version in deployment name, but version isn't found in the name.");
                 }
             } else {
                 String version = fileData.getVersion();
@@ -79,10 +79,10 @@ public class ProductionRepositoryDataSource implements DataSource {
             boolean folderStructure = isFolderStructure(folderPath);
 
             Deployment deployment = new Deployment(repository,
-                    folderPath,
-                    deploymentName,
-                    commonVersion,
-                    folderStructure);
+                folderPath,
+                deploymentName,
+                commonVersion,
+                folderStructure);
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
 

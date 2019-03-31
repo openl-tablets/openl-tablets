@@ -37,13 +37,14 @@ public interface RuleServicePublisher {
     Collection<OpenLService> getServices();
 
     /**
-     * Searches for the service from currently running with the specified name or null if service with specified name wasn't deployed.
+     * Searches for the service from currently running with the specified name or null if service with specified name
+     * wasn't deployed.
      * 
      * @param name Name of the service to find.
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
     OpenLService getServiceByName(String name);
-    
+
     /**
      * Is service with specified name was deployed.
      * 
@@ -51,7 +52,7 @@ public interface RuleServicePublisher {
      * @return true if service with specified name was deployed otherwise false.
      */
     boolean isServiceDeployed(String name);
-    
+
     /**
      * Add listener to a publisher
      * 
@@ -65,10 +66,10 @@ public interface RuleServicePublisher {
      * @param listener Listener to remove.
      */
     void removeListener(RuleServicePublisherListener listener);
-    
+
     /**
-     * Clear all listeners in publisher 
+     * Clear all listeners in publisher
      */
     void clearListeners();
-    
+
 }

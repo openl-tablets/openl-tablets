@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/DynamicInterfacePublishingTest",
-        "ruleservice.datasource.deploy.clean.datasource=false"})
+        "ruleservice.datasource.deploy.clean.datasource=false" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class DynamicInterfacePublishingTest implements ApplicationContextAware {
 
@@ -131,9 +131,8 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         Method setNameMethod = myClassClass.getMethod("setName", String.class);
         final String someValue = "someValue";
         setNameMethod.invoke(myClassIntance, someValue);
-        Object result = frontend.execute("dynamic-interface-test3",
-            "method2",
-            new Object[] { context, myClassIntance });
+        Object result = frontend
+            .execute("dynamic-interface-test3", "method2", new Object[] { context, myClassIntance });
         Assert.assertTrue(myClassClass.isInstance(result));
         Method getNameMethod = myClassClass.getMethod("getName");
         Object name = getNameMethod.invoke(result);
@@ -145,7 +144,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         result = frontend.execute("dynamic-interface-test3", "method3", new Object[] { context, myClassIntance });
         Object value = getNameMethod.invoke(myClassIntance);
         Assert.assertEquals("beforeAdviceWasInvoked", value);
-        
+
         result = frontend.execute("dynamic-interface-test3", "helloWorld", new Object[] {});
         Assert.assertEquals("Hello world ServiceExtraMethodHandler!", result);
     }

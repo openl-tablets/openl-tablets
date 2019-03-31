@@ -28,8 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Selects the latest deployments and deploys each of their projects as single
- * service.
+ * Selects the latest deployments and deploys each of their projects as single service.
  *
  * @author PUdalau, Marat Kamalov
  */
@@ -54,7 +53,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Map<String, Map<String, Deployment>> latestDeployments = new HashMap<>();
         for (Deployment deployment : deployments) {
             if (deployment.getCommonVersion() == null) {
-                throw new IllegalArgumentException("Can't detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
+                throw new IllegalArgumentException(
+                    "Can't detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
             }
             String deploymentName = deployment.getDeploymentName();
             Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
@@ -148,8 +148,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             for (AProject project : deployment.getProjects()) {
                 String projectName = project.getName();
                 try {
-                    Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(
-                            deploymentName, deploymentVersion, projectName);
+                    Collection<Module> modulesOfProject = ruleServiceLoader
+                        .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(provideRuntimeContext)
                         .setProvideVariations(supportVariations)
@@ -166,9 +166,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 AProjectResource resource = (AProjectResource) artifact;
                                 content = resource.getContent();
                                 rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                                if (rulesDeploy.getServiceClass() != null && !rulesDeploy.getServiceClass()
-                                    .trim()
-                                    .isEmpty()) {
+                                if (rulesDeploy
+                                    .getServiceClass() != null && !rulesDeploy.getServiceClass().trim().isEmpty()) {
                                     serviceDescriptionBuilder.setServiceClassName(rulesDeploy.getServiceClass().trim());
                                 }
                                 if (rulesDeploy.getRmiServiceClass() != null && !rulesDeploy.getRmiServiceClass()
@@ -193,12 +192,16 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                     serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                                 }
                                 if (rulesDeploy.getInterceptingTemplateClassName() != null && !rulesDeploy
-                                    .getInterceptingTemplateClassName().trim().isEmpty()) {
+                                    .getInterceptingTemplateClassName()
+                                    .trim()
+                                    .isEmpty()) {
                                     serviceDescriptionBuilder.setAnnotationTemplateClassName(
                                         rulesDeploy.getInterceptingTemplateClassName().trim());
                                 }
                                 if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
-                                    .getAnnotationTemplateClassName().trim().isEmpty()) {
+                                    .getAnnotationTemplateClassName()
+                                    .trim()
+                                    .isEmpty()) {
                                     serviceDescriptionBuilder.setAnnotationTemplateClassName(
                                         rulesDeploy.getAnnotationTemplateClassName().trim());
                                 }
@@ -237,8 +240,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                 } catch (Exception e) {
                     log.error(
                         "Failed to load project from repository! Project '{}' in deployment '{}' has been skipped!",
-                            projectName,
-                            deploymentName,
+                        projectName,
+                        deploymentName,
                         e);
                 }
             }

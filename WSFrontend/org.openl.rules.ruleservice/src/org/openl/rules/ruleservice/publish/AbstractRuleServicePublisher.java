@@ -12,15 +12,15 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
     protected Collection<RuleServicePublisherListener> listeners = new ArrayList<>();
 
     private PublisherType publisherType;
-    
+
     public void setPublisherType(PublisherType publisherType) {
         this.publisherType = publisherType;
     }
-    
+
     public PublisherType getPublisherType() {
         return publisherType;
     }
-    
+
     protected void fireDeployListeners(OpenLService service) {
         for (RuleServicePublisherListener listener : listeners) {
             listener.onDeploy(service);
@@ -40,15 +40,15 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
         }
         return URLHelper.processURL(ret);
     }
-    
+
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
         this.listeners = listeners;
     }
-    
+
     public Collection<RuleServicePublisherListener> getListeners() {
         return listeners;
     }
-    
+
     @Override
     public void addListener(RuleServicePublisherListener listener) {
         if (listener != null) {

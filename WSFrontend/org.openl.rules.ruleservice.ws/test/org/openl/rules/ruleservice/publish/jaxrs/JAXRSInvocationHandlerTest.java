@@ -16,8 +16,7 @@ public class JAXRSInvocationHandlerTest {
 
     @Test
     public void checkNotNullConstructorArguments() {
-        new JAXRSInvocationHandler(new Object(),
-            new HashMap<Method, Method>());
+        new JAXRSInvocationHandler(new Object(), new HashMap<Method, Method>());
     }
 
     @Test(expected = IllegalArgumentException.class)

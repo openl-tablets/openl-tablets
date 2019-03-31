@@ -16,8 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * Class designed for testing rules published via
- * WebServicesRuleServicePublisher.
+ * Class designed for testing rules published via WebServicesRuleServicePublisher.
  * 
  * @author Marat Kamalov
  * 
@@ -36,12 +35,12 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
             initialized = true;
         }
     }
-    
+
     @Override
     public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
     /**
      * Returns ApplicationContext.
      * 
@@ -59,7 +58,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
     protected JAXWSRuleServicePublisher getRuleServicePublisher() {
         return getApplicationContext().getBean(JAXWSRuleServicePublisher.class);
     }
-    
+
     /**
      * Returns all deployed services.
      * 
@@ -73,7 +72,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * Returns deployed service by name.
      * 
      * @param serviceName deployed service name
-     * @return service 
+     * @return service
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected OpenLService getServiceByName(String serviceName) throws ServiceNotFoundException {
@@ -110,7 +109,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
     }
 
     /**
-     * Creates and returns client for specified service address by deployed service name 
+     * Creates and returns client for specified service address by deployed service name
      * 
      * @param serviceName deployed service name
      * @param address address
@@ -126,7 +125,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * 
      * @param serviceName deployed service name
      * @param clazz service type
-     * @return client 
+     * @return client
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected <T> T getClient(String serviceName, Class<T> clazz) throws ServiceNotFoundException {
@@ -139,7 +138,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @param serviceName deployed service name
      * @param address service address
      * @param clazz service type
-     * @return client 
+     * @return client
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected <T> T getClient(String serviceName, String address, Class<T> clazz) throws ServiceNotFoundException {
@@ -157,8 +156,10 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @throws ServiceNotFoundException
      */
     @SuppressWarnings("unchecked")
-    protected <T> T getClient(String serviceName, String address, Class<T> clazz, DataBinding dataBinding)
-            throws ServiceNotFoundException {
+    protected <T> T getClient(String serviceName,
+            String address,
+            Class<T> clazz,
+            DataBinding dataBinding) throws ServiceNotFoundException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg can't be null");
         }
@@ -186,7 +187,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         ClientProxyFactoryBean clientProxyFactoryBean = new ClientProxyFactoryBean();
         clientProxyFactoryBean.setServiceClass(clazzForClient);
         clientProxyFactoryBean.setAddress(addressForClient);
-        if (dataBindingForClient != null){
+        if (dataBindingForClient != null) {
             clientProxyFactoryBean.setDataBinding(dataBindingForClient);
         }
         ClientFactoryBean clientFactoryBean = new ClientFactoryBean();
@@ -216,7 +217,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
     }
 
     /**
-     * Creates and returns service 
+     * Creates and returns service
      * 
      * @param wsdlLocation wsdl location url
      * @return

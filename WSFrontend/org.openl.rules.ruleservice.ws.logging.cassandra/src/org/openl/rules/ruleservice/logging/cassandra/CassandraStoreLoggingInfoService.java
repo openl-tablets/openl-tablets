@@ -38,10 +38,10 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
         Object entity = null;
 
         UseEntity useCassandraEntity = serviceMethod.getAnnotation(UseEntity.class);
-        if (useCassandraEntity == null){
+        if (useCassandraEntity == null) {
             useCassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(UseEntity.class);
         }
-        
+
         if (useCassandraEntity == null) {
             entity = new LoggingRecord();
         } else {

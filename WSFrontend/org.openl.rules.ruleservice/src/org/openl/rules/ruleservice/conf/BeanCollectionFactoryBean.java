@@ -6,7 +6,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-public class BeanCollectionFactoryBean<T> extends AbstractFactoryBean<Collection<T>> implements ApplicationContextAware{
+public class BeanCollectionFactoryBean<T> extends AbstractFactoryBean<Collection<T>> implements ApplicationContextAware {
     private Class<T> beanType;
     private ApplicationContext applicationContext;
 
@@ -14,7 +14,7 @@ public class BeanCollectionFactoryBean<T> extends AbstractFactoryBean<Collection
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
-    
+
     public void setBeanType(Class<T> beanType) {
         this.beanType = beanType;
     }
@@ -27,5 +27,5 @@ public class BeanCollectionFactoryBean<T> extends AbstractFactoryBean<Collection
     @Override
     public Class<?> getObjectType() {
         return Collection.class;
-    }    
+    }
 }

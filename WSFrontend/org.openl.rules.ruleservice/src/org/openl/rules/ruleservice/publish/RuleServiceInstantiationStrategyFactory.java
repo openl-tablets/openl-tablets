@@ -16,7 +16,7 @@ public interface RuleServiceInstantiationStrategyFactory {
      * 
      * @param modules modules
      * @param dependencyManager
-     * @return 
+     * @return
      */
     RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription, IDependencyManager dependencyManager);
 }

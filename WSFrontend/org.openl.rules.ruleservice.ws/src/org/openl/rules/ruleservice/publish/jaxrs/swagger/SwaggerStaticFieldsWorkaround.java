@@ -8,7 +8,7 @@ import io.swagger.jaxrs.listing.BaseApiListingResource;
 import io.swagger.models.Swagger;
 
 public final class SwaggerStaticFieldsWorkaround {
-    
+
     private SwaggerStaticFieldsWorkaround() {
     }
 
@@ -21,18 +21,21 @@ public final class SwaggerStaticFieldsWorkaround {
 
         Field swaggerMapField = SwaggerConfigLocator.class.getDeclaredField("swaggerMap");
         boolean swaggerMapFieldAccessible = swaggerMapField.isAccessible();
-        
+
         try {
             swaggerMapField.setAccessible(true);
-            ConcurrentMap<String, Swagger> swaggerMap = (ConcurrentMap<String, Swagger>) swaggerMapField.get(SwaggerConfigLocator.getInstance());
+            ConcurrentMap<String, Swagger> swaggerMap = (ConcurrentMap<String, Swagger>) swaggerMapField
+                .get(SwaggerConfigLocator.getInstance());
             swaggerMap.clear();
-            
+
             initializedScannerField.setAccessible(true);
-            ConcurrentMap<String, Boolean> initializedScanner = (ConcurrentMap<String, Boolean>) initializedScannerField.get(null);
+            ConcurrentMap<String, Boolean> initializedScanner = (ConcurrentMap<String, Boolean>) initializedScannerField
+                .get(null);
             initializedScanner.clear();
 
             initializedConfigField.setAccessible(true);
-            ConcurrentMap<String, Boolean> initializedConfig = (ConcurrentMap<String, Boolean>) initializedConfigField.get(null);
+            ConcurrentMap<String, Boolean> initializedConfig = (ConcurrentMap<String, Boolean>) initializedConfigField
+                .get(null);
             initializedConfig.clear();
         } finally {
             initializedConfigField.setAccessible(initializedConfigFieldAccessible);

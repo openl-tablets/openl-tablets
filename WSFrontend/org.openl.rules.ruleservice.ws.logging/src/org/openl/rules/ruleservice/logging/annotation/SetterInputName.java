@@ -12,6 +12,6 @@ import org.openl.rules.ruleservice.logging.TypeConvertor;
 @Target(ElementType.METHOD)
 public @interface SetterInputName {
     Class<? extends TypeConvertor<String, ?>> convertor() default DefaultStringConvertor.class;
-    PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
-}
 
+    PublisherType[] publisherTypes() default { PublisherType.WEBSERVICE, PublisherType.RESTFUL };
+}

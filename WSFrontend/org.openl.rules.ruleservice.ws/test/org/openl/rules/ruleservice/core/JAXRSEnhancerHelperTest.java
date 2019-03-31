@@ -131,7 +131,7 @@ public class JAXRSEnhancerHelperTest {
         @GET
         String someMethod(@PathParam("arg1") String arg, String arg2);
     }
-    
+
     @Test
     public void testMethodWithAnnotation1() throws Exception {
         Class<?> enchancedClass = createService(TestAnnotatedInterface1.class);
@@ -145,9 +145,9 @@ public class JAXRSEnhancerHelperTest {
         for (Annotation[] parameterAnnotation : someMethod.getParameterAnnotations()) {
             if (parameterAnnotation.length == 1) {
                 if (i == 0) {
-                    Assert.assertEquals("arg1", ((PathParam)parameterAnnotation[0]).value());
-                }else {
-                    Assert.assertEquals("arg11", ((PathParam)parameterAnnotation[0]).value());
+                    Assert.assertEquals("arg1", ((PathParam) parameterAnnotation[0]).value());
+                } else {
+                    Assert.assertEquals("arg11", ((PathParam) parameterAnnotation[0]).value());
                 }
             } else {
                 Assert.fail("Expected @PathParam annotation");
@@ -166,7 +166,7 @@ public class JAXRSEnhancerHelperTest {
         Class<?> enchancedClass = createService(TestAnnotatedInterface2.class);
         Method someMethod = null;
         for (Method method : enchancedClass.getMethods()) {
-            if ("someMethod".equals(method.getName())){
+            if ("someMethod".equals(method.getName())) {
                 someMethod = method;
                 break;
             }
@@ -179,7 +179,7 @@ public class JAXRSEnhancerHelperTest {
         Assert.assertNull(someMethod.getAnnotation(GET.class));
         Assert.assertEquals(1, someMethod.getParameterCount());
     }
-    
+
     public static interface TestAnnotatedInterface3 {
         @POST
         @Path("/value")
@@ -191,7 +191,7 @@ public class JAXRSEnhancerHelperTest {
         Class<?> enchancedClass = createService(TestAnnotatedInterface3.class);
         Method someMethod = null;
         for (Method method : enchancedClass.getMethods()) {
-            if ("someMethod".equals(method.getName())){
+            if ("someMethod".equals(method.getName())) {
                 someMethod = method;
                 break;
             }
@@ -204,7 +204,7 @@ public class JAXRSEnhancerHelperTest {
         Assert.assertNull(someMethod.getAnnotation(GET.class));
         Assert.assertEquals(1, someMethod.getParameterCount());
     }
-    
+
     @Test
     public void testMethodWithAnnotation() throws Exception {
         Class<?> enchancedClass = createService(TestAnnotatedInterface.class);
@@ -341,14 +341,14 @@ public class JAXRSEnhancerHelperTest {
                 default:
                     Assert.fail("Unexpected count of arguments");
 
-
             }
-            Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path)pathAnnotation).value());
+            Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path) pathAnnotation).value());
         }
     }
 
     private static Class<?> createService(Class<?> clazz) throws Exception {
-        ClassLoader classLoader = new ClassLoader() {};
+        ClassLoader classLoader = new ClassLoader() {
+        };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(clazz)

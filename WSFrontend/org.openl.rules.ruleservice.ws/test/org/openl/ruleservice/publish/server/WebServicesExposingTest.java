@@ -8,7 +8,7 @@ public class WebServicesExposingTest {
     public static void main(String[] args) throws Exception {
         @SuppressWarnings("resource")
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "classpath:openl-ruleservice-beans.xml");
+            "classpath:openl-ruleservice-beans.xml");
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         serviceManager.start();
         System.out.print("Press enter for server stop:");

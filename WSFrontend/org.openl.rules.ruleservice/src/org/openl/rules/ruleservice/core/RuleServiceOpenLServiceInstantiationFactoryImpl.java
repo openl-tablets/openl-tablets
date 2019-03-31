@@ -40,10 +40,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private ServiceCallInterceptorGroup[] serviceCallInterceptorGroups = new ServiceCallInterceptorGroup[] {};
 
-    private void initService(ServiceDescription serviceDescription, RuleServiceDeploymentRelatedDependencyManager dependencyManager,
-            OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException, ClassNotFoundException {
-        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory
-            .getStrategy(serviceDescription, dependencyManager);
+    private void initService(ServiceDescription serviceDescription,
+            RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+            OpenLService service) throws RuleServiceInstantiationException,
+                                  RulesInstantiationException,
+                                  ClassNotFoundException {
+        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
+            dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .getExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
@@ -60,7 +63,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     private void instantiateServiceBean(OpenLService service,
-            RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException, RulesInstantiationException,
+            RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException,
+                                                              RulesInstantiationException,
                                                               ClassNotFoundException {
         Class<?> serviceClass = service.getServiceClass();
         CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
@@ -96,8 +100,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
-    private void resolveInterfaceAndClassLoader(ServiceDescription serviceDescription, OpenLService service,
-            RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException, RulesInstantiationException,
+    private void resolveInterfaceAndClassLoader(ServiceDescription serviceDescription,
+            OpenLService service,
+            RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException,
+                                                              RulesInstantiationException,
                                                               ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
         Class<?> serviceClass = null;
@@ -129,7 +135,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         service.setServiceClass(serviceClass);
     }
 
-    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException, ClassNotFoundException {
+    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException,
+                                                           ClassNotFoundException {
         String rmiServiceClassName = service.getRmiServiceClassName();
         Class<?> serviceClass = null;
         ClassLoader serviceClassLoader = service.getClassLoader();
@@ -155,7 +162,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             OpenLService service,
             Class<?> serviceClass,
             ClassLoader classLoader) {
-        Class<?> resultClass = processInterceptingTemplateClassConfiguration(serviceDescription, serviceClass, classLoader);
+        Class<?> resultClass = processInterceptingTemplateClassConfiguration(serviceDescription,
+            serviceClass,
+            classLoader);
         if (resultClass == null) {
             throw new IllegalStateException("It must not happen!");
         }

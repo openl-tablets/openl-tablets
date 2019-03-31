@@ -10,11 +10,11 @@ import org.apache.cxf.interceptor.LoggingMessage;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 public class LoggingInfo {
-    
+
     private RuleServiceLogging ruleServiceLogging;
-    
+
     private Map<String, Object> loggingContext = new HashMap<>();
-    
+
     public LoggingInfo(RuleServiceLogging ruleServiceLoggingInfo) {
         this.ruleServiceLogging = ruleServiceLoggingInfo;
     }
@@ -62,7 +62,7 @@ public class LoggingInfo {
     public Map<String, Object> getContext() {
         return Collections.unmodifiableMap(ruleServiceLogging.getContext());
     }
-    
+
     public Map<String, Object> getLoggingContext() {
         return loggingContext;
     }
@@ -70,6 +70,5 @@ public class LoggingInfo {
     public boolean isIgnorable() {
         return ruleServiceLogging.isIgnorable();
     }
-    
-    
+
 }

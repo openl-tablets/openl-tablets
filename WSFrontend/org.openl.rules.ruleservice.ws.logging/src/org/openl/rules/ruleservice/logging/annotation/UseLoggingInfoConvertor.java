@@ -12,5 +12,6 @@ import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 @Target(ElementType.METHOD)
 public @interface UseLoggingInfoConvertor {
     Class<? extends LoggingInfoConvertor<?>> convertor();
-    PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
+
+    PublisherType[] publisherTypes() default { PublisherType.WEBSERVICE, PublisherType.RESTFUL };
 }

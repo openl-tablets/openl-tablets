@@ -9,7 +9,7 @@ class StaticRmiInvocationHandler implements IOpenLInvocationHandler {
 
     private Object target;
     private Map<Method, Method> methodMap;
-    
+
     @Override
     public Object getTarget() {
         return target;

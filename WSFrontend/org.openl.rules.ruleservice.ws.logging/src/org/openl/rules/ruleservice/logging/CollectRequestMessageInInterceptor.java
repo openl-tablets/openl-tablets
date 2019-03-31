@@ -16,17 +16,16 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
 /**
- * CXF interceptor for collecting request data for logging to external source
- * feature.
+ * CXF interceptor for collecting request data for logging to external source feature.
  * 
  * @author Marat Kamalov
  *
  */
 @NoJSR250Annotations
 public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMessageInterceptor {
-    
+
     public static final String ID_KEY = CollectRequestMessageInInterceptor.class.getName() + ".ID";
-    
+
     public CollectRequestMessageInInterceptor() {
         super(Phase.RECEIVE);
     }

@@ -8,13 +8,11 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 
 /**
- * This class is used to control message-on-the-wire logging. By attaching this
- * feature to an endpoint, you can specify logging. If this feature is present,
- * an endpoint will log input and output of ordinary and log messages. <br/>
+ * This class is used to control message-on-the-wire logging. By attaching this feature to an endpoint, you can specify
+ * logging. If this feature is present, an endpoint will log input and output of ordinary and log messages. <br/>
  * <br/>
- * If the <tt>loggingEnabled</tt> property is set to false then logging is
- * disabled (default is true). By default <tt>LoggingInInterceptor</tt> and
- * <tt>LoggingOutInterceptor</tt> are used to log, you can redefine appropriate
+ * If the <tt>loggingEnabled</tt> property is set to false then logging is disabled (default is true). By default
+ * <tt>LoggingInInterceptor</tt> and <tt>LoggingOutInterceptor</tt> are used to log, you can redefine appropriate
  * properties to use another logging interceptors.
  * 
  * @author NSamatov
@@ -43,7 +41,7 @@ public class LoggingFeature extends AbstractFeature {
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         if (isLoggingEnabled()) {
-             if (getInInterceptor() == null) {
+            if (getInInterceptor() == null) {
                 LoggingInInterceptor in = new LoggingInInterceptor(limit);
                 in.setOutputLocation(inLocation);
                 in.setPrettyLogging(prettyLogging);

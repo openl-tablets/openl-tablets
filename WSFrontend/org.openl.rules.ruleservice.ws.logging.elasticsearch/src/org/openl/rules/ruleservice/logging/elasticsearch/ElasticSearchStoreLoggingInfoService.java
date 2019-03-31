@@ -38,11 +38,10 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
             log.error("Service method has not been found! Please, see previous errors.");
             return;
         }
-        
+
         IndexBuilder elasticSearchIndexBuilder = null;
 
-        UseIndexBuilder useElasticSearchIndexBuilderAnnotation = serviceMethod
-            .getAnnotation(UseIndexBuilder.class);
+        UseIndexBuilder useElasticSearchIndexBuilderAnnotation = serviceMethod.getAnnotation(UseIndexBuilder.class);
         if (useElasticSearchIndexBuilderAnnotation == null) {
             useElasticSearchIndexBuilderAnnotation = serviceMethod.getDeclaringClass()
                 .getAnnotation(UseIndexBuilder.class);
@@ -82,7 +81,7 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
             .build();
 
         elasticsearchOperations.index(indexQuery);
-        
+
     }
 
 }

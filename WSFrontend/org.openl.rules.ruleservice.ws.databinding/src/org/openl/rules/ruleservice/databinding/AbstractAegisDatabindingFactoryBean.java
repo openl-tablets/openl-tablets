@@ -93,7 +93,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(
             org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadsheetResultType.class,
             typeMapping);
-       
+
         if (supportVariations) {
             registerVariationTypes(typeMapping);
         }
@@ -107,7 +107,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         registerCustomJavaTypes(typeMapping);
 
         registerOpenLTypes(typeMapping);
-        
+
         return aegisDatabinding;
     }
 
@@ -192,7 +192,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             log.warn("Class '{}' hasn't been found!", className, e);
         }
     }
-    
+
     protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
         Set<String> overrideTypes = new HashSet<>();
         if (getOverrideTypes() != null) {

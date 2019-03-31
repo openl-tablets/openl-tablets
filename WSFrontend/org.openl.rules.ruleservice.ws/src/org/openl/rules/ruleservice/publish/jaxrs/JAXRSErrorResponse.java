@@ -7,7 +7,7 @@ public class JAXRSErrorResponse {
     private String message;
     private String type;
     private String[] details;
-    
+
     public JAXRSErrorResponse(String message, String type, String[] details) {
         this.message = message;
         this.type = type;
@@ -21,7 +21,7 @@ public class JAXRSErrorResponse {
     public String getType() {
         return type;
     }
-    
+
     public String[] getDetails() {
         return details;
     }

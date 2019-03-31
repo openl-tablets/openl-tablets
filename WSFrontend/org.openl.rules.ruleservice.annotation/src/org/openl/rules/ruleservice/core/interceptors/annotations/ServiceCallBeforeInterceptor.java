@@ -17,5 +17,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 @Target(ElementType.METHOD)
 public @interface ServiceCallBeforeInterceptor {
     Class<? extends ServiceMethodBeforeAdvice>[] value();
+
     ServiceCallInterceptorGroup group() default ServiceCallInterceptorGroup.ALL;
 }

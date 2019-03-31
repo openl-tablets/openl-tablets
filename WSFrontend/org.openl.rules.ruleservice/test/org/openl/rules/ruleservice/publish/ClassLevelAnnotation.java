@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
  * For test-resources/DynamicInterfacePublishingTest/project3
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 public @interface ClassLevelAnnotation {
 }

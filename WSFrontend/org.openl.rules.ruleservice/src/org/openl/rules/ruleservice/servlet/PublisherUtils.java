@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 
 public final class PublisherUtils {
-    
+
     private PublisherUtils() {
     }
 

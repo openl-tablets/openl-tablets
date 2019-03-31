@@ -130,9 +130,9 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testOpenLTypes() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        
+
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        
+
         TestClass testBean = new TestClass();
         ByteValue byteValue = new ByteValue((byte) 255);
         ShortValue shortValue = new ShortValue((short) 12345);
@@ -141,7 +141,8 @@ public class JacksonObjectMapperFactoryBeanTest {
         FloatValue floatValue = new FloatValue(123.2f);
         DoubleValue doubleValue = new DoubleValue(123.2d);
         StringValue stringValue = new StringValue("someString");
-        BigDecimalValue bigDecimalValue = new BigDecimalValue(new BigDecimal("1231241235235123612361235235325325.12345234"));
+        BigDecimalValue bigDecimalValue = new BigDecimalValue(
+            new BigDecimal("1231241235235123612361235235325325.12345234"));
         BigIntegerValue bigIntegerValue = new BigIntegerValue(new BigInteger("1231241235235123612361235235325325"));
 
         testBean.setByteValue(byteValue);
@@ -209,7 +210,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Assert.assertTrue(variationsResult instanceof VariationsResult);
         Assert.assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
     }
-    
+
     @Test
     public void testSpreadsheetResult() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
@@ -219,20 +220,21 @@ public class JacksonObjectMapperFactoryBeanTest {
         String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
         Assert.assertTrue(result instanceof SpreadsheetResult);
-        
+
         text = objectMapper.writeValueAsString(new Point(1, 1));
         Point p = objectMapper.readValue(text, Point.class);
         Assert.assertTrue(p instanceof Point);
         Assert.assertEquals(1, p.getColumn());
         Assert.assertEquals(1, p.getRow());
     }
-    
+
     @Test
     public void testRange() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(new DoubleRange(0.0d, 1d, BoundType.EXCLUDING, BoundType.EXCLUDING));
+        String text = objectMapper
+            .writeValueAsString(new DoubleRange(0.0d, 1d, BoundType.EXCLUDING, BoundType.EXCLUDING));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
         Assert.assertTrue(result instanceof DoubleRange);
 
@@ -242,7 +244,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Assert.assertEquals(199, intRange.getMin());
         Assert.assertEquals(299, intRange.getMax());
     }
-    
+
     @Test
     public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
@@ -253,28 +255,27 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(context);
-        
+
         IRulesRuntimeContext iRulesRuntimeContext = objectMapper.readValue(text, IRulesRuntimeContext.class);
-        
+
         Assert.assertEquals(date, iRulesRuntimeContext.getCurrentDate());
         Assert.assertEquals("LOB", iRulesRuntimeContext.getLob());
     }
-    
-    
-    public static class Wrapper{
+
+    public static class Wrapper {
         public Animal animal;
     }
-    
-    public static class Animal{
+
+    public static class Animal {
         public String name;
     }
-    
-    public static class Dog extends Animal{
+
+    public static class Dog extends Animal {
     }
-    
-    public static class Cat extends Animal{
+
+    public static class Cat extends Animal {
     }
-    
+
     @Test
     public void testOverrideTypes() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();

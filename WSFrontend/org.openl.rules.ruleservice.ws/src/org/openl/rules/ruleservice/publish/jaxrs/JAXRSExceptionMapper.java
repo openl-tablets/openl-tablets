@@ -12,17 +12,11 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception e) {
         ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);
 
-        JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(dto.getMessage(), dto.getType(),
-                dto.getDetail() != null ?
-                        dto.getDetail()
-                                .replaceAll("\t", "    ")
-                                .split(System.lineSeparator())
-                        : null);
+        JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(dto.getMessage(),
+            dto.getType(),
+            dto.getDetail() != null ? dto.getDetail().replaceAll("\t", "    ").split(System.lineSeparator()) : null);
 
-        return Response.status(dto.getStatusCode())
-                .type(MediaType.APPLICATION_JSON)
-                .entity(errorResponse)
-                .build();
+        return Response.status(dto.getStatusCode()).type(MediaType.APPLICATION_JSON).entity(errorResponse).build();
     }
 
 }

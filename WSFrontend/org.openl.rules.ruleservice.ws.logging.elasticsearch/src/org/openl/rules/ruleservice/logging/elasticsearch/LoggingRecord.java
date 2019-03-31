@@ -28,16 +28,16 @@ public class LoggingRecord {
 
     private Object request;
     private Object response;
-    
+
     private String serviceName;
     private String inputName;
     private String publisherType;
 
     private String url;
-    
+
     public LoggingRecord() {
     }
-    
+
     public LoggingRecord(String id,
             Date incomingTime,
             Date outcomingTime,
@@ -161,7 +161,7 @@ public class LoggingRecord {
     public void setUrl(String url) {
         this.url = url;
     }
-    
+
     @Override
     public String toString() {
         return "LoggingRecord [id=" + id + "]";

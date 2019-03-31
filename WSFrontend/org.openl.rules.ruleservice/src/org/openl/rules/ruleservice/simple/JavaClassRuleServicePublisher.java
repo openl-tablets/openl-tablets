@@ -11,8 +11,8 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.AbstractRuleServicePublisher;
 
 /**
- * Java class publisher. Publisher that publish service beans as object.
- * Services can be executed via RulesFrontend. Adaptor.
+ * Java class publisher. Publisher that publish service beans as object. Services can be executed via RulesFrontend.
+ * Adaptor.
  *
  * @author Marat Kamalov
  */
@@ -81,8 +81,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
         }
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
-            throw new RuleServiceUndeployException(
-                String.format("Service '%s' hasn't been deployed.", serviceName));
+            throw new RuleServiceUndeployException(String.format("Service '%s' hasn't been deployed.", serviceName));
         }
     }
 

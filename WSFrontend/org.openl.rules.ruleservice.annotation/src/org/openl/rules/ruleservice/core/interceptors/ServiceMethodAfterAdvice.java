@@ -12,10 +12,9 @@ import java.lang.reflect.Method;
 public interface ServiceMethodAfterAdvice<T> {
 
     /**
-     * If after advice defined for a service method, invokes this method after
-     * method execution finished. Return value can be changed to another object
-     * or change returning with throwing exception. Return object should be
-     * assignable to service method return type.
+     * If after advice defined for a service method, invokes this method after method execution finished. Return value
+     * can be changed to another object or change returning with throwing exception. Return object should be assignable
+     * to service method return type.
      * 
      * @param method service method
      * @param result method return value
@@ -26,10 +25,9 @@ public interface ServiceMethodAfterAdvice<T> {
     T afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception;
 
     /**
-     * If after advice defined for a service method, invokes this method after
-     * method execution finished with throwing exception. Thrown exception can
-     * be changed to another or return object instead exception. Return object
-     * should be assignable to service method return type.
+     * If after advice defined for a service method, invokes this method after method execution finished with throwing
+     * exception. Thrown exception can be changed to another or return object instead exception. Return object should be
+     * assignable to service method return type.
      * 
      * @param method service method
      * @param result method return value

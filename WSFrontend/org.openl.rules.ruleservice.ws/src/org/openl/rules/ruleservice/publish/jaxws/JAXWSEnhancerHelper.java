@@ -34,7 +34,7 @@ import org.openl.util.generation.InterfaceTransformer;
  *
  */
 public final class JAXWSEnhancerHelper {
-    
+
     private JAXWSEnhancerHelper() {
     }
 
@@ -46,9 +46,7 @@ public final class JAXWSEnhancerHelper {
 
         private Map<Method, String> operationNames = null;
 
-        JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
-                Class<?> originalClass,
-                OpenLService service) {
+        JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.service = service;
@@ -73,16 +71,16 @@ public final class JAXWSEnhancerHelper {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service != null) {
                     try {
-                    if (service.getServiceClassName() != null) {
-                        annotationVisitor.visit("serviceName", originalClass.getSimpleName());
-                        annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
-                        annotationVisitor.visit("portName", originalClass.getSimpleName() + "PortType");
-                    } else {
-                        annotationVisitor.visit("serviceName", service.getName());
-                        annotationVisitor.visit("name", service.getName() + "PortType");
-                        annotationVisitor.visit("portName", service.getName() + "PortType");
-                        annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
-                    }
+                        if (service.getServiceClassName() != null) {
+                            annotationVisitor.visit("serviceName", originalClass.getSimpleName());
+                            annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
+                            annotationVisitor.visit("portName", originalClass.getSimpleName() + "PortType");
+                        } else {
+                            annotationVisitor.visit("serviceName", service.getName());
+                            annotationVisitor.visit("name", service.getName() + "PortType");
+                            annotationVisitor.visit("portName", service.getName() + "PortType");
+                            annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
+                        }
                     } catch (RuleServiceInstantiationException e) {
                         // Skip
                     }
@@ -136,8 +134,8 @@ public final class JAXWSEnhancerHelper {
                         i++;
                     }
                 }
-            } catch (RuleServiceInstantiationException e) { 
-                //Skip
+            } catch (RuleServiceInstantiationException e) {
+                // Skip
             }
             return mv;
         }

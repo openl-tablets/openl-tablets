@@ -11,13 +11,13 @@ public class DefaultIndexBuilderImpl implements IndexBuilder {
     private static final String ID = "DEFAULT_ELASTIC_SEARCH_INDEX_ID";
 
     LoggingInfoMapper loggingInfoMapper = new LoggingInfoMapper();
-    
+
     @Override
     public LoggingRecord withObject(LoggingInfo loggingInfo) {
         LoggingRecord loggingRecord = new LoggingRecord();
-        
+
         loggingInfoMapper.map(loggingInfo, loggingRecord);
-       
+
         return loggingRecord;
     }
 

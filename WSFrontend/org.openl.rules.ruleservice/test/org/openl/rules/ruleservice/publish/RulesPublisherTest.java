@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesPublisherTest",
         "ruleservice.datasource.deploy.clean.datasource=false",
-        "ruleservice.isProvideRuntimeContext=false"})
+        "ruleservice.isProvideRuntimeContext=false" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RulesPublisherTest implements ApplicationContextAware {
@@ -86,7 +86,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(1, publisher.getServices().size());
     }
-    
+
     @Test
     public void testCompilationByRequest() throws Exception {
         assertNotNull(applicationContext);
@@ -177,9 +177,8 @@ public class RulesPublisherTest implements ApplicationContextAware {
             dependencyManager.setExecutionMode(true);
             IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
             dependencyManager.setDependencyLoaders(Arrays.asList(loader));
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
-                true,
-                dependencyManager);
+            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory
+                .getStrategy(module, true, dependencyManager);
             Class<?> moduleServiceClass = instantiationStrategy.getInstanceClass();
             for (Method method : moduleServiceClass.getMethods()) {
                 assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass,

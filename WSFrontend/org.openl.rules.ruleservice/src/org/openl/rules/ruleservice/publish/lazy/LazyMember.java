@@ -23,9 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Lazy IOpenMember that contains info about module where it was declared. When
- * we try to do some operations with lazy member it will compile module and wrap
- * the compiled member.
+ * Lazy IOpenMember that contains info about module where it was declared. When we try to do some operations with lazy
+ * member it will compile module and wrap the compiled member.
  *
  * @author Marat Kamalov
  */
@@ -38,10 +37,9 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
     private Map<String, Object> externalParameters;
 
     /**
-     * ClassLoader used in "lazy" compilation. It should be reused because it
-     * contains generated classes for datatypes.(If we use different
-     * ClassLoaders we can get ClassCastException because generated classes for
-     * datatypes have been loaded by different ClassLoaders).
+     * ClassLoader used in "lazy" compilation. It should be reused because it contains generated classes for
+     * datatypes.(If we use different ClassLoaders we can get ClassCastException because generated classes for datatypes
+     * have been loaded by different ClassLoaders).
      */
     private ClassLoader classLoader;
     private volatile T cachedMember;
@@ -81,8 +79,8 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
     }
 
     protected CompiledOpenClass getCompiledOpenClass() throws Exception {
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(),
-            getModule().getName());
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
+            .get(getDeployment(), getModule().getName());
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }

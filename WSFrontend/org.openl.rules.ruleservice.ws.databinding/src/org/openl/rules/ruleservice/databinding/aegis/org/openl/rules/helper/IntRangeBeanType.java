@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper;
  * #L%
  */
 
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -21,8 +20,7 @@ import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.rules.helpers.IntRange;
 
 /**
- * Defines IntRange deserialization from XML because it has no default
- * constuctor.
+ * Defines IntRange deserialization from XML because it has no default constuctor.
  * 
  * @author PUdalau
  */

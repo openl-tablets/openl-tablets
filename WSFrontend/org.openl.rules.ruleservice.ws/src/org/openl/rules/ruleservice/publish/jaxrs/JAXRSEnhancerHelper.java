@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 public final class JAXRSEnhancerHelper {
-    
+
     private JAXRSEnhancerHelper() {
     }
 
@@ -65,9 +65,9 @@ public final class JAXRSEnhancerHelper {
         private Map<Method, String> methodRequests = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
-                                                     Class<?> originalClass,
-                                                     ClassLoader classLoader,
-                                                     OpenLService service) {
+                Class<?> originalClass,
+                ClassLoader classLoader,
+                OpenLService service) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.classLoader = classLoader;
@@ -215,8 +215,9 @@ public final class JAXRSEnhancerHelper {
             MethodVisitor mv;
             Class<?> returnType = originalMethod.getReturnType();
             boolean hasResponse = returnType.equals(Response.class);
-            arg2 = hasResponse ? arg2 : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
-            
+            arg2 = hasResponse ? arg2
+                               : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
+
             boolean allParametersIsPrimitive = true;
             Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
             int numOfParameters = originalParameterTypes.length;
@@ -230,7 +231,8 @@ public final class JAXRSEnhancerHelper {
             }
             StringBuilder sb = new StringBuilder();
             sb.append("/").append(getPath(originalMethod));
-            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod.getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
+            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod
+                .getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                 final String[] withPathParamValues = getPathParamValuesFromMethodParameters(originalMethod);
@@ -253,7 +255,7 @@ public final class JAXRSEnhancerHelper {
                     }
                     i++;
                 }
-                
+
                 addGetAnnotation(mv, originalMethod);
                 addPathAnnotation(mv, originalMethod, sb.toString());
             } else {
@@ -269,7 +271,7 @@ public final class JAXRSEnhancerHelper {
                         annotateReturnElementClass(mv, returnType);
                     }
                     if (originalMethod.getAnnotation(GET.class) == null) {
-                        addPostAnnotation(mv, originalMethod);    
+                        addPostAnnotation(mv, originalMethod);
                     }
                     addPathAnnotation(mv, originalMethod, sb.toString());
                 } catch (Exception e) {

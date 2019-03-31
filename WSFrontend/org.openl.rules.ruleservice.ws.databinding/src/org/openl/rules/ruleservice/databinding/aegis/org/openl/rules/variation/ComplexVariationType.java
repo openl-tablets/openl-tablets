@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation;
  * #L%
  */
 
-
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -27,8 +26,8 @@ import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.Variation;
 
 /**
- * Custom mapping for {@link ComplexVariationType} due to it is not usual bean
- * and should be initialized through non-default constructor.
+ * Custom mapping for {@link ComplexVariationType} due to it is not usual bean and should be initialized through
+ * non-default constructor.
  * 
  * @author PUdalau
  */
@@ -61,9 +60,8 @@ public class ComplexVariationType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(), 
-                    context.getGlobalContext(),
-                    defaultType);
+                AegisType type = TypeUtil
+                    .getReadType(childReader.getXMLStreamReader(), context.getGlobalContext(), defaultType);
                 if (type != null) {
                     String propertyName = qName.getLocalPart();
                     Object propertyValue = type.readObject(childReader, context);

@@ -21,7 +21,7 @@ public abstract class AbstractPopulateCustomDataBeforeInterceptor implements Ser
         }
         ruleServiceLogging.setLoggingCustomData(customData);
     }
-    
+
     protected final ObjectSerializer getObjectSerializer() {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         return ruleServiceLogging.getObjectSerializer();

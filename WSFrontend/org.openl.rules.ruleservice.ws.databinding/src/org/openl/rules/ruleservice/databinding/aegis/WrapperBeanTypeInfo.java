@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis;
  * #L%
  */
 
-
 import java.beans.PropertyDescriptor;
 import java.util.List;
 

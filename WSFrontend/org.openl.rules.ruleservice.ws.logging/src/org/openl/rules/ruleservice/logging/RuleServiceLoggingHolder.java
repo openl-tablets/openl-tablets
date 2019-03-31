@@ -1,17 +1,16 @@
 package org.openl.rules.ruleservice.logging;
 
 /**
- * Thread save singleton holder for LoggingInfo. Required for storing logging data
- * to external resource feature.
+ * Thread save singleton holder for LoggingInfo. Required for storing logging data to external resource feature.
  * 
  * @author Marat Kamalov
  *
  */
 public final class RuleServiceLoggingHolder {
-    
+
     private RuleServiceLoggingHolder() {
     }
-    
+
     public static final ThreadLocal<RuleServiceLogging> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();
 
     public static RuleServiceLogging get() {

@@ -10,12 +10,11 @@ public class MultipleRuleServicePublisherTest {
     @Test
     public void test() throws Exception {
         ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "classpath:MultipleRuleServicePublisherTest.xml");
+            "classpath:MultipleRuleServicePublisherTest.xml");
         Assert.assertNotNull(applicationContext);
         applicationContext.close();
     }
 
-    public static class OtherJavaClassRuleServicePublisher extends
-            org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher {
+    public static class OtherJavaClassRuleServicePublisher extends org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher {
     }
 }

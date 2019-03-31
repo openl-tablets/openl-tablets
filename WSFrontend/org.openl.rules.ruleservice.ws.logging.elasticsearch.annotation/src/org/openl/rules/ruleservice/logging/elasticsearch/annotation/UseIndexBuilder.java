@@ -8,8 +8,7 @@ import java.lang.annotation.Target;
 import org.openl.rules.ruleservice.logging.elasticsearch.IndexBuilder;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value={ElementType.METHOD, ElementType.TYPE})
+@Target(value = { ElementType.METHOD, ElementType.TYPE })
 public @interface UseIndexBuilder {
     Class<? extends IndexBuilder> value();
 }
-

@@ -28,10 +28,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
+@TestPropertySource(properties = {
+        "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
         "production-repository.uri = test-resources/openl-repository",
-        "version-in-deployment-name = true"
-})
+        "version-in-deployment-name = true" })
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
@@ -88,24 +88,22 @@ public class LocalTemporaryDeploymentsStorageTest {
         LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy-temp");
         assertFalse(storage.containsDeployment(deploymentName, version));
 
-
         Map<String, String> params = new HashMap<>();
         params.put("uri", "jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1");
-        try (DBRepository repository = (DBRepository) RepositoryInstatiator.newRepository(
-                JdbcDBRepositoryFactory.class.getName(),
-                params)) {
+        try (DBRepository repository = (DBRepository) RepositoryInstatiator
+            .newRepository(JdbcDBRepositoryFactory.class.getName(), params)) {
             // First version deploy
             updateProject(repository, deploymentName, "project1", false);
-            updateProject(repository, deploymentName, "project2",false);
+            updateProject(repository, deploymentName, "project2", false);
             // Second version deploy
             updateProject(repository, deploymentName, "project1", true); // Delete
-            updateProject(repository, deploymentName, "project2",false);
+            updateProject(repository, deploymentName, "project2", false);
 
             Deployment remoteDeployment = new Deployment(repository,
-                    DEPLOY_PATH + deploymentName,
-                    deploymentName,
-                    version,
-                    false);
+                DEPLOY_PATH + deploymentName,
+                deploymentName,
+                version,
+                false);
             assertTrue(containsProject(remoteDeployment, "project2"));
             assertFalse(containsProject(remoteDeployment, "project1"));
 
@@ -128,7 +126,10 @@ public class LocalTemporaryDeploymentsStorageTest {
         return false;
     }
 
-    private void updateProject(DBRepository repository, String deploymentName, String projectName, boolean delete) throws IOException {
+    private void updateProject(DBRepository repository,
+            String deploymentName,
+            String projectName,
+            boolean delete) throws IOException {
         String deploymentPath = DEPLOY_PATH + deploymentName;
         byte[] zip = createZip();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(zip);

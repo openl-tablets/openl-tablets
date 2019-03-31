@@ -25,10 +25,7 @@ public class ServiceInfo {
         urls.put(urlName, url);
     }
 
-    ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-                Map<String, String> urls) {
+    ServiceInfo(Date startedTime, String name, List<String> methodNames, Map<String, String> urls) {
         this.startedTime = startedTime;
         this.name = name;
         this.methodNames = methodNames;

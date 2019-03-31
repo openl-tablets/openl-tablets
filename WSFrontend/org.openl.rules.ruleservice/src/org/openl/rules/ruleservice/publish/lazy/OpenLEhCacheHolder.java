@@ -54,11 +54,10 @@ public final class OpenLEhCacheHolder {
     private synchronized CacheManager getCacheManager() throws IOException {
         if (cacheManager == null) {
             PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-            Resource[] resources = prpr
-                .getResources(ResourceLoader.CLASSPATH_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
+            Resource[] resources = prpr.getResources(ResourceLoader.CLASSPATH_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             if (resources == null || resources.length == 0) {
-                resources = prpr.getResources(
-                    ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
+                resources = prpr
+                    .getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             }
             if (resources == null || resources.length == 0) {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " hasn't been found!");

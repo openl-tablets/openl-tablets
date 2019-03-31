@@ -66,7 +66,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         this.realCompileRequred = realCompileRequred;
         this.isProject = isProject;
     }
-    
+
     private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
         return dependencyManager.getClassLoader(modules.iterator().next().getProject());
     }
@@ -79,7 +79,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
         try {
             if (dependencyManager.getCompilationStack().contains(dependencyName)) {
-                throw new OpenLCompilationException("Circular dependency has been detected in module: " + dependencyName);
+                throw new OpenLCompilationException(
+                    "Circular dependency has been detected in module: " + dependencyName);
             }
             RulesInstantiationStrategy rulesInstantiationStrategy = null;
             final ClassLoader classLoader = buildClassLoader(dependencyManager);
@@ -131,8 +132,9 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         for (Module module : modules) {
                             String modulePath = module.getRulesRootPath().getPath();
                             try {
-                                if (FilenameUtils.normalize(sourceUrl).equals(FilenameUtils.normalize(
-                                    new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
+                                if (FilenameUtils.normalize(sourceUrl)
+                                    .equals(FilenameUtils.normalize(
+                                        new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm()))) {
                                     return module;
                                 }
                             } catch (Exception e) {
@@ -152,21 +154,36 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         for (int i = 0; i < argTypes.length; i++) {
                             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
                         }
-                        
-                        return LazyMethod.getLazyMethod(moduleOpenClass, deployment, declaringModule, argTypes, method, dependencyManager, classLoader, true, parameters);
+
+                        return LazyMethod.getLazyMethod(moduleOpenClass,
+                            deployment,
+                            declaringModule,
+                            argTypes,
+                            method,
+                            dependencyManager,
+                            classLoader,
+                            true,
+                            parameters);
                     }
 
                     @Override
                     public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
                         Module declaringModule = getModuleForMember(field);
-                        return LazyField.getLazyField(moduleOpenClass, deployment, declaringModule, field, dependencyManager, classLoader, true, parameters);
+                        return LazyField.getLazyField(moduleOpenClass,
+                            deployment,
+                            declaringModule,
+                            field,
+                            dependencyManager,
+                            classLoader,
+                            true,
+                            parameters);
                     }
                 });
                 try {
                     dependencyManager.compilationBegin(this, modules);
                     lazyCompiledOpenClass = rulesInstantiationStrategy.compile(); // Check
-                                                                              // correct
-                                                                              // compilation
+                    // correct
+                    // compilation
                     dependencyManager.compilationCompleted(this, !lazyCompiledOpenClass.hasErrors());
                 } finally {
                     if (lazyCompiledOpenClass == null) {
@@ -174,7 +191,11 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     }
                 }
                 if (modules.size() == 1 && realCompileRequred && lazyCompiledOpenClass != null) {
-                    compileAfterLazyCompile(lazyCompiledOpenClass, dependencyName, dependencyManager, classLoader, modules.iterator().next());
+                    compileAfterLazyCompile(lazyCompiledOpenClass,
+                        dependencyName,
+                        dependencyManager,
+                        classLoader,
+                        modules.iterator().next());
                 }
                 return lazyCompiledOpenClass;
             } catch (Exception ex) {
@@ -187,7 +208,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         }
     }
 
-    private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass, final String dependencyName,
+    private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass,
+            final String dependencyName,
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager,
             final ClassLoader classLoader,
             final Module module) throws OpenLCompilationException {

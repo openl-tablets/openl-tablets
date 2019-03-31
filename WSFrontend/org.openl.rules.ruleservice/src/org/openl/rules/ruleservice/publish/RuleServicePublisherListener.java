@@ -8,8 +8,8 @@ import org.openl.rules.ruleservice.core.OpenLService;
  * @author Marat Kamalov.
  */
 public interface RuleServicePublisherListener {
-    
+
     void onDeploy(OpenLService service);
-    
+
     void onUndeploy(String serviceName);
 }

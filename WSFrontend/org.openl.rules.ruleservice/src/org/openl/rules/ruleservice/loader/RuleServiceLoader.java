@@ -7,9 +7,8 @@ import org.openl.rules.project.model.Module;
 import java.util.Collection;
 
 /**
- * Wrapper on data source that gives access to data source and resolves the
- * OpenL projects/modules inside the projects. Contains own storage for all
- * projects that is used in services.
+ * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
+ * Contains own storage for all projects that is used in services.
  *
  * @author Marat Kamalov
  */

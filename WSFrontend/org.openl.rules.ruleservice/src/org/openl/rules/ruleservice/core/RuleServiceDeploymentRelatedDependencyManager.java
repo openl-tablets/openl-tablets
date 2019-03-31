@@ -280,7 +280,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                     projectLoader = new RuleServiceDependencyLoader(
                                         ProjectExternalDependenciesHelper
                                             .buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                        projectDescriptor.getModules(), true);
+                                        projectDescriptor.getModules(),
+                                        true);
                                 }
                                 projectDescriptors.add(projectDescriptor);
                                 dependencyLoaders.add(projectLoader);

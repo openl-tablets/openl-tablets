@@ -14,7 +14,7 @@ import org.apache.cxf.phase.Phase;
 public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private ObjectSerializer objectSerializer;
-    
+
     public CollectObjectSerializerInterceptor(String phase, ObjectSerializer objectSerializer) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
@@ -24,7 +24,7 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
     public CollectObjectSerializerInterceptor(ObjectSerializer objectSerializer) {
         this(Phase.PRE_STREAM, objectSerializer);
     }
-    
+
     @Override
     public void handleMessage(Message message) {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();

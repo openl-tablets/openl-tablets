@@ -138,8 +138,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                         if (!serviceName.equals(failedServiceDescription.getName())) {
                             throw new IllegalStateException();
                         }
-                        if (failedServiceDescription.getDeployment().getVersion().compareTo(
-                            serviceDescription.getDeployment().getVersion()) != 0) {
+                        if (failedServiceDescription.getDeployment()
+                            .getVersion()
+                            .compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
                             failedServiceDescriptions.remove(serviceName);
                             ruleService.deploy(serviceDescription);
                             serviceDescriptions.put(serviceName, serviceDescription);

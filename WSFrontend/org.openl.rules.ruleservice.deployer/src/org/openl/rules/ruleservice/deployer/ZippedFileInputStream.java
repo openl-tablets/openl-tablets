@@ -41,7 +41,7 @@ class ZippedFileInputStream extends InputStream {
     @Override
     public void close() throws IOException {
         if (isClosed) {
-            return; //the entry has been already closed
+            return; // the entry has been already closed
         }
         source.closeEntry();
         isClosed = true;

@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/VariationsSupportTest",
         "ruleservice.datasource.deploy.clean.datasource=false",
         "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.isSupportVariations=true"})
+        "ruleservice.isSupportVariations=true" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class VariationsSupportTest implements ApplicationContextAware {
     public static final String STANDART = "Standard Driver";
@@ -63,7 +63,9 @@ public class VariationsSupportTest implements ApplicationContextAware {
         VariationsPack variations = new VariationsPack(new JXPathVariation("young", 0, "age", 18),
             new JXPathVariation("senior", 0, "age", 71));
         VariationsResult<String> resultsDrivers = (VariationsResult<String>) frontend.execute(
-            "org.openl.rules.tutorial4.Tutorial4WithVariations", "driverAgeType", new Object[] { driver, variations });
+            "org.openl.rules.tutorial4.Tutorial4WithVariations",
+            "driverAgeType",
+            new Object[] { driver, variations });
         assertEquals(resultsDrivers.getResultForVariation("young"), YOUNG);
         assertEquals(resultsDrivers.getResultForVariation("senior"), SENOIR);
         assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);

@@ -23,7 +23,7 @@ public class JAXWSInvocationHandler implements IOpenLInvocationHandler {
     public Object getTarget() {
         return target;
     }
-    
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {

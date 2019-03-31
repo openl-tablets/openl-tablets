@@ -3,9 +3,8 @@ package org.openl.rules.ruleservice.core;
 import java.util.Collection;
 
 /**
- * Top level service for management OpenL services. It is used for
- * deploy/undeploy/redeploy OpenL services. Builds OpenLServices from
- * ServiceDescriptors and uses a publisher for exposing services.
+ * Top level service for management OpenL services. It is used for deploy/undeploy/redeploy OpenL services. Builds
+ * OpenLServices from ServiceDescriptors and uses a publisher for exposing services.
  * 
  * @author Marat Kamalov
  * 
@@ -26,16 +25,17 @@ public interface RuleService {
      * @throws RuleServiceUndeployException
      * @throws RuleServiceDeployException
      */
-    void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException, RuleServiceUndeployException;
+    void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException,
+                                                         RuleServiceUndeployException;
 
     /**
      * Undeploys a service by name.
      * 
      * @param serviceName service name
-     * @throws RuleServiceDeployException throws exceptions if the service with
-     *             specified name is't deployed or undeploy process fails.
+     * @throws RuleServiceDeployException throws exceptions if the service with specified name is't deployed or undeploy
+     *             process fails.
      */
-   void undeploy(String serviceName) throws RuleServiceUndeployException;
+    void undeploy(String serviceName) throws RuleServiceUndeployException;
 
     /**
      * Returns a collection of deployed OpenL services.

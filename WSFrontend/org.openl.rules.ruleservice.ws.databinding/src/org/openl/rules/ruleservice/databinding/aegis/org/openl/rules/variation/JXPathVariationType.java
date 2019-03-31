@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation;
  * #L%
  */
 
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -25,8 +24,8 @@ import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.VariationsFactory;
 
 /**
- * Custom mapping for {@link JXPathVariation} due to it is not usual bean and
- * should be initialized through non-default constructor.
+ * Custom mapping for {@link JXPathVariation} due to it is not usual bean and should be initialized through non-default
+ * constructor.
  * 
  * @author PUdalau
  */
@@ -60,9 +59,8 @@ public class JXPathVariationType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
-                    context.getGlobalContext(),
-                    defaultType);
+                AegisType type = TypeUtil
+                    .getReadType(childReader.getXMLStreamReader(), context.getGlobalContext(), defaultType);
                 if (type != null) {
                     String propertyName = qName.getLocalPart();
                     Object propertyValue = type.readObject(childReader, context);

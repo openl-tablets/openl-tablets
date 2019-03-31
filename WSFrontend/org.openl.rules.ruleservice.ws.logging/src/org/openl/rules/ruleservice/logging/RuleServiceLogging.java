@@ -25,23 +25,23 @@ public class RuleServiceLogging {
     private Object[] parameters;
 
     private String serviceName;
-    
+
     private PublisherType publisherType;
-    
+
     private Method serviceMethod;
-    
+
     private LoggingCustomData loggingCustomData;
-    
+
     private ObjectSerializer objectSerializer;
-    
+
     private Map<String, Object> context = new HashMap<>();
-    
+
     private boolean ignorable = false;
-    
+
     public PublisherType getPublisherType() {
         return publisherType;
     }
-    
+
     public void setPublisherType(PublisherType publisherType) {
         this.publisherType = publisherType;
     }
@@ -65,7 +65,7 @@ public class RuleServiceLogging {
     public String getServiceName() {
         return serviceName;
     }
-    
+
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -101,23 +101,23 @@ public class RuleServiceLogging {
     public void setParameters(Object[] parameters) {
         this.parameters = parameters;
     }
-    
+
     public LoggingCustomData getLoggingCustomData() {
         return loggingCustomData;
     }
-    
+
     public void setLoggingCustomData(LoggingCustomData loggingCustomData) {
         this.loggingCustomData = loggingCustomData;
     }
-    
+
     public Method getServiceMethod() {
         return serviceMethod;
     }
-    
+
     public void setServiceMethod(Method serviceMethod) {
         this.serviceMethod = serviceMethod;
     }
-    
+
     public Map<String, Object> getContext() {
         return context;
     }
@@ -125,19 +125,19 @@ public class RuleServiceLogging {
     public boolean isIgnorable() {
         return ignorable;
     }
-    
+
     public void setIgnorable(boolean ignorable) {
         this.ignorable = ignorable;
     }
-    
-    public void ignore(){
+
+    public void ignore() {
         this.ignorable = true;
     }
-    
+
     public ObjectSerializer getObjectSerializer() {
         return objectSerializer;
     }
-    
+
     public void setObjectSerializer(ObjectSerializer objectSerializer) {
         this.objectSerializer = objectSerializer;
     }

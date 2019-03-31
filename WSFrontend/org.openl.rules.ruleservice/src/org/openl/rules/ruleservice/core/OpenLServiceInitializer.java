@@ -7,7 +7,7 @@ package org.openl.rules.ruleservice.core;
  *
  */
 public interface OpenLServiceInitializer {
-    
+
     void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException;
-    
+
 }

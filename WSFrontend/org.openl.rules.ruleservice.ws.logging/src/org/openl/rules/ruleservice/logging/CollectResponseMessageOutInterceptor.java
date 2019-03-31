@@ -21,8 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * CXF interceptor for collecting response data for logging to external source
- * feature.
+ * CXF interceptor for collecting response data for logging to external source feature.
  * 
  * @author Marat Kamalov
  *
@@ -186,7 +185,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         }
     }
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor(); 
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private class StoreTask implements Runnable {
         private RuleServiceLogging ruleserviceLoggingInfo;
@@ -208,13 +207,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             }
         }
     }
-    
+
     @Override
     protected void handleMessage(LoggingMessage message) {
         final RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         ruleServiceLogging.setResponseMessage(message);
         ruleServiceLogging.setOutcomingMessageTime(new Date());
-        if (!ruleServiceLogging.isIgnorable()){
+        if (!ruleServiceLogging.isIgnorable()) {
             executorService.submit(new StoreTask(ruleServiceLogging));
         }
         RuleServiceLoggingHolder.remove();

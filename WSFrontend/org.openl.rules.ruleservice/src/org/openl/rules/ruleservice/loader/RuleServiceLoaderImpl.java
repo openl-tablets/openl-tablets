@@ -17,9 +17,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Wrapper on data source that gives access to data source and resolves the
- * OpenL projects/modules inside the projects. Contains own storage for all
- * projects that is used in services.
+ * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
+ * Contains own storage for all projects that is used in services.
  *
  * @author Marat Kamalov
  */
@@ -35,8 +34,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * Construct a new RulesLoader for bean usage.
      * <p>
-     * Note: The dataSource, storage and projectResolver have to be set before
-     * using the instance.
+     * Note: The dataSource, storage and projectResolver have to be set before using the instance.
      * </p>
      *
      * @see #setDataSource, #setProjectResolver
@@ -147,14 +145,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
 
         log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
-                deploymentName,
-                deploymentVersion.getVersionName(),
-                projectName);
+            deploymentName,
+            deploymentVersion.getVersionName(),
+            projectName);
 
         Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
-            throw new RuleServiceRuntimeException("Deployment '" + deploymentName + "' doesn't contain a project '" + projectName + "'!");
+            throw new RuleServiceRuntimeException(
+                "Deployment '" + deploymentName + "' doesn't contain a project '" + projectName + "'!");
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);

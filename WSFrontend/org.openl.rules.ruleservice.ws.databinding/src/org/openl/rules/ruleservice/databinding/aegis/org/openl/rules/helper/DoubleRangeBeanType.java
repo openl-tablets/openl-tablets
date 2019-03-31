@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper;
  * #L%
  */
 
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -22,8 +21,7 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.util.RangeWithBounds.BoundType;
 
 /**
- * Defines DoubleRange deserialization from XML because it has no default
- * constuctor.
+ * Defines DoubleRange deserialization from XML because it has no default constuctor.
  * 
  * @author PUdalau
  */

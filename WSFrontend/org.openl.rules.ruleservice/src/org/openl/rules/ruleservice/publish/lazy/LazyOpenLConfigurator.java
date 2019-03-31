@@ -11,9 +11,8 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurator;
 
 /**
- * Allows using {@link org.openl.rules.lang.xls.prebind.XlsPreBinder
- * XlsPreBinder} for dependent modules on LazyMultiModule projects. Creates an
- * IOpenBinder proxy that uses XlsPreBinder on prebind step and XlsBinder on
+ * Allows using {@link org.openl.rules.lang.xls.prebind.XlsPreBinder XlsPreBinder} for dependent modules on
+ * LazyMultiModule projects. Creates an IOpenBinder proxy that uses XlsPreBinder on prebind step and XlsBinder on
  * compile step.
  * 
  * @see LazyBinderInvocationHandler
@@ -32,8 +31,8 @@ public class LazyOpenLConfigurator extends OpenLConfigurator {
 
         InvocationHandler handler = makeBuilderInvocationHandler(builder, ucxt);
 
-        return (IOpenLBuilder) Proxy.newProxyInstance(builder.getClass().getClassLoader(),
-                new Class<?>[] { IOpenLBuilder.class }, handler);
+        return (IOpenLBuilder) Proxy
+            .newProxyInstance(builder.getClass().getClassLoader(), new Class<?>[] { IOpenLBuilder.class }, handler);
     }
 
     private InvocationHandler makeBuilderInvocationHandler(final IOpenLBuilder builder, final IUserContext ucxt) {
@@ -45,8 +44,10 @@ public class LazyOpenLConfigurator extends OpenLConfigurator {
                     OpenL openl = (OpenL) method.invoke(builder, args);
                     LazyBinderInvocationHandler handler = new LazyBinderInvocationHandler(openl.getBinder(), ucxt);
 
-                    IOpenBinder newBinder = (IOpenBinder) Proxy.newProxyInstance(openl.getBinder().getClass()
-                            .getClassLoader(), new Class<?>[] { IOpenBinder.class }, handler);
+                    IOpenBinder newBinder = (IOpenBinder) Proxy.newProxyInstance(
+                        openl.getBinder().getClass().getClassLoader(),
+                        new Class<?>[] { IOpenBinder.class },
+                        handler);
 
                     openl.setBinder(newBinder);
                     return openl;

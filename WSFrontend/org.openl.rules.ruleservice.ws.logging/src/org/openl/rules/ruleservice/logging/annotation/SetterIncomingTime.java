@@ -13,5 +13,6 @@ import org.openl.rules.ruleservice.logging.TypeConvertor;
 @Target(ElementType.METHOD)
 public @interface SetterIncomingTime {
     Class<? extends TypeConvertor<Date, ?>> convertor() default DefaultDateConvertor.class;
-    PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
+
+    PublisherType[] publisherTypes() default { PublisherType.WEBSERVICE, PublisherType.RESTFUL };
 }

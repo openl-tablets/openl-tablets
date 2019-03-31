@@ -16,11 +16,11 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = {"ruleservice.datasource.deploy.clean.datasource=false",
+@TestPropertySource(properties = { "ruleservice.datasource.deploy.clean.datasource=false",
         "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.rmiPort=61099",
         "ruleservice.datasource.dir=test-resources/DefaultRmiHandlerTest" })
-@ContextConfiguration(locations = {"classpath:openl-ruleservice-beans.xml"})
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 public class DefaultRmiHandlerTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
@@ -41,9 +41,8 @@ public class DefaultRmiHandlerTest implements ApplicationContextAware {
 
         Assert.assertNotNull(defaultRmiHandler);
 
-        String result = (String) defaultRmiHandler.execute("baseHello",
-            new Class<?>[] { int.class },
-            new Object[] { new Integer(10) });
+        String result = (String) defaultRmiHandler
+            .execute("baseHello", new Class<?>[] { int.class }, new Object[] { new Integer(10) });
 
         Assert.assertEquals("Good Morning", result);
 

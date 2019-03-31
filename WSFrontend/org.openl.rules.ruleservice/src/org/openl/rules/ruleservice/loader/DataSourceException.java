@@ -20,15 +20,11 @@ public class DataSourceException extends RuleServiceRuntimeException {
     }
 
     /**
-     * Constructs a new DataSourceException with the specified detail message
-     * and cause.
+     * Constructs a new DataSourceException with the specified detail message and cause.
      * 
-     * @param message the detail message (which is saved for later retrieval by
-     *            the {@link #getMessage()} method).
-     * @param cause the cause (which is saved for later retrieval by the
-     *            {@link #getCause()} method). (A <tt>null</tt> value is
-     *            permitted, and indicates that the cause is nonexistent or
-     *            unknown.)
+     * @param message the detail message (which is saved for later retrieval by the {@link #getMessage()} method).
+     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
+     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
      */
     public DataSourceException(String message, Throwable cause) {
         super(message, cause);
@@ -37,8 +33,7 @@ public class DataSourceException extends RuleServiceRuntimeException {
     /**
      * Constructs a new DataSourceException with the specified detail message
      * 
-     * @param message the detail message (which is saved for later retrieval by
-     *            the {@link #getMessage()} method).
+     * @param message the detail message (which is saved for later retrieval by the {@link #getMessage()} method).
      */
     public DataSourceException(String message) {
         super(message);
@@ -47,10 +42,8 @@ public class DataSourceException extends RuleServiceRuntimeException {
     /**
      * Constructs a new DataSourceException with a cause.
      * 
-     * @param cause the cause (which is saved for later retrieval by the
-     *            {@link #getCause()} method). (A <tt>null</tt> value is
-     *            permitted, and indicates that the cause is nonexistent or
-     *            unknown.)
+     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
+     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
      */
     public DataSourceException(Throwable cause) {
         super(cause);

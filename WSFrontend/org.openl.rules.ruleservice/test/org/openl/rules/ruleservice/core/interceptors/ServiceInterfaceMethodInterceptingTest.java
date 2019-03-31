@@ -65,7 +65,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
         Double nonExistedMethod(String driverRisk);
-        
+
         @ServiceExtraMethod(LoadClassServiceExtraMethodHandler.class)
         Object loadClassMethod();
     }
@@ -76,11 +76,13 @@ public class ServiceInterfaceMethodInterceptingTest {
             return 12345d;
         }
     }
-    
+
     public static class LoadClassServiceExtraMethodHandler implements ServiceExtraMethodHandler<Object> {
         @Override
         public Object invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
-            Class<?> myBeanClass = Thread.currentThread().getContextClassLoader().loadClass("org.openl.generated.beans.MyBean");
+            Class<?> myBeanClass = Thread.currentThread()
+                .getContextClassLoader()
+                .loadClass("org.openl.generated.beans.MyBean");
             return myBeanClass.newInstance();
         }
     }
@@ -129,9 +131,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
         deployments.add(deployment);
         when(ruleServiceLoader.getDeployments()).thenReturn(deployments);
-        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
-            deploymentDescription.getVersion(),
-            "service")).thenReturn(modules);
+        when(ruleServiceLoader
+            .resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
+                .thenReturn(modules);
     }
 
     @Test
@@ -165,7 +167,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertEquals(12345, instance.nonExistedMethod("High Risk Driver"), 0.1);
     }
-    
+
     @Test
     public void testInterceptorClassloader() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();

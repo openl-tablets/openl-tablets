@@ -21,9 +21,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 /**
- * Bean to unpack jar with rules.xml to defined folder. This bean is used by
- * FileSystemDataSource. Set depend-on property in bean definition. This class
- * implements InitializingBean.
+ * Bean to unpack jar with rules.xml to defined folder. This bean is used by FileSystemDataSource. Set depend-on
+ * property in bean definition. This class implements InitializingBean.
  *
  * @author Marat Kamalov
  */
@@ -31,7 +30,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
     public static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment.xml";
-    
+
     private String destinationDirectory;
 
     private boolean createDestinationDirectory = true;
@@ -60,8 +59,8 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     /**
-     * This bean is used by spring context. DestinationDirectory property must
-     * be set in spring configuration. Destination directory should be exist.
+     * This bean is used by spring context. DestinationDirectory property must be set in spring configuration.
+     * Destination directory should be exist.
      */
     public UnpackClasspathJarToDirectoryBean() {
     }
@@ -78,19 +77,19 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     public boolean isCreateDestinationDirectory() {
         return createDestinationDirectory;
     }
-    
+
     public void setCreateDestinationDirectory(boolean createDestinationDirectory) {
         this.createDestinationDirectory = createDestinationDirectory;
     }
-    
+
     public boolean isClearDestinationDirectory() {
         return clearDestinationDirectory;
     }
-    
+
     public void setClearDestinationDirectory(boolean clearDestinationDirectory) {
         this.clearDestinationDirectory = clearDestinationDirectory;
     }
-    
+
     /**
      * Sets directory to unpack path.
      *
@@ -118,20 +117,20 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             return location.mkdirs();
         }
     }
-    
+
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
     private void extractJarForJboss(URL resourceURL, File desFile, boolean isDeploymentJar) throws IOException,
-                                                                  NoSuchMethodException,
-                                                                  InvocationTargetException,
-                                                                  IllegalAccessException,
-                                                                  ClassNotFoundException {
+                                                                                            NoSuchMethodException,
+                                                                                            InvocationTargetException,
+                                                                                            IllegalAccessException,
+                                                                                            ClassNotFoundException {
         // This reflection implementation for JBoss vfs
         URLConnection conn = resourceURL.openConnection();
         Object content = conn.getContent();
@@ -157,37 +156,38 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 }
 
                 File newProjectDir = null;
-                if (!isDeploymentJar){
+                if (!isDeploymentJar) {
                     newProjectDir = new File(d, FileUtils.getBaseName(name));
                     newProjectDir.mkdirs();
-                }else{
+                } else {
                     newProjectDir = d;
                 }
-                
+
                 Class<?> VFSUtilsClazz = Thread.currentThread()
                     .getContextClassLoader()
                     .loadClass("org.jboss.vfs.VFSUtils");
-                java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
-                    clazz,
-                    File.class);
+                java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz
+                    .getMethod("recursiveCopy", clazz, File.class);
 
                 for (Object child : children) {
                     recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
                 }
             } else {
-                throw new RuleServiceRuntimeException("Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
+                throw new RuleServiceRuntimeException(
+                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
             }
         } else {
-            throw new RuleServiceRuntimeException("Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
+            throw new RuleServiceRuntimeException(
+                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
         }
     }
 
     @Override
     public void afterPropertiesSet() throws IOException {
-        if (!isEnabled()){
+        if (!isEnabled()) {
             return;
         }
-                
+
         String destDirectory = getDestinationDirectory();
         if (destDirectory == null) {
             throw new IllegalStateException("Distination directory is null. Please, check the bean configuration.");
@@ -216,9 +216,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 log.error("Failed to clean a folder. Path: '{}'", destDirectory);
             }
         }
-        
+
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        Resource[] resources = prpr.getResources(
+            ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         for (Resource rulesXmlResource : resources) {
             File file = null;
             try {
@@ -232,7 +233,8 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     log.info("Unpacking '{}' into '{}' has been completed.", resourceURL, destDirectory);
                     continue;
                 } else {
-                    throw new RuleServiceRuntimeException("Protocol for URL isn't supported! URL: " + resourceURL.toString());
+                    throw new RuleServiceRuntimeException(
+                        "Protocol for URL isn't supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
                 log.error("Failed to load a resource!", e);
@@ -258,9 +260,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
             log.info("Unpacking '{}' into '{}' was completed.", file.getAbsolutePath(), destDirectory);
         }
-        
-        Resource[] deploymentResources = prpr.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);        
-        if (!isUnpackAllJarsInOneDeployment()){
+
+        Resource[] deploymentResources = prpr
+            .getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);
+        if (!isUnpackAllJarsInOneDeployment()) {
             for (Resource deploymentResource : deploymentResources) {
                 File file = null;
                 try {
@@ -274,7 +277,8 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                         log.info("Unpacking '{}' into '{}' has been completed.", resourceURL, destDirectory);
                         continue;
                     } else {
-                        throw new RuleServiceRuntimeException("Protocol for URL isn't supported! URL: " + resourceURL.toString());
+                        throw new RuleServiceRuntimeException(
+                            "Protocol for URL isn't supported! URL: " + resourceURL.toString());
                     }
                 } catch (Exception e) {
                     log.error("Failed to load a resource!", e);
@@ -283,17 +287,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 if (!file.exists()) {
                     throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
                 }
-    
+
                 String folderName = FileUtils.getBaseName(file.getCanonicalPath());
                 if (isSupportDeploymentVersion()) {
                     folderName = folderName + getDeploymentVersionSuffix();
                 }
-                
+
                 File d = new File(desFile, folderName);
                 recreateFolderIfExists(d);
-    
+
                 ZipUtils.extractAll(file, d);
-    
+
                 log.info("Unpacking '{}' into '{}' has been completed.", file.getAbsolutePath(), destDirectory);
             }
         }

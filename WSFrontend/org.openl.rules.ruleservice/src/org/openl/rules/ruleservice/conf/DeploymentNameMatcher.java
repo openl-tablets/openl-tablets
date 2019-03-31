@@ -36,6 +36,7 @@ final class DeploymentNameMatcher {
      * Compiles RegEx pattern from string
      * <p>
      * Examples:
+     * 
      * <pre>
      *  compilePattern("") = null
      *  compilePattern("*") = null

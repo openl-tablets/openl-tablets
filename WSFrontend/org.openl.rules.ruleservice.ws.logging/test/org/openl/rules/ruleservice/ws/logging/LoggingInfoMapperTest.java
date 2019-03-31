@@ -40,8 +40,7 @@ public class LoggingInfoMapperTest {
     }
 
     /**
-     * Method should generate random number that represents a time between two
-     * dates.
+     * Method should generate random number that represents a time between two dates.
      * 
      * @return
      */
@@ -62,7 +61,7 @@ public class LoggingInfoMapperTest {
         LoggingCustomData loggingCustomData = new LoggingCustomData();
         loggingCustomData.setValue("customString1", customString1);
         loggingCustomData.setValue("customString2", customString2);
-        
+
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
@@ -97,7 +96,7 @@ public class LoggingInfoMapperTest {
 
         LoggingCustomData loggingCustomData = new LoggingCustomData();
         loggingCustomData.setValue("customString1", " " + customString1 + " ");
-        
+
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
@@ -118,12 +117,12 @@ public class LoggingInfoMapperTest {
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
-        
+
         LoggingCustomData loggingCustomData = new LoggingCustomData();
         loggingCustomData.setValue("customString1", customString1);
         loggingCustomData.setValue("customString2", customString2);
         loggingCustomData.setValue("customString3", customString3);
-        
+
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final String request = RandomStringUtils.random(10);
@@ -186,7 +185,7 @@ public class LoggingInfoMapperTest {
     public static class TrimConvertor implements TypeConvertor<String, String> {
         @Override
         public String convert(String value) {
-            if (value == null){
+            if (value == null) {
                 return null;
             }
             return value.trim();
@@ -331,7 +330,7 @@ public class LoggingInfoMapperTest {
             return value1;
         }
 
-        @SetterValue(value="customString1",publisherTypes = PublisherType.WEBSERVICE)
+        @SetterValue(value = "customString1", publisherTypes = PublisherType.WEBSERVICE)
         public void setValue1(String value1) {
             this.value1 = value1;
         }
@@ -340,7 +339,7 @@ public class LoggingInfoMapperTest {
             return value2;
         }
 
-        @SetterValue(value="customString2",publisherTypes = PublisherType.RESTFUL)
+        @SetterValue(value = "customString2", publisherTypes = PublisherType.RESTFUL)
         public void setValue2(String value2) {
             this.value2 = value2;
         }
@@ -349,7 +348,7 @@ public class LoggingInfoMapperTest {
             return value3;
         }
 
-        @SetterValue(value="customString1", convertor = TrimConvertor.class)
+        @SetterValue(value = "customString1", convertor = TrimConvertor.class)
         public void setValue3(String value3) {
             this.value3 = value3;
         }

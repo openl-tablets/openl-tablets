@@ -25,10 +25,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
+@TestPropertySource(properties = {
+        "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
         "production-repository.uri = test-resources/openl-repository",
-        "version-in-deployment-name = true"
-})
+        "version-in-deployment-name = true" })
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml" })
 public class RulesLoaderTest {
@@ -41,7 +41,9 @@ public class RulesLoaderTest {
     @Before
     public void setDataSource() throws Exception {
         ProjectResolver projectResolver = ProjectResolver.instance();
-        rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage("target/openl-deploy2"), projectResolver);
+        rulesLoader = new RuleServiceLoaderImpl(dataSource,
+            new LocalTemporaryDeploymentsStorage("target/openl-deploy2"),
+            projectResolver);
     }
 
     @Test

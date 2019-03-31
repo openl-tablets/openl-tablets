@@ -10,7 +10,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private PublisherType publisherType;
-    
+
     public CollectPublisherTypeInterceptor(String phase, PublisherType publisherType) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
@@ -20,7 +20,7 @@ public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Me
     public CollectPublisherTypeInterceptor(PublisherType publisherType) {
         this(Phase.PRE_STREAM, publisherType);
     }
-    
+
     @Override
     public void handleMessage(Message message) throws Fault {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();

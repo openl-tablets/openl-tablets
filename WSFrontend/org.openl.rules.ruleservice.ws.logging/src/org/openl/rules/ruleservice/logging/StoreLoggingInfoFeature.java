@@ -15,29 +15,32 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
     private boolean prettyLogging;
 
-    private StoreLoggingInfoService loggingInfoStoringService; 
-    
+    private StoreLoggingInfoService loggingInfoStoringService;
+
     public StoreLoggingInfoService getLoggingInfoStoringService() {
         return loggingInfoStoringService;
     }
-    
+
     public void setLoggingInfoStoringService(StoreLoggingInfoService loggingInfoStoringService) {
         this.loggingInfoStoringService = loggingInfoStoringService;
     }
-    
+
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         if (isLoggingEnabled()) {
-            CollectRequestMessageInInterceptor storeLoggingInInterceptor = new CollectRequestMessageInInterceptor(Integer.MAX_VALUE);
+            CollectRequestMessageInInterceptor storeLoggingInInterceptor = new CollectRequestMessageInInterceptor(
+                Integer.MAX_VALUE);
             storeLoggingInInterceptor.setPrettyLogging(false);
             provider.getInInterceptors().add(storeLoggingInInterceptor);
             provider.getInFaultInterceptors().add(storeLoggingInInterceptor);
 
-            CollectResponseMessageOutInterceptor storeLoggingOutInterceptor = new CollectResponseMessageOutInterceptor(Integer.MAX_VALUE, loggingInfoStoringService);
+            CollectResponseMessageOutInterceptor storeLoggingOutInterceptor = new CollectResponseMessageOutInterceptor(
+                Integer.MAX_VALUE,
+                loggingInfoStoringService);
             storeLoggingOutInterceptor.setPrettyLogging(false);
             provider.getOutInterceptors().add(storeLoggingOutInterceptor);
             provider.getOutFaultInterceptors().add(storeLoggingOutInterceptor);
-            
+
             provider.getInInterceptors().add(new CollectInputDataInterceptor());
         }
     }
