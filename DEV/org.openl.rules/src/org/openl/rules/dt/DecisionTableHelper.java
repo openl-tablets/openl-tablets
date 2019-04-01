@@ -253,6 +253,25 @@ public final class DecisionTableHelper {
             grid));
     }
 
+    private static FuzzyContext buildFuzzyContext(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            int numberOfHcondition,
+            IBindingContext bindingContext) {
+        final ParameterTokens parameterTokens = buildParameterTokens(decisionTable);
+        Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = null;
+        Token[] returnTokens = null;
+        if (numberOfHcondition == 0) {
+            IOpenClass returnType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+            if (isCompoundReturnType(returnType)) {
+                returnTypeFuzzyTokens = OpenLFuzzyUtils.tokensMapToOpenClassSetterMethodsRecursively(returnType);
+                returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
+                return new FuzzyContext(parameterTokens, returnTokens, returnTypeFuzzyTokens, returnType);
+            }
+        }
+
+        return new FuzzyContext(parameterTokens);
+    }
+
     private static void writeVirtualHeaders(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -260,9 +279,15 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfHcondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
 
+        final FuzzyContext fuzzyContext = buildFuzzyContext(tableSyntaxNode,
+            decisionTable,
+            numberOfHcondition,
+            bindingContext);
+
         List<DTHeader> dtHeaders = getDTHeaders(tableSyntaxNode,
             decisionTable,
             originalTable,
+            fuzzyContext,
             numberOfHcondition,
             bindingContext);
 
@@ -276,7 +301,7 @@ public final class DecisionTableHelper {
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
 
-        writeReturns(tableSyntaxNode, decisionTable, originalTable, grid, dtHeaders, bindingContext);
+        writeReturns(tableSyntaxNode, decisionTable, originalTable, grid, fuzzyContext, dtHeaders, bindingContext);
     }
 
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
@@ -286,6 +311,23 @@ public final class DecisionTableHelper {
 
         int count = 0;
         for (IOpenMethod method : compoundType.getMethods()) {
+            if (OpenLFuzzyUtils.isSetterMethod(method)) {
+                count++;
+            }
+        }
+        return count > 0;
+    }
+
+    private static boolean isCompoundInputType(IOpenClass inputType) {
+        if (INT_TYPES.contains(inputType.getInstanceClass()) || DOUBLE_TYPES
+            .contains(inputType.getInstanceClass()) || CHAR_TYPES.contains(
+                inputType.getInstanceClass()) || STRINGS_TYPES.contains(inputType.getInstanceClass()) || DATE_TYPES
+                    .contains(inputType.getInstanceClass()) || RANGES_TYPES.contains(inputType.getInstanceClass())) {
+            return false;
+        }
+
+        int count = 0;
+        for (IOpenMethod method : inputType.getMethods()) {
             if (OpenLFuzzyUtils.isSetterMethod(method)) {
                 count++;
             }
@@ -514,9 +556,70 @@ public final class DecisionTableHelper {
         return type;
     }
 
+    private static void writeInputParametersToReturnMetaInfo(DecisionTable decisionTable,
+            String statementInInputParameters,
+            String statementInReturn) {
+        MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
+        if (metaReader instanceof DecisionTableMetaInfoReader) {
+            DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+            metaInfoReader.addInputParametersToReturn(statementInInputParameters, statementInReturn);
+        }
+    }
+
+    private static void writeInputParametersToReturn(DecisionTable decisionTable,
+            FuzzyContext fuzzyContext,
+            List<DTHeader> dtHeaders,
+            Set<String> generatedNames,
+            Map<String, Map<IOpenMethod, String>> variables,
+            StringBuilder sb,
+            IBindingContext bindingContext) {
+        List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
+            .filter(e -> e instanceof FuzzyDTHeader)
+            .map(e -> (FuzzyDTHeader) e)
+            .filter(FuzzyDTHeader::isReturn)
+            .collect(toList());
+
+        for (Token token : fuzzyContext.getParameterTokens().getTokens()) {
+            Token[] mathedTokens = OpenLFuzzyUtils.openlFuzzyExtract(token.getValue(), fuzzyContext.getReturnTokens());
+            if (mathedTokens.length == 1) {
+                IOpenMethod[][] returnTypeMethodChains = fuzzyContext.getMethodChainsForReturnToken(mathedTokens[0]);
+                if (returnTypeMethodChains.length == 1) {
+                    final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(token.getValue());
+                    final IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
+                    final IOpenMethod[] paramMethodChain = fuzzyContext.getParameterTokens()
+                        .getMethodsChain(token.getValue());
+                    final String statement;
+                    if (paramMethodChain != null) {
+                        statement = decisionTable.getSignature()
+                            .getParameterName(
+                                paramIndex) + "." + buildStatementByMethodsChain(type, paramMethodChain).getKey();
+                    } else {
+                        statement = decisionTable.getSignature().getParameterName(paramIndex);
+                    }
+
+                    final boolean foundInReturns = fuzzyReturns.stream()
+                        .anyMatch(e -> e.getMethodsChain() == returnTypeMethodChains[0]);
+                    if (!foundInReturns) {
+                        writeReturnStatement(fuzzyContext
+                            .getReturnType(), returnTypeMethodChains[0], generatedNames, variables, statement, sb);
+                        if (!bindingContext.isExecutionMode()) {
+                            final String statementInReturn = fuzzyContext.getReturnType()
+                                .getDisplayName(INamedThing.SHORT) + "." + buildStatementByMethodsChain(
+                                    fuzzyContext.getReturnType(),
+                                    returnTypeMethodChains[0]).getKey();
+                            writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
+            FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             IOpenClass compoundReturnType,
             String header,
@@ -545,17 +648,13 @@ public final class DecisionTableHelper {
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
         Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
 
-        for (DTHeader condition : dtHeaders) {
-            if (condition.isCondition() && condition instanceof FuzzyDTHeader) {
-                FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) condition;
-                writeReturnStatement(compoundReturnType,
-                    fuzzyDTHeader.getMethodChainForCompoundReturn(),
-                    generatedNames,
-                    variables,
-                    fuzzyDTHeader.getStatement(),
-                    sb);
-            }
-        }
+        writeInputParametersToReturn(decisionTable,
+            fuzzyContext,
+            dtHeaders,
+            generatedNames,
+            variables,
+            sb,
+            bindingContext);
 
         int i = 0;
         for (FuzzyDTHeader fuzzyDTHeader : fuzzyReturns) {
@@ -654,6 +753,7 @@ public final class DecisionTableHelper {
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
+            FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             IBindingContext bindingContext) throws OpenLCompilationException {
         boolean isCollect = isCollect(tableSyntaxNode);
@@ -724,8 +824,10 @@ public final class DecisionTableHelper {
                         bindingContext);
 
                     writeFuzzyReturns(tableSyntaxNode,
+                        decisionTable,
                         originalTable,
                         grid,
+                        fuzzyContext,
                         dtHeaders,
                         compoundReturnType,
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum++
@@ -912,10 +1014,7 @@ public final class DecisionTableHelper {
                             null,
                             condition.getStatement(),
                             new IOpenClass[] { typeOfValue.getRight() },
-                            (condition instanceof FuzzyDTHeader) && !StringUtils.isEmpty(((FuzzyDTHeader) condition)
-                                .getStatementForCompoundReturn()) ? "Value for return: " + compoundReturnType
-                                    .getDisplayName(INamedThing.SHORT) + "." + ((FuzzyDTHeader) condition)
-                                        .getStatementForCompoundReturn() : null);
+                            null);
                     }
                     if (condition.getWidth() > 1) {
                         for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
@@ -1250,7 +1349,7 @@ public final class DecisionTableHelper {
         List<Token> tokens = new ArrayList<>();
         for (int i = 0; i < numberOfParameters; i++) {
             IOpenClass parameterType = decisionTable.getSignature().getParameterType(i);
-            if (!parameterType.isSimple() && !parameterType.isArray()) {
+            if (isCompoundInputType(parameterType) && !parameterType.isArray()) {
                 Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzyUtils
                     .tokensMapToOpenClassGetterMethodsRecursively(parameterType,
                         decisionTable.getSignature().getParameterName(i));
@@ -1271,10 +1370,7 @@ public final class DecisionTableHelper {
 
     private static void matchWithFuzzySearchRec(DecisionTable decisionTable,
             IGridTable gridTable,
-            ParameterTokens parameterTokens,
-            IOpenClass returnCompoundType,
-            Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens,
-            Token[] returnTokens,
+            FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             int numberOfHcondition,
             int firstColumnHeight,
@@ -1301,10 +1397,7 @@ public final class DecisionTableHelper {
                 int w1 = gridTable.getCell(w2, h + h0).getWidth();
                 matchWithFuzzySearchRec(decisionTable,
                     gridTable,
-                    parameterTokens,
-                    returnCompoundType,
-                    returnTypeFuzzyTokens,
-                    returnTokens,
+                    fuzzyContext,
                     dtHeaders,
                     numberOfHcondition,
                     firstColumnHeight,
@@ -1320,10 +1413,11 @@ public final class DecisionTableHelper {
         } else {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             Token[] bestMatchedTokensForReturnType = null;
-            if (numberOfHcondition == 0 && returnTypeFuzzyTokens != null) {
-                bestMatchedTokensForReturnType = OpenLFuzzyUtils.openlFuzzyExtract(sb.toString(), returnTokens);
+            if (fuzzyContext.isFuzzySupportsForReturnType()) {
+                bestMatchedTokensForReturnType = OpenLFuzzyUtils.openlFuzzyExtract(sb.toString(),
+                    fuzzyContext.getReturnTokens());
                 for (Token token : bestMatchedTokensForReturnType) {
-                    IOpenMethod[][] methodChains = returnTypeFuzzyTokens.get(token);
+                    IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(token);
                     assert (methodChains != null);
                     for (int j = 0; j < methodChains.length; j++) {
                         assert (methodChains[j] != null);
@@ -1333,22 +1427,19 @@ public final class DecisionTableHelper {
                             methodChains[j],
                             sourceTableColumn + w,
                             w0,
-                            null,
-                            null,
                             true));
                     }
                 }
             }
             if (!onlyReturns) {
                 Token[] bestMatchedTokens = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
-                    parameterTokens.getTokens());
+                    fuzzyContext.getParameterTokens().getTokens());
 
                 for (Token token : bestMatchedTokens) {
-                    int paramIndex = parameterTokens.getParameterIndex(token.getValue());
-                    IOpenMethod[] methodsChain = parameterTokens.getMethodsChain(token.getValue());
+                    int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(token.getValue());
+                    IOpenMethod[] methodsChain = fuzzyContext.getParameterTokens().getMethodsChain(token.getValue());
                     StringBuilder conditionStatement = new StringBuilder(
                         decisionTable.getSignature().getParameterName(paramIndex));
-                    IOpenClass cType = decisionTable.getSignature().getParameterType(paramIndex);
                     if (methodsChain != null) {
                         Pair<String, IOpenClass> c = buildStatementByMethodsChain(
                             decisionTable.getSignature().getParameterType(paramIndex),
@@ -1356,32 +1447,14 @@ public final class DecisionTableHelper {
                         String chainStatement = c.getLeft();
                         conditionStatement.append(".");
                         conditionStatement.append(chainStatement);
-                        cType = c.getValue();
-                    }
-                    String conditionStatementForCompoundReturn = null;
-                    IOpenMethod[] methodChainForCompoundReturn = null;
-                    if (bestMatchedTokensForReturnType != null && bestMatchedTokensForReturnType.length == 1 && returnCompoundType != null) {
-                        IOpenMethod[][] methodChains = returnTypeFuzzyTokens.get(bestMatchedTokensForReturnType[0]);
-                        assert (methodChains != null);
-                        if (methodChains.length == 1) {
-                            Pair<String, IOpenClass> p = buildStatementByMethodsChain(returnCompoundType,
-                                methodChains[0]);
-                            IOpenCast cast = bindingContext.getCast(cType, p.getValue());
-                            if (cast != null && cast.isImplicit()) {
-                                methodChainForCompoundReturn = methodChains[0];
-                                conditionStatementForCompoundReturn = p.getKey();
-                            }
-                        }
                     }
 
                     dtHeaders.add(new FuzzyDTHeader(paramIndex,
                         conditionStatement.toString(),
                         sb.toString(),
-                        parameterTokens.getMethodsChain(token.getValue()),
+                        fuzzyContext.getParameterTokens().getMethodsChain(token.getValue()),
                         sourceTableColumn + w,
                         w0,
-                        conditionStatementForCompoundReturn,
-                        methodChainForCompoundReturn,
                         false));
                 }
             }
@@ -1391,27 +1464,21 @@ public final class DecisionTableHelper {
 
     private static void matchWithFuzzySearch(DecisionTable decisionTable,
             ILogicalTable originalTable,
-            ParameterTokens parameterTokens,
-            IOpenClass returnCompoundType,
-            Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens,
-            Token[] returnTokens, // Do not create an array for each call
+            FuzzyContext fuzzyContext,
             int column,
             int numberOfHcondition,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             IBindingContext bindingContext,
             boolean onlyReturns) {
-        if (onlyReturns && (returnTokens == null || returnTypeFuzzyTokens == null)) {
+        if (onlyReturns && !fuzzyContext.isFuzzySupportsForReturnType()) {
             return;
         }
         int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
         matchWithFuzzySearchRec(decisionTable,
             gt,
-            parameterTokens,
-            returnCompoundType,
-            returnTypeFuzzyTokens,
-            returnTokens,
+            fuzzyContext,
             dtHeaders,
             numberOfHcondition,
             firstColumnHeight,
@@ -1792,6 +1859,7 @@ public final class DecisionTableHelper {
     private static List<DTHeader> getDTHeaders(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
+            FuzzyContext fuzzyContext,
             int numberOfHcondition,
             IBindingContext bindingContext) throws OpenLCompilationException {
         boolean isSmart = isSmart(tableSyntaxNode);
@@ -1799,32 +1867,17 @@ public final class DecisionTableHelper {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         boolean twoColumnsForReturn = isTwoColumnsForReturn(tableSyntaxNode, decisionTable);
 
-        ParameterTokens parameterTokens = buildParameterTokens(decisionTable);
-
-        Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = null;
-        Token[] returnTokens = null;
-
         final XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass())
             .getXlsDefinitions();
 
         int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
         int lastColumn = originalTable.getSource().getWidth();
-        IOpenClass returnCompoundType = null;
         if (numberOfHcondition != 0) {
             int firstColumnForHCondition = getFirstColumnForHCondition(originalTable,
                 numberOfHcondition,
                 firstColumnHeight);
             if (firstColumnForHCondition > 0) {
                 lastColumn = firstColumnForHCondition;
-            }
-        } else {
-            returnCompoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
-            if (isCompoundReturnType(returnCompoundType)) {
-                returnTypeFuzzyTokens = OpenLFuzzyUtils
-                    .tokensMapToOpenClassSetterMethodsRecursively(returnCompoundType);
-                returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
-            } else {
-                returnCompoundType = null;
             }
         }
 
@@ -1849,10 +1902,7 @@ public final class DecisionTableHelper {
                     bindingContext);
                 matchWithFuzzySearch(decisionTable,
                     originalTable,
-                    parameterTokens,
-                    returnCompoundType,
-                    returnTypeFuzzyTokens,
-                    returnTokens,
+                    fuzzyContext,
                     column,
                     numberOfHcondition,
                     dtHeaders,
@@ -1870,10 +1920,7 @@ public final class DecisionTableHelper {
                 if (numberOfHcondition == 0 && i >= numberOfParameters) {
                     matchWithFuzzySearch(decisionTable,
                         originalTable,
-                        parameterTokens,
-                        returnCompoundType,
-                        returnTypeFuzzyTokens,
-                        returnTokens,
+                        fuzzyContext,
                         column,
                         numberOfHcondition,
                         dtHeaders,
@@ -2344,6 +2391,47 @@ public final class DecisionTableHelper {
         private NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
             this.logicalTable = logicalTable;
             this.firstColumnHeight = firstColumnHeight;
+        }
+    }
+
+    private static class FuzzyContext {
+        ParameterTokens parameterTokens;
+        Token[] returnTokens = null;
+        Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = null;
+        IOpenClass returnType;
+
+        private FuzzyContext(ParameterTokens parameterTokens) {
+            this.parameterTokens = parameterTokens;
+        }
+
+        private FuzzyContext(ParameterTokens parameterTokens,
+                Token[] returnTokens,
+                Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens,
+                IOpenClass returnType) {
+            this(parameterTokens);
+            this.returnTokens = returnTokens;
+            this.returnTypeFuzzyTokens = returnTypeFuzzyTokens;
+            this.returnType = returnType;
+        }
+
+        public ParameterTokens getParameterTokens() {
+            return parameterTokens;
+        }
+
+        public Token[] getReturnTokens() {
+            return returnTokens;
+        }
+
+        public IOpenMethod[][] getMethodChainsForReturnToken(Token token) {
+            return returnTypeFuzzyTokens.get(token);
+        }
+
+        public boolean isFuzzySupportsForReturnType() {
+            return returnTypeFuzzyTokens != null && returnTokens != null && returnType != null;
+        }
+
+        public IOpenClass getReturnType() {
+            return returnType;
         }
     }
 }

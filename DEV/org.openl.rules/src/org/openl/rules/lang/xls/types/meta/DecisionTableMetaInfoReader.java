@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private int top;
     private int left;
 
+    private Map<String, String> inputParametersToReturn = new HashMap<>();
+
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         this(boundNode, null);
     }
@@ -58,6 +61,22 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode, DecisionTable decisionTable) {
         super(boundNode);
         this.decisionTable = decisionTable;
+    }
+
+    @Override
+    protected String getAdditionalMetaInfoForTableReturnType() {
+        if (inputParametersToReturn.isEmpty()) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (Entry<String, String> entry : inputParametersToReturn.entrySet()) {
+                sb.append("Value ");
+                sb.append(entry.getKey());
+                sb.append(" is used for return ");
+                sb.append(entry.getValue());
+            }
+            return sb.toString();
+        }
     }
 
     @Override
@@ -462,5 +481,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return columnTypes;
         }
 
+    }
+
+    public void addInputParametersToReturn(String statementInInputParameters, String statementInReturn) {
+        this.inputParametersToReturn.put(statementInInputParameters, statementInReturn);
     }
 }

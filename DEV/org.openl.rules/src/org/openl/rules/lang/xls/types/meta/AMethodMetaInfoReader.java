@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.types.meta;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -30,6 +31,10 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
         return getBoundNode().getTableSyntaxNode();
     }
 
+    protected String getAdditionalMetaInfoForTableReturnType() {
+        return null;
+    }
+
     @Override
     protected CellMetaInfo getHeaderMetaInfo() {
         TableSyntaxNode syntaxNode = getTableSyntaxNode();
@@ -54,7 +59,8 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
             nodeUsages.add(new SimpleNodeUsage(start,
                 end,
-                metaInfo.getDisplayName(INamedThing.SHORT),
+                metaInfo.getDisplayName(INamedThing.SHORT) + (StringUtils
+                    .isEmpty(getAdditionalMetaInfoForTableReturnType()) ? "" : "\n" + getAdditionalMetaInfoForTableReturnType()),
                 metaInfo.getSourceUrl(),
                 NodeType.DATATYPE));
         }

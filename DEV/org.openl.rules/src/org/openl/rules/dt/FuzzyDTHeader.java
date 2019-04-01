@@ -4,10 +4,8 @@ import org.openl.types.IOpenMethod;
 
 class FuzzyDTHeader extends DTHeader {
     IOpenMethod[] methodsChain;
-    boolean compoundReturn;
+    boolean returnDTHeader;
     String title;
-    IOpenMethod[] methodChainForCompoundReturn;
-    String statementForCompoundReturn;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
@@ -15,23 +13,11 @@ class FuzzyDTHeader extends DTHeader {
             IOpenMethod[] methodsChain,
             int column,
             int width,
-            String statementForCompoundReturn,
-            IOpenMethod[] methodChainForCompoundReturn,
-            boolean compoundReturn) {
+            boolean returnDTHeader) {
         super(new int[] { methodParameterIndex }, statement, column, width);
         this.methodsChain = methodsChain;
-        this.compoundReturn = compoundReturn;
+        this.returnDTHeader = returnDTHeader;
         this.title = title;
-        this.methodChainForCompoundReturn = methodChainForCompoundReturn;
-        this.statementForCompoundReturn = statementForCompoundReturn;
-    }
-
-    public String getStatementForCompoundReturn() {
-        return statementForCompoundReturn;
-    }
-
-    public IOpenMethod[] getMethodChainForCompoundReturn() {
-        return methodChainForCompoundReturn;
     }
 
     public String getTitle() {
@@ -40,7 +26,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     boolean isCondition() {
-        return !compoundReturn;
+        return !returnDTHeader;
     }
 
     @Override
@@ -50,7 +36,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     boolean isReturn() {
-        return compoundReturn;
+        return returnDTHeader;
     }
 
     IOpenMethod[] getMethodsChain() {
@@ -64,7 +50,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     int getMethodParameterIndex() {
-        if (compoundReturn) {
+        if (returnDTHeader) {
             throw new IllegalStateException();
         }
         return super.getMethodParameterIndex();
@@ -74,7 +60,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     int[] getMethodParameterIndexes() {
-        if (compoundReturn) {
+        if (returnDTHeader) {
             return RETURN_INDEXES;
         }
         return super.getMethodParameterIndexes();
