@@ -7,6 +7,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
