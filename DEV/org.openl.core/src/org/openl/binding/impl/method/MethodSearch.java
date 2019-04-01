@@ -44,7 +44,7 @@ public class MethodSearch {
             IOpenClass[] returnTypeHolder) {
         Integer[] castHolderDistance = new Integer[callParam.length];
         if (method != null) {
-            Map<String, IOpenClass> m = new HashMap<String, IOpenClass>();
+            Map<String, IOpenClass> m = new HashMap<>();
             String[] typeNames = new String[method.getParameterTypes().length];
             int[] arrayDims = new int[method.getParameterTypes().length];
             int i = 0;
