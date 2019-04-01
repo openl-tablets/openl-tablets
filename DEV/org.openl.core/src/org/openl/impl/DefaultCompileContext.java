@@ -9,7 +9,7 @@ import org.openl.validation.IOpenLValidator;
 
 /**
  * Default implementation of the {@link ICompileContext} interface.
- * 
+ *
  */
 public class DefaultCompileContext implements ICompileContext {
 

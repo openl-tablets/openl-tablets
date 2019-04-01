@@ -8,9 +8,9 @@ package org.openl.rules.table;
 
 /**
  * @author snshor
- * 
+ *
  *         The class representing absolute grid starting at 0,0
- * 
+ *
  */
 public interface IGrid {
 

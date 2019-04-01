@@ -63,7 +63,7 @@ public class SpreadsheetStructureBuilder {
 
     /**
      * Extract cell values from the source spreadsheet table.
-     * 
+     *
      * @return cells of spreadsheet with its values
      */
     public SpreadsheetCell[][] getCells() {
@@ -301,7 +301,7 @@ public class SpreadsheetStructureBuilder {
     /**
      * Gets the name of the spreadsheet cell field. <br>
      * Is represented as {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN} rowName, e.g. $Value$Final
-     * 
+     *
      * @param columnName name of cell column
      * @param rowName name of the row column
      * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final

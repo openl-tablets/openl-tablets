@@ -50,15 +50,17 @@ public class LaunchFileServlet extends HttpServlet {
         }
 
         WebStudio ws = getWebStudio(request);
-        if (ws == null)
+        if (ws == null) {
             return;
+        }
 
         ProjectModel model = ws.getModel();
 
         String id = request.getParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = model.getTableById(id);
-        if (table == null)
+        if (table == null) {
             return;
+        }
 
         String uri = table.getUri();
 

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * A class that describes a Data Table's table type variable for predefined types such as String, BigDecimal, IntRange
  * etc
- * 
+ *
  * @author NSamatov
  */
 public final class DataTablePredefinedTypeVariable extends DataTableField {
@@ -15,7 +15,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
 
     /**
      * Create a variable of a given type
-     * 
+     *
      * @param typeName type of a variable
      */
     public DataTablePredefinedTypeVariable(String typeName) {
@@ -49,7 +49,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
 
     /**
      * Fictional "this" field
-     * 
+     *
      * @author NSamatov
      */
     private class ThisField extends DataTableField {

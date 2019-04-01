@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Complex variation combines multiple variations that all will be applied to arguments sequentially.
- * 
+ *
  * @author PUdalau
  */
 @XmlRootElement
@@ -26,7 +26,7 @@ public class ComplexVariation extends Variation {
 
     /**
      * Constructs complex variation with the specified ID.
-     * 
+     *
      * @param variationID Unique ID for this variation.
      * @param variations Variations that composes this complex variation.
      */
@@ -37,7 +37,7 @@ public class ComplexVariation extends Variation {
 
     /**
      * Constructs complex variation with generated ID.
-     * 
+     *
      * @param variationID Unique ID for this variation.
      * @param variations Variations that composes this complex variation.
      */
@@ -47,7 +47,7 @@ public class ComplexVariation extends Variation {
 
     /**
      * Generates ID for complex variation.
-     * 
+     *
      * @param variations Variations.
      * @return ID for complex variation
      */

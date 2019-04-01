@@ -198,7 +198,7 @@ public class MethodUtil {
 
     /**
      * Get differences between two signatures.
-     * 
+     *
      * @param signatureToCheck Signature to check
      * @param argTypes Types of existing arguments.
      * @return <code>-1</code> if signature to check is not suitable for specified args and transformations count

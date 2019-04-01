@@ -1,14 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -19,11 +12,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
-import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
-import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
-import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
-import org.openl.rules.ruleservice.logging.ObjectSerializer;
+import org.openl.rules.ruleservice.logging.*;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
@@ -137,7 +126,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
             Object proxyServiceBean = JAXRSEnhancerHelper.decorateServiceBean(service);
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated
-                                                                                    // interface
+            // interface
 
             svrFactory.setResourceClasses(serviceClass);
 

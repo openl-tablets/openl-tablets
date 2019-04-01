@@ -14,8 +14,7 @@ public class CommaSeparatedParamsDTTest {
 
     @Before
     public void initEngine() {
-        RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<CommaSeparatedTest>(SRC,
-            CommaSeparatedTest.class);
+        RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<>(SRC, CommaSeparatedTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

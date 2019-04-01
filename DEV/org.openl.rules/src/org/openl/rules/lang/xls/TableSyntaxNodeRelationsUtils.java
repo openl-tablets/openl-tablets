@@ -7,7 +7,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Internal Util class for working with table syntax node relations
- * 
+ *
  * @author Marat Kamalov
  *
  */

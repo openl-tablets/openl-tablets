@@ -1,6 +1,6 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;

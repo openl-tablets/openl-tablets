@@ -1,14 +1,15 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import org.openl.config.*;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Map;
+
+import org.openl.config.ConfigurationManager;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Startup listener.

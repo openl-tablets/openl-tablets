@@ -41,14 +41,16 @@ public class Deployment extends AProjectFolder {
     }
 
     public CommonVersion getCommonVersion() {
-        if (commonVersion == null)
+        if (commonVersion == null) {
             return this.getVersion();
+        }
         return commonVersion;
     }
 
     public String getDeploymentName() {
-        if (deploymentName == null)
+        if (deploymentName == null) {
             return this.getName();
+        }
         return deploymentName;
     }
 

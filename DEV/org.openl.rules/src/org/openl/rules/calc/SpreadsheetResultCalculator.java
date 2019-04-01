@@ -42,10 +42,11 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         this.targetModule = targetModule;
         this.params = params;
         this.env = env;
-        if (preCalculatedResult == null)
+        if (preCalculatedResult == null) {
             this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
-        else
+        } else {
             this.results = clonePrecalculatedResults(preCalculatedResult);
+        }
     }
 
     private Object[][] clonePrecalculatedResults(Object[][] preCalculatedResult) {

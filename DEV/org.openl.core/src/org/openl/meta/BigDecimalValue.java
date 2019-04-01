@@ -83,7 +83,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 equal value2
@@ -97,7 +97,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater or equal value2
@@ -110,7 +110,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater value2
@@ -123,7 +123,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less or equal value2
@@ -136,7 +136,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less value2
@@ -149,7 +149,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 not equal value2
@@ -163,7 +163,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value of variable which should be copied
      * @param name of new variable
      * @return the new org.openl.meta.BigDecimalValue variable with name <b>name</b> and value <b>value</b>
@@ -187,7 +187,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * 
+     *
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return remainder from division value1 by value2
@@ -217,7 +217,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Adds left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return the result of addition operation
@@ -245,7 +245,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // MULTIPLY
     /**
      * Multiplies left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return the result of multiplication operation
@@ -272,7 +272,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return the result of subtraction operation
@@ -303,7 +303,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return the result of division operation
@@ -338,7 +338,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param number org.openl.meta.BigDecimalValue
      * @param divisor org.openl.meta.BigDecimalValue
      * @return LongValue the result of division operation
@@ -352,7 +352,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param number
      * @param divisor
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
@@ -371,7 +371,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     /**
      * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.BigDecimalValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -383,7 +383,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     /**
      * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.BigDecimalValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -393,7 +393,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value1
      * @param value2
      * @return the result of value1 raised to the power of value2
@@ -415,7 +415,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
@@ -432,7 +432,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the negative value of the <b>value</b>
      */
@@ -444,7 +444,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b> increased by 1
      */
@@ -453,7 +453,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b>
      */
@@ -462,7 +462,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value </b> decreased by 1
      */
@@ -474,7 +474,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from byte to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -485,7 +485,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -496,7 +496,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -507,7 +507,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from char to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -518,7 +518,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -529,7 +529,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from float to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -540,7 +540,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from double to org.openl.meta.BigDecimalValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -609,7 +609,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     // sort
     /**
      * Sorts the array <b>values</b>
-     * 
+     *
      * @param values an array for sorting
      * @return the sorted array
      */

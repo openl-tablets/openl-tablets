@@ -16,9 +16,9 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.testmethod.export.RulesResultExport;
 import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;

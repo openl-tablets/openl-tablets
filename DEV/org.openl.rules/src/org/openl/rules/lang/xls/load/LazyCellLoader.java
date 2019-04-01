@@ -1,9 +1,9 @@
 package org.openl.rules.lang.xls.load;
 
+import java.lang.ref.WeakReference;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.table.xls.PoiExcelHelper;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Provides lazy access to the Cell. If corresponding workbook was garbage collected previously, it will bec loaded

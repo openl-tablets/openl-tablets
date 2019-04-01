@@ -35,12 +35,13 @@ public final class StringPool {
         // Return from the pool if the value exists.
         if (ref != null) {
             String cached = ref.get();
-            if (cached != null)
+            if (cached != null) {
                 return cached;
+            }
         }
 
         synchronized (STRING_POOL) {
-            ref = STRING_POOL.put(value, new WeakReference<String>(value));
+            ref = STRING_POOL.put(value, new WeakReference<>(value));
             // Return the placed value if it is absent in the pool.
             if (ref == null) {
                 return value;

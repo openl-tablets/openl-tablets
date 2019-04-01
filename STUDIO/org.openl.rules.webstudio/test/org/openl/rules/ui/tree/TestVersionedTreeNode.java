@@ -1,6 +1,6 @@
 package org.openl.rules.ui.tree;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +15,11 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
 public class TestVersionedTreeNode {
-    private Map<String, TableSyntaxNode> tables = new HashMap<String, TableSyntaxNode>();
+    private Map<String, TableSyntaxNode> tables = new HashMap<>();
 
     @Before
     public void getTables() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Versions_Test.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/Versions_Test.xls");
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();

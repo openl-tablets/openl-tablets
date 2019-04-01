@@ -1,20 +1,11 @@
 package org.openl.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +54,7 @@ public final class OpenLTest {
 
     @Test
     public void checkTestBehavior() throws Exception {
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
             .setExecutionMode(false)
             .setProject("test-resources/check-openl-test")
@@ -149,11 +140,11 @@ public final class OpenLTest {
                     continue;
                 }
 
-                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(folderName + sourceFile);
+                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(folderName + sourceFile);
                 engineFactory.setExecutionMode(false);
                 compiledOpenClass = engineFactory.getCompiledOpenClass();
             } else if (file.isDirectory()) {
-                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                 engineFactoryBuilder.setExecutionMode(false);
                 engineFactoryBuilder.setProject(file.getPath());
                 SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();

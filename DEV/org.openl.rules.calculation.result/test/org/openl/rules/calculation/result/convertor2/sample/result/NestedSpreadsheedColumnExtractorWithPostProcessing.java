@@ -7,9 +7,9 @@ import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetConfigurat
 
 /**
  * Injects implementation of post processing of converted results to {@link NestedSpreadsheedColumnExtractor}
- * 
+ *
  * @author tkrivickas, Marat Kamalov
- * 
+ *
  */
 public class NestedSpreadsheedColumnExtractorWithPostProcessing extends NestedSpreadsheedColumnExtractor {
 

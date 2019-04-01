@@ -56,7 +56,7 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setVersion("v1");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { PublisherType.WEBSERVICE });
         rulesDeploy.setGroups("group1,group2");
-        Map<String, Object> configuration = new HashMap<String, Object>();
+        Map<String, Object> configuration = new HashMap<>();
         configuration.put("key", "value");
         rulesDeploy.setConfiguration(configuration);
         XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();

@@ -18,7 +18,7 @@ import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
  * <p>
  * Company:
  * </p>
- * 
+ *
  * @author unascribed
  * @version 1.0
  */

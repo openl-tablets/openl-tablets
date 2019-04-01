@@ -1,7 +1,7 @@
 package org.openl.rules.table.ui;
 
 /**
- * 
+ *
  * @author DLiauchuk
  *
  */

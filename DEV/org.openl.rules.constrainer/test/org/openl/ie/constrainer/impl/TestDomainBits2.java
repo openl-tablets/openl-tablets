@@ -4,8 +4,6 @@ import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.impl.DomainBits;
-import org.openl.ie.constrainer.impl.DomainBits2;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -179,9 +177,9 @@ public class TestDomainBits2 extends TestCase {
         // intersection of range to be removed and the domain is an empty set
         try {
             assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
-                                                                       // is to
-                                                                       // be
-                                                                       // done
+            // is to
+            // be
+            // done
         } catch (Failure f) {
             fail("it wouldn't ever happen");
         }

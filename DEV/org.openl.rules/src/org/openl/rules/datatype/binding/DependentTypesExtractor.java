@@ -1,8 +1,6 @@
 package org.openl.rules.datatype.binding;
 
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.canProcessRow;
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getIdentifierNode;
+import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.*;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

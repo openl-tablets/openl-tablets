@@ -27,8 +27,9 @@ public class BracketMatcher {
             for (int i = 0; i < values().length; i++) {
 
                 Brackets test = values()[i];
-                if (test.isClosed(c) || test.isOpen(c))
+                if (test.isClosed(c) || test.isOpen(c)) {
                     return test;
+                }
 
             }
 
@@ -79,8 +80,9 @@ public class BracketMatcher {
         char c = image.charAt(0);
         Brackets b = Brackets.isBracket(c);
 
-        if (b == null)
+        if (b == null) {
             return null;
+        }
 
         if (b.isOpen(c)) {
             stack.push(new BracketsStackObject(b, id));
@@ -93,8 +95,9 @@ public class BracketMatcher {
             }
 
             BracketsStackObject bso = stack.pop();
-            if (bso.bracket.isClosed(c))
+            if (bso.bracket.isClosed(c)) {
                 return null;
+            }
             bso.errorCode = MISMATCHED;
             return bso;
         }

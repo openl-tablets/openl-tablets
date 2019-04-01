@@ -1,12 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
-import static org.openl.rules.ruleservice.Constants.MODULE_NAME;
-import static org.openl.rules.ruleservice.Constants.PROJECT_NAME;
-import static org.openl.rules.ruleservice.Constants.VERSION;
+import static org.junit.Assert.*;
+import static org.openl.rules.ruleservice.Constants.*;
 
 import java.util.Collection;
 

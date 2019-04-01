@@ -77,7 +77,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
         /**
          * <libraries>
-         * 
+         *
          * <library namespace="org.openl.this"> <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
          * </libraries>
          */
@@ -104,7 +104,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         }
 
         /*
-         * 
+         *
          * <types> <typelibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
          * <javaimport all="org.openl.rules.helpers"/> </typelibrary> </types>
          */

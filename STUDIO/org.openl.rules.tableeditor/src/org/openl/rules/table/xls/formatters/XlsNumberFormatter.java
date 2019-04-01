@@ -1,12 +1,12 @@
 package org.openl.rules.table.xls.formatters;
 
+import java.util.Locale;
+
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
 
 /**
  * This class provides default conversion of MS Excel formats to Java formats. There is no way for practical and

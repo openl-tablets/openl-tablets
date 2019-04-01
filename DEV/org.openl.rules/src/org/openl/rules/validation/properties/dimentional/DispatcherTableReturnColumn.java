@@ -6,7 +6,7 @@ import org.openl.types.IOpenClass;
 /**
  * This class is used to build dispatcher table by dimensional properties for the group of overloaded tables. In this
  * table in return column there are calls for original table from the group for every rule.
- * 
+ *
  * @author DLiauchuk
  *
  */

@@ -10,7 +10,7 @@ import org.openl.util.tree.ITreeElement;
 
 /**
  * Number value that supports explanation operations.
- * 
+ *
  * @author DLiauchuk
  *
  * @param <T> type that extends {@link ExplanationNumberValue}

@@ -3,11 +3,11 @@
  */
 package org.openl.rules.tbasic.compile;
 
-import org.openl.rules.tbasic.TBasicSpecificationKey;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+
+import org.openl.rules.tbasic.TBasicSpecificationKey;
 
 /**
  * @author User
@@ -194,7 +194,7 @@ public class LabelManager {
 
     /**
      * Checks if the label instructions represents are return instruction.
-     * 
+     *
      * @param labelInstruction
      * @return true if label instruction is a return one.
      */

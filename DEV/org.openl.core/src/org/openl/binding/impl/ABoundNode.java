@@ -16,7 +16,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class ABoundNode implements IBoundNode {
     private static final IBoundNode[] EMPTY = new IBoundNode[0];

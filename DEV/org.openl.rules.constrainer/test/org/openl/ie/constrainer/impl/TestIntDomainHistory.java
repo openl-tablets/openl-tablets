@@ -3,8 +3,6 @@ package org.openl.ie.constrainer.impl;
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.impl.IntDomainHistory;
-import org.openl.ie.constrainer.impl.IntVarImpl;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

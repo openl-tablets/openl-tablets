@@ -1,13 +1,14 @@
 package org.openl.rules.helpers;
 
-import org.junit.*;
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.MIN_VALUE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.openl.rules.helpers.IntRangeParser2.parse;
 
 import java.util.Random;
 
-import static java.lang.Integer.MAX_VALUE;
-import static java.lang.Integer.MIN_VALUE;
-import static org.junit.Assert.*;
-import static org.openl.rules.helpers.IntRangeParser2.parse;
+import org.junit.Test;
 
 /**
  * Tests for {@link IntRangeParser2}
@@ -135,11 +136,11 @@ public class IntRangeParser2Test {
     @Test
     public void testOpenClosedIntervals() {
         // Now do the real testing
-        for (boolean leftOpen : new boolean[] { false, true })
-            for (boolean rightOpen : new boolean[] { false, true })
-                for (String separator : new String[] { ";", "..", "-" })
-                    for (int i = 0; i < NUMBERS_STR.length; i++)
-                        for (int j = 0; j < NUMBERS_STR.length; j++)
+        for (boolean leftOpen : new boolean[] { false, true }) {
+            for (boolean rightOpen : new boolean[] { false, true }) {
+                for (String separator : new String[] { ";", "..", "-" }) {
+                    for (int i = 0; i < NUMBERS_STR.length; i++) {
+                        for (int j = 0; j < NUMBERS_STR.length; j++) {
                             if (NUMBERS_VALUES[i] + 1 < NUMBERS_VALUES[j]) {
                                 String str = spaced(leftOpen ? "(" : "[") + NUMBERS_STR[i] + spaced(
                                     separator) + NUMBERS_STR[j] + spaced(rightOpen ? ")" : "]");
@@ -148,6 +149,11 @@ public class IntRangeParser2Test {
                                         rightOpen ? NUMBERS_VALUES[j] - 1 : NUMBERS_VALUES[j]),
                                     parse(str));
                             }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -159,13 +165,14 @@ public class IntRangeParser2Test {
                 parse(spaced(NUMBERS_STR[i]) + " or " + spaced("less")));
         }
 
-        for (int i = 0; i < NUMBERS_STR.length; i++)
+        for (int i = 0; i < NUMBERS_STR.length; i++) {
             for (int j = NUMBERS_STR.length - 1; j > 0 && NUMBERS_VALUES[j] >= NUMBERS_VALUES[i]; j--) {
                 String s1 = concat(NUMBERS_STR[i], " and ", "more ", "and ", NUMBERS_STR[j], " or ", "less");
                 String s2 = concat(NUMBERS_STR[j], " or ", "less ", "and ", NUMBERS_STR[i], " and ", "more");
                 assertEquals(new IntRange(NUMBERS_VALUES[i], NUMBERS_VALUES[j]), parse(s1));
                 assertEquals(new IntRange(NUMBERS_VALUES[i], NUMBERS_VALUES[j]), parse(s2));
             }
+        }
     }
 
     static String spaced(String value) {

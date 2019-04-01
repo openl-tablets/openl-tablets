@@ -3,7 +3,10 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.ProjectDescriptor;

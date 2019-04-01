@@ -11,7 +11,7 @@ public class BooleanUtils {
     /**
      * Converts an Object to a boolean. For String value 'true', 'on', 'yes', 'y' or 't' (case insensitive) will return
      * true. Otherwise, false is returned. For Integer value 0 will return false. Otherwise, true is returned.
-     * 
+     *
      * @param value Object value
      * @return boolean value
      */
@@ -27,7 +27,7 @@ public class BooleanUtils {
      * Converts an Object to a boolean. For String value 'true', 'on', 'yes', 'y' or 't' (case insensitive) will return
      * true. Otherwise, false is returned. For Integer value 0 will return false. Otherwise, true is returned. Returns
      * boolean value or default value if the input value is null or not a Boolean.
-     * 
+     *
      * @param value Object value
      * @param defaultValue The default boolean value to return if the value is null or not a Boolean
      * @return boolean value
@@ -40,7 +40,7 @@ public class BooleanUtils {
      * Converts an Object to a Boolean. For String value 'true', 'on', 'yes', 'y' or 't' (case insensitive) will return
      * true. 'false', 'off', 'no', 'n' or 'f' (case insensitive) will return false. Otherwise, null is returned. For
      * Integer value 0 will return false, null will return null. Otherwise, true is returned.
-     * 
+     *
      * @param value Object value
      * @return Boolean value
      */
@@ -174,7 +174,7 @@ public class BooleanUtils {
      * true. 'false', 'off', 'no', 'n' or 'f' (case insensitive) will return false. Otherwise, null is returned. For
      * Integer value 0 will return false, null will return null. Otherwise, true is returned. Returns Boolean value or
      * default value if the input value is null or not a Boolean.
-     * 
+     *
      * @param value Object value
      * @param defaultValue The default Boolean value to return if the value is null or not a Boolean
      * @return Boolean value

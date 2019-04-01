@@ -4,7 +4,7 @@ import org.objectweb.asm.ClassWriter;
 
 /**
  * Common interface for byte code writers.
- * 
+ *
  * @author DLiauchuk
  *
  */

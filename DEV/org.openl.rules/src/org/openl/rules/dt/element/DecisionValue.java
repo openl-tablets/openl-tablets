@@ -8,7 +8,7 @@ package org.openl.rules.dt.element;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DecisionValue {
 

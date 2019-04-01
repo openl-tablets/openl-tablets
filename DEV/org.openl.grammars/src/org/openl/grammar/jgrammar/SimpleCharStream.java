@@ -87,16 +87,18 @@ public class SimpleCharStream {
                 if (tokenBegin > 2048) {
                     bufpos = maxNextCharInd = 0;
                     available = tokenBegin;
-                } else if (tokenBegin < 0)
+                } else if (tokenBegin < 0) {
                     bufpos = maxNextCharInd = 0;
-                else
+                } else {
                     ExpandBuff(false);
-            } else if (available > tokenBegin)
+                }
+            } else if (available > tokenBegin) {
                 available = bufsize;
-            else if ((tokenBegin - available) < 2048)
+            } else if ((tokenBegin - available) < 2048) {
                 ExpandBuff(true);
-            else
+            } else {
                 available = tokenBegin;
+            }
         }
 
         int i;
@@ -104,14 +106,16 @@ public class SimpleCharStream {
             if ((i = inputStream.read(buffer, maxNextCharInd, available - maxNextCharInd)) == -1) {
                 inputStream.close();
                 throw new java.io.IOException();
-            } else
+            } else {
                 maxNextCharInd += i;
+            }
             return;
         } catch (java.io.IOException e) {
             --bufpos;
             backup(0);
-            if (tokenBegin == -1)
+            if (tokenBegin == -1) {
                 tokenBegin = bufpos;
+            }
             throw e;
         }
     }
@@ -135,8 +139,9 @@ public class SimpleCharStream {
             prevCharIsCR = false;
             if (c == '\n') {
                 prevCharIsLF = true;
-            } else
+            } else {
                 line += (column = 1);
+            }
         }
 
         switch (c) {
@@ -163,14 +168,16 @@ public class SimpleCharStream {
         if (inBuf > 0) {
             --inBuf;
 
-            if (++bufpos == bufsize)
+            if (++bufpos == bufsize) {
                 bufpos = 0;
+            }
 
             return buffer[bufpos];
         }
 
-        if (++bufpos >= maxNextCharInd)
+        if (++bufpos >= maxNextCharInd) {
             FillBuff();
+        }
 
         char c = buffer[bufpos];
 
@@ -222,8 +229,9 @@ public class SimpleCharStream {
     public void backup(int amount) {
 
         inBuf += amount;
-        if ((bufpos -= amount) < 0)
+        if ((bufpos -= amount) < 0) {
             bufpos += bufsize;
+        }
     }
 
     /** Constructor. */
@@ -359,19 +367,20 @@ public class SimpleCharStream {
 
     /** Get token literal value. */
     public String GetImage() {
-        if (bufpos >= tokenBegin)
+        if (bufpos >= tokenBegin) {
             return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
-        else
+        } else {
             return new String(buffer, tokenBegin, bufsize - tokenBegin) + new String(buffer, 0, bufpos + 1);
+        }
     }
 
     /** Get the suffix. */
     public char[] GetSuffix(int len) {
         char[] ret = new char[len];
 
-        if ((bufpos + 1) >= len)
+        if ((bufpos + 1) >= len) {
             System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
-        else {
+        } else {
             System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
             System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
         }
@@ -415,10 +424,11 @@ public class SimpleCharStream {
             bufcolumn[j] = newCol + columnDiff;
 
             while (i++ < len) {
-                if (bufline[j = start % bufsize] != bufline[++start % bufsize])
+                if (bufline[j = start % bufsize] != bufline[++start % bufsize]) {
                     bufline[j] = newLine++;
-                else
+                } else {
                     bufline[j] = newLine;
+                }
             }
         }
 

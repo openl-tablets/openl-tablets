@@ -12,7 +12,7 @@ package org.openl.rules.variation;
 
 /**
  * Variation API runtime exception
- * 
+ *
  * @author Marat Kamalov
  *
  */

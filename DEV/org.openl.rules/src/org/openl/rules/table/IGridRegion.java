@@ -43,7 +43,7 @@ public interface IGridRegion {
 
         /**
          * Calculates grid region height.
-         * 
+         *
          * @param i1 grid region
          * @return grid region height.
          */
@@ -53,7 +53,7 @@ public interface IGridRegion {
 
         /**
          * Finds common {@link IGridRegion} for incoming regions.
-         * 
+         *
          * @param i1 first grid region
          * @param i2 second grid region
          * @return intersection of incoming grid regions. <code>null</code> if there is no intersection.

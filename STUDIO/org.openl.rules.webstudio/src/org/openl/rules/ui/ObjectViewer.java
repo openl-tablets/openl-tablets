@@ -19,7 +19,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author snshor
- * 
+ *
  * @deprecated
  */
 @Deprecated

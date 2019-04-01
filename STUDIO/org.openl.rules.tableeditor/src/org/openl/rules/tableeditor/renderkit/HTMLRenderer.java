@@ -22,7 +22,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Render TableEditor HTML.
- * 
+ *
  * @author Andrei Astrouski
  */
 public class HTMLRenderer {
@@ -378,7 +378,7 @@ public class HTMLRenderer {
 
     /**
      * Returns max number of rows to display.
-     * 
+     *
      * @return number of rows to display or -1 for all rows
      */
     public static int getMaxNumRowsToDisplay(IGridTable table) {
@@ -408,7 +408,7 @@ public class HTMLRenderer {
 
     /**
      * Render HTML table by table model.
-     * 
+     *
      * @author Andrey Naumenko
      */
     public static class TableRenderer {

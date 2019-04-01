@@ -8,7 +8,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
  * Project builder for projects uploaded as zip files.
- * 
+ *
  * @author DLiauchuk
  *
  */

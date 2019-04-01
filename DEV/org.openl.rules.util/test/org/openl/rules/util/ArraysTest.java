@@ -1,14 +1,7 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.openl.rules.util.Arrays.isEmpty;
-import static org.openl.rules.util.Arrays.isNotEmpty;
-import static org.openl.rules.util.Arrays.slice;
-import static org.openl.rules.util.Arrays.length;
+import static org.junit.Assert.*;
+import static org.openl.rules.util.Arrays.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;

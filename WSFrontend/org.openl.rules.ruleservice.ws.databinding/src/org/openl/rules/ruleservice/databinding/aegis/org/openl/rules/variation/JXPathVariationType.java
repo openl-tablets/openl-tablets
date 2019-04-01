@@ -26,7 +26,7 @@ import org.openl.rules.variation.VariationsFactory;
 /**
  * Custom mapping for {@link JXPathVariation} due to it is not usual bean and should be initialized through non-default
  * constructor.
- * 
+ *
  * @author PUdalau
  */
 public class JXPathVariationType extends BeanType {

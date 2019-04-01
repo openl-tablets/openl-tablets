@@ -101,7 +101,7 @@ final class CalendarWrapper {
      * Calculate difference in full days between two dates regarding last month. This method skips years and months.
      *
      * Note: this is an analog for Excel native function DATEDIF(start, end, "MD")
-     * 
+     *
      * @param start start date
      * @return difference in full days
      */

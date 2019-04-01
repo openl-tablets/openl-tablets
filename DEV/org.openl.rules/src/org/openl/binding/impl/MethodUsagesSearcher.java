@@ -19,7 +19,7 @@ import org.openl.util.text.TextInfo;
 
 /**
  * Helps to find all used OpenL methods in compiled code by {@link IBoundNode}.
- * 
+ *
  * @author PUdalau
  */
 public class MethodUsagesSearcher {
@@ -79,7 +79,7 @@ public class MethodUsagesSearcher {
         }
 
         /**
-         * 
+         *
          * @return uri of the table representing used method or <code>null</code> if this method is not represented by
          *         some OpenL component.
          */
@@ -105,10 +105,12 @@ public class MethodUsagesSearcher {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
             MethodUsage that = (MethodUsage) o;
             return startPos == that.startPos && endPos == that.endPos && Objects.equals(method, that.method);
         }
@@ -121,7 +123,7 @@ public class MethodUsagesSearcher {
 
     /**
      * Find all OpenL methods used in the code.
-     * 
+     *
      * @param boundNode Compiled OpenL expression.
      * @param sourceString Source of OpenL expression.
      * @param startIndex Position in the <code>sourceString</code> which defines start of OpenL expression.

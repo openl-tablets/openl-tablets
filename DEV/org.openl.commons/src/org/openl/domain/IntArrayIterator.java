@@ -5,7 +5,7 @@ package org.openl.domain;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class IntArrayIterator extends AIntIterator {
     int current = 0;

@@ -17,7 +17,7 @@ import org.apache.cxf.phase.Phase;
 
 /**
  * CXF interceptor for collecting request data for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

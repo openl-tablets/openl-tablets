@@ -9,7 +9,7 @@ package org.openl.util;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class AStringConvertor<T> implements IConvertor<T, String> {
 

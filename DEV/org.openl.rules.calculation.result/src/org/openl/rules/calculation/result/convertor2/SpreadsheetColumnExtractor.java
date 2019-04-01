@@ -36,7 +36,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
     /**
      * Gets the configuration
-     * 
+     *
      * @return {@link NestedSpreadsheetConfiguration}
      */
     public NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> getConfiguration() {

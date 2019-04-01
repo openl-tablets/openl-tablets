@@ -25,16 +25,16 @@ public interface Undo extends Reusable, java.io.Serializable {
     /**
      * Restores the state of the undoable object to the state it had just before this undo was created.
      */
-    public void undo();
+    void undo();
 
     /**
      * Returns an undoable object for which this undo-object was created.
      */
-    public Undoable undoable();
+    Undoable undoable();
 
     /**
      * Sets an undoable object for which this undo-object was created.
      */
-    public void undoable(Undoable u);
+    void undoable(Undoable u);
 
 }

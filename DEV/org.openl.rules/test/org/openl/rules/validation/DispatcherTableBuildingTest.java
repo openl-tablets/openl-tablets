@@ -1,8 +1,6 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,12 +31,12 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     }
 
     private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningsForTable = new ArrayList<OpenLMessage>();
+        List<OpenLMessage> warningsForTable = new ArrayList<>();
         Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {// there can be simple
-                                                      // OpenLMessages with
-                                                      // severity WARN
+                // OpenLMessages with
+                // severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
                 if (syntaxNode == tsn) {

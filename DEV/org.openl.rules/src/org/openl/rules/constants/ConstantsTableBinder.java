@@ -11,9 +11,9 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * Binder for constants table.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class ConstantsTableBinder extends AXlsTableBinder {
 

@@ -11,9 +11,9 @@ import org.openl.types.IOpenField;
 
 /**
  * A class, containing description of Data Table's field columns (or variables)
- * 
+ *
  * @author NSamatov
- * 
+ *
  */
 public class DataTableUserDefinedTypeField extends DataTableField {
     private IOpenClass type;
@@ -24,7 +24,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
 
     /**
      * Create a field with a given generalized abstraction of a class and a field name
-     * 
+     *
      * @param type generalized abstraction of a class
      * @param name name technical name of a field
      * @param predefinedChecker object that checks if a "type" is a predefined OpenL type such as IntRange etc
@@ -35,7 +35,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
 
     /**
      * Create a field with a given generalized abstraction of a class and a field name
-     * 
+     *
      * @param type generalized abstraction of a class
      * @param name name technical name of a field
      * @param businessName business name of a field
@@ -52,7 +52,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
 
     /**
      * Get a generalized abstraction of a class
-     * 
+     *
      * @return generalized abstraction of a class
      */
     public IOpenClass getType() {
@@ -68,8 +68,9 @@ public class DataTableUserDefinedTypeField extends DataTableField {
             List<DataTableField> list = new ArrayList<>();
 
             for (Entry<String, IOpenField> entry : getType().getFields().entrySet()) {
-                if (entry.getValue().isConst() || !entry.getValue().isWritable())
+                if (entry.getValue().isConst() || !entry.getValue().isWritable()) {
                     continue;
+                }
 
                 list.add(
                     new DataTableUserDefinedTypeField(entry.getValue().getType(), entry.getKey(), predefinedChecker));
@@ -99,14 +100,14 @@ public class DataTableUserDefinedTypeField extends DataTableField {
 
     /**
      * Utility interface that checks if a "type" is a predefined OpenL type such as IntRange etc
-     * 
+     *
      * @author NSamatov
-     * 
+     *
      */
-    public static interface PredefinedTypeChecker {
+    public interface PredefinedTypeChecker {
         /**
          * Check if a "type" is a predefined OpenL type
-         * 
+         *
          * @param type checking type
          * @return true if a "type" is a predefined OpenL type such as IntRange etc, false otherwise
          */

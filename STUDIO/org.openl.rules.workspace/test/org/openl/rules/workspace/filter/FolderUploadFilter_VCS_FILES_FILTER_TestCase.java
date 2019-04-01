@@ -1,11 +1,8 @@
 package org.openl.rules.workspace.filter;
 
-import junit.framework.TestCase;
-
-import org.openl.rules.workspace.filter.FolderNamePathFilter;
-import org.openl.rules.workspace.filter.PathFilter;
-
 import java.util.Arrays;
+
+import junit.framework.TestCase;
 
 public class FolderUploadFilter_VCS_FILES_FILTER_TestCase extends TestCase {
     private PathFilter instance;

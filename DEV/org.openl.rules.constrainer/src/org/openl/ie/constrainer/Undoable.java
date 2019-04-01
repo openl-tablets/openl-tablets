@@ -21,12 +21,12 @@ public interface Undoable extends ConstrainerObject {
     /**
      * Creates Undo-object for this undoable object and adds it to the constrainer's undo-stack.
      */
-    public void addUndo();
+    void addUndo();
 
     /**
      * Creates Undo-object for this undoable object.
      */
-    public Undo createUndo();
+    Undo createUndo();
 
     // /**
     // *
@@ -36,11 +36,11 @@ public interface Undoable extends ConstrainerObject {
     /**
      * Returns true if undo operation was performed.
      */
-    public boolean undone();
+    boolean undone();
 
     /**
      * Sets 'undone' state for this undoable object.
      */
-    public void undone(boolean b);
+    void undone(boolean b);
 
 } // ~Undoable

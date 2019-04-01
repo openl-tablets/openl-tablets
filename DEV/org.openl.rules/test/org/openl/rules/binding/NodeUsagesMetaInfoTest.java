@@ -295,8 +295,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
-                                                                                                          // (other
-                                                                                                          // spreadsheet)
+        // (other
+        // spreadsheet)
 
         // TotalAssets2011
         assertFalse(CellMetaInfo.isCellContainsNodeUsages(
@@ -357,8 +357,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals(totalAssets.getUri(), usedNodes.get(1).getUri());
         assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
-                                                                                                          // (other
-                                                                                                          // spreadsheet)
+        // (other
+        // spreadsheet)
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
 
         // TotalAssets2
@@ -367,7 +367,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("Cell type: Object", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
         assertEquals("Spreadsheet\nObject $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
-                                                                                                // (other spreadsheet)
+        // (other spreadsheet)
     }
 
     @Test

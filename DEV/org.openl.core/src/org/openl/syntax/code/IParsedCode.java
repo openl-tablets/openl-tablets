@@ -17,22 +17,22 @@ import org.openl.syntax.exception.SyntaxNodeException;
 /**
  * The <code>IParsedCode</code> interface is designed to provide a common protocol for objects what describes parsed
  * source code.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public interface IParsedCode {
 
     /**
      * Gets errors what was found during parsing process.
-     * 
+     *
      * @return syntax errors
      */
     SyntaxNodeException[] getErrors();
 
     /**
      * Gets link to source code that was used in parsing process.
-     * 
+     *
      * @return source code
      */
     IOpenSourceCodeModule getSource();
@@ -40,7 +40,7 @@ public interface IParsedCode {
     /**
      * Gets link to top node of parsed objects hierarchy. Parsed code represented as a tree of parsed code objects
      * (nodes).
-     * 
+     *
      * @return top node
      */
     ISyntaxNode getTopNode();
@@ -55,7 +55,7 @@ public interface IParsedCode {
 
     /**
      * Returns set of compiled dependency modules.
-     * 
+     *
      * @return empty set or a set of compiled dependency modules.
      */
     Set<CompiledDependency> getCompiledDependencies();

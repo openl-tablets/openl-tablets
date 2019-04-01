@@ -1,9 +1,6 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,11 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.rules.project.model.MethodFilter;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
 
 public class ProjectDescriptorManagerTest {
@@ -96,7 +89,7 @@ public class ProjectDescriptorManagerTest {
         descriptor.setPropertiesFileNamePattern("{lob}");
         descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
 
-        List<ProjectDependencyDescriptor> dependencies = new ArrayList<ProjectDependencyDescriptor>();
+        List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();
         ProjectDependencyDescriptor dependencyDescriptor = new ProjectDependencyDescriptor();
         dependencyDescriptor.setName("someProjectName");
         dependencyDescriptor.setAutoIncluded(false);
@@ -108,7 +101,7 @@ public class ProjectDescriptorManagerTest {
         module1.setRulesRootPath(new PathEntry("path1"));
         module1.setMethodFilter(new MethodFilter());
 
-        List<PathEntry> classpath = new ArrayList<PathEntry>();
+        List<PathEntry> classpath = new ArrayList<>();
         PathEntry entry1 = new PathEntry("path1");
 
         PathEntry entry2 = new PathEntry("path2");
@@ -118,7 +111,7 @@ public class ProjectDescriptorManagerTest {
 
         descriptor.setClasspath(classpath);
 
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         modules.add(module1);
 
         descriptor.setModules(modules);

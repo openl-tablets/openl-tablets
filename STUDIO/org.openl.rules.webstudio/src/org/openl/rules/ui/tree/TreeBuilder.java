@@ -2,18 +2,18 @@ package org.openl.rules.ui.tree;
 
 /**
  * Class that provides several methods for tree building.
- * 
+ *
  * @param <T> type of node objects
  */
 public class TreeBuilder<T> {
 
     /**
      * Adds new object to target tree node.
-     * 
+     *
      * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
      * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
      * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
-     * 
+     *
      * @param targetNode target node to which will be added new object
      * @param object object to add
      * @param treeNodeBuilders array of tree node builders
@@ -24,11 +24,11 @@ public class TreeBuilder<T> {
 
     /**
      * Adds new object to target tree node.
-     * 
+     *
      * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
      * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
      * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
-     * 
+     *
      * @param targetNode target node to which will be added new object
      * @param object object to add
      * @param treeNodeBuilders array of tree node builders

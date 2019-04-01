@@ -1,5 +1,7 @@
 package org.openl.rules.project.instantiation;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -11,8 +13,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.runtime.IEngineWrapper;
-
-import static org.junit.Assert.*;
 
 public class ApiInstantiationTest {
     // @Test

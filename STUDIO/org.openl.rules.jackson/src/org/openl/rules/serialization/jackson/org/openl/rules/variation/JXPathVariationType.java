@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * Custom mapping for {@link JXPathVariationType} due to it is not usual bean and should be initialized through
  * non-default constructor.
- * 
+ *
  * @author Marat Kamalov
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

@@ -2,11 +2,7 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.ProjectDescriptorManager;

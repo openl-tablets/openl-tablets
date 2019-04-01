@@ -1,8 +1,6 @@
 package org.openl.rules.testmethod;
 
-import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
-import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestStatus.TR_OK;
+import static org.openl.rules.testmethod.TestStatus.*;
 
 import java.util.ArrayList;
 import java.util.List;

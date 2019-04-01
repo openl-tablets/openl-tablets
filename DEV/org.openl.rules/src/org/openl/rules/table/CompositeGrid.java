@@ -12,9 +12,9 @@ import org.openl.rules.table.properties.PropertiesHelper;
  * An {@link IGrid} implementation that composes several {@link IGridTable} together.<br>
  * It is possible to compose from top to bottom and from left to right by {@link #vertical} flag.<br>
  * Tables are composing one by one, without gaps.<br>
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public class CompositeGrid extends AGrid {
 
@@ -23,7 +23,7 @@ public class CompositeGrid extends AGrid {
     /**
      * Regions on current grid, to which each grid table belongs to. So, the first gridTable belongs to first
      * mappedRegion
-     * 
+     *
      */
     private IGridRegion[] mappedRegions;
 
@@ -45,13 +45,13 @@ public class CompositeGrid extends AGrid {
 
     public IGridRegion getMappedRegion(int i) {
         return mappedRegions[i];
-    };
+    }
 
     /**
-     * 
+     *
      * @param tables Tables to be composed.
      * @param vertical see {@link #vertical}
-     * 
+     *
      */
     public CompositeGrid(IGridTable[] tables, boolean vertical) {
         gridTables = tables;
@@ -208,7 +208,7 @@ public class CompositeGrid extends AGrid {
     /**
      * If there were merged regions on the source table grids, that were belonging to tables we need to move it to
      * current grid.
-     * 
+     *
      */
     private void initMergedRegions() {
         ArrayList<IGridRegion> mergedRegionsList = new ArrayList<>();
@@ -292,7 +292,7 @@ public class CompositeGrid extends AGrid {
 
     /**
      * Initialize width and height of current grid. According to the compose direction.
-     * 
+     *
      */
     private void initWidthAndHeight() {
         for (int i = 0; i < gridTables.length; i++) {
@@ -316,7 +316,7 @@ public class CompositeGrid extends AGrid {
 
     /**
      * Transformes current grid coordinates to appropriate table coordinates.
-     * 
+     *
      * @param col grid column index
      * @param row grid row index
      * @return {@link Transform} that contains coordinates to cell in the appropriate grid.
@@ -343,7 +343,7 @@ public class CompositeGrid extends AGrid {
 
     /**
      * Handles the grid and coordinates of the cell in this grid.
-     * 
+     *
      */
     private static class Transform {
         /**

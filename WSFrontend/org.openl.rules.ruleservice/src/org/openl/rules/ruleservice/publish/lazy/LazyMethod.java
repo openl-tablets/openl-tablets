@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Lazy method that will return real object from dependency manager. Dependency Manager is responsible for
  * loading/unloading modules.
- * 
+ *
  * @author Marat Kamalov
  */
 public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, IUriMember, LazyMethodWrapper {

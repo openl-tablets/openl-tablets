@@ -15,7 +15,6 @@ import javax.faces.context.ResponseWriter;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
-
 import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorRenderer extends TableViewerRenderer {

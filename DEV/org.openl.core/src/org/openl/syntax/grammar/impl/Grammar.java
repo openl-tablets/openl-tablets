@@ -12,7 +12,7 @@ import org.openl.syntax.impl.SyntaxTreeBuilder;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class Grammar implements IGrammar {
 
@@ -20,7 +20,7 @@ public abstract class Grammar implements IGrammar {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.syntax.IGrammar#getErrors()
      */
     @Override
@@ -39,7 +39,7 @@ public abstract class Grammar implements IGrammar {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.syntax.IGrammar#getTopNode()
      */
     @Override
@@ -50,7 +50,7 @@ public abstract class Grammar implements IGrammar {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.syntax.IGrammar#setModule(org.openl.IOpenSourceCodeModule)
      */
     @Override

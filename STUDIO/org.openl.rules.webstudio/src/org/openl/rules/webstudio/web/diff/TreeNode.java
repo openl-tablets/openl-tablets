@@ -53,7 +53,7 @@ public class TreeNode extends TreeNodeImpl {
 
     /**
      * Get name old name preferably or new if there is no old one.
-     * 
+     *
      * @return old or new name
      */
     public String getName() {
@@ -62,7 +62,7 @@ public class TreeNode extends TreeNodeImpl {
 
     /**
      * Get type of projection. It must be the same for all projections within a DiffTreeNode.
-     * 
+     *
      * @return type of projection
      */
     public String getType() {
@@ -71,7 +71,7 @@ public class TreeNode extends TreeNodeImpl {
 
     /**
      * Get old projection preferably or new if there is no old one.
-     * 
+     *
      * @return old or new projection
      */
     private Projection getFirstAvailable() {

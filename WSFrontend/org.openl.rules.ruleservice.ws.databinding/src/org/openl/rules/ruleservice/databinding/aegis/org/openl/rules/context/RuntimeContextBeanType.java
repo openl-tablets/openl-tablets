@@ -27,7 +27,7 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 /**
  * Defines IRulesRuntime context deserialization from XML: new {@link DefaultRulesRuntimeContext} will be used(By
  * default Aegis creates Proxy that does not provide some necessary methods, e.g. <code>clone()</code> ).
- * 
+ *
  * @author PUdalau
  */
 public class RuntimeContextBeanType extends BeanType {

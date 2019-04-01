@@ -1,13 +1,9 @@
 package org.openl.rules.table.xls;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.openl.rules.table.ui.ICellStyle;
 import static org.openl.rules.table.xls.PoiExcelHelper.*;
+
+import org.apache.poi.ss.usermodel.*;
+import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor

@@ -111,8 +111,9 @@ public final class Strings {
             return false;
         }
         for (char ch : chars) {
-            if (str.indexOf(ch) != -1)
+            if (str.indexOf(ch) != -1) {
                 return true;
+            }
         }
         return false;
     }

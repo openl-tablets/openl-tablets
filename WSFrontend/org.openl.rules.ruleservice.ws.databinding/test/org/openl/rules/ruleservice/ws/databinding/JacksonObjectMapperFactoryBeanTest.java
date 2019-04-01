@@ -9,15 +9,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
+import org.openl.meta.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -26,12 +18,7 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
 import org.openl.rules.table.Point;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.variation.*;
 import org.openl.util.RangeWithBounds.BoundType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -176,7 +163,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setEnableDefaultTyping(false);
         bean.setSupportVariations(true);
-        Set<String> overrideTypes = new HashSet<String>();
+        Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(CompoundStep.class.getName());
         bean.setOverrideTypes(overrideTypes);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
@@ -201,7 +188,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Assert.assertTrue(v1 instanceof JXPathVariation);
         Assert.assertEquals("jaxPathID", v1.getVariationID());
 
-        VariationsResult<CompoundStep> variationsResult = new VariationsResult<CompoundStep>();
+        VariationsResult<CompoundStep> variationsResult = new VariationsResult<>();
         variationsResult.registerFailure("variationErrorID", "errorMessage");
         variationsResult.registerResult("variationID", new CompoundStep());
         text = objectMapper.writeValueAsString(variationsResult);
@@ -281,7 +268,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         bean.setEnableDefaultTyping(false);
-        Set<String> overrideTypes = new HashSet<String>();
+        Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());
         overrideTypes.add(Cat.class.getName());

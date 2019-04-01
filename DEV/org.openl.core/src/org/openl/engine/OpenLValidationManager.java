@@ -17,13 +17,13 @@ import org.openl.validation.ValidationResult;
 public class OpenLValidationManager extends OpenLHolder {
 
     private static ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaroung
-                                                                                 // for
-                                                                                 // multiple
-                                                                                 // validation
-                                                                                 // for
-                                                                                 // multi
-                                                                                 // module
-                                                                                 // projects.
+    // for
+    // multiple
+    // validation
+    // for
+    // multi
+    // module
+    // projects.
 
     public static boolean isValidationEnabled() {
         Boolean validationIsOn = validationEnabled.get();
@@ -40,7 +40,7 @@ public class OpenLValidationManager extends OpenLHolder {
 
     /**
      * Construct new instance of manager.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLValidationManager(OpenL openl) {
@@ -49,7 +49,7 @@ public class OpenLValidationManager extends OpenLHolder {
 
     /**
      * Invokes validation process for each registered validator.
-     * 
+     *
      * @param openClass openClass to validate
      * @return list of validation results
      */

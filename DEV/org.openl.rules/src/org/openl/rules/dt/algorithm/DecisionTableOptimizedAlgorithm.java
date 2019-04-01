@@ -41,7 +41,7 @@ import org.openl.vm.Tracer;
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward (let's consider table with conditions and
  * actions as columns and rules as rows - you remember that OpenL Tablets allow both this and transposed orientation):
- * 
+ *
  * <ol>
  * <li>For each rule (row) from the top to the bottom of the table evaluate conditions from the left to the right</li>
  * <li>If all conditions are true, execute all the actions in the rule from the left to the right, if any condition is
@@ -51,7 +51,7 @@ import org.openl.vm.Tracer;
  * </ol>
  * The logic of the algorithm must be kept intact in all optimization implementations, unless some permutations are
  * explicitly allowed.
- * 
+ *
  * <p>
  * The goal of optimizations is to decrease the number of condition checking required to determine which rule actions
  * need to be executed. Action optimizations are not considered, even though some improvements could be possible.
@@ -59,13 +59,13 @@ import org.openl.vm.Tracer;
  * approaches will change the algorithm's logic and must be used with caution. We are not going to implement these
  * approaches at this point, but will give some guidelines to users on how to re-arrange rule tables to achieve better
  * performance.
- * 
+ *
  * <p>
  * Out of the class of optimization algorithms that do not change the order of conditions or rules we are going to
  * consider ones that optimize condition checking in one condition (column) at the time. In decision table with multiple
  * conditions the algorithm will create a tree of the optimized nodes. The time of the of the tree traversing will equal
  * the sum of times required to calculate each node.
- * 
+ *
  * <p>
  * The optimization algorithms that deal with single condition can be classified as follows:
  * <li>Condition Sharing algorithm.<br>
@@ -75,7 +75,7 @@ import org.openl.vm.Tracer;
  * depend on the nature of condition expression. The disadvantage is in it's low performance improvement - it's expected
  * average performance is n/s - where n is the total number of conditions and s = n/u where u is the number of unique
  * conditions. We see that the more unique conditions the column has, the less is performance advantage of this method.
- * 
+ *
  * <p>
  * <li>Indexing<br>
  * Calculate condition input value and determine which rules to fire using some kind of index. The performance will be
@@ -83,28 +83,28 @@ import org.openl.vm.Tracer;
  * performance is expected to be constant, if as a TreeMap - log (u), where u is number of unique conditions.
  * Interestingly, for indexing algorithms, the more is the number of shared conditions or empty conditions, the less is
  * performance improvement - quite the opposite to the Condition Sharing algorithm.<br>
- * 
+ *
  * <h3>Applicability of the Algorithms</h3>
- * 
+ *
  * <p>
  * Both algorithms are single-condition(column) based. Both work only if rule condition expression does not change it's
  * value during the course of DT evaluation. In other words, the Decision Table rules do not change attributes that
  * participate in condition evaluation. For indexing the additional requirement is necessary - the index value should be
  * known at compile time. It excludes conditions with dynamic formulas as cell values.
- * 
+ *
  * <p>
  * If a Decision Table does not conform to these assumptions, you should not use optimizations. It is also recommended
  * that you take another look at your design and ask yourself: was it really necessary to produce such a twisted
  * logic?</span>
- * 
- * 
+ *
+ *
  * <h3>Explicit Indexing Optimization</h3>
  * <p>
  * Generally speaking, it would be nice to have system automatically apply optimizations, when appropriate, would not
  * it? In reality there are always the cases where one doesn't want optimization happen for some reason, for example
  * condition calls a function with side effects.. This would require us to provide some facility to suppress
  * optimization on column and/or table level, and this might unnecessary complicate DT structure.
- * 
+ *
  * <p>
  * Fortunately, we were lucky to come up with an approach that gives the developer an explicit control over (indexing)
  * optimization at the same time <i>reducing</i> the total amount of the code in the condition. To understand the
@@ -112,13 +112,13 @@ import org.openl.vm.Tracer;
  * a) indexing is possible only for some very well defined operations, like equality or range checks<br/>
  * and<br/>
  * b) the index has to be calculated in advance
- * 
+ *
  * <p>
  * For example we have condition
  * <p/>
  * <code>driver.type == type</code>
  * <p/>
- * 
+ *
  * where <code>driver.type</code> is tested value and <code>type</code> is rule condition parameter against which the
  * tested value is being checked. We could parse the code and figure it out automatically - but we decided to simplify
  * our task by putting a bit more responsibility (and control too) into developer's hands. If the condition expression
@@ -128,7 +128,7 @@ import org.openl.vm.Tracer;
  * <p/>
  * the parser will easily recognize that it does not depend on rule parameters at all. This can be used as the hint that
  * the condition needs to be optimized. The structure of parameters will determine the type of index using this table:
- * 
+ *
  * <table border="1">
  * <tbody>
  * <tr>
@@ -166,14 +166,14 @@ import org.openl.vm.Tracer;
  * <td><code>isIn == in ? contains(ary, x) : !contains(ary, x) </code></td>
  * <td>Constant(HashMap) performance</td>
  * </tr>
- * 
+ *
  * </tbody>
  * </table>
- * 
+ *
  * The OpenL Tablets Decision Table Optimizer will automatically recognize these conditions and create indexes for
  * them.<br/>
  * The advantages of the suggested approach are summarized here:
- * 
+ *
  * <ul>
  * <li>there is less code to type and therefore less to read, less places to make typos etc.</li>
  * <li>there is less to compile and parse, the less work for the compiler or optimizer to determine programmer's
@@ -184,7 +184,7 @@ import org.openl.vm.Tracer;
  * performance. This will provide the basis for static compile-time performance analysis</li>
  * </ul>
  * <p>
- * 
+ *
  * @author sshor
  */
 public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm {
@@ -454,7 +454,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
         // we do not need dependencies after clearing conditions
         dependencies = null;
-    };
+    }
 
     private boolean isDependecyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {

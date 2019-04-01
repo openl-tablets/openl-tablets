@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy;

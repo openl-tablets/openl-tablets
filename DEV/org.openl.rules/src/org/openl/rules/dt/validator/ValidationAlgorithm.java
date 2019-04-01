@@ -10,6 +10,11 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
+import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
+import org.openl.ie.constrainer.consistencyChecking.Overlapping;
+import org.openl.ie.constrainer.consistencyChecking.Uncovered;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -21,16 +26,6 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntBoolExpConst;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
-import org.openl.ie.constrainer.consistencyChecking.Overlapping;
-import org.openl.ie.constrainer.consistencyChecking.Uncovered;
-import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 
 public class ValidationAlgorithm {
 
@@ -140,9 +135,9 @@ public class ValidationAlgorithm {
 
         IParameterDeclaration[] paramDeclarations = condition.getParams(); // params from this column
         IParameterDeclaration[] referencedSignatureParams = analyzer.referencedSignatureParams(condition); // income
-                                                                                                           // params
-                                                                                                           // from the
-                                                                                                           // signature
+        // params
+        // from the
+        // signature
 
         return makeSignatureForCondition(paramDeclarations, referencedSignatureParams, analyzer);
     }

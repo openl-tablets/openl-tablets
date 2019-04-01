@@ -1,8 +1,8 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
 import java.util.Collection;
+
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Represents a set of deployed projects to production repository.

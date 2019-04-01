@@ -2,17 +2,12 @@ package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 
 /**
  * This filter is intended to prevent a memory leak. Server can use thread pool internally so a request thread can stay
  * alive upon end of the request.
- * 
+ *
  * @author NSamatov
  */
 public class ThreadLocalFilter implements Filter {

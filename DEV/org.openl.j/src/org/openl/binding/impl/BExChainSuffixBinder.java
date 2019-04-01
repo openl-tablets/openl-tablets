@@ -10,7 +10,7 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * Binder for following lexical constructions: driver.name; name of the driver.
- * 
+ *
  * @author snshor
  */
 public class BExChainSuffixBinder extends ANodeBinder {

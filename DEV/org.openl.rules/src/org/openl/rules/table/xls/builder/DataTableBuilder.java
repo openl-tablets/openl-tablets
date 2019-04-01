@@ -10,7 +10,7 @@ import org.openl.util.StringUtils;
 
 /**
  * The class is responsible for creating Data tables.
- * 
+ *
  * @author NSamatov
  */
 public class DataTableBuilder extends TableBuilder {
@@ -24,7 +24,7 @@ public class DataTableBuilder extends TableBuilder {
 
     /**
      * Creates new instance.
-     * 
+     *
      * @param gridModel represents interface for operations with excel sheets
      */
     public DataTableBuilder(XlsSheetGridModel gridModel) {
@@ -33,7 +33,7 @@ public class DataTableBuilder extends TableBuilder {
 
     /**
      * Write a header of a data table
-     * 
+     *
      * @param typeName type name
      * @param variableName technical variable name
      * @param style cell style (can be null)
@@ -54,7 +54,7 @@ public class DataTableBuilder extends TableBuilder {
 
     /**
      * Write a header of a data table
-     * 
+     *
      * @param typeName type name
      * @param variableName technical variable name
      */
@@ -64,7 +64,7 @@ public class DataTableBuilder extends TableBuilder {
 
     /**
      * Write a field's description for a given data table (field technical and business names and their foreign keys).
-     * 
+     *
      * @param fields a fields list
      */
     public void writeFieldNames(List<? extends DataTableField> fields) {
@@ -87,7 +87,7 @@ public class DataTableBuilder extends TableBuilder {
 
     /**
      * Write a field values
-     * 
+     *
      * @param fieldValues a map containing values where a key is fully qualified field name
      * @param style cell style (can be null)
      */
@@ -139,8 +139,9 @@ public class DataTableBuilder extends TableBuilder {
 
     private String parseForeignKey(String foreignKey) {
         if (StringUtils.isNotBlank(foreignKey)) {
-            if (foreignKey.startsWith(">"))
+            if (foreignKey.startsWith(">")) {
                 return foreignKey;
+            }
 
             int dotPos = foreignKey.indexOf('.');
             String tableName = dotPos > 0 ? foreignKey.substring(0, dotPos) : foreignKey;

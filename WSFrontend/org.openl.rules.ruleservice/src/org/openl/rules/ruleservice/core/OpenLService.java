@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
@@ -13,9 +9,9 @@ import org.openl.types.IOpenClass;
 /**
  * Class designed for storing settings for service configuration and compiled service bean.
  * RuleServiceOpenLServiceInstantiationFactory is designed for build OpenLService instances.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public final class OpenLService {
     /**
@@ -38,7 +34,7 @@ public final class OpenLService {
 
     /**
      * Returns service classloader
-     * 
+     *
      * @return classLoader
      */
     public ClassLoader getClassLoader() throws RuleServiceInstantiationException {
@@ -48,7 +44,7 @@ public final class OpenLService {
 
     /**
      * Main constructor.
-     * 
+     *
      * @param name service name
      * @param url url
      * @param serviceClassName class name for service
@@ -108,7 +104,7 @@ public final class OpenLService {
 
     /**
      * Returns service name.
-     * 
+     *
      * @return service name
      */
     public String getName() {
@@ -117,7 +113,7 @@ public final class OpenLService {
 
     /**
      * Returns service URL.
-     * 
+     *
      * @return service URL
      */
     public String getUrl() {
@@ -126,23 +122,25 @@ public final class OpenLService {
 
     /**
      * Returns service publishers.
-     * 
+     *
      * @return service publishers
      */
     public Collection<String> getPublishers() {
-        if (publishers == null)
+        if (publishers == null) {
             return Collections.emptyList();
+        }
         return publishers;
     }
 
     /**
      * Returns unmodifiable collection of modules.
-     * 
+     *
      * @return a collection of modules
      */
     public Collection<Module> getModules() {
-        if (modules == null)
+        if (modules == null) {
             return Collections.emptyList();
+        }
         return modules;
     }
 
@@ -152,7 +150,7 @@ public final class OpenLService {
 
     /**
      * Returns a class name for service.
-     * 
+     *
      * @return
      */
     public String getServiceClassName() throws RuleServiceInstantiationException {
@@ -166,7 +164,7 @@ public final class OpenLService {
 
     /**
      * Returns a rmi class name for service.
-     * 
+     *
      * @return
      */
     public String getRmiServiceClassName() throws RuleServiceInstantiationException {
@@ -181,7 +179,7 @@ public final class OpenLService {
     /**
      * Return provideRuntimeContext value. This value is define that service methods first argument is
      * IRulesRuntimeContext.
-     * 
+     *
      * @return isProvideRuntimeContext
      */
     public boolean isProvideRuntimeContext() {
@@ -190,7 +188,7 @@ public final class OpenLService {
 
     /**
      * This flag defines whether variations will be supported or not.
-     * 
+     *
      * @return <code>true</code> if variations should be injected in service class, and <code>false</code> otherwise.
      */
     public boolean isProvideVariations() {
@@ -199,7 +197,7 @@ public final class OpenLService {
 
     /**
      * Returns service class.
-     * 
+     *
      * @return
      */
     public Class<?> getServiceClass() throws RuleServiceInstantiationException {
@@ -209,7 +207,7 @@ public final class OpenLService {
 
     /**
      * Returns rmi service class.
-     * 
+     *
      * @return
      */
     public Class<?> getRmiServiceClass() throws RuleServiceInstantiationException {
@@ -292,9 +290,9 @@ public final class OpenLService {
 
     /**
      * OpenLService builder.
-     * 
+     *
      * @author Marat Kamalov
-     * 
+     *
      */
     public static class OpenLServiceBuilder {
         private String name;
@@ -344,7 +342,7 @@ public final class OpenLService {
 
         /**
          * Sets name to the builder.
-         * 
+         *
          * @param name
          * @return
          */
@@ -358,7 +356,7 @@ public final class OpenLService {
 
         /**
          * Sets class name to the builder.
-         * 
+         *
          * @param serviceClassName
          * @return
          */
@@ -369,7 +367,7 @@ public final class OpenLService {
 
         /**
          * Sets RMI class name to the builder.
-         * 
+         *
          * @param serviceClassName
          * @return
          */
@@ -380,7 +378,7 @@ public final class OpenLService {
 
         /**
          * Sets provideRuntimeContext to the builder.
-         * 
+         *
          * @param provideRuntimeContext
          * @return
          */
@@ -391,7 +389,7 @@ public final class OpenLService {
 
         /**
          * Sets provideVariations flag to the builder. (Optional)
-         * 
+         *
          * @param provideVariations
          * @return
          */
@@ -402,7 +400,7 @@ public final class OpenLService {
 
         /**
          * Sets a new set of modules to the builder.
-         * 
+         *
          * @param modules
          * @return
          */
@@ -417,7 +415,7 @@ public final class OpenLService {
 
         /**
          * Add modules to the builder.
-         * 
+         *
          * @param modules
          * @return
          */
@@ -431,7 +429,7 @@ public final class OpenLService {
 
         /**
          * Adds module to the builder.
-         * 
+         *
          * @param module
          * @return
          */
@@ -447,7 +445,7 @@ public final class OpenLService {
 
         /**
          * Sets url to the builder.
-         * 
+         *
          * @param url
          * @return
          */
@@ -463,7 +461,7 @@ public final class OpenLService {
 
         /**
          * Builds OpenLService.
-         * 
+         *
          * @return
          */
         public OpenLService build(OpenLServiceInitializer initializer) {

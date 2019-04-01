@@ -5,11 +5,7 @@
  */
 package org.openl.rules.helpers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -41,7 +37,7 @@ import org.openl.util.math.MathUtils;
  * @author snshor
  */
 public final class RulesUtils {
-    
+
     private RulesUtils() {
     }
 
@@ -2323,7 +2319,7 @@ public final class RulesUtils {
     public static double pow(double a, double b) {
         return Math.pow(a, b);
     }
-    
+
     public static double pow(Double a, Double b) {
         return Math.pow(a, b);
     }
@@ -4292,7 +4288,7 @@ public final class RulesUtils {
         } else if (classB == Void.class) {
             return classA;
         } else if (classA.isAssignableFrom(classB)) { // The most expected
-                                                      // branch
+            // branch
             return classA;
         } else {
             Class<?> commonClass = classB;

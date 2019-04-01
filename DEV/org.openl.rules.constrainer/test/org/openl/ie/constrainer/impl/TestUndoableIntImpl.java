@@ -2,7 +2,6 @@ package org.openl.ie.constrainer.impl;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Undo;
-import org.openl.ie.constrainer.impl.UndoableIntImpl;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

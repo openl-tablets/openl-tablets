@@ -14,7 +14,7 @@ import org.openl.conf.OpenLConfigurator;
  * Allows using {@link org.openl.rules.lang.xls.prebind.XlsPreBinder XlsPreBinder} for dependent modules on
  * LazyMultiModule projects. Creates an IOpenBinder proxy that uses XlsPreBinder on prebind step and XlsBinder on
  * compile step.
- * 
+ *
  * @see LazyBinderInvocationHandler
  * @author NSamatov
  */

@@ -1,11 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
@@ -265,10 +261,10 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Gets cast operation for given types. This is method is using internal cache for cast operations.
-     * 
+     *
      * @param from from type
      * @param to to type
-     * 
+     *
      * @return cast operation if it have been found; null - otherwise
      */
     @Override
@@ -419,7 +415,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Checks that instance class of open class is primitive.
-     * 
+     *
      * @param openClass type to check
      * @return <code>true</code> if instance class is primitive type; <code>false</code> - otherwise
      */
@@ -430,7 +426,7 @@ public class CastFactory implements ICastFactory {
     /**
      * Finds appropriate cast type operation using cast rules of java language. If result type is not java class
      * <code>null</code> will be returned.
-     * 
+     *
      * @param from from type
      * @param to to type
      * @return cast operation if conversion is found; null - otherwise
@@ -443,12 +439,12 @@ public class CastFactory implements ICastFactory {
         Class<?> toClass = to.getInstanceClass();
 
         if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) { // Dynamic
-                                                                                                                  // classes
-                                                                                                                  // with
-                                                                                                                  // the
-                                                                                                                  // same
-                                                                                                                  // instance
-                                                                                                                  // class
+            // classes
+            // with
+            // the
+            // same
+            // instance
+            // class
             return null;
         }
 
@@ -487,7 +483,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Finds appropriate auto boxing (primitive to wrapper object) cast operation.
-     * 
+     *
      * @param from primitive type
      * @param to wrapper type
      * @return auto boxing cast operation if conversion is found; null - otherwise
@@ -519,7 +515,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Finds appropriate unboxing (wrapper object to primitive) cast operation.
-     * 
+     *
      * @param from wrapper type
      * @param to primitive type
      * @return unboxing cast operation if conversion is found; null - otherwise
@@ -538,15 +534,16 @@ public class CastFactory implements ICastFactory {
         }
 
         // Apache ClassUtils has error in 2.6
-        if (fromClass == Void.class && toClass == void.class)
+        if (fromClass == Void.class && toClass == void.class) {
             return JavaUnboxingCast.instance;
+        }
 
         return null;
     }
 
     /**
      * Finds cast operation for alias types. If both types are not alias types <code>null</code> will be returned.
-     * 
+     *
      * @param from from type
      * @param to to type
      * @return alias cast operation if conversion is found; null - otherwise
@@ -588,7 +585,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Finds cast operation using {@link IMethodFactory} object.
-     * 
+     *
      * @param from from type
      * @param to to type
      * @param methodFactory {@link IMethodFactory} object
@@ -619,7 +616,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * Finds cast operation using {@link IMethodFactory} object.
-     * 
+     *
      * @param from from type
      * @param to to type
      * @param methodFactory {@link IMethodFactory} object
@@ -799,7 +796,7 @@ public class CastFactory implements ICastFactory {
 
     /**
      * The following conversions are called the narrowing reference conversions:
-     * 
+     *
      * From any class type S to any class type T, provided that S is a superclass of T. (An important special case is
      * that there is a narrowing conversion from the class type Object to any other class type.) From any class type S
      * to any interface type K, provided that S is not final and does not implement K. (An important special case is
@@ -810,7 +807,7 @@ public class CastFactory implements ICastFactory {
      * m such that J and K both contain a method named m with the same signature but different return types. From any
      * array type SC[] to any array type TC[], provided that SC and TC are reference types and there is a narrowing
      * conversion from SC to TC.
-     * 
+     *
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc .html
      * @param from from type
      * @param to to type

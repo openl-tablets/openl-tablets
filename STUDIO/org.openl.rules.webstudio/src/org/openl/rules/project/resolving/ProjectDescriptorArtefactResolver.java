@@ -83,7 +83,7 @@ public class ProjectDescriptorArtefactResolver {
     }
 
     public void deleteRevisionsFromCache(AProject project) {
-        for (String key : new HashSet<String>(cache.keySet())) {
+        for (String key : new HashSet<>(cache.keySet())) {
             if (key.split(":")[0].equals(project.getName())) {
                 cache.remove(key);
             }

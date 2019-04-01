@@ -125,10 +125,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return repo;
     }
 
+    @Override
     public AProject createProject(String name) {
         return new AProject(getRepository(), rulesLocation + name);
     }
 
+    @Override
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         AProject ralProject = getProject(projectName);
@@ -137,10 +139,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return ralProject.getArtefactByPath(pathInProject);
     }
 
+    @Override
     public ADeploymentProject.Builder createDeploymentConfigurationBuilder(String name) {
         return new ADeploymentProject.Builder(getDeployConfigRepository(), deploymentConfigurationLocation + name);
     }
 
+    @Override
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         LinkedList<ADeploymentProject> result = new LinkedList<>();
         Repository repository = getDeployConfigRepository();
@@ -162,6 +166,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return result;
     }
 
+    @Override
     public AProject getProject(String name) throws RepositoryException {
         AProject project;
         synchronized (projects) {
@@ -185,6 +190,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return project;
     }
 
+    @Override
     public AProject getProject(String name, CommonVersion version) {
         String repoVersion = version.getVersionName();
         String key = String.format("%s:%s", name, repoVersion);
@@ -229,6 +235,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return project;
     }
 
+    @Override
     public Collection<AProject> getProjects() {
         List<AProject> result;
 
@@ -268,6 +275,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projectsRefreshNeeded = false;
     }
 
+    @Override
     public boolean hasDDProject(String name) {
         try {
             return getDeployConfigRepository().check(deploymentConfigurationLocation + name) != null;
@@ -276,6 +284,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
+    @Override
     public boolean hasProject(String name) {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
@@ -287,14 +296,17 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     // --- private
 
+    @Override
     public void addListener(DesignTimeRepositoryListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removeListener(DesignTimeRepositoryListener listener) {
         listeners.remove(listener);
     }
 
+    @Override
     public List<DesignTimeRepositoryListener> getListeners() {
         return listeners;
     }

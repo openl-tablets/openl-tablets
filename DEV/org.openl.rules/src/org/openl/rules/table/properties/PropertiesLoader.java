@@ -22,9 +22,9 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * Loads all kinds of properties to tsn. At first load all properties defined in source table. Then load category,
  * module and default properties.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class PropertiesLoader {
 
@@ -44,7 +44,7 @@ public class PropertiesLoader {
 
     /**
      * Load properties from source table as data table.
-     * 
+     *
      * @param tableSyntaxNode Tsn to load properties.
      * @throws Exception when there problems loading properties with data table mechanism.
      */
@@ -84,7 +84,7 @@ public class PropertiesLoader {
 
     /**
      * Load to tsn category properties from context.
-     * 
+     *
      * @param tableSyntaxNode Tsn to load properties.
      */
     private void loadCategoryProperties(TableSyntaxNode tableSyntaxNode) {
@@ -115,7 +115,7 @@ public class PropertiesLoader {
 
     /**
      * Load to tsn module properties from context.
-     * 
+     *
      * @param tableSyntaxNode Tsn to load properties.
      */
     private void loadModuleProperties(TableSyntaxNode tableSyntaxNode) {
@@ -133,7 +133,7 @@ public class PropertiesLoader {
 
     /**
      * Load to tsn default properties.
-     * 
+     *
      * @param tableSyntaxNode Tsn to load properties.
      */
     public void loadDefaultProperties(TableSyntaxNode tableSyntaxNode) {

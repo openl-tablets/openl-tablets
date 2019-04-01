@@ -4,9 +4,9 @@ import org.openl.rules.ruleservice.core.RuleServiceException;
 
 /**
  * This exception occurs when service can't be found.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class ServiceNotFoundException extends RuleServiceException {
 
@@ -21,7 +21,7 @@ public class ServiceNotFoundException extends RuleServiceException {
 
     /**
      * Constructs a new ServiceNotFoundException with the specified detail message and cause.
-     * 
+     *
      * @param message the detail message (which is saved for later retrieval by the {@link #getMessage()} method).
      * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
      *            value is permitted, and indicates that the cause is nonexistent or unknown.)
@@ -32,7 +32,7 @@ public class ServiceNotFoundException extends RuleServiceException {
 
     /**
      * Constructs a new ServiceNotFoundException with the specified detail message
-     * 
+     *
      * @param message the detail message (which is saved for later retrieval by the {@link #getMessage()} method).
      */
     public ServiceNotFoundException(String message) {
@@ -41,7 +41,7 @@ public class ServiceNotFoundException extends RuleServiceException {
 
     /**
      * Constructs a new RuleServiceException with a cause.
-     * 
+     *
      * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
      *            value is permitted, and indicates that the cause is nonexistent or unknown.)
      */

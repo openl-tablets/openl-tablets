@@ -209,6 +209,6 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
         return externalParameters;
     }
 
-    public static interface EmptyInterface {
+    public interface EmptyInterface {
     }
 }

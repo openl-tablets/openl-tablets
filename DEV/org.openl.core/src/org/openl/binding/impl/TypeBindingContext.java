@@ -10,11 +10,7 @@ import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.binding.impl.module.VariableInContextFinder;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOwnTargetMethod;
+import org.openl.types.*;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -95,8 +91,9 @@ public class TypeBindingContext extends BindingContextDelegator {
             res = MethodSearch.findMethod(name, parTypes, this, localVar.getType());
 
             // method = localVar.getType().getMatchingMethod(name, parTypes);
-            if (res != null)
+            if (res != null) {
                 res = new LocalVarMethodCaller(localVar, res);
+            }
         }
 
         return res == null ? super.findMethodCaller(namespace, name, parTypes) : res;

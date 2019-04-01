@@ -7,9 +7,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Binder for returns table.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class ReturnsTableBinder extends ADtColumnsDefinitionTableBinder {
 

@@ -1,12 +1,12 @@
 package org.openl.rules.types.impl;
 
+import java.util.*;
+
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
 import org.openl.rules.table.properties.expressions.sequence.IntersectedPropertiesPriorityRule;
 import org.openl.types.IOpenMethod;
-
-import java.util.*;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<>();

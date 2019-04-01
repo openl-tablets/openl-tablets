@@ -1,12 +1,12 @@
 package org.openl.rules.convertor;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.meta.BigDecimalValue;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import org.openl.meta.BigDecimalValue;
 
 public class String2BigDecimalValueConverterTest {
 

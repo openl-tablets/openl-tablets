@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.Closeable;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.config.PropertiesHolder;
@@ -9,10 +13,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.IOUtils;
-
-import java.io.Closeable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Repository Factory Proxy.

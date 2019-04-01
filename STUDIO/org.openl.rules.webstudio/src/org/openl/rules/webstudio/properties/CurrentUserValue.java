@@ -4,7 +4,7 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 
 /**
  * Handles information about currently loginned user.
- * 
+ *
  * @author DLiauchuk
  *
  */

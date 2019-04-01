@@ -1,16 +1,16 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
     private static final String SERVLET_CONTEXT_KEY = "SessionCache";

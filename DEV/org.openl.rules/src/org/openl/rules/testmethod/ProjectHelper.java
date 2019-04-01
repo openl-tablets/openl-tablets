@@ -37,7 +37,7 @@ public final class ProjectHelper {
     /**
      * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see
      * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
-     * 
+     *
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
      */

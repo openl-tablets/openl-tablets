@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Bound node for datatype table component.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
@@ -523,7 +523,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
 
             if (parentClass.getInstanceClass() != null) {// parent class has
-                                                         // errors
+                // errors
                 if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
                     throw new OpenLCompilationException(
                         String.format("Cannot inherit from final class \"%s\"", parentClassName));

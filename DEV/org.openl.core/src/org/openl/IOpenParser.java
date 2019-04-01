@@ -12,15 +12,15 @@ import org.openl.syntax.code.IParsedCode;
 /**
  * The <code>IOpenParser</code> interface is designed to provide a common protocol for parsers what can be used in OpenL
  * engine.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public interface IOpenParser {
 
     /**
      * Parse source as method body.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */
@@ -28,7 +28,7 @@ public interface IOpenParser {
 
     /**
      * Parse source as method header.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */
@@ -36,7 +36,7 @@ public interface IOpenParser {
 
     /**
      * Parse source as rules module.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */
@@ -44,7 +44,7 @@ public interface IOpenParser {
 
     /**
      * Parse source as type.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */
@@ -52,7 +52,7 @@ public interface IOpenParser {
 
     /**
      * Parse source as integer range.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */
@@ -60,7 +60,7 @@ public interface IOpenParser {
 
     /**
      * Parse source as float range.
-     * 
+     *
      * @param source source code
      * @return {@link IParsedCode} instance
      */

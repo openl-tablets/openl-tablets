@@ -38,7 +38,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
     @Test
     public void test() {
         Assert.assertNotNull(processEngine);
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         variables.put("usState", UsStatesEnum.AK);
         variables.put("driverAge", "Standard Driver");
@@ -55,7 +55,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         processEngine.getTaskService().complete(task.getId());
 
-        variables = new HashMap<String, Object>();
+        variables = new HashMap<>();
 
         variables.put("usState", "NY");
         variables.put("driverAge", "Standard Driver");

@@ -26,7 +26,7 @@ public final class OpenLEhCacheHolder {
 
     /**
      * Returns singleton OpenLEhCacheHolder
-     * 
+     *
      * @return
      */
     public static OpenLEhCacheHolder getInstance() {

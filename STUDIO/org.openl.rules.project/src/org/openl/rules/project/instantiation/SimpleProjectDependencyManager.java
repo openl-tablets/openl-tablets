@@ -1,10 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;

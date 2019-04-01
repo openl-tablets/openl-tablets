@@ -29,61 +29,61 @@ public interface IntVar extends IntExp {
     /**
      * The type of the domain implementation: plain. This implementation keeps only min/max values.
      */
-    public static final int DOMAIN_PLAIN = 0;
+    int DOMAIN_PLAIN = 0;
 
     /**
      * The type of the domain implementation: fast.
      */
-    public static final int DOMAIN_BIT_FAST = 1;
+    int DOMAIN_BIT_FAST = 1;
 
     /**
      * The type of the domain implementation: small.
      */
-    public static final int DOMAIN_BIT_SMALL = 2;
+    int DOMAIN_BIT_SMALL = 2;
 
     /**
      * The type of the domain implementation: boolean [0..1].
      */
-    public static final int DOMAIN_BOOL = 3;
+    int DOMAIN_BOOL = 3;
 
     /**
      * The type of the domain implementation: default. The concrete type is choosen depending on the state of the
      * domain.
      */
-    public static final int DOMAIN_DEFAULT = -1;
+    int DOMAIN_DEFAULT = -1;
 
     /**
      * Returns the domain type of this variable.
      *
      * @return the domain type of this variable.
      */
-    public int domainType();
+    int domainType();
 
     /**
      * Undo helper: insert the value into domain of this variable.
      */
-    public void forceInsert(int val);
+    void forceInsert(int val);
 
     /**
      * Undo helper: sets the maximum value for the domain of this variable.
      */
-    public void forceMax(int val);
+    void forceMax(int val);
 
     /**
      * Undo helper: sets the minimum value for the domain of this variable.
      */
-    public void forceMin(int val);
+    void forceMin(int val);
 
     /**
      * Undo helper: sets the size for the domain of this variable.
      */
-    public void forceSize(int val);
+    void forceSize(int val);
 
     /**
      * Returns a goal that instantiates this variable.
      *
      * @return a goal that instantiates this variable.
      */
-    public Goal instantiate();
+    Goal instantiate();
 
 } // ~IntVar

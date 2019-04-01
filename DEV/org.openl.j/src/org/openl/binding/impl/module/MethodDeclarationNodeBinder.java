@@ -12,7 +12,7 @@ import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class MethodDeclarationNodeBinder extends ANodeBinder {
 
@@ -23,7 +23,7 @@ public class MethodDeclarationNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override

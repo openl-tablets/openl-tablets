@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Spreadsheet row(step) that has nested SpreadsheetResult or SpreadsheetResult[] value for one of the columns.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 
 @XmlRootElement
@@ -40,7 +40,7 @@ public class CompoundStep extends CodeStep {
 
     /**
      * Add a step
-     * 
+     *
      * @param step
      */
     public void addStep(CalculationStep step) {
@@ -51,7 +51,7 @@ public class CompoundStep extends CodeStep {
 
     /**
      * Returns steps
-     * 
+     *
      * @return
      */
     public List<CalculationStep> getSteps() {
@@ -60,7 +60,7 @@ public class CompoundStep extends CodeStep {
 
     /**
      * Sets steps
-     * 
+     *
      * @param steps
      */
     public void setSteps(List<CalculationStep> steps) {

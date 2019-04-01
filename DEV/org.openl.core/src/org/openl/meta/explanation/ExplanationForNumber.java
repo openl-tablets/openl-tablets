@@ -7,7 +7,7 @@ import org.openl.util.tree.ITreeElement;
 /**
  * Interface, contains operations over {@link ExplanationNumberValue} objects for explaining these objects in tree(see
  * {@link ITreeElement})
- * 
+ *
  * @author DLiauchuk
  *
  * @param <T> type that extends {@link ExplanationNumberValue}

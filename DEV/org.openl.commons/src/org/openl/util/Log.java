@@ -6,16 +6,16 @@
 
 package org.openl.util;
 
+import java.text.MessageFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
 
 /**
  * In case of methods with format pattern you must follow conventions/restrictions of undeground formatter. For example,
  * you need to double single quote (') character if you wish to see it in output.
  * <p/>
- * 
+ *
  * <pre>
  * Log.error(&quot;File ''{0}'' is absent!&quot;, fileName);
  * </pre>

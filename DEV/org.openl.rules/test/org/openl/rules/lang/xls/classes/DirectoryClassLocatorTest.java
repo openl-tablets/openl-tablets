@@ -16,7 +16,7 @@ import org.openl.rules.lang.xls.classes.test.TestBean;
 public class DirectoryClassLocatorTest {
     @Test
     public void testGetClasses() throws Exception {
-        final List<Throwable> exceptions = new ArrayList<Throwable>();
+        final List<Throwable> exceptions = new ArrayList<>();
 
         DirectoryClassLocator locator = new DirectoryClassLocator();
         locator.addExceptionHandler(new AbstractLocatorExceptionHandler() {

@@ -5,7 +5,7 @@ import org.openl.util.text.ILocation;
 
 /**
  * Parent for OpenL Java runtime exceptions.
- * 
+ *
  */
 public class OpenlNotCheckedException extends RuntimeException implements OpenLException {
 

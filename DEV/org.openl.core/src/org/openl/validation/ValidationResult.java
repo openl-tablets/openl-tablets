@@ -8,10 +8,10 @@ import org.openl.message.OpenLMessage;
 
 /**
  * The <code>ValidationResult</code> defines contract that used in validation process.
- * 
+ *
  * While OpenL engine base concept is rules sets the validation process used list of {@link OpenlMessage} as a container
  * to accumulate problems of each rule.
- * 
+ *
  */
 public class ValidationResult {
 
@@ -27,7 +27,7 @@ public class ValidationResult {
 
     /**
      * Creates new instance of validation result.
-     * 
+     *
      * @param status status value
      */
     public ValidationResult(ValidationStatus status) {
@@ -45,7 +45,7 @@ public class ValidationResult {
 
     /**
      * Gets status of validation.
-     * 
+     *
      * @return status value
      */
     public ValidationStatus getStatus() {
@@ -54,7 +54,7 @@ public class ValidationResult {
 
     /**
      * Gets validation messages.
-     * 
+     *
      * @return list of messages
      */
     public Collection<OpenLMessage> getMessages() {

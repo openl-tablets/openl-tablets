@@ -1,16 +1,16 @@
 package org.openl.rules.tbasic;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class RowParser implements IRowParser {
     private static final String COMMENTS_REGEXP = "^(//)(.*)|^(/\\*)(.*)(\\*/)$";

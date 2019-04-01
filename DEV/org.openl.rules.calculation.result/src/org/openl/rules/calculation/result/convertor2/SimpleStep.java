@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Spreadsheet row(step) that has formula and value as column values.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 
 @XmlRootElement

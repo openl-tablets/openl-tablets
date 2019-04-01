@@ -1,12 +1,7 @@
 package org.openl.rules.types.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -23,7 +18,7 @@ import org.openl.types.IOpenMethod;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
- * 
+ *
  * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {

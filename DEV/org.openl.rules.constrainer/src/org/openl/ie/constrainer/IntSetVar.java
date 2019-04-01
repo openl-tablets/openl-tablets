@@ -14,28 +14,28 @@ import org.openl.ie.constrainer.impl.IntSetEvent;
 
 public interface IntSetVar extends Subject, IntSetEvent.IntSetEventConstants, java.io.Serializable {
 
-    public boolean bound();
+    boolean bound();
 
-    public boolean contains(Set anotherSet);
+    boolean contains(Set anotherSet);
 
-    public Goal generate();
+    Goal generate();
 
-    public IntSetVar intersectionWith(IntSetVar anotherSet);
+    IntSetVar intersectionWith(IntSetVar anotherSet);
 
-    public boolean possible(int value);
+    boolean possible(int value);
 
     @Override
-    public void propagate() throws Failure;
+    void propagate() throws Failure;
 
-    public void remove(int val) throws Failure;
+    void remove(int val) throws Failure;
 
-    public void require(int val) throws Failure;
+    void require(int val) throws Failure;
 
-    public boolean required(int value);
+    boolean required(int value);
 
-    public Set requiredSet();
+    Set requiredSet();
 
-    public IntSetVar unionWith(IntSetVar anotherSet);
+    IntSetVar unionWith(IntSetVar anotherSet);
 
-    public Set value() throws Failure;
+    Set value() throws Failure;
 }

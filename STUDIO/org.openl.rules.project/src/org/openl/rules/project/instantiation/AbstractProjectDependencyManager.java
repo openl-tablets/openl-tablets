@@ -1,13 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.SimpleBundleClassLoader;
@@ -62,23 +55,30 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             DependencyReference other = (DependencyReference) obj;
             if (reference == null) {
-                if (other.reference != null)
+                if (other.reference != null) {
                     return false;
-            } else if (!reference.equals(other.reference))
+                }
+            } else if (!reference.equals(other.reference)) {
                 return false;
+            }
             if (dependency == null) {
-                if (other.dependency != null)
+                if (other.dependency != null) {
                     return false;
-            } else if (!dependency.equals(other.dependency))
+                }
+            } else if (!dependency.equals(other.dependency)) {
                 return false;
+            }
             return true;
         }
     }

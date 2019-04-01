@@ -51,9 +51,9 @@ public abstract class DependencyManager implements IDependencyManager {
 
     /**
      * In execution mode all meta info that is not used in rules running is being cleaned.
-     * 
+     *
      * @param executionMode flag indicating is it execution mode or not.
-     * 
+     *
      */
     public void setExecutionMode(boolean executionMode) {
         this.executionMode = executionMode;
@@ -70,7 +70,7 @@ public abstract class DependencyManager implements IDependencyManager {
      * Handles loading dependent modules. This method should not cache dependencies (method
      * {@link #loadDependency(IDependency)} already uses caching) Default implementation uses dependency loaders to load
      * the dependency. Can be overriden to redefine behavior.
-     * 
+     *
      * @param dependency dependency to load
      * @return loaded and compiled dependency
      * @throws OpenLCompilationException if exception during compilation is occured

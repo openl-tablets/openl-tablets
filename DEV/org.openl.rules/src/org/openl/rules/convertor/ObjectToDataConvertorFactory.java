@@ -12,21 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
+import org.openl.meta.*;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Gives convertors from one class to another.
- * 
+ *
  * @author PUdalau
  */
 public class ObjectToDataConvertorFactory {
@@ -81,7 +73,7 @@ public class ObjectToDataConvertorFactory {
 
     /**
      * Contains static method as a private field for constructing new objects of appropriate type.
-     * 
+     *
      * @author DLiauchuk
      *
      */
@@ -119,7 +111,7 @@ public class ObjectToDataConvertorFactory {
 
     /**
      * Convertor that looks for the instance method 'getValue' for conversion to the appropriate type.
-     * 
+     *
      * @author DLiauchuk
      *
      */
@@ -196,8 +188,9 @@ public class ObjectToDataConvertorFactory {
      * @return NO_Convertor if value is not convertable to expected type.
      */
     public static IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
-        if (toClass == fromClass)
+        if (toClass == fromClass) {
             return CopyConvertor.the;
+        }
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
 
         IObjectToDataConvertor convertor = convertors.get(pair);

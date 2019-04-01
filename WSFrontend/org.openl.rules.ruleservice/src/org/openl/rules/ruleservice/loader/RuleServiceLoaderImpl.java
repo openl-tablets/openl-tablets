@@ -1,5 +1,10 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
@@ -10,11 +15,6 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.

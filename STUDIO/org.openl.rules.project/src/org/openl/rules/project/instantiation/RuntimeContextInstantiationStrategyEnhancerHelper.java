@@ -1,5 +1,9 @@
 package org.openl.rules.project.instantiation;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -12,10 +16,6 @@ import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author PUdalau, Marat Kamalov

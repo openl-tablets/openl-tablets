@@ -12,7 +12,7 @@ public enum SuitablityAsReturn {
         } else {
             return second;
         }
-    };
+    }
 
     private SuitablityAsReturn(int value) {
         this.value = value;

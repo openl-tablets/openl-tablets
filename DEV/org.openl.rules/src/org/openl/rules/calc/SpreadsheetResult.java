@@ -113,7 +113,7 @@ public class SpreadsheetResult implements Serializable {
 
     public void setFieldValue(String name, Object value) {
         if (fieldsCoordinates == null) { // Required if default constructor is
-                                         // used with setter methods.
+            // used with setter methods.
             initFieldsCoordinates();
         }
         Point fieldCoordinates = fieldsCoordinates.get(name);
@@ -136,7 +136,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     @XmlTransient
@@ -150,7 +150,7 @@ public class SpreadsheetResult implements Serializable {
 
     public Object getFieldValue(String name) {
         if (fieldsCoordinates == null) { // Required if default constructor is
-                                         // used with setter methods.
+            // used with setter methods.
             initFieldsCoordinates();
         }
         Point fieldCoordinates = fieldsCoordinates.get(name);
@@ -163,7 +163,7 @@ public class SpreadsheetResult implements Serializable {
 
     public boolean hasField(String name) {
         if (fieldsCoordinates == null) { // Required if default constructor is
-                                         // used with setter methods.
+            // used with setter methods.
             initFieldsCoordinates();
         }
         return fieldsCoordinates.get(name) != null;
@@ -218,12 +218,15 @@ public class SpreadsheetResult implements Serializable {
     }
 
     private String getStringValue(int col, int row) {
-        if (col == 0 && row == 0)
+        if (col == 0 && row == 0) {
             return "-X-";
-        if (col == 0)
+        }
+        if (col == 0) {
             return getRowName(row - 1);
-        if (row == 0)
+        }
+        if (row == 0) {
             return getColumnName(col - 1);
+        }
 
         Object value = getValue(row - 1, col - 1);
         StringBuilder builder = new StringBuilder(10);

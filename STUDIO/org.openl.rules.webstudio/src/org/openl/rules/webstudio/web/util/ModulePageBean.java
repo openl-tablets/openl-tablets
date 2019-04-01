@@ -1,14 +1,6 @@
 package org.openl.rules.webstudio.web.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -62,7 +54,7 @@ public class ModulePageBean {
     }
 
     /**
-     * 
+     *
      * @return List of all imoirts
      */
     public List<String> getImports() {
@@ -74,7 +66,7 @@ public class ModulePageBean {
     }
 
     /**
-     * 
+     *
      * @return List of all includes
      */
     public List<String> getIncludes() {
@@ -98,7 +90,7 @@ public class ModulePageBean {
 
     /**
      * Removes .xls into include or dependency file/module
-     * 
+     *
      * @param lists
      * @return
      */

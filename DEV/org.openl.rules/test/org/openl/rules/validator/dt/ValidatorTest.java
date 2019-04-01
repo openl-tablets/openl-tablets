@@ -14,7 +14,6 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
@@ -23,6 +22,7 @@ import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableOverlapping;
 import org.openl.rules.dt.validator.DecisionTableUncovered;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -38,7 +38,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     @Test
     public void testOk() {
         String tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
 
         // EnumDomain<TestValidationEnum1> enumDomain1 = new
         // EnumDomain<TestValidationEnum1>(new
@@ -78,7 +78,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testIntRule() {
         String tableName = "Rules void hello1(int hour)";
         IntRangeDomain intRangeDomain = new IntRangeDomain(0, 24);
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("hour", intRangeDomainAdaptor);
 
@@ -121,7 +121,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testOk2() {
         String tableName = "Rules void hello2(int currentValue)";
         IntRangeDomain intRangeDomain = new IntRangeDomain(0, 50);
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("currentValue", intRangeDomainAdaptor);
 
@@ -132,7 +132,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     @Test
     public void testString() {
         String tableName = "Rules void helloString(String stringValue)";
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
         StringDomain stringDomain = new StringDomain(new String[] { "value1", "value2", "value3" });
         EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
 
@@ -146,7 +146,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDate() {
         String tableName = "Rules void testDate(Date currentDate)";
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
         Date startDate = null;
@@ -213,9 +213,9 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testCountries() {
         // test narrowed domain for enum values.
         String tableName = "Rules void testCountries(CountriesEnum country)";
-        Map<String, IDomainAdaptor> domains = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domains = new HashMap<>();
 
-        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<CountriesEnum>(
+        EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<>(
             new CountriesEnum[] { CountriesEnum.AR, CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA });
         EnumDomainAdaptor enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
         domains.put("country", enumDomainAdaptor1);

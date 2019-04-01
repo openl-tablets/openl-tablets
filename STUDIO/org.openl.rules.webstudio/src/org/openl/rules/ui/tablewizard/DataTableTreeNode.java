@@ -8,9 +8,9 @@ import org.richfaces.model.TreeNode;
 
 /**
  * A tree node, containing description of Data Table's field columns
- * 
+ *
  * @author NSamatov
- * 
+ *
  */
 public class DataTableTreeNode implements TreeNode {
     private static final String SIMPLE = "simple";
@@ -23,7 +23,7 @@ public class DataTableTreeNode implements TreeNode {
 
     /**
      * Create instance of a node
-     * 
+     *
      * @param value description of a data table field
      * @param root if true, then this node is root
      */
@@ -44,8 +44,9 @@ public class DataTableTreeNode implements TreeNode {
         int i = 0;
 
         for (Object k : getChildren().keySet()) {
-            if (k.equals(key))
+            if (k.equals(key)) {
                 return i;
+            }
             i++;
         }
 
@@ -89,7 +90,7 @@ public class DataTableTreeNode implements TreeNode {
 
     /**
      * Get description of a data table field
-     * 
+     *
      * @return description of a data table field
      */
     public DataTableField getValue() {
@@ -102,7 +103,7 @@ public class DataTableTreeNode implements TreeNode {
 
     /**
      * Determine if we should show to a user a foreign key input text field
-     * 
+     *
      * @return if true, then show foreign key input text field else hide it
      */
     public boolean isEditForeignKey() {
@@ -111,7 +112,7 @@ public class DataTableTreeNode implements TreeNode {
 
     /**
      * Set if we should show to a user a foreign key input text field
-     * 
+     *
      * @param editForeignKey if true, then show foreign key input text field else hide it
      */
     public void setEditForeignKey(boolean editForeignKey) {
@@ -120,7 +121,7 @@ public class DataTableTreeNode implements TreeNode {
 
     /**
      * Get node type
-     * 
+     *
      * @return node type
      */
     public String getNodeType() {

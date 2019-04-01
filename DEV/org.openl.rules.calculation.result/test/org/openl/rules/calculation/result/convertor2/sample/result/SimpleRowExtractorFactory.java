@@ -7,9 +7,9 @@ import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
 
 /**
  * Factory for creating instances of {@link SimpleRowExtractor}
- * 
+ *
  * @author tkrivickas
- * 
+ *
  */
 public class SimpleRowExtractorFactory {
 
@@ -22,9 +22,9 @@ public class SimpleRowExtractorFactory {
 
     /**
      * Extracts simple (non-compound) rows
-     * 
+     *
      * @author tkrivickas
-     * 
+     *
      */
     static class SimpleRowExtractor extends RowExtractor<SimpleStep> {
 

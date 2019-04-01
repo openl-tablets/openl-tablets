@@ -7,7 +7,7 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 /**
  * Column that is used in the dispatching table, built by dimension properties of the group of tables. Handles the
  * column with array dimension property.
- * 
+ *
  * @author DLiauchuk
  *
  */

@@ -62,7 +62,7 @@ public class CellModelDelegator implements ICellModel {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.rules.ui.ICellModel#setColorFilter(org.openl.rules.ui.IColorFilter[])
      */
     public void setColorFilter(IColorFilter[] filter) {

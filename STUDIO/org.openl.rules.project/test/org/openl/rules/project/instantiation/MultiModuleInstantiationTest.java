@@ -1,8 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -26,7 +24,7 @@ public class MultiModuleInstantiationTest {
         ProjectResolver projectResolver = ProjectResolver.instance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }
@@ -52,7 +50,7 @@ public class MultiModuleInstantiationTest {
         ProjectResolver projectResolver = ProjectResolver.instance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         for (ProjectDescriptor project : projects) {
             for (Module module : project.getModules()) {
                 modules.add(module);
@@ -91,7 +89,7 @@ public class MultiModuleInstantiationTest {
         assertEquals(3, ((Object[]) result).length);
     }
 
-    public static interface MultimoduleInterface {
+    public interface MultimoduleInterface {
         String worldHello(int hour);
 
         String helloWorld(int hour);
@@ -118,7 +116,7 @@ public class MultiModuleInstantiationTest {
         ProjectResolver projectResolver = ProjectResolver.instance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }

@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * {@link NicePrinterAdaptor} for the beans. It will prints the bean by "toString()" method if it specified and will
  * print all bean properties othewise.
- * 
+ *
  * @author PUdalau
  */
 public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {

@@ -25,7 +25,7 @@ import org.openl.rules.variation.ArgumentReplacementVariation;
 /**
  * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not usual bean and should be initialized
  * through non-default constructor.
- * 
+ *
  * @author PUdalau
  */
 public class ArgumentReplacementVariationType extends BeanType {

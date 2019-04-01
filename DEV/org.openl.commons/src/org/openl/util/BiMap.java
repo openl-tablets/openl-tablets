@@ -9,7 +9,7 @@ import java.util.IdentityHashMap;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class BiMap<K, T> {
     private HashMap<K, T> idObjMap = new HashMap<>();

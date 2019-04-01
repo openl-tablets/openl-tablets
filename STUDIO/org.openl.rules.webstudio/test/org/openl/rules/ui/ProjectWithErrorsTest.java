@@ -1,5 +1,13 @@
 package org.openl.rules.ui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -10,14 +18,6 @@ import org.junit.runners.Parameterized;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.resolving.ProjectResolver;
-
-import java.io.IOException;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {

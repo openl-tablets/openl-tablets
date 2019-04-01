@@ -1,6 +1,7 @@
 package org.openl.rules.project.xml;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;

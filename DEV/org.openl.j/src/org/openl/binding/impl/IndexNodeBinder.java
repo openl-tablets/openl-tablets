@@ -16,7 +16,7 @@ import org.openl.types.IOpenIndex;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class IndexNodeBinder extends ANodeBinder {
 
@@ -24,7 +24,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override

@@ -12,14 +12,15 @@ public class LogicalTableHelper {
     /**
      * Gets the number of logical columns in the first table row.<br>
      * Each not merged cell is one logical column, several merged horizontal cells are one logical column too.
-     * 
+     *
      * @param table Original source grid table.
      * @return number of logical columns in the first table row.
      */
     static int calcLogicalColumns(IGridTable table) {
         int W = table.getWidth();
-        if (W == 1)
+        if (W == 1) {
             return 1;
+        }
 
         int columns = 0;
 
@@ -33,14 +34,15 @@ public class LogicalTableHelper {
     /**
      * Gets the number of logical rows in the first table column.<br>
      * Each not merged cell is one logical row, several merged vertical cells are one logical row too.
-     * 
+     *
      * @param table Original source grid table.
      * @return number of logical rows in the first table column.
      */
     static int calcLogicalRows(IGridTable table) {
         int H = table.getHeight();
-        if (H == 1)
+        if (H == 1) {
             return 1;
+        }
         int rows = 0;
         int cellHeight;
         for (int h = 0; h < H; h += cellHeight, rows++) {
@@ -62,8 +64,9 @@ public class LogicalTableHelper {
             rowOffsets = ((LogicalTable) rowOffsetsTable).getRowOffset();
         }
 
-        if (rowOffsets == null && columnOffsets == null)
+        if (rowOffsets == null && columnOffsets == null) {
             return LogicalTableHelper.logicalTable(table);
+        }
 
         return new LogicalTable(table, columnOffsets, rowOffsets);
     }
@@ -71,7 +74,7 @@ public class LogicalTableHelper {
     /**
      * If there is no merged cells in the top row and left column - returns {@link SimpleLogicalTable} in other case
      * return {@link LogicalTable}
-     * 
+     *
      * @param table Original source grid table.
      * @return {@link ILogicalTable} table with correctly calculated height and width.
      */
@@ -195,8 +198,9 @@ public class LogicalTableHelper {
 
         int gridWidth = gt.getWidth();
 
-        if (table.getWidth() == gridWidth)
+        if (table.getWidth() == gridWidth) {
             return table;
+        }
 
         int[] columnOffsets = getColumnOffsets(table);
 
@@ -204,8 +208,9 @@ public class LogicalTableHelper {
 
         int gridToOffset = columnOffsets[toColumn];
 
-        if (gridToOffset - gridFromOffset == toColumn - fromColumn)
+        if (gridToOffset - gridFromOffset == toColumn - fromColumn) {
             return table;
+        }
 
         int gridColumnsToUnmerge = gridToOffset - gridFromOffset;
 
@@ -225,8 +230,8 @@ public class LogicalTableHelper {
 
         System
             .arraycopy(columnOffsets, toColumn, newColumnOffsets, fromColumn + gridColumnsToUnmerge, restOfColumns + 1); // copy
-                                                                                                                         // the
-                                                                                                                         // rest+1
+        // the
+        // rest+1
 
         return new LogicalTable(gt, newColumnOffsets, getRowOffsets(table));
     }

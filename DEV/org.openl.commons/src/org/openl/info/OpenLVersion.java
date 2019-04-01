@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * For internal usage only.
- * 
+ *
  * @author Yury Molchan
  */
 public final class OpenLVersion {

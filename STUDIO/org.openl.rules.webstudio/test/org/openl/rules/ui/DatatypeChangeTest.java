@@ -1,8 +1,6 @@
 package org.openl.rules.ui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -129,8 +127,9 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
     private boolean contains(Method methods[], String name) {
         for (Method method : methods) {
-            if (method.getName().equals(name))
+            if (method.getName().equals(name)) {
                 return true;
+            }
         }
         return false;
     }

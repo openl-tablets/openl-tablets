@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.util.formatters.DefaultFormatter;
@@ -8,7 +9,7 @@ import org.openl.util.formatters.EnumFormatter;
 
 public class XlsArrayFormatTest {
 
-    public static enum TestConstants {
+    public enum TestConstants {
         TEST_CONST_1("Test Constant 1"),
         TEST_CONST_2("Test Constant 2");
 

@@ -8,10 +8,11 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.openl.classloader.SimpleBundleClassLoader;
-import org.openl.meta.DoubleValue;
 import org.openl.gen.FieldDescription;
+import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -176,7 +177,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     }
 
     private Map<String, FieldDescription> getFields(FieldDescription fieldsType) {
-        Map<String, FieldDescription> fields = new HashMap<String, FieldDescription>();
+        Map<String, FieldDescription> fields = new HashMap<>();
         fields.put("firstField", fieldsType);
         fields.put("secondField", fieldsType);
         return fields;

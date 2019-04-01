@@ -7,7 +7,7 @@ import org.openl.rules.table.IWritableGrid;
 
 /**
  * Action which resizes merged regions in some grid.
- * 
+ *
  * @author PUdalau
  */
 public class UndoableResizeMergedRegionAction implements IUndoableGridTableAction {

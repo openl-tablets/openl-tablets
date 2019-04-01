@@ -1,10 +1,10 @@
 package org.openl.rules.convertor;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class String2BigDecimalConvertorTest {
 

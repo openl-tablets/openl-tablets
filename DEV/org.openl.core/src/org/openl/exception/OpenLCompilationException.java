@@ -52,7 +52,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.exception.OpenLException#getLocation()
      */
     @Override
@@ -62,7 +62,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.exception.OpenLException#getSourceModule()
      */
     @Override

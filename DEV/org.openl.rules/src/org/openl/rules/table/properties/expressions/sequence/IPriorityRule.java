@@ -6,7 +6,7 @@ import org.openl.rules.table.properties.ITableProperties;
 
 /**
  * Priority rule serves to determine most suitable table to invoke in overloaded methods group.
- * 
+ *
  * @author PUdalau
  */
 public interface IPriorityRule extends Comparator<ITableProperties> {

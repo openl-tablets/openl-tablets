@@ -1,8 +1,6 @@
 package org.openl.binding;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
-
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
@@ -15,6 +13,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
+
+import junit.framework.TestCase;
 
 /*
  * Created on May 28, 2003

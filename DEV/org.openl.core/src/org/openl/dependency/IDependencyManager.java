@@ -14,17 +14,17 @@ public interface IDependencyManager {
 
     /**
      * Load and compile the given dependency.
-     * 
+     *
      * @param dependency to be loaded.
      * @return {@link CompiledDependency}
-     * 
+     *
      * @throws OpenLCompilationException
      */
     CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException;
 
     /**
      * Remove given dependency from cache.
-     * 
+     *
      * @param dependency to be cleaned from cache.
      */
     void reset(IDependency dependency);
@@ -37,7 +37,7 @@ public interface IDependencyManager {
     /**
      * Return flag, describing is it execution mode or not.<br>
      * In execution mode all meta info that is not used in rules running is being cleaned.
-     * 
+     *
      * @return flag is it execution mode or not.
      */
     boolean isExecutionMode();

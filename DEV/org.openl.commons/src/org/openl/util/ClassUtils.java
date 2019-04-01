@@ -1,5 +1,7 @@
 package org.openl.util;
 
+import static java.util.Locale.ENGLISH;
+
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -7,11 +9,9 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 
-import static java.util.Locale.ENGLISH;
-
 /**
  * A util to manipulate with Java classes.
- * 
+ *
  * @author Yury Molchan
  */
 public class ClassUtils {

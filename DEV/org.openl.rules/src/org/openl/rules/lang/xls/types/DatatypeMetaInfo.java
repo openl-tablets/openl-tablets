@@ -1,13 +1,13 @@
 package org.openl.rules.lang.xls.types;
 
-import org.openl.meta.IMetaInfo;
-
 import java.util.Objects;
+
+import org.openl.meta.IMetaInfo;
 
 /**
  * Implementation of {@link IMetaInfo} for datatypes. First of all to handle the url to source. Display name is
  * implemented to return the same name for all modes. Should be updated if needed.
- * 
+ *
  * @author DLiauchuk TODO: Replace with org.openl.meta.TableMetaInfo
  */
 public class DatatypeMetaInfo implements IMetaInfo {
@@ -24,7 +24,7 @@ public class DatatypeMetaInfo implements IMetaInfo {
     public String getDisplayName(int mode) {
         /*
          * Default implementation. Don`t know if we need any displayName for Datatype.
-         * 
+         *
          * @author DLiauchuk
          */
         return displayName;
@@ -46,12 +46,15 @@ public class DatatypeMetaInfo implements IMetaInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DatatypeMetaInfo other = (DatatypeMetaInfo) obj;
 
         return Objects.equals(displayName, other.getDisplayName()) && Objects.equals(sourceUrl, other.getSourceUrl());

@@ -7,7 +7,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Ectractor for folder name paths from the top root folder.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -39,8 +39,8 @@ public class RootFolderExtractor {
 
     /**
      * Extracs the folder from the root folder(if exists).
-     * 
-     * 
+     *
+     *
      * @param folderName folder name to be extracted from the root folder.
      * @return extracted folder name from the root folder.<br>
      *         E.g. folderName: <code>org/package/sources/</code>. if the root folder is <code>org</code>, the result
@@ -60,7 +60,7 @@ public class RootFolderExtractor {
     /**
      * Check if there is a single root folder in the set of folder names. Algorithm: if there is only one folder path
      * which contains first found symbol '/', and it`s number is equal to path length.
-     * 
+     *
      * @return true if there is a single root folder in the set of folder names
      */
     private boolean needToExtract() {

@@ -7,7 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Application main class. Sets up other classes.
- * 
+ *
  */
 public final class RuleServiceStarter {
     private RuleServiceStarter() {

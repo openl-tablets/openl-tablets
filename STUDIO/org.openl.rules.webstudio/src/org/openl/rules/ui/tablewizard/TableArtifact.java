@@ -1,7 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Defines a table definition entity, which contains several parameters and logic. Examples of such artifacts are

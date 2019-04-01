@@ -1,12 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntArray;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 import org.openl.ie.tools.ReusableImpl;
@@ -145,17 +139,17 @@ public final class IntExpElementAt extends IntExpImpl {
      * A mapping for removing values from the index and element.
      */
     interface Mapping {
-        public void removeFromElement(int value) throws Failure;
+        void removeFromElement(int value) throws Failure;
 
-        public void removeFromElement(int min, int max) throws Failure;
+        void removeFromElement(int min, int max) throws Failure;
 
-        public void removeFromIndex(int idx) throws Failure;
+        void removeFromIndex(int idx) throws Failure;
 
-        public void removeFromIndex(int min, int max) throws Failure;
+        void removeFromIndex(int min, int max) throws Failure;
 
-        public void setValueFromElement(int value) throws Failure;
+        void setValueFromElement(int value) throws Failure;
 
-        public void setValueFromIndex(int idx) throws Failure;
+        void setValueFromIndex(int idx) throws Failure;
 
     }
 

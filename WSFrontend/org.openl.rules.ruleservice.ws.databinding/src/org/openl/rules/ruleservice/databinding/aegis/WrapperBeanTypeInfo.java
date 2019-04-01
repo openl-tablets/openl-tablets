@@ -17,9 +17,9 @@ import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 
 /**
  * {@link BeanTypeInfo} with possibility to ignore properties.
- * 
+ *
  * @author PUdalau
- * 
+ *
  */
 public class WrapperBeanTypeInfo extends BeanTypeInfo {
     private List<String> ignoredProperties;

@@ -5,7 +5,7 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * Transforms coordinates for table with two dimensions(table that has vertical and horizontal conditions).
- * 
+ *
  * @author PUdalau
  */
 public class TwoDimensionDecisionTableTranformer implements CoordinatesTransformer {

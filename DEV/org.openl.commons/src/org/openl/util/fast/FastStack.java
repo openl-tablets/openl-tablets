@@ -58,7 +58,7 @@ public final class FastStack implements Cloneable, java.io.Serializable {
         }
     }
 
-    public final boolean empty() {
+    public boolean empty() {
         return m_size == 0;
     }
 
@@ -69,17 +69,17 @@ public final class FastStack implements Cloneable, java.io.Serializable {
         System.arraycopy(old, 0, m_data, 0, m_size);
     }
 
-    public final Object peek() {
+    public Object peek() {
         return m_data[m_size - 1];
     }
 
-    public final Object pop() {
+    public Object pop() {
         Object o = m_data[--m_size];
         m_data[m_size] = null;
         return o;
     }
 
-    public final void push(Object obj) {
+    public void push(Object obj) {
         if (m_size == m_data.length) {
             grow();
         }

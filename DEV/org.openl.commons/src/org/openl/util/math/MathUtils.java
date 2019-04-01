@@ -11,7 +11,7 @@ import org.openl.util.ArrayTool;
 /**
  *
  * @author DLiauchuk
- * 
+ *
  */
 public class MathUtils {
 
@@ -270,7 +270,7 @@ public class MathUtils {
     }
 
     // SUM
-    private static interface Adder<T extends Number> {
+    private interface Adder<T extends Number> {
         T add(T a, T b);
 
         T zero();
@@ -738,7 +738,7 @@ public class MathUtils {
     /**
      * Divide one BigDecimal to another. When providing a result of divide operation, the precision '5' and
      * {@link RoundingMode#HALF_UP} settings are used.
-     * 
+     *
      * @return rounded to 5 values after comma and {@link RoundingMode#HALF_UP} value.
      */
     public static BigDecimal divide(BigDecimal number, BigDecimal divisor) {

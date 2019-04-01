@@ -1,9 +1,9 @@
 package org.openl.rules.convertor;
 
-import org.openl.meta.BigDecimalValue;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+
+import org.openl.meta.BigDecimalValue;
 
 class String2BigDecimalValueConverter extends String2NumberConverter<BigDecimalValue> {
 

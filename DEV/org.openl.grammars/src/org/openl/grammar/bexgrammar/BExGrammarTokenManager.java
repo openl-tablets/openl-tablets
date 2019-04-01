@@ -34,14 +34,17 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     jjmatchedKind = 113;
                     return 105;
                 }
-                if ((active0 & 0xe000000000000L) != 0L)
+                if ((active0 & 0xe000000000000L) != 0L) {
                     return 1;
-                if ((active1 & 0x40000002004000L) != 0L)
+                }
+                if ((active1 & 0x40000002004000L) != 0L) {
                     return 99;
+                }
                 return -1;
             case 1:
-                if ((active1 & 0x40000000000000L) != 0L)
+                if ((active1 & 0x40000000000000L) != 0L) {
                     return 97;
+                }
                 if ((active0 & 0x1b7ffbeff80L) != 0L || (active1 & 0x800000000000000L) != 0L || (active2 & 0xba80d80L) != 0L) {
                     if (jjmatchedPos != 1) {
                         jjmatchedKind = 113;
@@ -49,8 +52,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return 105;
                 }
-                if ((active0 & 0x4800410040L) != 0L || (active1 & 0xf000000000000000L) != 0L || (active2 & 0x401603fL) != 0L)
+                if ((active0 & 0x4800410040L) != 0L || (active1 & 0xf000000000000000L) != 0L || (active2 & 0x401603fL) != 0L) {
                     return 105;
+                }
                 return -1;
             case 2:
                 if ((active0 & 0x1a6feaefe00L) != 0L || (active1 & 0x2800000000000000L) != 0L || (active2 & 0x3a96d80L) != 0L) {
@@ -60,8 +64,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return 105;
                 }
-                if ((active0 & 0x1101100180L) != 0L || (active2 & 0x8000000L) != 0L)
+                if ((active0 & 0x1101100180L) != 0L || (active2 & 0x8000000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 3:
                 if ((active0 & 0x247c8cf600L) != 0L || (active1 & 0x2800000000000000L) != 0L || (active2 & 0x2a96d80L) != 0L) {
@@ -71,8 +76,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return 105;
                 }
-                if ((active0 & 0x18282220800L) != 0L || (active2 & 0x1000000L) != 0L)
+                if ((active0 & 0x18282220800L) != 0L || (active2 & 0x1000000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 4:
                 if ((active1 & 0x2000000000000000L) != 0L || (active2 & 0x2000000L) != 0L) {
@@ -89,8 +95,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return 105;
                 }
-                if ((active0 & 0x2468043200L) != 0L)
+                if ((active0 & 0x2468043200L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 5:
                 if ((active0 & 0x88c400L) != 0L || (active1 & 0x800000000000000L) != 0L || (active2 & 0xa00d80L) != 0L) {
@@ -112,8 +119,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return -1;
                 }
-                if ((active0 & 0x54000000L) != 0L)
+                if ((active0 & 0x54000000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 6:
                 if ((active2 & 0x96000L) != 0L) {
@@ -142,8 +150,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     jjmatchedPos = 6;
                     return 105;
                 }
-                if ((active0 & 0x88000L) != 0L)
+                if ((active0 & 0x88000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 7:
                 if ((active2 & 0x96000L) != 0L) {
@@ -172,8 +181,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     jjmatchedPos = 7;
                     return 105;
                 }
-                if ((active0 & 0x4000L) != 0L)
+                if ((active0 & 0x4000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 8:
                 if ((active2 & 0x14000L) != 0L) {
@@ -202,8 +212,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     jjmatchedPos = 8;
                     return 105;
                 }
-                if ((active0 & 0x400L) != 0L)
+                if ((active0 & 0x400L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 9:
                 if ((active2 & 0xa00000L) != 0L) {
@@ -234,8 +245,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     }
                     return -1;
                 }
-                if ((active0 & 0x800000L) != 0L)
+                if ((active0 & 0x800000L) != 0L) {
                     return 105;
+                }
                 return -1;
             case 10:
                 if ((active2 & 0xa00000L) != 0L) {
@@ -605,22 +617,26 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 33:
                 return jjMoveStringLiteralDfa2_0(active0, 0L, active1, 0L, active2, 0x400000L);
             case 38:
-                if ((active1 & 0x100L) != 0L)
+                if ((active1 & 0x100L) != 0L) {
                     return jjStopAtPos(1, 72);
+                }
                 break;
             case 42:
-                if ((active1 & 0x200000000L) != 0L)
+                if ((active1 & 0x200000000L) != 0L) {
                     return jjStopAtPos(1, 97);
-                else if ((active1 & 0x40000000000000L) != 0L)
+                } else if ((active1 & 0x40000000000000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 118, 97);
+                }
                 break;
             case 43:
-                if ((active1 & 0x200L) != 0L)
+                if ((active1 & 0x200L) != 0L) {
                     return jjStopAtPos(1, 73);
+                }
                 break;
             case 45:
-                if ((active1 & 0x400L) != 0L)
+                if ((active1 & 0x400L) != 0L) {
                     return jjStopAtPos(1, 74);
+                }
                 break;
             case 46:
                 if ((active0 & 0x4000000000000L) != 0L) {
@@ -647,55 +663,59 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 } else if ((active1 & 0x10L) != 0L) {
                     jjmatchedKind = 68;
                     jjmatchedPos = 1;
-                } else if ((active1 & 0x400000L) != 0L)
+                } else if ((active1 & 0x400000L) != 0L) {
                     return jjStopAtPos(1, 86);
-                else if ((active1 & 0x800000L) != 0L)
+                } else if ((active1 & 0x800000L) != 0L) {
                     return jjStopAtPos(1, 87);
-                else if ((active1 & 0x1000000L) != 0L)
+                } else if ((active1 & 0x1000000L) != 0L) {
                     return jjStopAtPos(1, 88);
-                else if ((active1 & 0x2000000L) != 0L)
+                } else if ((active1 & 0x2000000L) != 0L) {
                     return jjStopAtPos(1, 89);
-                else if ((active1 & 0x4000000L) != 0L)
+                } else if ((active1 & 0x4000000L) != 0L) {
                     return jjStopAtPos(1, 90);
-                else if ((active1 & 0x8000000L) != 0L)
+                } else if ((active1 & 0x8000000L) != 0L) {
                     return jjStopAtPos(1, 91);
-                else if ((active1 & 0x10000000L) != 0L)
+                } else if ((active1 & 0x10000000L) != 0L) {
                     return jjStopAtPos(1, 92);
-                else if ((active1 & 0x20000000L) != 0L)
+                } else if ((active1 & 0x20000000L) != 0L) {
                     return jjStopAtPos(1, 93);
+                }
                 return jjMoveStringLiteralDfa2_0(active0, 0x8280000000000000L, active1, 0x4aL, active2, 0L);
             case 62:
-                if ((active1 & 0x20L) != 0L)
+                if ((active1 & 0x20L) != 0L) {
                     return jjStopAtPos(1, 69);
-                else if ((active1 & 0x100000L) != 0L) {
+                } else if ((active1 & 0x100000L) != 0L) {
                     jjmatchedKind = 84;
                     jjmatchedPos = 1;
-                } else if ((active1 & 0x400000000L) != 0L)
+                } else if ((active1 & 0x400000000L) != 0L) {
                     return jjStopAtPos(1, 98);
+                }
                 return jjMoveStringLiteralDfa2_0(active0, 0L, active1, 0x180200000L, active2, 0L);
             case 64:
-                if ((active2 & 0x200L) != 0L)
+                if ((active2 & 0x200L) != 0L) {
                     return jjStopAtPos(1, 137);
-                else if ((active2 & 0x1000L) != 0L)
+                } else if ((active2 & 0x1000L) != 0L) {
                     return jjStopAtPos(1, 140);
-                else if ((active2 & 0x8000L) != 0L)
+                } else if ((active2 & 0x8000L) != 0L) {
                     return jjStopAtPos(1, 143);
-                else if ((active2 & 0x20000L) != 0L)
+                } else if ((active2 & 0x20000L) != 0L) {
                     return jjStopAtPos(1, 145);
-                else if ((active2 & 0x40000L) != 0L)
+                } else if ((active2 & 0x40000L) != 0L) {
                     return jjStopAtPos(1, 146);
-                else if ((active2 & 0x100000L) != 0L)
+                } else if ((active2 & 0x100000L) != 0L) {
                     return jjStopAtPos(1, 148);
+                }
                 break;
             case 97:
                 return jjMoveStringLiteralDfa2_0(active0, 0x41c00L, active1, 0L, active2, 0L);
             case 101:
                 return jjMoveStringLiteralDfa2_0(active0, 0x8005008000L, active1, 0L, active2, 0x1000d80L);
             case 102:
-                if ((active0 & 0x400000L) != 0L)
+                if ((active0 & 0x400000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 22, 105);
-                else if ((active0 & 0x800000000L) != 0L)
+                } else if ((active0 & 0x800000000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 35, 105);
+                }
                 break;
             case 104:
                 return jjMoveStringLiteralDfa2_0(active0, 0x13460000000L, active1, 0L, active2, 0L);
@@ -737,8 +757,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 119:
                 return jjMoveStringLiteralDfa2_0(active0, 0x10000000L, active1, 0L, active2, 0L);
             case 124:
-                if ((active1 & 0x80L) != 0L)
+                if ((active1 & 0x80L) != 0L) {
                     return jjStopAtPos(1, 71);
+                }
                 break;
             default:
                 break;
@@ -747,8 +768,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa2_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(0, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -759,8 +781,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 32:
                 return jjMoveStringLiteralDfa3_0(active0, 0L, active1, 0xd000000000000000L, active2, 0x400003fL);
             case 46:
-                if ((active0 & 0x8000000000000L) != 0L)
+                if ((active0 & 0x8000000000000L) != 0L) {
                     return jjStopAtPos(2, 51);
+                }
                 break;
             case 61:
                 if ((active0 & 0x80000000000000L) != 0L) {
@@ -769,10 +792,11 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 } else if ((active0 & 0x200000000000000L) != 0L) {
                     jjmatchedKind = 57;
                     jjmatchedPos = 2;
-                } else if ((active1 & 0x40000000L) != 0L)
+                } else if ((active1 & 0x40000000L) != 0L) {
                     return jjStopAtPos(2, 94);
-                else if ((active1 & 0x80000000L) != 0L)
+                } else if ((active1 & 0x80000000L) != 0L) {
                     return jjStopAtPos(2, 95);
+                }
                 return jjMoveStringLiteralDfa3_0(active0, 0x8000000000000000L, active1, 0x4aL, active2, 0L);
             case 62:
                 if ((active1 & 0x200000L) != 0L) {
@@ -781,8 +805,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 }
                 return jjMoveStringLiteralDfa3_0(active0, 0L, active1, 0x100000000L, active2, 0L);
             case 64:
-                if ((active2 & 0x400000L) != 0L)
+                if ((active2 & 0x400000L) != 0L) {
                     return jjStopAtPos(2, 150);
+                }
                 break;
             case 97:
                 return jjMoveStringLiteralDfa3_0(active0, 0x10000000000L, active1, 0L, active2, 0xa00000L);
@@ -793,8 +818,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 }
                 return jjMoveStringLiteralDfa3_0(active0, 0L, active1, 0L, active2, 0x8016000L);
             case 101:
-                if ((active0 & 0x1000000000L) != 0L)
+                if ((active0 & 0x1000000000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 36, 105);
+                }
                 return jjMoveStringLiteralDfa3_0(active0, 0x2000000200L, active1, 0x2000000000000000L, active2, 0L);
             case 102:
                 return jjMoveStringLiteralDfa3_0(active0, 0x8000L, active1, 0L, active2, 0L);
@@ -807,24 +833,28 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 112:
                 return jjMoveStringLiteralDfa3_0(active0, 0x8000000L, active1, 0L, active2, 0L);
             case 114:
-                if ((active0 & 0x100000L) != 0L)
+                if ((active0 & 0x100000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 20, 105);
+                }
                 return jjMoveStringLiteralDfa3_0(active0, 0x60000000L, active1, 0L, active2, 0x2000000L);
             case 115:
                 return jjMoveStringLiteralDfa3_0(active0, 0x8000820800L, active1, 0L, active2, 0x1000000L);
             case 116:
-                if ((active0 & 0x100L) != 0L)
+                if ((active0 & 0x100L) != 0L) {
                     return jjStartNfaWithStates_0(2, 8, 105);
+                }
                 return jjMoveStringLiteralDfa3_0(active0, 0x4201000L, active1, 0L, active2, 0L);
             case 117:
                 return jjMoveStringLiteralDfa3_0(active0, 0x80000000L, active1, 0x800000000000000L, active2, 0L);
             case 119:
-                if ((active0 & 0x1000000L) != 0L)
+                if ((active0 & 0x1000000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 24, 105);
+                }
                 break;
             case 121:
-                if ((active0 & 0x100000000L) != 0L)
+                if ((active0 & 0x100000000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 32, 105);
+                }
                 break;
             default:
                 break;
@@ -833,8 +863,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa3_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(1, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -845,38 +876,42 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 32:
                 return jjMoveStringLiteralDfa4_0(active0, 0L, active1, 0L, active2, 0x8000000L);
             case 61:
-                if ((active0 & 0x8000000000000000L) != 0L)
+                if ((active0 & 0x8000000000000000L) != 0L) {
                     return jjStopAtPos(3, 63);
-                else if ((active1 & 0x2L) != 0L)
+                } else if ((active1 & 0x2L) != 0L) {
                     return jjStopAtPos(3, 65);
-                else if ((active1 & 0x8L) != 0L)
+                } else if ((active1 & 0x8L) != 0L) {
                     return jjStopAtPos(3, 67);
-                else if ((active1 & 0x40L) != 0L)
+                } else if ((active1 & 0x40L) != 0L) {
                     return jjStopAtPos(3, 70);
-                else if ((active1 & 0x100000000L) != 0L)
+                } else if ((active1 & 0x100000000L) != 0L) {
                     return jjStopAtPos(3, 96);
+                }
                 break;
             case 97:
                 return jjMoveStringLiteralDfa4_0(active0, 0x88200L, active1, 0x800000000000000L, active2, 0L);
             case 99:
                 return jjMoveStringLiteralDfa4_0(active0, 0x1400L, active1, 0L, active2, 0L);
             case 100:
-                if ((active0 & 0x200000000L) != 0L)
+                if ((active0 & 0x200000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 33, 105);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0L, active1, 0x4000000000000000L, active2, 0L);
             case 101:
-                if ((active0 & 0x800L) != 0L)
+                if ((active0 & 0x800L) != 0L) {
                     return jjStartNfaWithStates_0(3, 11, 105);
-                else if ((active0 & 0x20000L) != 0L)
+                } else if ((active0 & 0x20000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 17, 105);
-                else if ((active0 & 0x80000000L) != 0L)
+                } else if ((active0 & 0x80000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 31, 105);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0x8000000L, active1, 0L, active2, 0x2016d80L);
             case 105:
                 return jjMoveStringLiteralDfa4_0(active0, 0L, active1, 0L, active2, 0x80008L);
             case 108:
-                if ((active0 & 0x2000000L) != 0L)
+                if ((active0 & 0x2000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 25, 105);
+                }
                 return jjMoveStringLiteralDfa4_0(active0,
                     0x400000000L,
                     active1,
@@ -886,12 +921,14 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 109:
                 return jjMoveStringLiteralDfa4_0(active0, 0L, active1, 0L, active2, 0x11L);
             case 110:
-                if ((active0 & 0x10000000000L) != 0L)
+                if ((active0 & 0x10000000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 40, 105);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0L, active1, 0L, active2, 0xa00024L);
             case 111:
-                if ((active0 & 0x200000L) != 0L)
+                if ((active0 & 0x200000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 21, 105);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0x60000000L, active1, 0L, active2, 0L);
             case 114:
                 return jjMoveStringLiteralDfa4_0(active0, 0x2000000000L, active1, 0L, active2, 0L);
@@ -912,8 +949,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa4_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(2, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -928,42 +966,48 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 99:
                 return jjMoveStringLiteralDfa5_0(active0, 0x10000000L, active1, 0L, active2, 0xd80L);
             case 101:
-                if ((active0 & 0x40000L) != 0L)
+                if ((active0 & 0x40000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 18, 105);
-                else if ((active0 & 0x400000000L) != 0L)
+                } else if ((active0 & 0x400000000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 34, 105);
-                else if ((active0 & 0x2000000000L) != 0L)
+                } else if ((active0 & 0x2000000000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 37, 105);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0L, active1, 0x8000000000000000L, active2, 0x4000002L);
             case 104:
-                if ((active0 & 0x1000L) != 0L)
+                if ((active0 & 0x1000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 12, 105);
+                }
                 break;
             case 105:
                 return jjMoveStringLiteralDfa5_0(active0, 0x4000L, active1, 0x4000000000000000L, active2, 0L);
             case 107:
-                if ((active0 & 0x200L) != 0L)
+                if ((active0 & 0x200L) != 0L) {
                     return jjStartNfaWithStates_0(4, 9, 105);
+                }
                 break;
             case 108:
                 return jjMoveStringLiteralDfa5_0(active0, 0x80000L, active1, 0x800000000000000L, active2, 0L);
             case 109:
                 return jjMoveStringLiteralDfa5_0(active0, 0L, active1, 0L, active2, 0x8000000L);
             case 110:
-                if ((active2 & 0x8L) != 0L)
+                if ((active2 & 0x8L) != 0L) {
                     return jjStopAtPos(4, 131);
+                }
                 break;
             case 111:
                 return jjMoveStringLiteralDfa5_0(active0, 0L, active1, 0L, active2, 0x35L);
             case 114:
-                if ((active0 & 0x8000000L) != 0L)
+                if ((active0 & 0x8000000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 27, 105);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0x4000000L, active1, 0L, active2, 0x16000L);
             case 115:
                 return jjMoveStringLiteralDfa5_0(active0, 0L, active1, 0L, active2, 0xa00000L);
             case 116:
-                if ((active0 & 0x2000L) != 0L)
+                if ((active0 & 0x2000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 13, 105);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0L, active1, 0L, active2, 0x80000L);
             case 117:
                 return jjMoveStringLiteralDfa5_0(active0, 0x8400L, active1, 0L, active2, 0L);
@@ -980,8 +1024,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa5_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(3, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -994,24 +1039,27 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 102:
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0x4000000000000000L, active2, 0xa00000L);
             case 104:
-                if ((active0 & 0x10000000L) != 0L)
+                if ((active0 & 0x10000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 28, 105);
+                }
                 break;
             case 108:
                 return jjMoveStringLiteralDfa6_0(active0, 0x88400L, active1, 0L, active2, 0L);
             case 109:
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0x1000000000000000L, active2, 0L);
             case 110:
-                if ((active0 & 0x4000000L) != 0L)
+                if ((active0 & 0x4000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 26, 105);
+                }
                 return jjMoveStringLiteralDfa6_0(active0, 0x804000L, active1, 0x2000000000000000L, active2, 0L);
             case 111:
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0L, active2, 0x8000000L);
             case 114:
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0L, active2, 0x11L);
             case 115:
-                if ((active0 & 0x40000000L) != 0L)
+                if ((active0 & 0x40000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 30, 105);
+                }
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0x8800000000000000L, active2, 0x4000002L);
             case 116:
                 return jjMoveStringLiteralDfa6_0(active0, 0L, active1, 0L, active2, 0x3000d80L);
@@ -1022,8 +1070,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa6_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(4, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1058,18 +1107,21 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 114:
                 return jjMoveStringLiteralDfa7_0(active0, 0L, active1, 0L, active2, 0x8000000L);
             case 115:
-                if ((active2 & 0x4000000L) != 0L)
+                if ((active2 & 0x4000000L) != 0L) {
                     return jjStopAtPos(6, 154);
+                }
                 return jjMoveStringLiteralDfa7_0(active0, 0L, active1, 0x8000000000000000L, active2, 0x2L);
             case 116:
-                if ((active0 & 0x8000L) != 0L)
+                if ((active0 & 0x8000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 15, 105);
+                }
                 break;
             case 117:
                 return jjMoveStringLiteralDfa7_0(active0, 0x4000L, active1, 0L, active2, 0L);
             case 121:
-                if ((active0 & 0x80000L) != 0L)
+                if ((active0 & 0x80000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 19, 105);
+                }
                 break;
             default:
                 break;
@@ -1078,8 +1130,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa7_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(5, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1092,10 +1145,11 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 97:
                 return jjMoveStringLiteralDfa8_0(active0, 0L, active1, 0L, active2, 0x3000180L);
             case 101:
-                if ((active0 & 0x4000L) != 0L)
+                if ((active0 & 0x4000L) != 0L) {
                     return jjStartNfaWithStates_0(7, 14, 105);
-                else if ((active2 & 0x8000000L) != 0L)
+                } else if ((active2 & 0x8000000L) != 0L) {
                     return jjStopAtPos(7, 155);
+                }
                 return jjMoveStringLiteralDfa8_0(active0, 0x800000L, active1, 0x4000000000000000L, active2, 0x10020L);
             case 102:
                 return jjMoveStringLiteralDfa8_0(active0, 0L, active1, 0L, active2, 0xc00L);
@@ -1108,10 +1162,11 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 116:
                 return jjMoveStringLiteralDfa8_0(active0, 0x400L, active1, 0x2800000000000000L, active2, 0L);
             case 121:
-                if ((active2 & 0x2000L) != 0L)
+                if ((active2 & 0x2000L) != 0L) {
                     return jjStopAtPos(7, 141);
-                else if ((active2 & 0x80000L) != 0L)
+                } else if ((active2 & 0x80000L) != 0L) {
                     return jjStopAtPos(7, 147);
+                }
                 break;
             default:
                 break;
@@ -1120,8 +1175,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa8_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(6, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1136,8 +1192,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 99:
                 return jjMoveStringLiteralDfa9_0(active0, 0L, active1, 0L, active2, 0x14000L);
             case 101:
-                if ((active0 & 0x400L) != 0L)
+                if ((active0 & 0x400L) != 0L) {
                     return jjStartNfaWithStates_0(8, 10, 105);
+                }
                 break;
             case 105:
                 return jjMoveStringLiteralDfa9_0(active0, 0L, active1, 0L, active2, 0xc00L);
@@ -1146,14 +1203,16 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 109:
                 return jjMoveStringLiteralDfa9_0(active0, 0L, active1, 0L, active2, 0xa00000L);
             case 110:
-                if ((active2 & 0x1000000L) != 0L)
+                if ((active2 & 0x1000000L) != 0L) {
                     return jjStopAtPos(8, 152);
-                else if ((active2 & 0x2000000L) != 0L)
+                } else if ((active2 & 0x2000000L) != 0L) {
                     return jjStopAtPos(8, 153);
+                }
                 break;
             case 111:
-                if ((active1 & 0x800000000000000L) != 0L)
+                if ((active1 & 0x800000000000000L) != 0L) {
                     return jjStopAtPos(8, 123);
+                }
                 return jjMoveStringLiteralDfa9_0(active0, 0x800000L, active1, 0L, active2, 0x12L);
             case 114:
                 return jjMoveStringLiteralDfa9_0(active0, 0L, active1, 0x4000000000000000L, active2, 0x4L);
@@ -1168,8 +1227,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa9_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(7, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1182,8 +1242,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 101:
                 return jjMoveStringLiteralDfa10_0(active0, 0L, active1, 0x6000000000000000L, active2, 0x4L);
             case 102:
-                if ((active0 & 0x800000L) != 0L)
+                if ((active0 & 0x800000L) != 0L) {
                     return jjStartNfaWithStates_0(9, 23, 105);
+                }
                 break;
             case 104:
                 return jjMoveStringLiteralDfa10_0(active0, 0L, active1, 0x8000000000000000L, active2, 0x1L);
@@ -1192,8 +1253,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 114:
                 return jjMoveStringLiteralDfa10_0(active0, 0L, active1, 0L, active2, 0x14c12L);
             case 115:
-                if ((active1 & 0x1000000000000000L) != 0L)
+                if ((active1 & 0x1000000000000000L) != 0L) {
                     return jjStopAtPos(9, 124);
+                }
                 return jjMoveStringLiteralDfa10_0(active0, 0L, active1, 0L, active2, 0x20L);
             default:
                 break;
@@ -1202,8 +1264,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa10_0(long old0, long active0, long old1, long active1, long old2, long active2) {
-        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(8, old0, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1234,8 +1297,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa11_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(9, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1250,14 +1314,16 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 104:
                 return jjMoveStringLiteralDfa12_0(active1, 0L, active2, 0x80L);
             case 110:
-                if ((active1 & 0x8000000000000000L) != 0L)
+                if ((active1 & 0x8000000000000000L) != 0L) {
                     return jjStopAtPos(11, 127);
-                else if ((active2 & 0x1L) != 0L)
+                } else if ((active2 & 0x1L) != 0L) {
                     return jjStopAtPos(11, 128);
+                }
                 return jjMoveStringLiteralDfa12_0(active1, 0L, active2, 0x800000L);
             case 111:
-                if ((active2 & 0x200000L) != 0L)
+                if ((active2 & 0x200000L) != 0L) {
                     return jjStopAtPos(11, 149);
+                }
                 break;
             case 116:
                 return jjMoveStringLiteralDfa12_0(active1, 0x4000000000000000L, active2, 0xc24L);
@@ -1272,8 +1338,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa12_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(10, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1300,8 +1367,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa13_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(11, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1336,8 +1404,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa14_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(12, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1354,10 +1423,11 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 105:
                 return jjMoveStringLiteralDfa15_0(active1, 0L, active2, 0x80L);
             case 110:
-                if ((active2 & 0x4L) != 0L)
+                if ((active2 & 0x4L) != 0L) {
                     return jjStopAtPos(14, 130);
-                else if ((active2 & 0x20L) != 0L)
+                } else if ((active2 & 0x20L) != 0L) {
                     return jjStopAtPos(14, 133);
+                }
                 return jjMoveStringLiteralDfa15_0(active1, 0L, active2, 0x14000L);
             case 114:
                 return jjMoveStringLiteralDfa15_0(active1, 0x4000000000000000L, active2, 0x100L);
@@ -1370,8 +1440,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa15_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(13, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1380,16 +1451,18 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
         }
         switch (curChar) {
             case 101:
-                if ((active2 & 0x100L) != 0L)
+                if ((active2 & 0x100L) != 0L) {
                     return jjStopAtPos(15, 136);
+                }
                 return jjMoveStringLiteralDfa16_0(active1, 0L, active2, 0x800800L);
             case 103:
                 return jjMoveStringLiteralDfa16_0(active1, 0L, active2, 0x14000L);
             case 108:
-                if ((active2 & 0x2L) != 0L)
+                if ((active2 & 0x2L) != 0L) {
                     return jjStopAtPos(15, 129);
-                else if ((active2 & 0x10L) != 0L)
+                } else if ((active2 & 0x10L) != 0L) {
                     return jjStopAtPos(15, 132);
+                }
                 break;
             case 110:
                 return jjMoveStringLiteralDfa16_0(active1, 0L, active2, 0x80L);
@@ -1406,8 +1479,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa16_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(14, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1418,18 +1492,21 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 32:
                 return jjMoveStringLiteralDfa17_0(active1, 0L, active2, 0x814000L);
             case 103:
-                if ((active2 & 0x80L) != 0L)
+                if ((active2 & 0x80L) != 0L) {
                     return jjStopAtPos(16, 135);
+                }
                 break;
             case 105:
                 return jjMoveStringLiteralDfa17_0(active1, 0L, active2, 0x400L);
             case 109:
-                if ((active1 & 0x4000000000000000L) != 0L)
+                if ((active1 & 0x4000000000000000L) != 0L) {
                     return jjStopAtPos(16, 126);
+                }
                 break;
             case 111:
-                if ((active1 & 0x2000000000000000L) != 0L)
+                if ((active1 & 0x2000000000000000L) != 0L) {
                     return jjStopAtPos(16, 125);
+                }
                 break;
             case 114:
                 return jjMoveStringLiteralDfa17_0(active1, 0L, active2, 0x800L);
@@ -1440,8 +1517,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa17_0(long old1, long active1, long old2, long active2) {
-        if (((active1 &= old1) | (active2 &= old2)) == 0L)
+        if (((active1 &= old1) | (active2 &= old2)) == 0L) {
             return jjStartNfa_0(15, 0L, old1, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1452,8 +1530,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 98:
                 return jjMoveStringLiteralDfa18_0(active2, 0x14000L);
             case 101:
-                if ((active2 & 0x800L) != 0L)
+                if ((active2 & 0x800L) != 0L) {
                     return jjStopAtPos(17, 139);
+                }
                 break;
             case 110:
                 return jjMoveStringLiteralDfa18_0(active2, 0x400L);
@@ -1466,8 +1545,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa18_0(long old2, long active2) {
-        if (((active2 &= old2)) == 0L)
+        if (((active2 &= old2)) == 0L) {
             return jjStartNfa_0(16, 0L, 0L, old2);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -1476,18 +1556,21 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
         }
         switch (curChar) {
             case 103:
-                if ((active2 & 0x400L) != 0L)
+                if ((active2 & 0x400L) != 0L) {
                     return jjStopAtPos(18, 138);
+                }
                 break;
             case 111:
-                if ((active2 & 0x800000L) != 0L)
+                if ((active2 & 0x800000L) != 0L) {
                     return jjStopAtPos(18, 151);
+                }
                 break;
             case 121:
-                if ((active2 & 0x4000L) != 0L)
+                if ((active2 & 0x4000L) != 0L) {
                     return jjStopAtPos(18, 142);
-                else if ((active2 & 0x10000L) != 0L)
+                } else if ((active2 & 0x10000L) != 0L) {
                     return jjStopAtPos(18, 144);
+                }
                 break;
             default:
                 break;
@@ -1525,34 +1608,39 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
         for (;;) {
-            if (++jjround == 0x7fffffff)
+            if (++jjround == 0x7fffffff) {
                 ReInitRounds();
+            }
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
                     switch (jjstateSet[--i]) {
                         case 99:
                             if (curChar == 47) {
-                                if (kind > 119)
+                                if (kind > 119) {
                                     kind = 119;
+                                }
                                 {
                                     jjCheckNAddStates(0, 2);
                                 }
-                            } else if (curChar == 42)
+                            } else if (curChar == 42) {
                                 jjstateSet[jjnewStateCnt++] = 97;
+                            }
                             break;
                         case 0:
                             if ((0x3ff000000000000L & l) != 0L) {
-                                if (kind > 106)
+                                if (kind > 106) {
                                     kind = 106;
+                                }
                                 {
                                     jjCheckNAddStates(3, 17);
                                 }
                             } else if (curChar == 47) {
                                 jjAddStates(18, 19);
                             } else if (curChar == 36) {
-                                if (kind > 113)
+                                if (kind > 113) {
                                     kind = 113;
+                                }
                                 {
                                     jjCheckNAddStates(20, 22);
                                 }
@@ -1564,14 +1652,16 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                                 jjCheckNAdd(1);
                             }
                             if ((0x3fe000000000000L & l) != 0L) {
-                                if (kind > 99)
+                                if (kind > 99) {
                                     kind = 99;
+                                }
                                 {
                                     jjCheckNAddStates(28, 31);
                                 }
                             } else if (curChar == 48) {
-                                if (kind > 99)
+                                if (kind > 99) {
                                     kind = 99;
+                                }
                                 {
                                     jjCheckNAddStates(32, 34);
                                 }
@@ -1582,21 +1672,25 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                         case 105:
                             if ((0x3ff001000000000L & l) != 0L) {
                                 jjCheckNAddTwoStates(92, 93);
-                            } else if (curChar == 58)
+                            } else if (curChar == 58) {
                                 jjstateSet[jjnewStateCnt++] = 94;
+                            }
                             if ((0x3ff001000000000L & l) != 0L) {
-                                if (kind > 113)
+                                if (kind > 113) {
                                     kind = 113;
+                                }
                                 {
                                     jjCheckNAdd(91);
                                 }
                             }
                             break;
                         case 1:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddStates(35, 37);
                         }
                             break;
@@ -1606,10 +1700,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 4:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddTwoStates(4, 5);
                         }
                             break;
@@ -1624,8 +1720,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 8:
-                            if (curChar == 39 && kind > 111)
+                            if (curChar == 39 && kind > 111) {
                                 kind = 111;
+                            }
                             break;
                         case 10:
                             if ((0x8400000000L & l) != 0L) {
@@ -1643,8 +1740,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 13:
-                            if ((0xf000000000000L & l) != 0L)
+                            if ((0xf000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 14;
+                            }
                             break;
                         case 14:
                             if ((0xff000000000000L & l) != 0L) {
@@ -1667,8 +1765,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 19:
-                            if (curChar == 34 && kind > 112)
+                            if (curChar == 34 && kind > 112) {
                                 kind = 112;
+                            }
                             break;
                         case 20:
                             if ((0xff000000000000L & l) != 0L) {
@@ -1681,8 +1780,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 22:
-                            if ((0xf000000000000L & l) != 0L)
+                            if ((0xf000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 23;
+                            }
                             break;
                         case 23:
                             if ((0xff000000000000L & l) != 0L) {
@@ -1690,16 +1790,19 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 25:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 26;
+                            }
                             break;
                         case 26:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 27;
+                            }
                             break;
                         case 27:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 28;
+                            }
                             break;
                         case 28:
                             if ((0x3ff000000000000L & l) != 0L) {
@@ -1712,10 +1815,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 30:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 106)
-                                kind = 106; {
+                            }
+                            if (kind > 106) {
+                                kind = 106;
+                            } {
                             jjCheckNAddStates(42, 44);
                         }
                             break;
@@ -1725,10 +1830,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 32:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 106)
-                                kind = 106; {
+                            }
+                            if (kind > 106) {
+                                kind = 106;
+                            } {
                             jjCheckNAddTwoStates(32, 33);
                         }
                             break;
@@ -1738,22 +1845,27 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 35:
-                            if (curChar == 44)
+                            if (curChar == 44) {
                                 jjstateSet[jjnewStateCnt++] = 36;
+                            }
                             break;
                         case 36:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 37;
+                            }
                             break;
                         case 37:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 38;
+                            }
                             break;
                         case 38:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 106)
-                                kind = 106; {
+                            }
+                            if (kind > 106) {
+                                kind = 106;
+                            } {
                             jjCheckNAddStates(45, 47);
                         }
                             break;
@@ -1763,10 +1875,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 40:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 106)
-                                kind = 106; {
+                            }
+                            if (kind > 106) {
+                                kind = 106;
+                            } {
                             jjCheckNAddTwoStates(40, 33);
                         }
                             break;
@@ -1781,50 +1895,62 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 43:
-                            if (curChar != 48)
+                            if (curChar != 48) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddStates(32, 34);
                         }
                             break;
                         case 45:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddTwoStates(45, 46);
                         }
                             break;
                         case 47:
-                            if ((0xff000000000000L & l) == 0L)
+                            if ((0xff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddTwoStates(47, 46);
                         }
                             break;
                         case 48:
-                            if ((0x3fe000000000000L & l) == 0L)
+                            if ((0x3fe000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddStates(28, 31);
                         }
                             break;
                         case 49:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddTwoStates(49, 46);
                         }
                             break;
                         case 50:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 106)
-                                kind = 106; {
+                            }
+                            if (kind > 106) {
+                                kind = 106;
+                            } {
                             jjCheckNAddStates(3, 17);
                         }
                             break;
@@ -1834,18 +1960,22 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 52:
-                            if (curChar != 46)
+                            if (curChar != 46) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddStates(48, 50);
                         }
                             break;
                         case 53:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddStates(48, 50);
                         }
                             break;
@@ -1855,10 +1985,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 56:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddTwoStates(56, 5);
                         }
                             break;
@@ -1873,10 +2005,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 60:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 105)
-                                kind = 105; {
+                            }
+                            if (kind > 105) {
+                                kind = 105;
+                            } {
                             jjCheckNAddTwoStates(60, 5);
                         }
                             break;
@@ -1896,90 +2030,112 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 65:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 66;
+                            }
                             break;
                         case 66:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 67;
+                            }
                             break;
                         case 67:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 68;
+                            }
                             break;
                         case 68:
-                            if (curChar == 45)
+                            if (curChar == 45) {
                                 jjstateSet[jjnewStateCnt++] = 69;
+                            }
                             break;
                         case 69:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 70;
+                            }
                             break;
                         case 70:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 71;
+                            }
                             break;
                         case 71:
-                            if (curChar == 45)
+                            if (curChar == 45) {
                                 jjstateSet[jjnewStateCnt++] = 72;
+                            }
                             break;
                         case 72:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 73;
+                            }
                             break;
                         case 73:
-                            if ((0x3ff000000000000L & l) != 0L && kind > 107)
+                            if ((0x3ff000000000000L & l) != 0L && kind > 107) {
                                 kind = 107;
+                            }
                             break;
                         case 74:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 75;
+                            }
                             break;
                         case 75:
-                            if (curChar == 58)
+                            if (curChar == 58) {
                                 jjstateSet[jjnewStateCnt++] = 76;
+                            }
                             break;
                         case 76:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 77;
+                            }
                             break;
                         case 77:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 108)
+                            }
+                            if (kind > 108) {
                                 kind = 108;
+                            }
                             jjstateSet[jjnewStateCnt++] = 78;
                             break;
                         case 78:
-                            if (curChar == 58)
+                            if (curChar == 58) {
                                 jjstateSet[jjnewStateCnt++] = 79;
+                            }
                             break;
                         case 79:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 80;
+                            }
                             break;
                         case 80:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 108)
+                            }
+                            if (kind > 108) {
                                 kind = 108;
+                            }
                             jjstateSet[jjnewStateCnt++] = 81;
                             break;
                         case 81:
-                            if (curChar == 46)
+                            if (curChar == 46) {
                                 jjstateSet[jjnewStateCnt++] = 82;
+                            }
                             break;
                         case 82:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 83;
+                            }
                             break;
                         case 83:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 84;
+                            }
                             break;
                         case 84:
-                            if ((0x3ff000000000000L & l) != 0L && kind > 108)
+                            if ((0x3ff000000000000L & l) != 0L && kind > 108) {
                                 kind = 108;
+                            }
                             break;
                         case 85:
                             if ((0x3ff000000000000L & l) != 0L) {
@@ -1987,12 +2143,14 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 86:
-                            if (curChar == 46)
+                            if (curChar == 46) {
                                 jjstateSet[jjnewStateCnt++] = 87;
+                            }
                             break;
                         case 87:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 88;
+                            }
                             break;
                         case 88:
                             if ((0x3ff000000000000L & l) != 0L) {
@@ -2000,22 +2158,27 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 89:
-                            if (curChar == 37 && kind > 109)
+                            if (curChar == 37 && kind > 109) {
                                 kind = 109;
+                            }
                             break;
                         case 90:
-                            if (curChar != 36)
+                            if (curChar != 36) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAddStates(20, 22);
                         }
                             break;
                         case 91:
-                            if ((0x3ff001000000000L & l) == 0L)
+                            if ((0x3ff001000000000L & l) == 0L) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAdd(91);
                         }
                             break;
@@ -2025,22 +2188,27 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 93:
-                            if (curChar == 58)
+                            if (curChar == 58) {
                                 jjstateSet[jjnewStateCnt++] = 94;
+                            }
                             break;
                         case 94:
-                            if (curChar != 36)
+                            if (curChar != 36) {
                                 break;
-                            if (kind > 116)
-                                kind = 116; {
+                            }
+                            if (kind > 116) {
+                                kind = 116;
+                            } {
                             jjCheckNAdd(95);
                         }
                             break;
                         case 95:
-                            if ((0x3ff001000000000L & l) == 0L)
+                            if ((0x3ff001000000000L & l) == 0L) {
                                 break;
-                            if (kind > 116)
-                                kind = 116; {
+                            }
+                            if (kind > 116) {
+                                kind = 116;
+                            } {
                             jjCheckNAdd(95);
                         }
                             break;
@@ -2050,40 +2218,49 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 97:
-                            if (curChar == 42)
+                            if (curChar == 42) {
                                 jjstateSet[jjnewStateCnt++] = 98;
+                            }
                             break;
                         case 98:
-                            if ((0xffff7fffffffffffL & l) != 0L && kind > 117)
+                            if ((0xffff7fffffffffffL & l) != 0L && kind > 117) {
                                 kind = 117;
+                            }
                             break;
                         case 100:
-                            if (curChar != 47)
+                            if (curChar != 47) {
                                 break;
-                            if (kind > 119)
-                                kind = 119; {
+                            }
+                            if (kind > 119) {
+                                kind = 119;
+                            } {
                             jjCheckNAddStates(0, 2);
                         }
                             break;
                         case 101:
-                            if ((0xffffffffffffdbffL & l) == 0L)
+                            if ((0xffffffffffffdbffL & l) == 0L) {
                                 break;
-                            if (kind > 119)
-                                kind = 119; {
+                            }
+                            if (kind > 119) {
+                                kind = 119;
+                            } {
                             jjCheckNAddStates(0, 2);
                         }
                             break;
                         case 102:
-                            if ((0x2400L & l) != 0L && kind > 119)
+                            if ((0x2400L & l) != 0L && kind > 119) {
                                 kind = 119;
+                            }
                             break;
                         case 103:
-                            if (curChar == 10 && kind > 119)
+                            if (curChar == 10 && kind > 119) {
                                 kind = 119;
+                            }
                             break;
                         case 104:
-                            if (curChar == 13)
+                            if (curChar == 13) {
                                 jjstateSet[jjnewStateCnt++] = 103;
+                            }
                             break;
                         default:
                             break;
@@ -2094,10 +2271,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l) == 0L) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAddStates(20, 22);
                         }
                             break;
@@ -2106,8 +2285,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                                 jjCheckNAddTwoStates(92, 93);
                             }
                             if ((0x7fffffe87fffffeL & l) != 0L) {
-                                if (kind > 113)
+                                if (kind > 113) {
                                     kind = 113;
+                                }
                                 {
                                     jjCheckNAdd(91);
                                 }
@@ -2119,8 +2299,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 5:
-                            if ((0x5000000050L & l) != 0L && kind > 105)
+                            if ((0x5000000050L & l) != 0L && kind > 105) {
                                 kind = 105;
+                            }
                             break;
                         case 7:
                             if ((0xffffffffefffffffL & l) != 0L) {
@@ -2153,20 +2334,24 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 24:
-                            if (curChar == 117)
+                            if (curChar == 117) {
                                 jjstateSet[jjnewStateCnt++] = 25;
+                            }
                             break;
                         case 25:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 26;
+                            }
                             break;
                         case 26:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 27;
+                            }
                             break;
                         case 27:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 28;
+                            }
                             break;
                         case 28:
                             if ((0x7e00000000L & l) != 0L) {
@@ -2174,8 +2359,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 33:
-                            if ((0x2804L & l) != 0L && kind > 106)
+                            if ((0x2804L & l) != 0L && kind > 106) {
                                 kind = 106;
+                            }
                             break;
                         case 44:
                             if ((0x100000001000000L & l) != 0L) {
@@ -2183,16 +2369,19 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 45:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l) == 0L) {
                                 break;
-                            if (kind > 99)
-                                kind = 99; {
+                            }
+                            if (kind > 99) {
+                                kind = 99;
+                            } {
                             jjCheckNAddTwoStates(45, 46);
                         }
                             break;
                         case 46:
-                            if ((0x100000001000L & l) != 0L && kind > 99)
+                            if ((0x100000001000L & l) != 0L && kind > 99) {
                                 kind = 99;
+                            }
                             break;
                         case 54:
                             if ((0x2000000020L & l) != 0L) {
@@ -2210,10 +2399,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 91:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l) == 0L) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAdd(91);
                         }
                             break;
@@ -2224,20 +2415,24 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             break;
                         case 94:
                         case 95:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l) == 0L) {
                                 break;
-                            if (kind > 116)
-                                kind = 116; {
+                            }
+                            if (kind > 116) {
+                                kind = 116;
+                            } {
                             jjCheckNAdd(95);
                         }
                             break;
                         case 98:
-                            if (kind > 117)
+                            if (kind > 117) {
                                 kind = 117;
+                            }
                             break;
                         case 101:
-                            if (kind > 119)
-                                kind = 119; {
+                            if (kind > 119) {
+                                kind = 119;
+                            } {
                             jjAddStates(0, 2);
                         }
                             break;
@@ -2254,17 +2449,20 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
-                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAddStates(20, 22);
                         }
                             break;
                         case 105:
                             if (jjCanMove_1(hiByte, i1, i2, l1, l2)) {
-                                if (kind > 113)
+                                if (kind > 113) {
                                     kind = 113;
+                                }
                                 {
                                     jjCheckNAdd(91);
                                 }
@@ -2274,8 +2472,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 7:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
                                 jjstateSet[jjnewStateCnt++] = 8;
+                            }
                             break;
                         case 16:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
@@ -2283,10 +2482,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             }
                             break;
                         case 91:
-                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 113)
-                                kind = 113; {
+                            }
+                            if (kind > 113) {
+                                kind = 113;
+                            } {
                             jjCheckNAdd(91);
                         }
                             break;
@@ -2297,30 +2498,36 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                             break;
                         case 94:
                         case 95:
-                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 116)
-                                kind = 116; {
+                            }
+                            if (kind > 116) {
+                                kind = 116;
+                            } {
                             jjCheckNAdd(95);
                         }
                             break;
                         case 98:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 117)
+                            if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 117) {
                                 kind = 117;
+                            }
                             break;
                         case 101:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 119)
-                                kind = 119; {
+                            }
+                            if (kind > 119) {
+                                kind = 119;
+                            } {
                             jjAddStates(0, 2);
                         }
                             break;
                         default:
-                            if (i1 == 0 || l1 == 0 || i2 == 0 || l2 == 0)
+                            if (i1 == 0 || l1 == 0 || i2 == 0 || l2 == 0) {
                                 break;
-                            else
+                            } else {
                                 break;
+                            }
                     }
                 } while (i != startsAt);
             }
@@ -2330,8 +2537,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                 kind = 0x7fffffff;
             }
             ++curPos;
-            if ((i = jjnewStateCnt) == (startsAt = 105 - (jjnewStateCnt = startsAt)))
+            if ((i = jjnewStateCnt) == (startsAt = 105 - (jjnewStateCnt = startsAt))) {
                 return curPos;
+            }
             try {
                 curChar = input_stream.readChar();
             } catch (java.io.IOException e) {
@@ -2357,8 +2565,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
         }
         switch (curChar) {
             case 47:
-                if ((active1 & 0x200000000000000L) != 0L)
+                if ((active1 & 0x200000000000000L) != 0L) {
                     return jjStopAtPos(1, 121);
+                }
                 break;
             default:
                 return 2;
@@ -2383,8 +2592,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
         }
         switch (curChar) {
             case 47:
-                if ((active1 & 0x100000000000000L) != 0L)
+                if ((active1 & 0x100000000000000L) != 0L) {
                     return jjStopAtPos(1, 120);
+                }
                 break;
             default:
                 return 2;
@@ -2653,8 +2863,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 0:
                 return ((jjbitVec2[i2] & l2) != 0L);
             default:
-                if ((jjbitVec0[i1] & l1) != 0L)
+                if ((jjbitVec0[i1] & l1) != 0L) {
                     return true;
+                }
                 return false;
         }
     }
@@ -2672,8 +2883,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
             case 61:
                 return ((jjbitVec8[i2] & l2) != 0L);
             default:
-                if ((jjbitVec3[i1] & l1) != 0L)
+                if ((jjbitVec3[i1] & l1) != 0L) {
                     return true;
+                }
                 return false;
         }
     }
@@ -2711,8 +2923,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     case 0:
                         try {
                             input_stream.backup(0);
-                            while (curChar <= 32 && (0x100003600L & (1L << curChar)) != 0L)
+                            while (curChar <= 32 && (0x100003600L & (1L << curChar)) != 0L) {
                                 curChar = input_stream.BeginToken();
+                            }
                         } catch (java.io.IOException e1) {
                             continue EOFLoop;
                         }
@@ -2738,34 +2951,39 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                         break;
                 }
                 if (jjmatchedKind != 0x7fffffff) {
-                    if (jjmatchedPos + 1 < curPos)
+                    if (jjmatchedPos + 1 < curPos) {
                         input_stream.backup(curPos - jjmatchedPos - 1);
+                    }
                     if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                         matchedToken = jjFillToken();
                         matchedToken.specialToken = specialToken;
-                        if (jjnewLexState[jjmatchedKind] != -1)
+                        if (jjnewLexState[jjmatchedKind] != -1) {
                             curLexState = jjnewLexState[jjmatchedKind];
+                        }
                         CommonTokenAction(matchedToken);
                         return matchedToken;
                     } else if ((jjtoSkip[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                         if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                             matchedToken = jjFillToken();
-                            if (specialToken == null)
+                            if (specialToken == null) {
                                 specialToken = matchedToken;
-                            else {
+                            } else {
                                 matchedToken.specialToken = specialToken;
                                 specialToken = (specialToken.next = matchedToken);
                             }
                             SkipLexicalActions(matchedToken);
-                        } else
+                        } else {
                             SkipLexicalActions(null);
-                        if (jjnewLexState[jjmatchedKind] != -1)
+                        }
+                        if (jjnewLexState[jjmatchedKind] != -1) {
                             curLexState = jjnewLexState[jjmatchedKind];
+                        }
                         continue EOFLoop;
                     }
                     MoreLexicalActions();
-                    if (jjnewLexState[jjmatchedKind] != -1)
+                    if (jjnewLexState[jjmatchedKind] != -1) {
                         curLexState = jjnewLexState[jjmatchedKind];
+                    }
                     curPos = 0;
                     jjmatchedKind = 0x7fffffff;
                     try {
@@ -2787,8 +3005,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
                     if (curChar == '\n' || curChar == '\r') {
                         error_line++;
                         error_column = 0;
-                    } else
+                    } else {
                         error_column++;
+                    }
                 }
                 if (!EOFSeen) {
                     input_stream.backup(1);
@@ -2859,8 +3078,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     /** Constructor. */
     public BExGrammarTokenManager(SimpleCharStream stream) {
 
-        if (SimpleCharStream.staticFlag)
+        if (SimpleCharStream.staticFlag) {
             throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
+        }
 
         input_stream = stream;
     }
@@ -2884,8 +3104,9 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
     private void ReInitRounds() {
         int i;
         jjround = 0x80000001;
-        for (i = 105; i-- > 0;)
+        for (i = 105; i-- > 0;) {
             jjrounds[i] = 0x80000000;
+        }
     }
 
     /** Reinitialise parser. */
@@ -2898,11 +3119,12 @@ public class BExGrammarTokenManager implements BExGrammarConstants {
 
     /** Switch to specified lex state. */
     public void SwitchTo(int lexState) {
-        if (lexState >= 3 || lexState < 0)
+        if (lexState >= 3 || lexState < 0) {
             throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.",
                 TokenMgrError.INVALID_LEXICAL_STATE);
-        else
+        } else {
             curLexState = lexState;
+        }
     }
 
     /** Lexer state names. */

@@ -22,14 +22,14 @@ import org.openl.util.CollectionUtils;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used methods.
- * 
+ *
  * @author PUdalau
  */
 public class OpenLCellExpressionsCompiler {
 
     /**
      * Compiles a method and sets meta info to the cells.
-     * 
+     *
      * @param openl OpenL engine context
      * @param source method source
      * @param compositeMethod {@link CompositeMethod} instance
@@ -47,7 +47,7 @@ public class OpenLCellExpressionsCompiler {
 
     /**
      * Makes a method from source using method header descriptor and sets meta info to the cells.
-     * 
+     *
      * @param openl OpenL engine context
      * @param source source
      * @param methodHeader method header descriptor
@@ -68,7 +68,7 @@ public class OpenLCellExpressionsCompiler {
      * Makes method with unknown return type from source using method name and method signature. This method used to
      * create open class that hasn't information of return type at compile time. Return type can be recognized at
      * runtime time. Sets meta info to the cells.
-     * 
+     *
      * @param openl OpenL engine context
      * @param source source
      * @param methodName method name

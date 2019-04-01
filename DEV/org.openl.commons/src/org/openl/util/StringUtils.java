@@ -40,7 +40,7 @@ public class StringUtils {
      * A {@code null} input String returns {@code null}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.split(null, *)         = null
      * StringUtils.split("", *)           = []
@@ -79,7 +79,7 @@ public class StringUtils {
      * A {@code null} input String returns {@code null}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.split(null)         = null
      * StringUtils.split("")           = []
@@ -140,7 +140,7 @@ public class StringUtils {
      * Null objects or empty strings within the array are represented by empty strings.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.join(null, *)                = null
      * StringUtils.join([], *)                  = ""
@@ -172,7 +172,7 @@ public class StringUtils {
      * Null objects or empty strings within the array are represented by empty strings.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.join(null, *)                = null
      * StringUtils.join([], *)                  = ""
@@ -213,7 +213,7 @@ public class StringUtils {
      * Checks if a CharSequence is empty ("") or null.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.isEmpty(null)      = true
      * StringUtils.isEmpty("")        = true
@@ -234,7 +234,7 @@ public class StringUtils {
      * Checks if a CharSequence is not empty ("") and not null.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.isNotEmpty(null)      = false
      * StringUtils.isNotEmpty("")        = false
@@ -255,7 +255,7 @@ public class StringUtils {
      * Checks if a CharSequence is whitespace, empty ("") or null.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.isBlank(null)      = true
      * StringUtils.isBlank("")        = true
@@ -285,7 +285,7 @@ public class StringUtils {
      * Checks if a CharSequence is not empty (""), not null and not whitespace only.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.isNotBlank(null)      = false
      * StringUtils.isNotBlank("")        = false
@@ -311,7 +311,7 @@ public class StringUtils {
      * comparison is case sensitive.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.equals(null, null)   = true
      * StringUtils.equals(null, "boo")  = false
@@ -335,7 +335,7 @@ public class StringUtils {
      * </p>
      * This method is inverse to {@link #equals(String, String)}.
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.notEquals(null, null)   = false
      * StringUtils.notEquals(null, "boo")  = true
@@ -362,7 +362,7 @@ public class StringUtils {
      * A {@code null} String will return {@code false}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.contains(null, *)     = false
      * StringUtils.contains(*, null)     = false
@@ -395,7 +395,7 @@ public class StringUtils {
 
     /**
      * Do the same as {@link java.lang.String#matches(String)}
-     * 
+     *
      * @param regex a Pattern to which this string is to be matched
      * @param input an input string to match regexp Pattern
      * @return {@code true} if, and only if, this string matches the given regular expression
@@ -411,7 +411,7 @@ public class StringUtils {
      * {@code null}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.trim(null)          = null
      * StringUtils.trim("")            = ""
@@ -432,7 +432,7 @@ public class StringUtils {
      * Removes control characters (char &lt;= 32) from both ends of this String returning {@code null} if the String is
      * empty ("") after the trim or if it is {@code null}.
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.trimToNull(null)          = null
      * StringUtils.trimToNull("")            = null
@@ -454,7 +454,7 @@ public class StringUtils {
      * Removes control characters (char &lt;= 32) from both ends of this String returning an empty String ("") if the
      * String is empty ("") after the trim or if it is {@code null}.
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.trimToEmpty(null)          = ""
      * StringUtils.trimToEmpty("")            = ""
@@ -480,7 +480,7 @@ public class StringUtils {
      * A {@code null} search string will return the source string.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.removeStart(null, *)                      = null
      * StringUtils.removeStart("", *)                        = ""
@@ -515,7 +515,7 @@ public class StringUtils {
      * A {@code null} search string will return the source string.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.removeEnd(null, *)                      = null
      * StringUtils.removeEnd("", *)                        = ""
@@ -550,7 +550,7 @@ public class StringUtils {
      * A {@code null} input String returns {@code null}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.capitalize(null)  = null
      * StringUtils.capitalize("")    = ""
@@ -588,7 +588,7 @@ public class StringUtils {
      * A {@code null} input String returns {@code null}.
      * </p>
      * <p>
-     * 
+     *
      * <pre>
      * StringUtils.uncapitalize(null)  = null
      * StringUtils.uncapitalize("")    = ""
@@ -617,7 +617,7 @@ public class StringUtils {
 
     /**
      * Print an Object to a printer.
-     * 
+     *
      * @param ary array or Object
      * @param printer an appendable implementation
      * @return the same printer instance

@@ -1,8 +1,8 @@
 package org.openl.meta.explanation;
 
-import org.openl.meta.number.Formulas;
-
 import java.util.Arrays;
+
+import org.openl.meta.number.Formulas;
 
 /**
  * Explanation implementation for formulas.

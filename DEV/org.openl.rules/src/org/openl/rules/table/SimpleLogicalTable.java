@@ -13,7 +13,7 @@ package org.openl.rules.table;
  * {@link ITable#getSubtable(int, int, int, int)}<br>
  * will return right ILogicalTable. That is because all of them are based on
  * {@link SimpleLogicalTable#getSubtable(int, int, int, int)} method implementation.
- * 
+ *
  * @author Andrei Astrouski
  * @author DLiauchuk
  */
@@ -62,7 +62,7 @@ public class SimpleLogicalTable extends ALogicalTable {
      * {@link LogicalTableHelper#logicalTable(IGridTable)}. This is optimised implementation because of time overhead
      * when checking for each table is it really logical or not.<br>
      * For test see {@link SimpleLogicalTableTest}.
-     * 
+     *
      * @param column from which we want to take the subtable, including this.
      * @param row from which we want to take the subtable, including this.
      * @param width of the needed table.

@@ -1,10 +1,10 @@
 package org.openl.rules.convertor;
 
+import java.lang.reflect.Array;
+
 import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
-
-import java.lang.reflect.Array;
 
 class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2DataConverterWithContext<Class<?>> {
 
@@ -17,8 +17,9 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
 
     @Override
     public Class<?> parse(String data, String format, IBindingContext cxt) {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
 
         String typeName;
         if (data.endsWith(ARRAY_SUFIX)) {

@@ -1,10 +1,6 @@
 package org.openl.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +73,7 @@ public class FileUtils {
 
     /**
      * Collects nested directories which should be excluded for copying to prevent an infinity loop of copying.
-     * 
+     *
      * @param src the source directory
      * @param dest the destination directory
      * @return the list of looped directories
@@ -287,7 +283,7 @@ public class FileUtils {
      * <p>
      * This method will handle a file in either Unix or Windows format. The text after the last forward or backslash is
      * returned.
-     * 
+     *
      * <pre>
      * a/b/c.txt --> c.txt
      * a.txt     --> a.txt
@@ -343,7 +339,7 @@ public class FileUtils {
      * <p>
      * This method returns the textual part of the filename after the last dot. There must be no directory separator
      * after the dot.
-     * 
+     *
      * <pre>
      * a/b/c.txt    --> txt
      * a.b.txt      --> txt
@@ -374,7 +370,7 @@ public class FileUtils {
      * <p>
      * This method returns the textual part of the filename before the last dot. There must be no directory separator
      * after the dot.
-     * 
+     *
      * <pre>
      * foo.txt    --> foo
      * a\b\c.jpg  --> a\b\c

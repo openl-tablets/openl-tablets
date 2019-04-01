@@ -1,9 +1,6 @@
 package org.openl.rules.tableeditor.event;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.tableeditor.util.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.*;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -12,7 +9,11 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.tableeditor.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableEditorDispatcher implements PhaseListener {
 

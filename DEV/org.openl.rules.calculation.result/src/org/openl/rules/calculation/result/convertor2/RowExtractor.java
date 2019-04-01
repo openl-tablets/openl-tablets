@@ -18,9 +18,9 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
 /**
  * Extractor for the appropriate row in spreadsheet.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  * @param <T>
  */
 public abstract class RowExtractor<T extends CalculationStep> {
@@ -48,14 +48,14 @@ public abstract class RowExtractor<T extends CalculationStep> {
 
     /**
      * Creates the instance describing the row.
-     * 
+     *
      * @return <T> the row instance
      */
     protected abstract T makeRowInstance();
 
     /**
      * Additional processing for the extracted row. Do not implement by default.
-     * 
+     *
      * @param step
      */
     protected abstract T afterExtract(T step);
@@ -63,10 +63,10 @@ public abstract class RowExtractor<T extends CalculationStep> {
     /**
      * Extract the given row from the given spreadsheet result and populates the row instance see
      * {@link #makeRowInstance()}
-     * 
+     *
      * @param spreadsheetResult from which the row will be extracted
      * @param rowIndex index of the row for extraction
-     * 
+     *
      * @return populated row instance with data from spreadsheet row.
      */
     public final T extract(SpreadsheetResult spreadsheetResult, int rowIndex) {

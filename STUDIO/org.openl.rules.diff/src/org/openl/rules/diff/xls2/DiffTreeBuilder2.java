@@ -7,11 +7,7 @@ import java.util.Map;
 
 import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.rules.diff.hierarchy.Projection;
-import org.openl.rules.diff.tree.DiffElement;
-import org.openl.rules.diff.tree.DiffElementImpl;
-import org.openl.rules.diff.tree.DiffTreeBuilderImpl;
-import org.openl.rules.diff.tree.DiffTreeNode;
-import org.openl.rules.diff.tree.DiffTreeNodeImpl;
+import org.openl.rules.diff.tree.*;
 import org.openl.rules.diff.xls.XlsProjection;
 import org.openl.rules.diff.xls.XlsProjectionType;
 import org.openl.rules.table.IGridTable;
@@ -59,10 +55,12 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
             int n1 = 0;
             int n2 = 0;
             for (DiffPair r : diffs) {
-                if (r.getTable1() != null)
+                if (r.getTable1() != null) {
                     n1++;
-                if (r.getTable2() != null)
+                }
+                if (r.getTable2() != null) {
                     n2++;
+                }
             }
 
             DiffTreeNodeImpl sheetNode = newDiffTreeNode();

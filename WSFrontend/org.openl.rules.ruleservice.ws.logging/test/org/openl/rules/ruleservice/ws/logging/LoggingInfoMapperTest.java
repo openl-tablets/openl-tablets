@@ -9,22 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.LoggingCustomData;
-import org.openl.rules.ruleservice.logging.LoggingInfo;
-import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
-import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
-import org.openl.rules.ruleservice.logging.RuleServiceLogging;
-import org.openl.rules.ruleservice.logging.TypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
-import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
-import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
-import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
-import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
-import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
-import org.openl.rules.ruleservice.logging.annotation.SetterValue;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.*;
+import org.openl.rules.ruleservice.logging.annotation.*;
 
 public class LoggingInfoMapperTest {
 
@@ -41,7 +27,7 @@ public class LoggingInfoMapperTest {
 
     /**
      * Method should generate random number that represents a time between two dates.
-     * 
+     *
      * @return
      */
     private Date getRandomTimeBetweenTwoDates() {

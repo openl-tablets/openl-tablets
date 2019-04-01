@@ -30,8 +30,9 @@ public class SpreadsheetResultHelper {
                 if (trimmedColName.equals(columnName) || (trimmedColName.startsWith(
                     columnName) && (Character.isSpaceChar(trimmedColName.charAt(columnName.length())) || Character
                         .valueOf(':')
-                        .equals(trimmedColName.charAt(columnName.length())))))
+                        .equals(trimmedColName.charAt(columnName.length()))))) {
                     return index;
+                }
             }
         }
         return -1;

@@ -87,7 +87,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     /**
      * Gets name of category.
-     * 
+     *
      * @param tableSyntaxNode table syntax node
      * @return name of category
      */

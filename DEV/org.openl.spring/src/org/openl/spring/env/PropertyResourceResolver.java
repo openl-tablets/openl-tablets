@@ -19,7 +19,7 @@ import org.springframework.core.env.PropertyResolver;
  * Spring active propfile is "prod, test", then result will be the list of values:
  * <i>["file:/home/openl/webstudio-prod.properties", "file:/home/openl/webstudio-test.properties"]</i>
  * </p>
- * 
+ *
  * @author Yury Molchan
  */
 public class PropertyResourceResolver {

@@ -1,9 +1,10 @@
 package org.openl.rules.project.xml.v5_17;
 
-import com.thoughtworks.xstream.XStream;
 import org.openl.rules.project.model.v5_17.RulesDeploy_v5_17;
 import org.openl.rules.project.model.v5_17.converter.RulesDeployVersionConverter;
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
+
+import com.thoughtworks.xstream.XStream;
 
 public class XmlRulesDescriptorSerializer_v5_17 extends BaseRulesDeploySerializer<RulesDeploy_v5_17> {
     private static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";

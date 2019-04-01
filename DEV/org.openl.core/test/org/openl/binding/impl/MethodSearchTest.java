@@ -59,15 +59,15 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     public static class ClassWithMethods {
         public String method1(int arg1, double arg2) {
             return "M1";
-        };
+        }
 
         public String method1(int arg1, byte arg2) {
             return "M2";
-        };
+        }
 
         public String method2(int arg1, double arg2) {
             return "M3";
-        };
+        }
     }
 
     public static class SecondClassWithMethods extends ClassWithMethods implements Serializable {
@@ -76,21 +76,21 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         @Override
         public String method1(int arg1, double arg2) {
             return "M4";
-        };
+        }
 
         public String method3(int arg1, double arg2) {
             return "M5";
-        };
+        }
     }
 
     public static class ClassWithGenerics {
         public <T> String method1(T arg1, T arg2) {
             return "M6";
-        };
+        }
 
         public <T> String method2(T arg1, T arg2) {
             return arg1.getClass().getSimpleName();
-        };
+        }
 
         public <T> T copy(T t) {
             return t;
@@ -108,27 +108,27 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     public static class ForthClassWithMethods {
         public <T> String method1(int arg1, int arg2) {
             return "M7";
-        };
+        }
 
         public <T> String method1(T arg1, T arg2) {
             return "M8";
-        };
+        }
 
         public String method1(String arg1, String arg2) {
             return "M9";
-        };
+        }
 
         public String method2(String[] arg1) {
             return "M10";
-        };
+        }
 
         public String method2(Integer[] arg1) {
             return "M11";
-        };
+        }
 
         public String method3(String[] arg1) {
             return "M12";
-        };
+        }
 
     }
 }

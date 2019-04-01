@@ -1,11 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +17,7 @@ import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.CellKey;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;

@@ -13,10 +13,10 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.StringUtils;
 
@@ -64,7 +64,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     * 
+     *
      * @return <code>TableSyntaxNode</code> from model, by the technical name of the table we have selected.
      */
     protected TableSyntaxNode getSelectedNode() {

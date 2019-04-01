@@ -1,11 +1,11 @@
 package org.openl.rules.tbasic.runtime.operations;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.ReturnType;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Created by dl on 9/10/14.

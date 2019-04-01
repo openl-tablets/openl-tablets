@@ -26,11 +26,11 @@ import com.caucho.hessian.io.Hessian2Output;
 /**
  * Container of result from calculation with variations. Stores results for each particular variation + original
  * result(means without variations) that can be retrieved by special ID, see {@link NoVariation#ORIGINAL_CALCULATION}.
- * 
+ *
  * Also stores exceptions for variation that was failed.
- * 
+ *
  * @param <T> return type of method calculated with variations.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 @XmlRootElement
@@ -47,7 +47,7 @@ public class VariationsResult<T> {
 
     /**
      * Stores result of calculation with the specified variation.
-     * 
+     *
      * @param variationID ID of variation.
      * @param result Result of the caculation with the corresponding variation.
      */
@@ -61,7 +61,7 @@ public class VariationsResult<T> {
 
     /**
      * Return successfully calculated result for variation.
-     * 
+     *
      * @param variationID ID of needed variation.
      * @return Result of calculation with the corresponding variation.
      */
@@ -70,7 +70,7 @@ public class VariationsResult<T> {
     }
 
     /**
-     * 
+     *
      * @param variationID ID of needed variation.
      * @return Error message that occurred during the calculation of variation.
      */

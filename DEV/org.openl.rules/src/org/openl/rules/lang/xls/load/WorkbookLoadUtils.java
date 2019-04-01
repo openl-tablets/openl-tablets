@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
+import java.io.InputStream;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -8,8 +10,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 // Package scope util class
 final class WorkbookLoadUtils {

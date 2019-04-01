@@ -1,15 +1,5 @@
 package org.openl.ie.constrainer.impl;
 
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: Exigen Group, Inc.</p>
- * @author
- * @version 1.0
- */
-import org.openl.ie.constrainer.impl.FloatCalc;
-
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.logging;
 
-import java.io.FilterWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

@@ -13,7 +13,7 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class ReturnNodeBinder extends ANodeBinder {
 

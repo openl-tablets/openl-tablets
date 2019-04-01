@@ -7,11 +7,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**

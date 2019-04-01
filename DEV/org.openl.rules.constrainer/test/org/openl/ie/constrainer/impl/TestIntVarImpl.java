@@ -4,7 +4,6 @@ import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Undo;
-import org.openl.ie.constrainer.impl.IntVarImpl;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

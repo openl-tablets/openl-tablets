@@ -17,16 +17,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of JCR File.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     private final Logger log = LoggerFactory.getLogger(JcrEntityAPI.class);
 
     /**
      * Creates a new instance of file.
-     * 
+     *
      * @param parent parent node (files or folder)
      * @param nodeName name of new node
      * @return newly created instance

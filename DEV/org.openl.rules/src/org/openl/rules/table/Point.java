@@ -36,17 +36,22 @@ public final class Point {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Point other = (Point) obj;
-        if (column != other.column)
+        if (column != other.column) {
             return false;
-        if (row != other.row)
+        }
+        if (row != other.row) {
             return false;
+        }
         return true;
     }
 

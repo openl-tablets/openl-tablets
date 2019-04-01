@@ -7,7 +7,7 @@ import org.openl.types.IParameterDeclaration;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IBaseDecisionRow {
 

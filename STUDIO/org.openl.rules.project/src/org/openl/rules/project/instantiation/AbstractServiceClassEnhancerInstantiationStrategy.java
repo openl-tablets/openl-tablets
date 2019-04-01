@@ -12,9 +12,9 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.model.Module;
 
 /**
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public abstract class AbstractServiceClassEnhancerInstantiationStrategy implements RulesInstantiationStrategy {
 
@@ -40,7 +40,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     /**
      * Gets enhanced service class.
-     * 
+     *
      * @return service class
      * @throws ClassNotFoundException
      * @throws InstantiationException
@@ -84,7 +84,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     /**
      * Makes invocation handler.
-     * 
+     *
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
@@ -92,7 +92,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     /**
      * Gets interface classes what used for proxy construction.
-     * 
+     *
      * @return proxy interfaces
      * @throws Exception
      */

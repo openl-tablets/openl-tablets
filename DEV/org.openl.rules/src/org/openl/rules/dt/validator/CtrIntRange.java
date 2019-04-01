@@ -1,9 +1,8 @@
 package org.openl.rules.dt.validator;
 
-import org.openl.rules.helpers.IntRange;
-
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
+import org.openl.rules.helpers.IntRange;
 
 public class CtrIntRange extends IntRange {
 

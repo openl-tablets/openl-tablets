@@ -6,18 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calculation.result.convertor2.CalculationStep;
-import org.openl.rules.calculation.result.convertor2.ColumnToExtract;
-import org.openl.rules.calculation.result.convertor2.CompoundStep;
-import org.openl.rules.calculation.result.convertor2.NestedSpreadsheedColumnExtractor;
-import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetConfiguration;
-import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetResultConverter;
-import org.openl.rules.calculation.result.convertor2.RowExtractor;
-import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
+import org.openl.rules.calculation.result.convertor2.*;
 
 /**
  * Rating result converter to convert {@link SpreadsheetResult} to {@link CompoundStep}.
- * 
+ *
  * @author Marat Kamalov
  *
  */

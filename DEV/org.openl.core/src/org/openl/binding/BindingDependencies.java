@@ -49,7 +49,7 @@ public class BindingDependencies {
 
     /**
      * Gets dependencies to executable Openl rules.
-     * 
+     *
      * @return dependencies to executable Openl rules.
      */
     public Set<ExecutableMethod> getRulesMethods() {

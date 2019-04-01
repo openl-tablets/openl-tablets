@@ -20,8 +20,9 @@ public class NumberUtils {
 
     public static Object intOrDouble(double value) {
         int intValue = (int) value;
-        if (value == intValue)
+        if (value == intValue) {
             return intValue;
+        }
 
         return value;
     }

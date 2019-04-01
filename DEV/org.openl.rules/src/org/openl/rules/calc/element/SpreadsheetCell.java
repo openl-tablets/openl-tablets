@@ -78,8 +78,9 @@ public class SpreadsheetCell implements Invokable {
     }
 
     public void setType(IOpenClass type) {
-        if (type == null)
+        if (type == null) {
             return;
+        }
         if (type.equals(NullOpenClass.the)) {
             type = NullOpenClass.the;
         } else if (type == JavaOpenClass.VOID) {

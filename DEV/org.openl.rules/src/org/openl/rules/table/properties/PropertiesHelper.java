@@ -15,7 +15,7 @@ public class PropertiesHelper {
     public static final String PROPERTIES_HEADER = "properties";
 
     private PropertiesHelper() {
-    };
+    }
 
     public static ILogicalTable getPropertiesTableSection(ILogicalTable table) {
 

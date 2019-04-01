@@ -89,7 +89,7 @@ public class RepositoryService {
 
     /**
      * Returns the latest zipped project.
-     * 
+     *
      * @param name a project name
      * @return a zipped project
      */
@@ -114,7 +114,7 @@ public class RepositoryService {
 
     /**
      * Returns a zipped project.
-     * 
+     *
      * @param name a project name
      * @param version a project version
      * @return a zipped project
@@ -169,7 +169,7 @@ public class RepositoryService {
     /**
      * Uploads a zipped project to a design repository. The upload will be performed if the project in the design
      * repository is not locked by other user.
-     * 
+     *
      * @param name a project name to update
      * @param zipFile a zipped project
      * @param comment a revision comment
@@ -355,7 +355,7 @@ public class RepositoryService {
 
     /**
      * Locks the given project. The lock will be set if this project is not locked.
-     * 
+     *
      * @param name a project name to lock
      */
     @POST
@@ -376,7 +376,7 @@ public class RepositoryService {
 
     /**
      * Unlocks the given project. The unlock will be set if this project is locked by current user.
-     * 
+     *
      * @param name a project name to unlock.
      */
     @POST

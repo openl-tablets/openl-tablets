@@ -112,31 +112,31 @@ interface EventOfInterestConstants {
     /**
      * The mask for the VALUE event: when expression becomes bound.
      */
-    public static final int VALUE = 1;
+    int VALUE = 1;
 
     /**
      * The mask for the MIN event: when expression's minimum is changed.
      */
-    public static final int MIN = 2;
+    int MIN = 2;
 
     /**
      * The mask for the MAX event: when expression's maximum is changed.
      */
-    public static final int MAX = 4;
+    int MAX = 4;
 
     /**
      * The mask for the REMOVE event: when value(s) is(are) removed from the expression's domain.
      */
-    public static final int REMOVE = 8;
+    int REMOVE = 8;
 
     /**
      * The mask for the MIN or MAX event.
      */
-    public static final int MINMAX = MIN | MAX;
+    int MINMAX = MIN | MAX;
 
     /**
      * The mask for ALL events.
      */
-    public static final int ALL = VALUE | MIN | MAX | REMOVE;
+    int ALL = VALUE | MIN | MAX | REMOVE;
 
 } // ~Constants

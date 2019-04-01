@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 /**
  * Regions pool that gives region containing some cell quickly.
- * 
+ *
  * @author PUdalau
  */
 public class RegionsPool {
@@ -43,7 +43,7 @@ public class RegionsPool {
 
     /**
      * Instantiates the pool.
-     * 
+     *
      * @param regions All regions to register.
      */
     public RegionsPool(List<IGridRegion> regions) {

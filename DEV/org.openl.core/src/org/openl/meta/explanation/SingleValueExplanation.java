@@ -8,7 +8,7 @@ import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for number values.
- * 
+ *
  * @author DLiauchuk
  *
  * @param <T> type that extends {@link ExplanationNumberValue}

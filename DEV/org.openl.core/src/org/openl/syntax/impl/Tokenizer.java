@@ -22,7 +22,7 @@ import org.openl.util.text.TextInterval;
 
 /**
  * The tokenizer class allows to break a source into tokens.
- * 
+ *
  * @author snshor
  */
 public class Tokenizer {
@@ -42,7 +42,7 @@ public class Tokenizer {
      * Makes delimiters table. Delimiters table is array of boolean values where element index is delimiter character
      * code (char casted to integer) and value is boolean value that has <code>true</code> value if the character is
      * used as delimiter; <code>false</code> - otherwise.
-     * 
+     *
      * @param delimiters string of delimiters (each char is delimiter)
      */
     private void makeTable(String delimiters) {
@@ -68,7 +68,7 @@ public class Tokenizer {
 
     /**
      * Checks that given character (his integer code) is delimiter.
-     * 
+     *
      * @param character character to check
      * @return <code>true</code> if character is delimiter; <code>false</code> - otherwise
      */
@@ -78,7 +78,7 @@ public class Tokenizer {
 
     /**
      * Gets first token from source.
-     * 
+     *
      * @param source source
      * @return {@link IdentifierNode} object that represents first token in source
      * @throws OpenLCompilationException

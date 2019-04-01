@@ -11,7 +11,7 @@ import java.net.URL;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IConfigurableResourceContext {
 

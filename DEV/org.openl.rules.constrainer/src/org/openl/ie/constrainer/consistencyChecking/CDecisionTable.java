@@ -27,35 +27,35 @@ public interface CDecisionTable {
      * @return the conjunction of all the constraints from the i'th row. Note: it should return not
      *         <b><code>null</code></b> for all decision table rows.
      */
-    public IntBoolExp getRule(int i);
+    IntBoolExp getRule(int i);
 
     /**
      * @return an array of rules. Rule is the conjuction of all the constraints located in the i'th row of the
      *         constraint matrix. Note: All the values in the returned array should be not <b><code>null</code></b>.
      */
-    public IntBoolExp[] getRules();
+    IntBoolExp[] getRules();
 
     /**
      * @param The number of variable to be returned.
      *
      * @return the i'th variable.
      */
-    public IntVar getVar(int i);
+    IntVar getVar(int i);
 
     /**
      * @return all variables.
      */
-    public IntExpArray getVars();
+    IntExpArray getVars();
 
     /**
-     * 
+     *
      * @return true if the direction of the override logic is going in ascending direction. Rule A overrides Rule B if
      *         for any input that (A == true) => (B == true). The direction is ascending if the index of A < the index
      *         of B. This is the case when the DT has RET column and will return on the first match. In case if there is
      *         no RET column in DT, the direction of the override will change to the opposite
-     * 
+     *
      */
 
-    public boolean isOverrideAscending();
+    boolean isOverrideAscending();
 
 }

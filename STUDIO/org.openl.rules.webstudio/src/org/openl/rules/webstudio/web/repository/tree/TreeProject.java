@@ -1,16 +1,19 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
+import java.util.Date;
+
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.UiConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * Represents OpenL project in a tree.

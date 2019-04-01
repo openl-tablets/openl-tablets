@@ -1,10 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -20,11 +16,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.testmethod.ITestUnit;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;

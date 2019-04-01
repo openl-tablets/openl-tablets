@@ -1,12 +1,12 @@
 package org.openl.rules.ui;
 
+import java.util.List;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.tree.richfaces.ExplainTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
-
-import java.util.List;
 
 public class Explanator extends ObjectRegistry<ExplanationNumberValue<?>> {
 

@@ -1,16 +1,17 @@
 package org.openl.commons.web.util;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
  * DOCUMENT ME!

@@ -9,9 +9,9 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
 
 /**
  * Annotation for registering after method interceptors.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

@@ -1,7 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A context against which dot-path expressions are computed in <code>DomainTree</code>. E.g. if the context contains an

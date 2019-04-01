@@ -1,14 +1,14 @@
 package org.openl.util.generation;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.JavaKeywordUtils;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ymolchan on 17.05.2017.

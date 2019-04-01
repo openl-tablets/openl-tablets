@@ -41,10 +41,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- * 
+ *
  * @author DLiauchuk
- * 
- * 
+ *
+ *
  */
 public class SpreadsheetComponentsBuilder {
 

@@ -28,9 +28,9 @@ import org.openl.rules.ruleservice.databinding.aegis.WrapperBeanTypeInfo;
 /**
  * Custom mapping for {@link SpreadSheetResult} due to it is not usual bean all results should be registered using the
  * special methods.
- * 
+ *
  * This class uses Java Generics and causes one problems that is described in {@link OpenLTypeMapping}.
- * 
+ *
  * @author Marat Kamalov
  */
 public class SpreadsheetResultType extends BeanType {

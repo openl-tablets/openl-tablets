@@ -1,8 +1,6 @@
 package org.openl.rules.table.xls.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,7 +39,7 @@ public class DataTableBuilderTest {
         builder.writeHeader(CLASS_NAME, TABLE_NAME);
         // builder.writeProperties(properties, null);
 
-        List<DataTableField> fields = new ArrayList<DataTableField>();
+        List<DataTableField> fields = new ArrayList<>();
         DataTableField field;
 
         fields.add(new DataTableUserDefinedTypeField(JavaOpenClass.STRING, "name", "Name", predefinedChecker));
@@ -132,7 +130,7 @@ public class DataTableBuilderTest {
         builder.writeHeader(CLASS_NAME, TABLE_NAME);
         // builder.writeProperties(properties, null);
 
-        List<DataTableField> fields = new ArrayList<DataTableField>();
+        List<DataTableField> fields = new ArrayList<>();
 
         fields.add(new DataTableUserDefinedTypeField(JavaOpenClass.STRING, "name", "Name", predefinedChecker));
         fields.add(new DataTableUserDefinedTypeField(JavaOpenClass.STRING, "address", "Address", predefinedChecker));
@@ -206,8 +204,9 @@ public class DataTableBuilderTest {
         public boolean isPredefined(IOpenClass type) {
             Class<?> instanceClass = type.getInstanceClass();
 
-            if (IntRange.class.equals(instanceClass))
+            if (IntRange.class.equals(instanceClass)) {
                 return true;
+            }
 
             return false;
         }

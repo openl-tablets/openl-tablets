@@ -10,13 +10,13 @@ package org.openl.domain;
 public interface IDomain<T> extends Iterable<T> {
 
     /**
-     * 
+     *
      * @return type that can be used with this domain
      */
     IType getElementType();
 
     /**
-     * 
+     *
      * @param obj
      * @return true if object belongs to this domain
      */

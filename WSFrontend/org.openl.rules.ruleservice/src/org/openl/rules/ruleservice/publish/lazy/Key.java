@@ -32,23 +32,30 @@ public class Key {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Key other = (Key) obj;
         if (deploymentDescription == null) {
-            if (other.deploymentDescription != null)
+            if (other.deploymentDescription != null) {
                 return false;
-        } else if (!deploymentDescription.equals(other.deploymentDescription))
+            }
+        } else if (!deploymentDescription.equals(other.deploymentDescription)) {
             return false;
+        }
         if (dependencyName == null) {
-            if (other.dependencyName != null)
+            if (other.dependencyName != null) {
                 return false;
-        } else if (!dependencyName.equals(other.dependencyName))
+            }
+        } else if (!dependencyName.equals(other.dependencyName)) {
             return false;
+        }
         return true;
     }
 

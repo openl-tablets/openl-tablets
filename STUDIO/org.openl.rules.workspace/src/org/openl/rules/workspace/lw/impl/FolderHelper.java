@@ -1,9 +1,9 @@
 package org.openl.rules.workspace.lw.impl;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * Folder (File System) Helper for Local Workspace.

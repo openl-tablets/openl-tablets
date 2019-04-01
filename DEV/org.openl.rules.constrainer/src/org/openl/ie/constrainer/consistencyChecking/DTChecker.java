@@ -39,7 +39,7 @@ public interface DTChecker {
      *         type <code>Uncovered</code>
      * @see Uncovered
      */
-    public List<Uncovered> checkCompleteness();
+    List<Uncovered> checkCompleteness();
 
     /**
      * Looks for overlapping rules
@@ -47,13 +47,13 @@ public interface DTChecker {
      * @return Vector of <code>Overlapping</code>
      * @see Overlapping
      */
-    public List<Overlapping> checkOverlappings();
+    List<Overlapping> checkOverlappings();
 
-    public CDecisionTable getDT();
+    CDecisionTable getDT();
 
     /**
      * @param dtable the Decision Table to be checked
      */
-    public void setDT(CDecisionTable dtable);
+    void setDT(CDecisionTable dtable);
 
 }

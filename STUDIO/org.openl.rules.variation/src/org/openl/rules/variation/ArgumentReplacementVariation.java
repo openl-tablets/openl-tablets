@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Variation for replacement of value of some argument.
- * 
+ *
  * It was introduced because field modification variations can not modify root object(argument of method).
- * 
+ *
  * @author PUdalau
  */
 @XmlRootElement
@@ -32,7 +32,7 @@ public class ArgumentReplacementVariation extends Variation {
 
     /**
      * Constructs variation.
-     * 
+     *
      * @param variationID Unique ID for variation.
      * @param updatedArgumentIndex Index of argument to be updated.
      * @param valueToSet Value that will be set to instead of argument.

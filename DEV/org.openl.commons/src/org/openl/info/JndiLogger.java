@@ -1,11 +1,6 @@
 package org.openl.info;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoInitialContextException;
+import javax.naming.*;
 
 final class JndiLogger extends OpenLLogger {
 

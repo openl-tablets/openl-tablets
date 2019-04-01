@@ -6,7 +6,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class MethodNotFoundException extends OpenlNotCheckedException {
 

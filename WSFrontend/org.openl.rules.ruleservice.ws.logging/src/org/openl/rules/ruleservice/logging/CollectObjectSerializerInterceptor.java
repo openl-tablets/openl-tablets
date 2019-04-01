@@ -8,7 +8,7 @@ import org.apache.cxf.phase.Phase;
 
 /**
  * CXF interceptor for collecting object serializer.
- * 
+ *
  * @author Marat Kamalov
  *
  */

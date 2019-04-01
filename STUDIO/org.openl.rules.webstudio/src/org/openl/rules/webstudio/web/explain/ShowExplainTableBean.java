@@ -57,11 +57,11 @@ public class ShowExplainTableBean {
                     IGridRegion region3 = compositeGrid.getMappedRegion(i);
                     IGridRegion tmp = region;
                     if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0) {// if
-                                                                                                                 // one
-                                                                                                                 // cell
-                                                                                                                 // find
-                                                                                                                 // merged
-                                                                                                                 // region
+                        // one
+                        // cell
+                        // find
+                        // merged
+                        // region
                         IGridRegion margedRegion = gridTable.getGrid()
                             .getRegionContaining(region.getLeft(), region.getTop());
                         if (margedRegion != null) {
@@ -95,8 +95,8 @@ public class ShowExplainTableBean {
             }
         } else {
             if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0) { // is one cell
-                                                                                                          // find merged
-                                                                                                          // region
+                // find merged
+                // region
                 IGridRegion margedRegion = table.getGridTable()
                     .getGrid()
                     .getRegionContaining(region.getLeft(), region.getTop());

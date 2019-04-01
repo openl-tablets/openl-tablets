@@ -1,9 +1,9 @@
 package org.openl.rules.dt;
 
-import junit.framework.TestCase;
-
 import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
+
+import junit.framework.TestCase;
 
 public class LocalParametersDeclarationTest extends TestCase {
 
@@ -41,8 +41,7 @@ public class LocalParametersDeclarationTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<ILocalParametersDeclarationTest>(
-            SRC,
+        RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<>(SRC,
             ILocalParametersDeclarationTest.class);
 
         instance = engineFactory.newEngineInstance();

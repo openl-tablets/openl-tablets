@@ -3,11 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.*;
 
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
@@ -223,7 +219,7 @@ public class AProjectArtefact {
     /**
      * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL". Checks that lockedUser
      * is LOCAL and current user is DEFAULT
-     * 
+     *
      * @param lockedUser - owner of the lock
      * @param currentUser - current user trying to unlock
      * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"

@@ -37,11 +37,11 @@ public class RulesServiceEnhancerTest {
         Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
         Object result = method.invoke(instance, new Object[] { context, 10 });
 
-        assertEquals("Good Morning, World!", (String) result);
+        assertEquals("Good Morning, World!", result);
 
         context.setCountry(CountriesEnum.RU);
         result = method.invoke(instance, new Object[] { context, 22 });
 
-        assertEquals("(RU) Good Night, World!", (String) result);
+        assertEquals("(RU) Good Night, World!", result);
     }
 }

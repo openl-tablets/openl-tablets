@@ -2,6 +2,7 @@ package org.openl.codegen.tools.type;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 
 public class TablePropertyValidatorsWrappers {

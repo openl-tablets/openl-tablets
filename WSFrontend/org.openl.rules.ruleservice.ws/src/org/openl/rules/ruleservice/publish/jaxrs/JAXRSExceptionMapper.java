@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+
+import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 
 public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
 

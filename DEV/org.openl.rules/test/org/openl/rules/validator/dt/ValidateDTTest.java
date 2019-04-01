@@ -60,10 +60,11 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         SyntaxNodeException[] err = resultTsn.getErrors();
 
-        if (err != null)
+        if (err != null) {
             for (int i = 0; i < err.length; i++) {
                 System.out.println(err[i]);
             }
+        }
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getOverlappings().length);
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getUncovered().length);
 
@@ -81,10 +82,11 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         SyntaxNodeException[] err = resultTsn.getErrors();
 
-        if (err != null)
+        if (err != null) {
             for (int i = 0; i < err.length; i++) {
                 System.out.println(err[i]);
             }
+        }
 
         Assert.assertNull(vv);
     }

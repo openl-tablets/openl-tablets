@@ -37,7 +37,7 @@ public class MessagesDelegatingTest {
         ProjectDescriptor project = ProjectResolver.instance().resolve(rulesFolder);
         modules = project.getModules();
         dependencyManager = new RulesProjectDependencyManager();
-        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>(1);
+        List<IDependencyLoader> dependencyLoaders = new ArrayList<>(1);
         dependencyLoaders.add(new RulesModuleDependencyLoader(modules));
         dependencyManager.setDependencyLoaders(dependencyLoaders);
     }
@@ -79,7 +79,7 @@ public class MessagesDelegatingTest {
 
     @Test
     public void testMessagesGatheringInMultimodule() throws Exception {
-        List<Module> forGrouping = new ArrayList<Module>();
+        List<Module> forGrouping = new ArrayList<>();
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
@@ -96,7 +96,7 @@ public class MessagesDelegatingTest {
 
     @Test
     public void testDublicateTableDefenitionInMultimodule() throws Exception {
-        List<Module> forGrouping = new ArrayList<Module>();
+        List<Module> forGrouping = new ArrayList<>();
         forGrouping.add(findModuleByName("Rules"));
         forGrouping.add(findModuleByName("Rules2"));
         forGrouping.add(findModuleByName("Rules3"));

@@ -19,10 +19,12 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
     }
 
     public InterfaceClassGeneratorImpl(String[] includes, String[] excludes) {
-        if (includes == null)
+        if (includes == null) {
             throw new IllegalArgumentException("includes arg must not be null");
-        if (excludes == null)
+        }
+        if (excludes == null) {
             throw new IllegalArgumentException("excludes arg must not be null");
+        }
         this.includes = includes;
         this.excludes = excludes;
     }

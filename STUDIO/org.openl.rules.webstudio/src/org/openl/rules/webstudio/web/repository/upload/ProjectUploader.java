@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProjectUploader {
     private String projectName;
@@ -49,7 +49,7 @@ public class ProjectUploader {
         AProjectCreator projectCreator = null;
         if (uploadedFiles.isEmpty()) {
             errorMessage = "Can`t create project from the given file.";
-        } else
+        } else {
             try {
                 // Get the last file
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
@@ -78,6 +78,7 @@ public class ProjectUploader {
                     projectCreator.destroy();
                 }
             }
+        }
         return errorMessage;
     }
 }

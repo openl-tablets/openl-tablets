@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;

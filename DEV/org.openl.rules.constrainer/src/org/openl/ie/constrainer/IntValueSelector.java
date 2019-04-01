@@ -27,16 +27,16 @@ public interface IntValueSelector extends java.io.Serializable {
     /**
      * The type of the selector: selects the minimal value.
      */
-    public static final int MIN = 0;
+    int MIN = 0;
 
     /**
      * The type of the selector: selects the maximal value.
      */
-    public static final int MAX = 1;
+    int MAX = 1;
 
     /**
      * Returns the selected value from the domain of the IntVar.
      */
-    public int select(IntVar var);
+    int select(IntVar var);
 
 }

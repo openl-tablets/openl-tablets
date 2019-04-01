@@ -53,12 +53,15 @@ public class BenchmarkInfo {
             return fmt.format(d);
         }
 
-        if (d > 0.1)
+        if (d > 0.1) {
             return printDouble(d, 3);
-        if (d > 0.01)
+        }
+        if (d > 0.01) {
             return printDouble(d, 4);
-        if (d > 0.001)
+        }
+        if (d > 0.001) {
             return printDouble(d, 5);
+        }
 
         return printDouble(d, 6);
     }

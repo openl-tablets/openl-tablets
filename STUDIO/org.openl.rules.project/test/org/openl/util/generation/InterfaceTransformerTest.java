@@ -87,7 +87,7 @@ public class InterfaceTransformerTest {
             assertNotNull(annotationGenerated);
             Map<String, Object> attributesOriginal = AnnotationUtils.getAnnotationAttributes(annotation);
             Map<String, Object> attributesGenerated = AnnotationUtils.getAnnotationAttributes(annotationGenerated);
-            Set<String> keys = new HashSet<String>();
+            Set<String> keys = new HashSet<>();
             keys.addAll(attributesOriginal.keySet());
             keys.addAll(attributesGenerated.keySet());
             for (String key : keys) {
@@ -103,7 +103,7 @@ public class InterfaceTransformerTest {
     }
 
     @XmlType(name = "TestInterface", propOrder = { "const2", "const1" })
-    public static interface TestInterface {
+    public interface TestInterface {
         @XmlAttribute(name = "int_const")
         int const1 = 0;
         @XmlTransient

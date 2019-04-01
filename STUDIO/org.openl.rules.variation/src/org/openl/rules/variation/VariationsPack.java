@@ -18,11 +18,11 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Container of all variations for calculations.
- * 
+ *
  * Serves as the additional input parameter for special method that represents "calculation with variations".
- * 
+ *
  * See {@link VariationsEnhancer}
- * 
+ *
  * @author Marat Kamalov
  */
 @XmlRootElement
@@ -60,7 +60,7 @@ public final class VariationsPack {
 
     /**
      * Removes variation by variationID
-     * 
+     *
      * @param variationID
      * @return
      */

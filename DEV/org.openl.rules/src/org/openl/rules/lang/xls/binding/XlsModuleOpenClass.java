@@ -6,14 +6,7 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -48,11 +41,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IModuleInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
@@ -147,7 +136,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      */
     @Override
     protected void initDependencies() {// Reduce iterators over dependencies for
-                                       // compilation issue with lazy loading
+        // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
             // commented as there is no need to add each datatype to upper
             // module.
@@ -164,7 +153,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Requered
             // for data tables inheriting from dependend modules.
             addDataTables(dependency.getCompiledOpenClass()); // Required for
-                                                              // data tables.
+            // data tables.
             addFields(dependency);
         }
     }
@@ -257,9 +246,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     protected IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
-                                                                                            // fix
-                                                                                            // for
-                                                                                            // mul1ti-module
+        // fix
+        // for
+        // mul1ti-module
         return WrapperLogic.wrapOpenMethod(openMethod, this);
     }
 
@@ -270,11 +259,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (fields.containsKey(openField.getName())) {
             IOpenField existedField = extractNonLazyMember(fields.get(openField.getName()));
             if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore
-                                                                                                   // constants
-                                                                                                   // with
-                                                                                                   // the
-                                                                                                   // same
-                                                                                                   // values
+                // constants
+                // with
+                // the
+                // same
+                // values
                 if (field.getType().equals(existedField.getType()) && Objects
                     .equals(((ConstantOpenField) field).getValue(), ((ConstantOpenField) existedField).getValue())) {
                     return;
@@ -487,8 +476,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public void completeOpenClassBuilding() {
         addTestSuiteMethodsFromDependencies(); // Test method from dependencies
-                                               // should use methods from this
-                                               // class.
+        // should use methods from this
+        // class.
     }
 
     private TestSuiteMethod createNewTestSuiteMethod(TestSuiteMethod testSuiteMethod) {

@@ -16,9 +16,9 @@ import java.util.List;
  * <p>
  * Child of the Projection is Projection that allows multiple views on each element depending on its position in
  * hierarchy. But that can lead to extreme memory allocation also. This feature should be used with care.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public interface Projection {
     /**
@@ -27,7 +27,7 @@ public interface Projection {
      * Different projections can have different names and the name of a projection can differ from name of an artifact.
      * <p>
      * The logical name of a projection should reflect its meaning in specific domain.
-     * 
+     *
      * @return logical name
      */
     String getName();
@@ -41,14 +41,14 @@ public interface Projection {
      * projection will have no properties even if the artifact has some.
      * <p>
      * If there is no properties empty (zero length) array is returned.
-     * 
+     *
      * @return projection specific properties
      */
     Collection<ProjectionProperty> getProperties();
 
     /**
      * Get property of the artifact by name.
-     * 
+     *
      * @param propertyName name of property to be found
      * @return property or null
      */
@@ -58,7 +58,7 @@ public interface Projection {
      * Get raw value of property. If there is no such property returns null.
      * <p>
      * Note that null can mean that such property exists but its value is null.
-     * 
+     *
      * @param propertyName name of property
      * @return raw value of property or null
      */

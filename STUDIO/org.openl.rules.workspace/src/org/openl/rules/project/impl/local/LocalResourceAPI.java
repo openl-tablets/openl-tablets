@@ -1,11 +1,6 @@
 package org.openl.rules.project.impl.local;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Custom mapping for {@link VariationsResultType}.
- * 
+ *
  * @author Marat Kamalov
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

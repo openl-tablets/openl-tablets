@@ -10,7 +10,10 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.uw.UserWorkspace;

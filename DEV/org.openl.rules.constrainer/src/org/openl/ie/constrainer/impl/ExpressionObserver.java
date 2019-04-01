@@ -1,10 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Expression;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
+import org.openl.ie.constrainer.*;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -37,7 +33,7 @@ public abstract class ExpressionObserver extends Observer {
         /**
          * Transform publisher mask to subscriber mask.
          */
-        public int publishToSubscribe(int publish_mask);
+        int publishToSubscribe(int publish_mask);
 
     }
 

@@ -13,7 +13,7 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 /**
  * Bean that handles property selection (in "copy table", "create new property table").
- * 
+ *
  * @author PUdalau
  */
 public class PropertiesBean {
@@ -24,7 +24,7 @@ public class PropertiesBean {
 
     /**
      * Creates PropertiesBean with specified pack of possible properties.
-     * 
+     *
      * @param possibleProperties List of property names that can be contained by this bean.
      */
     public PropertiesBean(List<String> possibleProperties) {
@@ -56,7 +56,7 @@ public class PropertiesBean {
 
     /**
      * Set predefined properties into bean.
-     * 
+     *
      * @param properties List of properties.
      */
     public void setProperties(List<TableProperty> properties) {

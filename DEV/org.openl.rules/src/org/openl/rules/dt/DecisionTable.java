@@ -9,11 +9,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dt.element.ArrayHolder;
-import org.openl.rules.dt.element.FunctionalRow;
-import org.openl.rules.dt.element.IAction;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.dt.element.*;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -26,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- * 
+ *
  */
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {

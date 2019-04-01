@@ -34,7 +34,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     /**
      * Creates rules instantiation strategy with empty {@link ClassLoader}.(See {@link #getClassLoader()} for more<br>
      * information which classLoader will be used).
-     * 
+     *
      * @param executionMode {@link #executionMode}
      * @param dependencyManager {@link #dependencyManager}
      */
@@ -44,7 +44,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
 
     /**
      * Creates rules instantiation strategy with defined classLoader.
-     * 
+     *
      * @param executionMode {@link #executionMode}
      * @param dependencyManager {@link #dependencyManager}
      * @param classLoader {@link #classLoader}
@@ -134,7 +134,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     /**
      * Inner implementation. Creates instance of class handling all rules invocations. The class will be instance of
      * class got with {@link #getServiceClass()}.
-     * 
+     *
      * @param rulesClass
      * @param useExisting
      * @return

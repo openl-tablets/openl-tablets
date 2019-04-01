@@ -1,5 +1,11 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.repository.RLock;
@@ -7,11 +13,6 @@ import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import java.util.Calendar;
-import java.util.Date;
 
 public class JcrLock implements RLock {
     private static final String LOCK_NODE_NAME_PREFIX = "lock~";

@@ -14,7 +14,7 @@ import org.openl.types.IOpenMethod;
 /**
  * ModuleOpenClass for prebinding that uses {@link IPrebindHandler} to convert methods and fields to some
  * invokable(after prebinding they are not invokable) methods/fields before adding.
- * 
+ *
  * @author PUdalau
  */
 public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {

@@ -9,11 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -51,7 +49,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     private Map<String, Object> initDefaultProperties() {
         List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
             .getPropertiesToBeSetByDefault();
-        Map<String, Object> defaultProperties = new HashMap<String, Object>();
+        Map<String, Object> defaultProperties = new HashMap<>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
             String propertyName = propertyWithDefaultValue.getName();
@@ -61,7 +59,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private Map<String, Object> initModuleProperties() {
-        Map<String, Object> moduleProperties = new HashMap<String, Object>();
+        Map<String, Object> moduleProperties = new HashMap<>();
         moduleProperties.put(PROPERTY_BUILD_PHASE, "moduleLevelBuildPhase");
         moduleProperties.put(PROPERTY_CREATED_BY, "moduleLevelCreatedBy");
         moduleProperties.put(PROPERTY_EXPIRATION_DATE, new Date());
@@ -69,7 +67,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
     }
 
     private Map<String, Object> initCategoryProperties() {
-        Map<String, Object> categoryProperties = new HashMap<String, Object>();
+        Map<String, Object> categoryProperties = new HashMap<>();
         categoryProperties.put(PROPERTY_LOB, "newLob");
         categoryProperties.put(PROPERTY_USREGION, "alaska");
         categoryProperties.put(PROPERTY_REGION, "North America");

@@ -6,6 +6,13 @@
 
 package org.openl.rules.convertor;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.BigDecimalValue;
@@ -13,13 +20,6 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author snshor

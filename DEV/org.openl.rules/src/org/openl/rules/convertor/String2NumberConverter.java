@@ -24,8 +24,9 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      */
     @Override
     public T parse(String data, String format) {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
         if (data.length() == 0) {
             throw new NumberFormatException("Cannot convert an empty String to numeric type");
         }

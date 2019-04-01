@@ -21,9 +21,9 @@ import org.openl.types.IOpenField;
  * Binding context for different Openl components.<br>
  * Handles {@link ComponentOpenClass} for which binding is performed.<br>
  * And a map of internal types that are found during binding.<br>
- * 
+ *
  * Was created by extracting functionality from {@link ModuleBindingContext} of 20192 revision.
- * 
+ *
  * @author DLiauchuk
  *
  */

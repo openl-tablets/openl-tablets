@@ -14,7 +14,7 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
      */
     @Override
@@ -26,7 +26,7 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
      */
     @Override

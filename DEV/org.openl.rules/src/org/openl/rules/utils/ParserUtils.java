@@ -4,14 +4,14 @@ import org.openl.util.StringUtils;
 
 /**
  * Common util methods for parsing and binding.
- * 
+ *
  * @author Yury Molchan
  */
 public class ParserUtils {
 
     /**
      * Checks if the input string is commented
-     * 
+     *
      * @param str the string to check
      * @return true if string is commented
      */

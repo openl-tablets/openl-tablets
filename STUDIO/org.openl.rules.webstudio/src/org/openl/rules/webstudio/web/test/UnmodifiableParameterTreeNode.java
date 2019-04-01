@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.LinkedHashMap;
+
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.types.IOpenClass;
-
-import java.util.LinkedHashMap;
 
 public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode {
 

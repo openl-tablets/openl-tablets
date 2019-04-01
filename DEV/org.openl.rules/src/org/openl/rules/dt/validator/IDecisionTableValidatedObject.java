@@ -22,7 +22,7 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
     IConditionTransformer getTransformer();
 
     /**
-     * 
+     *
      * @return true if the {@link IDecisionTable} allows for ascending override (usually true for DT that return value)
      * @see CDecisionTable#isOverrideAscending()
      */

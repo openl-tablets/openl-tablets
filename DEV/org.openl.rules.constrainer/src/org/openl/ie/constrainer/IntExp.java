@@ -36,7 +36,7 @@ public interface IntExp extends Expression {
          *
          * @see IntExp#iterateDomain
          */
-        public boolean doSomethingOrStop(int val) throws Failure;
+        boolean doSomethingOrStop(int val) throws Failure;
     }
 
     /**

@@ -11,9 +11,9 @@ import org.apache.velocity.app.VelocityEngine;
 
 /**
  * Generator class that uses the Velocity engine to generate code snippets. Implemented using singleton pattern.
- * 
+ *
  * @author Alexey Gamanovich
- * 
+ *
  */
 public class VelocityGenerator {
 
@@ -26,7 +26,7 @@ public class VelocityGenerator {
 
     /**
      * Inits velocity engine.
-     * 
+     *
      * @throws Exception if an error has occured
      */
     private void init(Properties properties) {
@@ -37,7 +37,7 @@ public class VelocityGenerator {
 
     /**
      * Gets the instance of generator.
-     * 
+     *
      * @return instance object
      * @throws Exception if an error has occured
      */
@@ -52,7 +52,7 @@ public class VelocityGenerator {
 
     /**
      * Generates the string using specified template.
-     * 
+     *
      * @param templateName template
      * @param variables variables what used in template
      * @return generated string

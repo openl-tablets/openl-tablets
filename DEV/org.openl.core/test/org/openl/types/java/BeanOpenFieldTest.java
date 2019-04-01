@@ -1,13 +1,13 @@
 package org.openl.types.java;
 
-import org.junit.Test;
-import org.openl.types.IOpenField;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.junit.Test;
+import org.openl.types.IOpenField;
 
 /**
  * Created by dl on 12/1/14.
@@ -16,7 +16,7 @@ public class BeanOpenFieldTest {
 
     @Test
     public void testBeanJavaSpecification() {
-        Map<String, IOpenField> fieldsMap = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fieldsMap = new HashMap<>();
         BeanOpenField.collectFields(fieldsMap, BeanJavaSpecification.class, null, null);
 
         assertEquals(2, fieldsMap.size());
@@ -26,7 +26,7 @@ public class BeanOpenFieldTest {
 
     @Test
     public void testBeanNONJavaSpecification() {
-        Map<String, IOpenField> fieldsMap = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fieldsMap = new HashMap<>();
         BeanOpenField.collectFields(fieldsMap, BeanNONJavaSpecification.class, null, null);
 
         assertEquals(2, fieldsMap.size());

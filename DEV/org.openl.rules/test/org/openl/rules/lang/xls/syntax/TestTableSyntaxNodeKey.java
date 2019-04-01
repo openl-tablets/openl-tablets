@@ -16,8 +16,8 @@ import org.openl.types.IOpenMethod;
 public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     private final static String SRC = "test/rules/OverloadedTables_Test.xls";
     private XlsModuleSyntaxNode xsn = null;
-    private List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<TableSyntaxNode>();
-    private List<TableSyntaxNode> driverEligibilityTables = new ArrayList<TableSyntaxNode>();
+    private List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<>();
+    private List<TableSyntaxNode> driverEligibilityTables = new ArrayList<>();
 
     public TestTableSyntaxNodeKey() {
         super(SRC);

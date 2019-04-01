@@ -1,10 +1,10 @@
 package org.openl.rules.tbasic.compile;
 
-import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-
 import java.lang.reflect.Constructor;
 import java.util.List;
+
+import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 /**
  * Factory for creating TBasic operations from the 'org.openl.rules.tbasic.runtime.operations' package

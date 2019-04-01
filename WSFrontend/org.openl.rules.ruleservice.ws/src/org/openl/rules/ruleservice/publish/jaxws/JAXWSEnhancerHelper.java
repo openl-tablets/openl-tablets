@@ -2,23 +2,13 @@ package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -29,7 +19,7 @@ import org.openl.util.generation.InterfaceTransformer;
 
 /**
  * Utility class for generate JAXWS annotations for service interface.
- * 
+ *
  * @author Marat Kamalov
  *
  */
@@ -111,12 +101,12 @@ public final class JAXWSEnhancerHelper {
             }
             try {
                 if (service != null && service.getServiceClassName() == null) { // Set
-                                                                                // parameter
-                                                                                // names
-                                                                                // only
-                                                                                // for
-                                                                                // generated
-                                                                                // interfaces
+                    // parameter
+                    // names
+                    // only
+                    // for
+                    // generated
+                    // interfaces
                     String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                     int i = 0;
                     for (String paramName : parameterNames) {

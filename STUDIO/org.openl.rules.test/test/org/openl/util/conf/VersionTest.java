@@ -6,6 +6,7 @@
 package org.openl.util.conf;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 /**

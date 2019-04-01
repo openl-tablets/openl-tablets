@@ -107,8 +107,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             deleted = false;
         }
         // Delete empty parent folders
-        while (!(file = file.getParentFile()).equals(root) && file.delete())
+        while (!(file = file.getParentFile()).equals(root) && file.delete()) {
             ;
+        }
         return deleted;
     }
 

@@ -1,11 +1,6 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.openl.types.IOpenMethodHeader;

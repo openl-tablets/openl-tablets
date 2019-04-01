@@ -1,9 +1,6 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.openl.rules.util.Strings.*;
 
 import java.math.BigDecimal;

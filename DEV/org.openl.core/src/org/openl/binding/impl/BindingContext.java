@@ -1,23 +1,13 @@
 package org.openl.binding.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.exception.FieldNotFoundException;
+import org.openl.binding.exception.*;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
@@ -30,7 +20,7 @@ import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class BindingContext implements IBindingContext {
 
@@ -51,7 +41,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * // NOTE: A temporary implementation of multi-module feature.
-     * 
+     *
      * private Set<IOpenClass> imports = new LinkedHashSet<IOpenClass>();
      */
 
@@ -77,7 +67,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String)
      */
     @Override
@@ -87,7 +77,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#findBinder(org.openl.syntax.ISyntaxNode )
      */
     @Override
@@ -119,15 +109,16 @@ public class BindingContext implements IBindingContext {
                 methodCache.put(key, found == null ? NOT_FOUND : found);
                 return found;
             }
-            if (res == NOT_FOUND)
+            if (res == NOT_FOUND) {
                 return null;
+            }
             return (IMethodCaller) res;
         }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#findType(java.lang.String, java.lang.String)
      */
     @Override
@@ -147,7 +138,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#getBinder()
      */
     public IOpenBinder getBinder() {
@@ -205,7 +196,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#popLocalVarcontext()
      */
     @Override
@@ -227,7 +218,7 @@ public class BindingContext implements IBindingContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContext#pushLocalVarContext(org.openl.binding .ILocalVarContext)
      */
     @Override

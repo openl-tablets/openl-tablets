@@ -7,7 +7,7 @@ public interface IGridFilter {
 
     /**
      * Changes styles, formated value, object value and other display related attributes of the cell.
-     * 
+     *
      * @param cell The cell to change formats in.
      * @return The cell which was input parameter.
      */

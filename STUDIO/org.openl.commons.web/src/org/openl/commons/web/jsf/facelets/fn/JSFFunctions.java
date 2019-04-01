@@ -10,10 +10,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
-import org.openl.util.StringUtils;
 
 /**
  * JSF functions.

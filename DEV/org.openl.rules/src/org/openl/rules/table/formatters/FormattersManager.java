@@ -1,12 +1,12 @@
 package org.openl.rules.table.formatters;
 
+import java.util.Date;
+import java.util.Locale;
+
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.*;
-
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Manager to get the formatters for convertions from <code>Object</code> values to <code>String</code> and vice versa.

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Constraint for string values. Checks that the string value matches specified regular expression pattern.
- * 
+ *
  * @author PUdalau
  */
 public class RegexpValueConstraint extends AbstractConstraint {

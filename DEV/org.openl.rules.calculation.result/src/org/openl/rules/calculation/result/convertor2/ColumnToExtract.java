@@ -14,9 +14,9 @@ import org.openl.rules.calc.SpreadsheetResult;
 
 /**
  * Class that holds the information about the column that need to be extracted from spreadsheet table.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class ColumnToExtract {
 
@@ -30,7 +30,7 @@ public class ColumnToExtract {
 
     /**
      * Creates a ColumnToExtract with column name. Requred for nested columns.
-     * 
+     *
      * @param columnName column name
      */
     public ColumnToExtract(String columnName) {
@@ -44,7 +44,7 @@ public class ColumnToExtract {
 
     /**
      * Creates a ColumnToExtract with column name and expected type.
-     * 
+     *
      * @param columnName column name
      * @param expectedType expected type
      */
@@ -60,7 +60,7 @@ public class ColumnToExtract {
     /**
      * Creates a ColumnToExtract with column name, property name and expected type. Property name is used for storing
      * value into row instance.
-     * 
+     *
      * @param columnName column name
      * @param propertyName property name
      * @param expectedType expected type
@@ -78,7 +78,7 @@ public class ColumnToExtract {
      * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for
      * storing value into row instance. If value can't be stored in row instance next property name and expected type is
      * used.
-     * 
+     *
      * @param columnName column name
      * @param propertyName property name
      * @param expectedType expected type
@@ -112,7 +112,7 @@ public class ColumnToExtract {
 
     /**
      * Return column name.
-     * 
+     *
      * @return column name.
      */
     public String getColumnName() {
@@ -121,7 +121,7 @@ public class ColumnToExtract {
 
     /**
      * Return expected type for property name.
-     * 
+     *
      * @return expected type.
      */
     public Class<?>[] getExpectedTypes() {
@@ -130,7 +130,7 @@ public class ColumnToExtract {
 
     /**
      * Returns property names for this column defenition.
-     * 
+     *
      * @return expected type.
      */
     public String[] getPropertyNames() {
@@ -151,18 +151,23 @@ public class ColumnToExtract {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ColumnToExtract other = (ColumnToExtract) obj;
         if (columnName == null) {
-            if (other.columnName != null)
+            if (other.columnName != null) {
                 return false;
-        } else if (!columnName.equals(other.columnName))
+            }
+        } else if (!columnName.equals(other.columnName)) {
             return false;
+        }
         return true;
     }
 

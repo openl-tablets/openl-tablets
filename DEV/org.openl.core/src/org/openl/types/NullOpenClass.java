@@ -25,8 +25,9 @@ public class NullOpenClass implements IOpenClass {
 
     public static boolean isAnyNull(IOpenClass... args) {
         for (IOpenClass arg : args) {
-            if (arg == the)
+            if (arg == the) {
                 return true;
+            }
         }
 
         return false;

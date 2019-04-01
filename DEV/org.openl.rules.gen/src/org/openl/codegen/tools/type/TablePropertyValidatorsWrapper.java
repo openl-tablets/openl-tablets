@@ -3,11 +3,7 @@ package org.openl.codegen.tools.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.table.constraints.Constraint;
-import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.constraints.RegexpValueConstraint;
-import org.openl.rules.table.constraints.UniqueActiveTableConstraint;
-import org.openl.rules.table.constraints.UniqueInModuleConstraint;
+import org.openl.rules.table.constraints.*;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.validation.ActivePropertyValidator;
 import org.openl.rules.validation.RegexpPropertyValidator;

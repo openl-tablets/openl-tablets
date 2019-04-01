@@ -1,26 +1,21 @@
 package org.openl.rules.diff.xls;
 
+import static org.openl.rules.diff.xls.XlsProjectionType.*;
+
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.ITable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-
-import org.openl.rules.diff.hierarchy.AbstractProperty;
 import org.openl.source.IOpenSourceCodeModule;
-
-import static org.openl.rules.diff.xls.XlsProjectionType.*;
 
 public final class XlsProjectionBuilder {
 

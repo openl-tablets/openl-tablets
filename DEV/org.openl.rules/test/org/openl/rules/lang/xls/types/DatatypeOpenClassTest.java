@@ -8,7 +8,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.ComponentTypeArrayOpenClass;
 
 /**
- * 
+ *
  * @author DLiauchuk
  *
  */

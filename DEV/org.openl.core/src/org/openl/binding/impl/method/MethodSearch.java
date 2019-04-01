@@ -1,12 +1,7 @@
 package org.openl.binding.impl.method;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -59,11 +54,11 @@ public final class MethodSearch {
                     IOpenClass t = callParam[i];
                     if (t.getInstanceClass() != null) {
                         t = JavaOpenClass.getOpenClass(t.getInstanceClass()); // don't
-                                                                              // use
-                                                                              // alias
-                                                                              // datatypes
-                                                                              // as
-                                                                              // Generics
+                        // use
+                        // alias
+                        // datatypes
+                        // as
+                        // Generics
                     }
 
                     if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
@@ -194,7 +189,7 @@ public final class MethodSearch {
         return clazz;
     }
 
-    private static final boolean zeroCasts(int[] m) {
+    private static boolean zeroCasts(int[] m) {
         for (int i = 0; i < m.length; i++) {
             if (m[i] != 0) {
                 return false;
@@ -203,7 +198,7 @@ public final class MethodSearch {
         return true;
     }
 
-    private static final boolean lq(int[] m1, int[] m2) {
+    private static boolean lq(int[] m1, int[] m2) {
         if (m1 == NO_MATCH) {
             return false;
         }
@@ -225,7 +220,7 @@ public final class MethodSearch {
         return false;
     }
 
-    private static final boolean eq(int[] distances1, int[] distances2) {
+    private static boolean eq(int[] distances1, int[] distances2) {
         if (distances1 == distances2) {
             return true;
         }

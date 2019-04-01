@@ -17,7 +17,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public final class DecisionTableValidator implements IValidator {
     private static final DecisionTableValidator INSTANCE = new DecisionTableValidator();
@@ -46,7 +46,7 @@ public final class DecisionTableValidator implements IValidator {
 
     /**
      * Provides unique name for Condition parameters
-     * 
+     *
      * @param condition
      * @param pname
      * @return

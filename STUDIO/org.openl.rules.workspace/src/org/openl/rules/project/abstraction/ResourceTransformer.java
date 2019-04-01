@@ -1,8 +1,8 @@
 package org.openl.rules.project.abstraction;
 
-import org.openl.rules.common.ProjectException;
-
 import java.io.InputStream;
+
+import org.openl.rules.common.ProjectException;
 
 /**
  * @author NSamatov.

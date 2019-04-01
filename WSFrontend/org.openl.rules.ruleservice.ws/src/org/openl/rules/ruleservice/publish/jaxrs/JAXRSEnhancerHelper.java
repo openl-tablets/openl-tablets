@@ -3,30 +3,14 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -41,7 +25,7 @@ import io.swagger.annotations.ApiOperation;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
- * 
+ *
  * @author Marat Kamalov
  *
  */

@@ -2,7 +2,7 @@ package org.openl.rules.testmethod;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class TestMethodHelper {
     /** Field name for the expected result in test */

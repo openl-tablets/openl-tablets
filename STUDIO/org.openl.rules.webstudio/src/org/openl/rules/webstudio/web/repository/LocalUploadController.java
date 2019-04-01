@@ -1,5 +1,16 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import javax.servlet.http.HttpSession;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -12,16 +23,6 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 @ManagedBean(name = "localUpload")
 @RequestScoped

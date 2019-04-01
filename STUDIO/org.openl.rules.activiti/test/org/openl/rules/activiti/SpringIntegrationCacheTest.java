@@ -30,7 +30,7 @@ public class SpringIntegrationCacheTest {
             .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
             .deploy();
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         variables.put("driverAge", "Standard Driver");
         variables.put("driverMaritalStatus", "Single");

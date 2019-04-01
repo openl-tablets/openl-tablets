@@ -12,7 +12,7 @@ import org.openl.types.IOpenClass;
 /**
  * Interface class that defines cast factory abstraction. Cast factory implementations provide type cast methods what
  * are used by engine to convert types if it required.
- * 
+ *
  * @author snshor
  */
 public interface ICastFactory {

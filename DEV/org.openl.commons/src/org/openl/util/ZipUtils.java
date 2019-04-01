@@ -1,12 +1,6 @@
 package org.openl.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -68,7 +62,7 @@ public final class ZipUtils {
 
     /**
      * Pack all files in a directory to a zip file.
-     * 
+     *
      * @param sourceDirectory
      * @param targetFile
      * @throws IOException

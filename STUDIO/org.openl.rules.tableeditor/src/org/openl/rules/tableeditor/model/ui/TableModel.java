@@ -1,13 +1,13 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ui.FilteredGrid;
-import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ui.FilteredGrid;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.CollectionUtils;
 

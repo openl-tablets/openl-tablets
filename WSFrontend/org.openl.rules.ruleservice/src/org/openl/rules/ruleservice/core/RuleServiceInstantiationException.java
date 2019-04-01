@@ -2,9 +2,9 @@ package org.openl.rules.ruleservice.core;
 
 /**
  * Exception for instantiation issues.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class RuleServiceInstantiationException extends RuleServiceException {
 

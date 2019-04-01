@@ -5,7 +5,7 @@ import org.openl.util.text.ILocation;
 
 /**
  * Parent for OpenL Java exceptions.
- * 
+ *
  */
 public class OpenLCheckedException extends Exception implements OpenLException {
 

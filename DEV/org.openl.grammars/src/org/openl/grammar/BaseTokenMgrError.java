@@ -58,8 +58,9 @@ public class BaseTokenMgrError extends RuntimeException {
 
     @Override
     public String getMessage() {
-        if (errorAfter == null || errorAfter.length() == 0)
+        if (errorAfter == null || errorAfter.length() == 0) {
             return super.getMessage();
+        }
 
         char c = errorAfter.charAt(0);
         if (!eOFSeen) {

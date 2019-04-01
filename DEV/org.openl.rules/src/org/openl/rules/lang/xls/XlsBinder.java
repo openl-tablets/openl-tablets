@@ -4,38 +4,21 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundNode;
-import org.openl.binding.ICastFactory;
-import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.INameSpacedMethodFactory;
-import org.openl.binding.INameSpacedTypeFactory;
-import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
+import org.openl.binding.*;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
-import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
+import org.openl.conf.OpenLConfigurationException;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
@@ -167,7 +150,7 @@ public class XlsBinder implements IOpenBinder {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.IOpenBinder#makeBindingContext()
      */
     @Override
@@ -315,10 +298,10 @@ public class XlsBinder implements IOpenBinder {
              * using of inheritance feature at this step.
              */
             TableSyntaxNode[] processedDatatypeNodes = DatatypesSorter.sort(datatypeNodes, moduleContext); // Rewrite
-                                                                                                           // this
-                                                                                                           // sorter
-                                                                                                           // with
-                                                                                                           // TableSyntaxNodeRelationsUtils
+            // this
+            // sorter
+            // with
+            // TableSyntaxNodeRelationsUtils
 
             bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
@@ -451,8 +434,8 @@ public class XlsBinder implements IOpenBinder {
             } else {
                 try {
                     userContext.getUserClassLoader().loadClass(singleImport); // try
-                                                                              // load
-                                                                              // class
+                    // load
+                    // class
                     classNames.add(singleImport);
                 } catch (Exception e) {
                     packageNames.add(singleImport);
@@ -734,7 +717,7 @@ public class XlsBinder implements IOpenBinder {
             String endToken = token.substring(i);
             if (customSpreadsheetResultTypes.contains(beginToken)) {
                 sb.append("SpreadsheetResult"); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind
-                                                // method
+                // method
                 sb.append(endToken); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
             } else {
                 sb.append(token);
@@ -742,7 +725,7 @@ public class XlsBinder implements IOpenBinder {
         } else {
             if (customSpreadsheetResultTypes.contains(token)) {
                 sb.append("SpreadsheetResult"); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind
-                                                // method
+                // method
             } else {
                 sb.append(token);
             }

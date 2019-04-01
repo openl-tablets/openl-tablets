@@ -30,14 +30,16 @@ public class JGrammarTokenManager implements JGrammarConstants {
     private final int jjStopStringLiteralDfa_0(int pos, long active0, long active1) {
         switch (pos) {
             case 0:
-                if ((active1 & 0x40000100200L) != 0L)
+                if ((active1 & 0x40000100200L) != 0L) {
                     return 56;
+                }
                 if ((active0 & 0x3fffffffffc0L) != 0L) {
                     jjmatchedKind = 102;
                     return 33;
                 }
-                if ((active0 & 0x40000000000000L) != 0L)
+                if ((active0 & 0x40000000000000L) != 0L) {
                     return 4;
+                }
                 return -1;
             case 1:
                 if ((active0 & 0x3fffffdfdfc0L) != 0L) {
@@ -47,14 +49,17 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     }
                     return 33;
                 }
-                if ((active0 & 0x202000L) != 0L)
+                if ((active0 & 0x202000L) != 0L) {
                     return 33;
-                if ((active1 & 0x40000000000L) != 0L)
+                }
+                if ((active1 & 0x40000000000L) != 0L) {
                     return 54;
+                }
                 return -1;
             case 2:
-                if ((active0 & 0x40008080000L) != 0L)
+                if ((active0 & 0x40008080000L) != 0L) {
                     return 33;
+                }
                 if ((active0 & 0x3bfff7d7dfc0L) != 0L) {
                     if (jjmatchedPos != 2) {
                         jjmatchedKind = 102;
@@ -69,8 +74,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     jjmatchedPos = 3;
                     return 33;
                 }
-                if ((active0 & 0xa0010104100L) != 0L)
+                if ((active0 & 0xa0010104100L) != 0L) {
                     return 33;
+                }
                 return -1;
             case 4:
                 if ((active0 & 0x1137e7c09840L) != 0L) {
@@ -80,12 +86,14 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     }
                     return 33;
                 }
-                if ((active0 & 0x20c800070680L) != 0L)
+                if ((active0 & 0x20c800070680L) != 0L) {
                     return 33;
+                }
                 return -1;
             case 5:
-                if ((active0 & 0x9704800000L) != 0L)
+                if ((active0 & 0x9704800000L) != 0L) {
                     return 33;
+                }
                 if ((active0 & 0x1120e3449840L) != 0L) {
                     jjmatchedKind = 102;
                     jjmatchedPos = 5;
@@ -93,8 +101,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                 }
                 return -1;
             case 6:
-                if ((active0 & 0x60049000L) != 0L)
+                if ((active0 & 0x60049000L) != 0L) {
                     return 33;
+                }
                 if ((active0 & 0x112083400840L) != 0L) {
                     jjmatchedKind = 102;
                     jjmatchedPos = 6;
@@ -107,12 +116,14 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     jjmatchedPos = 7;
                     return 33;
                 }
-                if ((active0 & 0x100000000840L) != 0L)
+                if ((active0 & 0x100000000840L) != 0L) {
                     return 33;
+                }
                 return -1;
             case 8:
-                if ((active0 & 0x10082000000L) != 0L)
+                if ((active0 & 0x10082000000L) != 0L) {
                     return 33;
+                }
                 if ((active0 & 0x2001400000L) != 0L) {
                     jjmatchedKind = 102;
                     jjmatchedPos = 8;
@@ -120,8 +131,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                 }
                 return -1;
             case 9:
-                if ((active0 & 0x1400000L) != 0L)
+                if ((active0 & 0x1400000L) != 0L) {
                     return 33;
+                }
                 if ((active0 & 0x2000000000L) != 0L) {
                     jjmatchedKind = 102;
                     jjmatchedPos = 9;
@@ -256,22 +268,26 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 38:
-                if ((active1 & 0x8L) != 0L)
+                if ((active1 & 0x8L) != 0L) {
                     return jjStopAtPos(1, 67);
+                }
                 break;
             case 42:
-                if ((active1 & 0x10000000L) != 0L)
+                if ((active1 & 0x10000000L) != 0L) {
                     return jjStopAtPos(1, 92);
-                else if ((active1 & 0x40000000000L) != 0L)
+                } else if ((active1 & 0x40000000000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 106, 54);
+                }
                 break;
             case 43:
-                if ((active1 & 0x10L) != 0L)
+                if ((active1 & 0x10L) != 0L) {
                     return jjStopAtPos(1, 68);
+                }
                 break;
             case 45:
-                if ((active1 & 0x20L) != 0L)
+                if ((active1 & 0x20L) != 0L) {
                     return jjStopAtPos(1, 69);
+                }
                 break;
             case 60:
                 if ((active1 & 0x4000L) != 0L) {
@@ -280,37 +296,39 @@ public class JGrammarTokenManager implements JGrammarConstants {
                 }
                 return jjMoveStringLiteralDfa2_0(active0, 0L, active1, 0x2000000L);
             case 61:
-                if ((active0 & 0x4000000000000000L) != 0L)
+                if ((active0 & 0x4000000000000000L) != 0L) {
                     return jjStopAtPos(1, 62);
-                else if ((active0 & 0x8000000000000000L) != 0L)
+                } else if ((active0 & 0x8000000000000000L) != 0L) {
                     return jjStopAtPos(1, 63);
-                else if ((active1 & 0x1L) != 0L)
+                } else if ((active1 & 0x1L) != 0L) {
                     return jjStopAtPos(1, 64);
-                else if ((active1 & 0x2L) != 0L)
+                } else if ((active1 & 0x2L) != 0L) {
                     return jjStopAtPos(1, 65);
-                else if ((active1 & 0x20000L) != 0L)
+                } else if ((active1 & 0x20000L) != 0L) {
                     return jjStopAtPos(1, 81);
-                else if ((active1 & 0x40000L) != 0L)
+                } else if ((active1 & 0x40000L) != 0L) {
                     return jjStopAtPos(1, 82);
-                else if ((active1 & 0x80000L) != 0L)
+                } else if ((active1 & 0x80000L) != 0L) {
                     return jjStopAtPos(1, 83);
-                else if ((active1 & 0x100000L) != 0L)
+                } else if ((active1 & 0x100000L) != 0L) {
                     return jjStopAtPos(1, 84);
-                else if ((active1 & 0x200000L) != 0L)
+                } else if ((active1 & 0x200000L) != 0L) {
                     return jjStopAtPos(1, 85);
-                else if ((active1 & 0x400000L) != 0L)
+                } else if ((active1 & 0x400000L) != 0L) {
                     return jjStopAtPos(1, 86);
-                else if ((active1 & 0x800000L) != 0L)
+                } else if ((active1 & 0x800000L) != 0L) {
                     return jjStopAtPos(1, 87);
-                else if ((active1 & 0x1000000L) != 0L)
+                } else if ((active1 & 0x1000000L) != 0L) {
                     return jjStopAtPos(1, 88);
+                }
                 break;
             case 62:
                 if ((active1 & 0x8000L) != 0L) {
                     jjmatchedKind = 79;
                     jjmatchedPos = 1;
-                } else if ((active1 & 0x20000000L) != 0L)
+                } else if ((active1 & 0x20000000L) != 0L) {
                     return jjStopAtPos(1, 93);
+                }
                 return jjMoveStringLiteralDfa2_0(active0, 0L, active1, 0xc010000L);
             case 97:
                 return jjMoveStringLiteralDfa2_0(active0, 0x24010300L, active1, 0L);
@@ -319,8 +337,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 101:
                 return jjMoveStringLiteralDfa2_0(active0, 0x208001000L, active1, 0L);
             case 102:
-                if ((active0 & 0x200000L) != 0L)
+                if ((active0 & 0x200000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 21, 33);
+                }
                 break;
             case 104:
                 return jjMoveStringLiteralDfa2_0(active0, 0x20c000000000L, active1, 0L);
@@ -333,8 +352,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 110:
                 return jjMoveStringLiteralDfa2_0(active0, 0x3000000L, active1, 0L);
             case 111:
-                if ((active0 & 0x2000L) != 0L)
+                if ((active0 & 0x2000L) != 0L) {
                     return jjStartNfaWithStates_0(1, 13, 33);
+                }
                 return jjMoveStringLiteralDfa2_0(active0, 0x180000180c00L, active1, 0L);
             case 114:
                 return jjMoveStringLiteralDfa2_0(active0, 0x700c0000080L, active1, 0L);
@@ -349,8 +369,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 121:
                 return jjMoveStringLiteralDfa2_0(active0, 0x2000000000L, active1, 0L);
             case 124:
-                if ((active1 & 0x4L) != 0L)
+                if ((active1 & 0x4L) != 0L) {
                     return jjStopAtPos(1, 66);
+                }
                 break;
             default:
                 break;
@@ -359,8 +380,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa2_0(long old0, long active0, long old1, long active1) {
-        if (((active0 &= old0) | (active1 &= old1)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1)) == 0L) {
             return jjStartNfa_0(0, old0, old1);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -369,10 +391,11 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 61:
-                if ((active1 & 0x2000000L) != 0L)
+                if ((active1 & 0x2000000L) != 0L) {
                     return jjStopAtPos(2, 89);
-                else if ((active1 & 0x4000000L) != 0L)
+                } else if ((active1 & 0x4000000L) != 0L) {
                     return jjStopAtPos(2, 90);
+                }
                 break;
             case 62:
                 if ((active1 & 0x10000L) != 0L) {
@@ -401,8 +424,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 112:
                 return jjMoveStringLiteralDfa3_0(active0, 0x800c00000L, active1, 0L);
             case 114:
-                if ((active0 & 0x80000L) != 0L)
+                if ((active0 & 0x80000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 19, 33);
+                }
                 return jjMoveStringLiteralDfa3_0(active0, 0xc000000000L, active1, 0L);
             case 115:
                 return jjMoveStringLiteralDfa3_0(active0, 0x1004140L, active1, 0L);
@@ -411,12 +435,14 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 117:
                 return jjMoveStringLiteralDfa3_0(active0, 0x20000000000L, active1, 0L);
             case 119:
-                if ((active0 & 0x8000000L) != 0L)
+                if ((active0 & 0x8000000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 27, 33);
+                }
                 break;
             case 121:
-                if ((active0 & 0x40000000000L) != 0L)
+                if ((active0 & 0x40000000000L) != 0L) {
                     return jjStartNfaWithStates_0(2, 42, 33);
+                }
                 break;
             default:
                 break;
@@ -425,8 +451,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa3_0(long old0, long active0, long old1, long active1) {
-        if (((active0 &= old0) | (active1 &= old1)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1)) == 0L) {
             return jjStartNfa_0(1, old0, old1);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -435,38 +462,43 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 61:
-                if ((active1 & 0x8000000L) != 0L)
+                if ((active1 & 0x8000000L) != 0L) {
                     return jjStopAtPos(3, 91);
+                }
                 break;
             case 97:
                 return jjMoveStringLiteralDfa4_0(active0, 0x100000061080L, active1, 0L);
             case 99:
                 return jjMoveStringLiteralDfa4_0(active0, 0x2000000200L, active1, 0L);
             case 100:
-                if ((active0 & 0x80000000000L) != 0L)
+                if ((active0 & 0x80000000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 43, 33);
+                }
                 break;
             case 101:
-                if ((active0 & 0x100L) != 0L)
+                if ((active0 & 0x100L) != 0L) {
                     return jjStartNfaWithStates_0(3, 8, 33);
-                else if ((active0 & 0x4000L) != 0L)
+                } else if ((active0 & 0x4000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 14, 33);
-                else if ((active0 & 0x20000000000L) != 0L)
+                } else if ((active0 & 0x20000000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 41, 33);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0x802008000L, active1, 0L);
             case 105:
                 return jjMoveStringLiteralDfa4_0(active0, 0x4000000L, active1, 0L);
             case 107:
                 return jjMoveStringLiteralDfa4_0(active0, 0x20000000L, active1, 0L);
             case 108:
-                if ((active0 & 0x10000000L) != 0L)
+                if ((active0 & 0x10000000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 28, 33);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0x200100400000L, active1, 0L);
             case 110:
                 return jjMoveStringLiteralDfa4_0(active0, 0x10000000000L, active1, 0L);
             case 111:
-                if ((active0 & 0x100000L) != 0L)
+                if ((active0 & 0x100000L) != 0L) {
                     return jjStartNfaWithStates_0(3, 20, 33);
+                }
                 return jjMoveStringLiteralDfa4_0(active0, 0xc000800000L, active1, 0L);
             case 115:
                 return jjMoveStringLiteralDfa4_0(active0, 0x10400L, active1, 0L);
@@ -483,8 +515,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa4_0(long old0, long active0, long old1, long active1) {
-        if (((active0 &= old0) | (active1 &= old1)) == 0L)
+        if (((active0 &= old0) | (active1 &= old1)) == 0L) {
             return jjStartNfa_0(2, old0, old1);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -497,20 +530,23 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 99:
                 return jjMoveStringLiteralDfa5_0(active0, 0x1000000000L);
             case 101:
-                if ((active0 & 0x10000L) != 0L)
+                if ((active0 & 0x10000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 16, 33);
-                else if ((active0 & 0x200000000000L) != 0L)
+                } else if ((active0 & 0x200000000000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 45, 33);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0x80400000L);
             case 104:
-                if ((active0 & 0x200L) != 0L)
+                if ((active0 & 0x200L) != 0L) {
                     return jjStartNfaWithStates_0(4, 9, 33);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0x2000000000L);
             case 105:
                 return jjMoveStringLiteralDfa5_0(active0, 0x500000800L);
             case 107:
-                if ((active0 & 0x80L) != 0L)
+                if ((active0 & 0x80L) != 0L) {
                     return jjStartNfaWithStates_0(4, 7, 33);
+                }
                 break;
             case 108:
                 if ((active0 & 0x20000L) != 0L) {
@@ -521,14 +557,16 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 110:
                 return jjMoveStringLiteralDfa5_0(active0, 0x8000L);
             case 114:
-                if ((active0 & 0x800000000L) != 0L)
+                if ((active0 & 0x800000000L) != 0L) {
                     return jjStartNfaWithStates_0(4, 35, 33);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0x202800040L);
             case 115:
                 return jjMoveStringLiteralDfa5_0(active0, 0x10000000000L);
             case 116:
-                if ((active0 & 0x400L) != 0L)
+                if ((active0 & 0x400L) != 0L) {
                     return jjStartNfaWithStates_0(4, 10, 33);
+                }
                 return jjMoveStringLiteralDfa5_0(active0, 0x100000000000L);
             case 117:
                 return jjMoveStringLiteralDfa5_0(active0, 0x1000L);
@@ -547,8 +585,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa5_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(3, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -559,24 +598,27 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 97:
                 return jjMoveStringLiteralDfa6_0(active0, 0x40L);
             case 99:
-                if ((active0 & 0x100000000L) != 0L)
+                if ((active0 & 0x100000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 32, 33);
-                else if ((active0 & 0x400000000L) != 0L)
+                } else if ((active0 & 0x400000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 34, 33);
+                }
                 return jjMoveStringLiteralDfa6_0(active0, 0x80000000L);
             case 100:
                 return jjMoveStringLiteralDfa6_0(active0, 0x8000L);
             case 101:
-                if ((active0 & 0x4000000L) != 0L)
+                if ((active0 & 0x4000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 26, 33);
+                }
                 break;
             case 102:
                 return jjMoveStringLiteralDfa6_0(active0, 0x2000000L);
             case 103:
                 return jjMoveStringLiteralDfa6_0(active0, 0x20000000L);
             case 104:
-                if ((active0 & 0x1000000000L) != 0L)
+                if ((active0 & 0x1000000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 36, 33);
+                }
                 break;
             case 105:
                 return jjMoveStringLiteralDfa6_0(active0, 0x110000000000L);
@@ -585,18 +627,21 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 109:
                 return jjMoveStringLiteralDfa6_0(active0, 0x400000L);
             case 110:
-                if ((active0 & 0x200000000L) != 0L)
+                if ((active0 & 0x200000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 33, 33);
+                }
                 return jjMoveStringLiteralDfa6_0(active0, 0x1000800L);
             case 114:
                 return jjMoveStringLiteralDfa6_0(active0, 0x2000000000L);
             case 115:
-                if ((active0 & 0x8000000000L) != 0L)
+                if ((active0 & 0x8000000000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 39, 33);
+                }
                 break;
             case 116:
-                if ((active0 & 0x800000L) != 0L)
+                if ((active0 & 0x800000L) != 0L) {
                     return jjStartNfaWithStates_0(5, 23, 33);
+                }
                 return jjMoveStringLiteralDfa6_0(active0, 0x40000000L);
             default:
                 break;
@@ -605,8 +650,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa6_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(4, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -619,28 +665,32 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 99:
                 return jjMoveStringLiteralDfa7_0(active0, 0x1000040L);
             case 101:
-                if ((active0 & 0x20000000L) != 0L)
+                if ((active0 & 0x20000000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 29, 33);
-                else if ((active0 & 0x40000000L) != 0L)
+                } else if ((active0 & 0x40000000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 30, 33);
+                }
                 return jjMoveStringLiteralDfa7_0(active0, 0x10000400000L);
             case 108:
                 return jjMoveStringLiteralDfa7_0(active0, 0x100000000000L);
             case 111:
                 return jjMoveStringLiteralDfa7_0(active0, 0x2000000000L);
             case 115:
-                if ((active0 & 0x8000L) != 0L)
+                if ((active0 & 0x8000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 15, 33);
+                }
                 break;
             case 116:
-                if ((active0 & 0x1000L) != 0L)
+                if ((active0 & 0x1000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 12, 33);
+                }
                 return jjMoveStringLiteralDfa7_0(active0, 0x80000000L);
             case 117:
                 return jjMoveStringLiteralDfa7_0(active0, 0x800L);
             case 121:
-                if ((active0 & 0x40000L) != 0L)
+                if ((active0 & 0x40000L) != 0L) {
                     return jjStartNfaWithStates_0(6, 18, 33);
+                }
                 break;
             default:
                 break;
@@ -649,8 +699,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa7_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(5, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -661,16 +712,18 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 99:
                 return jjMoveStringLiteralDfa8_0(active0, 0x2000000L);
             case 101:
-                if ((active0 & 0x800L) != 0L)
+                if ((active0 & 0x800L) != 0L) {
                     return jjStartNfaWithStates_0(7, 11, 33);
-                else if ((active0 & 0x100000000000L) != 0L)
+                } else if ((active0 & 0x100000000000L) != 0L) {
                     return jjStartNfaWithStates_0(7, 44, 33);
+                }
                 return jjMoveStringLiteralDfa8_0(active0, 0x81000000L);
             case 110:
                 return jjMoveStringLiteralDfa8_0(active0, 0x12000400000L);
             case 116:
-                if ((active0 & 0x40L) != 0L)
+                if ((active0 & 0x40L) != 0L) {
                     return jjStartNfaWithStates_0(7, 6, 33);
+                }
                 break;
             default:
                 break;
@@ -679,8 +732,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa8_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(6, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -689,20 +743,23 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 100:
-                if ((active0 & 0x80000000L) != 0L)
+                if ((active0 & 0x80000000L) != 0L) {
                     return jjStartNfaWithStates_0(8, 31, 33);
+                }
                 break;
             case 101:
-                if ((active0 & 0x2000000L) != 0L)
+                if ((active0 & 0x2000000L) != 0L) {
                     return jjStartNfaWithStates_0(8, 25, 33);
+                }
                 break;
             case 105:
                 return jjMoveStringLiteralDfa9_0(active0, 0x2000000000L);
             case 111:
                 return jjMoveStringLiteralDfa9_0(active0, 0x1000000L);
             case 116:
-                if ((active0 & 0x10000000000L) != 0L)
+                if ((active0 & 0x10000000000L) != 0L) {
                     return jjStartNfaWithStates_0(8, 40, 33);
+                }
                 return jjMoveStringLiteralDfa9_0(active0, 0x400000L);
             default:
                 break;
@@ -711,8 +768,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa9_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(7, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -721,12 +779,14 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 102:
-                if ((active0 & 0x1000000L) != 0L)
+                if ((active0 & 0x1000000L) != 0L) {
                     return jjStartNfaWithStates_0(9, 24, 33);
+                }
                 break;
             case 115:
-                if ((active0 & 0x400000L) != 0L)
+                if ((active0 & 0x400000L) != 0L) {
                     return jjStartNfaWithStates_0(9, 22, 33);
+                }
                 break;
             case 122:
                 return jjMoveStringLiteralDfa10_0(active0, 0x2000000000L);
@@ -737,8 +797,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa10_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(8, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -755,8 +816,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     }
 
     private int jjMoveStringLiteralDfa11_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if (((active0 &= old0)) == 0L) {
             return jjStartNfa_0(9, old0, 0L);
+        }
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
@@ -765,8 +827,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 100:
-                if ((active0 & 0x2000000000L) != 0L)
+                if ((active0 & 0x2000000000L) != 0L) {
                     return jjStartNfaWithStates_0(11, 37, 33);
+                }
                 break;
             default:
                 break;
@@ -804,8 +867,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
         for (;;) {
-            if (++jjround == 0x7fffffff)
+            if (++jjround == 0x7fffffff) {
                 ReInitRounds();
+            }
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
@@ -816,8 +880,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             } else if (curChar == 47) {
                                 jjAddStates(7, 8);
                             } else if (curChar == 36) {
-                                if (kind > 102)
+                                if (kind > 102) {
                                     kind = 102;
+                                }
                                 {
                                     jjCheckNAdd(33);
                                 }
@@ -829,14 +894,16 @@ public class JGrammarTokenManager implements JGrammarConstants {
                                 jjCheckNAdd(4);
                             }
                             if ((0x3fe000000000000L & l) != 0L) {
-                                if (kind > 94)
+                                if (kind > 94) {
                                     kind = 94;
+                                }
                                 {
                                     jjCheckNAddTwoStates(1, 2);
                                 }
                             } else if (curChar == 48) {
-                                if (kind > 94)
+                                if (kind > 94) {
                                     kind = 94;
+                                }
                                 {
                                     jjCheckNAddStates(14, 16);
                                 }
@@ -844,19 +911,23 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             break;
                         case 56:
                             if (curChar == 47) {
-                                if (kind > 107)
+                                if (kind > 107) {
                                     kind = 107;
+                                }
                                 {
                                     jjCheckNAddStates(17, 19);
                                 }
-                            } else if (curChar == 42)
+                            } else if (curChar == 42) {
                                 jjstateSet[jjnewStateCnt++] = 54;
+                            }
                             break;
                         case 1:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 94)
-                                kind = 94; {
+                            }
+                            if (kind > 94) {
+                                kind = 94;
+                            } {
                             jjCheckNAddTwoStates(1, 2);
                         }
                             break;
@@ -866,10 +937,12 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 4:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddStates(20, 22);
                         }
                             break;
@@ -879,10 +952,12 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 7:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddTwoStates(7, 8);
                         }
                             break;
@@ -897,8 +972,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 11:
-                            if (curChar == 39 && kind > 100)
+                            if (curChar == 39 && kind > 100) {
                                 kind = 100;
+                            }
                             break;
                         case 13:
                             if ((0x8400000000L & l) != 0L) {
@@ -916,8 +992,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 16:
-                            if ((0xf000000000000L & l) != 0L)
+                            if ((0xf000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 17;
+                            }
                             break;
                         case 17:
                             if ((0xff000000000000L & l) != 0L) {
@@ -940,8 +1017,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 22:
-                            if (curChar == 34 && kind > 101)
+                            if (curChar == 34 && kind > 101) {
                                 kind = 101;
+                            }
                             break;
                         case 23:
                             if ((0xff000000000000L & l) != 0L) {
@@ -954,8 +1032,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 25:
-                            if ((0xf000000000000L & l) != 0L)
+                            if ((0xf000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 26;
+                            }
                             break;
                         case 26:
                             if ((0xff000000000000L & l) != 0L) {
@@ -963,16 +1042,19 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 28:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 29;
+                            }
                             break;
                         case 29:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 30;
+                            }
                             break;
                         case 30:
-                            if ((0x3ff000000000000L & l) != 0L)
+                            if ((0x3ff000000000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 31;
+                            }
                             break;
                         case 31:
                             if ((0x3ff000000000000L & l) != 0L) {
@@ -980,18 +1062,22 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 32:
-                            if (curChar != 36)
+                            if (curChar != 36) {
                                 break;
-                            if (kind > 102)
-                                kind = 102; {
+                            }
+                            if (kind > 102) {
+                                kind = 102;
+                            } {
                             jjCheckNAdd(33);
                         }
                             break;
                         case 33:
-                            if ((0x3ff001000000000L & l) == 0L)
+                            if ((0x3ff001000000000L & l) == 0L) {
                                 break;
-                            if (kind > 102)
-                                kind = 102; {
+                            }
+                            if (kind > 102) {
+                                kind = 102;
+                            } {
                             jjCheckNAdd(33);
                         }
                             break;
@@ -1006,18 +1092,22 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 36:
-                            if (curChar != 46)
+                            if (curChar != 46) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddStates(27, 29);
                         }
                             break;
                         case 37:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddStates(27, 29);
                         }
                             break;
@@ -1027,10 +1117,12 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 40:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddTwoStates(40, 8);
                         }
                             break;
@@ -1045,10 +1137,12 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 44:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 98)
-                                kind = 98; {
+                            }
+                            if (kind > 98) {
+                                kind = 98;
+                            } {
                             jjCheckNAddTwoStates(44, 8);
                         }
                             break;
@@ -1068,26 +1162,32 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 49:
-                            if (curChar != 48)
+                            if (curChar != 48) {
                                 break;
-                            if (kind > 94)
-                                kind = 94; {
+                            }
+                            if (kind > 94) {
+                                kind = 94;
+                            } {
                             jjCheckNAddStates(14, 16);
                         }
                             break;
                         case 51:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 94)
-                                kind = 94; {
+                            }
+                            if (kind > 94) {
+                                kind = 94;
+                            } {
                             jjCheckNAddTwoStates(51, 2);
                         }
                             break;
                         case 52:
-                            if ((0xff000000000000L & l) == 0L)
+                            if ((0xff000000000000L & l) == 0L) {
                                 break;
-                            if (kind > 94)
-                                kind = 94; {
+                            }
+                            if (kind > 94) {
+                                kind = 94;
+                            } {
                             jjCheckNAddTwoStates(52, 2);
                         }
                             break;
@@ -1097,40 +1197,49 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 54:
-                            if (curChar == 42)
+                            if (curChar == 42) {
                                 jjstateSet[jjnewStateCnt++] = 55;
+                            }
                             break;
                         case 55:
-                            if ((0xffff7fffffffffffL & l) != 0L && kind > 105)
+                            if ((0xffff7fffffffffffL & l) != 0L && kind > 105) {
                                 kind = 105;
+                            }
                             break;
                         case 57:
-                            if (curChar != 47)
+                            if (curChar != 47) {
                                 break;
-                            if (kind > 107)
-                                kind = 107; {
+                            }
+                            if (kind > 107) {
+                                kind = 107;
+                            } {
                             jjCheckNAddStates(17, 19);
                         }
                             break;
                         case 58:
-                            if ((0xffffffffffffdbffL & l) == 0L)
+                            if ((0xffffffffffffdbffL & l) == 0L) {
                                 break;
-                            if (kind > 107)
-                                kind = 107; {
+                            }
+                            if (kind > 107) {
+                                kind = 107;
+                            } {
                             jjCheckNAddStates(17, 19);
                         }
                             break;
                         case 59:
-                            if ((0x2400L & l) != 0L && kind > 107)
+                            if ((0x2400L & l) != 0L && kind > 107) {
                                 kind = 107;
+                            }
                             break;
                         case 60:
-                            if (curChar == 10 && kind > 107)
+                            if (curChar == 10 && kind > 107) {
                                 kind = 107;
+                            }
                             break;
                         case 61:
-                            if (curChar == 13)
+                            if (curChar == 13) {
                                 jjstateSet[jjnewStateCnt++] = 60;
+                            }
                             break;
                         default:
                             break;
@@ -1142,16 +1251,19 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     switch (jjstateSet[--i]) {
                         case 0:
                         case 33:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l) == 0L) {
                                 break;
-                            if (kind > 102)
-                                kind = 102; {
+                            }
+                            if (kind > 102) {
+                                kind = 102;
+                            } {
                             jjCheckNAdd(33);
                         }
                             break;
                         case 2:
-                            if ((0x100000001000L & l) != 0L && kind > 94)
+                            if ((0x100000001000L & l) != 0L && kind > 94) {
                                 kind = 94;
+                            }
                             break;
                         case 5:
                             if ((0x2000000020L & l) != 0L) {
@@ -1159,8 +1271,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 8:
-                            if ((0x5000000050L & l) != 0L && kind > 98)
+                            if ((0x5000000050L & l) != 0L && kind > 98) {
                                 kind = 98;
+                            }
                             break;
                         case 10:
                             if ((0xffffffffefffffffL & l) != 0L) {
@@ -1193,20 +1306,24 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 27:
-                            if (curChar == 117)
+                            if (curChar == 117) {
                                 jjstateSet[jjnewStateCnt++] = 28;
+                            }
                             break;
                         case 28:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 29;
+                            }
                             break;
                         case 29:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 30;
+                            }
                             break;
                         case 30:
-                            if ((0x7e00000000L & l) != 0L)
+                            if ((0x7e00000000L & l) != 0L) {
                                 jjstateSet[jjnewStateCnt++] = 31;
+                            }
                             break;
                         case 31:
                             if ((0x7e00000000L & l) != 0L) {
@@ -1234,20 +1351,24 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 51:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l) == 0L) {
                                 break;
-                            if (kind > 94)
-                                kind = 94; {
+                            }
+                            if (kind > 94) {
+                                kind = 94;
+                            } {
                             jjCheckNAddTwoStates(51, 2);
                         }
                             break;
                         case 55:
-                            if (kind > 105)
+                            if (kind > 105) {
                                 kind = 105;
+                            }
                             break;
                         case 58:
-                            if (kind > 107)
-                                kind = 107; {
+                            if (kind > 107) {
+                                kind = 107;
+                            } {
                             jjAddStates(17, 19);
                         }
                             break;
@@ -1265,16 +1386,19 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     switch (jjstateSet[--i]) {
                         case 0:
                         case 33:
-                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 102)
-                                kind = 102; {
+                            }
+                            if (kind > 102) {
+                                kind = 102;
+                            } {
                             jjCheckNAdd(33);
                         }
                             break;
                         case 10:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
                                 jjstateSet[jjnewStateCnt++] = 11;
+                            }
                             break;
                         case 19:
                             if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
@@ -1282,22 +1406,26 @@ public class JGrammarTokenManager implements JGrammarConstants {
                             }
                             break;
                         case 55:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 105)
+                            if (jjCanMove_0(hiByte, i1, i2, l1, l2) && kind > 105) {
                                 kind = 105;
+                            }
                             break;
                         case 58:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2)) {
                                 break;
-                            if (kind > 107)
-                                kind = 107; {
+                            }
+                            if (kind > 107) {
+                                kind = 107;
+                            } {
                             jjAddStates(17, 19);
                         }
                             break;
                         default:
-                            if (i1 == 0 || l1 == 0 || i2 == 0 || l2 == 0)
+                            if (i1 == 0 || l1 == 0 || i2 == 0 || l2 == 0) {
                                 break;
-                            else
+                            } else {
                                 break;
+                            }
                     }
                 } while (i != startsAt);
             }
@@ -1307,8 +1435,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                 kind = 0x7fffffff;
             }
             ++curPos;
-            if ((i = jjnewStateCnt) == (startsAt = 62 - (jjnewStateCnt = startsAt)))
+            if ((i = jjnewStateCnt) == (startsAt = 62 - (jjnewStateCnt = startsAt))) {
                 return curPos;
+            }
             try {
                 curChar = input_stream.readChar();
             } catch (java.io.IOException e) {
@@ -1334,8 +1463,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 47:
-                if ((active1 & 0x200000000000L) != 0L)
+                if ((active1 & 0x200000000000L) != 0L) {
                     return jjStopAtPos(1, 109);
+                }
                 break;
             default:
                 return 2;
@@ -1360,8 +1490,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
         }
         switch (curChar) {
             case 47:
-                if ((active1 & 0x100000000000L) != 0L)
+                if ((active1 & 0x100000000000L) != 0L) {
                     return jjStopAtPos(1, 108);
+                }
                 break;
             default:
                 return 2;
@@ -1561,8 +1692,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 0:
                 return ((jjbitVec2[i2] & l2) != 0L);
             default:
-                if ((jjbitVec0[i1] & l1) != 0L)
+                if ((jjbitVec0[i1] & l1) != 0L) {
                     return true;
+                }
                 return false;
         }
     }
@@ -1580,8 +1712,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
             case 61:
                 return ((jjbitVec8[i2] & l2) != 0L);
             default:
-                if ((jjbitVec3[i1] & l1) != 0L)
+                if ((jjbitVec3[i1] & l1) != 0L) {
                     return true;
+                }
                 return false;
         }
     }
@@ -1619,8 +1752,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     case 0:
                         try {
                             input_stream.backup(0);
-                            while (curChar <= 32 && (0x100003600L & (1L << curChar)) != 0L)
+                            while (curChar <= 32 && (0x100003600L & (1L << curChar)) != 0L) {
                                 curChar = input_stream.BeginToken();
+                            }
                         } catch (java.io.IOException e1) {
                             continue EOFLoop;
                         }
@@ -1646,34 +1780,39 @@ public class JGrammarTokenManager implements JGrammarConstants {
                         break;
                 }
                 if (jjmatchedKind != 0x7fffffff) {
-                    if (jjmatchedPos + 1 < curPos)
+                    if (jjmatchedPos + 1 < curPos) {
                         input_stream.backup(curPos - jjmatchedPos - 1);
+                    }
                     if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                         matchedToken = jjFillToken();
                         matchedToken.specialToken = specialToken;
-                        if (jjnewLexState[jjmatchedKind] != -1)
+                        if (jjnewLexState[jjmatchedKind] != -1) {
                             curLexState = jjnewLexState[jjmatchedKind];
+                        }
                         CommonTokenAction(matchedToken);
                         return matchedToken;
                     } else if ((jjtoSkip[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                         if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                             matchedToken = jjFillToken();
-                            if (specialToken == null)
+                            if (specialToken == null) {
                                 specialToken = matchedToken;
-                            else {
+                            } else {
                                 matchedToken.specialToken = specialToken;
                                 specialToken = (specialToken.next = matchedToken);
                             }
                             SkipLexicalActions(matchedToken);
-                        } else
+                        } else {
                             SkipLexicalActions(null);
-                        if (jjnewLexState[jjmatchedKind] != -1)
+                        }
+                        if (jjnewLexState[jjmatchedKind] != -1) {
                             curLexState = jjnewLexState[jjmatchedKind];
+                        }
                         continue EOFLoop;
                     }
                     MoreLexicalActions();
-                    if (jjnewLexState[jjmatchedKind] != -1)
+                    if (jjnewLexState[jjmatchedKind] != -1) {
                         curLexState = jjnewLexState[jjmatchedKind];
+                    }
                     curPos = 0;
                     jjmatchedKind = 0x7fffffff;
                     try {
@@ -1695,8 +1834,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
                     if (curChar == '\n' || curChar == '\r') {
                         error_line++;
                         error_column = 0;
-                    } else
+                    } else {
                         error_column++;
+                    }
                 }
                 if (!EOFSeen) {
                     input_stream.backup(1);
@@ -1767,8 +1907,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     /** Constructor. */
     public JGrammarTokenManager(SimpleCharStream stream) {
 
-        if (SimpleCharStream.staticFlag)
+        if (SimpleCharStream.staticFlag) {
             throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
+        }
 
         input_stream = stream;
     }
@@ -1792,8 +1933,9 @@ public class JGrammarTokenManager implements JGrammarConstants {
     private void ReInitRounds() {
         int i;
         jjround = 0x80000001;
-        for (i = 62; i-- > 0;)
+        for (i = 62; i-- > 0;) {
             jjrounds[i] = 0x80000000;
+        }
     }
 
     /** Reinitialise parser. */
@@ -1806,11 +1948,12 @@ public class JGrammarTokenManager implements JGrammarConstants {
 
     /** Switch to specified lex state. */
     public void SwitchTo(int lexState) {
-        if (lexState >= 3 || lexState < 0)
+        if (lexState >= 3 || lexState < 0) {
             throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.",
                 TokenMgrError.INVALID_LEXICAL_STATE);
-        else
+        } else {
             curLexState = lexState;
+        }
     }
 
     /** Lexer state names. */

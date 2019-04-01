@@ -4,15 +4,7 @@ import java.lang.reflect.InvocationHandler;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
+import org.openl.meta.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;

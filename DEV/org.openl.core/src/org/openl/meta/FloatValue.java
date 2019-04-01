@@ -17,8 +17,8 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Avg;
-import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
+import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -78,7 +78,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 equal value2
@@ -92,7 +92,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater or equal value2
@@ -105,7 +105,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater value2
@@ -118,7 +118,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less or equal value2
@@ -131,7 +131,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less value2
@@ -144,7 +144,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 not equal value2
@@ -158,7 +158,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value of variable which should be copied
      * @param name of new variable
      * @return the new org.openl.meta.FloatValue variable with name <b>name</b> and value <b>value</b>
@@ -180,7 +180,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * 
+     *
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return remainder from division value1 by value2
@@ -209,7 +209,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Adds left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return the result of addition operation
@@ -236,7 +236,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // MULTIPLY
     /**
      * Multiplies left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return the result of multiplication operation
@@ -263,7 +263,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return the result of subtraction operation
@@ -294,7 +294,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return the result of division operation
@@ -328,7 +328,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param number org.openl.meta.FloatValue
      * @param divisor org.openl.meta.FloatValue
      * @return LongValue the result of division operation
@@ -342,7 +342,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param number
      * @param divisor
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
@@ -360,7 +360,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     /**
      * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.FloatValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -372,7 +372,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     /**
      * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.FloatValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -382,7 +382,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value1
      * @param value2
      * @return the result of value1 raised to the power of value2
@@ -403,7 +403,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
@@ -420,7 +420,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the negative value of the <b>value</b>
      */
@@ -432,7 +432,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b> increased by 1
      */
@@ -441,7 +441,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b>
      */
@@ -450,7 +450,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value </b> decreased by 1
      */
@@ -462,7 +462,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from byte to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -473,7 +473,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -484,7 +484,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -495,7 +495,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from char to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -506,7 +506,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -517,7 +517,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     /**
      * Is used to overload implicit cast operators from float to org.openl.meta.FloatValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -586,7 +586,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // sort
     /**
      * Sorts the array <b>values</b>
-     * 
+     *
      * @param values an array for sorting
      * @return the sorted array
      */

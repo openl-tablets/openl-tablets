@@ -6,7 +6,7 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 /**
  * Common implementation for columns that are used in dispatcher table, built by dimensional properties.
- * 
+ *
  * @author DLiauchuk
  *
  */

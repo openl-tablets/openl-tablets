@@ -1,7 +1,7 @@
 package org.openl.rules.dt.type;
 
-import org.openl.rules.helpers.StringRange;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.helpers.StringRange;
 import org.openl.rules.helpers.StringRangeParser;
 
 public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, String> {

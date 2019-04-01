@@ -12,7 +12,7 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * Extractor for values that are represented as column and row names in spreadsheet.
- * 
+ *
  * @author DLiauchuk
  *
  */

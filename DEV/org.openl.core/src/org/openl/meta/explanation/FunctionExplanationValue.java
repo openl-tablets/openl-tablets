@@ -6,7 +6,7 @@ import org.openl.meta.number.NumberOperations;
 
 /**
  * Explanation implementation for functions.
- * 
+ *
  * @author DLiauchuk
  *
  * @param <T> type that extends {@link ExplanationNumberValue}

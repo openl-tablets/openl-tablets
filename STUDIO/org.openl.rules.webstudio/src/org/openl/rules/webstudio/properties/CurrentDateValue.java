@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 /**
  * Handles current date value of the system.
- * 
+ *
  * @author DLiauchuk
  *
  */

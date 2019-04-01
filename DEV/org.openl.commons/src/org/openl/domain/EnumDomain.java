@@ -52,7 +52,7 @@ public class EnumDomain<T> implements IDomain<T> {
     }
 
     public EnumDomain(T[] elements) {
-        this(new Enum<T>(elements), elements);
+        this(new Enum<>(elements), elements);
     }
 
     public EnumDomain<T> and(EnumDomain<T> sd) {

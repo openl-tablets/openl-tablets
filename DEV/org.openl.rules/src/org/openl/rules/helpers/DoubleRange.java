@@ -149,10 +149,12 @@ public class DoubleRange implements INumberRange {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof DoubleRange))
+        }
+        if (!(o instanceof DoubleRange)) {
             return false;
+        }
         DoubleRange that = (DoubleRange) o;
         return Double.compare(that.lowerBound, lowerBound) == 0 && Double.compare(that.upperBound,
             upperBound) == 0 && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;

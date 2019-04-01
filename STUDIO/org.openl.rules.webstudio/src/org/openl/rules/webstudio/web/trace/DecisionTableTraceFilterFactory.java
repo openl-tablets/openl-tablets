@@ -5,16 +5,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.RegionGridSelector;
+import org.openl.rules.table.ui.filters.*;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ui.RegionGridSelector;
-import org.openl.rules.table.ui.filters.CellStyleGridFilter;
-import org.openl.rules.table.ui.filters.ColorGridFilter;
-import org.openl.rules.table.ui.filters.FontGridFilter;
-import org.openl.rules.table.ui.filters.IColorFilter;
-import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {

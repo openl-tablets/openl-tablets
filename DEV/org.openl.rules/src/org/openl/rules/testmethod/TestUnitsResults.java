@@ -11,7 +11,7 @@ import org.openl.util.ClassUtils;
 /**
  * Test units results for the test table. Consist of the test suit method itself. And a number of test units that were
  * represented in test table.
- * 
+ *
  */
 public class TestUnitsResults implements INamedThing {
 

@@ -3,19 +3,7 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
@@ -38,15 +26,7 @@ import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.Token;
-import org.openl.rules.helpers.CharRange;
-import org.openl.rules.helpers.DateRange;
-import org.openl.rules.helpers.DateRangeParser;
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.DoubleRangeParser;
-import org.openl.rules.helpers.IntRange;
-import org.openl.rules.helpers.IntRangeParser;
-import org.openl.rules.helpers.StringRange;
-import org.openl.rules.helpers.StringRangeParser;
+import org.openl.rules.helpers.*;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -58,26 +38,14 @@ import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.CompositeGrid;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.*;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IParameterDeclaration;
+import org.openl.types.*;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
@@ -514,8 +482,8 @@ public final class DecisionTableHelper {
                 if (vm == null || vm.get(methodChain[j]) == null) {
                     var = RandomStringUtils.random(8, true, false);
                     while (generatedNames.contains(var)) { // Prevent
-                                                           // variable
-                                                           // duplication
+                        // variable
+                        // duplication
                         var = RandomStringUtils.random(8, true, false);
                     }
                     generatedNames.add(var);
@@ -1622,7 +1590,7 @@ public final class DecisionTableHelper {
                     FuzzyDTHeader g1 = (FuzzyDTHeader) f1;
                     FuzzyDTHeader g2 = (FuzzyDTHeader) f2;
                     return g1.getMethodsChain() == g2.getMethodsChain(); // Implementation uses arrays from
-                                                                         // ParameterTokens. == can be used.
+                    // ParameterTokens. == can be used.
                 }
             }
         }
@@ -1720,28 +1688,28 @@ public final class DecisionTableHelper {
         fits = filterHeadersByMatchType(fits);
         if (numberOfHcondition != numberOfParameters) {
             fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isCondition) ? 1l : 0l); // Prefer
-                                                                                                        // full
-                                                                                                        // matches
-                                                                                                        // with
-                                                                                                        // first
-                                                                                                        // condition
-                                                                                                        // headers
+            // full
+            // matches
+            // with
+            // first
+            // condition
+            // headers
         }
 
         if (numberOfHcondition == 0) {
             fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isReturn) ? 1l : 0l); // Prefer full
-                                                                                                     // matches
-                                                                                                     // with
-                                                                                                     // last
-                                                                                                     // return
-                                                                                                     // headers
+            // matches
+            // with
+            // last
+            // return
+            // headers
         } else {
             fits = fits.stream().filter(e -> e.stream().filter(DTHeader::isReturn).count() == 0).collect(toList()); // Lookup
-                                                                                                                    // table
-                                                                                                                    // with
-                                                                                                                    // no
-                                                                                                                    // returns
-                                                                                                                    // columns
+            // table
+            // with
+            // no
+            // returns
+            // columns
         }
 
         fits = filterHeadersByMax(fits,

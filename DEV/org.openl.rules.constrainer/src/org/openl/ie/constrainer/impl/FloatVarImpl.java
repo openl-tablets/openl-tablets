@@ -1,13 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.FloatDomain;
-import org.openl.ie.constrainer.FloatVar;
-import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalFloatInstantiate;
-import org.openl.ie.constrainer.Undo;
-import org.openl.ie.constrainer.Undoable;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 

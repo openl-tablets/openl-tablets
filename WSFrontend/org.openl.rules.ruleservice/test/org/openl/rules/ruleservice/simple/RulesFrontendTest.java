@@ -1,8 +1,6 @@
 package org.openl.rules.ruleservice.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Collection;
 
@@ -104,7 +102,7 @@ public class RulesFrontendTest implements ApplicationContextAware {
         }
     }
 
-    public static interface ProxyInterface {
+    public interface ProxyInterface {
         String worldHello(int arg);
 
         String notExustedMethod(int arg);

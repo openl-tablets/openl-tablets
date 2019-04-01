@@ -28,9 +28,11 @@ import org.openl.ie.tools.FastVector;
 
 public class TestUtils {
     public static boolean contains(int[] sub, int n) {
-        for (int i = 0; i < sub.length; ++i)
-            if (sub[i] == n)
+        for (int i = 0; i < sub.length; ++i) {
+            if (sub[i] == n) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -105,11 +107,11 @@ public class TestUtils {
         @Override
         public boolean isTrue(int i) {
             return (i == _value);
-        };
+        }
     }
 
-    static public interface IntFindPredicate {
-        public boolean isTrue(int i);
+    public interface IntFindPredicate {
+        boolean isTrue(int i);
     }
 
     static public class IntGreaterThan implements IntFindPredicate {
@@ -122,7 +124,7 @@ public class TestUtils {
         @Override
         public boolean isTrue(int i) {
             return i > _value;
-        };
+        }
     }
 
     public static class TestObserver extends Observer {

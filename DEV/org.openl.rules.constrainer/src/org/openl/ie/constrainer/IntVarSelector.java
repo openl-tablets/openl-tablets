@@ -26,5 +26,5 @@ public interface IntVarSelector extends java.io.Serializable {
     /**
      * Returns the index of the selected variable in the array of IntVar(s). If no variables to select, it returns -1;
      */
-    public int select();
+    int select();
 }

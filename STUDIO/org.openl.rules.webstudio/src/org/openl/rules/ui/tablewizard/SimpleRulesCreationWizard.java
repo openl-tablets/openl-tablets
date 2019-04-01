@@ -2,11 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;

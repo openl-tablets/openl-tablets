@@ -23,7 +23,7 @@ public class FileData {
     /**
      * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder
      * separator is '/' symbol.
-     * 
+     *
      * @return the full path name from the root folder.
      */
     public String getName() {
@@ -37,7 +37,7 @@ public class FileData {
     /**
      * The file size in bytes. The size of the deleted file is undefined, but can be equals to the size of the deleted
      * file.
-     * 
+     *
      * @return the file size.
      */
     public long getSize() {
@@ -50,7 +50,7 @@ public class FileData {
 
     /**
      * The author of the last modification. Can be empty.
-     * 
+     *
      * @return The author of the last modification.
      */
     public String getAuthor() {
@@ -63,7 +63,7 @@ public class FileData {
 
     /**
      * The comment for the file. Can be empty.
-     * 
+     *
      * @return the file comment.
      */
     public String getComment() {
@@ -78,7 +78,7 @@ public class FileData {
      * The last modification time. This value is get from the repository system.
      *
      * Cannot be modified from the client side.
-     * 
+     *
      * @return the time the file was last modified.
      */
     public Date getModifiedAt() {
@@ -92,9 +92,9 @@ public class FileData {
     /**
      * The version of the file. This value is get from the repository system. The latest file in the history MUST have
      * the latest modification time.
-     * 
+     *
      * Can be empty. Cannot be modified from the client side.
-     * 
+     *
      * @return the version (revision) of the file.
      */
     public String getVersion() {
@@ -109,7 +109,7 @@ public class FileData {
      * The mark that the file was deleted. This value is get from the repository system.
      *
      * Cannot be modified from the client side.
-     * 
+     *
      * @return true if the file was deleted.
      */
     public boolean isDeleted() {

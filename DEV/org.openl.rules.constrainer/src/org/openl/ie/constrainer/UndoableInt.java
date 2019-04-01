@@ -23,11 +23,11 @@ public interface UndoableInt extends Undoable {
     /**
      * Sets the current value.
      */
-    public void setValue(int value);
+    void setValue(int value);
 
     /**
      * Returns the current value.
      */
-    public int value();
+    int value();
 
 } // ~UndoableInt

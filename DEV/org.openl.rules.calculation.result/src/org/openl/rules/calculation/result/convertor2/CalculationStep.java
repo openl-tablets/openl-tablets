@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * The base abstraction for the spreadsheet step, each step is a spreadsheet row.
- * 
+ *
  * @author DLiauchuk, Marat Kamalov
  */
 

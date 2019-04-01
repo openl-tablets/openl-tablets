@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.util.Collection;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-
-import java.util.Collection;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.

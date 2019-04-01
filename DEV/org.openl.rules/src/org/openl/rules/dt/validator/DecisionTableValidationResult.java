@@ -16,7 +16,7 @@ import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DecisionTableValidationResult implements IValidationResult {
 
@@ -129,11 +129,13 @@ public class DecisionTableValidationResult implements IValidationResult {
 
     private List<DecisionTableOverlapping> selectOverlappings(OverlappingStatus status) {
         List<DecisionTableOverlapping> res = new ArrayList<>();
-        if (overlappings == null)
+        if (overlappings == null) {
             return res;
+        }
         for (int i = 0; i < overlappings.length; i++) {
-            if (overlappings[i].getStatus() == status)
+            if (overlappings[i].getStatus() == status) {
                 res.add(overlappings[i]);
+            }
         }
         return res;
     }
@@ -155,22 +157,26 @@ public class DecisionTableValidationResult implements IValidationResult {
         int cnt = 0;
 
         for (DecisionTableOverlapping ovl : getOverlappingBlocks()) {
-            if (++cnt < maxCounter)
+            if (++cnt < maxCounter) {
                 validationResultDetails.append(ovl.toString()).append("\r\n");
+            }
         }
 
         for (DecisionTableOverlapping ovl : getOverlappingPartialOverlaps()) {
-            if (++cnt <= maxCounter)
+            if (++cnt <= maxCounter) {
                 validationResultDetails.append(ovl.toString()).append("\r\n");
+            }
         }
 
         for (DecisionTableOverlapping ovl : getOverlappingOverrides()) {
-            if (++cnt <= maxCounter)
+            if (++cnt <= maxCounter) {
                 validationResultDetails.append(ovl.toString()).append("\r\n");
+            }
         }
 
-        if (cnt > maxCounter)
+        if (cnt > maxCounter) {
             validationResultDetails.append(String.format("  %d more ...", (cnt - maxCounter)));
+        }
 
         return validationResultDetails.toString();
     }

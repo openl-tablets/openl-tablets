@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 import org.openl.types.java.JavaOpenClass;

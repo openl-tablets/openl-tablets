@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  * Spreadsheet step(row) that has the code value.
- * 
+ *
  * @author DLiauchuk, Marat Kamalov
- * 
+ *
  */
 
 @XmlRootElement

@@ -19,7 +19,7 @@ import java.util.List;
  * <li>The path to the file MUST NOT be ended with '/'</li>
  * <li>The path to the root folder is the empty path</li>
  * </ol>
- * 
+ *
  * Examples:
  * <ul>
  * <li>'' - the root folder</li>
@@ -28,14 +28,14 @@ import java.util.List;
  * <li>'folder_name/inner_file' - file</li>
  * <li>'folder_name/inner_folder/' - folder</li>
  * </ul>
- * 
+ *
  * @author Yury Molchan
  */
 public interface Repository {
 
     /**
      * Return a list of files recursively in the given folder.
-     * 
+     *
      * @param path the folder to scan. The path must be ended by '/' or be empty.
      * @return the list of the file descriptors. Invalid files are ignored.
      * @throws IOException if not possible to read the directory.
@@ -44,7 +44,7 @@ public interface Repository {
 
     /**
      * Read a file descriptor by the given path name.
-     * 
+     *
      * @param name the path name of the file to read.
      * @return the file descriptor or null if the file is absent.
      * @throws IOException if not possible to read the file descriptor.
@@ -62,7 +62,7 @@ public interface Repository {
 
     /**
      * Save a file.
-     * 
+     *
      * @param data the file descriptor.
      * @param stream the stream to save with the specified file descriptor.
      * @return the resulted file descriptor after successful writing.
@@ -72,7 +72,7 @@ public interface Repository {
 
     /**
      * Delete a file or mark it as deleted.
-     * 
+     *
      * @param data the file descriptor to delete.
      * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
      */
@@ -80,7 +80,7 @@ public interface Repository {
 
     /**
      * Set a listener to monitor changes in the repository.
-     * 
+     *
      * @param callback the listener.
      */
     void setListener(Listener callback);
@@ -89,7 +89,7 @@ public interface Repository {
      * List a versions of the given file. If the repository does not support file versions, then it will return one
      * record of the given file. The order of the file descriptions is undefined, but the first element is the actual
      * file which can be access by {@link #read(String)} method.
-     * 
+     *
      * @param name the file name.
      * @return the list of file descriptions.
      * @throws IOException if not possible to read the directory.
@@ -133,7 +133,7 @@ public interface Repository {
 
     /**
      * Copy a file of the given version to the destination file. If the version is null, then copy latest version.
-     * 
+     *
      * @param srcName the file to copy.
      * @param destData the destination file descriptor.
      * @param version the version of the file to copy

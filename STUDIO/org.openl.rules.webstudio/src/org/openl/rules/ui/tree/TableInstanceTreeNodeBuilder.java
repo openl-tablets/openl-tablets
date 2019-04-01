@@ -1,15 +1,15 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
 /**
  * Builds tree node for table instance.
- * 
+ *
  */
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
@@ -84,11 +84,11 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
                 .equals(tsn.getType()) || XlsNodeTypes.XLS_TEST_METHOD.toString()
                     .equals(tsn.getType()) || XlsNodeTypes.XLS_ENVIRONMENT.toString()
                         .equals(tsn.getType()) || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These
-                                                                                                          // tables
-                                                                                                          // don't have
-                                                                                                          // versions
-                                                                                                          // and can't
-                                                                                                          // be grouped
+        // tables
+        // don't have
+        // versions
+        // and can't
+        // be grouped
                 || tsn.getMember() == null; // When table contains syntax errors and can't be grouped with other tables.
     }
 

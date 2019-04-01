@@ -4,16 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.InheritedProperty;
-import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.Property;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.ValueType;
+import org.openl.rules.common.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface ArtefactAPI {

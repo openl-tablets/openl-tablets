@@ -17,7 +17,7 @@ public interface IDecisionTableConstants {
      * When condition is represented as a row. So it is readed from left to right. First 4 columns are service ones.<br>
      * ( see {@link IDecisionTableConstants#INFO_COLUMN_INDEX}, {@link IDecisionTableConstants#CODE_COLUMN_INDEX},
      * {@link IDecisionTableConstants#PARAM_COLUMN_INDEX}, {@link IDecisionTableConstants#PRESENTATION_COLUMN_INDEX})
-     * 
+     *
      */
     int SERVICE_COLUMNS_NUMBER = 4;
 }

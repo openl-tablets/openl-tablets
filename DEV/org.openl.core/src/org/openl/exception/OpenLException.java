@@ -11,14 +11,14 @@ public interface OpenLException {
 
     /**
      * Gets error cause location.
-     * 
+     *
      * @return error cause location
      */
     ILocation getLocation();
 
     /**
      * Gets source code module where the error was occurred.
-     * 
+     *
      * @return source code module
      */
     IOpenSourceCodeModule getSourceModule();

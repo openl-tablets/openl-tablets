@@ -45,7 +45,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
     /**
      * Parses table header. Consider that second token is the name of the table. <br>
      * <b>e.g.: Properties [tableName].</b>
-     * 
+     *
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @return table name if exists.
      */

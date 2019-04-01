@@ -29,12 +29,12 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningsForTable = new ArrayList<OpenLMessage>();
+        List<OpenLMessage> warningsForTable = new ArrayList<>();
         Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {// there can be simple
-                                                      // OpenLMessages with
-                                                      // severity WARN
+                // OpenLMessages with
+                // severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
                 if (syntaxNode == tsn) {
@@ -46,7 +46,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
     }
 
     private Collection<IOpenMethod> findMethods(IOpenClass openClass, String methodName) {
-        Collection<IOpenMethod> methods = new ArrayList<IOpenMethod>();
+        Collection<IOpenMethod> methods = new ArrayList<>();
         for (IOpenMethod method : openClass.getMethods()) {
             if (methodName.equals(method.getName())) {
                 if (method instanceof OpenMethodDispatcher) {

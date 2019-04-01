@@ -1,11 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpConst;
+import org.openl.ie.constrainer.*;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -183,7 +178,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
          * max() { removeRangeInternal(min,max); }
          */
         removeRangeInternal(min, max); // added by SV 02.06.03 by SV due to
-                                       // domain improvements
+        // domain improvements
     }
 
     protected void removeRangeInternal(int min, int max) throws Failure {

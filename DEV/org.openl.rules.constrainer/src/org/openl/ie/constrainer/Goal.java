@@ -29,8 +29,8 @@ public interface Goal extends ConstrainerObject {
      *
      * Returns subgoal of this goal if there are any, null otherwise.
      */
-    public Goal execute() throws Failure;
+    Goal execute() throws Failure;
 
-    public boolean toContinue(ChoicePointLabel label, boolean restore_flag);
+    boolean toContinue(ChoicePointLabel label, boolean restore_flag);
 
 } // ~Goal

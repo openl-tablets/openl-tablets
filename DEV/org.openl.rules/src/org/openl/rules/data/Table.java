@@ -367,7 +367,7 @@ public class Table implements ITable {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                         .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default
-                                                     // value.
+                        // value.
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
                     }
                 } catch (SyntaxNodeException ex) {

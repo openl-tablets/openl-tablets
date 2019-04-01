@@ -16,7 +16,7 @@ import org.openl.types.impl.ExecutableMethod;
 /**
  * Dependency rules graph, implemented using {@link org.jgrapht.graph.DefaultDirectedGraph}. Vertexes are represented as
  * {@link ExecutableMethod}, edges {@link DirectedEdge}.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -188,7 +188,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     /**
      * Filter incoming methods, finding {@link ExecutableMethod} and create graph.
-     * 
+     *
      * @param methods {@link IOpenMethod}
      * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods.
      */

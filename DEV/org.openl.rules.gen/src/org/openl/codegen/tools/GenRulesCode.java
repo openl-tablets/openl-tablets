@@ -1,5 +1,10 @@
 package org.openl.codegen.tools;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.codegen.FileCodeGen;
 import org.openl.codegen.ICodeGenAdaptor;
 import org.openl.codegen.JavaCodeGen;
@@ -17,14 +22,12 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.types.impl.*;
+import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
+import org.openl.rules.types.impl.DefaultPropertiesIntersectionFinder;
+import org.openl.rules.types.impl.DefaultTablePropertiesSorter;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.xls.RulesCompileContext;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GenRulesCode {
 

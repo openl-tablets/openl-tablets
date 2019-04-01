@@ -59,7 +59,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
                 "method3(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;",
                 "baseHello(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;",
                 "baseHello2(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;" };
-        Set<String> methodNames = new HashSet<String>();
+        Set<String> methodNames = new HashSet<>();
         for (String s : methods) {
             methodNames.add(s);
         }
@@ -91,7 +91,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         String[] methods = {
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/generated/beans/MyType;)Lorg/openl/generated/beans/MyType;",
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;" };
-        Set<String> methodNames = new HashSet<String>();
+        Set<String> methodNames = new HashSet<>();
         for (String s : methods) {
             methodNames.add(s);
         }

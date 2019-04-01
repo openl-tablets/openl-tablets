@@ -1,14 +1,7 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;

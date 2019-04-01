@@ -1,5 +1,7 @@
 package org.openl.engine;
 
+import java.util.List;
+
 import org.openl.IOpenVM;
 import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
@@ -17,11 +19,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 
-import java.util.List;
-
 /**
  * Class that defines OpenL engine manager implementation for evaluate/run operations.
- * 
+ *
  */
 public class OpenLRunManager extends OpenLHolder {
 
@@ -30,7 +30,7 @@ public class OpenLRunManager extends OpenLHolder {
 
     /**
      * Creates new instance of OpenL engine manager.
-     * 
+     *
      * @param openl {@link OpneL} instance
      */
     public OpenLRunManager(OpenL openl) {
@@ -41,7 +41,7 @@ public class OpenLRunManager extends OpenLHolder {
 
     /**
      * Compiles and runs specified method.
-     * 
+     *
      * @param source source
      * @param methodName method name
      * @param paramTypes parameters types
@@ -84,7 +84,7 @@ public class OpenLRunManager extends OpenLHolder {
 
     /**
      * Compiles and runs OpenL script.
-     * 
+     *
      * @param source source
      * @return result of script execution
      * @throws OpenLRuntimeException
@@ -96,7 +96,7 @@ public class OpenLRunManager extends OpenLHolder {
 
     /**
      * Compiles source and runs code.
-     * 
+     *
      * @param source source
      * @param sourceType type of source
      * @return result of execution

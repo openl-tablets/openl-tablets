@@ -4,11 +4,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.*;
 import org.openl.vm.IRuntimeEnv;
 
 public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {

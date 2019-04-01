@@ -14,8 +14,9 @@ public final class CtrUtils {
 
     public static IntBoolExp containsCtr(int[] ary, IntExp exp) {
 
-        if (ary == null || ary.length == 0)
+        if (ary == null || ary.length == 0) {
             return IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), false);
+        }
 
         IntBoolExp b = exp.eq(ary[0]);
 

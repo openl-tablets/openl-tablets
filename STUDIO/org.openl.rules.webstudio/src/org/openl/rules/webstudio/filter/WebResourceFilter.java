@@ -1,20 +1,10 @@
 package org.openl.rules.webstudio.filter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openl.util.FileUtils;
@@ -23,7 +13,7 @@ import org.openl.util.IOUtils;
 /**
  * Servlet filter to load web resources (images, html, etc). First, attempt is made to load resource from classpath and
  * then from web application root.
- * 
+ *
  * @author Andrey Naumenko
  */
 public class WebResourceFilter implements Filter {

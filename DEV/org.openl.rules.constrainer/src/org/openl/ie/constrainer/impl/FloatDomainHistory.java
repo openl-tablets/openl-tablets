@@ -14,11 +14,7 @@ package org.openl.ie.constrainer.impl;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.FloatEvent;
-import org.openl.ie.constrainer.FloatVar;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.FastVectorDouble;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;

@@ -26,7 +26,7 @@ import org.openl.rules.variation.Variation;
 /**
  * Custom mapping for {@link DeepCloningVariation} due to it is not usual bean and should be initialized through
  * non-default constructor.
- * 
+ *
  * @author PUdalau
  */
 public class DeepCloningVariationType extends BeanType {

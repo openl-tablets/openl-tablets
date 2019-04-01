@@ -1,8 +1,9 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-import java.util.*;
+import java.util.List;
 
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
@@ -17,8 +18,7 @@ public class ExpectedErrorTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testUserExceptionSupport1() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
-            "test/rules/testmethod/ExpectedErrorTest.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("test/rules/testmethod/ExpectedErrorTest.xls");
         engineFactory.setExecutionMode(false);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();

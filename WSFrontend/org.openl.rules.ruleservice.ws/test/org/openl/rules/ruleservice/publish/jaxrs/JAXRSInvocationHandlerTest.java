@@ -32,7 +32,7 @@ public class JAXRSInvocationHandlerTest {
     @Test(expected = IllegalStateException.class)
     public void checkInvokeOnUnknownMethod() throws Throwable {
         Object target = new Object();
-        HashMap<Method, Method> methods = new HashMap<Method, Method>();
+        HashMap<Method, Method> methods = new HashMap<>();
         JAXRSInvocationHandler handler = new JAXRSInvocationHandler(target, methods);
         Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
         handler.invoke(null, unknownMethod, null);
@@ -42,7 +42,7 @@ public class JAXRSInvocationHandlerTest {
     public void checkNullArguments() throws Throwable {
         InvokedClass target = mock(InvokedClass.class);
         when(target.doWork()).thenReturn("Done");
-        HashMap<Method, Method> methods = new HashMap<Method, Method>();
+        HashMap<Method, Method> methods = new HashMap<>();
         Method method = target.getClass().getDeclaredMethod("doWork");
         methods.put(method, method);
 

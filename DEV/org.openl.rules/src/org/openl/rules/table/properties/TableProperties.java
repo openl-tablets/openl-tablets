@@ -1,13 +1,8 @@
 package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -38,9 +33,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     private Map<String, Object> externalModuleProperties = Collections.emptyMap();
 
-    private Map<String, Object> moduleProperties = Collections.emptyMap();;
+    private Map<String, Object> moduleProperties = Collections.emptyMap();
 
-    private Map<String, Object> defaultProperties = Collections.emptyMap();;
+    private Map<String, Object> defaultProperties = Collections.emptyMap();
 
     /**
      * The result <code>{@link Map}</code> will contain all pairs from downLevelProperties and pairs from

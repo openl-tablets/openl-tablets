@@ -1,15 +1,15 @@
 package org.openl.rules.project.instantiation;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during

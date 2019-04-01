@@ -4,14 +4,14 @@ import org.openl.util.tree.ITreeElement;
 
 /**
  * Class that represents the tree node abstraction.
- * 
+ *
  * @param <T> type of node object
  */
 public interface ITreeNode<T> extends ITreeElement<T> {
 
     /**
      * Adds child to node using its key.
-     * 
+     *
      * @param key node key
      * @param child tree node to add
      * @return
@@ -20,7 +20,7 @@ public interface ITreeNode<T> extends ITreeElement<T> {
 
     /**
      * Gets child of node using its key.
-     * 
+     *
      * @param key child key
      * @return tree node if exists; <code>null</code> - otherwise;
      */

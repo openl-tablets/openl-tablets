@@ -14,13 +14,13 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class AXlsTableBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override

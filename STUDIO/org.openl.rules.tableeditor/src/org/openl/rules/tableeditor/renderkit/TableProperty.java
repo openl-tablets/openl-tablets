@@ -17,9 +17,9 @@ import org.openl.util.StringUtils;
 
 /**
  * Temporary class for holding table properties
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class TableProperty {
     private String name;
@@ -92,7 +92,7 @@ public class TableProperty {
     }
 
     /**
-     * 
+     *
      * @return <code>TRUE</code> if property value can be overriden on TABLE level.
      */
     public boolean isCanBeOverridenInTable() {
@@ -138,7 +138,7 @@ public class TableProperty {
     /**
      * This method must be used for all the cases when you need to display property on UI. It converts its value from
      * any type to string.
-     * 
+     *
      * @return
      */
     public String getDisplayValue() {
@@ -156,7 +156,7 @@ public class TableProperty {
     /**
      * Setter for the property value as {@link String}. Income value will be parsed to the appropriate type. That can be
      * found calling {@link #getType()} method.
-     * 
+     *
      * @param value value of the property as String.
      */
     public void setStringValue(String value) {
@@ -218,7 +218,7 @@ public class TableProperty {
      * UI. If property <code>{@link #isDateType()}</code>, <code>{@link #isBooleanType()}</code> UI controls will be
      * typify, and the income value will be of the appropriate type. And if the income value is String we try to parse
      * it to the appropriate type.
-     * 
+     *
      * @param value a value of the property.
      */
     public void setValue(Object value) {
@@ -267,7 +267,7 @@ public class TableProperty {
 
     /**
      * Checks if the current type is <code>String[]</code>
-     * 
+     *
      * @return true if type is <code>String[]</code>
      */
     public boolean isStringArray() {
@@ -324,9 +324,9 @@ public class TableProperty {
 
     /**
      * Builder for TableProperties
-     * 
+     *
      * @author DLiauchuk
-     * 
+     *
      */
     public static class TablePropertyBuilder {
         // Required parameters

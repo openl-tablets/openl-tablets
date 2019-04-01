@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.filter;
 
-import org.openl.rules.webstudio.web.servlet.SessionListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
-
-import javax.servlet.*;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.servlet.*;
+
+import org.openl.rules.webstudio.web.servlet.SessionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * This filter is intended to reload a filter when it's configurations is changed. For example DelegatingFilterProxy has
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * In web.xml you should configure filter parameter "delegateClass" and add all parameters for delegate filter. For
  * example:
  * <p/>
- * 
+ *
  * <pre>
  * {@code
  *   <filter>
@@ -198,7 +199,7 @@ public class ReloadableDelegatingFilter implements Filter {
     /**
      * Configuration reloader. For example:
      * <p/>
-     * 
+     *
      * <pre>
      *
      * new ConfigurationReloader() {

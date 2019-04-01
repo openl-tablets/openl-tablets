@@ -6,23 +6,19 @@
 
 package org.openl;
 
-import org.openl.conf.IOpenLBuilder;
-import org.openl.conf.IUserContext;
-import org.openl.conf.OpenLConfigurationException;
-import org.openl.conf.OpenLConfigurator;
-import org.openl.conf.UserContext;
+import org.openl.conf.*;
 
 /**
  * This class describes OpenL engine context abstraction that used during compilation process.
- * 
+ *
  * The class OpenL implements both factory(static) methods for creating OpenL instances and actual OpenL functionality.
  * Each instance of OpenL should be considered as a Language Configuration(LC). You may have as many LCs in your
  * application as you want. Current OpenL architecture allows to have different OpenL configurations in separate class
  * loaders, so they will not interfere with each other. It allows, for example, to have 2 LCs using different SAX or DOM
  * parser implementation.
- * 
+ *
  * The actual work is done by class OpenLConfigurator.
- * 
+ *
  * @see OpenLConfigurator
  * @author snshor
  */
@@ -53,7 +49,7 @@ public class OpenL {
 
     /**
      * Change default OpenLConfigurator implementation to another.
-     * 
+     *
      * @param config new OpenLConfigurator
      */
     public static void setConfig(OpenLConfigurator config) {
@@ -62,7 +58,7 @@ public class OpenL {
 
     /**
      * Gets instance of <code>OpenL</code> with given name.
-     * 
+     *
      * @param name OpenL name
      * @return instance of OpenL
      * @throws OpenLConfigurationException
@@ -75,10 +71,10 @@ public class OpenL {
     /**
      * Gets an instance of OpenL. Each instance is cached with name and user context as it's key. To remove cached
      * instance use #remove method
-     * 
+     *
      * @see #remove
      * @see IUserContext
-     * 
+     *
      * @param name IOpenL name, for example org.openl.java12.v101
      * @param userContext user context
      * @return instance of IOpenL
@@ -91,9 +87,9 @@ public class OpenL {
 
     /**
      * Gets an instance of OpenL. Each instance is cached with name and user context as it's key.
-     * 
+     *
      * @see IUserContext
-     * 
+     *
      * @param name IOpenL name
      * @param userContext user context
      * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that doesn't exist
@@ -112,7 +108,7 @@ public class OpenL {
 
     /**
      * Gets name of OpenL instance.
-     * 
+     *
      * @return name string
      */
     public String getName() {
@@ -121,7 +117,7 @@ public class OpenL {
 
     /**
      * Sets name of OpenL instance.
-     * 
+     *
      * @param name name string
      */
     public void setName(String name) {
@@ -130,7 +126,7 @@ public class OpenL {
 
     /**
      * Gets parser that configured for current OpenL instance.
-     * 
+     *
      * @return {@link IOpenParser} instance
      */
     public IOpenParser getParser() {
@@ -139,7 +135,7 @@ public class OpenL {
 
     /**
      * Sets parser to current OpenL instance.
-     * 
+     *
      * @param parser {@link IOpenParser} instance
      */
     public void setParser(IOpenParser parser) {
@@ -148,7 +144,7 @@ public class OpenL {
 
     /**
      * Gets virtual machine which used during rules execution.
-     * 
+     *
      * @return {@link IOpenVM} instance
      */
     public IOpenVM getVm() {
@@ -157,7 +153,7 @@ public class OpenL {
 
     /**
      * Sets virtual machine.
-     * 
+     *
      * @param openVM {@link IOpenVM} instance
      */
     public void setVm(IOpenVM openVM) {
@@ -166,7 +162,7 @@ public class OpenL {
 
     /**
      * Gets binder that configured for current OpenL instance.
-     * 
+     *
      * @return {@link IOpenBinder} instance
      */
     public IOpenBinder getBinder() {
@@ -175,7 +171,7 @@ public class OpenL {
 
     /**
      * Sets binder to current OpenL instance.
-     * 
+     *
      * @param binder {@link IOpenBinder} instance
      */
     public void setBinder(IOpenBinder binder) {
@@ -184,7 +180,7 @@ public class OpenL {
 
     /**
      * Gets compilation context.
-     * 
+     *
      * @return {@link ICompileContext} instance
      */
     public ICompileContext getCompileContext() {
@@ -193,7 +189,7 @@ public class OpenL {
 
     /**
      * Sets compilation context.
-     * 
+     *
      * @param compileContext {@link ICompileContext} instance
      */
     public void setCompileContext(ICompileContext compileContext) {

@@ -8,11 +8,7 @@ package org.openl.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
@@ -20,11 +16,11 @@ import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
 public class Overlapping {
 
     /**
-     * 
+     *
      * @author snshor
-     * 
+     *
      *         For rules A and B, A fires first and B - second.
-     * 
+     *
      *         BLOCK (0x01), // this is a very bad status, it means that rule A completely blocks rule B, so B can never
      *         be true. This is definitely an erroneous behavior. PARTIAL(0x02), // A and B partially overlap, this
      *         could either be an error or an intended behavior. OVERRIDE(0x04); // B overrides A, this is always the

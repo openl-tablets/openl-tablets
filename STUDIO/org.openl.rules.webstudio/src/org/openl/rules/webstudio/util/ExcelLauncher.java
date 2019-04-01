@@ -6,11 +6,11 @@
 
 package org.openl.rules.webstudio.util;
 
+import java.awt.Desktop;
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.awt.*;
-import java.io.File;
 
 /**
  * MS Excel launcher.

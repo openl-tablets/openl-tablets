@@ -4,12 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;

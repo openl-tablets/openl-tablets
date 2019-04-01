@@ -14,9 +14,9 @@ import java.util.LinkedList;
  * Generates file in outFileLocation by inserting code into predefined places in input file inFileLocation. Insertion
  * places are defined by INSERT_TAG. The insertion logic is handled by ICodeGenAdaptor, there could be multiple
  * INSERT_TAGS in the code, calling class can redefine INSERT_TAG value
- * 
+ *
  * @author snshor Created Jul 27, 2009
- * 
+ *
  */
 
 public class FileCodeGen {

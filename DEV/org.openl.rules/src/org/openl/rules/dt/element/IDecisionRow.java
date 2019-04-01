@@ -11,7 +11,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IDecisionRow extends IBaseDecisionRow {
 

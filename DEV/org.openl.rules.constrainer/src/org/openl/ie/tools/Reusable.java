@@ -28,16 +28,16 @@ public interface Reusable extends java.io.Serializable {
     /**
      * Clean-up the object and returns it to the factory that owns this object.
      */
-    public void free();
+    void free();
 
     /**
      * Returns the factory that owns this object.
      */
-    public ReusableFactory getFactory();
+    ReusableFactory getFactory();
 
     /**
      * Sets the factory that owns this object.
      */
-    public void setFactory(ReusableFactory factory);
+    void setFactory(ReusableFactory factory);
 
 } // ~Reusable

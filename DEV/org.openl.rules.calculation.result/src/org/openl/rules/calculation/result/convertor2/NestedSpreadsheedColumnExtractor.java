@@ -17,9 +17,9 @@ import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.Nested
 
 /**
  * Column extractor for nesting spreadsheet values(e.g. SpreadsheetResult or SpreadsheetResult[])
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor<CompoundStep> {
 
@@ -86,7 +86,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
 
     /**
      * Override this method for your purpose, if there is a need in additional processing of converted result
-     * 
+     *
      * @param compoundStep already converted result to {@link CompoundStep}
      */
     protected CompoundStep postProcess(CompoundStep compoundStep) {

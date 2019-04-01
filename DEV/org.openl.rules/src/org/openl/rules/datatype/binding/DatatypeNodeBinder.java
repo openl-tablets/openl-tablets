@@ -31,7 +31,7 @@ import org.openl.util.ArrayTool;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 

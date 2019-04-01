@@ -755,9 +755,9 @@ public class DataTableBindHelper {
             partPathFromRoot.append(fieldInChain.getName());
         }
         if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
-                                                            // loading of all
-                                                            // fields in
-                                                            // fieldAccessorChain.
+            // loading of all
+            // fields in
+            // fieldAccessorChain.
             chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
         }
         return chainField;
@@ -799,7 +799,7 @@ public class DataTableBindHelper {
 
     /**
      * Returns foreign_key_tokens from the current column.
-     * 
+     *
      * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be
      *            <code>null</code>.
      * @see #hasForeignKeysRow(ILogicalTable)

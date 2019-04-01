@@ -3,8 +3,6 @@ package org.openl.rules.tableeditor.event;
 import java.io.IOException;
 import java.util.Date;
 
-import com.sdicons.json.mapper.JSONMapper;
-import com.sdicons.json.mapper.MapperException;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -30,6 +28,9 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sdicons.json.mapper.JSONMapper;
+import com.sdicons.json.mapper.MapperException;
 
 /**
  * Table editor controller.
@@ -545,7 +546,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableModificationResponse response = new TableModificationResponse(null, editorModel);
         if (hasEmptyRow(editorModel)) {
             response.setMessage("Sorry! Can't save the table with empty row inside.");
-        } else
+        } else {
             try {
                 if (beforeSave()) {
                     String newId = editorModel.save();
@@ -559,6 +560,7 @@ public class TableEditorController extends BaseTableEditorController {
                 log.error(ERROR_SAVE_TABLE, e);
                 response.setMessage(ERROR_SAVE_TABLE);
             }
+        }
         return pojo2json(response);
     }
 

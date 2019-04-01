@@ -19,7 +19,7 @@ public class ExecutableRulesMethodTest {
     private RulesEngineFactory<A1> engineFactory;
     private A1 instance;
 
-    public static interface A1 {
+    public interface A1 {
         String Random(Boolean a1);
 
         String Random2(Boolean a1);
@@ -27,7 +27,7 @@ public class ExecutableRulesMethodTest {
 
     @Before
     public void init() throws IOException {
-        engineFactory = new RulesEngineFactory<A1>(__src, A1.class);
+        engineFactory = new RulesEngineFactory<>(__src, A1.class);
         instance = engineFactory.newEngineInstance();
     }
 

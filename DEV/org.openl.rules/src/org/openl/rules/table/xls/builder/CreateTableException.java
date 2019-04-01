@@ -5,7 +5,7 @@ package org.openl.rules.table.xls.builder;
  */
 public class CreateTableException extends Exception {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 9041897689424313975L;
 

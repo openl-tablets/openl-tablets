@@ -11,7 +11,7 @@ import org.springframework.core.env.PropertySource;
 /**
  * Holds collections of {@link PropertySource}. Add {@link PropertySource} at the beginof the list. Implemented for
  * support Spring 3.2.
- * 
+ *
  * @author Yury Molchan
  */
 class CompositePropertySource extends EnumerablePropertySource<Object> {

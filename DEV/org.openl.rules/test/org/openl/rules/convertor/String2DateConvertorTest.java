@@ -1,14 +1,14 @@
 package org.openl.rules.convertor;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Date;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class String2DateConvertorTest {
 

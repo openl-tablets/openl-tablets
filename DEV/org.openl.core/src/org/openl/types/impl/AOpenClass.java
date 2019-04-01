@@ -7,15 +7,7 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -441,7 +433,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     /**
      * Default implementation.
-     * 
+     *
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
@@ -456,7 +448,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     /**
      * Default implementation. Always returns <code>null</code>.
-     * 
+     *
      */
     @Override
     public Collection<IOpenClass> getTypes() {

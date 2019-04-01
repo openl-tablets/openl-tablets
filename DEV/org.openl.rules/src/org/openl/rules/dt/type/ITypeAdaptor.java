@@ -4,18 +4,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 
 public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
-    public C convert(T param);
+    C convert(T param);
 
     C increment(C value);
 
@@ -28,7 +21,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     }
 
-    public static ITypeAdaptor<String, String> STRING = new ITypeAdaptor<String, String>() {
+    ITypeAdaptor<String, String> STRING = new ITypeAdaptor<String, String>() {
 
         @Override
         public String convert(String param) {
@@ -67,7 +60,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
+    ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
         @Override
         public Byte increment(Byte value) {
             if (value == null) {
@@ -86,7 +79,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<ByteValue, Byte> BYTE_VALUE = new NumberTypeAdaptor<ByteValue, Byte>() {
+    ITypeAdaptor<ByteValue, Byte> BYTE_VALUE = new NumberTypeAdaptor<ByteValue, Byte>() {
         @Override
         public Byte convert(ByteValue param) {
             if (param == null) {
@@ -114,7 +107,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
+    ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
         @Override
         public Short increment(Short value) {
             if (value == null) {
@@ -133,7 +126,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    public static ITypeAdaptor<ShortValue, Short> SHORT_VALUE = new NumberTypeAdaptor<ShortValue, Short>() {
+    ITypeAdaptor<ShortValue, Short> SHORT_VALUE = new NumberTypeAdaptor<ShortValue, Short>() {
         @Override
         public Short convert(ShortValue param) {
             if (param == null) {
@@ -160,7 +153,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    public static ITypeAdaptor<Long, Long> LONG = new NumberTypeAdaptor<Long, Long>() {
+    ITypeAdaptor<Long, Long> LONG = new NumberTypeAdaptor<Long, Long>() {
 
         @Override
         public Long increment(Long value) {
@@ -180,7 +173,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<LongValue, Long> LONG_VALUE = new NumberTypeAdaptor<LongValue, Long>() {
+    ITypeAdaptor<LongValue, Long> LONG_VALUE = new NumberTypeAdaptor<LongValue, Long>() {
 
         @Override
         public Long convert(LongValue param) {
@@ -209,7 +202,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Double, Double> DOUBLE = new NumberTypeAdaptor<Double, Double>() {
+    ITypeAdaptor<Double, Double> DOUBLE = new NumberTypeAdaptor<Double, Double>() {
 
         @Override
         public Double increment(Double value) {
@@ -229,7 +222,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<DoubleValue, Double> DOUBLE_VALUE = new NumberTypeAdaptor<DoubleValue, Double>() {
+    ITypeAdaptor<DoubleValue, Double> DOUBLE_VALUE = new NumberTypeAdaptor<DoubleValue, Double>() {
 
         @Override
         public Double convert(DoubleValue param) {
@@ -257,7 +250,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Float, Float> FLOAT = new NumberTypeAdaptor<Float, Float>() {
+    ITypeAdaptor<Float, Float> FLOAT = new NumberTypeAdaptor<Float, Float>() {
 
         @Override
         public Float increment(Float value) {
@@ -277,7 +270,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<BigInteger, BigInteger> BIGINTEGER = new NumberTypeAdaptor<BigInteger, BigInteger>() {
+    ITypeAdaptor<BigInteger, BigInteger> BIGINTEGER = new NumberTypeAdaptor<BigInteger, BigInteger>() {
         @Override
         public BigInteger increment(BigInteger value) {
             return value.add(BigInteger.ONE);
@@ -289,7 +282,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    public static ITypeAdaptor<BigIntegerValue, BigInteger> BIGINTEGER_VALUE = new NumberTypeAdaptor<BigIntegerValue, BigInteger>() {
+    ITypeAdaptor<BigIntegerValue, BigInteger> BIGINTEGER_VALUE = new NumberTypeAdaptor<BigIntegerValue, BigInteger>() {
         @Override
         public BigInteger convert(BigIntegerValue param) {
             if (param == null) {
@@ -309,7 +302,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    public static ITypeAdaptor<BigDecimal, BigDecimal> BIGDECIMAL = new NumberTypeAdaptor<BigDecimal, BigDecimal>() {
+    ITypeAdaptor<BigDecimal, BigDecimal> BIGDECIMAL = new NumberTypeAdaptor<BigDecimal, BigDecimal>() {
         @Override
         public BigDecimal increment(BigDecimal value) {
             return value.add(value.ulp());
@@ -322,7 +315,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<BigDecimalValue, BigDecimal> BIGDECIMAL_VALUE = new NumberTypeAdaptor<BigDecimalValue, BigDecimal>() {
+    ITypeAdaptor<BigDecimalValue, BigDecimal> BIGDECIMAL_VALUE = new NumberTypeAdaptor<BigDecimalValue, BigDecimal>() {
         @Override
         public BigDecimal convert(BigDecimalValue param) {
             if (param == null) {
@@ -342,7 +335,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    public static ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
+    ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
 
         @Override
         public Float convert(FloatValue param) {
@@ -370,7 +363,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
+    ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
 
         @Override
         public Integer increment(Integer value) {
@@ -390,7 +383,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<IntValue, Integer> INT_VALUE = new NumberTypeAdaptor<IntValue, Integer>() {
+    ITypeAdaptor<IntValue, Integer> INT_VALUE = new NumberTypeAdaptor<IntValue, Integer>() {
 
         @Override
         public Integer convert(IntValue param) {
@@ -418,9 +411,9 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public static ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {
+    ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {
 
-        static final long MS_IN_A_DAY = 1000 * 3600 * 24l;
+        long MS_IN_A_DAY = 1000 * 3600 * 24l;
 
         @Override
         public Integer convert(Date date) {
@@ -440,6 +433,6 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    public Class<C> getTargetType();
+    Class<C> getTargetType();
 
 }

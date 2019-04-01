@@ -1,10 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Domain;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.*;
 
 //
 //: DomainImpl.java

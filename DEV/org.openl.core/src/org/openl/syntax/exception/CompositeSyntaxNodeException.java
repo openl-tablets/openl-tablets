@@ -14,7 +14,7 @@ import org.openl.exception.OpenlNotCheckedException;
 /**
  * <code>SyntaxNodeException</code> is the base exception class of those exceptions that can be thrown by engine during
  * compilation process.
- * 
+ *
  * @author snshor
  */
 public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
@@ -33,7 +33,7 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
 
     /**
      * Constructs new instance of the class.
-     * 
+     *
      * @param message message of exception
      * @param errors syntax errors (reason of exception)
      */
@@ -46,9 +46,9 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
 
     /**
      * Gets the exception message.
-     * 
+     *
      * Note. Class hides the original exception message that contains error stack trace and returns his own message.
-     * 
+     *
      * @return exception message
      */
     @Override
@@ -74,7 +74,7 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
 
     /**
      * Gets syntax errors.
-     * 
+     *
      * @return syntax errors
      */
     public SyntaxNodeException[] getErrors() {

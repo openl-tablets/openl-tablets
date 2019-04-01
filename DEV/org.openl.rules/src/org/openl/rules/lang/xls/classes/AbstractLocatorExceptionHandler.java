@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * Abstract stub for exception handlers
- * 
+ *
  * @author NSamatov
  */
 public abstract class AbstractLocatorExceptionHandler implements LocatorExceptionHandler {

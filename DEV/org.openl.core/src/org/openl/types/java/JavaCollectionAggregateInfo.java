@@ -6,7 +6,9 @@
 
 package org.openl.types.java;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;

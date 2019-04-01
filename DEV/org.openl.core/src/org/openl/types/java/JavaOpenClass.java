@@ -6,23 +6,12 @@
 
 package org.openl.types.java;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 import org.openl.base.INamedThing;
 import org.openl.gen.JavaInterfaceImplBuilder;
-import org.openl.types.IAggregateInfo;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
@@ -233,8 +222,9 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getName() {
-        if (name == null)
+        if (name == null) {
             name = instanceClass.getCanonicalName();
+        }
         return name;
     }
 
@@ -517,7 +507,7 @@ public class JavaOpenClass extends AOpenClass {
             methodMap.putAll(super.initMethodMap());
 
             for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { // Any interface has Object methods. For example:
-                                                                       // toString()
+                // toString()
                 methodMap.put(new MethodKey(om), om);
             }
 

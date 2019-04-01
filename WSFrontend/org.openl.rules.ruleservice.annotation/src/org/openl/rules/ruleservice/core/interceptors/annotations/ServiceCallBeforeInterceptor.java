@@ -9,9 +9,9 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 
 /**
  * Annotation for registering before method intercepters.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

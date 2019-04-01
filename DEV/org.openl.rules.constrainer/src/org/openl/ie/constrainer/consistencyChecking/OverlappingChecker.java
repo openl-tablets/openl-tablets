@@ -11,5 +11,5 @@ package org.openl.ie.constrainer.consistencyChecking;
 import java.util.List;
 
 public interface OverlappingChecker {
-    public List<Overlapping> check();
+    List<Overlapping> check();
 }

@@ -1,11 +1,11 @@
 package org.openl.util;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Created by tsaltsevich on 5/3/2016.

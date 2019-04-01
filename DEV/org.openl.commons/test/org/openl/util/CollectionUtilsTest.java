@@ -2,12 +2,7 @@ package org.openl.util;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.Test;
 import org.openl.util.CollectionUtils.Predicate;
@@ -25,7 +20,7 @@ public class CollectionUtilsTest {
 
     @Test
     public void testIsEmptyCollection() throws Exception {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         assertTrue("Collection is not empty", CollectionUtils.isEmpty(list));
         list.add("");
         assertFalse("Collection is empty", CollectionUtils.isEmpty(list));
@@ -36,7 +31,7 @@ public class CollectionUtilsTest {
 
     @Test
     public void testIsNotEmptyCollection() throws Exception {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty(list));
         list.add("");
         assertTrue("Collection is not empty", CollectionUtils.isNotEmpty(list));
@@ -47,7 +42,7 @@ public class CollectionUtilsTest {
 
     @Test
     public void testIsEmptyMap() throws Exception {
-        Map<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         assertTrue("Collection is not empty", CollectionUtils.isEmpty(map));
         map.put(null, null);
         assertFalse("Collection is empty", CollectionUtils.isEmpty(map));
@@ -58,7 +53,7 @@ public class CollectionUtilsTest {
 
     @Test
     public void testIsNotEmptyMap() throws Exception {
-        Map<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty(map));
         map.put(null, null);
         assertTrue("Collection is not empty", CollectionUtils.isNotEmpty(map));

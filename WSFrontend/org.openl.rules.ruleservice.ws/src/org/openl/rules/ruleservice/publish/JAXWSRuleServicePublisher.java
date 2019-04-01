@@ -2,14 +2,7 @@ package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.databinding.DataBinding;
@@ -20,11 +13,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
-import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
-import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
-import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
-import org.openl.rules.ruleservice.logging.ObjectSerializer;
+import org.openl.rules.ruleservice.logging.*;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.logging.AegisObjectSerializer;
@@ -36,7 +25,7 @@ import org.springframework.beans.factory.ObjectFactory;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {

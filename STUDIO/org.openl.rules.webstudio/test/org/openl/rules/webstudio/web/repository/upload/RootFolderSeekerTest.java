@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +11,7 @@ public class RootFolderSeekerTest {
 
     @Test
     public void test() {
-        Set<String> folderNames = new HashSet<String>();
+        Set<String> folderNames = new HashSet<>();
         folderNames.add("my/");
         folderNames.add("my/file.txt");
         folderNames.add("my/very_very_very_big_file_name.xml");
@@ -32,7 +32,7 @@ public class RootFolderSeekerTest {
 
     @Test
     public void testFilesInRootDirectory() {
-        Set<String> folderNames = new HashSet<String>();
+        Set<String> folderNames = new HashSet<>();
         folderNames.add("my/");
         folderNames.add("file.txt");
         folderNames.add("very_very_very_big_file_name.xml");

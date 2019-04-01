@@ -58,10 +58,12 @@ public class RangeWithBounds {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof RangeWithBounds))
+        }
+        if (!(o instanceof RangeWithBounds)) {
             return false;
+        }
         RangeWithBounds that = (RangeWithBounds) o;
         return Objects.equals(min, that.min) && Objects.equals(max,
             that.max) && leftBoundType == that.leftBoundType && rightBoundType == that.rightBoundType;

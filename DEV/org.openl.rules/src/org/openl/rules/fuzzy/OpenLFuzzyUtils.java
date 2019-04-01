@@ -1,15 +1,7 @@
 package org.openl.rules.fuzzy;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -114,7 +106,7 @@ public final class OpenLFuzzyUtils {
         Map<Token, IOpenMethod[][]> ret = cache.get(openClass);
         if (ret == null) {
             Map<String, Integer> distanceMap = new HashMap<>(); // For
-                                                                // optimization
+            // optimization
             Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
             if (StringUtils.isBlank(tokenPrefix)) {
                 map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 0, setterMethods);

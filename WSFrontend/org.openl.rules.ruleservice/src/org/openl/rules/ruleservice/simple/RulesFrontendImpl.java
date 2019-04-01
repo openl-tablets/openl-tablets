@@ -57,7 +57,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     @Override
     public java.util.Collection<String> getServiceNames() {
         return new ArrayList<>(runningServices.keySet());
-    };
+    }
 
     @Override
     public OpenLService findServiceByName(String serviceName) {

@@ -2,6 +2,7 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import java.math.BigDecimal;
 
 import org.junit.Test;

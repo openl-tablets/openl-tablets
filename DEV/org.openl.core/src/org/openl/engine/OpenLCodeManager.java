@@ -21,7 +21,7 @@ import org.openl.types.impl.OpenMethodHeader;
 /**
  * Class that defines OpenL engine manager implementation for operations with code such as make type, make method and
  * etc.
- * 
+ *
  */
 public class OpenLCodeManager extends OpenLHolder {
 
@@ -30,7 +30,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
     /**
      * Default constructor.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLCodeManager(OpenL openl) {
@@ -41,7 +41,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
     /**
      * Makes open class that describes a type.
-     * 
+     *
      * @param source source
      * @param bindingContext binding context
      * @return {@link IOpenClass} instance
@@ -68,7 +68,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
     /**
      * Makes a method from source using method header descriptor.
-     * 
+     *
      * @param source source
      * @param methodHeader method header descriptor
      * @param bindingContext binding context
@@ -87,7 +87,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
     /**
      * Makes a method header from source.
-     * 
+     *
      * @param source source
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
@@ -116,7 +116,7 @@ public class OpenLCodeManager extends OpenLHolder {
      * Makes method with unknown return type from source using method name and method signature. This method used to
      * create open class that hasn't information of return type at compile time. Return type can be recognized at
      * runtime time.
-     * 
+     *
      * @param source source
      * @param methodName method name
      * @param signature method signature

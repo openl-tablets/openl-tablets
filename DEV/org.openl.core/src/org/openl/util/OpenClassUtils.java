@@ -74,9 +74,9 @@ public final class OpenClassUtils {
         }
 
         if (class1.getInstanceClass().isPrimitive() || class2.getInstanceClass().isPrimitive()) { // If
-                                                                                                  // one
-                                                                                                  // is
-                                                                                                  // primitive
+            // one
+            // is
+            // primitive
             if (class1.equals(class2)) {
                 return class1;
             }

@@ -4,7 +4,18 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.rules.repository.common.RevisionGetter;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -14,14 +25,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);

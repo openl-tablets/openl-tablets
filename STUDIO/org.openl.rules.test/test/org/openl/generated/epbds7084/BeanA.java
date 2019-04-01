@@ -83,10 +83,12 @@ public class BeanA {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof BeanA))
+        }
+        if (!(o instanceof BeanA)) {
             return false;
+        }
         BeanA beanA = (BeanA) o;
         return a == beanA.a && B == beanA.B && aa == beanA.aa && aB == beanA.aB && Ba == beanA.Ba && BB == beanA.BB && xB == beanA.xB;
     }

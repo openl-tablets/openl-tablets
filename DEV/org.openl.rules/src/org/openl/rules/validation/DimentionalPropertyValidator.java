@@ -1,11 +1,7 @@
 package org.openl.rules.validation;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
@@ -49,7 +45,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                         Map<String, Object> propertiesB = propsB.getAllDimensionalProperties();
 
                         Set<String> usedKeys = new HashSet<>(); // Performance
-                                                                // improvement
+                        // improvement
                         for (String propKey : propertiesA.keySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
@@ -200,8 +196,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                 return overlapState;
             } else {
                 overlapState = OverlapState.NOT_OVERLAP; // Skip
-                                                         // other
-                                                         // properties
+                // other
+                // properties
                 return overlapState;
             }
         }

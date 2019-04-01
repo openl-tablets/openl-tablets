@@ -1,12 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;

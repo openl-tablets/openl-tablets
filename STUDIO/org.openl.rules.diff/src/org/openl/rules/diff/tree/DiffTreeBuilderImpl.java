@@ -1,12 +1,6 @@
 package org.openl.rules.diff.tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.openl.rules.diff.differs.ProjectionDiffer;
 import org.openl.rules.diff.hierarchy.Projection;
@@ -208,10 +202,12 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == this)
+            if (obj == this) {
                 return true;
-            if (!(obj instanceof ProjectionKey))
+            }
+            if (!(obj instanceof ProjectionKey)) {
                 return false;
+            }
             ProjectionKey other = (ProjectionKey) obj;
 
             return type.equals(other.type) && name.equals(other.name);

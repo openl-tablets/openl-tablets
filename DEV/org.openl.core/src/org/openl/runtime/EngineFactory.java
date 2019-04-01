@@ -17,11 +17,11 @@ import org.openl.vm.IRuntimeEnv;
  * Class EngineFactory creates {@link Proxy} based wrappers around OpenL classes. Each wrapper implements interface T
  * and interface {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching interface T it will produce
  * an error. <br/>
- * 
+ *
  * NOTE: OpenL fieldValues will be exposed as get<Field> methods
- * 
+ *
  * @param <T>
- * 
+ *
  * @author Marat Kamalov
  */
 public class EngineFactory<T> extends ASourceCodeEngineFactory {

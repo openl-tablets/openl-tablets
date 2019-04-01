@@ -1,10 +1,10 @@
 package org.openl.types.impl;
 
+import java.util.Objects;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.util.ClassUtils;
-
-import java.util.Objects;
 
 /**
  * @author snshor

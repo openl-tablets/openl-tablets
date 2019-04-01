@@ -16,7 +16,7 @@ import org.openl.util.StringUtils;
 
 public class TablePropertyValues extends HttpServlet {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -2074749648149949900L;
 

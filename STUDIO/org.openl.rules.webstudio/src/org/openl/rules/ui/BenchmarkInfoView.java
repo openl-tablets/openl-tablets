@@ -1,15 +1,15 @@
 package org.openl.rules.ui;
 
+import java.util.Objects;
+
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
 import org.openl.rules.ui.benchmark.BenchmarkUnit;
 
-import java.util.Objects;
-
 /**
  * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and URI of a table that was used to measure
  * the benchmark.
- * 
+ *
  * @author NSamatov
  */
 public class BenchmarkInfoView {
@@ -50,7 +50,7 @@ public class BenchmarkInfoView {
 
     /**
      * Get an id of a table that was used to measure the benchmark
-     * 
+     *
      * @return id of a table that was used to measure the benchmark
      */
     public String getTableId() {
@@ -59,7 +59,7 @@ public class BenchmarkInfoView {
 
     /**
      * Get a test name that was used to measure the benchmark
-     * 
+     *
      * @return test name
      */
     public String getTestName() {
@@ -72,7 +72,7 @@ public class BenchmarkInfoView {
 
     /**
      * Get test execution parameters
-     * 
+     *
      * @return execution parameters
      */
     public ParameterWithValueDeclaration[] getParameters() {
@@ -86,10 +86,12 @@ public class BenchmarkInfoView {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof BenchmarkInfoView))
+        }
+        if (!(obj instanceof BenchmarkInfoView)) {
             return false;
+        }
 
         BenchmarkInfoView other = (BenchmarkInfoView) obj;
 

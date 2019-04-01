@@ -7,11 +7,11 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 
 public class ProjectDependenciesImportAndClasspathTest {
     private static final String SRC = "test-resources/dependencies/testImports/project2";
-    private static final String SRC_WORKSPACE = "test-resources/dependencies/testImports";;
+    private static final String SRC_WORKSPACE = "test-resources/dependencies/testImports";
 
     @Test
     public void test() throws Exception {
-        ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>()
+        ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
             .setProject(SRC)
             .setExecutionMode(false)
             .setWorkspace(SRC_WORKSPACE)

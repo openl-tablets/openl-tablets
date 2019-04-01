@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Request scope managed bean for Trace into File functionality.
- * 
+ *
  * @author Yury Molchan
  */
 @SessionScoped
@@ -29,8 +29,9 @@ public class TraceIntoFileBean {
     private static final char[] indents = new char[256];
 
     static {
-        for (int i = 0; i < indents.length; i++)
+        for (int i = 0; i < indents.length; i++) {
             indents[i] = '\t';
+        }
     }
 
     private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);

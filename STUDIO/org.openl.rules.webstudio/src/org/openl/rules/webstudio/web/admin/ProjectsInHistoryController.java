@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 @ManagedBean(name = "projectsInHistory")
 @RequestScoped

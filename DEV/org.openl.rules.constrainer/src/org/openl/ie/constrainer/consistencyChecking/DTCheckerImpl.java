@@ -11,17 +11,7 @@ package org.openl.ie.constrainer.consistencyChecking;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalAnd;
-import org.openl.ie.constrainer.GoalGenerate;
-import org.openl.ie.constrainer.GoalImpl;
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntBoolExpConst;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.*;
 
 public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {

@@ -15,7 +15,7 @@ import org.openl.types.impl.DynamicObject;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class TestMethodBoundNode extends DataTableBoundNode {
 

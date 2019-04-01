@@ -4,16 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalAnd;
-import org.openl.ie.constrainer.GoalGenerate;
-import org.openl.ie.constrainer.GoalImpl;
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.*;
 
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
@@ -43,8 +34,8 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
     private class GoalSaveSolutions extends GoalImpl {
         /**
-             * 
-             */
+         *
+         */
         private static final long serialVersionUID = 4298252562811799305L;
 
         List<Overlapping> overlappingRules;
@@ -58,8 +49,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         public Goal execute() throws Failure {
             Overlapping over = new Overlapping(_dt.getVars());
             for (int i = 0; i < _dt.getRules().length; i++) {
-                if (removed[i])
+                if (removed[i]) {
                     continue;
+                }
                 IntBoolExp rule = _dt.getRule(i);
                 if (rule.bound() && (rule.max() == 1)) {
                     over.addRule(i);
@@ -92,8 +84,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         IntExpArray ruleArray = new IntExpArray(C, rules.length - nRemoved);
         for (int i = 0, r = 0; i < rules.length; i++) {
-            if (!removed[i])
+            if (!removed[i]) {
                 ruleArray.set(rules[i], r++);
+            }
         }
         Constraint overlapping = (ruleArray.sum().gt(1)).asConstraint();
         Goal save = new GoalSaveSolutions(C, overlappingRules);
@@ -114,8 +107,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                 for (int j = i + 1; j < rules.length; j++) {
 
                     IntPair pair = new IntPair(rules[i], rules[j]);
-                    if (checkedPairs.contains(pair))
+                    if (checkedPairs.contains(pair)) {
                         continue;
+                    }
                     checkedPairs.add(pair);
 
                     int A = _dt.isOverrideAscending() ? i : j;
@@ -144,8 +138,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     }
 
     private void checkWithRemove(int ind) {
-        if (hadBeenRemoved[ind])
+        if (hadBeenRemoved[ind]) {
             return;
+        }
         hadBeenRemoved[ind] = true;
         remove(ind);
         checkInternal();

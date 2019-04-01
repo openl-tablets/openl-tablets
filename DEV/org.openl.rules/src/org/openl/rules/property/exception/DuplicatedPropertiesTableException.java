@@ -7,7 +7,7 @@ import org.openl.util.text.ILocation;
 
 /**
  * Exception class for situation when we have more than one module properties table or more than one table for category.
- * 
+ *
  * @author DLiauchuk
  */
 public class DuplicatedPropertiesTableException extends TablePropertiesException {

@@ -1,31 +1,32 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.filter.AllFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.filter.AllFilter;
-import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @ManagedBean
 @SessionScoped

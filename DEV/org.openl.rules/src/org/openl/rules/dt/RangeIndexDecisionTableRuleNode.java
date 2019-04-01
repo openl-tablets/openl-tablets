@@ -1,9 +1,9 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.dt.index.IRuleIndex;
-
 import java.util.Arrays;
 import java.util.Set;
+
+import org.openl.rules.dt.index.IRuleIndex;
 
 public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode {
 

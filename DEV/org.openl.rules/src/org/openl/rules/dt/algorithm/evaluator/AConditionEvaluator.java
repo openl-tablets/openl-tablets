@@ -12,8 +12,9 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
     @Override
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         IMethodCaller mc = condition.getEvaluator();
-        if (mc instanceof ParameterMethodCaller)
+        if (mc instanceof ParameterMethodCaller) {
             return indexedDomain(condition);
+        }
         throw new DomainCanNotBeDefined("Not a Simple Expression", getFormalSourceCode(condition).getCode());
     }
 

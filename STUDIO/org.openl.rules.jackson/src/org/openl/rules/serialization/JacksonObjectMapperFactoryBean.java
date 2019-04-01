@@ -11,19 +11,10 @@ package org.openl.rules.serialization;
  */
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +129,7 @@ public class JacksonObjectMapperFactoryBean {
      * ISO-8601 are represented as local time (with the location unspecified), as UTC, or as an offset from UTC. If no
      * UTC relation information is given with a time representation, the time is assumed to be in local time. Examples,
      * when local Time Zone is +2:
-     * 
+     *
      * <pre>
      *     2016-12-31T22:00:00 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
      *     2016-12-31T22:00:00Z corresponds to 2017-01-01T00:00:00+0200 in local Time Zone

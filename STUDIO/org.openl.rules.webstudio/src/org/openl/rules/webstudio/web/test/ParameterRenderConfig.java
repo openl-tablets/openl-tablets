@@ -44,7 +44,7 @@ public class ParameterRenderConfig {
      * Get the field of a complex object that can be represented as a simple representation of an object. For example
      * this field often is used as a foreign key in Data and Test tables. Key field is shown in parentheses. For example
      * if key field of a Driver type is firstName, the object is displayed as:
-     * 
+     *
      * <pre>
      * Driver (John), Driver (Jill)
      * </pre>

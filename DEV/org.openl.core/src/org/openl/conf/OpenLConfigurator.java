@@ -6,10 +6,10 @@
 
 package org.openl.conf;
 
-import org.openl.OpenL;
-
 import java.io.File;
 import java.util.Properties;
+
+import org.openl.OpenL;
 
 /**
  *

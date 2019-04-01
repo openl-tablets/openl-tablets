@@ -35,7 +35,7 @@ public class Enum<T> {
     }
 
     /**
-     * 
+     *
      * @param obj
      * @return
      * @throws RuntimeException if object is outside of a valid domain.

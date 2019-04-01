@@ -1,5 +1,14 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.io.IOException;
+import java.util.*;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
@@ -22,15 +31,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
-
-import java.io.IOException;
-import java.util.*;
 
 /**
  * @author Aliaksandr Antonik.

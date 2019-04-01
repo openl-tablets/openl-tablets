@@ -1,13 +1,13 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 
 /**
  * Build tree node for one version of some table.
- * 
+ *
  * @author PUdalau
  */
 public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {

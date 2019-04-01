@@ -12,7 +12,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Instantiation strategy for single module.
- * 
+ *
  * @author PUdalau
  */
 public abstract class SingleModuleInstantiationStrategy extends CommonRulesInstantiationStrategy {

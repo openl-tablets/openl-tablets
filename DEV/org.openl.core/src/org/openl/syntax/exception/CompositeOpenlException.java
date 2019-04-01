@@ -9,7 +9,7 @@ import org.openl.message.OpenLMessage;
 
 /**
  * Added possibility to handle list of {@link OpenLMessage}.
- * 
+ *
  */
 public class CompositeOpenlException extends CompositeSyntaxNodeException {
 
@@ -46,6 +46,6 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
     }
 
     public OpenLMessage[] getErrorMessages() {
-        return new ArrayList<OpenLMessage>(errorMessages).toArray(new OpenLMessage[errorMessages.size()]);
+        return new ArrayList<>(errorMessages).toArray(new OpenLMessage[errorMessages.size()]);
     }
 }

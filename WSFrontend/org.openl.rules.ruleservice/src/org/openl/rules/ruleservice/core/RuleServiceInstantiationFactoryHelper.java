@@ -6,11 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -26,7 +22,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Special ClassVistor to generate interface with {@link Object} as the return type for methods that have "after
      * interceptors".
-     * 
+     *
      * @author PUdalau
      */
     private static class RuleserviceInterceptorsSupportClassVisitor extends ClassVisitor {
@@ -35,7 +31,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
 
         /**
          * Constructs instanse with delegated {@link ClassVisitor} and set of methods.
-         * 
+         *
          * @param visitor delegated {@link ClassVisitor}.
          * @param methods Methods where to change return type.
          */
@@ -87,7 +83,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Returns service class for instantiation strategy according to after interceptors of methods in service class of
      * service specified as the argument.
-     * 
+     *
      * @param instantiationStrategy instantiation strategy where returned interfaces will be set.
      * @param serviceClass Interface for service, which will be used for service class creation.
      * @return Service class for instantiation strategy based on service class for service.
@@ -168,7 +164,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Look through all methods (skip methods for variations) of the specified class in order to find all methods
      * annotated by {@link ServiceCallAfterInterceptor}.
-     * 
+     *
      * @param serviceClass Class to be analyzed.
      * @return returns true if class contains annotated method, otherwise returns false.
      */
@@ -184,7 +180,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Look through all methods of the specified class in order to find all methods annotated by
      * {@link ServiceExtraMethod}.
-     * 
+     *
      * @param serviceClass Class to be analyzed.
      * @return returns true if class contains annotated method, otherwise returns false.
      */
@@ -200,7 +196,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Look through all methods of the specified class in order to find all methods annotated by
      * {@link ServiceCallAfterInterceptor}.
-     * 
+     *
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */
@@ -217,7 +213,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     /**
      * Look through all methods of the specified class in order to find all methods annotated by
      * {@link ServiceExtraMethod}.
-     * 
+     *
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */

@@ -30,7 +30,7 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         m_data = new double[capacity];
     }
 
-    public final void add(double val) {
+    public void add(double val) {
         if (m_size == m_data.length) {
             grow();
         }
@@ -69,11 +69,11 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         System.arraycopy(old, 0, m_data, 0, m_size);
     }
 
-    public final boolean isEmpty() {
+    public boolean isEmpty() {
         return m_size == 0;
     }
 
-    public final double peek() {
+    public double peek() {
         return m_data[m_size - 1];
     }
 

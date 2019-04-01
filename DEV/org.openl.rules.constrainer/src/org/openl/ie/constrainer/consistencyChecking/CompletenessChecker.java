@@ -15,5 +15,5 @@ public interface CompletenessChecker {
      * returns Vector of uncovered regions in the space of states
      */
 
-    public List<Uncovered> check();
+    List<Uncovered> check();
 }

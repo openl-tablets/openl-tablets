@@ -1,11 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
@@ -17,7 +12,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 
 /**
  * Caches compiled modules. Uses EhCache. This is singleton and thread safe implementation.
- * 
+ *
  * @author Marat Kamalov
  */
 public final class CompiledOpenClassCache {
@@ -72,7 +67,7 @@ public final class CompiledOpenClassCache {
 
     /**
      * Returns singleton CompiledOpenClassCache
-     * 
+     *
      * @return
      */
     public static CompiledOpenClassCache getInstance() {

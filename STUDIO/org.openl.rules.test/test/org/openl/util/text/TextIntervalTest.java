@@ -6,9 +6,9 @@
 
 package org.openl.util.text;
 
+import org.junit.Assert;
 import org.openl.grammar.JavaCC30Position;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
 /**

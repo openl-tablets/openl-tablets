@@ -137,6 +137,6 @@ public class XlsCellTest {
         Object objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof Double);
         assertEquals(123.343, (Double) objectValue, 0.001); // the value will be taken from the top left
-                                                            // cell from the region
+        // cell from the region
     }
 }

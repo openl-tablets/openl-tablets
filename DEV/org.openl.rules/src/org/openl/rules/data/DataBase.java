@@ -18,7 +18,7 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DataBase implements IDataBase {
 

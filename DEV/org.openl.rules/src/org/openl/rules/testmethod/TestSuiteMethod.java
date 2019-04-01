@@ -1,11 +1,6 @@
 package org.openl.rules.testmethod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -24,8 +19,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.CollectionType;
 import org.openl.types.impl.CollectionElementField;
+import org.openl.types.impl.CollectionType;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
@@ -239,9 +234,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     /**
      * Indicates if test method has any row rules for testing target table. Finds it by field that contains
      * {@link TestMethodHelper#EXPECTED_RESULT_NAME} or {@link TestMethodHelper#EXPECTED_ERROR}
-     * 
+     *
      * @return true if method expects some return result or some error.
-     * 
+     *
      *         TODO: rename it. it is difficult to understand what is it doing
      */
     public boolean isRunmethodTestable() {

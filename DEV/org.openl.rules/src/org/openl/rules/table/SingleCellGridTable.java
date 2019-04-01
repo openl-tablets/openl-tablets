@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 /**
  * Single cell grid table. Introduced to optimize SubGridTable
- * 
+ *
  * @author snshor
  */
 public class SingleCellGridTable extends AGridTableDecorator {
@@ -48,8 +48,9 @@ public class SingleCellGridTable extends AGridTableDecorator {
 
     @Override
     public ICell getCell(int column, int row) {
-        if (cachedCell == null)
+        if (cachedCell == null) {
             cachedCell = table.getCell(fromColumn, fromRow);
+        }
         return cachedCell;
     }
 

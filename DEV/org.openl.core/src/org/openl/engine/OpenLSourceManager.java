@@ -1,11 +1,6 @@
 package org.openl.engine;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
@@ -34,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class that defines OpenL engine manager implementation for source processing operations.
- * 
+ *
  */
 public class OpenLSourceManager extends OpenLHolder {
 
@@ -49,7 +44,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
     /**
      * Create new instance of OpenL engine manager.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLSourceManager(OpenL openl) {
@@ -62,7 +57,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
     /**
      * Parses and binds source.
-     * 
+     *
      * @param source source
      * @param sourceType type of source
      * @return processed code descriptor
@@ -73,7 +68,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
     /**
      * Parses and binds source.
-     * 
+     *
      * @param source source
      * @param sourceType type of source
      * @return processed code descriptor
@@ -130,7 +125,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
     /**
      * Parses and binds source.
-     * 
+     *
      * @param source source
      * @param sourceType type of source
      * @param bindingContext binding context
@@ -185,8 +180,8 @@ public class OpenLSourceManager extends OpenLHolder {
                             }
 
                             for (OpenLMessage message : compiledOpenClass.getMessages()) { // Save
-                                                                                           // messages
-                                                                                           // from
+                                // messages
+                                // from
                                 // dependencies
                                 messages.add(message);
                             }

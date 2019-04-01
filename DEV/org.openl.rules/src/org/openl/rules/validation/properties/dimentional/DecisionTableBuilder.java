@@ -15,7 +15,7 @@ import org.openl.types.NullOpenClass;
 
 /**
  * Creates the memory representation of DT table by POI.
- * 
+ *
  * @author DLiauchuk
  *
  */

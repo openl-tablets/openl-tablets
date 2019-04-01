@@ -20,9 +20,9 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 /**
  * Configuration for the nested spreadsheet result converter. Extend it by overriding abstract methods
  * {@link #initCompoundRowExtractor(List)} and {@link #initSimpleRowExtractor(List)}
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  * @param <T> class that will be populated with values, when extracting rows without compound results.
  * @param <Q> class that will be populated with values, when extracting rows wit compound results.
  */
@@ -41,7 +41,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     }
 
     /**
-     * 
+     *
      * @param columnsToExtractForLevels Map of columns that gonna be extracted on each level of extracting key: number
      *            of the nesting level. value: list of columns to extract
      */
@@ -50,7 +50,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     }
 
     /**
-     * 
+     *
      * @param nestingLevel current nesting level
      * @return list of columns that must be extracted on given level
      */
@@ -60,7 +60,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
 
     /**
      * Implement this method to return {@link RowExtractor} for the rows with only simple columns.
-     * 
+     *
      * @param simpleExtractors extractors for simple columns
      * @return {@link RowExtractor} for the rows with only simple columns
      */
@@ -68,7 +68,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
 
     /**
      * Implement this method to return {@link RowExtractor} for the rows contain compound columns.
-     * 
+     *
      * @param compoundExtractors extractors for compound columns
      * @return {@link RowExtractor} for the rows contain compound columns
      */
@@ -80,7 +80,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
 
     /**
      * Initialize the extractor for the column that is compound.
-     * 
+     *
      * @param nestingLevel current level of nesting
      * @param columnToExtract column for extraction
      * @param mandatory

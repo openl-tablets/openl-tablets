@@ -1,16 +1,16 @@
 package org.openl.types.impl;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 /**
- * 
+ *
  * Key for IOpenMethod.
- * 
+ *
  */
 public final class MethodKey {
     private String name;
@@ -47,7 +47,7 @@ public final class MethodKey {
      * Normalizes types of method parameters. OpenL engine uses alias data types as internal types and they are used
      * only in OpenL. For java users alias data types are represented as appropriate java type. While method key usage
      * we should use underlying type of alias data type parameter as real type of parameter.
-     * 
+     *
      * @param originalParams parameters of method
      * @return normalized parameters
      */
@@ -66,12 +66,14 @@ public final class MethodKey {
             break;
         }
 
-        if (firstParamToConvert == -1)
+        if (firstParamToConvert == -1) {
             return originalParams;
+        }
 
         IOpenClass[] normalizedParams = new IOpenClass[originalParams.length];
-        if (firstParamToConvert > 0)
+        if (firstParamToConvert > 0) {
             System.arraycopy(originalParams, 0, normalizedParams, 0, firstParamToConvert);
+        }
 
         for (int i = firstParamToConvert; i < originalParams.length; i++) {
             IOpenClass param = originalParams[i];

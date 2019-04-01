@@ -9,7 +9,7 @@ import org.openl.util.text.ILocation;
  * As we have error gathering mechanism based on exceptions, this is a parent class for all error situations linked with
  * properties in all tables and in the property table component. If you need to describe new problem situations with
  * properties, extend your class from this one.
- * 
+ *
  * @author DLiauchuk
  *
  */

@@ -15,7 +15,7 @@ import org.openl.types.impl.OpenMethodHeader;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class MethodTableNodeBinder extends AExecutableNodeBinder {
 

@@ -2,13 +2,7 @@ package org.openl.rules.ruleservice.conf;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;

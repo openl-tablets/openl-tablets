@@ -19,7 +19,7 @@ import org.openl.util.StringUtils;
 
 /**
  * @author Pavel Tarasevich
- * 
+ *
  */
 public final class PassCoder {
     private static byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

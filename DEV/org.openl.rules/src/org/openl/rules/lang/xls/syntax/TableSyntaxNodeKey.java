@@ -6,7 +6,7 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 /**
  * Key to check identity of tables represented by TableSyntaxNodes. Tables are identical when they have the same method
  * signature and the same business dimension properties.
- * 
+ *
  * @author PUdalau
  */
 public class TableSyntaxNodeKey {
@@ -26,7 +26,7 @@ public class TableSyntaxNodeKey {
     }
 
     /**
-     * 
+     *
      * @return {@link DimensionPropertiesMethodKey} for {@link TableSyntaxNode} member.
      */
     public DimensionPropertiesMethodKey getMethodKey() {

@@ -9,7 +9,7 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * Action for moving table to unoccupied place of grid.
- * 
+ *
  * @author PUdalau
  */
 public class UndoableMoveTableAction extends UndoableEditTableAction {

@@ -1,5 +1,7 @@
 package org.openl.rules.binding;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,8 +18,6 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.types.IOpenMethod;
-
-import static org.junit.Assert.*;
 
 public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/binding/MethodUsagesMetaInfoTest.xlsx";

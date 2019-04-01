@@ -1,8 +1,6 @@
 package org.openl.rules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -71,7 +69,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is 8 rules dependencies", 8, rulesMethods.size());
 
-            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<ExecutableMethod>();
+            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
             expectedRuledDependencies
                 .add((ExecutableMethod) findTable("Rules String driverAgeType(Driver driver)").getMember());
             expectedRuledDependencies
@@ -137,7 +135,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is 2 rules dependency", 2, rulesMethods.size());
 
-            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<ExecutableMethod>();
+            Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method int start2()").getMember());
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method void callVoid()").getMember());
 
@@ -165,7 +163,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
         assertEquals("There is 1 rule dependency", 1, rulesMethods.size());
 
-        Set<ExecutableMethod> expectedRuledDependencies = new HashSet<ExecutableMethod>();
+        Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
         expectedRuledDependencies
             .add((ExecutableMethod) findTable("Rules DoubleValue riskScore(String driverRisk)").getMember());
         boolean allContains = true;

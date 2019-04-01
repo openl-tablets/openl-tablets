@@ -5,7 +5,7 @@ import org.openl.util.StringUtils;
 /**
  * The <code>OpenLMessage</code> class defines a message abstraction. Messages used in the OpenL engine as warnings,
  * errors or information statements to ease communication between engine and end user.
- * 
+ *
  */
 public class OpenLMessage {
 
@@ -21,7 +21,7 @@ public class OpenLMessage {
 
     /**
      * Constructs new instance of message with INFO severity.
-     * 
+     *
      * @param summary brief information
      */
     public OpenLMessage(String summary) {
@@ -30,7 +30,7 @@ public class OpenLMessage {
 
     /**
      * Constructs new instance of message.
-     * 
+     *
      * @param summary brief information
      * @param severity message severity
      */
@@ -41,7 +41,7 @@ public class OpenLMessage {
 
     /**
      * Gets message summary.
-     * 
+     *
      * @return message summary
      */
     public String getSummary() {
@@ -50,7 +50,7 @@ public class OpenLMessage {
 
     /**
      * Gets message severity.
-     * 
+     *
      * @return message severity
      */
     public Severity getSeverity() {
@@ -93,20 +93,26 @@ public class OpenLMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         OpenLMessage other = (OpenLMessage) obj;
-        if (severity != other.severity)
+        if (severity != other.severity) {
             return false;
+        }
         if (summary == null) {
-            if (other.summary != null)
+            if (other.summary != null) {
                 return false;
-        } else if (!summary.equals(other.summary))
+            }
+        } else if (!summary.equals(other.summary)) {
             return false;
+        }
         return true;
     }
 

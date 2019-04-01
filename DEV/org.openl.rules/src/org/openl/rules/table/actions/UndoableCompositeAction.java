@@ -12,7 +12,7 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class UndoableCompositeAction implements IUndoableGridTableAction {
 

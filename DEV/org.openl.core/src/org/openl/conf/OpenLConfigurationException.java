@@ -33,14 +33,17 @@ public class OpenLConfigurationException extends RuntimeException {
     public String getMessage() {
         String myMsg = super.getMessage();
 
-        if (myMsg == null)
+        if (myMsg == null) {
             myMsg = "";
+        }
 
-        if (uri != null)
+        if (uri != null) {
             myMsg += " URI: " + uri;
+        }
 
-        if (getCause() != null)
+        if (getCause() != null) {
             myMsg += " Cause: " + getCause().getMessage();
+        }
 
         return myMsg;
     }

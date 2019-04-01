@@ -6,13 +6,13 @@ import org.openl.util.DomainUtils;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
- * 
+ *
  * Alias data type is special type in OpenL engine. This type used by engine as helpful mechanism to provide for users
  * ability to use types with predefined values. For example, person age is int value, but it cannot be negative. For
  * this reason user can define alias type Age with underlying type IntRange and define appropriate values for age field
  * ( e.g. [0 .. 150]). If user can try to set value which is not contained in range runtime exception will be thrown.
  * For simplicity, alias type is just runtime validation of variable values.
- * 
+ *
  * @see IOpenCast
  */
 final class TypeToAliasCast implements IOpenCast {

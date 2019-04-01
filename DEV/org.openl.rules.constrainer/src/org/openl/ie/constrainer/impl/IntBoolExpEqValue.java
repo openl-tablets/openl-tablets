@@ -1,10 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
+import org.openl.ie.constrainer.*;
 
 /**
  * An implementation of the expression: <code>(IntExp == value)</code>.

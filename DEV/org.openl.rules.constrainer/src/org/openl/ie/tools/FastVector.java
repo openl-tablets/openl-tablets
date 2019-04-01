@@ -57,7 +57,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         }
     }
 
-    public final void add(Object obj) {
+    public void add(Object obj) {
         if (m_size == m_data.length) {
             grow();
         }
@@ -65,7 +65,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         m_data[m_size++] = obj;
     }
 
-    public final void addElement(Object obj) {
+    public void addElement(Object obj) {
         if (m_size == m_data.length) {
             grow();
         }
@@ -138,7 +138,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         m_size++;
     }
 
-    public final boolean isEmpty() {
+    public boolean isEmpty() {
         return m_size == 0;
     }
 
@@ -146,7 +146,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         return m_data[m_size - 1];
     }
 
-    public final Object peek() {
+    public Object peek() {
         return m_data[m_size - 1];
     }
 
@@ -168,7 +168,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         m_data[m_size] = null; /* to let gc do its work */
     }
 
-    public final Object removeLast() {
+    public Object removeLast() {
         return m_data[--m_size];
     }
 

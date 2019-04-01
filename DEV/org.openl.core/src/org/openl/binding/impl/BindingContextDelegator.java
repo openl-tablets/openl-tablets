@@ -9,11 +9,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedTypeException;
-import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.*;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -25,7 +21,7 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class BindingContextDelegator implements IBindingContextDelegator {
 
@@ -162,7 +158,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl. binding .IBindingContext)
      */
     @Override

@@ -4,9 +4,9 @@ import org.openl.rules.diff.hierarchy.Projection;
 
 /**
  * Element in a Diff Tree that corresponds to particular comparing data.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public interface DiffElement {
     /**
@@ -19,7 +19,7 @@ public interface DiffElement {
      * comparing data</li>
      * </ul>
      * Other values are considered non valid.
-     * 
+     *
      * @return difference status
      */
     DiffStatus getDiffStatus();
@@ -50,7 +50,7 @@ public interface DiffElement {
      * Projection of the element.
      * <p>
      * In case if some comparing data has no such element it will return {@literal null}.
-     * 
+     *
      * @return reference on projection of element or {@literal null}
      */
     Projection getProjection();

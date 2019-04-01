@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 /**
  * Part of the grid table. Allows to get different parts from the table.
- * 
+ *
  * @author snshor
  */
 public class SubGridTable extends AGridTableDecorator {

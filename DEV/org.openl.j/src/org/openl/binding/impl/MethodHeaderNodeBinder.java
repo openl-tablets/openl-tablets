@@ -15,7 +15,7 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class MethodHeaderNodeBinder extends ANodeBinder {
 
@@ -25,7 +25,7 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override

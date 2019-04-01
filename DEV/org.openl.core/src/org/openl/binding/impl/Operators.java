@@ -17,7 +17,7 @@ import org.openl.rules.util.dates.DateInterval;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class Operators {
 

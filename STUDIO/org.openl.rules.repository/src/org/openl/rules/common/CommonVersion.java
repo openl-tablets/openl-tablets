@@ -1,7 +1,7 @@
 package org.openl.rules.common;
 
 public interface CommonVersion extends Comparable<CommonVersion> {
-    static final int MAX_MM_INT = 32767;
+    int MAX_MM_INT = 32767;
 
     String getRevision();
 

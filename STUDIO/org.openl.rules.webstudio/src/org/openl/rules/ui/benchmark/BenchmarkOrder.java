@@ -5,7 +5,7 @@ package org.openl.rules.ui.benchmark;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class BenchmarkOrder implements Comparable<BenchmarkOrder> {
 

@@ -13,7 +13,7 @@ import org.openl.rules.lang.xls.prebind.XlsPreBinder;
  * IOpenBinder invocation handler that uses XlsPreBinder on prebind step and XlsBinder on compile step (to compile
  * necessary modules on demand). On prebind step use {@link #setPrebindHandler(IPrebindHandler)} , when prebinding is
  * finished, invoke {@link #removePrebindHandler()}
- * 
+ *
  * @author NSamatov, Marat Kamalov
  */
 public class LazyBinderInvocationHandler implements InvocationHandler {
@@ -24,7 +24,7 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
 
     /**
      * Set a prebind handler for current thread
-     * 
+     *
      * @param prebindHandler prebind handler for current thread
      */
     public static void setPrebindHandler(IPrebindHandler prebindHandler) {
@@ -44,7 +44,7 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
 
     /**
      * Create an IOpenBinder invocation handler.
-     * 
+     *
      * @param originalBinder original binder that will be used to compile necessary modules on demand
      * @param ucxt user context for module
      */

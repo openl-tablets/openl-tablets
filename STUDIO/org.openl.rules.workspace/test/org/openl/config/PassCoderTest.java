@@ -6,7 +6,7 @@ import org.junit.Test;
 
 /**
  * @author Pavel Tarasevich
- * 
+ *
  */
 
 public class PassCoderTest {

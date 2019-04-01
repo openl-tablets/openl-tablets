@@ -1,6 +1,6 @@
 package org.openl.rules.dt.type.domains;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class DimensionPropertiesDomainsCollectorTest extends BaseOpenlBuilderHel
     }
 
     private List<Map<String, Object>> getMethodsProperties() {
-        List<Map<String, Object>> methodsProperties = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> methodsProperties = new ArrayList<>();
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             ITableProperties props = tsn.getTableProperties();
             if (props != null) {

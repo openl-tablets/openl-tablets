@@ -5,9 +5,9 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Defines bound node that cannot be bound successfully.
- * 
+ *
  * @author snshor, Yury Molchan
- * 
+ *
  */
 public class ErrorBoundNode extends ABoundNode {
 

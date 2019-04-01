@@ -2,7 +2,7 @@ package org.openl.rules.context;
 
 /**
  * Runtime context delegator.
- * 
+ *
  * @author PUdalau
  */
 public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {

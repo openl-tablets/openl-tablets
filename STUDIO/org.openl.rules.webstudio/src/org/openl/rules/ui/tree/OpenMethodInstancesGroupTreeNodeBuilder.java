@@ -4,18 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.StringUtils;
 
 /**
  * Builds tree node for group of methods.
- * 
+ *
  */
 public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
@@ -145,7 +145,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
 
     /**
      * Gets the majority name of methods group.
-     * 
+     *
      * @param overloads collection of TableSyntaxNodeKeys what belong to group.
      * @return majority name
      */
@@ -185,7 +185,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
 
     /**
      * Makes node that represents folder.
-     * 
+     *
      * @param folderName name of folder node
      * @return tree node
      */

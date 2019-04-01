@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;

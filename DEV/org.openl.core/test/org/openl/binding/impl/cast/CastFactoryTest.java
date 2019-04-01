@@ -1,9 +1,6 @@
 package org.openl.binding.impl.cast;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Array;
 import java.util.List;

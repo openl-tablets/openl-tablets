@@ -1,6 +1,15 @@
 package org.openl.rules.ui.copy;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.NotBlank;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,7 +33,6 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
@@ -34,11 +42,6 @@ import org.openl.util.conf.Version;
 import org.richfaces.component.UIRepeat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.constraints.Pattern;
-
-import java.lang.reflect.Array;
-import java.util.*;
 
 /**
  * Bean for table coping.

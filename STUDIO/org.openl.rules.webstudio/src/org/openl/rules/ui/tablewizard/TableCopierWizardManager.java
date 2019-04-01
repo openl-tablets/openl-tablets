@@ -4,8 +4,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.ui.copy.DimensionalPropertiesTableCopier;
-import org.openl.rules.ui.copy.VersionPropertyTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
+import org.openl.rules.ui.copy.VersionPropertyTableCopier;
 
 @ManagedBean
 @SessionScoped

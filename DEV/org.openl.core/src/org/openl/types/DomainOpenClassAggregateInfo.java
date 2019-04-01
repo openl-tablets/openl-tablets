@@ -5,7 +5,7 @@ import org.openl.types.java.JavaArrayAggregateInfo;
 
 /**
  * Aggregate info for {@link DomainOpenClass} for creating aggregate and component types based on domain info.
- * 
+ *
  * @author DLiauchuk
  *
  */

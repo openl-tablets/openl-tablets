@@ -3,7 +3,7 @@ package org.openl.cache;
 /**
  * This is immutable object for using it as a key. Build key by array of objects. This is instance controlled class. For
  * instantiate class use static factory method "getInstance" [EJ1].
- * 
+ *
  */
 public class GenericKey {
     private static final GenericKey NULL_KEY = new GenericKey();
@@ -37,10 +37,12 @@ public class GenericKey {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
 
             SingleKey singleKey = (SingleKey) o;
 
@@ -65,15 +67,18 @@ public class GenericKey {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
 
             TupleKey toupleKey = (TupleKey) o;
 
-            if (!object1.equals(toupleKey.object1))
+            if (!object1.equals(toupleKey.object1)) {
                 return false;
+            }
             return object2.equals(toupleKey.object2);
         }
 

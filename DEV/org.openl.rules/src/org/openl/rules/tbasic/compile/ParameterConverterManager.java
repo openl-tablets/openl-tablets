@@ -1,5 +1,9 @@
 package org.openl.rules.tbasic.compile;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
@@ -7,10 +11,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Converts the parameter defined in the TBasic table specification to the appropriate Operation constructor parameter

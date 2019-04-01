@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A project description bean.
- * 
+ *
  * @author Yury Molchan
  */
 @XmlRootElement

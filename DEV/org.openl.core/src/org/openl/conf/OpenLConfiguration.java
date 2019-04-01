@@ -1,12 +1,6 @@
 package org.openl.conf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -366,23 +360,30 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             Key other = (Key) obj;
             if (openClass1 == null) {
-                if (other.openClass1 != null)
+                if (other.openClass1 != null) {
                     return false;
-            } else if (!openClass1.equals(other.openClass1))
+                }
+            } else if (!openClass1.equals(other.openClass1)) {
                 return false;
+            }
             if (openClass2 == null) {
-                if (other.openClass2 != null)
+                if (other.openClass2 != null) {
                     return false;
-            } else if (!openClass2.equals(other.openClass2))
+                }
+            } else if (!openClass2.equals(other.openClass2)) {
                 return false;
+            }
             return true;
         }
     }

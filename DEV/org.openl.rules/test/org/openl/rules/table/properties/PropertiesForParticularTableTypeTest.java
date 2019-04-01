@@ -1,15 +1,11 @@
 package org.openl.rules.table.properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Map;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

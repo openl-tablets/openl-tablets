@@ -66,7 +66,7 @@ public abstract class AEngineFactory {
 
     /**
      * Creates methods map that contains interface's methods as key and appropriate open class's members as value.
-     * 
+     *
      * @param engineInterface interface that provides method for engine
      * @param moduleOpenClass open class that used by engine to invoke appropriate rules
      * @return methods map

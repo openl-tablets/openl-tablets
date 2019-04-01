@@ -49,7 +49,7 @@ public final class PoiExcelHelper {
         try {
             cellTo.setCellStyle(styleFrom);
         } catch (IllegalArgumentException e) { // copy cell style to cell of
-                                               // another workbook
+            // another workbook
             CellStyle styleTo = createCellStyle(sheetTo.getWorkbook());
             styleTo.cloneStyleFrom(styleFrom);
             cellTo.setCellStyle(styleTo);
@@ -85,7 +85,7 @@ public final class PoiExcelHelper {
 
     /**
      * Returns the index of the column. After that column there is no more filled cells on the sheet in given row.
-     * 
+     *
      * @param rownum index of the row on the sheet
      */
     public static int getMaxColumnIndex(int rownum, Sheet sheet) {
@@ -99,7 +99,7 @@ public final class PoiExcelHelper {
 
     /**
      * Returns the index of the column, the next column will be the first cell with data in given row.
-     * 
+     *
      */
     public static int getMinColumnIndex(int rownum, Sheet sheet) {
         Row row = sheet.getRow(rownum);

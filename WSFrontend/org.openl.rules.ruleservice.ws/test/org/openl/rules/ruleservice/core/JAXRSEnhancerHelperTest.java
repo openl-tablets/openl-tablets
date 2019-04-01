@@ -3,26 +3,20 @@ package org.openl.rules.ruleservice.core;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 
 public class JAXRSEnhancerHelperTest {
 
-    public static interface TestInterface {
+    public interface TestInterface {
         void someMethod(int arg);
     }
 
-    public static interface TestParameterInterface {
+    public interface TestParameterInterface {
         void someMethod3();
 
         void someMethod4(int arg0, int arg2, int arg3, int arg4, int arg5);
@@ -32,7 +26,7 @@ public class JAXRSEnhancerHelperTest {
         void someMethod(String arg0, String arg1);
     }
 
-    public static interface TestMethodNameAndPath {
+    public interface TestMethodNameAndPath {
         @Path("/someMethod1")
         void someMethod();
 
@@ -42,7 +36,7 @@ public class JAXRSEnhancerHelperTest {
     }
 
     @Path("/test")
-    public static interface TestAnnotatedInterface {
+    public interface TestAnnotatedInterface {
         @Path("/someMethod/{arg}")
         @GET
         @Consumes(MediaType.APPLICATION_JSON)
@@ -126,7 +120,7 @@ public class JAXRSEnhancerHelperTest {
         }
     }
 
-    public static interface TestAnnotatedInterface1 {
+    public interface TestAnnotatedInterface1 {
         @Path("/someMethod/{arg1}/{arg2}")
         @GET
         String someMethod(@PathParam("arg1") String arg, String arg2);
@@ -156,7 +150,7 @@ public class JAXRSEnhancerHelperTest {
         }
     }
 
-    public static interface TestAnnotatedInterface2 {
+    public interface TestAnnotatedInterface2 {
         @POST
         String someMethod(String arg1, String arg2);
     }
@@ -180,7 +174,7 @@ public class JAXRSEnhancerHelperTest {
         Assert.assertEquals(1, someMethod.getParameterCount());
     }
 
-    public static interface TestAnnotatedInterface3 {
+    public interface TestAnnotatedInterface3 {
         @POST
         @Path("/value")
         String someMethod(String arg1, String arg2);

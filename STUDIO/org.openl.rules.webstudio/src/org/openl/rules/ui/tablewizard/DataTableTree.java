@@ -5,9 +5,9 @@ import org.richfaces.model.TreeNode;
 
 /**
  * Tree class containing object's fields for the Data Table Wizard.
- * 
+ *
  * @author NSamatov
- * 
+ *
  */
 public class DataTableTree {
     private TreeNode rootNode;
@@ -16,7 +16,7 @@ public class DataTableTree {
 
     /**
      * Root node for UI to build a tree. Will be initialized when {@link #setRoot(DataTableTreeNode)} is invoked
-     * 
+     *
      * @return root node
      */
     public TreeNode getRootNode() {
@@ -25,7 +25,7 @@ public class DataTableTree {
 
     /**
      * Get business root containing a type description for the data table.
-     * 
+     *
      * @return Business root
      */
     public DataTableTreeNode getRoot() {
@@ -34,7 +34,7 @@ public class DataTableTree {
 
     /**
      * Set business root containing a type description for the data table.
-     * 
+     *
      * @param root business root
      */
     public void setRoot(DataTableTreeNode root) {
@@ -52,7 +52,7 @@ public class DataTableTree {
 
     /**
      * Get current selected tree node
-     * 
+     *
      * @return current selected tree node
      */
     public UITree getCurrentTreeNode() {
@@ -61,7 +61,7 @@ public class DataTableTree {
 
     /**
      * Set current selected tree node
-     * 
+     *
      * @param currentTreeNode current selected tree node
      */
     public void setCurrentTreeNode(UITree currentTreeNode) {
@@ -70,7 +70,7 @@ public class DataTableTree {
 
     /**
      * Get a data for a current selected tree node
-     * 
+     *
      * @return data for a current selected tree node
      */
     public DataTableTreeNode getCurrentNode() {

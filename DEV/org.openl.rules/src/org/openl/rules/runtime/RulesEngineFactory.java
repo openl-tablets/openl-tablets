@@ -1,5 +1,10 @@
 package org.openl.rules.runtime;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -13,11 +18,6 @@ import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Map;
 
 /**
  * Simple engine factory Requiring only source of rules and generates interface for it if service interface not defined.

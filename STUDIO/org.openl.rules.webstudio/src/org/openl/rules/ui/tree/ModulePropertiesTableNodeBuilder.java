@@ -9,7 +9,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Builder for module properties table.
- * 
+ *
  * @author DLiauchuk
  *
  */

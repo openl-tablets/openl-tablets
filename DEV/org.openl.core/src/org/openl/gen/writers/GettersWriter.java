@@ -3,23 +3,19 @@ package org.openl.gen.writers;
 import java.util.Date;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.gen.FieldDescription;
 import org.openl.util.ClassUtils;
 
 /**
  * Writes getters to the generated bean class.
- * 
+ *
  * @author DLiauchuk
  */
 public class GettersWriter extends MethodWriter {
 
     /**
-     * 
+     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
      * @param beanFields fields of generating class.
@@ -43,7 +39,7 @@ public class GettersWriter extends MethodWriter {
 
     /**
      * Generates getter for the fieldEntry.
-     * 
+     *
      * @param classWriter
      * @param fieldEntry
      */

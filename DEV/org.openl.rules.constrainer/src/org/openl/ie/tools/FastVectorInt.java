@@ -30,7 +30,7 @@ public final class FastVectorInt implements Cloneable, java.io.Serializable {
         m_data = new int[capacity];
     }
 
-    public final void add(int val) {
+    public void add(int val) {
         if (m_size == m_data.length) {
             grow();
         }
@@ -72,11 +72,11 @@ public final class FastVectorInt implements Cloneable, java.io.Serializable {
         System.arraycopy(old, 0, m_data, 0, m_size);
     }
 
-    public final boolean isEmpty() {
+    public boolean isEmpty() {
         return m_size == 0;
     }
 
-    public final int peek() {
+    public int peek() {
         return m_data[m_size - 1];
     }
 

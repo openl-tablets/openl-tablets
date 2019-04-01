@@ -12,7 +12,7 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class LiteralNodeBinder extends ANodeBinder {
 

@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -935,7 +935,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     repository.setGitSettingsPath(gitSettingsPath);
                     repository.git = Git.open(new File(localRepositoryPath));
                     repository.repositoryLock = repositoryLock; // must be common for all instances because git
-                                                                // repository is same
+                    // repository is same
                     repository.branches = branches; // Can be shared between instances
                     repository.monitor = monitor;
 

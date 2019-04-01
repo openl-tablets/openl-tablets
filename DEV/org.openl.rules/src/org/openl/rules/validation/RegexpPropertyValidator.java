@@ -18,7 +18,7 @@ import org.openl.validation.ValidationResult;
 
 /**
  * Validator for string properties that have to correspond to some regexp pattern
- * 
+ *
  * @author PUdalau
  */
 public class RegexpPropertyValidator extends TablesValidator {

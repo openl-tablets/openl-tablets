@@ -2,14 +2,14 @@ package org.openl.rules.table;
 
 import java.net.URL;
 
-import org.junit.Assert;
-import junit.framework.TestCase;
-
 import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.Assert;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.URLSourceCodeModule;
+
+import junit.framework.TestCase;
 
 public class LookupTest extends TestCase {
 

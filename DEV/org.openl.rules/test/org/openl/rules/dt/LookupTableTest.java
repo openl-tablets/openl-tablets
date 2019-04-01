@@ -27,8 +27,7 @@ public class LookupTableTest {
 
     @Before
     public void initEngine() {
-        RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<ILookupTableTest>(SRC,
-            ILookupTableTest.class);
+        RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<>(SRC, ILookupTableTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

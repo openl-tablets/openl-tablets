@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class WebStudioWorkspaceDependencyManagerFactory {
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceDependencyManagerFactory.class);

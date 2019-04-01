@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
@@ -8,12 +15,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * @author Andrei Astrouski

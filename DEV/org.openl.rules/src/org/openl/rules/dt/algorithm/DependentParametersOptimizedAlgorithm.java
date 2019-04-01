@@ -7,27 +7,11 @@ import java.util.regex.Pattern;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.BinaryOpNode;
-import org.openl.binding.impl.BinaryOpNodeAnd;
-import org.openl.binding.impl.BlockNode;
-import org.openl.binding.impl.FieldBoundNode;
-import org.openl.binding.impl.IndexNode;
-import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.binding.impl.*;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.*;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
@@ -50,8 +34,9 @@ class DependentParametersOptimizedAlgorithm {
 
         EvaluatorFactory evaluatorFactory = determineOptimizedEvaluationFactory(condition, signature);
 
-        if (evaluatorFactory == null)
+        if (evaluatorFactory == null) {
             return null;
+        }
 
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
 
@@ -83,8 +68,9 @@ class DependentParametersOptimizedAlgorithm {
                         expressionType,
                         openCast);
 
-                    if (adaptor == null)
+                    if (adaptor == null) {
                         return null;
+                    }
 
                     @SuppressWarnings("unchecked")
                     AConditionEvaluator rix = new SingleRangeIndexEvaluator(
@@ -112,8 +98,9 @@ class DependentParametersOptimizedAlgorithm {
                         expressionType,
                         cast);
 
-                    if (adaptor == null)
+                    if (adaptor == null) {
                         return null;
+                    }
 
                     @SuppressWarnings("unchecked")
                     CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
@@ -338,14 +325,16 @@ class DependentParametersOptimizedAlgorithm {
         IParameterDeclaration[] params = condition.getParams();
 
         String code = condition.getSourceCodeModule().getCode();
-        if (code == null)
+        if (code == null) {
             return null;
+        }
 
         switch (params.length) {
             case 1:
                 String[] parsedValues = oneParameterExpressionParse(condition);
-                if (parsedValues == null)
+                if (parsedValues == null) {
                     return null;
+                }
                 if ("==".equals(parsedValues[1])) {
                     return makeOneParameterEqualsFactory(parsedValues[0],
                         parsedValues[1],
@@ -393,8 +382,9 @@ class DependentParametersOptimizedAlgorithm {
             if (signatureParam == null) {
                 return null;
             }
-            if (!p1.equals(conditionParam.getName()))
+            if (!p1.equals(conditionParam.getName())) {
                 return null;
+            }
             if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
                 .equals(signatureParam.getName())) {
                 return new OneParameterEqualsFactory(signatureParam, p2);
@@ -403,8 +393,9 @@ class DependentParametersOptimizedAlgorithm {
             }
         }
 
-        if (!p2.equals(conditionParam.getName()))
+        if (!p2.equals(conditionParam.getName())) {
             return null;
+        }
 
         if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
             .equals(signatureParam.getName())) {
@@ -422,19 +413,22 @@ class DependentParametersOptimizedAlgorithm {
 
         IParameterDeclaration signatureParam = getParameter(p1, signature);
 
-        if (signatureParam == null)
+        if (signatureParam == null) {
             return makeOppositeOneParameterRangeFactory(p1, op, p2, condition, signature);
+        }
 
         IParameterDeclaration conditionParam = condition.getParams()[0];
 
-        if (!p2.equals(conditionParam.getName()))
+        if (!p2.equals(conditionParam.getName())) {
             return null;
+        }
 
         RelationType relation = RelationType.findElement(op);
 
-        if (relation == null)
+        if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
                 condition.getSourceCodeModule());
+        }
 
         if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
             .equals(signatureParam.getName())) {
@@ -483,11 +477,13 @@ class DependentParametersOptimizedAlgorithm {
             p22 = tmp;
         }
 
-        if (p12.equals(p21))
+        if (p12.equals(p21)) {
             return makeTwoParameterRangeFactory(p11, rel1, p12, p21, rel2, p22, condition, signature);
+        }
 
-        if (p11.equals(p22))
+        if (p11.equals(p22)) {
             return makeTwoParameterRangeFactory(p21, rel2, p22, p11, rel1, p12, condition, signature);
+        }
 
         return null;
 
@@ -504,18 +500,21 @@ class DependentParametersOptimizedAlgorithm {
 
         IParameterDeclaration signatureParam = getParameter(p12, signature);
 
-        if (signatureParam == null)
+        if (signatureParam == null) {
             return null;
+        }
 
         IParameterDeclaration conditionParam1 = condition.getParams()[0];
 
-        if (!p11.equals(conditionParam1.getName()))
+        if (!p11.equals(conditionParam1.getName())) {
             return null;
+        }
 
         IParameterDeclaration conditionParam2 = condition.getParams()[1];
 
-        if (!p22.equals(conditionParam2.getName()))
+        if (!p22.equals(conditionParam2.getName())) {
             return null;
+        }
 
         if (p12.startsWith(signatureParam.getName() + "[") || p12.startsWith(signatureParam.getName() + ".") || p12
             .equals(signatureParam.getName())) {
@@ -565,27 +564,31 @@ class DependentParametersOptimizedAlgorithm {
 
         IParameterDeclaration signatureParam = getParameter(p2, signature);
 
-        if (signatureParam == null)
+        if (signatureParam == null) {
             return null;
+        }
 
         IParameterDeclaration conditionParam = condition.getParams()[0];
 
-        if (!p1.equals(conditionParam.getName()))
+        if (!p1.equals(conditionParam.getName())) {
             return null;
+        }
 
         RelationType relation = RelationType.findElement(op);
 
-        if (relation == null)
+        if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
                 condition.getSourceCodeModule());
+        }
 
         String oppositeOp = relation.opposite;
 
         relation = RelationType.findElement(oppositeOp);
 
-        if (relation == null)
+        if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp,
                 condition.getSourceCodeModule());
+        }
 
         if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
             .equals(signatureParam.getName())) {
@@ -625,8 +628,9 @@ class DependentParametersOptimizedAlgorithm {
         static RelationType findElement(String code) {
             RelationType[] all = values();
             for (int i = 0; i < all.length; i++) {
-                if (code.equals(all[i].func))
+                if (code.equals(all[i].func)) {
                     return all[i];
+                }
             }
 
             return null;
@@ -667,8 +671,9 @@ class DependentParametersOptimizedAlgorithm {
                     param = openCast.convert(param);
                 }
                 C v = typeAdaptor.convert(param);
-                if (evaluatorFactory.needsIncrement(Bound.UPPER))
+                if (evaluatorFactory.needsIncrement(Bound.UPPER)) {
                     v = typeAdaptor.increment(v);
+                }
                 return v;
             }
 
@@ -685,8 +690,9 @@ class DependentParametersOptimizedAlgorithm {
                     param = openCast.convert(param);
                 }
                 C v = typeAdaptor.convert(param);
-                if (evaluatorFactory.needsIncrement(Bound.LOWER))
+                if (evaluatorFactory.needsIncrement(Bound.LOWER)) {
                     v = typeAdaptor.increment(v);
+                }
                 return v;
             }
 
@@ -855,8 +861,9 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public boolean needsIncrement(Bound bound) {
-            if (bound == Bound.LOWER)
+            if (bound == Bound.LOWER) {
                 return relation1 == RelationType.LT;
+            }
             return relation2 == RelationType.LE;
         }
 

@@ -18,7 +18,7 @@ import org.openl.rules.table.xls.formatters.FormatConstants;
 
 /**
  * Class that allows creating tables in specified excel sheet.
- * 
+ *
  * @author Aliaksandr Antonik
  * @author Andrei Astrouski
  */
@@ -53,7 +53,7 @@ public class TableBuilder {
 
     /**
      * Creates new instance.
-     * 
+     *
      * @param gridModel represents interface for operations with excel sheets
      */
     public TableBuilder(XlsSheetGridModel gridModel) {
@@ -71,10 +71,10 @@ public class TableBuilder {
 
     /**
      * Begins writing a table.
-     * 
+     *
      * @param width table width in cells
      * @param height table height in cells
-     * 
+     *
      * @throws CreateTableException if unable to create table
      * @throws IllegalStateException if <code>beginTable()</code> has already been called without subsequent
      *             <code>endTable()</code>
@@ -97,9 +97,9 @@ public class TableBuilder {
 
     /**
      * Begins writing a table within the specified region.
-     * 
+     *
      * @param regionToWrite region to write table.
-     * 
+     *
      * @throws CreateTableException if unable to create table
      * @throws IllegalStateException if <code>beginTable()</code> has already been called without subsequent
      *             <code>endTable()</code>
@@ -118,7 +118,7 @@ public class TableBuilder {
 
     /**
      * Finishes writing a table. Saves the changes to excel sheet.
-     * 
+     *
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      * @throws CreateTableException if an exception occurred when saving
      */
@@ -149,7 +149,7 @@ public class TableBuilder {
 
     /**
      * Initializes default cell style.
-     * 
+     *
      * @return cell style
      */
     protected CellStyle getDefaultCellStyle() {
@@ -210,7 +210,7 @@ public class TableBuilder {
 
     /**
      * Writes cell.
-     * 
+     *
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param width cell width
@@ -223,7 +223,7 @@ public class TableBuilder {
 
     /**
      * Writes cell.
-     * 
+     *
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param width cell width
@@ -266,10 +266,10 @@ public class TableBuilder {
 
     /**
      * Analyse the type of cell style.
-     * 
+     *
      * @param style Incoming cell style.
      * @return CellStyle according to its type. If income value was <code>NULL</code> returns {@link #defaultCellStyle}.
-     * 
+     *
      * @author DLiauchuk
      */
     private CellStyle analyseCellStyle(ICellStyle style) {
@@ -285,7 +285,7 @@ public class TableBuilder {
     /**
      * If the value was set to the cell of type date, we need to create new style for this cell with data format for
      * dates.
-     * 
+     *
      * @param cell Cell with value in it.
      */
     private CellStyle getDateCellStyle(Cell cell) {
@@ -355,7 +355,7 @@ public class TableBuilder {
 
     /**
      * Writes cell.
-     * 
+     *
      * @param x cell x coordinate
      * @param y cell y coordinate
      * @param value cell value
@@ -366,9 +366,9 @@ public class TableBuilder {
 
     /**
      * Writes table grid.
-     * 
+     *
      * @param table table grid
-     * 
+     *
      * @throws IllegalArgumentException if table is null
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
@@ -425,10 +425,10 @@ public class TableBuilder {
 
     /**
      * Writes table header.
-     * 
+     *
      * @param header header text for the table
      * @param style header style
-     * 
+     *
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeHeader(String header, ICellStyle style) {
@@ -440,10 +440,10 @@ public class TableBuilder {
 
     /**
      * Writes table properties.
-     * 
+     *
      * @param properties table properties
      * @param style properties style
-     * 
+     *
      * @throws IllegalArgumentException if properties is null
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */

@@ -1,12 +1,6 @@
 package org.openl.rules.project.dependencies;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.model.Module;

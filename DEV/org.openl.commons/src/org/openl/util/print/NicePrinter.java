@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class NicePrinter {
 

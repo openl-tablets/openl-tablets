@@ -1,30 +1,17 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.StringValue;
-import org.openl.rules.tbasic.Algorithm;
-import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
-import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.rules.tbasic.NoParamMethodField;
-import org.openl.rules.tbasic.TBasicSpecificationKey;
+import org.openl.rules.tbasic.*;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.*;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;

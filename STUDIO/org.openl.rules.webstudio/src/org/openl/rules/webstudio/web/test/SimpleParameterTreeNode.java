@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.*;
+
 import org.openl.domain.IDomain;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -10,8 +12,6 @@ import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);

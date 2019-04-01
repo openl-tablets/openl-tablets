@@ -1,8 +1,8 @@
 package org.openl.grammar;
 
 /**
- * 
- * 
+ *
+ *
  * @author snshor
  *
  */

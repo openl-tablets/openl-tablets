@@ -220,7 +220,7 @@ public class DateTool {
 
     /**
      * Converts a date to the String value according the dateFormat
-     * 
+     *
      * @param date a date which should be converted
      * @param dateFormat
      * @return String date format
@@ -236,7 +236,7 @@ public class DateTool {
 
     /**
      * Converts a date to the String value according the default locale.
-     * 
+     *
      * @param date
      * @return String date format
      */

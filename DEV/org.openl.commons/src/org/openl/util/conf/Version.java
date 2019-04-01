@@ -14,7 +14,7 @@ public class Version implements Comparable<Version> {
 
     public interface IVersionStartPatternFinder {
         /**
-         * 
+         *
          * @param s
          * @param previousStart index of previously found start or -1 if this is first
          * @return index of possible start for version or -1
@@ -56,7 +56,7 @@ public class Version implements Comparable<Version> {
             if ((version[MAJOR] = getInt()) >= 0) {
                 if ((version[MINOR] = getInt()) >= 0) {
                     if ((version[VARIANT] = getInt()) >= 0) {
-                        ;
+
                     }
                 }
             }

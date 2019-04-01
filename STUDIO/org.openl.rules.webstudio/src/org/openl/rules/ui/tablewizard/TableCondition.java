@@ -1,7 +1,8 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.faces.model.SelectItem;
 
 /**

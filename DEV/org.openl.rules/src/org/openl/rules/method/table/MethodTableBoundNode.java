@@ -26,7 +26,7 @@ import org.openl.types.IOpenMethodHeader;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class MethodTableBoundNode extends AMethodBasedNode {
 

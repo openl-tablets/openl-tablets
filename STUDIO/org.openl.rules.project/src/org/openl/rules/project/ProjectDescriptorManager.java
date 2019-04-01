@@ -3,7 +3,6 @@ package org.openl.rules.project;
 import java.io.*;
 import java.util.*;
 
-import com.rits.cloning.Cloner;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -19,6 +18,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+
+import com.rits.cloning.Cloner;
 
 public class ProjectDescriptorManager {
 
@@ -80,7 +81,7 @@ public class ProjectDescriptorManager {
                                                                                  ValidationException {
         validator.validate(descriptor);
         descriptor = cloner.deepClone(descriptor); // prevent changes argument
-                                                   // object
+        // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
         dest.write(serializedObject.getBytes("UTF-8"));

@@ -26,7 +26,7 @@ public class ProcessedCode {
 
     /**
      * Gets parsed code.
-     * 
+     *
      * @return {@link IParsedCode} instance
      */
     public IParsedCode getParsedCode() {
@@ -35,7 +35,7 @@ public class ProcessedCode {
 
     /**
      * Sets parsed code.
-     * 
+     *
      * @param parsedCode {@link IParsedCode} instance
      */
     public void setParsedCode(IParsedCode parsedCode) {
@@ -44,7 +44,7 @@ public class ProcessedCode {
 
     /**
      * Gets bound code.
-     * 
+     *
      * @return {@link IBoundCode} instance
      */
     public IBoundCode getBoundCode() {
@@ -53,7 +53,7 @@ public class ProcessedCode {
 
     /**
      * Sets bound code.
-     * 
+     *
      * @return {@link IBoundCode} instance
      */
     public void setBoundCode(IBoundCode boundCode) {
@@ -62,7 +62,7 @@ public class ProcessedCode {
 
     /**
      * Gets errors what was found during parsing operation.
-     * 
+     *
      * @return {@link ISyntaxError}s array
      */
     public SyntaxNodeException[] getParsingErrors() {
@@ -76,7 +76,7 @@ public class ProcessedCode {
 
     /**
      * Gets errors what was found during binding operation.
-     * 
+     *
      * @return {@link ISyntaxError}s array
      */
     public SyntaxNodeException[] getBindingErrors() {

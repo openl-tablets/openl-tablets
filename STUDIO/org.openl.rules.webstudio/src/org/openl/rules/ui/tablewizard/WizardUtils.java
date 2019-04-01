@@ -78,7 +78,7 @@ public final class WizardUtils {
 
     /**
      * Get imported classes for current project
-     * 
+     *
      * @return collection, containing an imported classes
      */
     public static Collection<IOpenClass> getImportedClasses() {
@@ -115,7 +115,7 @@ public final class WizardUtils {
 
     /**
      * Check if type is valid (for example, it can be used in a DataType tables, Data tables etc)
-     * 
+     *
      * @param openType checked type
      * @return true if class is valid.
      */

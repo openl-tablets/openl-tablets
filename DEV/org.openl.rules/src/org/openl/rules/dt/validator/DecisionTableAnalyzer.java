@@ -1,10 +1,6 @@
 package org.openl.rules.dt.validator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.ILocalVar;
@@ -101,8 +97,9 @@ public class DecisionTableAnalyzer {
         int nRules = condition.getNumberOfRules();
         int np = condition.getNumberOfParams();
         for (int ruleN = 0; ruleN < nRules; ruleN++) {
-            if (condition.isEmpty(ruleN))
+            if (condition.isEmpty(ruleN)) {
                 continue;
+            }
             for (int pidx = 0; pidx < np; pidx++) {
                 Integer cand = (Integer) condition.getParamValue(pidx, ruleN);
                 if (min > cand) {
@@ -118,7 +115,7 @@ public class DecisionTableAnalyzer {
     /**
      * Goes through the condition in algorithm column and search the params that are income parameters from the
      * signature.
-     * 
+     *
      * @param row Full row of the each condition. It includes condition name, algorithm, initialization, and all rule
      *            cells.
      * @return parameters that are income(from the signature) that are using in current row.
@@ -161,7 +158,7 @@ public class DecisionTableAnalyzer {
     /**
      * Takes the paramDeclarationFromSignature and transform its type to appropriate for validating. see
      * {@link DecisionTableValidatedObject.#transformParameterType(IParameterDeclaration)}.
-     * 
+     *
      * @param paramDeclarationFromSignature parameter declaration from the signature.
      * @param decisionTableToValidate decision table that is being validated.
      * @return new type for paramDeclarationFromSignature appropriate for validation.

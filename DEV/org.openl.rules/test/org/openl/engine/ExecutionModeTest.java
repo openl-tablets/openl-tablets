@@ -1,8 +1,6 @@
 package org.openl.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,7 +24,7 @@ import org.openl.types.java.JavaOpenClass;
 public class ExecutionModeTest {
     @Test
     public void testDTExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Tutorial_4_Test.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/Tutorial_4_Test.xls");
         engineFactory.setExecutionMode(true);
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("ageSurcharge", int.class);
@@ -38,7 +36,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testMethodExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Tutorial_4_Test.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/Tutorial_4_Test.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -51,8 +49,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testTBasicExecution() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
-            "./test/rules/algorithm/Test_Factorial.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/algorithm/Test_Factorial.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -82,7 +79,7 @@ public class ExecutionModeTest {
     public void testSpreadsheetExecution() throws NoSuchMethodException,
                                            InvocationTargetException,
                                            IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
             "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
         engineFactory.setExecutionMode(true);
 
@@ -113,7 +110,7 @@ public class ExecutionModeTest {
     public void testColumnMatchExecution() throws NoSuchMethodException,
                                            InvocationTargetException,
                                            IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/cmatch1/match4-1.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/cmatch1/match4-1.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -142,7 +139,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testOverloaded() {
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/Overload.xls",
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<>("test/rules/overload/Overload.xls",
             ITestI.class);
         engineFactory.setExecutionMode(true);
 
@@ -171,14 +168,13 @@ public class ExecutionModeTest {
     @Test
     public void testSkipedTables() {
         // in execution mode test tables and run tables have to be skipped
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
             "./test/rules/testmethod/UserExceptionTest.xlsx");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenField testMethod = moduleOpenClass.getField("driverRiskTest1");
         assertNull(testMethod);
-        RulesEngineFactory<?> factory2 = new RulesEngineFactory<Object>(
-            "./test/rules/overload/RunMethodOverloadSupport.xls");
+        RulesEngineFactory<?> factory2 = new RulesEngineFactory<>("./test/rules/overload/RunMethodOverloadSupport.xls");
         factory2.setExecutionMode(true);
         IOpenClass moduleOpenClass2 = factory2.getCompiledOpenClass().getOpenClass();
         IOpenField runMethod = moduleOpenClass2.getField("driverRiskTest");
@@ -187,7 +183,7 @@ public class ExecutionModeTest {
 
     @Test(expected = InvocationTargetException.class)
     public void testRuntimeErrors() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/dt/RuntimeErrorTest.xls");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/dt/RuntimeErrorTest.xls");
         engineFactory.setExecutionMode(true);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();

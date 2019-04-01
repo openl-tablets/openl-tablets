@@ -1,17 +1,18 @@
 package org.openl.rules.repository.jcr;
 
-import org.openl.rules.repository.RVersion;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 import javax.jcr.version.VersionIterator;
-import java.util.LinkedList;
-import java.util.List;
+
+import org.openl.rules.repository.RVersion;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JcrCommonArtefact {
     private final Logger log = LoggerFactory.getLogger(JcrCommonArtefact.class);

@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for registering before method intercepters.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

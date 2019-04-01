@@ -12,17 +12,12 @@ import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -34,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Binding context for xls rules.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -63,7 +58,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     /**
      * Registers the tsn by specified key.
-     * 
+     *
      * @param key Key that have to be same for equivalent tables.
      * @param tsn TableSyntaxNode to register.
      */

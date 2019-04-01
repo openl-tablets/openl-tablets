@@ -1,15 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -239,8 +231,9 @@ public class TableDetailsBean {
             }
         }
         for (String propToRemove : propsToRemove) {
-            if (props.getAllProperties().containsKey(propToRemove))
+            if (props.getAllProperties().containsKey(propToRemove)) {
                 return true;
+            }
         }
         return false;
     }

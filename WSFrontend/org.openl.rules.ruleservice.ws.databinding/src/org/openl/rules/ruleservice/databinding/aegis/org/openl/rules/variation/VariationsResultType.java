@@ -30,9 +30,9 @@ import org.openl.rules.variation.VariationsResult;
 /**
  * Custom mapping for {@link VariationsResultType} due to it is not usual bean all results should be registered using
  * the special methods.
- * 
+ *
  * This class uses Java Generics and causes one problems that is described in {@link OpenLTypeMapping}.
- * 
+ *
  * @author PUdalau
  */
 public class VariationsResultType extends BeanType {

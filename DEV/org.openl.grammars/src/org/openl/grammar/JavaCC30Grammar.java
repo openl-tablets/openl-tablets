@@ -11,7 +11,7 @@ import org.openl.util.text.IPosition;
 
 /**
  * This class is the base for all JavaCC v3.0 and compatible grammars.
- * 
+ *
  * @author snshor
  */
 public abstract class JavaCC30Grammar extends Grammar {

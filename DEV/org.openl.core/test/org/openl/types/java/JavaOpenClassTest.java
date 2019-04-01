@@ -198,7 +198,7 @@ public class JavaOpenClassTest {
         }
     }
 
-    public static interface MyInterface {
+    public interface MyInterface {
         void method1(int i, double j);
     }
 

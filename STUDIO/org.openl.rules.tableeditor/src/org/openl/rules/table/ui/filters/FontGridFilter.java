@@ -6,7 +6,7 @@ import org.openl.rules.table.ui.IGridSelector;
 
 /**
  * A grid filter that changes a font's properties
- * 
+ *
  * @author NSamatov
  */
 public class FontGridFilter extends AGridFilter {
@@ -28,7 +28,7 @@ public class FontGridFilter extends AGridFilter {
     /**
      * Initialize a filter with some parameters. If any parameter is null, it is not changed when filtering. Instead
      * this constructor usage of a builder is preferred.
-     * 
+     *
      * @param selector
      * @param fontColor
      * @param size
@@ -115,7 +115,7 @@ public class FontGridFilter extends AGridFilter {
     /**
      * A builder that creates a FontGridFilter object. If any parameter is omitted, it is not used in filtering grid
      * format.
-     * 
+     *
      * @author NSamatov
      */
     public static class Builder {
@@ -156,7 +156,7 @@ public class FontGridFilter extends AGridFilter {
 
         /**
          * Set font size. Do not use in conjunction with {@link #setIncrementSize(int)}
-         * 
+         *
          * @param size new size of a font
          * @return this builder
          */
@@ -167,7 +167,7 @@ public class FontGridFilter extends AGridFilter {
 
         /**
          * Increment a font's size to a given value. Do not use in conjunction with {@link #setSize(int)}
-         * 
+         *
          * @param incrementSize increment size
          * @return this builder
          */

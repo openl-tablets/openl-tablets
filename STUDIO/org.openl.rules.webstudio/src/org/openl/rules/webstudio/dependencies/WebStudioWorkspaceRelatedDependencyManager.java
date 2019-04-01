@@ -1,10 +1,6 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;

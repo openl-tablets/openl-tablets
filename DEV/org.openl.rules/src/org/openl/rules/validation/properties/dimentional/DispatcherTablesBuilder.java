@@ -23,7 +23,7 @@ public class DispatcherTablesBuilder {
 
     /**
      * Checks whether the specified TableSyntaxNode is auto generated gap/overlap table or not.
-     * 
+     *
      * @param tsn TableSyntaxNode to check.
      * @return <code>true</code> if table is dispatcher table.
      */

@@ -21,22 +21,22 @@ public interface ExpressionFactory extends Undoable {
     /**
      * Returns new or cached expression of the required class and arguments.
      */
-    public Expression getExpression(Class clazz, Object[] args);
+    Expression getExpression(Class clazz, Object[] args);
 
     /**
      * Returns new or cached expression of the required class, arguments and argument types. Better performance than
      * {@link #getExpression(Class,Object[])}.
      */
-    public Expression getExpression(Class clazz, Object[] args, Class[] types);
+    Expression getExpression(Class clazz, Object[] args, Class[] types);
 
     /**
      * Returns true if the cache is used.
      */
-    public boolean useCache();
+    boolean useCache();
 
     /**
      * Sets the flag if the cache should be used.
      */
-    public void useCache(boolean flag);
+    void useCache(boolean flag);
 
 } // ~ExpressionFactory

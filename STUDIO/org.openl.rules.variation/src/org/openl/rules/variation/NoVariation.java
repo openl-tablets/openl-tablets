@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Empty variation that represents original calculation without any changes of arguments.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 

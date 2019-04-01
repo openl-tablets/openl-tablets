@@ -34,18 +34,23 @@ public class OpenLWarnMessage extends OpenLMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         OpenLWarnMessage other = (OpenLWarnMessage) obj;
         if (source == null) {
-            if (other.source != null)
+            if (other.source != null) {
                 return false;
-        } else if (!source.equals(other.source))
+            }
+        } else if (!source.equals(other.source)) {
             return false;
+        }
         return true;
     }
 

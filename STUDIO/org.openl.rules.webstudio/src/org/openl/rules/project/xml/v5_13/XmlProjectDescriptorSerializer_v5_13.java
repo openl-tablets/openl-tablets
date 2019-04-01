@@ -3,7 +3,6 @@ package org.openl.rules.project.xml.v5_13;
 import java.util.Collection;
 import java.util.HashSet;
 
-import com.thoughtworks.xstream.XStream;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.Property;
 import org.openl.rules.project.model.v5_12.ProjectDependencyDescriptor_v5_12;
@@ -12,6 +11,8 @@ import org.openl.rules.project.model.v5_13.ProjectDescriptor_v5_13;
 import org.openl.rules.project.model.v5_13.converter.ProjectDescriptorVersionConverter;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 import org.openl.rules.project.xml.StringValueConverter;
+
+import com.thoughtworks.xstream.XStream;
 
 public class XmlProjectDescriptorSerializer_v5_13 extends BaseProjectDescriptorSerializer<ProjectDescriptor_v5_13> {
 

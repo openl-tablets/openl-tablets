@@ -17,7 +17,7 @@ public class ConstructorMethodsTest {
 
     @Before
     public void init() throws IOException {
-        engineFactory = new RulesEngineFactory<Object>(SRC);
+        engineFactory = new RulesEngineFactory<>(SRC);
     }
 
     @Test

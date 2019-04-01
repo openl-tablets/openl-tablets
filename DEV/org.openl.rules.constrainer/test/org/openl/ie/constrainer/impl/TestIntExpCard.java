@@ -1,12 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
-import org.openl.ie.constrainer.impl.IntExpCard;
+import org.openl.ie.constrainer.*;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

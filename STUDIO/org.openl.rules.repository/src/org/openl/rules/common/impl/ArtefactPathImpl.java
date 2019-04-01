@@ -1,11 +1,11 @@
 package org.openl.rules.common.impl;
 
-import org.openl.rules.common.ArtefactPath;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openl.rules.common.ArtefactPath;
 
 /**
  * Implementation of Artefact Path.

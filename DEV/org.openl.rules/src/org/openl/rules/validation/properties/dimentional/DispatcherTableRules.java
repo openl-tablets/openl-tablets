@@ -9,7 +9,7 @@ import org.openl.rules.table.properties.ITableProperties;
 /**
  * Class that handles list of dimension table properties. Each element of this list is considered to be a value for one
  * rule in dispatcher decision table.
- * 
+ *
  * @author DLiauchuk
  *
  */

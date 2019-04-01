@@ -24,8 +24,9 @@ public class FastStringReader extends Reader {
 
     /** Check to make sure that the stream has not been closed */
     private void ensureOpen() throws IOException {
-        if (str == null)
+        if (str == null) {
             throw IO_EXC;
+        }
     }
 
     private static final class IOException$1 extends IOException {
@@ -47,8 +48,9 @@ public class FastStringReader extends Reader {
     @Override
     public int read() throws IOException {
         ensureOpen();
-        if (next >= length)
+        if (next >= length) {
             return -1;
+        }
         return str.charAt(next++);
     }
 
@@ -71,8 +73,9 @@ public class FastStringReader extends Reader {
         } else if (len == 0) {
             return 0;
         }
-        if (next >= length)
+        if (next >= length) {
             return -1;
+        }
         int n = Math.min(length - next, len);
         str.getChars(next, next + n, cbuf, off);
         next += n;
@@ -96,8 +99,9 @@ public class FastStringReader extends Reader {
     @Override
     public long skip(long ns) throws IOException {
         ensureOpen();
-        if (next >= length)
+        if (next >= length) {
             return 0;
+        }
         // Bound skip by beginning and end of the source
         long n = Math.min(length - next, ns);
         n = Math.max(-next, n);

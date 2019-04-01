@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.util;
 
-import org.openl.rules.webstudio.util.NameChecker;
-
 import junit.framework.TestCase;
 
 public class NameCheckerTest extends TestCase {

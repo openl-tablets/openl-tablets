@@ -7,23 +7,15 @@
 package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.ADynamicClass;
-import org.openl.types.impl.DatatypeOpenField;
-import org.openl.types.impl.DatatypeOpenMethod;
-import org.openl.types.impl.DynamicArrayAggregateInfo;
-import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.*;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -108,7 +100,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     protected LinkedHashMap<String, IOpenField> fieldMap() {
         if (fieldMap == null) {
-            fieldMap = new LinkedHashMap<String, IOpenField>();
+            fieldMap = new LinkedHashMap<>();
         }
         return (LinkedHashMap<String, IOpenField>) fieldMap;
     }
@@ -187,12 +179,15 @@ public class DatatypeOpenClass extends ADynamicClass {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DatatypeOpenClass other = (DatatypeOpenClass) obj;
 
         return Objects.equals(superClass, other.getSuperClass()) && Objects.equals(getMetaInfo(),

@@ -1,10 +1,6 @@
 package org.openl.rules.runtime;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassWriter;
@@ -23,7 +19,7 @@ import org.openl.util.ClassUtils;
 
 /**
  * The factory class that provides methods to generate interface class using methods (rules) of IOpenClass.
- * 
+ *
  */
 public class InterfaceGenerator {
 
@@ -34,7 +30,7 @@ public class InterfaceGenerator {
 
     /**
      * Generates interface class using collection of rules.
-     * 
+     *
      * @param className name of result class
      * @param rules collection of rules what will be used as interface methods
      * @param classLoader class loader what will be used to load generated interface
@@ -70,7 +66,7 @@ public class InterfaceGenerator {
 
     /**
      * Generates interface class using methods and fields of given IOpenClass instance.
-     * 
+     *
      * @throws Exception if an error has occurred
      */
     public static Class<?> generateInterface(String className,
@@ -160,7 +156,7 @@ public class InterfaceGenerator {
 
     /**
      * Generates interface class using methods and fields of given IOpenClass instance.
-     * 
+     *
      * @param className name of result class
      * @param openClass IOpenClass instance
      * @param classLoader class loader what will be used to load generated interface
@@ -175,7 +171,7 @@ public class InterfaceGenerator {
 
     /**
      * Gets rule information of IOpenField instance.
-     * 
+     *
      * @param field IOpenField instance
      * @return rule info
      */
@@ -190,7 +186,7 @@ public class InterfaceGenerator {
 
     /**
      * Gets rule information of IOpenMethod instance.
-     * 
+     *
      * @param method IOpenMethod instance
      * @return rule info
      */
@@ -207,7 +203,7 @@ public class InterfaceGenerator {
 
     /**
      * Creates rule info using rule name, parameters types and return type.
-     * 
+     *
      * @param ruleName rule name
      * @param paramTypes parameters types
      * @param returnType return type
@@ -225,7 +221,7 @@ public class InterfaceGenerator {
 
     /**
      * Checks that given member is ignored.
-     * 
+     *
      * @param member member (method or field)
      * @return <code>true</code> - if member should be ignored (will be skipped due interface generation phase),
      *         <code>false</code> - otherwise
@@ -236,7 +232,7 @@ public class InterfaceGenerator {
 
     /**
      * Gets string that contains rule types (parameters types and return type).
-     * 
+     *
      * @param ruleInfo rule info
      * @return string with rule types
      */

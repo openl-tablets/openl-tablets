@@ -76,7 +76,7 @@ public class VariationsEnhancerHelperTest {
         assertFalse(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(SimpleInterface2.class));
     }
 
-    private static interface SimpleInterface {
+    private interface SimpleInterface {
         String doSome();
 
         String doSome2(String arg);
@@ -84,7 +84,7 @@ public class VariationsEnhancerHelperTest {
         String getSome(String arg, int arg2);
     }
 
-    private static interface InterfaceFullyEnhanced {
+    private interface InterfaceFullyEnhanced {
         String doSome();
 
         VariationsResult<String> doSome(VariationsPack variations);
@@ -98,7 +98,7 @@ public class VariationsEnhancerHelperTest {
         VariationsResult<String> getSome(String arg, int arg2, VariationsPack variations);
     }
 
-    private static interface InterfacePartiallyEnhanced {
+    private interface InterfacePartiallyEnhanced {
         String doSome();
 
         String doSome2(String arg);
@@ -109,7 +109,7 @@ public class VariationsEnhancerHelperTest {
     }
 
     @XmlType
-    private static interface SimpleInterface2 {
+    private interface SimpleInterface2 {
         double doSome();
 
         @Deprecated
@@ -120,7 +120,7 @@ public class VariationsEnhancerHelperTest {
     }
 
     @XmlType
-    private static interface Interface2FullyEnhanced {
+    private interface Interface2FullyEnhanced {
         Double doSome();
 
         VariationsResult<Double> doSome(VariationsPack variations);
@@ -137,7 +137,7 @@ public class VariationsEnhancerHelperTest {
     }
 
     @XmlType
-    private static interface Interface2PartiallyEnhanced {
+    private interface Interface2PartiallyEnhanced {
         Double doSome();
 
         VariationsResult<Double> doSome(VariationsPack variations);

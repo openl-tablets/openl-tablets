@@ -1,10 +1,6 @@
 package org.openl.rules.lang.xls;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
@@ -23,7 +19,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Checks that method already in dictionary.
-     * 
+     *
      * @param method IOpenMethod instance
      * @return <code>true</code> if method already exists in dictionary; <code>false</code> - otherwise
      */
@@ -36,7 +32,7 @@ public class OverloadedMethodsDictionary {
     /**
      * Adds TableSyntaxNode instance to dictionary. If method(s) with same signature already exists in dictionary new
      * one will be added to its group; otherwise - new entry will be created.
-     * 
+     *
      * @param table executable table
      */
     public void add(TableSyntaxNode table) {
@@ -57,7 +53,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Adds all nodes to dictionary.
-     * 
+     *
      * @param tables list of executable nodes
      */
     public void addAll(List<TableSyntaxNode> tables) {
@@ -69,7 +65,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Gets group of all possible overloads for specified method.
-     * 
+     *
      * @param method IOpenMethod instance
      * @return group of methods
      */
@@ -81,7 +77,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Checks that entry with passed key already exists.
-     * 
+     *
      * @param key key
      * @return <code>true</code> if entry already exists; <code>false</code> - otherwise
      */
@@ -91,7 +87,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Build key for IOpenMethod instance.
-     * 
+     *
      * @param method IOpenMethod instance
      * @return builded key object
      */
@@ -101,7 +97,7 @@ public class OverloadedMethodsDictionary {
 
     /**
      * Build key for TableSyntaxNode.
-     * 
+     *
      * @param table Table for key generation.
      * @return builded key object
      */

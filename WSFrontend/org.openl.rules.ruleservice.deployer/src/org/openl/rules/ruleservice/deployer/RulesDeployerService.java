@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.deployer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +39,7 @@ public class RulesDeployerService implements Closeable {
 
     /**
      * Initializes repository using target properties
-     * 
+     *
      * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {

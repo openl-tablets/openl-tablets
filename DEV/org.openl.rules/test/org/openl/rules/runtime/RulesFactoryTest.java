@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.lang.reflect.Method;
 
 import org.junit.Test;
-import org.openl.rules.runtime.RuleInfo;
-import org.openl.rules.runtime.InterfaceGenerator;
 
 public class RulesFactoryTest {
 

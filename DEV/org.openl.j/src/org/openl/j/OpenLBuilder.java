@@ -1,20 +1,8 @@
 package org.openl.j;
 
 import org.openl.OpenL;
-import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.ClassFactory;
-import org.openl.conf.JavaImportTypeConfiguration;
-import org.openl.conf.JavaLibraryConfiguration;
-import org.openl.conf.JavaLongNameTypeConfiguration;
-import org.openl.conf.JavaTypeConfiguration;
-import org.openl.conf.LibraryFactoryConfiguration;
-import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NoAntOpenLTask;
-import org.openl.conf.NodeBinderFactoryConfiguration;
+import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.conf.TypeCastFactory;
-import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.grammar.bexgrammar.BExGrammarWithParsingHelp;
 import org.openl.syntax.impl.ISyntaxConstants;
 
@@ -190,7 +178,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         types.addConfiguredTypeLibrary(nstc);
 
         /*
-         * 
+         *
          * <types> <typelibrary namespace="org.openl.this"> <javatype
          * classname="org.openl.types.java.JavaPrimitiveTypeLibrary"/> <javatype
          * classname="org.openl.types.java.JavaLang"/> <javaimport> <import>java.util</import> </javaimport>

@@ -55,7 +55,7 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
     /**
      * This function has no effect at this time.
-     * 
+     *
      * @param lim
      */
     public void setLimit(int lim) {
@@ -64,7 +64,7 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
     /**
      * Retrieve the value set with {@link #setLimit(int)}.
-     * 
+     *
      * @return the value set with {@link #setLimit(int)}.
      */
     public int getLimit() {
@@ -80,7 +80,7 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
     /**
      * Turn pretty logging of XML content on/off
-     * 
+     *
      * @param prettyLogging
      */
     public void setPrettyLogging(boolean prettyLogging) {

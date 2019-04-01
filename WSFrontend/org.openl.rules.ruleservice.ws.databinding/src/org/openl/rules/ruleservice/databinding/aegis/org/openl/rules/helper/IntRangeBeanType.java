@@ -21,7 +21,7 @@ import org.openl.rules.helpers.IntRange;
 
 /**
  * Defines IntRange deserialization from XML because it has no default constuctor.
- * 
+ *
  * @author PUdalau
  */
 public class IntRangeBeanType extends BeanType {

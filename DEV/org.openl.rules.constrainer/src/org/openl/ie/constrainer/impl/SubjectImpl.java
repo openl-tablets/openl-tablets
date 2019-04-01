@@ -3,14 +3,7 @@ package org.openl.ie.constrainer.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
-import org.openl.ie.constrainer.Undo;
-import org.openl.ie.constrainer.UndoImpl;
-import org.openl.ie.constrainer.Undoable;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.FastVector;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;

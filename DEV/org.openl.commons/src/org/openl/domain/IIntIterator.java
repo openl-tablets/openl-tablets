@@ -16,7 +16,7 @@ public interface IIntIterator extends IOpenIterator<Integer> {
     IIntIterator select(IIntSelector selector);
 
     /**
-     * 
+     *
      * @return true if iterator can be reset for repeated use
      * @see #reset()
      */
@@ -25,7 +25,7 @@ public interface IIntIterator extends IOpenIterator<Integer> {
 
     /**
      * resets iterator to it's initial state
-     * 
+     *
      * @see #isResetable()
      */
     void reset();

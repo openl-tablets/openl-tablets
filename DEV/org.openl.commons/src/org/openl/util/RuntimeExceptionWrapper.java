@@ -8,7 +8,7 @@ package org.openl.util;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class RuntimeExceptionWrapper {
 
@@ -25,7 +25,7 @@ public class RuntimeExceptionWrapper {
 
     /**
      * Gets the error message from the given exception. If it is empty, gets the message from its cause.
-     * 
+     *
      * @param error error
      * @return the message from the error, or from its cause.
      */

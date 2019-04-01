@@ -10,9 +10,9 @@ import org.openl.OpenL;
 
 /**
  * The <code>IUserContext</code> defines an user environment configuration abstraction.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public interface IUserContext {
 
@@ -20,12 +20,12 @@ public interface IUserContext {
 
     String getUserHome();
 
-    public IOpenLConfiguration getOpenLConfiguration(String name);
+    IOpenLConfiguration getOpenLConfiguration(String name);
 
-    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc);
+    void registerOpenLConfiguration(String name, IOpenLConfiguration oplc);
 
-    public OpenL getOpenL(String name);
+    OpenL getOpenL(String name);
 
-    public void registerOpenL(String name, OpenL opl);
+    void registerOpenL(String name, OpenL opl);
 
 }

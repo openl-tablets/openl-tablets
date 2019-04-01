@@ -14,9 +14,9 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
  * If the <tt>loggingEnabled</tt> property is set to false then logging is disabled (default is true). By default
  * <tt>LoggingInInterceptor</tt> and <tt>LoggingOutInterceptor</tt> are used to log, you can redefine appropriate
  * properties to use another logging interceptors.
- * 
+ *
  * @author NSamatov
- * 
+ *
  */
 @NoJSR250Annotations
 public class LoggingFeature extends AbstractFeature {
@@ -150,7 +150,7 @@ public class LoggingFeature extends AbstractFeature {
 
     /**
      * This function has no effect at this time.
-     * 
+     *
      * @param lim
      */
     public void setLimit(int lim) {
@@ -159,7 +159,7 @@ public class LoggingFeature extends AbstractFeature {
 
     /**
      * Retrieve the value set with {@link #setLimit(int)}.
-     * 
+     *
      * @return the value set with {@link #setLimit(int)}.
      */
     public int getLimit() {
@@ -175,7 +175,7 @@ public class LoggingFeature extends AbstractFeature {
 
     /**
      * Turn pretty logging of XML content on/off
-     * 
+     *
      * @param prettyLogging
      */
     public void setPrettyLogging(boolean prettyLogging) {

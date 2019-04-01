@@ -8,7 +8,7 @@ public class BasicTest {
     private static final String SRC = "test/rules/BasicAlgorithm.xls";
 
     public static void main(String[] args) {
-        RulesEngineFactory<IBasicTest> engineFactory = new RulesEngineFactory<IBasicTest>(SRC, IBasicTest.class);
+        RulesEngineFactory<IBasicTest> engineFactory = new RulesEngineFactory<>(SRC, IBasicTest.class);
 
         IBasicTest rule = engineFactory.newEngineInstance();
 

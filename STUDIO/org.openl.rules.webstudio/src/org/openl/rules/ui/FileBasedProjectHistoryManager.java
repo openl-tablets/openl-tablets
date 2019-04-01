@@ -1,19 +1,15 @@
 package org.openl.rules.ui;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AgeFileFilter;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.io.filefilter.*;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * @author Andrei Astrouski

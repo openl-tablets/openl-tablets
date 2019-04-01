@@ -6,8 +6,9 @@ class String2DoubleValueConvertor implements IString2DataConvertor<DoubleValue> 
 
     @Override
     public DoubleValue parse(String data, String format) {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
         return new DoubleValue(data);
     }
 }

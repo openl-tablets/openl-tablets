@@ -18,7 +18,7 @@ class TopClassOpenMethodWrapperCache {
     Map<IOpenClass, WeakReference<IOpenMethod>> cache = new WeakHashMap<>();
 
     void put(IOpenClass openClass, IOpenMethod openMethod) {
-        cache.put(openClass, new WeakReference<IOpenMethod>(openMethod));
+        cache.put(openClass, new WeakReference<>(openMethod));
     }
 
     IOpenMethod get(IOpenClass openClass) {

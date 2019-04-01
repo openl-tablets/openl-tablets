@@ -2,11 +2,7 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;

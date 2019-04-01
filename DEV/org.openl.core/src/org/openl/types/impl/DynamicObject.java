@@ -16,7 +16,7 @@ import org.openl.util.print.NicePrinterAdaptor;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DynamicObject implements IDynamicObject {
 

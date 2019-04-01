@@ -12,12 +12,12 @@ package org.openl.rules.variation;
 
 /**
  * Factory for simple variations creation.
- * 
+ *
  * In most cases there will be created {@link JXPathVariation} instead of situations when
  * {@link VariationsFactory.THIS_POINTER} used as the path to field to be modified(in such a case
  * {@link ArgumentReplacementVariation} will be created). As an additional feature there is possibility to use deep
  * cloning in variations.
- * 
+ *
  * @author PUdalau
  */
 // TODO complex variations with separator in the path + test
@@ -29,7 +29,7 @@ public abstract class VariationsFactory {
 
     /**
      * Creates variation using all needed parameters.
-     * 
+     *
      * @param vairationId Id for variation.
      * @param argumentIndex Index of argument to be modified.
      * @param path Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument
@@ -43,7 +43,7 @@ public abstract class VariationsFactory {
 
     /**
      * Creates variation using all needed parameters with possibility to use cloning for variations.
-     * 
+     *
      * @param vairationId Id for variation.
      * @param argumentIndex Index of argument to be modified.
      * @param path Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument

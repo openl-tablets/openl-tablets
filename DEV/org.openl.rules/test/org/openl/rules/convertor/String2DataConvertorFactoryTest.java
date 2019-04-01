@@ -1,9 +1,9 @@
 package org.openl.rules.convertor;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+
+import org.junit.Test;
 
 /**
  * @author NSamatov.

@@ -9,7 +9,7 @@ public interface TreeNodeBuilder<T extends Object> {
 
     /**
      * Generates comparable key that will be used for detecting similar nodes.
-     * 
+     *
      * @param object The object for key generating.
      * @return Key for object.
      */
@@ -26,7 +26,7 @@ public interface TreeNodeBuilder<T extends Object> {
      * Generates comparable key for similar keys. It only used if <code>isUnique==true</code>. Then we have to create
      * nodes for each similar object. The key will be generated with using of order number of key. (The first node have
      * number <code>0</code>, the second - <code>2</code>, the third <code>3</code> etc.)
-     * 
+     *
      * @param object The object for displaying in the tree.
      * @param i Order number of object.
      * @return Key for object.

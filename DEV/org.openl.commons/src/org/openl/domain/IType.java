@@ -9,7 +9,7 @@ import org.openl.base.INamedThing;
 
 /**
  * @author snshor
- * 
+ *
  *         This class is the base of all the type definitions. It should not be treated as substitute for Java Class,
  *         even though in many instances it is.
  *         <p>
@@ -20,13 +20,13 @@ public interface IType extends INamedThing {
 
     /**
      * Provides type validation(usually by constraining type)
-     * 
+     *
      * @return
      */
     IDomain<?> getDomain();
 
     /**
-     * 
+     *
      * @param type
      * @return true if a type is specialization of more general this type if (T1.isAssignableFrom(T2) AND
      *         T2.isInstance(x)) -> T1.isInstance(x)
@@ -36,9 +36,9 @@ public interface IType extends INamedThing {
     /**
      * @param obj
      * @return true if the object belongs to this type
-     * 
+     *
      *         Please note how it is similar to selector or domain methods
-     * 
+     *
      */
     boolean isInstance(Object obj);
 

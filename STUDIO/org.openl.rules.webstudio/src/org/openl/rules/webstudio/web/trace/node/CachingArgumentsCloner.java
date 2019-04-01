@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.rules.table.OpenLArgumentsCloner;
 

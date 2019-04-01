@@ -15,8 +15,9 @@ final class CompositeLiteralNode extends NaryNode {
         StringBuilder sb = new StringBuilder();
         ISyntaxNode[] nodes = getNodes();
         for (int i = 0; i < nodes.length; i++) {
-            if (i > 0)
+            if (i > 0) {
                 sb.append(' ');
+            }
             sb.append(nodes[i].getText());
         }
         return sb.toString();

@@ -46,7 +46,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     }
 
     /**
-     * 
+     *
      * @return the value of current Objct
      */
     public Object getValue() {
@@ -100,7 +100,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     /**
      * Sorts the array <b>values</b>
-     * 
+     *
      * @param values array of Objects
      * @return the sorted array
      */

@@ -1,7 +1,5 @@
 package org.openl.rules.ui;
 
-import java.io.IOException;
-
 /**
  * @author Aliaksandr Antonik.
  */

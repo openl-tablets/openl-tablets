@@ -14,9 +14,9 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Class designed for testing rules. This test requires JavaClassRuleServicePublisher publisher in spring context.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 // @RunWith(SpringJUnit4ClassRunner.class)
 // @ContextConfiguration
@@ -44,7 +44,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns JavaClassRuleServicePublisher from context.
-     * 
+     *
      * @return java class rule service publisher
      */
     protected JavaClassRuleServicePublisher getJavaClassRuleServicePublisher() {
@@ -53,7 +53,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns all deployed services
-     * 
+     *
      * @return all deployed services
      */
     protected Collection<OpenLService> getServices() {
@@ -62,7 +62,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Executes rule from published service.
-     * 
+     *
      * @param serviceName service name
      * @param ruleName rule name
      * @param params patameters
@@ -82,7 +82,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Executes rule from published service.
-     * 
+     *
      * @param serviceName service name
      * @param ruleName rule name
      * @param inputParamsTypes the type of parameters
@@ -106,7 +106,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns field value from published service.
-     * 
+     *
      * @param serviceName service name
      * @param fieldName field name
      * @return field value
@@ -125,7 +125,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns published service by service name.
-     * 
+     *
      * @param serviceName service name
      * @return service
      */
@@ -139,7 +139,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns published service by service name.
-     * 
+     *
      * @param serviceName service name
      * @param serviceClass service type
      * @return service
@@ -156,7 +156,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
 
     /**
      * Returns published service type by service name.
-     * 
+     *
      * @param serviceName service namee
      * @return service type
      */

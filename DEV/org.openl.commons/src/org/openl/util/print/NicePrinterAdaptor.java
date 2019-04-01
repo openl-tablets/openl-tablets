@@ -7,21 +7,16 @@
  */
 package org.openl.util.print;
 
-import org.openl.util.ClassUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+
+import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class NicePrinterAdaptor {
 

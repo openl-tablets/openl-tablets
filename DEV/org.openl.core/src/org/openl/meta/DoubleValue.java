@@ -16,11 +16,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
-import org.openl.rules.util.Avg;
-import org.openl.rules.util.Product;
-import org.openl.rules.util.Statistics;
-import org.openl.rules.util.Round;
-import org.openl.rules.util.Sum;
+import org.openl.rules.util.*;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -125,7 +121,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 equal value2
@@ -139,7 +135,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater or equal value2
@@ -152,7 +148,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 greater value2
@@ -165,7 +161,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less or equal value2
@@ -178,7 +174,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 less value2
@@ -191,7 +187,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Compares two values
-     * 
+     *
      * @param value1
      * @param value2
      * @return true if value1 not equal value2
@@ -205,7 +201,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value of variable which should be copied
      * @param name of new variable
      * @return the new org.openl.meta.DoubleValue variable with name <b>name</b> and value <b>value</b>
@@ -227,7 +223,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * 
+     *
      * @param value1 org.openl.meta.DoubleValue
      * @param value2 org.openl.meta.DoubleValue
      * @return remainder from division value1 by value2
@@ -256,7 +252,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Adds left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.DoubleValue
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of addition operation
@@ -283,7 +279,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // MULTIPLY
     /**
      * Multiplies left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.DoubleValue
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of multiplication operation
@@ -310,7 +306,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.DoubleValue
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of subtraction operation
@@ -341,7 +337,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.DoubleValue
      * @param value2 org.openl.meta.DoubleValue
      * @return the result of division operation
@@ -379,7 +375,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param number org.openl.meta.DoubleValue
      * @param divisor org.openl.meta.DoubleValue
      * @return LongValue the result of division operation
@@ -393,7 +389,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param number
      * @param divisor
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
@@ -412,7 +408,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     /**
      * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.DoubleValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -424,7 +420,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     /**
      * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.DoubleValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -434,7 +430,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value1
      * @param value2
      * @return the result of value1 raised to the power of value2
@@ -455,7 +451,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
@@ -472,7 +468,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the negative value of the <b>value</b>
      */
@@ -484,7 +480,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b> increased by 1
      */
@@ -493,7 +489,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b>
      */
@@ -502,7 +498,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value </b> decreased by 1
      */
@@ -514,7 +510,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from byte to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -525,7 +521,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -536,7 +532,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -547,7 +543,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -558,7 +554,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -569,7 +565,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from float to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -580,7 +576,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     /**
      * Is used to overload implicit cast operators from double to org.openl.meta.DoubleValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.DoubleValue
@@ -653,7 +649,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // sort
     /**
      * Sorts the array <b>values</b>
-     * 
+     *
      * @param values an array for sorting
      * @return the sorted array
      */
@@ -792,7 +788,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /**
-     * 
+     *
      * @deprecated This method is obsolete. Use {@link #round(DoubleValue, int)} instead
      * @see #round(DoubleValue, int)
      */

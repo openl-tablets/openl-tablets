@@ -44,10 +44,11 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
         }
 
         void nextV() {
-            if (iv.hasNext())
+            if (iv.hasNext()) {
                 vValue = iv.next();
-            else
+            } else {
                 vValue = -1;
+            }
 
         }
 
@@ -64,8 +65,9 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
         public boolean hasNext() {
             while (vValue >= 0) {
 
-                if (hasNextH())
+                if (hasNextH()) {
                     return true;
+                }
 
                 resetH();
                 nextV();
@@ -103,8 +105,9 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
 
         @Override
         protected int nextH() {
-            if (itH != null)
+            if (itH != null) {
                 return itH.next();
+            }
             int i = ih.nextInt();
             storeIh.add(i);
             return i;

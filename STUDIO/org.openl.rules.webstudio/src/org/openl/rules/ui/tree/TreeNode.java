@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 /**
  * Class that represents tree node. Used as container for specified object.
- * 
+ *
  * @param <T> type of object
  */
 public class TreeNode<T> implements ITreeNode<T> {
@@ -51,7 +51,7 @@ public class TreeNode<T> implements ITreeNode<T> {
 
     /**
      * Gets the map of elements.
-     * 
+     *
      * @return map of elements
      */
     public Map<Object, ITreeNode<T>> getElements() {
@@ -80,7 +80,7 @@ public class TreeNode<T> implements ITreeNode<T> {
 
     /**
      * Checks that node is leaf.
-     * 
+     *
      * @return <code>true</code> if node is leaf; <code>false</code> - otherwise
      */
     @Override
@@ -98,7 +98,7 @@ public class TreeNode<T> implements ITreeNode<T> {
 
     /**
      * Sets type of node.
-     * 
+     *
      * @param type string that indicates type of node
      */
     public void setType(String type) {

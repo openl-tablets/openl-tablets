@@ -1,9 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -67,7 +64,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
     }
 
-    public static interface SimpleInterface {
+    public interface SimpleInterface {
         String worldHello(int hour);
     }
 

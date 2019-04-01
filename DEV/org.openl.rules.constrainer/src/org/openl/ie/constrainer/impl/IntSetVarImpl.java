@@ -4,17 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalGenerate;
-import org.openl.ie.constrainer.IntBoolVar;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntSetVar;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
-import org.openl.ie.constrainer.UndoImpl;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
@@ -267,14 +257,12 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
                         result.hasElem(val).equals(hasElem(val)).execute();
                     } catch (Failure f) {/* it would be never thrown */
                     }
-                    ;
                 }
             } else {
                 try {
                     result.hasElem(val).equals(anotherSet.hasElem(val)).execute();
                 } catch (Failure f) {/* it would be never thrown */
                 }
-                ;
             }
         }
         return result;

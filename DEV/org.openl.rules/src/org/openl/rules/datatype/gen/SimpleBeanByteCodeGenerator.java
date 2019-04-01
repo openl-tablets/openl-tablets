@@ -1,5 +1,8 @@
 package org.openl.rules.datatype.gen;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -7,9 +10,6 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
 

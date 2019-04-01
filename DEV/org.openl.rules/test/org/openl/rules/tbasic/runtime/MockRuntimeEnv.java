@@ -9,8 +9,8 @@ import org.openl.vm.IRuntimeEnv;
 public class MockRuntimeEnv implements IRuntimeEnv {
     private final IOpenRunner runner;
 
-    private final Stack<Object> thisStack = new Stack<Object>();
-    private final Stack<Object[]> frameStack = new Stack<Object[]>();
+    private final Stack<Object> thisStack = new Stack<>();
+    private final Stack<Object[]> frameStack = new Stack<>();
 
     private IRuntimeContext context;
 

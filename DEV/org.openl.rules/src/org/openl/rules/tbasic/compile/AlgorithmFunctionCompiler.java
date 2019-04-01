@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic.compile;
 
+import java.util.List;
+
 import org.openl.base.INamedThing;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmFunction;
@@ -9,8 +11,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
-
-import java.util.List;
 
 /**
  * The <code>AlgorithmFunctionCompiler</code> class describes some function and serves for compiling and checking it.

@@ -1,5 +1,8 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.explanation.CastExplanationValue;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -8,9 +11,6 @@ import org.openl.meta.number.CastOperand;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Explanation {
 

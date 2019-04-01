@@ -12,7 +12,7 @@ import org.openl.syntax.code.IParsedCode;
 
 /**
  * Implements {@link IOpenParser} abstraction for Excel files.
- * 
+ *
  * @author snshor
  */
 public class XlsParser extends BaseParser {

@@ -13,11 +13,11 @@ import org.openl.rules.ruleservice.core.AbstractOpenLServiceInitializer;
 import org.openl.rules.ruleservice.core.OpenLService;
 
 public class JAXWSEnchancerHelperTest {
-    public static interface TestInterface {
+    public interface TestInterface {
         void someMethod(String arg);
     }
 
-    public static interface TestParameterInterface {
+    public interface TestParameterInterface {
         void someMethod3();
 
         void someMethod4(int arg0, int arg2, int arg3, int arg4, int arg5);
@@ -27,7 +27,7 @@ public class JAXWSEnchancerHelperTest {
         void someMethod(String arg0, String arg1);
     }
 
-    public static interface TestMethodNamesAndOperationNames {
+    public interface TestMethodNamesAndOperationNames {
         @WebMethod(operationName = "someMethod1")
         void someMethod();
 
@@ -37,7 +37,7 @@ public class JAXWSEnchancerHelperTest {
     }
 
     @WebService(name = "TestAnnotatedInterface2")
-    public static interface TestAnnotatedInterface {
+    public interface TestAnnotatedInterface {
         @WebMethod(operationName = "someMethod1")
         String someMethod(@PathParam("arg") String arg);
     }

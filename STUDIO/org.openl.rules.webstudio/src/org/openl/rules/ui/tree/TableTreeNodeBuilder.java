@@ -11,7 +11,7 @@ import org.openl.types.impl.InternalDatatypeClass;
 
 /**
  * Builds tree node using table type.
- * 
+ *
  */
 public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
@@ -146,7 +146,7 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     /**
      * Gets node key for node object.
-     * 
+     *
      * @param nodeObject node object
      * @return node key
      */

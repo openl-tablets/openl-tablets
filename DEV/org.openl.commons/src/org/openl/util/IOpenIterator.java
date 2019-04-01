@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IOpenIterator<T> extends Iterator<T> {
 
@@ -18,7 +18,7 @@ public interface IOpenIterator<T> extends Iterator<T> {
 
     /**
      * Legacy (Smalltalk) name, same as convert
-     * 
+     *
      * @param col
      * @return
      */

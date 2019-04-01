@@ -5,13 +5,14 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.openl.rules.repository.api.FileData;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 
 class LazyFileData extends FileData {
     static final String METADATA_AUTHOR = "author";

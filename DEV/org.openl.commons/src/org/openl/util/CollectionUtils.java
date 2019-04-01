@@ -8,14 +8,14 @@ import java.util.Map;
 
 /**
  * An util class for collections and arrays.
- * 
+ *
  * @author Yury Molchan
  */
 public class CollectionUtils {
 
     /**
      * Return {@code true} if a collection is null or is empty.
-     * 
+     *
      * @param col the checked collection.
      * @return return {@code true} if the collection does not contain any elements.
      * @see Collection#isEmpty()

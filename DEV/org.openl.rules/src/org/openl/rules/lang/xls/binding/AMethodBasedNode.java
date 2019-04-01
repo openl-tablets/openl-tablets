@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding;
 
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -25,8 +27,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Map;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
 

@@ -17,14 +17,14 @@ import org.openl.util.StringUtils;
  * <li>Invoke initialize() method</li>
  * <li></li>
  * </ol>
- * 
+ *
  * @author Yury Molchan
  */
 public class RepositoryInstatiator {
 
     /**
      * Create new repository instance.
-     * 
+     *
      * @param factory the class name to instantiate.
      * @param params the initialization parameters.
      * @return the initialized repository.

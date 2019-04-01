@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -1363,7 +1364,7 @@ public class RepositoryTreeController {
                 .uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
-            } else
+            } else {
                 try {
                     AProject createdProject = userWorkspace.getProject(projectName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
@@ -1372,6 +1373,7 @@ public class RepositoryTreeController {
                 } catch (Exception e) {
                     FacesUtils.addErrorMessage(e.getMessage());
                 }
+            }
         }
 
         /* Clear the load form */

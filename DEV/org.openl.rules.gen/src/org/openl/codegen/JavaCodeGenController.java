@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.openl.codegen;
 
@@ -17,7 +17,7 @@ import org.openl.types.java.JavaOpenEnum;
 
 /**
  * @author snshor Created Jul 23, 2009
- * 
+ *
  */
 public class JavaCodeGenController implements ICodeGenController {
 

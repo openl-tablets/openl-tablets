@@ -1,12 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.Observer;
-import org.openl.ie.constrainer.Subject;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 import org.openl.ie.tools.ReusableImpl;
@@ -18,7 +12,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         IntExp _element;
         IntExpArray _ary;
         IntExpArray _valuesUsed; // How many times a particular value could
-                                 // be encountered within _ary[_index]
+        // be encountered within _ary[_index]
 
         IntExpArray copyOfAry;
         IntExp _copyOfIndex;
@@ -134,7 +128,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
                         _index.iterateDomain(iter);
                     } catch (Failure f) {
                     }
-                    ;
                     valueToArrayIdx.put(new Integer(i), new Integer(cnt));
                     usage[cnt] = iter.cnt;
                     cnt++;
@@ -256,7 +249,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         @Override
         public void resultRemove(int value) throws Failure {
-            ;
+
         }
 
         @Override
@@ -560,29 +553,29 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * A mapping for removing values from the index and element.
      */
     interface Mapping {
-        public void arrayElementMax(int oldmax, int max, int idx) throws Failure;
+        void arrayElementMax(int oldmax, int max, int idx) throws Failure;
 
-        public void arrayElementMin(int oldmin, int min, int idx) throws Failure;
+        void arrayElementMin(int oldmin, int min, int idx) throws Failure;
 
-        public void arrayElementRemove(int removedValue, int idx) throws Failure;
+        void arrayElementRemove(int removedValue, int idx) throws Failure;
 
-        public void arrayElementValue(int value, int idx) throws Failure;
+        void arrayElementValue(int value, int idx) throws Failure;
 
-        public void indexMax(int oldmax, int max) throws Failure;
+        void indexMax(int oldmax, int max) throws Failure;
 
-        public void indexMin(int oldmin, int min) throws Failure;
+        void indexMin(int oldmin, int min) throws Failure;
 
-        public void indexRemove(int removedValue) throws Failure;
+        void indexRemove(int removedValue) throws Failure;
 
-        public void indexValue(int value) throws Failure;
+        void indexValue(int value) throws Failure;
 
-        public void resultMax(int max) throws Failure;
+        void resultMax(int max) throws Failure;
 
-        public void resultMin(int min) throws Failure;
+        void resultMin(int min) throws Failure;
 
-        public void resultRemove(int removedValue) throws Failure;
+        void resultRemove(int removedValue) throws Failure;
 
-        public void resultValue(int value) throws Failure;
+        void resultValue(int value) throws Failure;
     }
 
     /**
@@ -719,7 +712,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         @Override
         public void arrayElementRemove(int value, int idx) throws Failure {
-            ;
+
         }
 
         @Override
@@ -781,7 +774,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         @Override
         public void resultRemove(int value) throws Failure {
-            ;
+
         }
 
         @Override
@@ -1033,7 +1026,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
                 return 1;
             }
         }
-        ;
 
         IntExpArray tmp = makeExtraction(_index, _ary);
         tmp.sort(new IntExpComparator());

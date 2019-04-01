@@ -1,11 +1,6 @@
 package org.openl.message;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;

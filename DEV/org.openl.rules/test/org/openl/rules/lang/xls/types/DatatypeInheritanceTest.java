@@ -1,8 +1,6 @@
 package org.openl.rules.lang.xls.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.message.OpenLMessage;
@@ -14,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 /**
- * 
+ *
  * @author PUdalau
  */
 public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {

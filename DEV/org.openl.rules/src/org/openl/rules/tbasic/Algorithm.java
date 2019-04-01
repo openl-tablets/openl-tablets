@@ -14,9 +14,9 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Table Basic Algorithm component. It's runnable method inside OpenL Tablets infrastructure.
- * 
+ *
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
- * 
+ *
  */
 @Executable
 public class Algorithm extends AlgorithmFunction {

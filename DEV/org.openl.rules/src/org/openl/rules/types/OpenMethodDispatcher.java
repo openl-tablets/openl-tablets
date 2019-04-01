@@ -1,15 +1,6 @@
 package org.openl.rules.types;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -27,11 +18,7 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.Invokable;
+import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
@@ -39,9 +26,9 @@ import org.openl.vm.Tracer;
 
 /**
  * Class that decorates the <code>IOpenMehtod</code> interface for method overload support.
- * 
+ *
  * @author Alexey Gamanovich
- * 
+ *
  */
 public abstract class OpenMethodDispatcher implements IOpenMethod {
 
@@ -71,7 +58,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     /**
      * Creates new instance of decorator.
-     * 
+     *
      * @param delegate method to decorate
      */
     protected void decorate(IOpenMethod delegate) {
@@ -279,7 +266,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     /**
      * In case we have several versions of one table we should add only the newest or active version of table.
-     * 
+     *
      * @param newMethod The methods that we are trying to add.
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
@@ -319,7 +306,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     /**
      * Try to add method as overloaded version of decorated method.
-     * 
+     *
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
@@ -379,7 +366,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     /**
      * Resolve best matching method to invoke.
-     * 
+     *
      * @param candidates list of candidates
      * @param context runtime context
      * @return method to invoke

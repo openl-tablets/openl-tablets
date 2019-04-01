@@ -5,7 +5,7 @@ import org.openl.types.IOpenClass;
 public interface ICodeGenContext {
 
     /**
-     * 
+     *
      * @param referredType
      * @return the best String representation for the type to use in the code.
      */

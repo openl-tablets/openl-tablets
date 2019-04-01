@@ -17,6 +17,7 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -33,7 +34,6 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
@@ -259,7 +259,7 @@ public class TableBean {
 
     /**
      * Return test cases for current table.
-     * 
+     *
      * @return array of tests for current table.
      */
     public TestDescription[] getTests() {
@@ -309,7 +309,7 @@ public class TableBean {
     }
 
     /**
-     * 
+     *
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
@@ -342,7 +342,7 @@ public class TableBean {
 
     /**
      * Checks if there are runnable tests for current table.
-     * 
+     *
      * @return true if there are runnable tests for current table.
      */
     public boolean isTestable() {

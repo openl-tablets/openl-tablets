@@ -15,7 +15,7 @@ public abstract class OpenLHolder {
 
     /**
      * Base constructor.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLHolder(OpenL openl) {
@@ -24,7 +24,7 @@ public abstract class OpenLHolder {
 
     /**
      * Gets OpenL engine context instance.
-     * 
+     *
      * @return
      */
     protected OpenL getOpenL() {

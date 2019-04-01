@@ -41,7 +41,7 @@ public interface ICellModel {
 
     /**
      * Sets formula of cell.
-     * 
+     *
      * @param formula Formula of cell.
      */
     void setFormula(String formula);

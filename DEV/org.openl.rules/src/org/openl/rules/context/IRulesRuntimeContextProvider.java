@@ -7,7 +7,7 @@ public interface IRulesRuntimeContextProvider {
 
     /**
      * Gets runtime context.
-     * 
+     *
      * @return {@link IRulesRuntimeContext} instance
      */
     IRulesRuntimeContext getRuntimeContext();

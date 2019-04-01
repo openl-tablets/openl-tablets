@@ -1,11 +1,6 @@
 package org.openl.rules.ruleservice.servlet;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;

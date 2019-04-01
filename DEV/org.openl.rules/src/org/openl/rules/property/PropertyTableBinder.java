@@ -27,9 +27,9 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * Binder for property table.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class PropertyTableBinder extends DataNodeBinder {
 
@@ -80,7 +80,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     /**
      * Parses table header. Consider that second token is the name of the table. <br>
      * <b>e.g.: Properties [tableName].</b>
-     * 
+     *
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @return table name if exists.
      */
@@ -101,7 +101,7 @@ public class PropertyTableBinder extends DataNodeBinder {
      * <code>{@link RulesModuleBindingContext}</code>. <br>
      * If module level properties already exists, or there are properties for the category with the same name throws an
      * <code>{@link DuplicatedPropertiesTableException}</code>.
-     * 
+     *
      * @param tableSyntaxNode <code>{@link TableSyntaxNode}</code>.
      * @param propertiesInstance <code>{@link TableProperties}</code>.
      * @param bindingContext <code>{@link RulesModuleBindingContext}</code>.
@@ -194,7 +194,7 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     /**
      * Find out the name of the category to apply properties for.
-     * 
+     *
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @param properties <code>{@link TableProperties}</code>
      * @return the name of the category to apply properties for.

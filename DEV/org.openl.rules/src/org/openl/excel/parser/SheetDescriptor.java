@@ -3,14 +3,14 @@ package org.openl.excel.parser;
 public interface SheetDescriptor {
     /**
      * Get sheet name
-     * 
+     *
      * @return sheet name
      */
     String getName();
 
     /**
      * Get index of the sheet in workbook
-     * 
+     *
      * @return sheet index
      */
     int getIndex();

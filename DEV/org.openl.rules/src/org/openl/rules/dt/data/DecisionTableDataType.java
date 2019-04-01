@@ -8,11 +8,11 @@ import org.openl.rules.dt.element.IDecisionRow;
 
 /**
  * Provides access to the elements of the Decision table as data.
- * 
+ *
  * Each Condition and action becomes an internal type and parameters become attributes of this type.
- * 
+ *
  * Current implementation has the following limitations:
- * 
+ *
  * a) it supports only the access from action method to the variables defined in conditions. No access to other actions
  * is provided b) it will work only if variables in conditions are constants (not formulas) c) it does not provide
  * access to other rules than current one (for example we may want to access the previous rule via $previous.$C1.limit

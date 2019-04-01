@@ -5,7 +5,7 @@ package org.openl.domain;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class StringDomain extends EnumDomain<String> {
 

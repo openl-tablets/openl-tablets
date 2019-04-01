@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.InputStream;
+
 import org.openl.util.FileUtils;
 import org.richfaces.model.UploadedFile;
-
-import java.io.InputStream;
 
 public class ProjectFile {
 

@@ -1,5 +1,8 @@
 package org.openl.rules.ui;
 
+import java.io.*;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,9 +14,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-
-import java.io.*;
-import java.util.List;
 
 public abstract class AbstractWorkbookGeneratingTest {
     @Rule

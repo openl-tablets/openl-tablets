@@ -87,7 +87,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value of variable which should be copied
      * @param name of new variable
      * @return the new org.openl.meta.IntValue variable with name <b>name</b> and value <b>value</b>
@@ -109,7 +109,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * 
+     *
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return remainder from division value1 by value2
@@ -138,7 +138,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     /**
      * Adds left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return the result of addition operation
@@ -165,7 +165,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // MULTIPLY
     /**
      * Multiplies left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return the result of multiplication operation
@@ -191,7 +191,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return the result of subtraction operation
@@ -221,7 +221,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return the result of division operation
@@ -264,7 +264,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
-     * 
+     *
      * @param number org.openl.meta.IntValue
      * @param divisor org.openl.meta.IntValue
      * @return LongValue the result of division operation
@@ -278,7 +278,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param number
      * @param divisor
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
@@ -296,7 +296,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     /**
      * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.IntValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -308,7 +308,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     /**
      * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
      * <b>position</b>
-     * 
+     *
      * @param values array of org.openl.meta.IntValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
@@ -318,7 +318,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value1
      * @param value2
      * @return the result of value1 raised to the power of value2
@@ -339,7 +339,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
@@ -356,7 +356,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the negative value of the <b>value</b>
      */
@@ -368,7 +368,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b> increased by 1
      */
@@ -377,7 +377,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value</b>
      */
@@ -386,7 +386,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /**
-     * 
+     *
      * @param value
      * @return the <b>value </b> decreased by 1
      */
@@ -398,7 +398,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     /**
      * Is used to overload implicit cast operators from byte to org.openl.meta.IntValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -409,7 +409,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.IntValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -420,7 +420,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.IntValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -431,7 +431,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     /**
      * Is used to overload implicit cast operators from char to org.openl.meta.IntValue
-     * 
+     *
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -492,7 +492,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     // sort
     /**
      * Sorts the array <b>values</b>
-     * 
+     *
      * @param values an array for sorting
      * @return the sorted array
      */

@@ -1,9 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +53,7 @@ public class InstantiationStrategiesReloadingTest {
         if (project != null) {
             List<PathEntry> classpath = project.getClasspath();
             if (classpath == null) {
-                classpath = new ArrayList<PathEntry>();
+                classpath = new ArrayList<>();
                 project.setClasspath(classpath);
             }
             return RulesInstantiationStrategyFactory.getStrategy(project.getModules().get(0), false);
@@ -70,7 +67,7 @@ public class InstantiationStrategiesReloadingTest {
         apiStrategy = (ApiBasedInstantiationStrategy) resolve(
             new File("./test-resources/reloading-test/SimpleProject"));
         dynamicStrategy = resolve(new File("./test-resources/reloading-test/EngineProject"));
-        List<Module> modules = new ArrayList<Module>(3);
+        List<Module> modules = new ArrayList<>(3);
         modules.add(apiStrategy.getModule());
         modules.add(dynamicStrategy.getModule());
     }

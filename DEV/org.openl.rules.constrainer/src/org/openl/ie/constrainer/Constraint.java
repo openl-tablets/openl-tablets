@@ -33,6 +33,6 @@ public interface Constraint extends Goal {
      *
      * @throws Failure if the constraint can not be satisfied.
      */
-    public void post() throws Failure;
+    void post() throws Failure;
 
 }

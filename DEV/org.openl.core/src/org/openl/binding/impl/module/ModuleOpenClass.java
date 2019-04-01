@@ -6,14 +6,7 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
@@ -35,7 +28,7 @@ import org.openl.util.Log;
 /**
  * {@link IOpenClass} implementation for full module.<br>
  * It is a common class for different sources module implementations.
- * 
+ *
  * @author snshor
  *
  */
@@ -44,7 +37,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Map of internal types. XLS document can have internal types defined using <code>Datatype</code> tables, e.g.
      * domain model.<br>
-     * 
+     *
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
@@ -53,10 +46,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Set of dependencies for current module.
-     * 
+     *
      * NOTE!!! Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it throws errors when there are any
      * ones in {@link CompiledOpenClass}. Check if there are errors: {@link CompiledOpenClass#hasErrors()}
-     * 
+     *
      */
     private Set<CompiledDependency> usingModules = new HashSet<>();
 
@@ -88,7 +81,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Add methods form dependent modules to current one.
-     * 
+     *
      * @param dependency compiled dependency module
      */
     protected void addMethods(CompiledDependency dependency) throws DuplicatedMethodException {
@@ -204,7 +197,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Gets compiled module dependencies for current module.
-     * 
+     *
      * @return compiled module dependencies for current module.
      */
     public Set<CompiledDependency> getDependencies() {
@@ -227,7 +220,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Return the whole map of internal types. Where the key is namespace of the type, the value is {@link IOpenClass}.
-     * 
+     *
      * @return map of internal types
      */
     @Override
@@ -237,7 +230,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Add new type to internal types list. If the type with the same name already exists exception will be thrown.
-     * 
+     *
      * @param type IOpenClass instance
      * @throws OpenLCompilationException if an error had occurred.
      */

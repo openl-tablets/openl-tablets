@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.util.StringUtils;

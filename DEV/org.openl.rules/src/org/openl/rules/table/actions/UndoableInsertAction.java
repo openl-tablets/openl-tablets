@@ -9,7 +9,7 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * Default behaviour for insert operations.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -55,7 +55,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
     /**
      * Checks if action can be performed without moving the table.
-     * 
+     *
      * @param table a table to apply the action.
      * @return true if action can be performed without moving the table.
      */
@@ -63,7 +63,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
     /**
      * Get actual number of rows or columns to be inserted. It depends whether the cell is merged or not.
-     * 
+     *
      * @param table a table to apply the action.
      * @return actual number to be inserted.
      */
@@ -71,7 +71,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
     /**
      * Perform action for inserting rows or columns.
-     * 
+     *
      * @param numberToInsert number of rows or columns to be inserted.
      * @param fullTableRegion a region of original table
      * @param table a table to apply the action.

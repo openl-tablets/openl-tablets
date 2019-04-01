@@ -34,7 +34,7 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
 
     /**
      * Creates actions that moves the table and executes these actions.
-     * 
+     *
      * @param table Table to move.
      * @param metaInfoWriter Needed to save meta info changes
      * @return Actions that moved the table.
@@ -49,7 +49,7 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
 
     /**
      * After coping or moving the table we need to set new region destination of it
-     * 
+     *
      * @param newRegion New region of the table
      */
     private static IUndoableGridTableAction setRegion(IGridRegion newRegion, IGridTable table) {

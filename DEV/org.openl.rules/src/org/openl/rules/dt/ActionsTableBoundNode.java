@@ -13,7 +13,7 @@ import org.openl.types.impl.CompositeMethod;
 
 /**
  * @author Marat Kamalov
- * 
+ *
  */
 public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 

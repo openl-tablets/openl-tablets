@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedTypeException;
-import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.*;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -21,7 +17,7 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IBindingContext extends ICastFactory {
 
@@ -35,7 +31,7 @@ public interface IBindingContext extends ICastFactory {
 
     /**
      * Adds new type to binding context.
-     * 
+     *
      * @param namespace type namespace
      * @param type type
      * @throws Exception if an error has occurred
@@ -49,7 +45,7 @@ public interface IBindingContext extends ICastFactory {
     /**
      * This method is implemented by default by calling type.getFiled(fieldName, strictMatch), but some context may
      * override it to provide dynamic mapping functionality
-     * 
+     *
      * @param type
      * @param fieldName
      * @param strictMatch

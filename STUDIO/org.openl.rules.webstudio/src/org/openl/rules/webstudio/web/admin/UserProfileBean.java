@@ -86,7 +86,7 @@ public class UserProfileBean extends UsersBean {
 
     /**
      * Return the user's privileges
-     * 
+     *
      * @return Collection of user's privileges
      */
     private Collection<Privilege> getPriveleges() {

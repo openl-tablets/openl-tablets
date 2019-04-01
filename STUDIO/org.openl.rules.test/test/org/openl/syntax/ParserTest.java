@@ -115,13 +115,15 @@ public class ParserTest extends TestCase {
 
         SyntaxNodeException[] errors = pc.getErrors();
 
-        if (errors.length == 0)
+        if (errors.length == 0) {
             throw new RuntimeException("This expression must produce an error!");
+        }
 
         String message = errors[0].getMessage();
 
-        if (!message.startsWith(messageStart))
+        if (!message.startsWith(messageStart)) {
             throw new RuntimeException(String.format("'%s' should start with '%s'", message, messageStart));
+        }
 
     }
 

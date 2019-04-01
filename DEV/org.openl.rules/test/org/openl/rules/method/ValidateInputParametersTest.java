@@ -20,7 +20,7 @@ public class ValidateInputParametersTest {
 
     @Before
     public void init() throws IOException {
-        engineFactory = new RulesEngineFactory<Object>(SRC);
+        engineFactory = new RulesEngineFactory<>(SRC);
     }
 
     @Test(expected = OutsideOfValidDomainException.class)

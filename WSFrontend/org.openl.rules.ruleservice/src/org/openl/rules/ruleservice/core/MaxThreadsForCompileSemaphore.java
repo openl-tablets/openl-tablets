@@ -14,7 +14,7 @@ public final class MaxThreadsForCompileSemaphore {
         private static final MaxThreadsForCompileSemaphore INSTANCE = new MaxThreadsForCompileSemaphore();
     }
 
-    public static final MaxThreadsForCompileSemaphore getInstance() {
+    public static MaxThreadsForCompileSemaphore getInstance() {
         return MaxThreadsForCompileSemaphoreHolder.INSTANCE;
     }
 

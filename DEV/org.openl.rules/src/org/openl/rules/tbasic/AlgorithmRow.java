@@ -1,11 +1,11 @@
 package org.openl.rules.tbasic;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AlgorithmRow {
     private StringValue label;

@@ -2,16 +2,9 @@ package org.openl.rules.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.openl.rules.util.Miscs.isEmpty;
-import static org.openl.rules.util.Miscs.isInfinite;
-import static org.openl.rules.util.Miscs.isNaN;
-import static org.openl.rules.util.Miscs.isNotEmpty;
+import static org.openl.rules.util.Miscs.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.*;
 
 import org.junit.Test;
 

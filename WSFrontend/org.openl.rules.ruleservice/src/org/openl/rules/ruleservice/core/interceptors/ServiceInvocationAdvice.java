@@ -24,12 +24,7 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptors;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
+import org.openl.rules.ruleservice.core.interceptors.annotations.*;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.IEngineWrapper;
 import org.slf4j.Logger;
@@ -432,8 +427,9 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         boolean isNotFirst = false;
         while (t != null && t.getCause() != t) {
             if ((t instanceof OpenLRuntimeException || t instanceof OpenLException) && t.getMessage() != null) {
-                if (isNotFirst)
+                if (isNotFirst) {
                     sb.append(MSG_SEPARATOR);
+                }
                 isNotFirst = true;
                 if (t instanceof OpenLRuntimeException) {
                     sb.append(((OpenLRuntimeException) t).getOriginalMessage());

@@ -60,14 +60,15 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     @Override
     public void parseTopNode(String type) {
         try {
-            if (type.equals("method.body"))
+            if (type.equals("method.body")) {
                 parseTopNodeInternal();
-            else if (type.equals("method.header"))
+            } else if (type.equals("method.header")) {
                 MethodHeader();
-            else if (type.equals("module"))
+            } else if (type.equals("module")) {
                 parseModuleInternal();
-            else if (type.equals("type"))
+            } else if (type.equals("type")) {
                 Type();
+            }
 
         } catch (ParseException pe) {
             // pe.printStackTrace();
@@ -194,7 +195,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         ConditionalOrExpression();
         label_1: while (true) {
             if (jj_2_1(2147483647)) {
-                ;
+
             } else {
                 break label_1;
             }
@@ -210,7 +211,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_2: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case SC_OR: {
-                    ;
+
                     break;
                 }
                 default:
@@ -229,7 +230,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_3: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case XOR: {
-                    ;
+
                     break;
                 }
                 default:
@@ -248,7 +249,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_4: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case SC_AND: {
-                    ;
+
                     break;
                 }
                 default:
@@ -269,7 +270,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case EQ:
                 case NE: {
-                    ;
+
                     break;
                 }
                 default:
@@ -307,7 +308,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case LT:
                 case LE:
                 case GE: {
-                    ;
+
                     break;
                 }
                 default:
@@ -355,7 +356,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case PLUS:
                 case MINUS: {
-                    ;
+
                     break;
                 }
                 default:
@@ -392,7 +393,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case STAR:
                 case SLASH:
                 case REM: {
-                    ;
+
                     break;
                 }
                 default:
@@ -430,7 +431,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         UnaryExpression();
         label_9: while (true) {
             if (jj_2_2(2147483647)) {
-                ;
+
             } else {
                 break label_9;
             }
@@ -547,15 +548,16 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         PrimaryPrefix();
         label_10: while (true) {
             if (jj_2_4(2)) {
-                ;
+
             } else {
                 break label_10;
             }
             PrimarySuffix();
             ++args;
         }
-        if (args > 1)
+        if (args > 1) {
             syntaxBuilder.nop("chain", null, args);
+        }
     }
 
     final public void PrimaryPrefix() throws ParseException {
@@ -702,7 +704,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_11: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case LBRACKET: {
-                    ;
+
                     break;
                 }
                 default:
@@ -741,7 +743,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         x2 = x1;
         label_12: while (true) {
             if (jj_2_7(2)) {
-                ;
+
             } else {
                 break label_12;
             }
@@ -781,7 +783,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 label_13: while (true) {
                     switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case COMMA: {
-                            ;
+
                             break;
                         }
                         default:
@@ -833,7 +835,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                         label_14: while (true) {
                             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                                 case COMMA: {
-                                    ;
+
                                     break;
                                 }
                                 default:
@@ -881,14 +883,14 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 syntaxBuilder.bop("array.index.expression", pos(x1, x2));
                 cnt++;
                 if (jj_2_8(2)) {
-                    ;
+
                 } else {
                     break label_15;
                 }
             }
             label_16: while (true) {
                 if (jj_2_9(2)) {
-                    ;
+
                 } else {
                     break label_16;
                 }
@@ -903,7 +905,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                         TypeDimension();
                         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                             case LBRACKET: {
-                                ;
+
                                 break;
                             }
                             default:
@@ -1038,7 +1040,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case CHARACTER_LITERAL:
                 case STRING_LITERAL:
                 case IDENTIFIER: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1296,7 +1298,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_19: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case COMMA: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1338,7 +1340,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_20: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case LBRACKET: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1407,7 +1409,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 args++;
                 label_21: while (true) {
                     if (jj_2_13(2)) {
-                        ;
+
                     } else {
                         break label_21;
                     }
@@ -1564,7 +1566,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         label_22: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case COMMA: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1575,8 +1577,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             StatementExpression();
             args++;
         }
-        if (args > 1)
+        if (args > 1) {
             syntaxBuilder.nop("statement_list", null, args);
+        }
     }
 
     final public void ForUpdate() throws ParseException {
@@ -1628,7 +1631,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case PUBLIC:
                 case STATIC:
                 case SYNCHRONIZED: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1690,7 +1693,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case PUBLIC:
                 case STATIC:
                 case SYNCHRONIZED: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1775,7 +1778,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 label_25: while (true) {
                     switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case COMMA: {
-                            ;
+
                             break;
                         }
                         default:
@@ -1840,7 +1843,7 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 case SYNCHRONIZED:
                 case VOID:
                 case IDENTIFIER: {
-                    ;
+
                     break;
                 }
                 default:
@@ -1850,13 +1853,14 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             MethodOrVarDeclaration();
             ++nMethods;
         }
-        if (nMethods > 0)
+        if (nMethods > 0) {
             syntaxBuilder.nop("module.top", null, nMethods);
+        }
         jj_consume_token(0);
     }
 
     /*
-    */
+     */
     final public void parseTopNodeInternal() throws ParseException {
         BlockStatementList();
         syntaxBuilder.uop("block.top", null);
@@ -2048,31 +2052,38 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_106()) {
             jj_scanpos = xsp;
-            if (jj_3R_107())
+            if (jj_3R_107()) {
                 return true;
+            }
         }
-        if (jj_3R_94())
+        if (jj_3R_94()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_29() {
-        if (jj_scan_token(IDENTIFIER))
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
-        if (jj_scan_token(LPAREN))
+        }
+        if (jj_scan_token(LPAREN)) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_40())
+        if (jj_3R_40()) {
             jj_scanpos = xsp;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_92() {
-        if (jj_3R_94())
+        if (jj_3R_94()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2085,30 +2096,36 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_7() {
-        if (jj_scan_token(DOT))
+        if (jj_scan_token(DOT)) {
             return true;
-        if (jj_scan_token(IDENTIFIER))
+        }
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_31() {
-        if (jj_scan_token(IDENTIFIER))
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
-        if (jj_scan_token(COLON))
+        }
+        if (jj_scan_token(COLON)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_103() {
-        if (jj_scan_token(GE))
+        if (jj_scan_token(GE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_42() {
-        if (jj_scan_token(IDENTIFIER))
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2121,20 +2138,23 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_102() {
-        if (jj_scan_token(LE))
+        if (jj_scan_token(LE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_101() {
-        if (jj_scan_token(GT))
+        if (jj_scan_token(GT)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_100() {
-        if (jj_scan_token(LT))
+        if (jj_scan_token(LT)) {
             return true;
+        }
         return false;
     }
 
@@ -2147,31 +2167,36 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 jj_scanpos = xsp;
                 if (jj_3R_102()) {
                     jj_scanpos = xsp;
-                    if (jj_3R_103())
+                    if (jj_3R_103()) {
                         return true;
+                    }
                 }
             }
         }
-        if (jj_3R_92())
+        if (jj_3R_92()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_43() {
-        if (jj_3R_55())
+        if (jj_3R_55()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_47() {
-        if (jj_3R_32())
+        if (jj_3R_32()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_90() {
-        if (jj_3R_92())
+        if (jj_3R_92()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2184,8 +2209,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_46() {
-        if (jj_scan_token(VOID))
+        if (jj_scan_token(VOID)) {
             return true;
+        }
         return false;
     }
 
@@ -2194,29 +2220,34 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_46()) {
             jj_scanpos = xsp;
-            if (jj_3R_47())
+            if (jj_3R_47()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3_14() {
-        if (jj_3R_32())
+        if (jj_3R_32()) {
             return true;
-        if (jj_scan_token(IDENTIFIER))
+        }
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_97() {
-        if (jj_scan_token(NE))
+        if (jj_scan_token(NE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_96() {
-        if (jj_scan_token(EQ))
+        if (jj_scan_token(EQ)) {
             return true;
+        }
         return false;
     }
 
@@ -2225,17 +2256,20 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_96()) {
             jj_scanpos = xsp;
-            if (jj_3R_97())
+            if (jj_3R_97()) {
                 return true;
+            }
         }
-        if (jj_3R_90())
+        if (jj_3R_90()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_32() {
-        if (jj_3R_42())
+        if (jj_3R_42()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2248,16 +2282,19 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_87() {
-        if (jj_scan_token(SC_OR))
+        if (jj_scan_token(SC_OR)) {
             return true;
-        if (jj_3R_80())
+        }
+        if (jj_3R_80()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_88() {
-        if (jj_3R_90())
+        if (jj_3R_90()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2270,30 +2307,36 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_11() {
-        if (jj_3R_31())
+        if (jj_3R_31()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_55() {
-        if (jj_scan_token(LBRACKET))
+        if (jj_scan_token(LBRACKET)) {
             return true;
-        if (jj_scan_token(RBRACKET))
+        }
+        if (jj_scan_token(RBRACKET)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_91() {
-        if (jj_scan_token(SC_AND))
+        if (jj_scan_token(SC_AND)) {
             return true;
-        if (jj_3R_88())
+        }
+        if (jj_3R_88()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_85() {
-        if (jj_3R_88())
+        if (jj_3R_88()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2306,22 +2349,26 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_52() {
-        if (jj_scan_token(IDENTIFIER))
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_89() {
-        if (jj_scan_token(XOR))
+        if (jj_scan_token(XOR)) {
             return true;
-        if (jj_3R_85())
+        }
+        if (jj_3R_85()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_80() {
-        if (jj_3R_85())
+        if (jj_3R_85()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2334,18 +2381,22 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_1() {
-        if (jj_scan_token(IMPL))
+        if (jj_scan_token(IMPL)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_27() {
-        if (jj_scan_token(LPAREN))
+        if (jj_scan_token(LPAREN)) {
             return true;
-        if (jj_3R_32())
+        }
+        if (jj_3R_32()) {
             return true;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
         if (jj_scan_token(59)) {
@@ -2360,8 +2411,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                             jj_scanpos = xsp;
                             if (jj_scan_token(27)) {
                                 jj_scanpos = xsp;
-                                if (jj_3R_36())
+                                if (jj_3R_36()) {
                                     return true;
+                                }
                             }
                         }
                     }
@@ -2372,16 +2424,19 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_6() {
-        if (jj_scan_token(DOT))
+        if (jj_scan_token(DOT)) {
             return true;
-        if (jj_3R_29())
+        }
+        if (jj_3R_29()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_65() {
-        if (jj_3R_80())
+        if (jj_3R_80()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2394,28 +2449,35 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_13() {
-        if (jj_scan_token(COMMA))
+        if (jj_scan_token(COMMA)) {
             return true;
-        if (jj_3R_33())
+        }
+        if (jj_3R_33()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_121() {
-        if (jj_scan_token(LPAREN))
+        if (jj_scan_token(LPAREN)) {
             return true;
-        if (jj_3R_32())
+        }
+        if (jj_3R_32()) {
             return true;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
-        if (jj_3R_104())
+        }
+        if (jj_3R_104()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_143() {
-        if (jj_3R_33())
+        if (jj_3R_33()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2428,53 +2490,65 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_84() {
-        if (jj_scan_token(IMPL))
+        if (jj_scan_token(IMPL)) {
             return true;
-        if (jj_3R_65())
+        }
+        if (jj_3R_65()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_39() {
-        if (jj_scan_token(DOT))
+        if (jj_scan_token(DOT)) {
             return true;
-        if (jj_3R_52())
+        }
+        if (jj_3R_52()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_38() {
-        if (jj_scan_token(DOT))
+        if (jj_scan_token(DOT)) {
             return true;
-        if (jj_3R_29())
+        }
+        if (jj_3R_29()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_5() {
-        if (jj_3R_29())
+        if (jj_3R_29()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_56() {
-        if (jj_scan_token(LBRACE))
+        if (jj_scan_token(LBRACE)) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_143())
+        if (jj_3R_143()) {
             jj_scanpos = xsp;
+        }
         xsp = jj_scanpos;
-        if (jj_scan_token(53))
+        if (jj_scan_token(53)) {
             jj_scanpos = xsp;
-        if (jj_scan_token(RBRACE))
+        }
+        if (jj_scan_token(RBRACE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_54() {
-        if (jj_3R_65())
+        if (jj_3R_65()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2487,8 +2561,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_37() {
-        if (jj_3R_51())
+        if (jj_3R_51()) {
             return true;
+        }
         return false;
     }
 
@@ -2499,68 +2574,81 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             jj_scanpos = xsp;
             if (jj_3R_38()) {
                 jj_scanpos = xsp;
-                if (jj_3R_39())
+                if (jj_3R_39()) {
                     return true;
+                }
             }
         }
         return false;
     }
 
     private boolean jj_3R_86() {
-        if (jj_3R_55())
+        if (jj_3R_55()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_69() {
-        if (jj_scan_token(NULL))
+        if (jj_scan_token(NULL)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_70() {
-        if (jj_scan_token(HOOK))
+        if (jj_scan_token(HOOK)) {
             return true;
-        if (jj_3R_41())
+        }
+        if (jj_3R_41()) {
             return true;
-        if (jj_scan_token(COLON))
+        }
+        if (jj_scan_token(COLON)) {
             return true;
-        if (jj_3R_41())
+        }
+        if (jj_3R_41()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_131() {
-        if (jj_3R_52())
+        if (jj_3R_52()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_45() {
-        if (jj_3R_30())
+        if (jj_3R_30()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_41() {
-        if (jj_3R_54())
+        if (jj_3R_54()) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_70())
+        if (jj_3R_70()) {
             jj_scanpos = xsp;
+        }
         return false;
     }
 
     private boolean jj_3R_130() {
-        if (jj_3R_29())
+        if (jj_3R_29()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_44() {
-        if (jj_3R_56())
+        if (jj_3R_56()) {
             return true;
+        }
         return false;
     }
 
@@ -2569,21 +2657,24 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_44()) {
             jj_scanpos = xsp;
-            if (jj_3R_45())
+            if (jj_3R_45()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3R_83() {
-        if (jj_scan_token(FALSE))
+        if (jj_scan_token(FALSE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_4() {
-        if (jj_3R_28())
+        if (jj_3R_28()) {
             return true;
+        }
         return false;
     }
 
@@ -2592,33 +2683,38 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_82()) {
             jj_scanpos = xsp;
-            if (jj_3R_83())
+            if (jj_3R_83()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3R_82() {
-        if (jj_scan_token(TRUE))
+        if (jj_scan_token(TRUE)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_129() {
-        if (jj_3R_135())
+        if (jj_3R_135()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_79() {
-        if (jj_scan_token(REMASSIGN))
+        if (jj_scan_token(REMASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_81() {
-        if (jj_3R_52())
+        if (jj_3R_52()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2631,60 +2727,71 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_78() {
-        if (jj_scan_token(XORASSIGN))
+        if (jj_scan_token(XORASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_128() {
-        if (jj_scan_token(LPAREN))
+        if (jj_scan_token(LPAREN)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_77() {
-        if (jj_scan_token(ORASSIGN))
+        if (jj_scan_token(ORASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_76() {
-        if (jj_scan_token(ANDASSIGN))
+        if (jj_scan_token(ANDASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_127() {
-        if (jj_3R_134())
+        if (jj_3R_134()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_75() {
-        if (jj_scan_token(SLASHASSIGN))
+        if (jj_scan_token(SLASHASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_63() {
-        if (jj_3R_69())
+        if (jj_3R_69()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_74() {
-        if (jj_scan_token(STARASSIGN))
+        if (jj_scan_token(STARASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_126() {
-        if (jj_3R_50())
+        if (jj_3R_50()) {
             return true;
+        }
         return false;
     }
 
@@ -2701,8 +2808,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                         jj_scanpos = xsp;
                         if (jj_3R_130()) {
                             jj_scanpos = xsp;
-                            if (jj_3R_131())
+                            if (jj_3R_131()) {
                                 return true;
+                            }
                         }
                     }
                 }
@@ -2712,40 +2820,47 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_62() {
-        if (jj_3R_68())
+        if (jj_3R_68()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_73() {
-        if (jj_scan_token(MINUSASSIGN))
+        if (jj_scan_token(MINUSASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_15() {
-        if (jj_3R_34())
+        if (jj_3R_34()) {
             return true;
-        if (jj_3R_35())
+        }
+        if (jj_3R_35()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_72() {
-        if (jj_scan_token(PLUSASSIGN))
+        if (jj_scan_token(PLUSASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_71() {
-        if (jj_scan_token(ASSIGN))
+        if (jj_scan_token(ASSIGN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_61() {
-        if (jj_scan_token(CHARACTER_LITERAL))
+        if (jj_scan_token(CHARACTER_LITERAL)) {
             return true;
+        }
         return false;
     }
 
@@ -2768,8 +2883,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                                     jj_scanpos = xsp;
                                     if (jj_3R_78()) {
                                         jj_scanpos = xsp;
-                                        if (jj_3R_79())
+                                        if (jj_3R_79()) {
                                             return true;
+                                        }
                                     }
                                 }
                             }
@@ -2778,34 +2894,40 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 }
             }
         }
-        if (jj_3R_30())
+        if (jj_3R_30()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_60() {
-        if (jj_scan_token(STRING_LITERAL))
+        if (jj_scan_token(STRING_LITERAL)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_59() {
-        if (jj_scan_token(FLOATING_POINT_LITERAL))
+        if (jj_scan_token(FLOATING_POINT_LITERAL)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_67() {
-        if (jj_scan_token(COMMA))
+        if (jj_scan_token(COMMA)) {
             return true;
-        if (jj_3R_66())
+        }
+        if (jj_3R_66()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_123() {
-        if (jj_3R_124())
+        if (jj_3R_124()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2818,12 +2940,14 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_30() {
-        if (jj_3R_41())
+        if (jj_3R_41()) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_64())
+        if (jj_3R_64()) {
             jj_scanpos = xsp;
+        }
         return false;
     }
 
@@ -2840,8 +2964,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                         jj_scanpos = xsp;
                         if (jj_3R_62()) {
                             jj_scanpos = xsp;
-                            if (jj_3R_63())
+                            if (jj_3R_63()) {
                                 return true;
+                            }
                         }
                     }
                 }
@@ -2851,26 +2976,30 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_58() {
-        if (jj_scan_token(INTEGER_LITERAL))
+        if (jj_scan_token(INTEGER_LITERAL)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_118() {
-        if (jj_scan_token(REM))
+        if (jj_scan_token(REM)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_133() {
-        if (jj_scan_token(DECR))
+        if (jj_scan_token(DECR)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_132() {
-        if (jj_scan_token(INCR))
+        if (jj_scan_token(INCR)) {
             return true;
+        }
         return false;
     }
 
@@ -2879,75 +3008,92 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3R_132()) {
             jj_scanpos = xsp;
-            if (jj_3R_133())
+            if (jj_3R_133()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3R_134() {
-        if (jj_scan_token(BIT_OR))
+        if (jj_scan_token(BIT_OR)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
-        if (jj_scan_token(BIT_OR))
+        }
+        if (jj_scan_token(BIT_OR)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_122() {
-        if (jj_3R_123())
+        if (jj_3R_123()) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_125())
+        if (jj_3R_125()) {
             jj_scanpos = xsp;
+        }
         return false;
     }
 
     private boolean jj_3R_120() {
-        if (jj_scan_token(DECR))
+        if (jj_scan_token(DECR)) {
             return true;
-        if (jj_3R_123())
+        }
+        if (jj_3R_123()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_3() {
-        if (jj_3R_27())
+        if (jj_3R_27()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_66() {
-        if (jj_3R_32())
+        if (jj_3R_32()) {
             return true;
-        if (jj_3R_81())
+        }
+        if (jj_3R_81()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_51() {
-        if (jj_scan_token(LBRACKET))
+        if (jj_scan_token(LBRACKET)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
-        if (jj_scan_token(RBRACKET))
+        }
+        if (jj_scan_token(RBRACKET)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_119() {
-        if (jj_scan_token(INCR))
+        if (jj_scan_token(INCR)) {
             return true;
-        if (jj_3R_123())
+        }
+        if (jj_3R_123()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_57() {
-        if (jj_3R_66())
+        if (jj_3R_66()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -2960,15 +3106,17 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_142() {
-        if (jj_3R_55())
+        if (jj_3R_55()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_141() {
         Token xsp;
-        if (jj_3R_142())
+        if (jj_3R_142()) {
             return true;
+        }
         while (true) {
             xsp = jj_scanpos;
             if (jj_3R_142()) {
@@ -2976,52 +3124,63 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 break;
             }
         }
-        if (jj_3R_56())
+        if (jj_3R_56()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_114() {
-        if (jj_3R_122())
+        if (jj_3R_122()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_9() {
-        if (jj_scan_token(LBRACKET))
+        if (jj_scan_token(LBRACKET)) {
             return true;
-        if (jj_scan_token(RBRACKET))
+        }
+        if (jj_scan_token(RBRACKET)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_140() {
-        if (jj_scan_token(COMMA))
+        if (jj_scan_token(COMMA)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_8() {
-        if (jj_scan_token(LBRACKET))
+        if (jj_scan_token(LBRACKET)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
-        if (jj_scan_token(RBRACKET))
+        }
+        if (jj_scan_token(RBRACKET)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_117() {
-        if (jj_scan_token(SLASH))
+        if (jj_scan_token(SLASH)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_113() {
-        if (jj_3R_121())
+        if (jj_3R_121()) {
             return true;
+        }
         return false;
     }
 
@@ -3030,16 +3189,18 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         xsp = jj_scanpos;
         if (jj_3_10()) {
             jj_scanpos = xsp;
-            if (jj_3R_141())
+            if (jj_3R_141()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3_10() {
         Token xsp;
-        if (jj_3_8())
+        if (jj_3_8()) {
             return true;
+        }
         while (true) {
             xsp = jj_scanpos;
             if (jj_3_8()) {
@@ -3058,56 +3219,68 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_112() {
-        if (jj_3R_120())
+        if (jj_3R_120()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_111() {
-        if (jj_3R_119())
+        if (jj_3R_119()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_49() {
-        if (jj_scan_token(LPAREN))
+        if (jj_scan_token(LPAREN)) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_57())
+        if (jj_3R_57()) {
             jj_scanpos = xsp;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_110() {
-        if (jj_scan_token(BANG))
+        if (jj_scan_token(BANG)) {
             return true;
-        if (jj_3R_104())
+        }
+        if (jj_3R_104()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_109() {
-        if (jj_scan_token(MINUS))
+        if (jj_scan_token(MINUS)) {
             return true;
-        if (jj_3R_104())
+        }
+        if (jj_3R_104()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3_2() {
-        if (jj_scan_token(EXP))
+        if (jj_scan_token(EXP)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_108() {
-        if (jj_scan_token(PLUS))
+        if (jj_scan_token(PLUS)) {
             return true;
-        if (jj_3R_104())
+        }
+        if (jj_3R_104()) {
             return true;
+        }
         return false;
     }
 
@@ -3126,8 +3299,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                             jj_scanpos = xsp;
                             if (jj_3R_113()) {
                                 jj_scanpos = xsp;
-                                if (jj_3R_114())
+                                if (jj_3R_114()) {
                                     return true;
+                                }
                             }
                         }
                     }
@@ -3138,50 +3312,60 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_48() {
-        if (jj_3R_52())
+        if (jj_3R_52()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_137() {
-        if (jj_3R_139())
+        if (jj_3R_139()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_53() {
-        if (jj_scan_token(COMMA))
+        if (jj_scan_token(COMMA)) {
             return true;
-        if (jj_3R_30())
+        }
+        if (jj_3R_30()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_35() {
-        if (jj_3R_48())
+        if (jj_3R_48()) {
             return true;
-        if (jj_3R_49())
+        }
+        if (jj_3R_49()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_115() {
-        if (jj_scan_token(EXP))
+        if (jj_scan_token(EXP)) {
             return true;
-        if (jj_3R_104())
+        }
+        if (jj_3R_104()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_107() {
-        if (jj_scan_token(MINUS))
+        if (jj_scan_token(MINUS)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_138() {
-        if (jj_3R_30())
+        if (jj_3R_30()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -3194,20 +3378,24 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_136() {
-        if (jj_scan_token(LPAREN))
+        if (jj_scan_token(LPAREN)) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_138())
+        if (jj_3R_138()) {
             jj_scanpos = xsp;
-        if (jj_scan_token(RPAREN))
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_98() {
-        if (jj_3R_104())
+        if (jj_3R_104()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -3220,23 +3408,27 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_135() {
-        if (jj_scan_token(NEW))
+        if (jj_scan_token(NEW)) {
             return true;
-        if (jj_3R_42())
+        }
+        if (jj_3R_42()) {
             return true;
+        }
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_136()) {
             jj_scanpos = xsp;
-            if (jj_3R_137())
+            if (jj_3R_137()) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean jj_3R_116() {
-        if (jj_scan_token(STAR))
+        if (jj_scan_token(STAR)) {
             return true;
+        }
         return false;
     }
 
@@ -3247,18 +3439,21 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
             jj_scanpos = xsp;
             if (jj_3R_117()) {
                 jj_scanpos = xsp;
-                if (jj_3R_118())
+                if (jj_3R_118()) {
                     return true;
+                }
             }
         }
-        if (jj_3R_98())
+        if (jj_3R_98()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_94() {
-        if (jj_3R_98())
+        if (jj_3R_98()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -3271,16 +3466,19 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3_12() {
-        if (jj_3R_32())
+        if (jj_3R_32()) {
             return true;
-        if (jj_scan_token(IDENTIFIER))
+        }
+        if (jj_scan_token(IDENTIFIER)) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_40() {
-        if (jj_3R_30())
+        if (jj_3R_30()) {
             return true;
+        }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
@@ -3293,14 +3491,16 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     }
 
     private boolean jj_3R_36() {
-        if (jj_3R_50())
+        if (jj_3R_50()) {
             return true;
+        }
         return false;
     }
 
     private boolean jj_3R_106() {
-        if (jj_scan_token(PLUS))
+        if (jj_scan_token(PLUS)) {
             return true;
+        }
         return false;
     }
 
@@ -3607,10 +3807,12 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     /** Reinitialise. */
@@ -3629,10 +3831,12 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     /** Constructor. */
@@ -3642,10 +3846,12 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     /** Reinitialise. */
@@ -3664,10 +3870,12 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     /** Constructor with generated Token Manager. */
@@ -3676,10 +3884,12 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     /** Reinitialise. */
@@ -3688,18 +3898,21 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 62; i++)
+        for (int i = 0; i < 62; i++) {
             jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++)
+        }
+        for (int i = 0; i < jj_2_rtns.length; i++) {
             jj_2_rtns[i] = new JJCalls();
+        }
     }
 
     private Token jj_consume_token(int kind) throws ParseException {
         Token oldToken;
-        if ((oldToken = token).next != null)
+        if ((oldToken = token).next != null) {
             token = token.next;
-        else
+        } else {
             token = token.next = token_source.getNextToken();
+        }
         jj_ntk = -1;
         if (token.kind == kind) {
             jj_gen++;
@@ -3708,8 +3921,9 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 for (int i = 0; i < jj_2_rtns.length; i++) {
                     JJCalls c = jj_2_rtns[i];
                     while (c != null) {
-                        if (c.gen < jj_gen)
+                        if (c.gen < jj_gen) {
                             c.first = null;
+                        }
                         c = c.next;
                     }
                 }
@@ -3745,22 +3959,26 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
                 i++;
                 tok = tok.next;
             }
-            if (tok != null)
+            if (tok != null) {
                 jj_add_error_token(kind, i);
+            }
         }
-        if (jj_scanpos.kind != kind)
+        if (jj_scanpos.kind != kind) {
             return true;
-        if (jj_la == 0 && jj_scanpos == jj_lastpos)
+        }
+        if (jj_la == 0 && jj_scanpos == jj_lastpos) {
             throw jj_ls;
+        }
         return false;
     }
 
     /** Get the next Token. */
     final public Token getNextToken() {
-        if (token.next != null)
+        if (token.next != null) {
             token = token.next;
-        else
+        } else {
             token = token.next = token_source.getNextToken();
+        }
         jj_ntk = -1;
         jj_gen++;
         return token;
@@ -3770,19 +3988,21 @@ public class JGrammar extends org.openl.grammar.JavaCC30Grammar implements JGram
     final public Token getToken(int index) {
         Token t = token;
         for (int i = 0; i < index; i++) {
-            if (t.next != null)
+            if (t.next != null) {
                 t = t.next;
-            else
+            } else {
                 t = t.next = token_source.getNextToken();
+            }
         }
         return t;
     }
 
     private int jj_ntk_f() {
-        if ((jj_nt = token.next) == null)
+        if ((jj_nt = token.next) == null) {
             return (jj_ntk = (token.next = token_source.getNextToken()).kind);
-        else
+        } else {
             return (jj_ntk = jj_nt.kind);
+        }
     }
 
     private java.util.List<int[]> jj_expentries = new java.util.ArrayList<>();

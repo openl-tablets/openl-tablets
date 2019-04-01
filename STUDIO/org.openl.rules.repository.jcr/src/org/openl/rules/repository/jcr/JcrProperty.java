@@ -3,11 +3,7 @@ package org.openl.rules.repository.jcr;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
+import javax.jcr.*;
 
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;

@@ -28,7 +28,7 @@ public class ChangesMonitor implements Runnable {
     /**
      * Creates a monitor instance. In the end of the life cycle, {@link #release()} should be called to stop a
      * monitoring thread and release all instances of task and objects, those are held by this monitor.
-     * 
+     *
      * @param getter for retrieving revisions of the monitored repository
      * @param period the comparison period of revisions in seconds
      */

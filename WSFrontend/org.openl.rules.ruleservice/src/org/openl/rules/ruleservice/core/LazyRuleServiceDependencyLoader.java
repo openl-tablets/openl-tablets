@@ -19,13 +19,8 @@ import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.rules.ruleservice.publish.lazy.LazyBinderInvocationHandler;
-import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
-import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
+import org.openl.rules.ruleservice.publish.lazy.*;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
-import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -277,6 +272,6 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         return null;
     }
 
-    public static interface LazyRuleServiceDependencyLoaderInterface {
+    public interface LazyRuleServiceDependencyLoaderInterface {
     }
 }

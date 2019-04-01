@@ -24,7 +24,7 @@ public class OriginPropertyPriorityDispatchTest {
         assertEquals("Deviation", instance.testOriginProperty());
     }
 
-    public static interface Rules {
+    public interface Rules {
         String testOriginProperty();
     }
 }

@@ -11,7 +11,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * The <code>TBasicContextHolderEnv</code> contains full context for execution of Algorithm: runtime environment, VM,
  * variables and parameters to run with.
- * 
+ *
  */
 public class TBasicContextHolderEnv implements IRuntimeEnv {
     private IRuntimeEnv env;
@@ -22,7 +22,7 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
     /**
      * Create an instance of <code>TBasicContextHolderEnv</code> initialized with environment,
      * <code>DelegatedDynamicObject</code> for variables,execution VM and parameters.
-     * 
+     *
      * @param env
      * @param tbasicTarget
      * @param params
@@ -41,7 +41,7 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 
     /**
      * Create new variable in context(if variable with specified name doesn't exist) and sets its value.
-     * 
+     *
      * @param variableName Name of variable to initiate.
      * @param value Initial value of new variable.
      */

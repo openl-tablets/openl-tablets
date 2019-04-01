@@ -23,11 +23,11 @@ public interface UndoableFloat extends Undoable {
     /**
      * Sets the current value.
      */
-    public void setValue(double value);
+    void setValue(double value);
 
     /**
      * Returns the current value.
      */
-    public double value();
+    double value();
 
 } // ~UndoableFloat

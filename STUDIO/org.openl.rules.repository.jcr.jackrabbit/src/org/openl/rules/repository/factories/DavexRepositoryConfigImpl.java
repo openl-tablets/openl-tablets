@@ -1,15 +1,15 @@
 package org.openl.rules.repository.factories;
 
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+
 import org.apache.jackrabbit.jcr2spi.config.CacheBehaviour;
 import org.apache.jackrabbit.jcr2spi.config.RepositoryConfig;
-import org.apache.jackrabbit.spi.RepositoryService;
 import org.apache.jackrabbit.spi.Path;
-import org.apache.jackrabbit.spi2davex.RepositoryServiceImpl;
-import org.apache.jackrabbit.spi2davex.BatchReadConfig;
+import org.apache.jackrabbit.spi.RepositoryService;
 import org.apache.jackrabbit.spi.commons.conversion.PathResolver;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.NamespaceException;
+import org.apache.jackrabbit.spi2davex.BatchReadConfig;
+import org.apache.jackrabbit.spi2davex.RepositoryServiceImpl;
 
 /**
  * from jackarabbit sandbox

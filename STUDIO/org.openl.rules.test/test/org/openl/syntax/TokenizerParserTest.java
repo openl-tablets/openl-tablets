@@ -5,12 +5,12 @@
  */
 package org.openl.syntax;
 
+import org.junit.Assert;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
 /**

@@ -21,62 +21,62 @@ public interface FloatDomain {
     /**
      * Returns a constrainer that owns this domain.
      */
-    public Constrainer constrainer();
+    Constrainer constrainer();
 
     /**
      * Returns true if this domain contains the value.
      */
-    public boolean contains(double value);
+    boolean contains(double value);
 
     /**
      * Undo helper: sets the maximum value for this domain.
      */
-    public void forceMax(double M);
+    void forceMax(double M);
 
     /**
      * Undo helper: sets the minimum value for this domain.
      */
-    public void forceMin(double m);
+    void forceMin(double m);
 
     /**
      * Returns the largest value in this domain.
      */
-    public double max();
+    double max();
 
     /**
      * Returns the smallest value in this domain.
      */
-    public double min();
+    double min();
 
     /**
      * Sets the maximum value for this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setMax(double M) throws Failure;
+    boolean setMax(double M) throws Failure;
 
     /**
      * Sets the minimum value for this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setMin(double m) throws Failure;
+    boolean setMin(double m) throws Failure;
 
     /**
      * Sets this domain to the damain containing only the value.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setValue(double value) throws Failure;
+    boolean setValue(double value) throws Failure;
 
     /**
      * Returns the size (<code>max-min</code>) of this domain.
      */
-    public double size();
+    double size();
 
     /**
      * Sets the variable that have this domain.
      */
-    public void variable(FloatVar var);
+    void variable(FloatVar var);
 
 } // ~FloatDomain

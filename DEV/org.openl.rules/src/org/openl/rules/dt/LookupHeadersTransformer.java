@@ -5,7 +5,7 @@ import org.openl.rules.table.IGridTable;
 /**
  * Transformer for lookup table headers values. The common case is that the RET section is the last one in the header,
  * as shown below:<br>
- * 
+ *
  * <table cellspacing="2">
  * <tr>
  * <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
@@ -32,9 +32,9 @@ import org.openl.rules.table.IGridTable;
  * </tr>
  * </table>
  * And we need to transform it to common case for further work.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranformer {
 

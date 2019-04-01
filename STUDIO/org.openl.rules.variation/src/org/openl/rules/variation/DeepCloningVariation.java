@@ -16,7 +16,7 @@ import com.rits.cloning.Cloner;
 
 /**
  * Variation that clones all arguments before the modification by another variation(that is delegated.)
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 
@@ -40,7 +40,7 @@ public class DeepCloningVariation extends Variation {
     /**
      * Constructs deep-cloning variation with the generated ID(ID of delegated variation +
      * {@link DeepCloningVariation#DEEP_CLONING_SUFFIX}).
-     * 
+     *
      * @param variation Delegated variation.
      */
     public DeepCloningVariation(Variation variation) {
@@ -49,7 +49,7 @@ public class DeepCloningVariation extends Variation {
 
     /**
      * Constructs deep-cloning variation with the specified ID.
-     * 
+     *
      * @param variationID Unique variation ID.
      * @param variation Delegated variation.
      */

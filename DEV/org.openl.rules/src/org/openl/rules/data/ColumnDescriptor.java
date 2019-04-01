@@ -28,7 +28,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class ColumnDescriptor {
 
@@ -76,7 +76,7 @@ public class ColumnDescriptor {
 
     /**
      * Checks if type values are represented as array of elements.
-     * 
+     *
      * @param paramType Parameter type.
      * @return true if paramType represents array
      */

@@ -33,7 +33,7 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
      * Generates method stubs <br/>
      * If method has return type as any object, generated stub will return NULL value<br/>
      * If method has return type as any primitive, generated stub will return default values for them<br/>
-     * 
+     *
      * @param classWriter
      */
     @Override
@@ -62,7 +62,7 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
      * double - 0D <br/>
      * Object - null <br/>
      * </p>
-     * 
+     *
      * @param methodVisitor
      * @param type
      */

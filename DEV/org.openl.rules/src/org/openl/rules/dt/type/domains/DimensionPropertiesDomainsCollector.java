@@ -11,7 +11,7 @@ import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
 
 /**
  * Collect domains for all dimension properties.
- * 
+ *
  * @author DLiauchuk
  *
  */

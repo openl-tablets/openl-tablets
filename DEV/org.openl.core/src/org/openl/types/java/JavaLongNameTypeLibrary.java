@@ -35,8 +35,9 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
     public IOpenClass getType(String typename) {
 
         IOpenClass ioc = foundClasses.get(typename);
-        if (ioc != null)
+        if (ioc != null) {
             return ioc;
+        }
 
         // if (blocked.contains(typename))
         // throw new ClassNotFoundException(typename + " is blocked by OpenL");

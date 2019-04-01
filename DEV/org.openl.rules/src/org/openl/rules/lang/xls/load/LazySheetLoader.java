@@ -20,7 +20,7 @@ public class LazySheetLoader implements SheetLoader {
     /**
      * Get the sheet. When this method is repeatedly called, it can (but mustn't) return the different instances of
      * Sheet java object.
-     * 
+     *
      * @return loaded sheet
      */
     @Override

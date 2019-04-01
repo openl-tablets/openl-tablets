@@ -8,7 +8,7 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * Default behaviour for remove action.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -45,7 +45,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
     /**
      * Checks if action can be performed.
-     * 
+     *
      * @param gridRegion
      * @return true if action can be performed.
      */
@@ -53,7 +53,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
     /**
      * Get actual number of rows or columns to be removed. It depends whether the cell is merged or not.
-     * 
+     *
      * @param table
      * @return actual number to be removed.
      */
@@ -61,7 +61,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
     /**
      * Perform action for removing rows or columns.
-     * 
+     *
      * @param numberToRemove
      * @param fullTableRegion
      * @param table

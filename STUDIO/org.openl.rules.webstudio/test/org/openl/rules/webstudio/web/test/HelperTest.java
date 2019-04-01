@@ -1,19 +1,20 @@
 package org.openl.rules.webstudio.web.test;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.StubSpreadSheetResult;
 import org.richfaces.model.TreeNode;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class HelperTest {
 

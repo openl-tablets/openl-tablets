@@ -1,16 +1,12 @@
 package org.openl.rules.repository.factories;
 
-import javax.jcr.Credentials;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
+import javax.jcr.*;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.jcr.ZipJcrRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
+import org.openl.rules.repository.jcr.ZipJcrRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

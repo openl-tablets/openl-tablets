@@ -1,11 +1,6 @@
 package org.openl.rules.table.properties.def;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.convertor.IString2DataConvertor;
@@ -17,7 +12,7 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
 /**
  * Helper methods, for working with properties.<br>
  * See also {@link PropertiesChecker} for more methods.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -60,7 +55,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the array of properties names that are dimensional.
-     * 
+     *
      * @return names of properties that are dimensional.
      */
     public static String[] getDimensionalTablePropertiesNames() {
@@ -81,7 +76,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the array of properties names that are dimensional.
-     * 
+     *
      * @return names of properties that are dimensional.
      */
     public static List<TablePropertyDefinition> getDimensionalTableProperties() {
@@ -102,7 +97,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the name of the property by the given display name
-     * 
+     *
      * @param displayName
      * @return name
      */
@@ -117,7 +112,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the display name of the property by the given name
-     * 
+     *
      * @param name
      * @return diplayName
      */
@@ -132,7 +127,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the property by its given name
-     * 
+     *
      * @param name
      * @return property definition
      */
@@ -177,7 +172,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets list of properties that are marked as system.
-     * 
+     *
      * @return list of properties.
      */
     public static List<TablePropertyDefinition> getSystemProperties() {
@@ -212,7 +207,7 @@ public final class TablePropertyDefinitionUtils {
         for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             String name = propertyDefinition.getName();
             if (PropertiesChecker.isPropertySuitableForTableType(name, tableType) && (inheritanceLevel == null // any
-                                                                                                               // level
+                    // level
                     || ArrayUtils.contains(propertyDefinition.getInheritanceLevel(),
                         inheritanceLevel)) && (!ignoreSystem || !propertyDefinition.isSystem())) {
                 resultDefinitions.add(propertyDefinition);
@@ -236,7 +231,7 @@ public final class TablePropertyDefinitionUtils {
 
     /**
      * Gets the table types in which this property can be defined.
-     * 
+     *
      * @param propertyName property name.
      * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for
      *         each type of tables.

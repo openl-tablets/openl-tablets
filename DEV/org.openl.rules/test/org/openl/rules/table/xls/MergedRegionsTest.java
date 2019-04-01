@@ -1,5 +1,7 @@
 package org.openl.rules.table.xls;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,11 @@ import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.StringUtils;
 
-import static org.junit.Assert.*;
-
 /**
  * Tests correctness of resizing and moving merged regions during removing/inserting of columns and rows.
- * 
+ *
  * Test format: see in "MergedRegions.xls"
- * 
+ *
  * @author PUdalau
  */
 public class MergedRegionsTest {
@@ -97,9 +97,9 @@ public class MergedRegionsTest {
 
     /**
      * Service exception.
-     * 
+     *
      * Signals that difference between result cell and expected cell has been detected.
-     * 
+     *
      */
     private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;

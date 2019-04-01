@@ -1,16 +1,16 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.util.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
+import org.openl.util.StringUtils;
+
 /**
  * @author Pavel Tarasevich
- * 
+ *
  */
 
 @ManagedBean

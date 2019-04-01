@@ -18,7 +18,7 @@ import org.openl.types.impl.DynamicObjectField;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class VarDeclarationNodeBinder extends ANodeBinder {
 

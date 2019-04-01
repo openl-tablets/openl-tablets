@@ -15,7 +15,7 @@ public class SimpleProjectEngineFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void failureWorkspaceTest() throws Exception {
         @SuppressWarnings("unused")
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
             .build();
@@ -24,7 +24,7 @@ public class SimpleProjectEngineFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void failureProjectArgumentTest() throws Exception {
         @SuppressWarnings("unused")
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject(null)
             .setWorkspace("test-resources/test1")
             .build();
@@ -32,7 +32,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test(expected = ProjectResolvingException.class)
     public void failureProjectTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/project-engine")
             .setWorkspace("test-resources/test1")
             .build();
@@ -41,7 +41,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test
     public void dynamicInterfaceTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1")
             .build();
@@ -54,7 +54,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test
     public void dynamicInterfaceWithRuntimeContextTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1")
             .setProvideRuntimeContext(true)
@@ -68,7 +68,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test
     public void dynamicInterfaceWithVariationTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1")
             .setProvideVariations(true)
@@ -83,7 +83,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test
     public void dynamicInterfaceWithVariationAndRuntimeContextTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>()
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1")
             .setProvideVariations(true)
@@ -97,21 +97,21 @@ public class SimpleProjectEngineFactoryTest {
         Assert.assertTrue(sayHelloMethod.getReturnType().equals(VariationsResult.class));
     }
 
-    public static interface SayHello {
+    public interface SayHello {
         String sayHello();
     }
 
-    public static interface SayHelloWithRuntimeContext {
+    public interface SayHelloWithRuntimeContext {
         String sayHello(IRulesRuntimeContext context);
     }
 
-    public static interface SayHelloWithRuntimeContextAndVariation {
+    public interface SayHelloWithRuntimeContextAndVariation {
         String sayHello(IRulesRuntimeContext context);
 
         VariationsResult<String> sayHello(IRulesRuntimeContext context, VariationsPack variationsPack);
     }
 
-    public static interface SayHelloWithVariation {
+    public interface SayHelloWithVariation {
         String sayHello();
 
         VariationsResult<String> sayHello(VariationsPack variationsPack);

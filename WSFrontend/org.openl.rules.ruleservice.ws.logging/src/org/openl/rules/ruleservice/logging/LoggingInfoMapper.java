@@ -2,28 +2,11 @@ package org.openl.rules.ruleservice.logging;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultTypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
-import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
-import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
-import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
-import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
-import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
-import org.openl.rules.ruleservice.logging.annotation.SetterValue;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,13 +1,14 @@
 package org.openl.rules.ruleservice.deployer;
 
-import org.xml.sax.InputSource;
+import java.io.File;
+import java.io.InputStream;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.File;
-import java.io.InputStream;
+
+import org.xml.sax.InputSource;
 
 class DeploymentUtils {
 

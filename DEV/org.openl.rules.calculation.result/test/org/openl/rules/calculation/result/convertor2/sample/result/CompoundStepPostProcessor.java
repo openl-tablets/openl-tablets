@@ -8,9 +8,9 @@ import org.openl.rules.calculation.result.convertor2.CompoundStep;
 
 /**
  * Maps ID and Total premium from sub-steps. By default, ID is taken from step#1, and Total from step#SIZE-1
- * 
+ *
  * @author tkrivickas
- * 
+ *
  */
 public class CompoundStepPostProcessor {
 

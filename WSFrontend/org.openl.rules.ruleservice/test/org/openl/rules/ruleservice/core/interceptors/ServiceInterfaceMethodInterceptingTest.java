@@ -22,11 +22,7 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
-import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
-import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.*;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -54,7 +50,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     }
 
-    public static interface OverloadInterface {
+    public interface OverloadInterface {
         @ServiceCallAfterInterceptor(value = ResultConvertor.class, group = ServiceCallInterceptorGroup.GROUP1)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
@@ -89,7 +85,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     ServiceDescription serviceDescription;
     RuleServiceLoader ruleServiceLoader;
-    List<Module> modules = new ArrayList<Module>();
+    List<Module> modules = new ArrayList<>();
 
     @Before
     public void before() {
@@ -120,9 +116,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
             deploymentDescription.getVersion(),
             projectDescriptor.getName())).thenReturn(modules);
-        List<Deployment> deployments = new ArrayList<Deployment>();
+        List<Deployment> deployments = new ArrayList<>();
         Deployment deployment = mock(Deployment.class);
-        List<AProject> projects = new ArrayList<AProject>();
+        List<AProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
         projects.add(project);
         when(project.getName()).thenReturn("service");

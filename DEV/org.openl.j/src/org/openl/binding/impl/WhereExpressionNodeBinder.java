@@ -6,7 +6,7 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class WhereExpressionNodeBinder extends ANodeBinder {
 

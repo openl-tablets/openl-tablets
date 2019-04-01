@@ -8,6 +8,7 @@ package org.openl.domain;
 import java.util.BitSet;
 
 import org.junit.Assert;
+
 import junit.framework.TestCase;
 
 /**
@@ -47,13 +48,13 @@ public class DomainTest extends TestCase {
     public void testEnum() {
         String[] _week = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
-        Enum<String> week = new Enum<String>(_week);
+        Enum<String> week = new Enum<>(_week);
 
         String[] _weekend = new String[] { "Sunday", "Saturday" };
 
-        EnumDomain<String> weekend = new EnumDomain<String>(week, _weekend);
+        EnumDomain<String> weekend = new EnumDomain<>(week, _weekend);
 
-        EnumDomain<String> allweek = new EnumDomain<String>(week, _week);
+        EnumDomain<String> allweek = new EnumDomain<>(week, _week);
 
         Assert.assertEquals(allweek, weekend.or(weekend.not()));
 

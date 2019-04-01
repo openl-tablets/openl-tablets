@@ -12,12 +12,7 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.IDynamicObject;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IParameterDeclaration;
+import org.openl.types.*;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.vm.IRuntimeEnv;
 
@@ -163,10 +158,10 @@ public class Condition extends FunctionalRow implements ICondition {
                 }
 
                 return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple
-                                                                                                                   // syntax
-                                                                                                                   // to
-                                                                                                                   // full
-                                                                                                                   // code
+                // syntax
+                // to
+                // full
+                // code
             }
             if (params.length == 2) {
                 return new StringSourceCodeModule(

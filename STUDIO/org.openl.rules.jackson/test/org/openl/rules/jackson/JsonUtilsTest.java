@@ -2,12 +2,7 @@ package org.openl.rules.jackson;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.serialization.JsonUtils;
 

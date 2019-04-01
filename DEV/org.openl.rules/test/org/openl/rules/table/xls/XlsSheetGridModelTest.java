@@ -86,7 +86,7 @@ public class XlsSheetGridModelTest {
         assertTrue(xsGrid.isEmpty(4, 12)); // trully empty cell
 
         assertTrue(xsGrid.isEmpty(4, 11)); // second cell from the merged region.
-                                           // is it right behaviour?
+        // is it right behaviour?
 
         assertFalse(xsGrid.isEmpty(3, 11));// trully not emty cell.
     }

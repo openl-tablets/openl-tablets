@@ -26,7 +26,7 @@ public interface FloatExp extends Expression {
     /**
      * Returns the expression: <code>(this + value)</code>.
      */
-    public FloatExp add(double value);
+    FloatExp add(double value);
 
     /**
      * Returns truie if this expression is bound.
@@ -42,117 +42,117 @@ public interface FloatExp extends Expression {
      *
      * @return true if this expression is bound.
      */
-    public boolean bound();
+    boolean bound();
 
     /**
      * Returns the display string for the current domain of this expression.
      */
-    public String domainToString();
+    String domainToString();
 
     /**
      * Returns the boolean expression: <code>(this == value)</code>.
      */
-    public IntBoolExp eq(double value);
+    IntBoolExp eq(double value);
 
     /**
      * Returns the boolean expression: <code>(this == exp)</code>.
      */
-    public IntBoolExp eq(FloatExp exp);
+    IntBoolExp eq(FloatExp exp);
 
     /**
      * Returns the boolean expression: <code>(this == value)</code>.
      */
-    public IntBoolExp eq(int value);
+    IntBoolExp eq(int value);
 
     /**
      * Returns the boolean expression: <code>(this >= value)</code>.
      */
-    public IntBoolExp ge(double value);
+    IntBoolExp ge(double value);
 
     /**
      * Returns the boolean expression: <code>(this >= exp)</code>.
      */
-    public IntBoolExp ge(FloatExp exp);
+    IntBoolExp ge(FloatExp exp);
 
     /**
      * Returns the boolean expression: <code>(this >= value)</code>.
      */
-    public IntBoolExp ge(int value);
+    IntBoolExp ge(int value);
 
     /**
      * Returns the boolean expression: <code>(this > value)</code>.
      */
-    public IntBoolExp gt(double value);
+    IntBoolExp gt(double value);
 
     /**
      * Returns the boolean expression: <code>(this > exp)</code>.
      */
-    public IntBoolExp gt(FloatExp exp);
+    IntBoolExp gt(FloatExp exp);
 
     /**
      * Returns the boolean expression: <code>(this > value)</code>.
      */
-    public IntBoolExp gt(int value);
+    IntBoolExp gt(int value);
 
     /**
      * Returns the boolean expression: <code>(this <= value)</code>.
      */
-    public IntBoolExp le(double value);
+    IntBoolExp le(double value);
 
     /**
      * Returns the boolean expression: <code>(this <= exp)</code>.
      */
-    public IntBoolExp le(FloatExp exp);
+    IntBoolExp le(FloatExp exp);
 
     /**
      * Returns the boolean expression: <code>(this <= value)</code>.
      */
-    public IntBoolExp le(int value);
+    IntBoolExp le(int value);
 
     /**
      * Returns the constraint: <code>(this <= value)</code>.
      */
-    public Constraint lessOrEqual(double value);
+    Constraint lessOrEqual(double value);
 
     /**
      * Returns the boolean expression: <code>(this < value)</code>.
      */
-    public IntBoolExp lt(double value);
+    IntBoolExp lt(double value);
 
     /**
      * Returns the boolean expression: <code>(this < exp)</code>.
      */
-    public IntBoolExp lt(FloatExp exp);
+    IntBoolExp lt(FloatExp exp);
 
     /**
      * Returns the boolean expression: <code>(this < value)</code>.
      */
-    public IntBoolExp lt(int value);
+    IntBoolExp lt(int value);
 
     /**
      * Returns the largest value of the domain of this expression.
      */
-    public double max();
+    double max();
 
     /**
      * Returns the smallest value of the domain of this expression.
      */
-    public double min();
+    double min();
 
     /**
      * Returns the expression: <code>(this % value)</code>.
      */
-    public FloatExp mod(double value);
+    FloatExp mod(double value);
 
     /**
      * Returns the expression: <code>(this % value)</code>.
      */
-    public FloatExp mod(int value);
+    FloatExp mod(int value);
 
     /**
      * Returns the constraint: <code>(this >= value)</code>.
      */
-    public Constraint moreOrEqual(double value);
+    Constraint moreOrEqual(double value);
 
     /**
      * Remove the (min..max) range from the domain of this expression.
@@ -161,7 +161,7 @@ public interface FloatExp extends Expression {
      * @param max range maxinum value.
      * @throws Failure if domain becomes empty.
      */
-    public void removeRange(double min, double max) throws Failure;
+    void removeRange(double min, double max) throws Failure;
 
     /**
      * Sets the maximum value for this expression.
@@ -169,7 +169,7 @@ public interface FloatExp extends Expression {
      * @param max new maximum value.
      * @throws Failure if domain becomes empty.
      */
-    public void setMax(double max) throws Failure;
+    void setMax(double max) throws Failure;
 
     /**
      * Sets the minimum value for this expression.
@@ -177,21 +177,21 @@ public interface FloatExp extends Expression {
      * @param min new minimum value.
      * @throws Failure if domain becomes empty.
      */
-    public void setMin(double min) throws Failure;
+    void setMin(double min) throws Failure;
 
     /**
      * Bounds this expression to be equal to the value.
      *
      * @see #bound
      */
-    public void setValue(double value) throws Failure;
+    void setValue(double value) throws Failure;
 
     /**
      * Returns the size of the domain for this expression: <code>(max - min)</code>.
      *
      * @return <code>(max - min)</code>.
      */
-    public double size();
+    double size();
 
     /**
      * Returns the value this expression if it is bound.
@@ -203,6 +203,6 @@ public interface FloatExp extends Expression {
      *
      * @throws Failure if the expression is not bound.
      */
-    public double value() throws Failure;
+    double value() throws Failure;
 
 } // ~FloatExp

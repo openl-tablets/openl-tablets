@@ -1,12 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
@@ -20,12 +14,7 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.builder.CreateTableException;
-import org.openl.rules.table.xls.builder.DataTableBuilder;
-import org.openl.rules.table.xls.builder.DataTableField;
-import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
-import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
-import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.table.xls.builder.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
@@ -134,8 +123,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             updateNodesForeignKey(tree.getRoot());
 
-            if (!isColumnConfigValid())
+            if (!isColumnConfigValid()) {
                 return null;
+            }
         }
 
         String s = super.next();
@@ -175,7 +165,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Get a foreign key table variants for type "typeName". That types are searched in current project.
-     * 
+     *
      * @param typeName type of a table
      * @return possible foreign key table array
      */
@@ -207,7 +197,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Check if there is a foreign key table variants for type "typeName". That types are searched in current project.
-     * 
+     *
      * @param typeName type of a table
      * @return true if there is found a foreign key table variants for type "typeName"
      */
@@ -217,7 +207,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Get foreign key table columns for the type "typeName". Just a fields of it's type.
-     * 
+     *
      * @param typeName type of a table
      * @return columns of a table
      */
@@ -270,7 +260,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Count recursively a fields count that will be present in a result xls file
-     * 
+     *
      * @param rootNode root node of a data table type
      * @return total fields count including child ones
      */
@@ -309,7 +299,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Get user-defined type from opened project by it's name
-     * 
+     *
      * @param type type name
      * @return OpenClass for given type or null if type is not user-defined
      */
@@ -331,7 +321,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Validate column configuration page. If it is not valid, validation error messages will be added to a page
-     * 
+     *
      * @return true if it valid
      */
     private boolean isColumnConfigValid() {
@@ -401,11 +391,11 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     /**
      * Enumeration with the wizard's pages
-     * 
+     *
      * @author NSamatov
-     * 
+     *
      */
-    private static enum Page {
+    private enum Page {
         NO_SUCH_PAGE(-1),
         SELECT_WIZARD_TYPE(0),
         DATA_TABLE_TYPE(1),
@@ -414,8 +404,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         public static Page valueOf(int pageNum) {
             for (Page page : values()) {
-                if (page.pageNum == pageNum)
+                if (page.pageNum == pageNum) {
                     return page;
+                }
             }
 
             Log.warn("There is no pageNum {0}", pageNum);

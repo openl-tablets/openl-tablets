@@ -4,7 +4,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
  * Interface for publisher Listener
- * 
+ *
  * @author Marat Kamalov.
  */
 public interface RuleServicePublisherListener {

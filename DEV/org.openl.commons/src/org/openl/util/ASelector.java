@@ -8,7 +8,7 @@ package org.openl.util;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class ASelector<T> implements ISelector<T> {
 
@@ -27,7 +27,7 @@ public abstract class ASelector<T> implements ISelector<T> {
     }
 
     /**
-     * 
+     *
      * @author snshor Base class for binary boolean operators
      */
     abstract static class BoolBinSelector<T> extends ASelector<T> {

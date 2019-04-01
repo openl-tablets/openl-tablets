@@ -15,7 +15,7 @@ public class SimpleGroup implements Group {
 
     /**
      * Construct new group
-     * 
+     *
      * @param privileges nested authorities (privileges and groups)
      */
     public SimpleGroup(String name, String description, Collection<Privilege> privileges) {

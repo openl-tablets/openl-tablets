@@ -1,11 +1,7 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,9 +30,9 @@ import org.openl.util.CollectionUtils;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from other tables.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
@@ -84,7 +80,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Goes through the values as foreign keys, finds all info about this objects in foreign table and puts it to array.
      * Can process array value presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
-     * 
+     *
      * @param valuesTable Logical table representing array values for current table.
      * @param bindingContext binding context
      * @param foreignTable Foreign table with stored info about dependent values.

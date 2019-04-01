@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 /**
  * TODO: create {@link CoordinatesTransformer} for this case of transposed grid table.
- * 
+ *
  * @author snshor
  */
 public class TransposedGridTable extends AGridTableDecorator {

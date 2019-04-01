@@ -83,7 +83,7 @@ public final class GoalStack implements Serializable {
      * If the required choice point was not found: - goal stack will be empty - undo stack is restored to the state when
      * the goal stack was created - false is returned
      */
-    final public boolean backtrack(ChoicePointLabel label) {
+    public boolean backtrack(ChoicePointLabel label) {
         ChoicePoint cp = backtrackStack(label);
         if (cp != null) {
             _undoStack.backtrack(cp.undoStackSize());
@@ -101,7 +101,7 @@ public final class GoalStack implements Serializable {
      * If the required choice point is found: - it restores the state of the execution stack - the required choice point
      * is returned If the required choice point is not found: - the goal stack is empty - null is returned
      */
-    final public ChoicePoint backtrackStack(ChoicePointLabel label) {
+    public ChoicePoint backtrackStack(ChoicePointLabel label) {
         while (!_choicePointStack.empty()) {
             ChoicePoint cp = (ChoicePoint) _choicePointStack.pop();
             // the condition "the required label found"
@@ -120,7 +120,7 @@ public final class GoalStack implements Serializable {
     /**
      * Returns the current choice point.
      */
-    final public ChoicePoint currentChoicePoint() {
+    public ChoicePoint currentChoicePoint() {
         if (_choicePointStack.empty()) {
             throw new RuntimeException("No current choice point");
         }
@@ -131,14 +131,14 @@ public final class GoalStack implements Serializable {
     /**
      * Returns true if the execution stack is empty.
      */
-    final public boolean empty() {
+    public boolean empty() {
         return _exeStack.empty();
     }
 
     /**
      * Initialize this goal stack.
      */
-    final void init(FastStack initialGoals, UndoStack undoStack) {
+    void init(FastStack initialGoals, UndoStack undoStack) {
         _exeStack = initialGoals;
         _choicePointStack = new FastStack();
         _undoStack = undoStack;
@@ -148,21 +148,21 @@ public final class GoalStack implements Serializable {
     /**
      * Pops the goal from the execution stack and returns it.
      */
-    final public Goal popGoal() {
+    public Goal popGoal() {
         return (Goal) _exeStack.pop();
     }
 
     /**
      * Pushes the goal onto the execution stack.
      */
-    final public void pushGoal(Goal goal) {
+    public void pushGoal(Goal goal) {
         _exeStack.push(goal);
     }
 
     /**
      * Sets a labeled choice point between two goals.
      */
-    final public void setChoicePoint(Goal g1, Goal g2, ChoicePointLabel label) {
+    public void setChoicePoint(Goal g1, Goal g2, ChoicePointLabel label) {
         ChoicePoint cp = new ChoicePoint(g2, label, _exeStack, _undoStack.size());
         _choicePointStack.push(cp);
         pushGoal(g1);
@@ -173,7 +173,7 @@ public final class GoalStack implements Serializable {
         return "GoalStack: " + "\n\tExecutionStack: " + _exeStack + "\n\tChiocePointStack: " + _choicePointStack;
     }
 
-    final public int undoStackSize() {
+    public int undoStackSize() {
         return _undoStackSize;
     }
 

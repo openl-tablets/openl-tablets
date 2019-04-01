@@ -17,19 +17,7 @@ package org.openl.ie.constrainer;
 import java.io.PrintStream;
 import java.io.Serializable;
 
-import org.openl.ie.constrainer.impl.ExpressionFactoryImpl;
-import org.openl.ie.constrainer.impl.FloatVarImpl;
-import org.openl.ie.constrainer.impl.FloatVarImplTrace;
-import org.openl.ie.constrainer.impl.GoalStack;
-import org.openl.ie.constrainer.impl.IntBoolVarImpl;
-import org.openl.ie.constrainer.impl.IntSetVarImpl;
-import org.openl.ie.constrainer.impl.IntVarImpl;
-import org.openl.ie.constrainer.impl.IntVarImplTrace;
-import org.openl.ie.constrainer.impl.UndoFastVectorAdd;
-import org.openl.ie.constrainer.impl.UndoStack;
-import org.openl.ie.constrainer.impl.UndoableFloatImpl;
-import org.openl.ie.constrainer.impl.UndoableIntImpl;
-import org.openl.ie.constrainer.impl.UndoableOnceImpl;
+import org.openl.ie.constrainer.impl.*;
 import org.openl.ie.tools.FastQueue;
 import org.openl.ie.tools.FastStack;
 import org.openl.ie.tools.FastVector;
@@ -1013,7 +1001,7 @@ public final class Constrainer implements Serializable {
     /**
      * Propagate events triggered by successful goal execution.
      */
-    final public void propagate() throws Failure {
+    public void propagate() throws Failure {
         while (!_propagation_queue.empty()) {
             Subject var = (Subject) _propagation_queue.pop();
             var.inProcess(false);

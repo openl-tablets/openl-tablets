@@ -1,21 +1,21 @@
 package org.openl.rules.table.properties;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Map.Entry;
-
 /**
  * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
  *
  * Methods are identical when they have the same method signature and the same business dimension properties.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -108,7 +108,7 @@ public final class DimensionPropertiesMethodKey {
 
     /**
      * Check if propertyValue is null or it contains only null values
-     * 
+     *
      * @param propertyValue checking value
      * @return true if propertyValue is null or it contains only null values. If it contains any not null value -
      *         falseT;

@@ -4,34 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.table.CoordinatesTransformer;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.TransformedGridTable;
+import org.openl.rules.table.*;
 import org.openl.rules.utils.ParserUtils;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup tables to create a single-column return
  * value.<br>
  * <br>
- * 
+ *
  * The lookup values could appear either left of the lookup table or on top of it.<br>
  * <br>
- * 
+ *
  * The values on the left will be called <b>"vertical"</b> and values on top will be called <b>"horizontal"</b>.<br>
  * <br>
- * 
+ *
  * The table should have at least one vertical condition column, it can have the Rule column, it (in theory) might have
  * vertical Actions which will be processed the same way as vertical conditions, it must have one or more Horizontal
  * Conditions, and exactly one (optional in the future release) <b>RET</b> or <b>CRET</b> column<br>
  * . <br>
  * <b>RET</b> or <b>CRET</b> section can be placed in any place of lookup headers row, after vertical conditions (for
  * users convenience).
- * 
+ *
  * The Horizontal Conditions will be marked <b>HC1</b>, <b>HC2</b> etc. The first HC column or RET column will mark the
  * starting column of the lookup matrix
  */
@@ -75,7 +68,7 @@ public class DecisionTableLookupConvertor {
     }
 
     /**
-     * 
+     *
      * @param headerRow row with lookup table headers.
      * @return physical index from grid table, indicating first empty cell in the header row
      */
@@ -114,7 +107,7 @@ public class DecisionTableLookupConvertor {
 
     /**
      * Checks if the RET section is the last one in the header row
-     * 
+     *
      * @param retColumnStart index, indicating beginning of RET section
      * @param retTableWidth width of RET section
      * @param firstEmptyCell index, indicating first empty cell in the header
@@ -126,7 +119,7 @@ public class DecisionTableLookupConvertor {
 
     /**
      * Finds the physical index from grid table, indicating beginning of RET section.
-     * 
+     *
      * @param headerRow row with lookup table headers. For example:<br>
      *            <table cellspacing="2">
      *            <tr>
@@ -139,7 +132,7 @@ public class DecisionTableLookupConvertor {
      *            <td align="center" bgcolor="#8FCB52"><b>RET1</b> or <b>CRET1</b></td>
      *            </tr>
      *            </table>
-     * 
+     *
      * @return the physical index from grid table, indicating beginning of RET section
      * @throws OpenLCompilationException if there is no RET or CRET section in the table.
      */
@@ -244,14 +237,15 @@ public class DecisionTableLookupConvertor {
 
     private void assertEQ(int v1, int v2, String message) throws OpenLCompilationException {
 
-        if (v1 == v2)
+        if (v1 == v2) {
             return;
+        }
 
         throw new OpenLCompilationException(message);
     }
 
     /**
-     * 
+     *
      * @param headerRow row with lookup table headers. For example:
      *            <table cellspacing="2">
      *            <tr>
@@ -263,7 +257,7 @@ public class DecisionTableLookupConvertor {
      *            </tr>
      *            </table>
      *            In this case the return will be <code>2</code>.
-     * 
+     *
      * @return NOTE!!! it returns an index of logical column!
      * @throws OpenLCompilationException when there is no lookup headers.
      */
@@ -279,7 +273,7 @@ public class DecisionTableLookupConvertor {
                 if (!(DecisionTableHelper.isValidRuleHeader(headerStr) || DecisionTableHelper
                     .isValidConditionHeader(headerStr) || DecisionTableHelper
                         .isValidMergedConditionHeader(headerStr) || ParserUtils.isBlankOrCommented(headerStr))) { // if
-                                                                                                                  // the
+                    // the
                     // header in
                     // the
                     // column is

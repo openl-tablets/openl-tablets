@@ -1,9 +1,9 @@
 package org.openl.rules.table.constraints;
 
-import org.openl.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openl.util.StringUtils;
 
 public final class ConstraintsParser {
 

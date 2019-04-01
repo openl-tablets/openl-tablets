@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.util.Collection;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
-
-import java.util.Collection;
 
 /**
  * Interface for data source.

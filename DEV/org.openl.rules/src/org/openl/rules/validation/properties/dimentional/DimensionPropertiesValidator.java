@@ -1,5 +1,9 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
@@ -7,19 +11,15 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.validation.TablesValidator;
+import org.openl.rules.validation.ValidationUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
-import org.openl.rules.validation.ValidationUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class DimensionPropertiesValidator extends TablesValidator {
 
@@ -63,7 +63,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     /**
      * Validate table and create message, explaining validation result.
-     * 
+     *
      * @param tsn generated DT with dimension properties.
      * @param propertiesDomains domains for dimension properties.
      * @param openClass Open class for whole module.
@@ -81,7 +81,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     /**
      * Validate decision table. Throws {@link OpenlNotCheckedException} if there were any errors during validation.
-     * 
+     *
      * @param tsn generated DT with dimension properties.
      * @param propertiesDomains domains for dimension properties.
      * @param openClass Open class for whole module.
@@ -116,7 +116,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     /**
      * Check if {@link TableSyntaxNode} represents generated dispatcher decision table for dimension properties.
-     * 
+     *
      * @param tsn {@link TableSyntaxNode}
      * @return true if {@link TableSyntaxNode} represents generated dispatcher decision table for dimension properties.
      */
@@ -137,9 +137,9 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     /**
      * Gets properties for all methods in module.
-     * 
+     *
      * @param methods all module methods.
-     * 
+     *
      * @return properties for all methods in module.
      */
     private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {

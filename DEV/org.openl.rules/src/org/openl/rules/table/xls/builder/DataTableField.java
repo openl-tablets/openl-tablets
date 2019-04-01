@@ -1,14 +1,14 @@
 package org.openl.rules.table.xls.builder;
 
-import org.openl.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openl.util.StringUtils;
+
 /**
  * A class, containing description of Data Table's field columns (or variables)
- * 
+ *
  * @author NSamatov
  */
 public abstract class DataTableField {
@@ -21,7 +21,7 @@ public abstract class DataTableField {
 
     /**
      * Create a field with a given technical name and business name
-     * 
+     *
      * @param name technical name of a field
      * @param businessName business name of a field
      */
@@ -32,7 +32,7 @@ public abstract class DataTableField {
 
     /**
      * Get a technical name of a field
-     * 
+     *
      * @return technical name of a field
      */
     public String getName() {
@@ -41,7 +41,7 @@ public abstract class DataTableField {
 
     /**
      * Get a business name of a field
-     * 
+     *
      * @return business name of a field
      */
     public String getBusinessName() {
@@ -50,7 +50,7 @@ public abstract class DataTableField {
 
     /**
      * Set business name of a field
-     * 
+     *
      * @param businessName business name of a field
      */
     public void setBusinessName(String businessName) {
@@ -59,7 +59,7 @@ public abstract class DataTableField {
 
     /**
      * Get a foreign key table name for a field
-     * 
+     *
      * @return foreign key table name for a field
      */
     public String getForeignKeyTable() {
@@ -68,7 +68,7 @@ public abstract class DataTableField {
 
     /**
      * Set a foreign key table name for a field
-     * 
+     *
      * @param foreignKeyTable foreign key table name for a field
      */
     public void setForeignKeyTable(String foreignKeyTable) {
@@ -77,7 +77,7 @@ public abstract class DataTableField {
 
     /**
      * Get a foreign key column name for a field
-     * 
+     *
      * @return foreign key column name for a field
      */
     public String getForeignKeyColumn() {
@@ -86,7 +86,7 @@ public abstract class DataTableField {
 
     /**
      * Set a foreign key column name for a field
-     * 
+     *
      * @param foreignKeyColumn foreign key column name for a field
      */
     public void setForeignKeyColumn(String foreignKeyColumn) {
@@ -95,24 +95,26 @@ public abstract class DataTableField {
 
     /**
      * Get a foreign key for a field
-     * 
+     *
      * @return foreign key for a field
      */
     public String getForeignKey() {
-        if (StringUtils.isBlank(foreignKeyTable))
+        if (StringUtils.isBlank(foreignKeyTable)) {
             return null;
+        }
 
         String fk = ">" + foreignKeyTable;
 
-        if (StringUtils.isNotBlank(foreignKeyColumn))
+        if (StringUtils.isNotBlank(foreignKeyColumn)) {
             fk += " " + foreignKeyColumn;
+        }
 
         return fk;
     }
 
     /**
      * Get a list of an aggregated fields that will be filled instead of referencing with a foreign key
-     * 
+     *
      * @return list of an aggregated fields
      */
     public List<DataTableField> getAggregatedFields() {
@@ -121,7 +123,7 @@ public abstract class DataTableField {
 
     /**
      * Set a list of an aggregated fields that will be filled instead of referencing with a foreign key
-     * 
+     *
      * @param aggregatedFields list of an aggregated fields
      */
     public void setAggregatedFields(List<DataTableField> aggregatedFields) {
@@ -130,7 +132,7 @@ public abstract class DataTableField {
 
     /**
      * Returns a method of filling data for a field
-     * 
+     *
      * @return if true then data is filled using aggregated fields else data is filled using foreign keys
      */
     public boolean isFillChildren() {
@@ -139,7 +141,7 @@ public abstract class DataTableField {
 
     /**
      * Use an aggregated fields instead of a foreign key
-     * 
+     *
      * @see #useForeignKey()
      */
     public void useAggregatedFields() {
@@ -148,7 +150,7 @@ public abstract class DataTableField {
 
     /**
      * Use a foreign key instead of an aggregated fields
-     * 
+     *
      * @see #useAggregatedFields()
      */
     public void useForeignKey() {
@@ -157,21 +159,21 @@ public abstract class DataTableField {
 
     /**
      * Get the field's type name
-     * 
+     *
      * @return type name
      */
     public abstract String getTypeName();
 
     /**
      * Determine, if a field is a complex object
-     * 
+     *
      * @return true, if a field is a complex
      */
     public abstract boolean isComplex();
 
     /**
      * Get available fields of a complex object
-     * 
+     *
      * @return list of a child fields inside this complex object
      */
     protected abstract List<DataTableField> getAvailableFields();

@@ -15,12 +15,12 @@ import org.openl.ie.tools.FastVector;
  */
 public final class DomainImplWithHoles extends DomainImpl {
     private FastVector _values; // vector of DomainUnterval(s), for example
-                                // domain {0,1,2,5,6,9}
+    // domain {0,1,2,5,6,9}
 
     // contains 3 intervals [(0;2), (5;6), (9;9)]
 
     public DomainImplWithHoles(IntVar var, int min, int max) // throws
-                                                             // Failure
+    // Failure
     {
         super(var, min, max);
         _values = new FastVector();
@@ -92,7 +92,7 @@ public final class DomainImplWithHoles extends DomainImpl {
                 if (interval.from == interval.to) {
                     if (_values.size() == 1) {
                         constrainer().fail("remove"); // "Empty domain of
-                                                      // "+_variable
+                        // "+_variable
                     }
                     _values.removeElementAt(i);
                 } else if (value == interval.from) {

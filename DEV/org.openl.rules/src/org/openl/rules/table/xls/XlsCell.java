@@ -43,8 +43,9 @@ public class XlsCell implements ICell {
     @Override
     public ICellStyle getStyle() {
         Cell cell = getCell();
-        if (cell == null)
+        if (cell == null) {
             return null;
+        }
         return getCellStyle(cell);
     }
 
@@ -75,8 +76,9 @@ public class XlsCell implements ICell {
     @Override
     public ICellFont getFont() {
         Cell cell = getCell();
-        if (cell == null)
+        if (cell == null) {
             return null;
+        }
         Font font = gridModel.getSheetSource()
             .getSheet()
             .getWorkbook()

@@ -1,23 +1,9 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.ArtefactType;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.InheritedProperty;
-import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.Property;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.ValueType;
+import org.openl.rules.common.*;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;

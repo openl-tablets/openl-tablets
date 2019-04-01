@@ -19,7 +19,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
     @Override
     public void writeSpace(int index) {
         storage.setSpace(index);
-        ;
+
     }
 
     @Override
@@ -78,25 +78,30 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
         int mapMaxValue = uniqueValues.length - 1;
 
-        if (mapMaxValue <= Byte.MAX_VALUE)
+        if (mapMaxValue <= Byte.MAX_VALUE) {
             return new ByteMappedStorage(map, uniqueValues, info);
+        }
 
-        if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE)
+        if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE) {
             return new ByteExtMappedStorage(map, uniqueValues, info);
+        }
 
-        if (mapMaxValue <= Short.MAX_VALUE)
+        if (mapMaxValue <= Short.MAX_VALUE) {
             return new ShortMappedStorage(map, uniqueValues, info);
+        }
 
-        if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE)
+        if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE) {
             return new ShortExtMappedStorage(map, uniqueValues, info);
+        }
 
         return new IntMappedStorage(map, uniqueValues, info);
     }
 
     private boolean shouldUseMappedStorage() {
 
-        if (size() < MIN_MAPPED_SIZE)
+        if (size() < MIN_MAPPED_SIZE) {
             return false;
+        }
 
         double uniqueValues = info.getTotalNumberOfUniqueValues();
 

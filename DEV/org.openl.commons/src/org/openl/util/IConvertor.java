@@ -8,7 +8,7 @@ package org.openl.util;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IConvertor<T, C> {
 

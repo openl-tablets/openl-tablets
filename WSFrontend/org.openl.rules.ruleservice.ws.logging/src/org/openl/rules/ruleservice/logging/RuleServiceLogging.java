@@ -10,7 +10,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 /**
  * Bean for data for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

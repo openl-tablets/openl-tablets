@@ -8,7 +8,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * This binder is used for both: if-then-else statement and ternary q-mark statement.
- * 
+ *
  * @author Yury Molchan
  */
 public class IfNodeBinder extends ANodeBinder {
@@ -19,8 +19,9 @@ public class IfNodeBinder extends ANodeBinder {
 
         IBoundNode checkConditionNode = BindHelper.checkConditionBoundNode(conditionNode, bindingContext);
 
-        if (checkConditionNode != conditionNode)
+        if (checkConditionNode != conditionNode) {
             return checkConditionNode;
+        }
 
         IBoundNode thenNode = bindChildNode(node.getChild(1), bindingContext);
         IOpenClass type = thenNode.getType();

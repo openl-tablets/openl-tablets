@@ -20,7 +20,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 /**
  * Abstract CXF interceptor for collecting data for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

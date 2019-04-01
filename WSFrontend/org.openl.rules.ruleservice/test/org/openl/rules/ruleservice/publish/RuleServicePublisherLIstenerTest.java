@@ -55,7 +55,7 @@ public class RuleServicePublisherLIstenerTest implements ApplicationContextAware
 
     }
 
-    public static interface SimpleInterface {
+    public interface SimpleInterface {
         String worldHello(int hour);
     }
 }

@@ -4,7 +4,7 @@ import org.openl.CompiledOpenClass;
 
 /**
  * Simple bean that handles compiled dependency.
- * 
+ *
  */
 public class CompiledDependency {
 

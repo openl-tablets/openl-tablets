@@ -1,11 +1,10 @@
 package org.openl.rules.lang.xls.binding;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.table.properties.TableProperties;
-
-import static org.junit.Assert.assertEquals;
 
 public class TableVersionComparatorTest {
 

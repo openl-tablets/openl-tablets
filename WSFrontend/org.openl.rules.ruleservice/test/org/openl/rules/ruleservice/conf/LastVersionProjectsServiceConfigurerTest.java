@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.conf;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public class LastVersionProjectsServiceConfigurerTest {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
-        Set<String> serviceNames = new HashSet<String>();
+        Set<String> serviceNames = new HashSet<>();
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }
@@ -54,7 +55,7 @@ public class LastVersionProjectsServiceConfigurerTest {
         configurer.setDatasourceDeploymentPatterns("*Projects*");
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
-        Set<String> serviceNames = new HashSet<String>();
+        Set<String> serviceNames = new HashSet<>();
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }

@@ -6,12 +6,11 @@ package org.openl.rules.dt.type.domains;
 import java.util.HashSet;
 
 import org.openl.domain.EnumDomain;
-
 import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class EnumDomainAdaptor implements IDomainAdaptor {
 
@@ -88,7 +87,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
 
         Object[] newValues = set.toArray();
 
-        return new EnumDomainAdaptor(new EnumDomain<Object>(newValues));
+        return new EnumDomainAdaptor(new EnumDomain<>(newValues));
 
     }
 

@@ -1,8 +1,6 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

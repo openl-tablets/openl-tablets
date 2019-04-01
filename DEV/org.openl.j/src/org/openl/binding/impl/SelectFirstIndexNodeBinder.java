@@ -8,7 +8,7 @@ import org.openl.syntax.ISyntaxNode;
 /**
  * Binds conditional index for arrays that returns the first matching element like: - arrayOfDrivers[@ age < 20]; -
  * arrayOfDrivers[select all having gender == "Male"]
- * 
+ *
  * @author PUdalau
  */
 public class SelectFirstIndexNodeBinder extends BaseAggregateIndexNodeBinder {

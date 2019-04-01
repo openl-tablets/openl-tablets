@@ -32,13 +32,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.SingleCellGridTable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -48,7 +42,10 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.*;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenIndex;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -177,8 +174,9 @@ public final class RuleRowHelper {
         if (String.class.equals(paramType.getInstanceClass())) {
             // if param type is of type String, load as String
             String src = theValueCell.getStringValue();
-            if (src != null)
+            if (src != null) {
                 src = src.length() <= 4 ? src.intern() : src;
+            }
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src);
         }
 
@@ -281,8 +279,9 @@ public final class RuleRowHelper {
                             res = objectConvertor.convert(dateValue);
                         } else if (((int) value) == value) {
                             objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
+                            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                                 res = objectConvertor.convert((int) value);
+                            }
 
                         }
                     }

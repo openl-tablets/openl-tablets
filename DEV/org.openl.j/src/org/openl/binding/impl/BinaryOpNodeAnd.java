@@ -18,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
  * <li>NULL and TRUE = NULL</li>
  * <li>NULL and NULL = NULL</li>
  * </ul>
- * 
+ *
  * @author Yury Molchan
  */
 public class BinaryOpNodeAnd extends ABoundNode {

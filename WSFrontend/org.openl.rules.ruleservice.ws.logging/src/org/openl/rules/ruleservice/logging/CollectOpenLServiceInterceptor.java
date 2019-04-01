@@ -9,7 +9,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
  * CXF interceptor for collecting service data for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

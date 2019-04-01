@@ -6,15 +6,15 @@ import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
  * The instance of this interface is not thread safe.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public interface RulesFrontend {
     /**
      * This method is designed for extending service functionality. Modify returned OpenLService object, can be result
      * of system failure. Please, don't modify returned OpenLService object.
-     * 
+     *
      * @param serviceName service name
      * @return found service
      */
@@ -22,7 +22,7 @@ public interface RulesFrontend {
 
     /**
      * Executes method with specified parameters.
-     * 
+     *
      * @param serviceName Name of deployed service
      * @param ruleName Technical name of the rule to execute
      * @param inputParamsTypes Types of method input parameters to discover method
@@ -36,7 +36,7 @@ public interface RulesFrontend {
 
     /**
      * Executes method with specified parameters. Method discovery is done based on parameters types.
-     * 
+     *
      * @param serviceName Name of deployed service
      * @param ruleName Technical name of the rule to execute
      * @param params Parameters for method execution
@@ -46,7 +46,7 @@ public interface RulesFrontend {
 
     /**
      * Gets values defined in rules.
-     * 
+     *
      * @param serviceName Name of deployed service
      * @param fieldName Technical name of the rule to execute
      * @return Data stored in field
@@ -60,7 +60,7 @@ public interface RulesFrontend {
 
     /**
      * Registers service to use it in calculations.
-     * 
+     *
      * @param service Service to register.
      *
      */
@@ -68,14 +68,14 @@ public interface RulesFrontend {
 
     /**
      * Unregister service.
-     * 
+     *
      * @param serviceName Service to unregister
      */
     void unregisterService(String serviceName);
 
     /**
      * Return proxy object for defined service.
-     * 
+     *
      * @param serviceName service name
      * @param proxyInterface interface for proxy
      * @return Proxy object for service
@@ -84,7 +84,7 @@ public interface RulesFrontend {
 
     /**
      * Return proxy object for defined service.
-     * 
+     *
      * @param serviceName service name
      * @param proxyInterface interface for proxy
      * @param classLoader classloader

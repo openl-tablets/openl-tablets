@@ -6,12 +6,12 @@
 
 package org.openl.conf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
@@ -89,7 +89,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String )
      */
     @Override
@@ -120,7 +120,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.conf.IConfigurableResourceContext#getConfiguration()
      */
     @Override

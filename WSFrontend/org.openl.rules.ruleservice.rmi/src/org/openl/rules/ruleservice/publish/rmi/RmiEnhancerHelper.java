@@ -15,7 +15,7 @@ import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
- * 
+ *
  * @author Marat Kamalov
  *
  */

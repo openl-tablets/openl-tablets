@@ -8,7 +8,7 @@ import org.apache.cxf.service.model.OperationInfo;
 
 /**
  * CXF interceptor for collecting service input parameters for logging to external source feature.
- * 
+ *
  * @author Marat Kamalov
  *
  */

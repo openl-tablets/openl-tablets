@@ -22,7 +22,7 @@ import org.openl.util.RangeWithBounds.BoundType;
 
 /**
  * Defines DoubleRange deserialization from XML because it has no default constuctor.
- * 
+ *
  * @author PUdalau
  */
 public class DoubleRangeBeanType extends BeanType {

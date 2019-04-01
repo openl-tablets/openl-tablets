@@ -9,7 +9,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class TypeCastException extends SyntaxNodeException {
 

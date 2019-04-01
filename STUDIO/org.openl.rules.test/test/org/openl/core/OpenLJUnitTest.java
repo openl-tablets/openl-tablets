@@ -15,8 +15,7 @@ import org.openl.types.IOpenClass;
 public class OpenLJUnitTest {
     @Test
     public void comparisonTest() throws Exception {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(
-            ".//test-resources//junit//Comparison.xlsx");
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(".//test-resources//junit//Comparison.xlsx");
         engineFactory.setExecutionMode(false);
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
 

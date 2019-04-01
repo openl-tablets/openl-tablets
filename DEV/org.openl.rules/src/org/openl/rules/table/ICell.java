@@ -40,7 +40,7 @@ public interface ICell {
     ICellFont getFont();
 
     /**
-     * 
+     *
      * @return grid region, if cell belongs to any merged region. In other cases <code>null</code>.
      */
     IGridRegion getRegion();

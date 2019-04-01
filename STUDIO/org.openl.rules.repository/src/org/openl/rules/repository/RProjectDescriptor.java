@@ -6,7 +6,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public interface RProjectDescriptor extends ProjectDescriptor<RVersion> {
     /**
      * Gets name of rules project.
-     * 
+     *
      * @return name of project
      */
     @Override
@@ -14,7 +14,7 @@ public interface RProjectDescriptor extends ProjectDescriptor<RVersion> {
 
     /**
      * Gets version of rules project.
-     * 
+     *
      * @return version of project
      */
     @Override

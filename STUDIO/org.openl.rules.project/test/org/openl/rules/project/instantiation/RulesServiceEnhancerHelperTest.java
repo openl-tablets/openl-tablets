@@ -64,7 +64,7 @@ public class RulesServiceEnhancerHelperTest {
         assertFalse(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(Mixed2.class));
     }
 
-    private static interface Enhanced {
+    private interface Enhanced {
         void doSome(IRulesRuntimeContext context);
 
         void doSome2(IRulesRuntimeContext context, String arg);
@@ -73,7 +73,7 @@ public class RulesServiceEnhancerHelperTest {
     }
 
     @XmlType
-    private static interface Enhanced2 {
+    private interface Enhanced2 {
         void doSome(IRulesRuntimeContext context);
 
         @Deprecated
@@ -83,7 +83,7 @@ public class RulesServiceEnhancerHelperTest {
         String getSome(IRulesRuntimeContext context, String arg, int arg2);
     }
 
-    private static interface SimpleInterface {
+    private interface SimpleInterface {
         void doSome();
 
         void doSome2(String arg);
@@ -91,7 +91,7 @@ public class RulesServiceEnhancerHelperTest {
         String getSome(String arg, int arg2);
     }
 
-    private static interface Mixed {
+    private interface Mixed {
         void doSome();
 
         void doSome2(String arg);
@@ -99,7 +99,7 @@ public class RulesServiceEnhancerHelperTest {
         String getSome(IRulesRuntimeContext context, String arg, int arg2);
     }
 
-    private static interface Mixed2 {
+    private interface Mixed2 {
         void doSome(IRulesRuntimeContext context);
 
         void doSome2(IRulesRuntimeContext context, String arg);

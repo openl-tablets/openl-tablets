@@ -9,26 +9,28 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
     @Override
     public void parseTopNode(String type) {
         try {
-            if (type.equals("method.body"))
+            if (type.equals("method.body")) {
                 parseTopNodeInternal();
-            else if (type.equals("method.header"))
+            } else if (type.equals("method.header")) {
                 parseMethodHeader();
-            else if (type.equals("module"))
+            } else if (type.equals("module")) {
                 parseModuleInternal();
-            else if (type.equals("type"))
+            } else if (type.equals("type")) {
                 parseType();
-            else if (type.equals("range.literal.real"))
+            } else if (type.equals("range.literal.real")) {
                 RangeLiteralFloat();
-            else if (type.equals("range.literal"))
+            } else if (type.equals("range.literal")) {
                 RangeLiteral();
+            }
         } catch (ParseException pe) {
 
             SyntaxNodeException sne = reparseTokens(pe);
-            if (sne == null)
+            if (sne == null) {
                 sne = new org.openl.syntax.exception.SyntaxNodeException(pe.getMessage(),
                     null,
                     pos(pe.currentToken),
                     syntaxBuilder.getModule());
+            }
             // pe.printStackTrace();
             // throw pe;
             syntaxBuilder.addError(sne);
@@ -62,8 +64,9 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
         while (true) {
 
             Token t = be.getNextToken();
-            if (t.kind == EOF)
+            if (t.kind == EOF) {
                 break;
+            }
 
             BracketMatcher.BracketsStackObject bso = bm.addToken(t.image, t);
             if (bso != null) {

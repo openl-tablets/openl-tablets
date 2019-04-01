@@ -15,7 +15,7 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IDataBase {
 

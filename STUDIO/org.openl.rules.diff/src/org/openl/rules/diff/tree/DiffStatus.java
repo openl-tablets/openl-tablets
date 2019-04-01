@@ -4,9 +4,9 @@ package org.openl.rules.diff.tree;
  * Result of comparing 2 elements.
  * <p>
  * As a rule the 2nd element is treated as it is some version of 1st one. But that is not always true.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public enum DiffStatus {
     /**

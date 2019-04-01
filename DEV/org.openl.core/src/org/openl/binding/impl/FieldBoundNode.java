@@ -20,9 +20,9 @@ import org.openl.vm.IRuntimeEnv;
  * <p>
  * Object[][] value = target[][].filed
  * </p>
- * 
+ *
  * @author Yury Molchan
- * 
+ *
  */
 public class FieldBoundNode extends ATargetBoundNode {
 

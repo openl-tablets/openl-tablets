@@ -48,21 +48,28 @@ import org.openl.rules.table.IGridRegion;
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         XlsGridRegion other = (XlsGridRegion) obj;
-        if (getBottom() != other.getBottom())
+        if (getBottom() != other.getBottom()) {
             return false;
-        if (getLeft() != other.getLeft())
+        }
+        if (getLeft() != other.getLeft()) {
             return false;
-        if (getRight() != other.getRight())
+        }
+        if (getRight() != other.getRight()) {
             return false;
-        if (getTop() != other.getTop())
+        }
+        if (getTop() != other.getTop()) {
             return false;
+        }
         return true;
     }
 

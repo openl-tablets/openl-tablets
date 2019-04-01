@@ -16,7 +16,7 @@ import org.openl.types.impl.CompositeMethod;
 
 /**
  * Helper class that encapsulates several OpenL engine methods.
- * 
+ *
  */
 public final class OpenLManager {
 
@@ -25,7 +25,7 @@ public final class OpenLManager {
 
     /**
      * Makes open class that describes a type.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param bindingContextDelegator binding context
@@ -41,7 +41,7 @@ public final class OpenLManager {
 
     /**
      * Makes a method from source using method header descriptor.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param methodHeader method header descriptor
@@ -60,7 +60,7 @@ public final class OpenLManager {
 
     /**
      * Makes a method header from source.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param bindingContextDelegator binding context
@@ -79,7 +79,7 @@ public final class OpenLManager {
      * Makes method with unknown return type from source using method name and method signature. This method used to
      * create open class that hasn't information of return type at compile time. Return type can be recognized at
      * runtime time.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param methodName method name
@@ -103,7 +103,7 @@ public final class OpenLManager {
 
     /**
      * Compiles a method.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source method source
      * @param compositeMethod {@link CompositeMethod} instance
@@ -121,7 +121,7 @@ public final class OpenLManager {
 
     /**
      * Compiles module. As a result a module open class will be returned by engine.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @return {@link IOpenClass} instance
@@ -132,7 +132,7 @@ public final class OpenLManager {
 
     /**
      * Compiles module. As a result a module open class will be returned by engine.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
@@ -153,7 +153,7 @@ public final class OpenLManager {
     /**
      * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
      * compilation are suppressed.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @return {@link CompiledOpenClass} instance
@@ -165,7 +165,7 @@ public final class OpenLManager {
     /**
      * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
      * compilation are suppressed.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
@@ -187,7 +187,7 @@ public final class OpenLManager {
 
     /**
      * Compiles and runs OpenL script.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @return result of script execution
@@ -202,7 +202,7 @@ public final class OpenLManager {
 
     /**
      * Compiles and runs specified method.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param methodName method name
@@ -227,7 +227,7 @@ public final class OpenLManager {
 
     /**
      * Compiles source and runs code.
-     * 
+     *
      * @param opel OpenL engine context
      * @param source source
      * @param sourceType type of source

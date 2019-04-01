@@ -9,8 +9,8 @@ import java.util.Set;
 /**
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
  * if can`t tries to find it in his parent.
- * 
- * 
+ *
+ *
  */
 public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 

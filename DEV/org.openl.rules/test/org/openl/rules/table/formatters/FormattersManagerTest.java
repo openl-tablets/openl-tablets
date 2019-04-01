@@ -1,14 +1,15 @@
 package org.openl.rules.table.formatters;
 
-import org.junit.Test;
-import org.openl.util.formatters.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.openl.util.formatters.*;
 
 public class FormattersManagerTest {
 

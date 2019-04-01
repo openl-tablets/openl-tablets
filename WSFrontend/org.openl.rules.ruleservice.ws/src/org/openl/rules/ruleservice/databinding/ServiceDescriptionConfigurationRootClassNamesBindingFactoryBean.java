@@ -1,14 +1,14 @@
 package org.openl.rules.ruleservice.databinding;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean extends AbstractFactoryBean<Set<String>> {
     private final Logger log = LoggerFactory

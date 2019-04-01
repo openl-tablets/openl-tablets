@@ -8,11 +8,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.BenchmarkInfoView;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
 import org.openl.rules.ui.benchmark.BenchmarkOrder;

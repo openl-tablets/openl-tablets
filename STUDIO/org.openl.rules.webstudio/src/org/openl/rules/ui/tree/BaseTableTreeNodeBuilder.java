@@ -5,7 +5,7 @@ import org.openl.rules.ui.IProjectTypes;
 
 /**
  * Base class for building tree using tables meta information.
- * 
+ *
  */
 public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableSyntaxNode> {
 
@@ -74,7 +74,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Makes value object for node using table syntax node.
-     * 
+     *
      * @param tableSyntaxNode table syntax node
      * @return node object
      */
@@ -82,7 +82,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Gets display value (triple of possible names) of node object.
-     * 
+     *
      * @param nodeObject node object
      * @param i display name mode
      * @return display value
@@ -91,14 +91,14 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Gets name of node.
-     * 
+     *
      * @return name of node
      */
     public abstract String getName();
 
     /**
      * Gets type of node.
-     * 
+     *
      * @param nodeObject node object
      * @return string that represent node type
      */
@@ -106,7 +106,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Gets url of node.
-     * 
+     *
      * @param nodeObject node object
      * @return string that represent node url
      */
@@ -114,7 +114,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Gets weight of node.
-     * 
+     *
      * @param nodeObject node object
      * @return string that represent node weight
      */
@@ -122,7 +122,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
     /**
      * Gets problems of node.
-     * 
+     *
      * @param nodeObject node object
      * @return object that represent node problems
      */

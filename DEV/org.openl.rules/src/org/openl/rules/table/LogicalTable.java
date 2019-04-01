@@ -6,7 +6,7 @@ package org.openl.rules.table;
  * as one cell.<br>
  * Use {@link LogicalTableHelper#logicalTable(IGridTable)}
  * {@link LogicalTableHelper#logicalTable(IGridTable, ILogicalTable, ILogicalTable)} to correctly construct this object.
- * 
+ *
  * @author snshor
  */
 public class LogicalTable extends ALogicalTable {
@@ -27,14 +27,16 @@ public class LogicalTable extends ALogicalTable {
         if (columnOffset == null) {
             int width = LogicalTableHelper.calcLogicalColumns(table);
             this.columnOffset = LogicalTableHelper.calculateColumnOffsets(width, table);
-        } else
+        } else {
             this.columnOffset = columnOffset;
+        }
 
         if (rowOffset == null) {
             int height = LogicalTableHelper.calcLogicalRows(table);
             this.rowOffset = LogicalTableHelper.calculateRowOffsets(height, table);
-        } else
+        } else {
             this.rowOffset = rowOffset;
+        }
     }
 
     @Override

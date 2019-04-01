@@ -10,7 +10,7 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class TerminalNode extends ASyntaxNode {
 
@@ -20,7 +20,7 @@ public abstract class TerminalNode extends ASyntaxNode {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.parser.SyntaxNode#getChild(int)
      */
     @Override
@@ -30,7 +30,7 @@ public abstract class TerminalNode extends ASyntaxNode {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.parser.SyntaxNode#getNumberOfChildren()
      */
     @Override

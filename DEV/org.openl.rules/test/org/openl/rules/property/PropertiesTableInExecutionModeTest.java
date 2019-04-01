@@ -1,10 +1,6 @@
 package org.openl.rules.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Test for properties recognition in execution mode.
- * 
+ *
  * @author PUdalau
  */
 public class PropertiesTableInExecutionModeTest {
@@ -35,7 +31,7 @@ public class PropertiesTableInExecutionModeTest {
 
     @Test
     public void testPropertyTableLoading() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(SRC);
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         IOpenMethod method = compiledOpenClass.getOpenClass()
@@ -70,7 +66,7 @@ public class PropertiesTableInExecutionModeTest {
 
     @Test
     public void testFielsInOpenClass() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(SRC);
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         Map<String, IOpenField> fields = compiledOpenClass.getOpenClass().getFields();

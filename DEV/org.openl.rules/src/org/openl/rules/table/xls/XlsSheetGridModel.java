@@ -16,7 +16,6 @@ import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
@@ -30,7 +29,7 @@ import org.openl.util.StringUtils;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
@@ -71,8 +70,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         Object topLeftCellValue = findFirstValueInRegion(reg);
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
-                if (column != reg.getLeft() || row != reg.getTop())
+                if (column != reg.getLeft() || row != reg.getTop()) {
                     clearCellValue(column, row);
+                }
             }
         }
         setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
@@ -209,7 +209,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     /**
      * Gets the URI to the table by table region. Just calls {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
-     * 
+     *
      * @param region Table region.
      * @return URI to the table in the sheet. (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
      * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
@@ -320,7 +320,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } /*
            * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
            * newPoiStyle.cloneStyleFrom(styleToClone);
-           * 
+           *
            * setCellStyle(newPoiStyle, style); }
            */ else {
             newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());

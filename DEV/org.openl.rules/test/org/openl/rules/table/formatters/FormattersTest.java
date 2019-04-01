@@ -3,7 +3,6 @@ package org.openl.rules.table.formatters;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.util.formatters.IFormatter;
 
 public class FormattersTest {

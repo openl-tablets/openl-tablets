@@ -1,10 +1,10 @@
 package org.openl.rules.tbasic;
 
-import org.openl.meta.StringValue;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openl.meta.StringValue;
 
 public class AlgorithmTreeNode {
 

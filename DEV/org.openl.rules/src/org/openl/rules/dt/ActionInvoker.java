@@ -65,10 +65,10 @@ public class ActionInvoker implements Invokable {
             return ret;
         } else {
             if (Map.class.equals(type.getInstanceClass())) {
-                return addReturnValues(new HashMap<Object, Object>(), returnValues, keyValues, f);
+                return addReturnValues(new HashMap<>(), returnValues, keyValues, f);
             }
             if (SortedMap.class.equals(type.getInstanceClass())) {
-                return addReturnValues(new TreeMap<Object, Object>(), returnValues, keyValues, f);
+                return addReturnValues(new TreeMap<>(), returnValues, keyValues, f);
             }
             if (Map.class.isAssignableFrom(type.getInstanceClass())) {
                 try {
@@ -81,13 +81,13 @@ public class ActionInvoker implements Invokable {
                 }
             }
             if (Collection.class.equals(type.getInstanceClass()) || List.class.equals(type.getInstanceClass())) {
-                return addReturnValues(new ArrayList<Object>(), returnValues, f);
+                return addReturnValues(new ArrayList<>(), returnValues, f);
             }
             if (Set.class.equals(type.getInstanceClass())) {
-                return addReturnValues(new HashSet<Object>(), returnValues, f);
+                return addReturnValues(new HashSet<>(), returnValues, f);
             }
             if (SortedSet.class.equals(type.getInstanceClass())) {
-                return addReturnValues(new TreeSet<Object>(), returnValues, f);
+                return addReturnValues(new TreeSet<>(), returnValues, f);
             }
             if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
                 try {

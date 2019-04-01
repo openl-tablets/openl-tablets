@@ -25,28 +25,28 @@ public interface Expression extends Subject, EventOfInterest.Constants, java.io.
     /**
      * The MIN tracing mask for the traced variables.
      */
-    public static int TRACE_MIN = 1;
+    int TRACE_MIN = 1;
 
     /**
      * The MAX tracing mask for the traced variables.
      */
-    public static int TRACE_MAX = 2;
+    int TRACE_MAX = 2;
 
     /**
      * The REMOVE tracing mask for the traced variables.
      */
-    public static int TRACE_REMOVE = 4;
+    int TRACE_REMOVE = 4;
 
     /**
      * The VALUE tracing mask for the traced variables.
      */
-    public static int TRACE_VALUE = 8;
+    int TRACE_VALUE = 8;
 
     /**
      * Checks wether the expression is linear or not.
      *
      * @return true if the expression is linear, false otherwise
      */
-    public boolean isLinear();
+    boolean isLinear();
 
 } // ~Expression

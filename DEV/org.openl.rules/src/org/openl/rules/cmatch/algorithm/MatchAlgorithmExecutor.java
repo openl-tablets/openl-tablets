@@ -1,12 +1,12 @@
 package org.openl.rules.cmatch.algorithm;
 
+import java.util.List;
+
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
-
-import java.util.List;
 
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;

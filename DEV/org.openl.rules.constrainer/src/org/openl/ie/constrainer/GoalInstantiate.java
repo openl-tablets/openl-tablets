@@ -36,7 +36,7 @@ public class GoalInstantiate extends GoalImpl {
         /**
          * Instantiate variable with a chosen_value.
          */
-        public Goal instantiate(int chosen_value) throws Failure;
+        Goal instantiate(int chosen_value) throws Failure;
     }
 
     /**

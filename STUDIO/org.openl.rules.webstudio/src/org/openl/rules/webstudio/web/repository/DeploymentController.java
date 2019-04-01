@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.*;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -13,18 +20,12 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
-import java.util.*;
 
 /**
  * Deployment controller.
@@ -259,7 +260,7 @@ public class DeploymentController {
      * in descending order (1.1 -> 0.0) List<ProjectVersion> versions = new
      * ArrayList<ProjectVersion>(project.getVersions()); Collections.sort(versions,
      * RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
-     * 
+     *
      * List<SelectItem> selectItems = new ArrayList<SelectItem>(); for (ProjectVersion version. : versions) {
      * selectItems.add(new SelectItem(version.getVersionName())); } return selectItems.toArray(new
      * SelectItem[selectItems.size()]); } catch (ProjectException e) { log.error("Failed to get project versions!", e);

@@ -25,97 +25,97 @@ public interface Domain extends java.io.Serializable {
     /**
      * Returns a constrainer that owns this domain.
      */
-    public Constrainer constrainer();
+    Constrainer constrainer();
 
     /**
      * Returns true if this domain contains the value.
      */
-    public boolean contains(int value);
+    boolean contains(int value);
 
     /**
      * Undo helper: insert the value into this domain.
      */
-    public void forceInsert(int val);
+    void forceInsert(int val);
 
     /**
      * Undo helper: sets the maximum value for this domain.
      */
-    public void forceMax(int max);
+    void forceMax(int max);
 
     /**
      * Undo helper: sets the minimum value for this domain.
      */
-    public void forceMin(int min);
+    void forceMin(int min);
 
     /**
      * Undo helper: sets the size for this domain.
      */
-    public void forceSize(int val);
+    void forceSize(int val);
 
     /**
      * Iterates this domain calling it.doSomethingOrStop() for each values in the domain.
      */
-    public void iterateDomain(IntExp.IntDomainIterator it) throws Failure;
+    void iterateDomain(IntExp.IntDomainIterator it) throws Failure;
 
     /**
      * Returns the largest value in this domain.
      */
-    public int max();
+    int max();
 
     /**
      * Returns the smallest value in this domain.
      */
-    public int min();
+    int min();
 
     /**
      * Removes the range from this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean removeRange(int min, int max) throws Failure;
+    boolean removeRange(int min, int max) throws Failure;
 
     /**
      * Removes the value from this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean removeValue(int value) throws Failure;
+    boolean removeValue(int value) throws Failure;
 
     /**
      * Sets the maximum value for this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setMax(int M) throws Failure;
+    boolean setMax(int M) throws Failure;
 
     /**
      * Sets the minimum value for this domain.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setMin(int m) throws Failure;
+    boolean setMin(int m) throws Failure;
 
     /**
      * Sets this domain to the damain containing only the value.
      *
      * @throws Failure if domain becomes empty.
      */
-    public boolean setValue(int value) throws Failure;
+    boolean setValue(int value) throws Failure;
 
     /**
      * Returns the size (cardinality) of this domain.
      */
-    public int size();
+    int size();
 
     /**
      * Returns the type of this domain.
      */
-    public int type();
+    int type();
 
     /**
      * Sets the variable associated with this domain.
      */
-    public void variable(IntVar var);
+    void variable(IntVar var);
 
     // public Set set();
 

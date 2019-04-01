@@ -13,7 +13,7 @@ import org.openl.rules.lang.xls.classes.test.TestBean;
 public class JarClassLocatorTest {
     @Test
     public void testGetClasses() throws Exception {
-        final List<Throwable> exceptions = new ArrayList<Throwable>();
+        final List<Throwable> exceptions = new ArrayList<>();
 
         JarClassLocator locator = new JarClassLocator();
         locator.addExceptionHandler(new AbstractLocatorExceptionHandler() {

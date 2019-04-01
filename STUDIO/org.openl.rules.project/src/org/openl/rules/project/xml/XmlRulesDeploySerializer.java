@@ -2,12 +2,12 @@ package org.openl.rules.project.xml;
 
 import java.io.InputStream;
 
-import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public final static String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";

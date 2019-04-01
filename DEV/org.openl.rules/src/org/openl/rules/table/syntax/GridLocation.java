@@ -10,7 +10,7 @@ import org.openl.util.text.IPosition;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class GridLocation implements ILocation {
 

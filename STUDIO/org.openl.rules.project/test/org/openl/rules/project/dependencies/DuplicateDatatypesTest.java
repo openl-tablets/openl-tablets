@@ -11,7 +11,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 /**
  * Check the case when main project includes 2 dependencies. Both dependencies are containing the identical datatypes.
  * Test that error about datatype duplication will be thrown.
- * 
+ *
  * @author DLiauchuk
  *
  */

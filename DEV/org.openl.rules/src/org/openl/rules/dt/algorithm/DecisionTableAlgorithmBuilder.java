@@ -19,12 +19,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.impl.SourceCodeMethodCaller;
@@ -36,7 +31,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     /**
      * See also "Using datatype arrays in rules by user defined index" in Reference Guide. Array can be accessed using
      * syntax: drivers[“David”], drivers[“7”].
-     * 
+     *
      * @see org.openl.types.impl.ArrayFieldIndex
      */
     private static final Pattern ARRAY_ACCESS_PATTERN = Pattern.compile(".+\\[.+]$");

@@ -12,6 +12,10 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntBoolVar;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
@@ -24,10 +28,6 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.IntBoolVar;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
@@ -128,8 +128,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             return JavaOpenClass.INT;
         }
 
-        if (instanceClass.isArray())
+        if (instanceClass.isArray()) {
             return JavaOpenClass.getOpenClass(int[].class);
+        }
 
         return null;
     }
@@ -147,8 +148,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             }
 
             return res;
-        } else
+        } else {
             return transformSingleLocalParameterValue(name, condition, value, dtan);
+        }
     }
 
     public Object transformSingleLocalParameterValue(String name,
@@ -165,8 +167,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         // at first search domains in those that were defined by user.
         String uniquePname = DecisionTableValidator.getUniqueConditionParamName(condition, name);
         IDomainAdaptor domainAdaptor = getDomains().get(uniquePname);
-        if (domainAdaptor == null)
+        if (domainAdaptor == null) {
             domainAdaptor = getDomains().get(name);
+        }
 
         if (domainAdaptor != null) {
             result = domainAdaptor.getIndex(value);
@@ -177,7 +180,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
                 result = domainAdapt.getIndex(value);
             } else {
                 if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value
-                                                   // will be returned. in other cases throws an exception.
+                    // will be returned. in other cases throws an exception.
                     throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
                 }
             }
@@ -240,8 +243,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     @Override
     public boolean isOverrideAscending() {
         // 1. if return type is void, return false
-        if (decisionTable.getMethod().getType() == JavaOpenClass.VOID)
+        if (decisionTable.getMethod().getType() == JavaOpenClass.VOID) {
             return false;
+        }
 
         return true;
     }

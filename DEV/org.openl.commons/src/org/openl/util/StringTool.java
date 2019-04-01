@@ -55,7 +55,7 @@ public class StringTool {
     /**
      * Split the string by the splitSymbol. To avoid splitting escapeSymbol is used. Trims the splitted result. For
      * examples see tests.
-     * 
+     *
      * @param src source to process. Can`t be <code>null</code>.
      * @param splitSymbol the delimiting symbol. Can`t be <code>null</code>.
      * @param escapeSymbol the escaper, that is used to break splitting by splitSymbol. If <code>null</code>, the

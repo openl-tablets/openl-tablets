@@ -1,13 +1,14 @@
 package org.openl.rules.webstudio.properties;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 /**
  * Manager for system values. Handles implementations for specified system properties.
- * 
+ *
  * @author DLiauchuk
  *
  */

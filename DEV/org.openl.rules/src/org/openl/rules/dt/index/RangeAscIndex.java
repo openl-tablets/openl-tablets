@@ -1,10 +1,6 @@
 package org.openl.rules.dt.index;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.dt.DecisionTableRuleNode;

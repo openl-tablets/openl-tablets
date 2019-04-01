@@ -6,19 +6,18 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 import org.openl.gen.FieldDescription;
 
 /**
  * Generates a hashCode() method. This method calculates a hashcode using the following expression:
- * 
+ *
  * <pre>
  * {@code
  *     int hash = 5;
  *     hash = 31 * hash + field.hashCode()
  * }
  * </pre>
- * 
+ *
  * @author Yury Molchan
  */
 public class HashCodeWriter extends MethodWriter {

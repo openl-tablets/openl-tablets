@@ -33,7 +33,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * Returns public fields declared in this class.
-     * 
+     *
      * @return map of fields declared in this class.
      */
     Map<String, IOpenField> getDeclaredFields();
@@ -117,7 +117,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * Determines if this {@link IOpenClass} object represents an array class.
-     * 
+     *
      * @return <code>true</code> if this class represents an array class; <code>false</code> otherwise.
      */
     boolean isArray();
@@ -127,7 +127,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * an array class this method returns null.
      *
      * @return the <code>IOpenClass</code> representing the component type of this class if this class is an array
-     * 
+     *
      * @see {@link IOpenClass#isArray()}
      */
     IOpenClass getComponentClass();
@@ -136,7 +136,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * Returns public methods declared in this class.
-     * 
+     *
      * @return list of methods declared in this class.
      */
     Collection<IOpenMethod> getDeclaredMethods();
@@ -152,7 +152,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * Add new type to internal types list. If the type with the same name already exists exception will be thrown.
-     * 
+     *
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
@@ -162,7 +162,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * Return the whole map of internal types. Where the key is namespace of the type, the value is {@link IOpenClass}.
-     * 
+     *
      * @return map of internal types
      */
     Collection<IOpenClass> getTypes();

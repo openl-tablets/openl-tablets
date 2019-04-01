@@ -11,13 +11,13 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for parsing operations.
- * 
+ *
  */
 public class OpenLParseManager extends OpenLHolder {
 
     /**
      * Creates new instance of OpenL engine manager.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLParseManager(OpenL openl) {
@@ -26,7 +26,7 @@ public class OpenLParseManager extends OpenLHolder {
 
     /**
      * Parses source.
-     * 
+     *
      * @param source source
      * @param sourceType type that describes parsing algorithm
      * @return {@link IParsedCode} instance
@@ -56,7 +56,7 @@ public class OpenLParseManager extends OpenLHolder {
 
     /**
      * Gets the parser.
-     * 
+     *
      * @return parser
      */
     private IOpenParser getParser() {
@@ -65,7 +65,7 @@ public class OpenLParseManager extends OpenLHolder {
 
     /**
      * Gets code that cannot be parsed by parser.
-     * 
+     *
      * @param source source
      * @return {@link IParsedCode} instance
      */

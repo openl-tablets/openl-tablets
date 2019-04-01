@@ -1,11 +1,6 @@
 package org.openl.rules.webstudio.web;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,20 +22,9 @@ import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.model.MethodFilter;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.FileNamePatternValidator;
-import org.openl.rules.project.resolving.InvalidFileNamePatternException;
-import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
-import org.openl.rules.project.resolving.NoMatchFileNameException;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
+import org.openl.rules.project.resolving.*;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
@@ -51,11 +35,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
+import org.openl.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.PathMatcher;
@@ -95,8 +75,9 @@ public class ProjectBean {
     public String getModulePath(Module module) {
         PathEntry modulePath = module == null ? null : module.getRulesRootPath();
 
-        if (modulePath == null)
+        if (modulePath == null) {
             return null;
+        }
 
         String moduleFullPath = modulePath.getPath();
         ProjectDescriptor project = module.getProject();
@@ -124,7 +105,7 @@ public class ProjectBean {
                 ProjectDependencyDescriptor projectDependency = studio.getProjectDependency(name);
                 dependency.setName(name);
                 dependency.setAutoIncluded(projectDependency == null || projectDependency.isAutoIncluded());
-                dependencies.add(new ListItem<ProjectDependencyDescriptor>(projectDependency != null, dependency));
+                dependencies.add(new ListItem<>(projectDependency != null, dependency));
             }
         }
         return dependencies;
@@ -453,7 +434,7 @@ public class ProjectBean {
 
         List<ProjectDependencyDescriptor> resultDependencies = newProjectDescriptor.getDependencies();
 
-        for (ProjectDependencyDescriptor dependency : new ArrayList<ProjectDependencyDescriptor>(resultDependencies)) {
+        for (ProjectDependencyDescriptor dependency : new ArrayList<>(resultDependencies)) {
             if (dependency.getName().equals(name)) {
                 resultDependencies.remove(dependency);
             }

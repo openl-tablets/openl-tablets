@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 /**
  * Domain for range of dates.
- * 
+ *
  * @author PUdalau
  */
 public class DateRangeDomain implements IDomain<Date> {
@@ -40,7 +40,7 @@ public class DateRangeDomain implements IDomain<Date> {
 
     /**
      * Creates date range inside the specified bounds(including bounds).
-     * 
+     *
      * @param min left bound.
      * @param max right bound.
      */

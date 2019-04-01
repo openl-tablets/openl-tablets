@@ -53,7 +53,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         //
         return makeMultiCallMethodBoundNode(node,
             children,
-            new ArrayList<Integer>(arrayArgArguments),
+            new ArrayList<>(arrayArgArguments),
             singleParameterMethodCaller);
     }
 

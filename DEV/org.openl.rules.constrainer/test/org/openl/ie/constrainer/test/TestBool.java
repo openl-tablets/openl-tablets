@@ -6,12 +6,7 @@
 
 package org.openl.ie.constrainer.test;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalGenerate;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.*;
 
 public class TestBool {
     public static void main(String[] args) {

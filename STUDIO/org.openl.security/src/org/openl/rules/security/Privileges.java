@@ -2,7 +2,7 @@ package org.openl.rules.security;
 
 /**
  * Constants for all Privileges.
- * 
+ *
  * @author Aleh Bykhavets
  * @author NSamatov
  */

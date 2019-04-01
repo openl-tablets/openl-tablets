@@ -1,16 +1,16 @@
 package org.openl.rules.ui.tree;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.util.StringUtils;
 
 /**
  * Builder for category properties table.
- * 
+ *
  * @author DLiauchuk
  *
  */

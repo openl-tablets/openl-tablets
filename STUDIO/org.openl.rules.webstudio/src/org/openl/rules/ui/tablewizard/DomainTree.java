@@ -1,41 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
-import static org.openl.types.java.JavaOpenClass.BOOLEAN;
-import static org.openl.types.java.JavaOpenClass.BYTE;
-import static org.openl.types.java.JavaOpenClass.CHAR;
-import static org.openl.types.java.JavaOpenClass.CLASS;
-import static org.openl.types.java.JavaOpenClass.DOUBLE;
-import static org.openl.types.java.JavaOpenClass.FLOAT;
-import static org.openl.types.java.JavaOpenClass.INT;
-import static org.openl.types.java.JavaOpenClass.LONG;
-import static org.openl.types.java.JavaOpenClass.OBJECT;
-import static org.openl.types.java.JavaOpenClass.SHORT;
-import static org.openl.types.java.JavaOpenClass.STRING;
-import static org.openl.types.java.JavaOpenClass.VOID;
+import static org.openl.types.java.JavaOpenClass.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.base.INamedThing;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IMetaInfo;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -165,8 +137,8 @@ public class DomainTree {
 
         if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
             Class<?> instanceClass = type.getInstanceClass(); // instance class can be null, in case
-                                                              // the are errors in datatype table. it cause stop
-                                                              // processing datatype table binding.
+            // the are errors in datatype table. it cause stop
+            // processing datatype table binding.
 
             if (instanceClass != null && Collection.class.isAssignableFrom(instanceClass)) {
                 return false;

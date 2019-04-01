@@ -1,10 +1,6 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -12,9 +8,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.webstudio.filter.IFilter;
 
 public class TreeProductionDProject extends TreeProductFolder {
     private IFilter<AProjectArtefact> filter;

@@ -1,13 +1,13 @@
 package org.openl.rules.table;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.openl.rules.datatype.binding.MockGridTable;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openl.rules.datatype.binding.MockGridTable;
 
 /**
  * Created by ymolchan on 14.07.2014.

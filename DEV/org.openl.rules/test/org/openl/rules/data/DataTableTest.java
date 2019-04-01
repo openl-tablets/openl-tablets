@@ -1,8 +1,6 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,9 +12,9 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class DataTableTest extends BaseOpenlBuilderHelper {
 
@@ -35,7 +33,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         String[] stringData = (String[]) member.getTable().getDataArray();
         assertTrue(stringData.length == 5);
-        List<String> dataList = new ArrayList<String>();
+        List<String> dataList = new ArrayList<>();
         for (String data : stringData) {
             dataList.add(data);
         }
@@ -55,7 +53,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getIntArray().length == 4);
-        List<Integer> dataList = new ArrayList<Integer>();
+        List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
         }
@@ -74,7 +72,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getIntArray().length == 5);
-        List<Integer> dataList = new ArrayList<Integer>();
+        List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
         }
@@ -94,7 +92,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getIntArray().length == 1);
-        List<Integer> dataList = new ArrayList<Integer>();
+        List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
         }
@@ -110,7 +108,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getIntArray().length == 5);
-        List<Integer> dataList = new ArrayList<Integer>();
+        List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
         }
@@ -130,7 +128,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 2);
-        List<String> dataList = new ArrayList<String>();
+        List<String> dataList = new ArrayList<>();
         for (String token : typeWitharray[0].getStringArray()) {
             dataList.add(token);
         }
@@ -147,7 +145,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 4);
-        List<String> dataList = new ArrayList<String>();
+        List<String> dataList = new ArrayList<>();
         for (String token : typeWitharray[0].getStringArray()) {
             dataList.add(token);
         }
@@ -166,7 +164,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 4);
-        List<String> dataList = new ArrayList<String>();
+        List<String> dataList = new ArrayList<>();
         for (String token : typeWitharray[0].getStringArray()) {
             dataList.add(token);
         }

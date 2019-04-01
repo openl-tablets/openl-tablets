@@ -14,12 +14,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 package org.openl.ie.constrainer;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.IntVar;
+import org.junit.Assert;
 import org.openl.ie.constrainer.impl.IntExpMulExp;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
 
 public class IntExpMulExpTest extends TestCase {

@@ -1,7 +1,7 @@
 package org.openl.rules.table.xls.builder;
 
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
  * Helper class that allows creating new decision tables in specified excel sheet.

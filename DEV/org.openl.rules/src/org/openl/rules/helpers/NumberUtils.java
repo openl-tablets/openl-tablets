@@ -93,10 +93,10 @@ public final class NumberUtils {
     /**
      * Gets the scale of the income value. Note that if the value will be of type {@link Float} or {@link FloatValue},
      * the scale will be defined via value.doubleValue() method call. And the scale will differ from the income.
-     * 
+     *
      * @param value
      * @return number of values after the comma
-     * 
+     *
      * @throws {@link NullPointerException} if the income is <code>null</code>
      */
     public static int getScale(Number value) {

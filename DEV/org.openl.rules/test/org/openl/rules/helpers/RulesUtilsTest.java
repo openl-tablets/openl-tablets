@@ -1,38 +1,21 @@
 package org.openl.rules.helpers;
 
+import static org.junit.Assert.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ObjectValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
+import org.openl.meta.*;
 import org.openl.rules.TestUtils;
 import org.openl.util.ArrayTool;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
@@ -4715,10 +4698,12 @@ public class RulesUtilsTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
             NotSerial notSerial = (NotSerial) o;
             return Objects.equals(myString, notSerial.myString);
         }
@@ -4762,10 +4747,12 @@ public class RulesUtilsTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
             MyClass myClass = (MyClass) o;
             return Objects.equals(myString, myClass.myString) && Objects.equals(myDate, myClass.myDate) && Arrays
                 .equals(points, myClass.points);
@@ -4801,10 +4788,12 @@ public class RulesUtilsTest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (o == null || getClass() != o.getClass()) {
                 return false;
+            }
             Point point = (Point) o;
             return x == point.x && y == point.y;
         }

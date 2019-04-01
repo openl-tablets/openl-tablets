@@ -1,11 +1,6 @@
 package org.openl.rules.validation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
@@ -22,7 +17,7 @@ import org.openl.validation.ValidationResult;
 /**
  * Validator that checks correctness of "active" property. Only one active table allowed. And if active table is absent
  * warning will occur.
- * 
+ *
  * @author PUdalau
  */
 public class ActivePropertyValidator extends TablesValidator {

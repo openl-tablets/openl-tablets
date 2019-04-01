@@ -3,10 +3,7 @@
  */
 package org.openl.module;
 
-import junit.framework.TestCase;
-
 import org.openl.OpenL;
-import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -22,6 +19,8 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+
+import junit.framework.TestCase;
 
 /**
  * @author snshor
@@ -358,11 +357,11 @@ public class ModuleTest extends TestCase {
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
         Object obj = executeOpenLExprression(order, MATH_OPENL, JavaOpenClass.getOpenClass(Double.class)); // <--
-                                                                                                           // problematic,
-                                                                                                           // we
-                                                                                                           // have
-                                                                                                           // to
-                                                                                                           // know
+        // problematic,
+        // we
+        // have
+        // to
+        // know
         // expresion return type before we invoke it
         // thats something we dont know (and can't) in BLS
         double value = ((Double) obj).doubleValue();
@@ -377,9 +376,9 @@ public class ModuleTest extends TestCase {
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
         Object obj = executeOpenLOGNLExprression(order, MATH_OGNL); // <--
-                                                                    // problematic,
-                                                                    // we have
-                                                                    // to know
+        // problematic,
+        // we have
+        // to know
         // expresion return type before we invoke it
         // thats something we dont know (and can't) in BLS
         double value = ((Double) obj).doubleValue();

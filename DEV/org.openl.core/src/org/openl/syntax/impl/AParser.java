@@ -14,9 +14,9 @@ import org.openl.syntax.grammar.IGrammarFactory;
 
 /**
  * Class provides default abstract implementation of parser based on {@link IGrammarFactory}.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public abstract class AParser implements IOpenParser {
 
@@ -105,7 +105,7 @@ public abstract class AParser implements IOpenParser {
 
     /**
      * Creates {@link ParsedCode} object.
-     * 
+     *
      * @param grammar grammar
      * @param source source
      * @return new instance of {@link ParsedCode}

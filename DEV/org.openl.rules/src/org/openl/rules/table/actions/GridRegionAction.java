@@ -6,7 +6,7 @@ import org.openl.rules.table.IGridTable;
 
 public class GridRegionAction implements IUndoableGridTableAction {
 
-    public static enum ActionType {
+    public enum ActionType {
         MOVE,
         EXPAND;
     }

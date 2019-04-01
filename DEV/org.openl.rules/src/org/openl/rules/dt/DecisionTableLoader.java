@@ -27,7 +27,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DecisionTableLoader {
 
@@ -58,8 +58,9 @@ public class DecisionTableLoader {
     }
 
     private RowScale getConditionScale(String name) {
-        if (DecisionTableHelper.isValidHConditionHeader(name.toUpperCase()))
+        if (DecisionTableHelper.isValidHConditionHeader(name.toUpperCase())) {
             return info.getScale().getHScale();
+        }
         return info.getScale().getVScale();
     }
 
@@ -153,11 +154,13 @@ public class DecisionTableLoader {
             toParse = tableBody.transpose();
         }
 
-        if (needToUnmergeFirstRow(toParse))
+        if (needToUnmergeFirstRow(toParse)) {
             toParse = unmergeFirstRow(toParse);
+        }
 
-        if (info == null)
+        if (info == null) {
             info = new DTInfo(nHConditions, nVConditions);
+        }
         decisionTable.setDtInfo(info);
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
@@ -209,7 +212,7 @@ public class DecisionTableLoader {
     /**
      * Put subtable, that will be displayed at the business view.<br>
      * It must be without method header, properties section, conditions and return headers.
-     * 
+     *
      * @param tableSyntaxNode
      */
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {

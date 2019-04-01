@@ -1,21 +1,16 @@
 package org.openl.rules.ruleservice.core;
 
-import org.openl.rules.project.model.Module;
+import java.util.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.openl.rules.project.model.Module;
 
 /**
  * Class designed for storing service info.
- * 
+ *
  * Immutable.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public final class ServiceDescription {
     private String name;
@@ -32,7 +27,7 @@ public final class ServiceDescription {
 
     /**
      * Main constructor.
-     * 
+     *
      * @param name
      * @param url
      * @param serviceClassName
@@ -89,7 +84,7 @@ public final class ServiceDescription {
 
     /**
      * Returns annotation template class name
-     * 
+     *
      * @return class name
      */
     public String getAnnotationTemplateClassName() {
@@ -98,7 +93,7 @@ public final class ServiceDescription {
 
     /**
      * Returns service name.
-     * 
+     *
      * @return service name
      */
     public String getName() {
@@ -107,7 +102,7 @@ public final class ServiceDescription {
 
     /**
      * Returns service URL.
-     * 
+     *
      * @return
      */
     public String getUrl() {
@@ -116,7 +111,7 @@ public final class ServiceDescription {
 
     /**
      * Returns service class name.
-     * 
+     *
      * @return class name
      */
     public String getServiceClassName() {
@@ -125,7 +120,7 @@ public final class ServiceDescription {
 
     /**
      * Returns RMI service class name.
-     * 
+     *
      * @return class name
      */
     public String getRmiServiceClassName() {
@@ -135,7 +130,7 @@ public final class ServiceDescription {
     /**
      * Returns provideRuntimeContext value. This value is define that service methods first argument is
      * IRulesRuntimeContext.
-     * 
+     *
      * @return
      */
     public boolean isProvideRuntimeContext() {
@@ -144,7 +139,7 @@ public final class ServiceDescription {
 
     /**
      * This flag defines whether variations will be supported or not.
-     * 
+     *
      * @return <code>true</code> if variations should be injected in service class, and <code>false</code> otherwise.
      */
     public boolean isProvideVariations() {
@@ -153,7 +148,7 @@ public final class ServiceDescription {
 
     /**
      * Returns modules for the deployment.
-     * 
+     *
      * @return a set of modules
      */
     public Collection<Module> getModules() {
@@ -162,7 +157,7 @@ public final class ServiceDescription {
 
     /**
      * Retuns configuration
-     * 
+     *
      * @return configuration
      */
     public Map<String, Object> getConfiguration() {
@@ -211,9 +206,9 @@ public final class ServiceDescription {
 
     /**
      * Builder for ServiceDescription.
-     * 
+     *
      * @author Marat Kamalov
-     * 
+     *
      */
     public static class ServiceDescriptionBuilder {
         private String name;
@@ -249,7 +244,7 @@ public final class ServiceDescription {
 
         /**
          * Sets annotation template class name
-         * 
+         *
          * @param annotationTemplateClassName
          */
         public ServiceDescriptionBuilder setAnnotationTemplateClassName(String annotationTemplateClassName) {
@@ -259,7 +254,7 @@ public final class ServiceDescription {
 
         /**
          * Sets name to the builder.
-         * 
+         *
          * @param name
          * @return
          */
@@ -273,7 +268,7 @@ public final class ServiceDescription {
 
         /**
          * Sets url to the builder.
-         * 
+         *
          * @param url
          * @return
          */
@@ -284,7 +279,7 @@ public final class ServiceDescription {
 
         /**
          * Set a new set of modules to the builder.
-         * 
+         *
          * @param modules
          * @return
          */
@@ -299,7 +294,7 @@ public final class ServiceDescription {
 
         /**
          * Adds modules to the builder.
-         * 
+         *
          * @param modules
          * @return
          */
@@ -314,7 +309,7 @@ public final class ServiceDescription {
 
         /**
          * Add module to the builder.
-         * 
+         *
          * @param module
          * @return
          */
@@ -330,7 +325,7 @@ public final class ServiceDescription {
 
         /**
          * Sets provideRuntimeContext to the builder.
-         * 
+         *
          * @param provideRuntimeContext
          * @return
          */
@@ -341,7 +336,7 @@ public final class ServiceDescription {
 
         /**
          * Sets class name to the builder. (Optional)
-         * 
+         *
          * @param serviceClassName
          * @return
          */
@@ -352,7 +347,7 @@ public final class ServiceDescription {
 
         /**
          * Sets rmi class name to the builder. (Optional)
-         * 
+         *
          * @param rmiServiceClassName
          * @return
          */
@@ -363,7 +358,7 @@ public final class ServiceDescription {
 
         /**
          * Sets flag that is responsible for variations support.
-         * 
+         *
          * @param provideVariations
          * @return
          */
@@ -392,7 +387,7 @@ public final class ServiceDescription {
 
         /**
          * Builds ServiceDesctiption.
-         * 
+         *
          * @return
          */
         public ServiceDescription build() {

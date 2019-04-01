@@ -1,5 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import org.openl.rules.dt.DecisionTableColumnHeaders;
+
 /**
  * The abstraction that represents the column(it may be a row in transparent view) of the decision table. Decision table
  * column contains next cells:
@@ -48,15 +50,15 @@ package org.openl.rules.validation.properties.dimentional;
  * <td align="center" bgcolor="#ffff99">value23</td>
  * </tr>
  * </table>
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public interface IDecisionTableColumn {
 
     /**
      * Gets the type of the column. For more information see {@link DecisionTableColumnHeaders}
-     * 
+     *
      * @return string representation type of the column.
      */
     String getColumnType();
@@ -64,7 +66,7 @@ public interface IDecisionTableColumn {
     /**
      * Gets the string representation of the code expression cell(the next cell after column type definition see
      * {@link #getColumnType()}).
-     * 
+     *
      * @return string representation of the code expression cell.
      */
     String getCodeExpression();
@@ -72,7 +74,7 @@ public interface IDecisionTableColumn {
     /**
      * Gets the string representation of the parameter declaration cell(the next cell after code expression cell
      * see{@link #getCodeExpression()}).
-     * 
+     *
      * @return the string representation of the parameter declaration cell
      */
     String getParameterDeclaration();
@@ -80,7 +82,7 @@ public interface IDecisionTableColumn {
     /**
      * Gets the string representation of the title(business name) cell(the next cell after the parameter declaration
      * cell see{@link #getParameterDeclaration()}).
-     * 
+     *
      * @return the string representation of the title(business name) cell
      */
     String getTitle();
@@ -88,7 +90,7 @@ public interface IDecisionTableColumn {
     /**
      * Gets the first value for given rule index. If the {@link #getNumberOfLocalParameters()} is more than 1. Use
      * {@link #getRuleValue(int, int)} to get all values.
-     * 
+     *
      * @return the first value for given rule.
      */
     String getRuleValue(int ruleIndex);
@@ -97,10 +99,10 @@ public interface IDecisionTableColumn {
      * As condition may has several local parameters see {@link #getNumberOfLocalParameters()}, so the rule values is a
      * matrix, where first index is the rule index, the second - the index of local parameter. If the
      * {@link #getNumberOfLocalParameters()} is more than 1, use this method to get all rule values.
-     * 
+     *
      * @param ruleIndex index of the rule
      * @param localParameterIndex index of the local parameter
-     * 
+     *
      * @return the value for the appropriate rule and local parameter
      */
     String getRuleValue(int ruleIndex, int localParameterIndex);
@@ -132,12 +134,12 @@ public interface IDecisionTableColumn {
      * <td align="center" bgcolor="#ffff99">value12</td>
      * <td align="center" bgcolor="#ffff99">value22</td>
      * </tr>
-     * 
+     *
      * </table>
      * </tr>
-     * 
+     *
      * </table>
-     * 
+     *
      * @return
      */
     int getNumberOfLocalParameters();

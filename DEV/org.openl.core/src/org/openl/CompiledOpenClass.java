@@ -12,9 +12,9 @@ import org.openl.types.IOpenClass;
 
 /**
  * Handles <code>{@link IOpenClass}</code> with parsing and compiled errors.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public class CompiledOpenClass {
 

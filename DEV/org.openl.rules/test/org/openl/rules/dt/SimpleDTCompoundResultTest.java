@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.openl.rules.TestUtils;
 
 public class SimpleDTCompoundResultTest {

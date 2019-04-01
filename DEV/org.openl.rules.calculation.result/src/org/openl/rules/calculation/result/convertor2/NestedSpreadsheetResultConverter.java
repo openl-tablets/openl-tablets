@@ -20,15 +20,15 @@ import org.slf4j.LoggerFactory;
 
 /*
  * The example of flat spreadsheet result structure.
- *                      |---------SimpleRow                     |---------SimpleRow   
- *                      |                                       |   
+ *                      |---------SimpleRow                     |---------SimpleRow
+ *                      |                                       |
  *                      |---------CompoundSecondLevelResult-----|---------SimpleRow
  *                      |                                       |
  * UpperLevelResult-----|---------SimpleRow                     |---------CompoundThirdLevelResult1----.....
- *                      |                                       |            
+ *                      |                                       |
  *                      |---------SimpleRow                     |---------CompoundThirdLevelResult2----.....
- *                      |                                       |    
- *                      |---------SimpleRow                     |---------SimpleRow    
+ *                      |                                       |
+ *                      |---------SimpleRow                     |---------SimpleRow
  */
 
 /**

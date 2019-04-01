@@ -3,18 +3,13 @@ package org.openl.rules.lang.xls.classes;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
  * Finds a classes in a given jar
- * 
+ *
  * @author NSamatov
  */
 public class JarClassLocator implements ClassLocator {
@@ -30,7 +25,7 @@ public class JarClassLocator implements ClassLocator {
 
     /**
      * Add exception handler
-     * 
+     *
      * @param handler exception handler
      */
     public void addExceptionHandler(LocatorExceptionHandler handler) {
@@ -40,7 +35,7 @@ public class JarClassLocator implements ClassLocator {
     /**
      * Find all classes in a given path. If a class cannot be loaded, it is skipped (in our case we don't need such
      * classes).
-     * 
+     *
      * @param pathURL path to the jar
      * @param packageName The package name for classes found inside the path
      * @param classLoader a ClassLoader that is used to load a classes

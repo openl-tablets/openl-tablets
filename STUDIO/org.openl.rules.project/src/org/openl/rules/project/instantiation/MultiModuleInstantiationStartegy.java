@@ -1,5 +1,7 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.*;
+
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -19,8 +21,6 @@ import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Instantiation strategy that combines several modules into single rules module.

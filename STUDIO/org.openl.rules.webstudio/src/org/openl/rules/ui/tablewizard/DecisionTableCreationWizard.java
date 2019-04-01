@@ -1,5 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.model.SelectItem;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -8,13 +16,6 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DecisionTableBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.model.SelectItem;
-import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Aliaksandr Antonik.

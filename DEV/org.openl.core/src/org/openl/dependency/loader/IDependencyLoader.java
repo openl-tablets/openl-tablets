@@ -12,7 +12,7 @@ public interface IDependencyLoader {
 
     /**
      * Finds the dependency and loads it by OpenL.
-     * 
+     *
      * @param dependencyName {@link String} dependency name
      * @param dependencyManager is used to load child dependencies for given one.
      * @return {@link CompiledDependency}

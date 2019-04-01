@@ -1,8 +1,8 @@
 package org.openl.rules.dt.type;
 
-import org.openl.rules.helpers.DateRange;
-
 import java.util.Date;
+
+import org.openl.rules.helpers.DateRange;
 
 public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
 

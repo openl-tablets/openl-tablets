@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to mark inner OpenL components that are executable at runtime for calculating rules.
- * 
+ *
  * @author DLiauchuk
  *
  */

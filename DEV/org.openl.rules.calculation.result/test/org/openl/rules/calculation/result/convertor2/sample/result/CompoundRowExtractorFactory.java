@@ -8,9 +8,9 @@ import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
 
 /**
  * Factory for creating instances of {@link CompoundRowExtractor}
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class CompoundRowExtractorFactory {
 
@@ -24,7 +24,7 @@ public class CompoundRowExtractorFactory {
 
     /**
      * Extracts compound rows (has other rows inside)
-     * 
+     *
      */
     static class CompoundRowExtractor extends RowExtractor<CompoundStep> {
 

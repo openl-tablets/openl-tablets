@@ -44,7 +44,7 @@ final class JavaDownCast implements IOpenCast {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
     @Override
@@ -54,7 +54,7 @@ final class JavaDownCast implements IOpenCast {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.types.IOpenCast#isImplicit()
      */
     @Override

@@ -1,9 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 
@@ -17,14 +14,7 @@ import org.openl.rules.project.instantiation.variation.VariationInstantiationStr
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsFactory;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.variation.*;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test-resources/dependencies/test4/module/dependency-module1";
@@ -133,7 +123,7 @@ public class VariationsTest {
         assertEquals(variationsResult.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), "Standard Driver");
     }
 
-    public static interface EnhancedInterface {
+    public interface EnhancedInterface {
         String driverAgeType(Driver driver);
 
         VariationsResult<String> driverAgeType(Driver driver, VariationsPack variations);
@@ -148,7 +138,7 @@ public class VariationsTest {
     }
 
     // without original methods.
-    public static interface WrongEnhancedInterface {
+    public interface WrongEnhancedInterface {
         VariationsResult<String> driverAgeType(Driver driver, VariationsPack variations);
 
         VariationsResult<SpreadsheetResult> processPolicy(Policy policy, VariationsPack variations);

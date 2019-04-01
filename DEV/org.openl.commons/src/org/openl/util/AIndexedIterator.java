@@ -29,7 +29,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.openl.util.AIndexedIterator#indexedElement(int)
          */
         @Override

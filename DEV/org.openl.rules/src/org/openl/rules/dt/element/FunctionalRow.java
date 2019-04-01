@@ -26,12 +26,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IParameterDeclaration;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -40,7 +35,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- * 
+ *
  */
 public abstract class FunctionalRow implements IDecisionRow {
 
@@ -121,7 +116,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * Whole representation of decision table. Horizontal representation of the table where conditions are listed from
      * top to bottom. And must be readed from left to right</br>
      * Example:
-     * 
+     *
      * <table cellspacing="2">
      * <tr>
      * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
@@ -131,7 +126,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * <td align="center" bgcolor="#8FCB52">Rule1</td>
      * <td align="center" bgcolor="#8FCB52">Rule2</td>
      * <td align="center" bgcolor="#8FCB52">Rule3</td>
-     * 
+     *
      * </tr>
      * <tr>
      * <td align="center" bgcolor="#ccffff"><b>C1</b></td>
@@ -142,7 +137,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * <td align="center" bgcolor="#ffff99">value12</td>
      * <td align="center" bgcolor="#ffff99">value13</td>
      * </tr>
-     * 
+     *
      * <tr>
      * <td align="center" bgcolor="#ccffff"><b>C2</b></td>
      * <td align="center" bgcolor="#ccffff">paramLocal2==paramInc</td>
@@ -153,7 +148,7 @@ public abstract class FunctionalRow implements IDecisionRow {
      * <td align="center" bgcolor="#ffff99">value23</td>
      * </tr>
      * </table>
-     * 
+     *
      * @return <code>TRUE</code> if table is horizontal.
      */
     @Override
@@ -407,24 +402,24 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     /**
      * Gets local parameter declaration from specified source.
-     * 
+     *
      * OpenL support several types of parameters declarations. In common case user should provide the following
      * information: <br>
      * a) <type of parameter> <br>
      * b) <name of parameter>.<br>
      * But in simple cases of parameter usage the information is redundant.
-     * 
+     *
      * OpenL engine uses the following rules when user omitted parameter declaration or part of it:
-     * 
+     *
      * a) if cell with parameter declaration is empty then engine will use the parameter with name "Pn", where n is the
      * number of parameter (1 based) and type what is equals of expression type <br>
-     * 
+     *
      * b) if user omitted parameter name then engine will use parameter with name "Pn", where n is the number of
      * parameter (1 based) and type what is specified by user <br>
-     * 
+     *
      * User can use parameters with generated name in his expressions but in this case he should provide type of
      * parameter.
-     * 
+     *
      * @param paramSource source of parameter declaration
      * @param methodSource source of method (cell with expression where used local parameter)
      * @param signature method signature
@@ -496,8 +491,9 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean isEmpty(int ruleN) {
         for (IStorage<?> aStorage : storage) {
-            if (!aStorage.isSpace(ruleN))
+            if (!aStorage.isSpace(ruleN)) {
                 return false;
+            }
         }
 
         return true;
@@ -544,8 +540,9 @@ public abstract class FunctionalRow implements IDecisionRow {
     public boolean hasFormulas() {
         if (storage != null) {
             for (IStorage<?> aStorage : storage) {
-                if (aStorage.getInfo().getNumberOfFormulas() > 0)
+                if (aStorage.getInfo().getNumberOfFormulas() > 0) {
                     return true;
+                }
             }
         } else {
             int len = nValues();

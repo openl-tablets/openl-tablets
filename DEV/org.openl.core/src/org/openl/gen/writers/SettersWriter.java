@@ -26,7 +26,7 @@ public class SettersWriter extends MethodWriter {
 
     /**
      * Generates setter for the fieldEntry.
-     * 
+     *
      * @param classWriter
      * @param fieldEntry
      */

@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.util.StringUtils;
-
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.util.StringUtils;
 
 public class CommentValidator {
     private final Pattern pattern;

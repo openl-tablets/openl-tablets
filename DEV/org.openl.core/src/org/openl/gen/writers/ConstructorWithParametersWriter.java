@@ -16,7 +16,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
     private Map<String, FieldDescription> allFields;
 
     /**
-     * 
+     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
      * @param parentClass class descriptor for super class.

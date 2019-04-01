@@ -26,5 +26,5 @@ public interface FloatVarSelector {
     /**
      * Returns the index of the selected variable in the array of FloatVar(s). If no variables to select, it returns -1;
      */
-    public int select();
+    int select();
 }

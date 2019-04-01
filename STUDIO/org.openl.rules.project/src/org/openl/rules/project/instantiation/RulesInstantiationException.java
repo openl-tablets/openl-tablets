@@ -2,7 +2,7 @@ package org.openl.rules.project.instantiation;
 
 /**
  * Appears during the compilation or instantiation of rules.
- * 
+ *
  * @author PUdalau
  */
 public class RulesInstantiationException extends Exception {

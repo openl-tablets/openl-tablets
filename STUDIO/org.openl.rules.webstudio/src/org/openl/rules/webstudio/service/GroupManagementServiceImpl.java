@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * @author Andrei Astrouski

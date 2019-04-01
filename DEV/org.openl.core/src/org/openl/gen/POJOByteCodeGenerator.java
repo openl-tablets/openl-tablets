@@ -9,18 +9,11 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.gen.writers.BeanByteCodeWriter;
-import org.openl.gen.writers.ConstructorWithParametersWriter;
-import org.openl.gen.writers.DefaultConstructorWriter;
-import org.openl.gen.writers.EqualsWriter;
-import org.openl.gen.writers.GettersWriter;
-import org.openl.gen.writers.HashCodeWriter;
-import org.openl.gen.writers.SettersWriter;
-import org.openl.gen.writers.ToStringWriter;
+import org.openl.gen.writers.*;
 
 /**
  * Generates byte code for simple java bean.
- * 
+ *
  * @author DLiauchuk
  *
  */
@@ -32,7 +25,7 @@ public class POJOByteCodeGenerator {
     private List<BeanByteCodeWriter> writers;
 
     /**
-     * 
+     *
      * @param beanName name of the generated class, with namespace (e.g. <code>my.test.TestClass</code>)
      * @param beanFields map of fields, field name as a key, and type as value.
      * @param parentClass parent class

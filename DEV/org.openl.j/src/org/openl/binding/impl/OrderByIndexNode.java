@@ -57,8 +57,9 @@ class OrderByIndexNode extends ABoundNode {
                 if (prev.getClass() != OrderList.class) {
                     list = new OrderList();
                     list.add(prev);
-                } else
+                } else {
                     list = (OrderList) prev;
+                }
 
                 list.add(element);
                 map.put(key, list);

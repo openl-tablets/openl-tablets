@@ -6,9 +6,9 @@
 
 package org.openl.types.impl;
 
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.java.JavaOpenClass;
 
 /**

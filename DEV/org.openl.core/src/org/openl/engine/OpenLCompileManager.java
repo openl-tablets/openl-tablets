@@ -25,7 +25,7 @@ import org.openl.validation.ValidationResult;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
- * 
+ *
  */
 public class OpenLCompileManager extends OpenLHolder {
 
@@ -34,7 +34,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
     /**
      * Construct new instance of manager.
-     * 
+     *
      * @param openl {@link OpenL} instance
      */
     public OpenLCompileManager(OpenL openl) {
@@ -45,7 +45,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
     /**
      * Compiles module. As a result a module open class will be returned by engine.
-     * 
+     *
      * @param source source
      * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link IOpenClass} instance
@@ -74,7 +74,7 @@ public class OpenLCompileManager extends OpenLHolder {
     /**
      * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
      * compilation are suppressed.
-     * 
+     *
      * @param source source
      * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
@@ -115,7 +115,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
     /**
      * Compiles a method.
-     * 
+     *
      * @param source method source
      * @param compositeMethod {@link CompositeMethod} instance
      * @param bindingContext binding context

@@ -1,11 +1,6 @@
 package org.openl.rules.repository.factories;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;

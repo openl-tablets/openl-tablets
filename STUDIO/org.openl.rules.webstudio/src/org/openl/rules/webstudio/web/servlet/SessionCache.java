@@ -18,7 +18,7 @@ public class SessionCache {
     }
 
     public void invalidateAll() {
-        for (HttpSession session : new ArrayList<HttpSession>(cache.values())) {
+        for (HttpSession session : new ArrayList<>(cache.values())) {
             session.invalidate();
         }
     }

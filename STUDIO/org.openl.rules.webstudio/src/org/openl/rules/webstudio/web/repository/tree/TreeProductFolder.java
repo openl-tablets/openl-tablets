@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.webstudio.filter.IFilter;
 
 public class TreeProductFolder extends TreeFolder {
     private IFilter<AProjectArtefact> filter;

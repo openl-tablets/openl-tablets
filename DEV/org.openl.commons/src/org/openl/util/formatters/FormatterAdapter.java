@@ -3,11 +3,11 @@ package org.openl.util.formatters;
 import org.openl.util.print.DefaultFormat;
 
 /**
- * 
+ *
  * Wrapper to adapt {@link DefaultFormat} functionality to {@link IFormatter}. Supports only format operation.
- * 
+ *
  * @author DLiauchuk
- * 
+ *
  */
 public class FormatterAdapter implements IFormatter {
 

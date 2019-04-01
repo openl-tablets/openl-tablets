@@ -6,11 +6,7 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.types.IAggregateInfo;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
@@ -21,7 +17,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Open class for different Openl components. Handles {@link OpenL} inside.<br>
  * Was created by extracting functionality from {@link ModuleOpenClass} of 20192 revision.
- * 
+ *
  * @author DLiauchuk
  *
  */

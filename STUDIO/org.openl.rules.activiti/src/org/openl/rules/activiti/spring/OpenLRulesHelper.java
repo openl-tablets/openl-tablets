@@ -82,13 +82,14 @@ public final class OpenLRulesHelper {
         DeploymentEntityManager deploymentEntityManager = Context.getCommandContext().getDeploymentEntityManager();
 
         DeploymentEntity deployment = deploymentEntityManager.findDeploymentById(deploymentId);
-        if (deployment == null)
+        if (deployment == null) {
             throw new ActivitiObjectNotFoundException("Deployment with id '" + deploymentId + "' hasn't been found.",
                 DeploymentEntity.class);
+        }
 
         // First find in cache
         DeploymentCache<ProjectEngineFactory> deploymentCache = cache.computeIfAbsent(deploymentId,
-            e -> new DefaultDeploymentCache<ProjectEngineFactory>());
+            e -> new DefaultDeploymentCache<>());
 
         ProjectEngineFactory<Object> projectEngineFactory = deploymentCache.get(resource);
         if (projectEngineFactory != null) {

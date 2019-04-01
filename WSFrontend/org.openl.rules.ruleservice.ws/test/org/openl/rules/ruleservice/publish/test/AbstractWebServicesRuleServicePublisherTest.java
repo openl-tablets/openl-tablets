@@ -17,9 +17,9 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Class designed for testing rules published via WebServicesRuleServicePublisher.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 // @RunWith(SpringJUnit4ClassRunner.class)
 // @ContextConfiguration
@@ -43,7 +43,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Returns ApplicationContext.
-     * 
+     *
      * @return application context
      */
     public final ApplicationContext getApplicationContext() {
@@ -52,7 +52,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Returns WebServicesRuleServicePublisher.
-     * 
+     *
      * @return WebServicesRuleServicePublisher
      */
     protected JAXWSRuleServicePublisher getRuleServicePublisher() {
@@ -61,7 +61,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Returns all deployed services.
-     * 
+     *
      * @return a collection of deployed services
      */
     protected Collection<OpenLService> getServices() {
@@ -70,7 +70,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Returns deployed service by name.
-     * 
+     *
      * @param serviceName deployed service name
      * @return service
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
@@ -88,9 +88,9 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Return dataBinding. This data binding is used in tests by default.
-     * 
+     *
      * @param serviceName - serviceName
-     * 
+     *
      * @return data binding
      */
     protected DataBinding getDataBinding(String serviceName) {
@@ -99,7 +99,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns client for specified service.
-     * 
+     *
      * @param serviceName deployed service name
      * @return client object
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
@@ -110,7 +110,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns client for specified service address by deployed service name
-     * 
+     *
      * @param serviceName deployed service name
      * @param address address
      * @return client
@@ -122,7 +122,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns client by deployed service name. Result object casts to defined type.
-     * 
+     *
      * @param serviceName deployed service name
      * @param clazz service type
      * @return client
@@ -134,7 +134,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns client with specified address and type by deployed service name
-     * 
+     *
      * @param serviceName deployed service name
      * @param address service address
      * @param clazz service type
@@ -147,7 +147,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns client with specified address, data binding and type by deployed service name.
-     * 
+     *
      * @param serviceName deployed service name
      * @param address service address
      * @param clazz service type
@@ -197,7 +197,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns dynamic client for service by deployed service name
-     * 
+     *
      * @param serviceName service name
      * @return dynamic client
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
@@ -218,7 +218,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
 
     /**
      * Creates and returns service
-     * 
+     *
      * @param wsdlLocation wsdl location url
      * @return
      */

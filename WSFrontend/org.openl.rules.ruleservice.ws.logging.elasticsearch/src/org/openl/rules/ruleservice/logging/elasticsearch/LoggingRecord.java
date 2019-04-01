@@ -3,15 +3,7 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 import java.util.Date;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
-import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
-import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
-import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
-import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
-import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.annotation.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 

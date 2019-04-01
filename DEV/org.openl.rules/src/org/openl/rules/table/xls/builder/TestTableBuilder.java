@@ -86,7 +86,7 @@ public class TestTableBuilder extends TableBuilder {
     }
 
     /**
-     * 
+     *
      * @param executableMethod
      * @return Default technical name for new test table. It is build from <code>ExecutableRulesMethod</code> name and
      *         postfix 'Test'.
@@ -100,7 +100,7 @@ public class TestTableBuilder extends TableBuilder {
      * Gets the default technical name for new test table. At first we get the executable method from
      * <code>TableSyntaxNode</code> and if it is not <code>null</code> calls
      * {@link #getDefaultTechnicalName(ExecutableMethod)}.
-     * 
+     *
      * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we tries
      *            to get the <code>ExecutableRulesMethod</code>.
      * @return Default technical name for new test table. It is build from table name and postfix 'Test'.

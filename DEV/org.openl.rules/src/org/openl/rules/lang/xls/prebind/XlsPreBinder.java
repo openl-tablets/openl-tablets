@@ -25,7 +25,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 /**
  * Serves to prebind code. Prebind means to process all datatypes, properties and headers for another table types.
- * 
+ *
  * @author pudalau
  */
 public class XlsPreBinder extends XlsBinder {

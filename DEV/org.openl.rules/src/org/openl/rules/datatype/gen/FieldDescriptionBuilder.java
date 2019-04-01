@@ -1,13 +1,13 @@
 package org.openl.rules.datatype.gen;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FieldDescriptionBuilder {
 

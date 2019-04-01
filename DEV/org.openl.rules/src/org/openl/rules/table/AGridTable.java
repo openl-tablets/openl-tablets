@@ -4,7 +4,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
 
 /**
  * Default implementation for grid tables.
- * 
+ *
  * @author snshor
  */
 public abstract class AGridTable implements IGridTable {
@@ -104,8 +104,9 @@ public abstract class AGridTable implements IGridTable {
             return this;
         }
 
-        if (width == 1 && height == 1)
+        if (width == 1 && height == 1) {
             return new SingleCellGridTable(this, column, row);
+        }
 
         return new SubGridTable(this, column, row, width, height);
     }

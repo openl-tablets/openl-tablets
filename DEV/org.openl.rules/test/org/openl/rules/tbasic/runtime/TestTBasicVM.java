@@ -17,8 +17,8 @@ public class TestTBasicVM {
 
     @Test
     public void test1() {
-        List<RuntimeOperation> operations = new ArrayList<RuntimeOperation>();
-        Map<String, RuntimeOperation> labels = new HashMap<String, RuntimeOperation>();
+        List<RuntimeOperation> operations = new ArrayList<>();
+        Map<String, RuntimeOperation> labels = new HashMap<>();
 
         operations.add(new NopOperation());
 

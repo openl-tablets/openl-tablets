@@ -9,7 +9,7 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 
 /**
- * 
+ *
  * @author DLiauchuk
  *
  */

@@ -229,8 +229,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 log.error("Failed to calculate variation!", e);
                 throw e;
             } finally {
-                if (handler != null)
+                if (handler != null) {
                     handler.release();
+                }
             }
         }
     }

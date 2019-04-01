@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.servlet;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceInfo {
     private final Date startedTime;

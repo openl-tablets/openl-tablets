@@ -15,7 +15,7 @@ import org.openl.rules.lang.xls.XlsVM;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class OpenLBuilder extends BaseOpenLBuilder {
 

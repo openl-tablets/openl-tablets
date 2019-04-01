@@ -151,7 +151,7 @@ public class TableSyntaxNode extends NaryNode {
 
     /**
      * Gets the table body without header and properties section.
-     * 
+     *
      * @return table body, without header and properties section (if exists).
      */
     public ILogicalTable getTableBody() {
@@ -199,7 +199,7 @@ public class TableSyntaxNode extends NaryNode {
      * Checks if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in appropriate table
      * in data source. <br>
      * Properties set by default are ignoring.
-     * 
+     *
      * @return <code>TRUE</code> if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in
      *         appropriate table in data source.
      */
@@ -227,7 +227,7 @@ public class TableSyntaxNode extends NaryNode {
 
     /**
      * Use this method instead of {@link #getType()}. Returns the enum constant for the current node.
-     * 
+     *
      * @return the {@link XlsNodeTypes} for current TableSyntaxNode
      */
     public XlsNodeTypes getNodeType() {

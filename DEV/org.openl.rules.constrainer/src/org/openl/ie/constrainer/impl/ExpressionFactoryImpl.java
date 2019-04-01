@@ -4,14 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Expression;
-import org.openl.ie.constrainer.ExpressionFactory;
-import org.openl.ie.constrainer.FloatExpArray;
-import org.openl.ie.constrainer.IntExpArray;
-import org.openl.ie.constrainer.Undo;
-import org.openl.ie.constrainer.UndoImpl;
-import org.openl.ie.constrainer.Undoable;
+import org.openl.ie.constrainer.*;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
@@ -20,7 +13,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public final class ExpressionFactoryImpl extends UndoableOnceImpl implements ExpressionFactory, java.io.Serializable {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 7593413055525940597L;
 
@@ -31,12 +24,12 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         /**
          * Returns the arguments of the expression.
          */
-        public Object[] args();
+        Object[] args();
 
         /**
          * Returns a class of the expression.
          */
-        public Class clazz();
+        Class clazz();
     }
 
     /**

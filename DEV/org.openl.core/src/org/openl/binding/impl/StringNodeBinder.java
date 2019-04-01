@@ -11,7 +11,7 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class StringNodeBinder extends ANodeBinder {
 

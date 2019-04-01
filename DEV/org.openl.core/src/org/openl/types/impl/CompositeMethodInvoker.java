@@ -11,7 +11,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Invoker for {@link CompositeMethod}.
- * 
+ *
  * @author DLiauchuk
  *
  */

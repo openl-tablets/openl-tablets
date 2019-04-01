@@ -1,10 +1,10 @@
 package org.openl.rules.lang.xls.load;
 
+import java.lang.ref.WeakReference;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.source.IOpenSourceCodeModule;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Provides lazy loading access to the workbook. When {@link #getWorkbook()} first time is called, it is loaded from

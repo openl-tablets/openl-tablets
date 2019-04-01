@@ -11,7 +11,7 @@ import org.openl.runtime.IRuntimeContext;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IRuntimeEnv {
     Object[] getLocalFrame();
@@ -30,14 +30,14 @@ public interface IRuntimeEnv {
 
     /**
      * Gets the runtime context.
-     * 
+     *
      * @return <code>IContext</code> instance
      */
     IRuntimeContext getContext();
 
     /**
      * Sets context to runtime environment. By default, runtime environment doesn't provide any context.
-     * 
+     *
      * @param context runtime context.
      */
     void setContext(IRuntimeContext context);

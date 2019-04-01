@@ -8,7 +8,7 @@ import org.apache.jackrabbit.jcr2spi.RepositoryImpl;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
- * 
+ *
  * @author PUdalau
  */
 public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {

@@ -7,8 +7,8 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
-import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.util.text.ILocation;
 import org.openl.vm.IRuntimeEnv;
 

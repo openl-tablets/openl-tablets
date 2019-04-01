@@ -1,22 +1,14 @@
 package org.openl.rules.lang.xls;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.syntax.*;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -39,9 +31,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author snshor

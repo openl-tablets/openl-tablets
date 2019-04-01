@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * IOpenSourceCodeModule is an abstraction of rules source code.
- * 
+ *
  * @author snshor
  */
 public interface IOpenSourceCodeModule {
@@ -30,7 +30,7 @@ public interface IOpenSourceCodeModule {
     /**
      * External parameters for current source code module.<br>
      * It can be external properties or dependencies.
-     * 
+     *
      * @return external parameters.
      */
     Map<String, Object> getParams();

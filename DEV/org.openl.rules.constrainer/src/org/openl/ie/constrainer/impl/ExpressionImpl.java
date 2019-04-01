@@ -1,10 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Expression;
-import org.openl.ie.constrainer.FloatExp;
-import org.openl.ie.constrainer.IntBoolExp;
-import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.*;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*

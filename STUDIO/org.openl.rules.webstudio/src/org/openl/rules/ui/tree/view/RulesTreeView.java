@@ -15,7 +15,7 @@ public interface RulesTreeView {
 
     /**
      * Gets array of tree node builders.
-     * 
+     *
      * @return tree node builders
      */
     TreeNodeBuilder<Object>[] getBuilders();

@@ -1,12 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;

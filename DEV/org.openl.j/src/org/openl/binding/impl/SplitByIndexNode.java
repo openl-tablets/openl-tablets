@@ -47,8 +47,9 @@ class SplitByIndexNode extends ABoundNode {
             tempVar.set(null, element, env);
             Object key = splitBy.evaluate(env);
 
-            if (key == null)
+            if (key == null) {
                 key = tempKey;
+            }
 
             ArrayList<Object> list = map.get(key);
 

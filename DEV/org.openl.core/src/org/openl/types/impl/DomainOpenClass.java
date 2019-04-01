@@ -9,11 +9,7 @@ import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
-import org.openl.types.DomainOpenClassAggregateInfo;
-import org.openl.types.IAggregateInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -231,10 +227,12 @@ public class DomainOpenClass implements IOpenClass {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         DomainOpenClass that = (DomainOpenClass) o;
 

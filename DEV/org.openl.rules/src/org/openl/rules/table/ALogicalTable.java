@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 /**
  * Default implementation for logical tables.
- * 
+ *
  * @author Andrei Astrouski
  */
 public abstract class ALogicalTable implements ILogicalTable {

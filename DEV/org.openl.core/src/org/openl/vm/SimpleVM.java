@@ -17,7 +17,7 @@ import org.openl.util.fast.FastStack;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class SimpleVM implements IOpenVM {
 
@@ -30,7 +30,7 @@ public class SimpleVM implements IOpenVM {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.openl.IOpenRunner#run(java.lang.Object[])
          */
         @Override
@@ -105,7 +105,7 @@ public class SimpleVM implements IOpenVM {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.openl.vm.IRuntimeEnv#getLocalFrame()
          */
         @Override
@@ -192,7 +192,7 @@ public class SimpleVM implements IOpenVM {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.IOpenVM#run(org.openl.binding.IBoundCode)
      */
     @Override

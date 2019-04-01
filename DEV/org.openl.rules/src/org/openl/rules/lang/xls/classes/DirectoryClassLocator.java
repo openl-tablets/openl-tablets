@@ -2,16 +2,11 @@ package org.openl.rules.lang.xls.classes;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Finds a classes in a given directory
- * 
+ *
  * @author NSamatov
  */
 public class DirectoryClassLocator implements ClassLocator {
@@ -27,7 +22,7 @@ public class DirectoryClassLocator implements ClassLocator {
 
     /**
      * Add exception handler
-     * 
+     *
      * @param handler exception handler
      */
     public void addExceptionHandler(LocatorExceptionHandler handler) {
@@ -37,7 +32,7 @@ public class DirectoryClassLocator implements ClassLocator {
     /**
      * Find all classes in a given directory. If a class cannot be loaded, it is skipped (in our case we don't need such
      * classes).
-     * 
+     *
      * @param pathURL path to the directory
      * @param packageName The package name for classes found inside the directory
      * @param classLoader a ClassLoader that is used to load a classes

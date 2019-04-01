@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import com.thoughtworks.xstream.XStreamException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.xml.sax.SAXParseException;
+
+import com.thoughtworks.xstream.XStreamException;
 
 public final class ProjectDescriptorUtils {
     private ProjectDescriptorUtils() {

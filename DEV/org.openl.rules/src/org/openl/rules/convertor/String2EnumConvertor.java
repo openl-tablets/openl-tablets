@@ -10,8 +10,9 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
 
     @Override
     public E parse(String data, String format) {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
 
         for (E enumConstant : enumType.getEnumConstants()) {
             if (data.equalsIgnoreCase(enumConstant.name())) {

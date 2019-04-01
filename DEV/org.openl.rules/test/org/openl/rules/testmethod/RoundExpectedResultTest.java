@@ -1,8 +1,6 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.*;
 
@@ -55,7 +53,7 @@ public class RoundExpectedResultTest {
 
     @Test
     public void testUserExceptionSupport1() {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(FILE_NAME);
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(FILE_NAME);
         engineFactory.setExecutionMode(false);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();

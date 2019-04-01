@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
-import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -62,6 +61,8 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import com.thoughtworks.xstream.XStreamException;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
@@ -531,7 +532,7 @@ public class WebStudio {
         }
 
         model.resetSourceModified(); // Because we rewrite a file in the
-                                     // workspace
+        // workspace
         compile();
         clearUploadedFiles();
 
@@ -644,7 +645,7 @@ public class WebStudio {
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
         File projectFolder = oldProjectDescriptor.getProjectFolder();
         model.resetSourceModified(); // Because we rewrite a file in the
-                                     // workspace
+        // workspace
 
         ProjectDescriptor newProjectDescriptor = null;
         try {
@@ -1057,7 +1058,7 @@ public class WebStudio {
         }
         if (StringUtils.isBlank(projectName)) {
             return "#"; // Current project isn't selected. Show all projects
-                        // list.
+            // list.
         }
         if (StringUtils.isBlank(moduleName)) {
             return "#" + StringTool.encodeURL(projectName);

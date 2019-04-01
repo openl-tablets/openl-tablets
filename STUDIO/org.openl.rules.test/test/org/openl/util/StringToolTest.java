@@ -3,8 +3,9 @@
  */
 package org.openl.util;
 
-import junit.framework.TestCase;
 import org.junit.Test;
+
+import junit.framework.TestCase;
 
 /**
  * @author snshor

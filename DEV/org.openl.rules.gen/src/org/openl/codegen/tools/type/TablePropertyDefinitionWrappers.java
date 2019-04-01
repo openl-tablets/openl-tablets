@@ -1,11 +1,11 @@
 package org.openl.codegen.tools.type;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.ContainsMatchingExpression;
 import org.openl.rules.table.properties.expressions.match.EQMatchingExpression;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TablePropertyDefinitionWrappers {
 

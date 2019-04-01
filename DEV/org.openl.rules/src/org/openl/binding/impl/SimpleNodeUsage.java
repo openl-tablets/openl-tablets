@@ -62,10 +62,12 @@ public class SimpleNodeUsage implements NodeUsage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         SimpleNodeUsage that = (SimpleNodeUsage) o;
         return start == that.start && end == that.end && Objects.equals(description, that.description) && Objects
             .equals(uri, that.uri) && nodeType == that.nodeType;

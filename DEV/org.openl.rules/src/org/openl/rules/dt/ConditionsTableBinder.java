@@ -7,9 +7,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Binder for conditions table.
- * 
+ *
  * @author Marat Kamalov
- * 
+ *
  */
 public class ConditionsTableBinder extends ADtColumnsDefinitionTableBinder {
 

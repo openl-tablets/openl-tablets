@@ -18,9 +18,9 @@ import org.openl.util.OpenIterator;
  * - arrays (Object and primitives)<br>
  * - object that are instances of {@link Collection}<br>
  * - maps of objects.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public final class DefaultFormat {
 

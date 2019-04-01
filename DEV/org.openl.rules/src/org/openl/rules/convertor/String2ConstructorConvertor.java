@@ -1,8 +1,8 @@
 package org.openl.rules.convertor;
 
-import org.openl.util.RuntimeExceptionWrapper;
-
 import java.lang.reflect.Constructor;
+
+import org.openl.util.RuntimeExceptionWrapper;
 
 class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
 
@@ -18,8 +18,9 @@ class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
 
     @Override
     public T parse(String data, String format) {
-        if (data == null)
+        if (data == null) {
             return null;
+        }
 
         try {
             return ctr.newInstance(data);

@@ -40,6 +40,6 @@ public interface FloatVar extends FloatExp {
      *
      * @return a goal that instantiates this variable.
      */
-    public Goal instantiate();
+    Goal instantiate();
 
 } // ~FloatVar

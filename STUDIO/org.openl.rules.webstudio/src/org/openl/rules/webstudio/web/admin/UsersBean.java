@@ -1,12 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -21,11 +15,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
+import org.openl.rules.security.*;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -144,7 +134,7 @@ public class UsersBean {
                 groups.put(groupName, groupManagementService.getGroupByName(groupName));
             }
 
-            for (Group group : new ArrayList<Group>(groups.values())) {
+            for (Group group : new ArrayList<>(groups.values())) {
                 if (!groups.isEmpty()) {
                     removeIncludedGroups(group, groups);
                 }

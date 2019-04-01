@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Lazy field that will compile module declaring it and will get real field to do operations with it.
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 public abstract class LazyField extends LazyMember<IOpenField> implements IOpenField {

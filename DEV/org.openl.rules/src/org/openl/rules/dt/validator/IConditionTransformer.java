@@ -3,15 +3,15 @@
  */
 package org.openl.rules.dt.validator;
 
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntVar;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
-import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
- * 
+ *
  */
 public interface IConditionTransformer {
 

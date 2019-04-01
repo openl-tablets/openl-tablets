@@ -35,7 +35,7 @@ public class SimpleOpenLEngineTest {
     @Test
     public void test() {
         Assert.assertNotNull(processEngine);
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         variables.put("driverAge", "Standard Driver");
         variables.put("driverMaritalStatus", "Single");

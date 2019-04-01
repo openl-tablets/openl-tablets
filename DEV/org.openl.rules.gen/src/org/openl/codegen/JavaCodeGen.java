@@ -269,8 +269,9 @@ public class JavaCodeGen implements ICodeGen {
                             sb.append(c1);
                             c -= c / mask * mask;
                         }
-                    } else
+                    } else {
                         sb.append(c);
+                    }
             }
         }
 
@@ -279,7 +280,7 @@ public class JavaCodeGen implements ICodeGen {
 
     /**
      * Generates array in form Foo[] x = new Foo[size];
-     * 
+     *
      * @param name
      * @param className
      * @param size

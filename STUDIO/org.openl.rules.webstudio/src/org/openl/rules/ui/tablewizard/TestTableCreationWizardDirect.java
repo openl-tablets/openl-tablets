@@ -6,7 +6,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * Allows to create test tables direct from the testable table page.
- * 
+ *
  * @author DLiauchuk
  *
  */

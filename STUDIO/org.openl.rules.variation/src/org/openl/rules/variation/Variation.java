@@ -18,9 +18,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 /**
  * Common variations class. It should have unique ID and handle two phases: modifying arguments before the calculations
  * and rolling back changes after execution.
- * 
+ *
  * To store previous values of changed fields there can be used stack passed as argument(if it is needed.)
- * 
+ *
  * @author PUdalau, Marat Kamalov
  */
 
@@ -42,7 +42,7 @@ public abstract class Variation {
 
     /**
      * Constructs variation with the ID.
-     * 
+     *
      * @param variationID Unique ID.
      */
     public Variation(String variationID) {
@@ -62,7 +62,7 @@ public abstract class Variation {
 
     /**
      * Returns current value for this variation
-     * 
+     *
      * @param originalArguments
      * @return
      */
@@ -70,7 +70,7 @@ public abstract class Variation {
 
     /**
      * Modifies original arguments before the calculation.
-     * 
+     *
      * @param originalArguments Original arguments for calculation.
      * @param stack The Stack instance to store previous values of changed fields.
      * @return Modified arguments.
@@ -79,7 +79,7 @@ public abstract class Variation {
 
     /**
      * Reverts changes of arguments after the calculation.
-     * 
+     *
      * @param modifiedArguments Modified arguments.
      * @param stack Stack where previous values of modified fields were stored.
      */

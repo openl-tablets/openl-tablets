@@ -31,21 +31,21 @@ public interface ConstrainerObject extends java.io.Serializable {
      *
      * @return the constrainer the object belongs to.
      */
-    public Constrainer constrainer();
+    Constrainer constrainer();
 
     /**
      * Returns the name of the object. If the name is undefined the function returns an empty string.
      *
      * @return The name of the object.
      */
-    public String name();
+    String name();
 
     /**
      * Sets the name of the object.
      *
      * @param name The name to be set.
      */
-    public void name(String name);
+    void name(String name);
 
     /**
      * Returns the object associated with this constrainer object. It is possible to associate some object with a
@@ -53,13 +53,13 @@ public interface ConstrainerObject extends java.io.Serializable {
      *
      * @return the object associated with the constrainer object.
      */
-    public Object object();
+    Object object();
 
     /**
      * Associates the object with this constrainer object. It is possible to associate an object with an constrainer
      * object. When your business object BO is assosiated with the constraned object CO (i.e. IntVar), it is convenient
      * to use this method to save the reference to the BO in the CO.
      */
-    public void object(Object o);
+    void object(Object o);
 
 }

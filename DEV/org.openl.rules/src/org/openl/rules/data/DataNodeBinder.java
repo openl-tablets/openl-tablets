@@ -32,7 +32,7 @@ import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class DataNodeBinder extends AXlsTableBinder {
 
@@ -120,7 +120,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
     /**
      * Populate the <code>ITable</code> with data from <code>ILogicalTable</code>.
-     * 
+     *
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tableToProcess Table to be processed.
      * @param tableBody Body of the table (without header and properties sections). Its like a source to process
@@ -198,7 +198,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
     /**
      * Adds sub table for displaying on bussiness view.
-     * 
+     *
      * @param tableSyntaxNode <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.
      */
@@ -216,7 +216,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * {@link #processTable(XlsModuleOpenClass, ITable, ILogicalTable, String, IOpenClass, IBindingContext, OpenL, boolean)}
      * to populate <code>ITable</code> with data. Also adds to <code>TableSyntaxNode</code> sub table for displaying on
      * business view.
-     * 
+     *
      * @param xlsOpenClass Open class representing OpenL module.
      * @param tableSyntaxNode <code>TableSyntaxNode</code> to be processed.
      * @param tableName Name of the outcome table.

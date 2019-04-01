@@ -26,9 +26,9 @@ import org.openl.xls.sequential.SequentialParser;
  * Find difference between two XLS files. It compares per Table.
  * <p>
  * Incomplete. Need AxB vs CxD implementation. Need to be optimal.
- * 
+ *
  * @author Aleh Bykhavets
- * 
+ *
  */
 public class XlsDiff2 {
     private List<XlsTable> tables1;
@@ -306,8 +306,9 @@ public class XlsDiff2 {
         // list unmatched rows
         // just in case
         for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
-            if (matched[y1])
+            if (matched[y1]) {
                 continue;
+            }
 
             for (int x = 0; x < grid1.getWidth(); x++) {
                 ICell c1 = grid1.getCell(x, y1);

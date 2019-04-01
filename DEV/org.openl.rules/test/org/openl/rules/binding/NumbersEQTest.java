@@ -9,7 +9,7 @@ import org.openl.rules.TestUtils;
 /**
  * Testing following constructions working in rules: DoubleValue a = new DoubleValue(-5); DoubleValue b = new
  * DoubleValue(-5); a==b; - will be true
- * 
+ *
  * @author DLiauchuk
  *
  */

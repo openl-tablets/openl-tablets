@@ -1,12 +1,12 @@
 package org.openl.rules.project.impl.local;
 
+import java.io.*;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.StateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
 
 public class StatePersistance {
     private final Logger log = LoggerFactory.getLogger(StatePersistance.class);

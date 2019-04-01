@@ -1,12 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -19,9 +13,9 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
 
@@ -176,7 +170,7 @@ public class GroupsBean {
                 groups.put(groupName, groupManagementService.getGroupByName(groupName));
             }
 
-            for (Group group : new ArrayList<Group>(groups.values())) {
+            for (Group group : new ArrayList<>(groups.values())) {
                 if (!groups.isEmpty()) {
                     removeIncludedGroups(group, groups);
                 }
@@ -220,7 +214,7 @@ public class GroupsBean {
     }
 
     private void removeIncludedPrivileges(List<String> privileges, Map<String, Group> groups) {
-        for (String privilege : new ArrayList<String>(privileges)) {
+        for (String privilege : new ArrayList<>(privileges)) {
             for (Group group : groups.values()) {
                 if (group.hasPrivilege(privilege)) {
                     privileges.remove(privilege);

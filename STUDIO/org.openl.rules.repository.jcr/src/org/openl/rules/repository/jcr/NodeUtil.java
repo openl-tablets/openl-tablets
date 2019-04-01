@@ -1,19 +1,22 @@
 package org.openl.rules.repository.jcr;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Calendar;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.*;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.version.VersionIterator;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Calendar;
 
 /**
  * JCR Node Utility

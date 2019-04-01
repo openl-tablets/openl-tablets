@@ -12,7 +12,7 @@ public class EmptyArrayDataTest {
 
     @Test
     public void testMultiRowArrayLoad() throws Exception {
-        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<Object>(SRC);
+        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
 
         Object instance = engineFactory.newEngineInstance();

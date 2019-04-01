@@ -1,5 +1,12 @@
 package org.openl.rules.repository.jcr;
 
+import java.util.*;
+
+import javax.jcr.Node;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
@@ -10,9 +17,6 @@ import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.*;
-import java.util.*;
 
 /**
  * Implementation of JCR Entity. It is linked with node in JCR implementation, always.

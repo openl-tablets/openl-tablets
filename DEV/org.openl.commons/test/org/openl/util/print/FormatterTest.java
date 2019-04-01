@@ -12,7 +12,7 @@ public class FormatterTest {
 
     @Test
     public void testMap() {
-        Map<Integer, String> testMap = new HashMap<Integer, String>();
+        Map<Integer, String> testMap = new HashMap<>();
         testMap.put(Integer.valueOf(25), "yo265");
         testMap.put(Integer.valueOf(1536), "abra");
         testMap.put(Integer.valueOf(4657), "cadabra");
@@ -44,7 +44,7 @@ public class FormatterTest {
 
     @Test
     public void testVector() {
-        Vector<String> strVector = new Vector<String>();
+        Vector<String> strVector = new Vector<>();
         strVector.add("first");
         strVector.add("second");
         strVector.add("third");

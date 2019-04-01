@@ -58,7 +58,7 @@ public abstract class BenchmarkUnit {
 
     /**
      * This is the method you usually want to redefine. There can be cases though when you want to redefine runNtimes.
-     * 
+     *
      * @throws Exception
      */
     protected abstract void run() throws Exception;

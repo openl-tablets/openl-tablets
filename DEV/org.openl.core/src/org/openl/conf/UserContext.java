@@ -16,9 +16,9 @@ import org.openl.OpenL;
 
 /**
  * The class is designed as immutable, but not immutable because contains ClassLoader.
- * 
+ *
  * @author snshor
- * 
+ *
  */
 public final class UserContext extends AUserContext {
 

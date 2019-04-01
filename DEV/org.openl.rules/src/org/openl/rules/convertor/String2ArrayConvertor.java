@@ -36,10 +36,12 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2D
     @Override
     @SuppressWarnings("unchecked")
     public T parse(String data, String format, IBindingContext cxt) {
-        if (data == null)
+        if (data == null) {
             return null;
-        if (data.length() == 0)
+        }
+        if (data.length() == 0) {
             return (T) Array.newInstance(componentType, 0);
+        }
 
         String[] elementValues = StringTool
             .splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
