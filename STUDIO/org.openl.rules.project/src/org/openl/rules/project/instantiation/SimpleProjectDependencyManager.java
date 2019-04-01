@@ -46,7 +46,6 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
         this.projects = projects;
         this.singleModuleMode = singleModuleMode;
         this.executionMode = executionMode;
-        this.singleModuleMode = singleModuleMode;
     }
 
     @Override
