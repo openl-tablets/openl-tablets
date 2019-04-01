@@ -34,14 +34,14 @@ public class SimpleVM implements IOpenVM {
          * @see org.openl.IOpenRunner#run(java.lang.Object[])
          */
         @Override
-        public Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException {
+        public Object run(IBoundMethodNode node, Object[] params) {
             int frameSize = node.getLocalFrameSize();
 
             return node.evaluate(new SimpleRuntimeEnv(this, frameSize, params));
         }
 
         @Override
-        public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException {
+        public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) {
             int frameSize = node.getLocalFrameSize();
 
             Object[] frame = new Object[frameSize];

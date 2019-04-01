@@ -11,7 +11,7 @@ package org.openl.conf;
  *
  */
 
-public class OpenConfigurationException extends RuntimeException {
+public class OpenLConfigurationException extends RuntimeException {
     // TODO add parameters, message etc.
 
     /**
@@ -20,7 +20,7 @@ public class OpenConfigurationException extends RuntimeException {
     private static final long serialVersionUID = 3292629986027365336L;
     private final String uri;
 
-    public OpenConfigurationException(String msg, String uri, Throwable t) {
+    public OpenLConfigurationException(String msg, String uri, Throwable t) {
         super(msg, t);
         this.uri = uri;
     }

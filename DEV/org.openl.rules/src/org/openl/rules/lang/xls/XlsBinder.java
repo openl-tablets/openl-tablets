@@ -34,7 +34,7 @@ import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
-import org.openl.conf.OpenConfigurationException;
+import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
@@ -189,7 +189,7 @@ public class XlsBinder implements IOpenBinder {
 
         try {
             openl = makeOpenL(moduleNode);
-        } catch (OpenConfigurationException ex) {
+        } catch (OpenLConfigurationException ex) {
             OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
 
@@ -434,9 +434,9 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private void addImports(OpenLBuilderImpl builder, Collection<String> imports) {
-        Collection<String> packageNames = new LinkedHashSet<String>();
-        Collection<String> classNames = new LinkedHashSet<String>();
-        Collection<String> libraries = new LinkedHashSet<String>();
+        Collection<String> packageNames = new LinkedHashSet<>();
+        Collection<String> classNames = new LinkedHashSet<>();
+        Collection<String> libraries = new LinkedHashSet<>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
                 try {
@@ -549,7 +549,7 @@ public class XlsBinder implements IOpenBinder {
     private TableSyntaxNode[] selectTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
             ISelector<ISyntaxNode> childSelector) {
 
-        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
+        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<>();
 
         for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
 
@@ -879,7 +879,7 @@ public class XlsBinder implements IOpenBinder {
         @Override
         public void addRecursiveOpenMethodPreBinderMethod(RecursiveOpenMethodPreBinder method) {
             if (recursiveOpenMethodPreBinderMethods == null) {
-                recursiveOpenMethodPreBinderMethods = new ArrayList<RecursiveOpenMethodPreBinder>();
+                recursiveOpenMethodPreBinderMethods = new ArrayList<>();
             }
             recursiveOpenMethodPreBinderMethods.add(method);
         }
@@ -980,7 +980,7 @@ public class XlsBinder implements IOpenBinder {
 
     private static class SyntaxNodeExceptionHolder {
 
-        private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<SyntaxNodeException>();
+        private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
         private void addModuleContextError(SyntaxNodeException e) {
             syntaxNodeExceptions.add(e);

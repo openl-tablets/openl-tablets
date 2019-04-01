@@ -31,7 +31,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     public IGridRegion getGridRegion() {
         IGridRegion gridRegion = null;
         // TODO: rewrite to return more precise grid region
-        if (algorithmSteps.size() > 0) {
+        if (!algorithmSteps.isEmpty()) {
             RuntimeOperation firstOperation = algorithmSteps.get(0);
             gridRegion = firstOperation.getSourceCode().getGridRegion();
             // TODO: expand till the last operation

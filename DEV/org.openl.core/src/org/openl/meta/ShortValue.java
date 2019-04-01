@@ -98,9 +98,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.ShortValue[] { value });
+            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -292,9 +290,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
         if (number != null && divisor != null) {
             org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.ShortValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.ShortValue[] { number, divisor });
+            return new org.openl.meta.ShortValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -340,10 +336,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(
-            new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.ShortValue[] { value1, value2 });
+        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -360,7 +354,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
         // evaluate result
         org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.ShortValue(result, NumberOperations.ABS, new org.openl.meta.ShortValue[] { value });
+        return new org.openl.meta.ShortValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -622,7 +616,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
     }
 
     /** Function constructor **/
-    public ShortValue(ShortValue result, NumberOperations function, ShortValue[] params) {
+    public ShortValue(ShortValue result, NumberOperations function, ShortValue... params) {
         super(function, params);
         this.value = result.shortValue();
     }

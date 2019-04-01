@@ -348,7 +348,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 break;
         }
 
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
 
         for (IParameterDeclaration parameterDeclaration : params) {
 

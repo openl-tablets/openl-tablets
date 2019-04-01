@@ -295,9 +295,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
         if (number != null && divisor != null) {
             org.openl.meta.LongValue result = new org.openl.meta.LongValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.LongValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.LongValue[] { number, divisor });
+            return new org.openl.meta.LongValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -343,10 +341,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
             return value1;
         }
 
-        return new org.openl.meta.LongValue(
-            new org.openl.meta.LongValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.LongValue[] { value1, value2 });
+        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -363,7 +359,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
         // evaluate result
         org.openl.meta.LongValue result = new org.openl.meta.LongValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.LongValue(result, NumberOperations.ABS, new org.openl.meta.LongValue[] { value });
+        return new org.openl.meta.LongValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -644,7 +640,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
     }
 
     /** Function constructor **/
-    public LongValue(LongValue result, NumberOperations function, LongValue[] params) {
+    public LongValue(LongValue result, NumberOperations function, LongValue... params) {
         super(function, params);
         this.value = result.longValue();
     }

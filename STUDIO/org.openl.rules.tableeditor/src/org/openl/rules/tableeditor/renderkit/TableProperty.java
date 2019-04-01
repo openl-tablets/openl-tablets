@@ -185,7 +185,7 @@ public class TableProperty {
     }
 
     public List<SelectItem> getEnumArrayItems() {
-        List<SelectItem> items = new ArrayList<SelectItem>();
+        List<SelectItem> items = new ArrayList<>();
         String[] values = null;
         String[] displayValues = null;
 

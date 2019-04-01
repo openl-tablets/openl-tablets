@@ -289,7 +289,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public IntExpArray merge(IntExpArray array) {
         int i;
-        List<IntExp> new_data = new ArrayList<IntExp>(_data.length + array._data.length);
+        List<IntExp> new_data = new ArrayList<>(_data.length + array._data.length);
 
         for (i = 0; i < _data.length; i++) {
             new_data.add(_data[i]);
@@ -372,7 +372,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             return new IntExpArray(constrainer(), 0);
         }
 
-        List<IntExp> sub_data = new ArrayList<IntExp>(max_index - min_index + 1);
+        List<IntExp> sub_data = new ArrayList<>(max_index - min_index + 1);
 
         for (int i = min_index; i <= max_index; i++) {
             sub_data.add(_data[i]);
@@ -391,7 +391,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public IntExpArray subarrayByMask(boolean[] mask) {
         int size = Math.min(_data.length, mask.length);
 
-        List<IntExp> sub_data = new ArrayList<IntExp>();
+        List<IntExp> sub_data = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             if (mask[i]) {
                 sub_data.add(_data[i]);

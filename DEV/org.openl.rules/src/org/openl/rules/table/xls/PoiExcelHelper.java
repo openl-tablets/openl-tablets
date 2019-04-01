@@ -135,7 +135,7 @@ public final class PoiExcelHelper {
     /**
      * Evaluates formula in the cell to get new cell value.
      */
-    public static void evaluateFormula(Cell cell) throws Exception {
+    public static void evaluateFormula(Cell cell) {
         FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
         formulaEvaluator.evaluateFormulaCell(cell);
     }

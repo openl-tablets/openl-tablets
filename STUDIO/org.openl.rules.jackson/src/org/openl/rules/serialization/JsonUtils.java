@@ -48,7 +48,7 @@ public final class JsonUtils {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
-        Set<String> overideTypes = new HashSet<String>();
+        Set<String> overideTypes = new HashSet<>();
         for (Class<?> type : types) {
             overideTypes.add(type.getCanonicalName());
         }

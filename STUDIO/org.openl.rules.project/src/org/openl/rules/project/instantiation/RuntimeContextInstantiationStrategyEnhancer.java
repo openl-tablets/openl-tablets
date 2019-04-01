@@ -90,7 +90,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
         log.debug("Creating methods map for classes: {} <-> {}", interfaceClass, serviceClass);
 
-        Map<Method, Method> methodMap = new HashMap<Method, Method>();
+        Map<Method, Method> methodMap = new HashMap<>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
 
         for (Method serviceMethod : serviceMethods) {

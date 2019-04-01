@@ -113,9 +113,9 @@ public class ProjectDescriptorManager {
     public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
             Module module,
             String pathPattern) throws IOException {
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<>();
 
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
         check(descriptor.getProjectFolder(), files, pathPattern.trim(), descriptor.getProjectFolder());
 
         for (File file : files) {
@@ -170,7 +170,7 @@ public class ProjectDescriptorManager {
 
     private void processModulePathPatterns(ProjectDescriptor descriptor, File projectRoot) throws IOException {
         List<Module> modulesWasRead = descriptor.getModules();
-        List<Module> processedModules = new ArrayList<Module>(modulesWasRead.size());
+        List<Module> processedModules = new ArrayList<>(modulesWasRead.size());
         // Process modules without wildcard path
         for (Module module : modulesWasRead) {
             if (!isModuleWithWildcard(module) && module.getExtension() == null) {
@@ -180,7 +180,7 @@ public class ProjectDescriptorManager {
         // Process modules with wildcard path
         for (Module module : modulesWasRead) {
             if (isModuleWithWildcard(module)) {
-                List<Module> newModules = new ArrayList<Module>();
+                List<Module> newModules = new ArrayList<>();
                 List<Module> modules = getAllModulesMatchingPathPattern(descriptor,
                     module,
                     module.getRulesRootPath().getPath());
@@ -244,7 +244,7 @@ public class ProjectDescriptorManager {
         if (descriptor.getModules() == null || descriptor.getModules().isEmpty()) {
             return;
         }
-        Set<String> wildcardPathSet = new HashSet<String>();
+        Set<String> wildcardPathSet = new HashSet<>();
         Iterator<Module> itr = descriptor.getModules().iterator();
         while (itr.hasNext()) {
             Module module = itr.next();

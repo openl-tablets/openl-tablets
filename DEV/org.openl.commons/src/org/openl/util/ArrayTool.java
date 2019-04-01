@@ -55,7 +55,7 @@ public class ArrayTool {
         if (container == null || testArray == null) {
             return false;
         }
-        Iterator<T> it = new ArrayIterator<T>(testArray);
+        Iterator<T> it = new ArrayIterator<>(testArray);
         while (it.hasNext()) {
             if (!contains(container, it.next())) {
                 return false;

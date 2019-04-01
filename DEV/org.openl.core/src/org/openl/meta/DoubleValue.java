@@ -216,9 +216,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.DoubleValue[] { value });
+            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -357,10 +355,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.DoubleValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -368,7 +364,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         }
 
         if (value2.doubleValue() == 0) {
-
             // FIXME: temporary commented the throwing exception
             // Is needed for the one of the commercial products, pls contact Denis Levchuk
             //
@@ -409,9 +404,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         if (number != null && divisor != null) {
             org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.DoubleValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.DoubleValue[] { number, divisor });
+            return new org.openl.meta.DoubleValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -457,10 +450,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return value1;
         }
 
-        return new org.openl.meta.DoubleValue(
-            new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.DoubleValue[] { value1, value2 });
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -477,7 +468,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         // evaluate result
         org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.DoubleValue(result, NumberOperations.ABS, new org.openl.meta.DoubleValue[] { value });
+        return new org.openl.meta.DoubleValue(result, NumberOperations.ABS, value);
     }
 
     /**

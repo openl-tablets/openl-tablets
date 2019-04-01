@@ -48,11 +48,11 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    public static Object newInstance(Class<?> cc, String uri) throws OpenConfigurationException {
+    public static Object newInstance(Class<?> cc, String uri) {
         try {
             return cc.newInstance();
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Can't create a new " + cc.getName(), uri, t);
+            throw new OpenLConfigurationException("Can't create a new " + cc.getName(), uri, t);
         }
     }
 
@@ -60,7 +60,7 @@ public class ClassFactory extends AConfigurationElement {
         try {
             return cxt.getClassLoader().loadClass(classname).newInstance();
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Can't create a new " + classname, uri, t);
+            throw new OpenLConfigurationException("Can't create a new " + classname, uri, t);
         }
     }
 
@@ -69,11 +69,11 @@ public class ClassFactory extends AConfigurationElement {
         try {
             c = cl.loadClass(className);
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Can't load class: " + className, uri, t);
+            throw new OpenLConfigurationException("Can't load class: " + className, uri, t);
         }
 
         if (!Modifier.isPublic(c.getModifiers())) {
-            throw new OpenConfigurationException(c.getName() + " must be public ", uri, null);
+            throw new OpenLConfigurationException(c.getName() + " must be public ", uri, null);
         }
 
         return c;
@@ -87,14 +87,14 @@ public class ClassFactory extends AConfigurationElement {
 
         } catch (Throwable t) {
             String methodString = MethodUtil.printMethod("", params);
-            throw new OpenConfigurationException(
+            throw new OpenLConfigurationException(
                 "Class " + clazz.getName() + " does not have a constructor " + methodString,
                 uri,
                 t);
         }
 
         if (!Modifier.isPublic(c.getModifiers())) {
-            throw new OpenConfigurationException(
+            throw new OpenLConfigurationException(
                 "Constructor " + clazz.getName() + MethodUtil.printMethod("", params) + " must be public ",
                 uri,
                 null);
@@ -108,42 +108,41 @@ public class ClassFactory extends AConfigurationElement {
             m = clazz.getMethod(methodName, params);
         } catch (Throwable t) {
             String methodString = MethodUtil.printMethod(methodName, params);
-            throw new OpenConfigurationException("Class " + clazz.getName() + " does not have a method " + methodString,
+            throw new OpenLConfigurationException(
+                "Class " + clazz.getName() + " does not have a method " + methodString,
                 uri,
                 t);
         }
 
         if (!Modifier.isPublic(m.getModifiers())) {
-            throw new OpenConfigurationException(methodName + " must be public ", uri, null);
+            throw new OpenLConfigurationException(methodName + " must be public ", uri, null);
         }
         return m;
     }
 
-    public static void validateHaveNewInstance(Class<?> clazz, String uri) throws OpenConfigurationException {
+    public static void validateHaveNewInstance(Class<?> clazz, String uri) {
         if (Modifier.isAbstract(clazz.getModifiers())) {
-            throw new OpenConfigurationException(clazz.getName() + " must not be abstract ", uri, null);
+            throw new OpenLConfigurationException(clazz.getName() + " must not be abstract ", uri, null);
         }
 
         try {
             Constructor<?> constr = clazz.getConstructor(NO_PARAMS);
             if (!Modifier.isPublic(constr.getModifiers())) {
-                throw new OpenConfigurationException("Default constructor of " + clazz.getName() + " must be public",
+                throw new OpenLConfigurationException("Default constructor of " + clazz.getName() + " must be public",
                     uri,
                     null);
             }
-        } catch (OpenConfigurationException ex) {
+        } catch (OpenLConfigurationException ex) {
             throw ex;
         } catch (Throwable t) {
-            throw new OpenConfigurationException(clazz.getName() + " must have a default constructor", uri, null);
+            throw new OpenLConfigurationException(clazz.getName() + " must have a default constructor", uri, null);
         }
     }
 
-    public static void validateSuper(Class<?> clazz,
-            Class<?> superClazz,
-            String uri) throws OpenConfigurationException {
+    public static void validateSuper(Class<?> clazz, Class<?> superClazz, String uri) {
         if (!superClazz.isAssignableFrom(clazz)) {
             String verb = superClazz.isInterface() ? "implement" : "extend";
-            throw new OpenConfigurationException(clazz.getName() + " does not " + verb + " " + superClazz.getName(),
+            throw new OpenLConfigurationException(clazz.getName() + " does not " + verb + " " + superClazz.getName(),
                 uri,
                 null);
         }
@@ -164,7 +163,7 @@ public class ClassFactory extends AConfigurationElement {
         return extendsClassName;
     }
 
-    public synchronized Object getResource(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public synchronized Object getResource(IConfigurableResourceContext cxt) {
         if (isSingleton()) {
             if (cachedObject == null) {
                 cachedObject = getResourceInternal(cxt);
@@ -180,11 +179,11 @@ public class ClassFactory extends AConfigurationElement {
      *
      * @see org.openl.newconf.IConfigurationElement#getResource(org.openl.newconf.IConfigurationContext)
      */
-    protected Object getResourceInternal(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    protected Object getResourceInternal(IConfigurableResourceContext cxt) {
         try {
             return cxt.getClassLoader().loadClass(className).newInstance();
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Error creating " + className, getUri(), t);
+            throw new OpenLConfigurationException("Error creating " + className, getUri(), t);
         }
     }
 
@@ -222,7 +221,7 @@ public class ClassFactory extends AConfigurationElement {
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
     @Override
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         Class<?> c = validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 
         if (getExtendsClassName() != null) {

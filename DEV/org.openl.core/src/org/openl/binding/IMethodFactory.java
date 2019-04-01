@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -14,9 +15,9 @@ import org.openl.types.IOpenMethod;
  */
 public interface IMethodFactory {
 
-    IOpenMethod getMethod(String name, IOpenClass[] params);
+    IOpenMethod getMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
 
-    IOpenMethod getConstructor(IOpenClass[] params);
+    IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException;
 
     Iterable<IOpenMethod> methods(String name);
 

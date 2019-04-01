@@ -47,7 +47,7 @@ public class ZipWalker {
 
     }
 
-    private ZipInputStream getZipInputStream() throws FileNotFoundException {
+    private ZipInputStream getZipInputStream() {
         return new ZipInputStream(uploadedFile.getInput(), charset);
     }
 

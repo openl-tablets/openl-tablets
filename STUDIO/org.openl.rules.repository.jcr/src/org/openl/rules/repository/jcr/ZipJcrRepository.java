@@ -383,8 +383,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return new CommonUserImpl("system");
     }
 
-    private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException,
-                                                                      FileNotFoundException {
+    private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException {
         FolderAPI project;
         try {
             Node root = session.getRootNode();

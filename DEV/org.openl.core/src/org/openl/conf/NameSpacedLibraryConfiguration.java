@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -27,7 +28,9 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         factories.add(factory);
     }
 
-    public IOpenField getField(String name, IConfigurableResourceContext cxt, boolean strictMatch) {
+    public IOpenField getField(String name,
+            IConfigurableResourceContext cxt,
+            boolean strictMatch) throws AmbiguousVarException {
         for (IMethodFactoryConfigurationElement factory : factories) {
             IOpenField field = factory.getLibrary(cxt).getVar(name, strictMatch);
             if (field != null) {
@@ -38,7 +41,6 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
     }
 
     public IOpenMethod[] getMethods(String name, IConfigurableResourceContext cxt) {
-
         List<IOpenMethod> methods = new LinkedList<>();
         for (IMethodFactoryConfigurationElement factory : factories) {
             Iterable<IOpenMethod> itr = factory.getLibrary(cxt).methods(name);

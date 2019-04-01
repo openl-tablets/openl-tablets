@@ -62,7 +62,7 @@ public final class DatatypesSorter {
 
         DependentTypesExtractor dependeciesExtractor = new DependentTypesExtractor();
         Set<String> dependencies = dependeciesExtractor.extract(datatype, bindingContext);
-        TopoGraphNode<TableSyntaxNode> forSort = new TopoGraphNode<TableSyntaxNode>(datatype);
+        TopoGraphNode<TableSyntaxNode> forSort = new TopoGraphNode<>(datatype);
         if (dependencies.isEmpty()) {
             return forSort;
         } else {

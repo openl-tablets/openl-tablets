@@ -69,7 +69,7 @@ public class OpenLProjectPropertiesLoader {
     }
 
     public static String[] makeClasspath(String phome, String longPath, String excludeFilter) throws IOException {
-        List<String> v = new ArrayList<String>();
+        List<String> v = new ArrayList<>();
         String[] ecps = StringTool.tokenize(longPath, File.pathSeparator);
         for (int i = 0; i < ecps.length; i++) {
             if (excludeFilter != null && ecps[i].matches(excludeFilter)) {

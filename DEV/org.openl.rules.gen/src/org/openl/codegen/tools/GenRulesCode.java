@@ -96,7 +96,7 @@ public class GenRulesCode {
 
     private void generateDefaultTableProperties() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
@@ -106,7 +106,7 @@ public class GenRulesCode {
 
     private void generateITablePropertiesCode() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 

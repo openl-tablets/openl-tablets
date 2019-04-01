@@ -16,7 +16,7 @@ import org.springframework.core.env.PropertySource;
  */
 class CompositePropertySource extends EnumerablePropertySource<Object> {
 
-    private final LinkedList<PropertySource<?>> propertySources = new LinkedList<PropertySource<?>>();
+    private final LinkedList<PropertySource<?>> propertySources = new LinkedList<>();
 
     CompositePropertySource(String name) {
         super(name, new Object());

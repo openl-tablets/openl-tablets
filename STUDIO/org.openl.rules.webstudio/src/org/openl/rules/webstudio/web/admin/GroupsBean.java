@@ -136,7 +136,7 @@ public class GroupsBean {
     }
 
     public List<String> getNonGroupPrivileges(Group group) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (group == null) {
             return result;
         }

@@ -42,7 +42,7 @@ public class RmiEnhancerHelper {
             if (methodMap.containsKey(method.getName())) {
                 methods = methodMap.get(method.getName());
             } else {
-                methods = new ArrayList<Method>();
+                methods = new ArrayList<>();
                 methodMap.put(method.getName(), methods);
             }
             methods.add(method);

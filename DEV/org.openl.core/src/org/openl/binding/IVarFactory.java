@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.types.IOpenField;
 
 /**
@@ -14,6 +15,6 @@ import org.openl.types.IOpenField;
 
 public interface IVarFactory {
 
-    IOpenField getVar(String name, boolean strictMatch);
+    IOpenField getVar(String name, boolean strictMatch) throws AmbiguousVarException;
 
 }

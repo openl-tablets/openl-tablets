@@ -41,8 +41,8 @@ public class VariationsResult<T> {
     private Map<String, String> variationFailures;
 
     public VariationsResult() {
-        variationResults = new LinkedHashMap<String, T>();
-        variationFailures = new LinkedHashMap<String, String>();
+        variationResults = new LinkedHashMap<>();
+        variationFailures = new LinkedHashMap<>();
     }
 
     /**

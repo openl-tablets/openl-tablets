@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.logging;
 
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -26,7 +27,7 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
     }
 
     @Override
-    public void handleMessage(Message message) {
+    public void handleMessage(Message message) throws Fault {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         ruleServiceLogging.setObjectSerializer(objectSerializer);
     }

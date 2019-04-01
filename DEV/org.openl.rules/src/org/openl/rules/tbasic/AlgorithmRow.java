@@ -20,7 +20,7 @@ public class AlgorithmRow {
     private IGridRegion gridRegion;
 
     // capacity by number of values
-    private Map<String, IGridRegion> valueGridRegions = new HashMap<String, IGridRegion>(7);
+    private Map<String, IGridRegion> valueGridRegions = new HashMap<>(7);
 
     public StringValue getAction() {
         if (action == null) {

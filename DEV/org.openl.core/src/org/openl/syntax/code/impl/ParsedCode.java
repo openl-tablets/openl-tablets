@@ -33,7 +33,7 @@ public class ParsedCode implements IParsedCode {
     private Map<String, Object> params;
     private IDependency[] dependencies;
 
-    private Set<CompiledDependency> compiledDependencies = new HashSet<CompiledDependency>();
+    private Set<CompiledDependency> compiledDependencies = new HashSet<>();
 
     public ParsedCode(ISyntaxNode topnode,
             IOpenSourceCodeModule source,

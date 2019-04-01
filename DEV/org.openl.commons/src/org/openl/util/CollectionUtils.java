@@ -119,7 +119,7 @@ public class CollectionUtils {
             throw new NullPointerException("The 'mapper' argument is NULL");
         }
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
-        ArrayList<O> result = new ArrayList<O>(size);
+        ArrayList<O> result = new ArrayList<>(size);
         for (I input : col) {
             O output = mapper.map(input);
             result.add(output);
@@ -171,7 +171,7 @@ public class CollectionUtils {
             throw new NullPointerException("The 'predicate' argument is NULL");
         }
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
-        ArrayList<T> result = new ArrayList<T>(size);
+        ArrayList<T> result = new ArrayList<>(size);
         for (final T item : col) {
             if (predicate.evaluate(item)) {
                 result.add(item);

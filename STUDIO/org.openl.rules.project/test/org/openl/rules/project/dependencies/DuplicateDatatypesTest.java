@@ -26,7 +26,7 @@ public class DuplicateDatatypesTest {
         assertTrue("Should be an error message, as there is datatype duplication", compiledOpenClass.hasErrors());
         boolean found = false;
         for (OpenLMessage message : compiledOpenClass.getMessages()) {
-            if (message.isError() && "The type TestType2 has been already defined.".equals(message.getSummary())) {
+            if (message.isError() && "Type 'TestType2' has already been defined.".equals(message.getSummary())) {
                 found = true;
             }
         }

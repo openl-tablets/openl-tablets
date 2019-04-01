@@ -15,7 +15,7 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
 import org.openl.binding.impl.IntNodeBinder;
 import org.openl.binding.impl.LiteralBoundNode;
-import org.openl.conf.OpenConfigurationException;
+import org.openl.conf.OpenLConfigurationException;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -60,7 +60,7 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testLiteral(String src, String res, final String type) throws OpenConfigurationException {
+    public void _testLiteral(String src, String res, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
@@ -71,7 +71,7 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, ln.getType());
     }
 
-    public void _testMethodHeader(String src, String res, String type) throws OpenConfigurationException {
+    public void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
@@ -84,7 +84,7 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testModule(String src, final String type) throws OpenConfigurationException {
+    public void _testModule(String src, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
@@ -102,7 +102,7 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenConfigurationException {
+    public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
@@ -126,7 +126,7 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testType(String src, final String type) throws OpenConfigurationException {
+    public void _testType(String src, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
@@ -175,28 +175,28 @@ public class ParserTest extends TestCase {
         _testType("x.y", "chain");
     }
 
-    public void testFunc() throws OpenConfigurationException {
+    public void testFunc() throws OpenLConfigurationException {
         _testType("sin(5, 10)", "function");
     }
 
-    public void testErr1() throws OpenConfigurationException {
+    public void testErr1() throws OpenLConfigurationException {
 
         _testErrorMsg("sin(5, 10", "Need to close '('");
     }
 
-    public void testErr2() throws OpenConfigurationException {
+    public void testErr2() throws OpenLConfigurationException {
         _testErrorMsg("\"abc", "Lexical error at line");
     }
 
-    public void testErr3() throws OpenConfigurationException {
+    public void testErr3() throws OpenLConfigurationException {
         _testErrorMsg("x=y{y=z}", "Encountered");
     }
 
-    public void testErr4() throws OpenConfigurationException {
+    public void testErr4() throws OpenLConfigurationException {
         _testErrorMsg("return u", "Encountered");
     }
 
-    public void testErr5() throws OpenConfigurationException {
+    public void testErr5() throws OpenLConfigurationException {
         _testErrorMsg("\"ab\\zc\"", "Lexical error at line");
     }
 
@@ -204,7 +204,7 @@ public class ParserTest extends TestCase {
         _testType("if (x) a();", "control.if");
     }
 
-    public void testLiteral() throws OpenConfigurationException {
+    public void testLiteral() throws OpenLConfigurationException {
         // we should remove suffix the next line produces NumberFormatException
         // Assert.assertEquals(new Long(5), Long.decode("5L"));
 
@@ -220,11 +220,11 @@ public class ParserTest extends TestCase {
 
     }
 
-    public void testRange() throws OpenConfigurationException {
+    public void testRange() throws OpenLConfigurationException {
         _testType("$Step1:$Step7", "range.variable");
     }
 
-    public void testLocation() throws OpenConfigurationException {
+    public void testLocation() throws OpenLConfigurationException {
         String test1 = "\tx";
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
@@ -241,7 +241,7 @@ public class ParserTest extends TestCase {
         _testMethodHeader("int x(a a1, b b1)", null, "method.header");
     }
 
-    public void testOperator() throws OpenConfigurationException {
+    public void testOperator() throws OpenLConfigurationException {
         BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
         Assert.assertNotNull(binaryNode);
 

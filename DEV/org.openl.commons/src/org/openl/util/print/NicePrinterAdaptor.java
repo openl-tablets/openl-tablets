@@ -66,7 +66,7 @@ public class NicePrinterAdaptor {
             String.class,
             Date.class };
 
-    public static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<Object, Object>();
+    public static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
 
     public static boolean isPrimitiveClass(Class<?> c) {
 

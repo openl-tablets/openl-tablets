@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.conf.OpenConfigurationException;
+import org.openl.conf.OpenLConfigurationException;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -44,7 +44,7 @@ public class BinderTest extends TestCase {
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
 
-    public void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenConfigurationException {
+    public void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(parser);
 
@@ -77,7 +77,7 @@ public class BinderTest extends TestCase {
 
     public void _testNoErrorModule(String testCode,
             Class<?> targetClass,
-            String parser) throws OpenConfigurationException {
+            String parser) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(parser);
 
@@ -108,7 +108,7 @@ public class BinderTest extends TestCase {
         Assert.assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
     }
 
-    public void testBind() throws OpenConfigurationException {
+    public void testBind() throws OpenLConfigurationException {
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
         _testNoErrorModule("int foo(int x){return x+y+5;} int y= 3;", DynamicObject.class, OpenL.OPENL_J_NAME);
 

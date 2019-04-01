@@ -13,6 +13,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -57,10 +60,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
 
         if (opfc.getName() == null) {
-            throw new OpenConfigurationException("The factory must have a name", opfc.getUri(), null);
+            throw new OpenLConfigurationException("The factory must have a name", opfc.getUri(), null);
         }
         if (openFactories.containsKey(opfc.getName())) {
-            throw new OpenConfigurationException("Duplicated name: " + opfc.getName(), opfc.getUri(), null);
+            throw new OpenLConfigurationException("Duplicated name: " + opfc.getName(), opfc.getUri(), null);
         }
 
         openFactories.put(opfc.getName(), opfc);
@@ -163,7 +166,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts) {
+    public IMethodCaller getMethodCaller(String namespace,
+            String name,
+            IOpenClass[] params,
+            ICastFactory casts) throws AmbiguousMethodException {
 
         IOpenMethod[] mcs = getMethods(namespace, name);
 
@@ -228,7 +234,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
     @Override
-    public IOpenClass getType(String namespace, String name) {
+    public IOpenClass getType(String namespace, String name) throws AmbiguousTypeException {
         Map<String, IOpenClass> namespaceCache = cache.computeIfAbsent(namespace, e -> new HashMap<>());
         if (namespaceCache.containsKey(name)) {
             return namespaceCache.get(name);
@@ -264,7 +270,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IOpenField getVar(String namespace, String name, boolean strictMatch) {
+    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
         IOpenField field = methodFactory == null ? null
                                                  : methodFactory
                                                      .getVar(namespace, name, configurationContext, strictMatch);
@@ -306,17 +312,17 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         uri = string;
     }
 
-    public synchronized void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public synchronized void validate(IConfigurableResourceContext cxt) {
         if (grammarFactory != null) {
             grammarFactory.validate(cxt);
         } else if (parent == null) {
-            throw new OpenConfigurationException("Grammar class is not set", getUri(), null);
+            throw new OpenLConfigurationException("Grammar class is not set", getUri(), null);
         }
 
         if (binderFactory != null) {
             binderFactory.validate(cxt);
         } else if (parent == null) {
-            throw new OpenConfigurationException("Bindings are not set", getUri(), null);
+            throw new OpenLConfigurationException("Bindings are not set", getUri(), null);
         }
 
         if (methodFactory != null) {

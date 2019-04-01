@@ -21,7 +21,7 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
     static final Map<String, JavaOpenClass> classMap;
 
     static {
-        classMap = new HashMap<String, JavaOpenClass>();
+        classMap = new HashMap<>();
         classMap.put("int", JavaOpenClass.INT);
         classMap.put("long", JavaOpenClass.LONG);
         classMap.put("char", JavaOpenClass.CHAR);

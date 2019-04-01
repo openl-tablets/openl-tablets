@@ -169,9 +169,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.FloatValue[] { value });
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -309,10 +307,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.FloatValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.FloatValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -356,9 +352,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         if (number != null && divisor != null) {
             org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.FloatValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.FloatValue[] { number, divisor });
+            return new org.openl.meta.FloatValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -404,10 +398,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(
-            new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.FloatValue[] { value1, value2 });
+        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -424,7 +416,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         // evaluate result
         org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.FloatValue(result, NumberOperations.ABS, new org.openl.meta.FloatValue[] { value });
+        return new org.openl.meta.FloatValue(result, NumberOperations.ABS, value);
     }
 
     /**

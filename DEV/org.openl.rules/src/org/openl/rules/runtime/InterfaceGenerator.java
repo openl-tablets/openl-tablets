@@ -83,9 +83,9 @@ public class InterfaceGenerator {
             return generateInterface(className, EMPTY_RULES, classLoader);
         }
 
-        List<RuleInfo> rules = new ArrayList<RuleInfo>();
+        List<RuleInfo> rules = new ArrayList<>();
 
-        Set<MethodKey> methodsInClass = new HashSet<MethodKey>();
+        Set<MethodKey> methodsInClass = new HashSet<>();
 
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {

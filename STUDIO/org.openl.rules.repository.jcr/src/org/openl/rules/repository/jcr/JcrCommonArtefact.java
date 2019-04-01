@@ -76,7 +76,7 @@ public class JcrCommonArtefact {
         try {
             VersionHistory vh = node().getVersionHistory();
             VersionIterator vi = vh.getAllVersions();
-            LinkedList<RVersion> result = new LinkedList<RVersion>();
+            LinkedList<RVersion> result = new LinkedList<>();
             while (vi.hasNext()) {
                 Version v = vi.nextVersion();
 

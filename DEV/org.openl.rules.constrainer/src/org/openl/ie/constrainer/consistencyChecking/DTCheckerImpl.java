@@ -116,9 +116,9 @@ public class DTCheckerImpl implements DTChecker {
 
     private OverlappingChecker _opChecker; // = new OverlappingCheckerImpl();
 
-    private List<Uncovered> _uncoveredRegions = new ArrayList<Uncovered>();
+    private List<Uncovered> _uncoveredRegions = new ArrayList<>();
 
-    private List<Overlapping> _overlappingRules = new ArrayList<Overlapping>();
+    private List<Overlapping> _overlappingRules = new ArrayList<>();
 
     public DTCheckerImpl(CDecisionTable dtable) {
         _dt = dtable;

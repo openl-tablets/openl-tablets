@@ -2,19 +2,19 @@ package org.openl.binding.exception;
 
 import org.openl.exception.OpenlNotCheckedException;
 
-public class DuplicatedFieldException extends OpenlNotCheckedException {
+public class DuplicatedTypeException extends OpenlNotCheckedException {
 
-    private static final long serialVersionUID = 2754037692502108330L;
+    private static final long serialVersionUID = 1L;
 
-    private String fieldName;
+    private String type;
 
-    public DuplicatedFieldException(String msg, String fieldName) {
+    public DuplicatedTypeException(String msg, String type) {
         super(msg);
-        this.fieldName = fieldName;
+        this.type = type;
     }
 
     public String getFieldName() {
-        return fieldName;
+        return type;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class DuplicatedFieldException extends OpenlNotCheckedException {
             buf.append(super.getMessage());
         }
 
-        buf.append(String.format("Field '%s' has already been defined.", fieldName));
+        buf.append(String.format("Type '%s' has already been defined.", type));
         return buf.toString();
     }
 

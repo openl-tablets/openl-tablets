@@ -6,6 +6,7 @@
 
 package org.openl.conf;
 
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 import org.openl.util.CategorizedMap;
 
@@ -21,7 +22,9 @@ public class TypeFactoryConfiguration extends AConfigurationElement implements I
         map.put(library.getNamespace(), library);
     }
 
-    public IOpenClass getType(String namespace, String name, IConfigurableResourceContext cxt) {
+    public IOpenClass getType(String namespace,
+            String name,
+            IConfigurableResourceContext cxt) throws AmbiguousTypeException {
         NameSpacedTypeConfiguration lib = (NameSpacedTypeConfiguration) map.get(namespace);
         return lib == null ? null : lib.getType(name, cxt);
     }

@@ -709,15 +709,13 @@ public class CastFactory implements ICastFactory {
                 }
             }
 
-            if (castCaller == null) {
-                if (primitiveClassFrom != null && primitiveClassTo != null) {
-                    IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                    IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    fromOpenClass = wrapperOpenClassFrom;
-                    toOpenClass = wrapperOpenClassTo;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
-                }
+            if (castCaller == null && primitiveClassFrom != null && primitiveClassTo != null) {
+                IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                fromOpenClass = wrapperOpenClassFrom;
+                toOpenClass = wrapperOpenClassTo;
+                castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
+                    new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
             }
         } catch (AmbiguousMethodException ex) {
             // Ignore exception.

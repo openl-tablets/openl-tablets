@@ -121,7 +121,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             CompositeMethod compositeMethod);
 
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
-        Set<String> headerTokens = new HashSet<String>();
+        Set<String> headerTokens = new HashSet<>();
         int[] headerIndexes = new int[4];
         int j = 0;
         int k = 0;

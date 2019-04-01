@@ -60,7 +60,7 @@ public class SpreadsheetComponentsBuilder {
 
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
-    private BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<String, SpreadsheetHeaderDefinition>();
+    private BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<>();
 
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
         this.tableSyntaxNode = tableSyntaxNode;

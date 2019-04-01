@@ -27,7 +27,7 @@ public class RepositorySettingsValidators {
         }
     }
 
-    protected void validateNotBlank(String value, String field) throws ValidatorException {
+    protected void validateNotBlank(String value, String field) {
         FacesUtils.validate(StringUtils.isNotBlank(value), field + " can not be empty");
     }
 }

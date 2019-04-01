@@ -71,7 +71,7 @@ public class NoAntOpenLTask {
 
         try {
             if (category == null) {
-                throw new OpenConfigurationException("The category must be set", null, null);
+                throw new OpenLConfigurationException("The category must be set", null, null);
             }
             IOpenLConfiguration existing;
             if ((existing = ucxt.getOpenLConfiguration(category)) != null) {
@@ -82,7 +82,7 @@ public class NoAntOpenLTask {
             IOpenLConfiguration extendsConfiguration = null;
             if (extendsCategory != null) {
                 if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
-                    throw new OpenConfigurationException(
+                    throw new OpenLConfigurationException(
                         "The extended category " + extendsCategory + " must have been loaded first",
                         null,
                         null);

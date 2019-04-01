@@ -8,7 +8,7 @@ package org.openl;
 
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IUserContext;
-import org.openl.conf.OpenConfigurationException;
+import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 
@@ -65,7 +65,7 @@ public class OpenL {
      * 
      * @param name OpenL name
      * @return instance of OpenL
-     * @throws OpenConfigurationException
+     * @throws OpenLConfigurationException
      */
     // TODO: Do not use this method! Should be removed!
     public static synchronized OpenL getInstance(String name) {
@@ -82,7 +82,7 @@ public class OpenL {
      * @param name IOpenL name, for example org.openl.java12.v101
      * @param userContext user context
      * @return instance of IOpenL
-     * @throws OpenConfigurationException
+     * @throws OpenLConfigurationException
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext) {
         IOpenLBuilder builder = config.getBuilder(name, userContext);
@@ -98,7 +98,7 @@ public class OpenL {
      * @param userContext user context
      * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that doesn't exist
      * @return instance of IOpenL
-     * @throws OpenConfigurationException
+     * @throws OpenLConfigurationException
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
         OpenL openl = userContext.getOpenL(name);

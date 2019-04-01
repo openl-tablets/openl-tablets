@@ -41,7 +41,7 @@ public class Constraints {
     }
 
     public List<Constraint> getAll() {
-        return new ArrayList<Constraint>(constraints);
+        return new ArrayList<>(constraints);
     }
 
     public void addAll(String constraintsStr) {

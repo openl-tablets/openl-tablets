@@ -14,7 +14,7 @@ public class RecentlyVisitedTables {
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
-    public Deque<VisitedTableWrapper> tables = new LinkedList<VisitedTableWrapper>();
+    public Deque<VisitedTableWrapper> tables = new LinkedList<>();
 
     private final Object lock = new Object();
 
@@ -55,7 +55,7 @@ public class RecentlyVisitedTables {
         synchronized (lock) {
             checkTableAvailability();
 
-            tablesCopy = new LinkedList<VisitedTableWrapper>(tables);
+            tablesCopy = new LinkedList<>(tables);
         }
         return tablesCopy;
     }
@@ -75,7 +75,7 @@ public class RecentlyVisitedTables {
     }
 
     private void checkTableAvailability() {
-        List<VisitedTableWrapper> tableForRemove = new ArrayList<VisitedTableWrapper>();
+        List<VisitedTableWrapper> tableForRemove = new ArrayList<>();
 
         for (VisitedTableWrapper table : tables) {
             WebStudio studio = WebStudioUtils.getWebStudio();

@@ -66,7 +66,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         @Override
         public IOpenIterator<T> reverse() {
-            ArrayIterator<T> it = new ArrayIterator<T>(ary, from, to, step);
+            ArrayIterator<T> it = new ArrayIterator<>(ary, from, to, step);
             it.reverseIndexes();
             return it;
         }

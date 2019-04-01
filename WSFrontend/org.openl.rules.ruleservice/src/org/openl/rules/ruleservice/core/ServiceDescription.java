@@ -226,10 +226,10 @@ public final class ServiceDescription {
         private Map<String, Object> configuration;
         private Collection<Module> modules;
         private DeploymentDescription deployment;
-        private Set<String> publishers = new HashSet<String>();
+        private Set<String> publishers = new HashSet<>();
 
         public void setPublishers(String[] publishers) {
-            this.publishers = new HashSet<String>();
+            this.publishers = new HashSet<>();
             if (publishers != null) {
                 for (String publisher : publishers) {
                     this.publishers.add(publisher);
@@ -242,7 +242,7 @@ public final class ServiceDescription {
                 throw new IllegalArgumentException("key argument must not be null.");
             }
             if (this.publishers == null) {
-                this.publishers = new HashSet<String>();
+                this.publishers = new HashSet<>();
             }
             this.publishers.add(key.toUpperCase());
         }
@@ -290,9 +290,9 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                this.modules = new HashSet<Module>(0);
+                this.modules = new HashSet<>(0);
             } else {
-                this.modules = new HashSet<Module>(modules);
+                this.modules = new HashSet<>(modules);
             }
             return this;
         }
@@ -305,7 +305,7 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder addModules(Collection<Module> modules) {
             if (this.modules == null) {
-                this.modules = new HashSet<Module>(modules);
+                this.modules = new HashSet<>(modules);
             } else {
                 this.modules.addAll(modules);
             }
@@ -320,7 +320,7 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new HashSet<Module>(0);
+                this.modules = new HashSet<>(0);
             }
             if (module != null) {
                 this.modules.add(module);
@@ -379,7 +379,7 @@ public final class ServiceDescription {
 
         public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
             if (this.configuration == null) {
-                this.configuration = new HashMap<String, Object>();
+                this.configuration = new HashMap<>();
             }
             this.configuration.put(key, value);
             return this;

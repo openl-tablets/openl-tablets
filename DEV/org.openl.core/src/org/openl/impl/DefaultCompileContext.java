@@ -16,7 +16,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * Set of validators that will be used in validation process.
      */
-    private Set<IOpenLValidator> validators = new CopyOnWriteArraySet<IOpenLValidator>();
+    private Set<IOpenLValidator> validators = new CopyOnWriteArraySet<>();
 
     /**
      * {@inheritDoc}
@@ -50,7 +50,7 @@ public class DefaultCompileContext implements ICompileContext {
      */
     @Override
     public void removeValidators() {
-        validators = new CopyOnWriteArraySet<IOpenLValidator>();
+        validators = new CopyOnWriteArraySet<>();
     }
 
     /**

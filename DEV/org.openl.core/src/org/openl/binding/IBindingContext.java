@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -35,9 +40,9 @@ public interface IBindingContext extends ICastFactory {
      * @param type type
      * @throws Exception if an error has occurred
      */
-    void addType(String namespace, IOpenClass type) throws Exception;
+    void addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
 
-    ILocalVar addVar(String namespace, String name, IOpenClass type);
+    ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 
     INodeBinder findBinder(ISyntaxNode node);
 
@@ -50,16 +55,18 @@ public interface IBindingContext extends ICastFactory {
      * @param strictMatch
      * @return
      */
-    IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch);
+    IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) throws AmbiguousVarException;
 
-    IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes);
+    IMethodCaller findMethodCaller(String namespace,
+            String name,
+            IOpenClass[] parTypes) throws AmbiguousMethodException;
 
-    IOpenClass findType(String namespace, String typeName);
+    IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException;
 
     /**
      * @see {@link IOpenClass#getField(String, boolean)}
      */
-    IOpenField findVar(String namespace, String vname, boolean strictMatch);
+    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
 
     /**
      * @return reference to the variable holding a range object. The specifics of the range object is that it is defined

@@ -72,7 +72,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private boolean dispatchingValidationEnabled;
 
-    private Collection<String> imports = new HashSet<String>();
+    private Collection<String> imports = new HashSet<>();
 
     private ClassLoader classLoader;
 

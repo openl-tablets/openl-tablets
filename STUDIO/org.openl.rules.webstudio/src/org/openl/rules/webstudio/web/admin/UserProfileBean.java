@@ -90,7 +90,7 @@ public class UserProfileBean extends UsersBean {
      * @return Collection of user's privileges
      */
     private Collection<Privilege> getPriveleges() {
-        Collection<Privilege> privileges = new ArrayList<Privilege>();
+        Collection<Privilege> privileges = new ArrayList<>();
 
         for (GrantedAuthority auth : user.getAuthorities()) {
             Privilege group = groupManagementService.getGroupByName(auth.getAuthority());

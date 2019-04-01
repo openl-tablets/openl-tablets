@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
 
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
@@ -24,7 +25,7 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
     }
 
     @Override
-    public void handleMessage(Message message) {
+    public void handleMessage(Message message) throws Fault {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {

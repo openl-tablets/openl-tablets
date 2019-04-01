@@ -112,7 +112,7 @@ public class ProjectBean {
     }
 
     public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {
-        dependencies = new ArrayList<ListItem<ProjectDependencyDescriptor>>();
+        dependencies = new ArrayList<>();
 
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
 
@@ -488,7 +488,7 @@ public class ProjectBean {
     public void editSources() {
         tryLockProject();
 
-        List<PathEntry> sourceList = new ArrayList<PathEntry>();
+        List<PathEntry> sourceList = new ArrayList<>();
         String[] sourceArray = sources.split(StringTool.NEW_LINE);
 
         if (CollectionUtils.isNotEmpty(sourceArray)) {

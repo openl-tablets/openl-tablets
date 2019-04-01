@@ -127,7 +127,7 @@ public final class XlsHelper {
         }
 
         // Collect token concatenation
-        List<String> collectParameters = new ArrayList<String>();
+        List<String> collectParameters = new ArrayList<>();
         boolean isCollect = false;
         if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
             .equals(IXlsTableNames.SMART_DECISION_TABLE) || header

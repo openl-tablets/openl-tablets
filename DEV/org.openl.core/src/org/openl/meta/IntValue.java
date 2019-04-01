@@ -98,9 +98,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.IntValue result = new org.openl.meta.IntValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.IntValue[] { value });
+            org.openl.meta.IntValue result = new org.openl.meta.IntValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -290,9 +288,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
         if (number != null && divisor != null) {
             org.openl.meta.IntValue result = new org.openl.meta.IntValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.IntValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.IntValue[] { number, divisor });
+            return new org.openl.meta.IntValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -338,10 +334,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
             return value1;
         }
 
-        return new org.openl.meta.IntValue(
-            new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.IntValue[] { value1, value2 });
+        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -358,7 +352,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
         // evaluate result
         org.openl.meta.IntValue result = new org.openl.meta.IntValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.IntValue(result, NumberOperations.ABS, new org.openl.meta.IntValue[] { value });
+        return new org.openl.meta.IntValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -633,7 +627,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     }
 
     /** Function constructor **/
-    public IntValue(IntValue result, NumberOperations function, IntValue[] params) {
+    public IntValue(IntValue result, NumberOperations function, IntValue... params) {
         super(function, params);
         this.value = result.intValue();
     }

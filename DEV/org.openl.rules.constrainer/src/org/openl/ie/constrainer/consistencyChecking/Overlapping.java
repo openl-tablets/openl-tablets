@@ -76,7 +76,7 @@ public class Overlapping {
 
     void addRule(int num) {
         if (_overlapped == null) {
-            _overlapped = new ArrayList<Integer>();
+            _overlapped = new ArrayList<>();
         }
         _overlapped.add(num);
     }
@@ -108,7 +108,7 @@ public class Overlapping {
      *         with the according values
      */
     public Map<String, Integer> getSolution() {
-        Map<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < _solutionNames.length; i++) {
             map.put(_solutionNames[i], _solutionValues[i]);
         }

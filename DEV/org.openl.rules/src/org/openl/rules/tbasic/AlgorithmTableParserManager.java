@@ -48,7 +48,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
     private AlgorithmTableParserManager() {
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
-        RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<IAlgorithmTableParserManager>(
+        RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<>(
             sourceFile,
             IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);

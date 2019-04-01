@@ -20,9 +20,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     private static final int MAX_OVERLOADS = 50;
     private CDecisionTable _dt = null;
 
-    List<Overlapping> overlappings = new ArrayList<Overlapping>();
+    List<Overlapping> overlappings = new ArrayList<>();
 
-    HashSet<IntPair> checkedPairs = new HashSet<IntPair>();
+    HashSet<IntPair> checkedPairs = new HashSet<>();
 
     boolean[] removed;
     boolean[] hadBeenRemoved;
@@ -85,7 +85,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
             return;
         }
 
-        List<Overlapping> overlappingRules = new ArrayList<Overlapping>();
+        List<Overlapping> overlappingRules = new ArrayList<>();
         IntBoolExp[] rules = _dt.getRules();
         Constrainer C = rules[0].constrainer();
         int stackSize = C.getStackSize();

@@ -72,7 +72,7 @@ public class BracketMatcher {
     public static final String MISMATCHED = "Mismatched";
     public static final String UNMATCHED = "Unmatched";
 
-    Stack<BracketsStackObject> stack = new Stack<BracketMatcher.BracketsStackObject>();
+    Stack<BracketsStackObject> stack = new Stack<>();
 
     public BracketsStackObject addToken(String image, Object id) {
 
@@ -88,7 +88,7 @@ public class BracketMatcher {
         }
 
         if (b.isClosed(c)) {
-            if (stack.size() == 0) {
+            if (stack.isEmpty()) {
                 return new BracketsStackObject(b, id, UNEXPECTED);
             }
 
@@ -104,7 +104,7 @@ public class BracketMatcher {
     }
 
     public BracketsStackObject checkAtTheEnd() {
-        if (stack.size() == 0) {
+        if (stack.isEmpty()) {
             return null;
         }
 

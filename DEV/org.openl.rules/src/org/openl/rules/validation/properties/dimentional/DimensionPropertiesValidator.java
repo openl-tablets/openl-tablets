@@ -143,7 +143,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
      * @return properties for all methods in module.
      */
     private List<Map<String, Object>> getMethodProperties(List<IOpenMethod> methods) {
-        List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> properties = new ArrayList<>();
         for (IOpenMethod method : methods) {
             if (method instanceof ITablePropertiesMethod) {
                 properties.add(((ITablePropertiesMethod) method).getProperties());

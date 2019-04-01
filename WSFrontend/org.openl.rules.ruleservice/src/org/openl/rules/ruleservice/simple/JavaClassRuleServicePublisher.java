@@ -22,7 +22,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
 
     private RulesFrontend frontend = new RulesFrontendImpl();
 
-    private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
+    private Map<String, OpenLService> runningServices = new HashMap<>();
 
     public RulesFrontend getFrontend() {
         return frontend;
@@ -34,7 +34,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     @Override
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = runningServices.values();
-        return new ArrayList<OpenLService>(services);
+        return new ArrayList<>(services);
     }
 
     /**

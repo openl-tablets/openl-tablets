@@ -9,6 +9,11 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -43,12 +48,12 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
+    public void addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ILocalVar addVar(String namespace, String name, IOpenClass type) {
+    public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return delegate.addVar(namespace, name, type);
     }
 
@@ -58,22 +63,26 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) {
+    public IOpenField findFieldFor(IOpenClass type,
+            String fieldName,
+            boolean strictMatch) throws AmbiguousVarException {
         return delegate.findFieldFor(type, fieldName, strictMatch);
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
+    public IMethodCaller findMethodCaller(String namespace,
+            String name,
+            IOpenClass[] parTypes) throws AmbiguousMethodException {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 
     @Override
-    public IOpenClass findType(String namespace, String typeName) {
+    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
         return delegate.findType(namespace, typeName);
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
         return delegate.findVar(namespace, name, strictMatch);
     }
 

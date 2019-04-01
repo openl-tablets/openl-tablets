@@ -9,7 +9,7 @@ import java.util.List;
 
 public class TablePropertyDefinitionWrappers {
 
-    private List<TablePropertyDefinitionWrapper> wrappers = new ArrayList<TablePropertyDefinitionWrapper>();
+    private List<TablePropertyDefinitionWrapper> wrappers = new ArrayList<>();
 
     public TablePropertyDefinitionWrappers(TablePropertyDefinition[] definitions) {
         init(definitions);
@@ -24,12 +24,12 @@ public class TablePropertyDefinitionWrappers {
     }
 
     public List<TablePropertyDefinitionWrapper> asList() {
-        return new ArrayList<TablePropertyDefinitionWrapper>(wrappers);
+        return new ArrayList<>(wrappers);
     }
 
     public List<TablePropertyDefinitionWrapper> getDimensionalProperties(Selector selector) {
 
-        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
+        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<>();
 
         for (TablePropertyDefinitionWrapper wrapper : wrappers) {
 
@@ -66,7 +66,7 @@ public class TablePropertyDefinitionWrappers {
 
     public List<TablePropertyDefinitionWrapper> getGapOverlapDimensionalProperties() {
 
-        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
+        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<>();
 
         for (TablePropertyDefinitionWrapper wrapper : wrappers) {
 

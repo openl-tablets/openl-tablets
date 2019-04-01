@@ -41,7 +41,7 @@ public class DecisionTableLookupConvertor {
     private static final int HEADER_ROW = 0;
     private static final int DISPLAY_ROW = 3;
 
-    private List<ILogicalTable> hcHeaders = new ArrayList<ILogicalTable>();
+    private List<ILogicalTable> hcHeaders = new ArrayList<>();
     private ILogicalTable retTable;
     private DTScale scale;
 

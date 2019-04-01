@@ -1,5 +1,7 @@
 package org.openl.rules.ui;
 
+import java.io.IOException;
+
 /**
  * @author Aliaksandr Antonik.
  */
@@ -61,7 +63,7 @@ public abstract class BaseWizard {
         this.stepsCount = stepsCount;
     }
 
-    public String start() throws Exception {
+    public String start() {
         maxVisitedStep = step = 0;
         onStart();
         return getName();

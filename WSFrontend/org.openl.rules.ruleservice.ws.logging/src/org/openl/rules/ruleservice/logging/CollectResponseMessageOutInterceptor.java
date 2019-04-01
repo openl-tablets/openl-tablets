@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
@@ -209,7 +210,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     }
 
     @Override
-    protected void handleMessage(LoggingMessage message) {
+    protected void handleMessage(LoggingMessage message) throws Fault {
         final RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         ruleServiceLogging.setResponseMessage(message);
         ruleServiceLogging.setOutcomingMessageTime(new Date());

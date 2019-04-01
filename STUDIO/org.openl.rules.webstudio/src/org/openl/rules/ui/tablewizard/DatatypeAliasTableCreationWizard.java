@@ -136,7 +136,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
         values.add(new AliasValue());
     }
 
-    public void valueValidator(FacesContext context, UIComponent toValidate, Object value) throws ValidatorException {
+    public void valueValidator(FacesContext context, UIComponent toValidate, Object value) {
         String text = (String) value;
         if (StringUtils.isBlank(text)) {
             throw new ValidatorException(new FacesMessage("Can not be empty"));

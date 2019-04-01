@@ -3,11 +3,12 @@ package org.openl.binding.impl;
 import java.io.Serializable;
 
 import org.junit.Test;
+import org.openl.binding.exception.AmbiguousMethodException;
 
 public class MethodSearchTest extends AbstractMethodSearchTest {
 
     @Test
-    public void testMethodChoosing() {
+    public void testMethodChoosing() throws AmbiguousMethodException {
         assertInvoke("M1", ClassWithMethods.class, "method1", int.class, double.class);
         assertInvoke("M1", ClassWithMethods.class, "method1", int.class, int.class);
         assertInvoke("M2", ClassWithMethods.class, "method1", byte.class, byte.class);
@@ -28,7 +29,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testMethodChoosingWithGenerics() {
+    public void testMethodChoosingWithGenerics() throws AmbiguousMethodException {
         assertInvoke("M6", ClassWithGenerics.class, "method1", String.class, String.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", int.class, short.class);
         assertInvoke("M6", ClassWithGenerics.class, "method1", Byte.class, Long.class);
@@ -47,7 +48,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testMethodChoosingWithNulls() {
+    public void testMethodChoosingWithNulls() throws AmbiguousMethodException {
         assertAmbigiouse(ForthClassWithMethods.class, "method1", null, null);
         assertInvoke("M8", ForthClassWithMethods.class, "method1", int.class, null);
         assertInvoke("M9", ForthClassWithMethods.class, "method1", String.class, null);

@@ -13,6 +13,9 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -63,7 +66,7 @@ public class BindingContext implements IBindingContext {
         errors.add(error);
     }
 
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
+    public ILocalVar addParameter(String namespace, String name, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
@@ -93,14 +96,18 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) {
+    public IOpenField findFieldFor(IOpenClass type,
+            String fieldName,
+            boolean strictMatch) throws AmbiguousVarException {
         return type.getField(fieldName, strictMatch);
     }
 
     private static final Object NOT_FOUND = "NOT_FOUND";
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
+    public IMethodCaller findMethodCaller(String namespace,
+            String name,
+            IOpenClass[] parTypes) throws AmbiguousMethodException {
         MethodKey key = new MethodKey(namespace + ':' + name, parTypes, false, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).methodCache;
 
@@ -124,14 +131,12 @@ public class BindingContext implements IBindingContext {
      * @see org.openl.binding.IBindingContext#findType(java.lang.String, java.lang.String)
      */
     @Override
-    public IOpenClass findType(String namespace, String typeName) {
+    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
         return binder.getTypeFactory().getType(namespace, typeName);
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) // throws
-    // Exception
-    {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
         ILocalVar var = localFrame.findLocalVar(namespace, name);
         if (var != null) {
             return var;

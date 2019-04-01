@@ -101,7 +101,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         StringBuilder builder = new StringBuilder();
         builder.append(header.getName());
 
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
 
         for (IOpenClass parameter : header.getSignature().getParameterTypes()) {
             names.add(parameter.getName());

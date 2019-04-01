@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Test;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -96,7 +97,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             BigDecimalValue[].class };
 
     @Test
-    public void testSearch() {
+    public void testSearch() throws AmbiguousMethodException {
         assertMethod(target, "m0_prim", primitives, "int", "int", "int", "float", "float", NF);
         assertMethod(target, "m0_prim", boxed, "int", "int", "int", "float", "float", NF, NF, NF);
         assertMethod(target, "m0_prim", nonNumbers, NF, "int", NF, "int");
@@ -149,7 +150,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testExpandPrimitives() {
+    public void testExpandPrimitives() throws AmbiguousMethodException {
         assertMethod(target, "_byte", primitives, "byte", NF, NF, NF, NF, NF);
         assertMethod(target, "_byte", boxed, "byte", NF, NF, NF, NF, NF, NF, NF);
         assertMethod(target, "_byte", nonNumbers, NF, NF, NF, NF);
@@ -192,7 +193,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testExpandBoxed() {
+    public void testExpandBoxed() throws AmbiguousMethodException {
         assertMethod(target, "_Byte", primitives, "Byte", NF, NF, NF, NF, NF);
         assertMethod(target, "_Byte", boxed, "Byte", NF, NF, NF, NF, NF, NF, NF);
         assertMethod(target, "_Byte", nonNumbers, NF, NF, NF, NF);
@@ -273,7 +274,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testExpandValued() {
+    public void testExpandValued() throws AmbiguousMethodException {
         assertMethod(target, "_ByteValue", primitives, "ByteValue", NF, NF, NF, NF, NF);
         assertMethod(target, "_ByteValue", boxed, "ByteValue", NF, NF, NF, NF, NF, NF, NF);
         assertMethod(target, "_ByteValue", nonNumbers, NF, NF, NF, NF);
@@ -428,7 +429,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testOneArgument() {
+    public void testOneArgument() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
             "m1",
@@ -456,7 +457,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testOneArgument2() {
+    public void testOneArgument2() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
             "m1",
@@ -484,7 +485,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testTwoArguments() {
+    public void testTwoArguments() throws AmbiguousMethodException {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
             "m2",
@@ -658,7 +659,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testVarArguments() {
+    public void testVarArguments() throws AmbiguousMethodException {
         assertMethod("Integer", target, "vararg", Integer.class);
         assertMethod("Integer", target, "vararg", int.class);
         assertMethod("Integer", target, "vararg", Short.class);
@@ -728,7 +729,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testGenerics() {
+    public void testGenerics() throws AmbiguousMethodException {
         assertMethod("Collection", target, "gen", Set.class);
         assertMethod("GenericInteger", target, "gen", int.class);
         assertMethod("Collection", target, "gen", Collection.class);
@@ -741,7 +742,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testGenericsVararg() {
+    public void testGenericsVararg() throws AmbiguousMethodException {
         assertMethod(target,
             "singleGenVararg",
             primitives,

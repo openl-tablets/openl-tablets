@@ -85,7 +85,7 @@ public class AlgoritmNodesCompiler {
     }
 
     private List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
-        assert nodesToCompile.size() > 0;
+        assert !nodesToCompile.isEmpty();
 
         List<RuntimeOperation> emittedOperations = new ArrayList<>();
 

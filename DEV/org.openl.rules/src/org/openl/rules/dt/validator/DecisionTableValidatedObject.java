@@ -83,7 +83,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     private Map<String, IDomainAdaptor> makeDomains(IDecisionTable dt2) {
-        return new HashMap<String, IDomainAdaptor>();
+        return new HashMap<>();
     }
 
     @Override

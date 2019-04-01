@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class JavaKeywordUtils {
 
-    private static final Set<String> JAVA_KEYWORDS = new HashSet<String>();
+    private static final Set<String> JAVA_KEYWORDS = new HashSet<>();
 
     static {
         JAVA_KEYWORDS.add("abstract");

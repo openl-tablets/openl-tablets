@@ -14,7 +14,7 @@ public class IntRangeParser2 {
     static final int KW_AND = 1000, KW_LESS = 1001, KW_MORE = 1002, KW_OR = 1003, KW_THAN = 1004;
     static final Map<String, Integer> keywords;
     static {
-        keywords = new HashMap<String, Integer>(60);
+        keywords = new HashMap<>(60);
         keywords.put("and", KW_AND);
         keywords.put("less", KW_LESS);
         keywords.put("more", KW_MORE);

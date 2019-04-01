@@ -64,7 +64,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
         BitSet copy = (BitSet) bits.clone();
         copy.and(sd.bits);
-        return new EnumDomain<T>(enumeration, copy);
+        return new EnumDomain<>(enumeration, copy);
 
     }
 
@@ -123,7 +123,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
         bs.flip(0, size);
 
-        return new EnumDomain<T>(enumeration, bs);
+        return new EnumDomain<>(enumeration, bs);
     }
 
     public EnumDomain<T> or(EnumDomain<T> sd) {
@@ -135,7 +135,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
         BitSet copy = (BitSet) bits.clone();
         copy.or(sd.bits);
-        return new EnumDomain<T>(enumeration, copy);
+        return new EnumDomain<>(enumeration, copy);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class EnumDomain<T> implements IDomain<T> {
 
         BitSet copy = (BitSet) bits.clone();
         copy.andNot(sd.bits);
-        return new EnumDomain<T>(enumeration, copy);
+        return new EnumDomain<>(enumeration, copy);
     }
 
     @Override

@@ -63,7 +63,7 @@ public class DemoUsers {
 
     private SimpleUser getUser(String user, String... groups) {
         String password = passwordEncoder.encode(user);
-        List<Privilege> privileges = new ArrayList<Privilege>(groups.length);
+        List<Privilege> privileges = new ArrayList<>(groups.length);
         for (String group : groups) {
             privileges.add(groupManagementService.getGroupByName(group));
         }

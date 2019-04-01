@@ -53,7 +53,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
-        Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
+        Map<String, Point> fieldsCoordinates = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             for (int i = 0; i < rowNames.length; i++) {
                 for (int j = 0; j < columnNames.length; j++) {

@@ -49,7 +49,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
             case 1:
                 return pop();
             default:
-                if (parseErrors != null && parseErrors.size() > 0) {
+                if (parseErrors != null && !parseErrors.isEmpty()) {
                     // it is OK to return, probably the application will check
                     // for errors
                     return pop();

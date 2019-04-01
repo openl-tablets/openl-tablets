@@ -11,7 +11,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author nsamatov.
  */
 public class ExcludingRequestMatcher implements RequestMatcher {
-    private List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+    private List<RequestMatcher> matchers = new ArrayList<>();
 
     @Override
     public boolean matches(HttpServletRequest request) {

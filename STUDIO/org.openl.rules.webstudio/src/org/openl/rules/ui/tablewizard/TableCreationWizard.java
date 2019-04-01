@@ -28,6 +28,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -147,7 +149,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected void initWorkbooks() {
-        workbooks = new HashMap<String, XlsWorkbookSourceCodeModule>();
+        workbooks = new HashMap<>();
 
         WorkbookSyntaxNode[] syntaxNodes = WizardUtils.getWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
@@ -183,7 +185,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         getModifiedWorkbooks().clear();
     }
 
-    protected void doSave() throws Exception {
+    protected void doSave() throws IOException {
         for (XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks) {
             workbook.save();
         }

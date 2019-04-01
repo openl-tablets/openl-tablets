@@ -17,7 +17,7 @@ public class DataTableTreeNode implements TreeNode {
     private static final String COMPLEX = "complex";
 
     private final DataTableField value;
-    private final LinkedHashMap<Object, DataTableTreeNode> children = new LinkedHashMap<Object, DataTableTreeNode>();
+    private final LinkedHashMap<Object, DataTableTreeNode> children = new LinkedHashMap<>();
     private final boolean root;
     private boolean editForeignKey;
 

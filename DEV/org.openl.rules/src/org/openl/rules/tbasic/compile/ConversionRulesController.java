@@ -29,7 +29,7 @@ public class ConversionRulesController {
      * @throws BoundError
      */
     public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
-        assert nodesToCompile.size() > 0;
+        assert !nodesToCompile.isEmpty();
 
         List<String> groupedOperationNames = new ArrayList<>(nodesToCompile.size());
 

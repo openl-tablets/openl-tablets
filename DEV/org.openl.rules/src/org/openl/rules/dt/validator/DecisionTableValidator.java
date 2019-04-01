@@ -31,7 +31,7 @@ public final class DecisionTableValidator implements IValidator {
 
     public static DecisionTableValidationResult validateTable(IDecisionTable decisionTable,
             Map<String, IDomainAdaptor> domains,
-            IOpenClass type) throws Exception {
+            IOpenClass type) {
 
         IDecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
         OpenL openl = ((XlsModuleOpenClass) type).getOpenl();

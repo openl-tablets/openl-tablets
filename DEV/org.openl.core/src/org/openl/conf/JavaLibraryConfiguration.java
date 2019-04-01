@@ -55,7 +55,7 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
     @Override
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
     }
 

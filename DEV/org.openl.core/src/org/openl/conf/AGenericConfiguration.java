@@ -142,7 +142,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
 
         if (fileResource != null) {
             if (!(new File(fileResource)).exists()) {
-                throw new OpenConfigurationException("File " + fileResource + " does not exist", getUri(), null);
+                throw new OpenLConfigurationException("File " + fileResource + " does not exist", getUri(), null);
             }
 
             ClassFactory.validateHasMethod(implementingClass, "setFile", new Class[] { File.class }, getUri());
@@ -152,7 +152,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
             try {
                 new URL(urlResource).openConnection();
             } catch (Throwable t) {
-                throw new OpenConfigurationException("Can not connect to URL " + urlResource, getUri(), t);
+                throw new OpenLConfigurationException("Can not connect to URL " + urlResource, getUri(), t);
             }
 
             ClassFactory.validateHasMethod(implementingClass, "setURL", new Class[] { URL.class }, getUri());

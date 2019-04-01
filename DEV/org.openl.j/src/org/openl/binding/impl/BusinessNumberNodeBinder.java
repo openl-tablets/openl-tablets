@@ -10,7 +10,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
-    private static Map<Character, Integer> multiplierSuffixes = new HashMap<Character, Integer>();
+    private static Map<Character, Integer> multiplierSuffixes = new HashMap<>();
 
     static {
         multiplierSuffixes.put('K', 1000);

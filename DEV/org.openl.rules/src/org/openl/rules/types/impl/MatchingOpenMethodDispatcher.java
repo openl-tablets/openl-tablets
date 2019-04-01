@@ -72,7 +72,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
-        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
+        Set<IOpenMethod> selected = new HashSet<>(candidates);
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
         maxMinSelectCandidates(selected, (IRulesRuntimeContext) context);
@@ -123,11 +123,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         // If more that one method
         if (selected.size() > 1) {
-            List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
+            List<IOpenMethod> notPriorMethods = new ArrayList<>();
 
             List<String> notNullPropertyNames = getNotNullPropertyNames(context);
             // Find the most high priority method
-            List<IOpenMethod> mostPriority = new ArrayList<IOpenMethod>();
+            List<IOpenMethod> mostPriority = new ArrayList<>();
             ITableProperties mostPriorityProperties = null;
 
             for (IOpenMethod candidate : selected) {

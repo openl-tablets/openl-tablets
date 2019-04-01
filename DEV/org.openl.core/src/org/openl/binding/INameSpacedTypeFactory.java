@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 
 /**
@@ -14,6 +15,6 @@ import org.openl.types.IOpenClass;
  */
 public interface INameSpacedTypeFactory {
 
-    IOpenClass getType(String namespace, String typename);
+    IOpenClass getType(String namespace, String typename) throws AmbiguousTypeException;
 
 }

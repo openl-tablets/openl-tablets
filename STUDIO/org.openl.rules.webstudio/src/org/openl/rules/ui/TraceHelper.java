@@ -14,7 +14,7 @@ import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
  */
 public class TraceHelper {
 
-    private BidiMap<Integer, ITracerObject> traceTreeCache = new DualHashBidiMap<Integer, ITracerObject>();
+    private BidiMap<Integer, ITracerObject> traceTreeCache = new DualHashBidiMap<>();
 
     public ITracerObject getTableTracer(int elementId) {
         return traceTreeCache.get(elementId);

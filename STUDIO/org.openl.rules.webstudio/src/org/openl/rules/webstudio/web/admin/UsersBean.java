@@ -174,7 +174,7 @@ public class UsersBean {
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
-        Set<String> groupNames = new HashSet<String>(groups.keySet());
+        Set<String> groupNames = new HashSet<>(groups.keySet());
         for (String checkGroupName : groupNames) {
             if (!group.getName().equals(checkGroupName) && group.hasPrivilege(checkGroupName)) {
                 Group includedGroup = groups.get(checkGroupName);

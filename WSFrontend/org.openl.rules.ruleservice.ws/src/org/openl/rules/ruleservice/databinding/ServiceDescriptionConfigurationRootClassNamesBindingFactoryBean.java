@@ -83,7 +83,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
     @Override
     public void afterPropertiesSet() throws Exception {
         if (this.defaultAdditionalRootClassNames == null) {
-            this.defaultAdditionalRootClassNames = new HashSet<String>();
+            this.defaultAdditionalRootClassNames = new HashSet<>();
         }
     }
 }

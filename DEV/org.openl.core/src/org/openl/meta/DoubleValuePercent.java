@@ -7,7 +7,7 @@ public class DoubleValuePercent extends DoubleValue {
      */
     private static final long serialVersionUID = 6543033363886217906L;
 
-    static public final String PERCENT_FORMAT = "#.####%";
+    public static final String PERCENT_FORMAT = "#.####%";
 
     public DoubleValuePercent(double d) {
         super(d);

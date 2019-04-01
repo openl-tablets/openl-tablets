@@ -212,7 +212,7 @@ public class DeploymentController {
 
         cachedForProject = projectNameWithVersion;
         Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
-        items = new ArrayList<DeploymentDescriptorItem>();
+        items = new ArrayList<>();
 
         for (ProjectDescriptor descriptor : descriptors) {
             DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getProjectName(),
@@ -234,7 +234,7 @@ public class DeploymentController {
         // Because of JSF this method can be invoked up to 24 times during 1 HTTP request.
         // That's why we must not refresh projects list every time, instead get cached projects only.
         Collection<RulesProject> workspaceProjects = workspace.getProjects(false);
-        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        List<SelectItem> selectItems = new ArrayList<>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
         Set<String> existing = new HashSet<>();
@@ -320,7 +320,7 @@ public class DeploymentController {
     private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project,
             String projectName,
             ProjectDescriptorImpl newItem) {
-        List<ProjectDescriptor> newDescriptors = new ArrayList<ProjectDescriptor>();
+        List<ProjectDescriptor> newDescriptors = new ArrayList<>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
             if (pd.getProjectName().equals(projectName)) {

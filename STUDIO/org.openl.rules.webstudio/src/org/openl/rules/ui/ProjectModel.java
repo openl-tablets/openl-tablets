@@ -108,7 +108,7 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<XlsModuleSyntaxNode>();
+    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
 
     private Module moduleInfo;
 
@@ -124,8 +124,8 @@ public class ProjectModel {
     private ProjectTreeNode projectRoot = null;
 
     // TODO Fix performance
-    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<String, TableSyntaxNode>();
-    private Map<String, TableSyntaxNode> idTableCache = new HashMap<String, TableSyntaxNode>();
+    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
+    private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
 
     private DependencyRulesGraph dependencyGraph;
 
@@ -337,7 +337,7 @@ public class ProjectModel {
     }
 
     public List<IOpenMethod> getTargetMethods(String testOrRunUri) {
-        List<IOpenMethod> targetMethods = new ArrayList<IOpenMethod>();
+        List<IOpenMethod> targetMethods = new ArrayList<>();
         IOpenMethod testMethod = getMethod(testOrRunUri);
 
         if (testMethod instanceof TestSuiteMethod) {
@@ -356,7 +356,7 @@ public class ProjectModel {
     }
 
     public List<IOpenLTable> getTargetTables(String testOrRunUri) {
-        List<IOpenLTable> targetTables = new ArrayList<IOpenLTable>();
+        List<IOpenLTable> targetTables = new ArrayList<>();
         List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
 
         for (IOpenMethod targetMethod : targetMethods) {
@@ -714,7 +714,7 @@ public class ProjectModel {
 
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
-        TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
+        TreeBuilder<Object> treeBuilder = new TreeBuilder<>();
 
         TreeNodeBuilder<Object>[] treeSorters = studio.getTreeView().getBuilders();
 
@@ -786,7 +786,7 @@ public class ProjectModel {
     }
 
     public TableSyntaxNode[] getAllTableSyntaxNodes() {
-        List<TableSyntaxNode> nodes = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> nodes = new ArrayList<>();
 
         if (isProjectCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
@@ -868,7 +868,7 @@ public class ProjectModel {
         return executableNodes;
     }
 
-    public void redraw() throws Exception {
+    public void redraw() {
         projectRoot = null;
     }
 
@@ -1156,7 +1156,7 @@ public class ProjectModel {
     }
 
     public List<File> getSources() {
-        List<File> sourceFiles = new ArrayList<File>();
+        List<File> sourceFiles = new ArrayList<>();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {

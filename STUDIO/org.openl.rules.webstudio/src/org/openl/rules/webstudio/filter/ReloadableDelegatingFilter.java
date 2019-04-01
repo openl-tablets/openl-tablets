@@ -47,7 +47,7 @@ public class ReloadableDelegatingFilter implements Filter {
     private static final String DELEGATE_CLASS = "delegateClass";
     private static final String DELEGATE_FILTER_NAME = "delegateFilterName";
 
-    private static ThreadLocal<ConfigurationReloader> reloaderHolder = new ThreadLocal<ConfigurationReloader>();
+    private static ThreadLocal<ConfigurationReloader> reloaderHolder = new ThreadLocal<>();
 
     private final Logger log = LoggerFactory.getLogger(ReloadableDelegatingFilter.class);
 

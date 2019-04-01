@@ -109,11 +109,15 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public IOpenField getField(String fname) {
-        return getField(fname, true);
+        try {
+            return getField(fname, true);
+        } catch (AmbiguousVarException e) {
+            return null;
+        }
     }
 
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
 
         IOpenField f = null;
         if (strictMatch) {
@@ -151,7 +155,7 @@ public abstract class AOpenClass implements IOpenClass {
         return searchFieldFromSuperClass(fname, strictMatch);
     }
 
-    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) {
+    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousVarException {
         IOpenField f;
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
@@ -213,7 +217,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getVar(String name, boolean strictMatch) {
+    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousVarException {
         return getField(name, strictMatch);
     }
 
@@ -333,7 +337,7 @@ public abstract class AOpenClass implements IOpenClass {
         return constructorMap.put(key, method);
     }
 
-    public void addMethod(IOpenMethod method) {
+    public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
@@ -344,7 +348,7 @@ public abstract class AOpenClass implements IOpenClass {
         invalidateInternalData();
     }
 
-    public void addConstructor(IOpenMethod method) {
+    public void addConstructor(IOpenMethod method) throws DuplicatedMethodException {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existCostructor = putConstructor(method);
         if (existCostructor != null) {
@@ -388,7 +392,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private Collection<IOpenMethod> buildAllMethods() {
-        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
+        Map<MethodKey, IOpenMethod> methods = new HashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
             for (IOpenMethod method : superClass.getMethods()) {

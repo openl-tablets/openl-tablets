@@ -30,7 +30,7 @@ public class Tokenizer {
     private static final int EOF = -1;
     private static String TOKEN_TYPE = "token";
 
-    private static Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<String, Tokenizer>();
+    private static Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<>();
 
     private boolean[] delimitersTable = {};
 
@@ -127,7 +127,7 @@ public class Tokenizer {
 
     public IdentifierNode[] parse(IOpenSourceCodeModule source,
             ILocation textLocation) throws OpenLCompilationException {
-        List<IdentifierNode> nodes = new ArrayList<IdentifierNode>();
+        List<IdentifierNode> nodes = new ArrayList<>();
 
         try {
             Reader reader = source.getCharacterStream();

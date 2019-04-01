@@ -23,7 +23,7 @@ public class NicePrinter {
 
     int ident = 0;
 
-    HashMap<Object, Integer> printedObjects = new HashMap<Object, Integer>();
+    HashMap<Object, Integer> printedObjects = new HashMap<>();
 
     int printedID = 0;
 

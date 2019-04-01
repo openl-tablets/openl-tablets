@@ -163,12 +163,12 @@ public abstract class ASelector<T> implements ISelector<T> {
     }
 
     public static <T> ISelector<T> selectObject(T obj) {
-        return new ObjectSelector<T>(obj);
+        return new ObjectSelector<>(obj);
     }
 
     @Override
     public ISelector<T> and(ISelector<T> isel) {
-        return new ANDSelector<T>(this, isel);
+        return new ANDSelector<>(this, isel);
     }
 
     @Override
@@ -191,12 +191,12 @@ public abstract class ASelector<T> implements ISelector<T> {
 
     @Override
     public ISelector<T> not() {
-        return new NOTSelector<T>(this);
+        return new NOTSelector<>(this);
     }
 
     @Override
     public ISelector<T> or(ISelector<T> isel) {
-        return new ORSelector<T>(this, isel);
+        return new ORSelector<>(this, isel);
     }
 
     protected int redefinedHashCode() {
@@ -205,7 +205,7 @@ public abstract class ASelector<T> implements ISelector<T> {
 
     @Override
     public ISelector<T> xor(ISelector<T> isel) {
-        return new XORSelector<T>(this, isel);
+        return new XORSelector<>(this, isel);
     }
 
 }

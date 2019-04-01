@@ -40,7 +40,10 @@ import org.openl.util.math.MathUtils;
  *
  * @author snshor
  */
-public class RulesUtils {
+public final class RulesUtils {
+    
+    private RulesUtils() {
+    }
 
     public static final String DEFAULT_DOUBLE_FORMAT = "#,##0.00";
 
@@ -2320,6 +2323,10 @@ public class RulesUtils {
     public static double pow(double a, double b) {
         return Math.pow(a, b);
     }
+    
+    public static double pow(Double a, Double b) {
+        return Math.pow(a, b);
+    }
 
     // ---------------------------------------
 
@@ -4256,7 +4263,7 @@ public class RulesUtils {
         if (data == null) {
             return null;
         }
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
         Class<?> type = Void.class;
         for (Object obj : data) {
             if (obj == null) {

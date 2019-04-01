@@ -103,11 +103,11 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     @Override
-    public IOpenField findVariable(String name) {
+    public IOpenField findVariable(String name) throws AmbiguousVarException {
         return findField(name);
     }
 
-    public IOpenField findField(String name) {
+    public IOpenField findField(String name) throws AmbiguousVarException {
         name = name.toLowerCase();
         List<IOpenField> ff = fields.get(name);
         if (ff == null) {

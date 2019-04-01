@@ -23,8 +23,8 @@ public interface IConfigurationElement {
     /**
      * Checks that configuration is valid, for example that class exists and conforms to the interface
      *
-     * @throws OpenConfigurationException
+     * @throws OpenLConfigurationException
      */
 
-    void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException;
+    void validate(IConfigurableResourceContext cxt);
 }

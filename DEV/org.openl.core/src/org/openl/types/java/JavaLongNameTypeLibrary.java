@@ -21,7 +21,7 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
     // this.blockedClassPatterns = blockedClassPatterns;
     // }
 
-    private Map<String, IOpenClass> foundClasses = new HashMap<String, IOpenClass>();
+    private Map<String, IOpenClass> foundClasses = new HashMap<>();
 
     // private Set<String> blocked = new HashSet<String>();
 

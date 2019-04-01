@@ -969,7 +969,6 @@ public class InstallWizard {
             ctx.setServletContext(FacesUtils.getServletContext());
             ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
             ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-
                 @Override
                 public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
                     beanFactory.registerSingleton("dbConfig", dbProperties);

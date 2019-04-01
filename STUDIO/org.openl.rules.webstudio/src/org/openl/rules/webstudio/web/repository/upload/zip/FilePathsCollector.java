@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FilePathsCollector extends DefaultZipEntryCommand {
-    private final List<String> filePaths = new ArrayList<String>();
+    private final List<String> filePaths = new ArrayList<>();
 
     @Override
     public boolean execute(String filePath, InputStream inputStream) {

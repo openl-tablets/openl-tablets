@@ -19,7 +19,7 @@ public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
             return empty();
         }
 
-        return new AIndexedIterator.ArrayIterator<T>(ary);
+        return new AIndexedIterator.ArrayIterator<>(ary);
     }
 
     public static Iterator<Object> fromArrayObj(Object ary) {

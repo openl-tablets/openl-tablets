@@ -98,9 +98,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.ByteValue[] { value });
+            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -236,13 +234,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null,
-                    new DoubleValue(value2.doubleValue()),
-                    divide(ONE, value2).getValue(),
-                    Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.DoubleValue(null,
+                new DoubleValue(value2.doubleValue()),
+                divide(ONE, value2).getValue(),
+                Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -289,9 +285,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
         if (number != null && divisor != null) {
             org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.ByteValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.ByteValue[] { number, divisor });
+            return new org.openl.meta.ByteValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -337,10 +331,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
             return value1;
         }
 
-        return new org.openl.meta.ByteValue(
-            new org.openl.meta.ByteValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.ByteValue[] { value1, value2 });
+        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -357,7 +349,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
         // evaluate result
         org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.ByteValue(result, NumberOperations.ABS, new org.openl.meta.ByteValue[] { value });
+        return new org.openl.meta.ByteValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -613,7 +605,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     }
 
     /** Function constructor **/
-    public ByteValue(ByteValue result, NumberOperations function, ByteValue[] params) {
+    public ByteValue(ByteValue result, NumberOperations function, ByteValue... params) {
         super(function, params);
         this.value = result.byteValue();
     }

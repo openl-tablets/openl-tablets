@@ -118,8 +118,8 @@ public class RowParser implements IRowParser {
         //
         boolean[] guessedMultilines = guessMultiline(nodes);
 
-        List<AlgorithmTreeNode> treeNodes = new ArrayList<AlgorithmTreeNode>();
-        Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<Integer, AlgorithmTreeNode>();
+        List<AlgorithmTreeNode> treeNodes = new ArrayList<>();
+        Map<Integer, AlgorithmTreeNode> parentTree = new HashMap<>();
 
         int prevIndent = 0;
         for (int i = 0; i < nodes.size(); i++) {

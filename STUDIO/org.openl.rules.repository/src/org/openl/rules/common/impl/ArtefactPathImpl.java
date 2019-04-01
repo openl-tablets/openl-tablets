@@ -15,7 +15,7 @@ import java.util.List;
 public class ArtefactPathImpl implements ArtefactPath {
     public static final char SEGMENT_DELIMITER = '/';
     private String stringValue = null;
-    private List<String> segments = new LinkedList<String>();
+    private List<String> segments = new LinkedList<>();
 
     public ArtefactPathImpl(ArtefactPath artefactPath) {
         segments.addAll(artefactPath.getSegments());

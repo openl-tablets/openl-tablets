@@ -89,7 +89,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
 
     @Override
     public Collection<? extends LocalArtefactAPI> getArtefacts() {
-        List<LocalArtefactAPI> artefacts = new ArrayList<LocalArtefactAPI>();
+        List<LocalArtefactAPI> artefacts = new ArrayList<>();
         File[] files = source.listFiles(((LocalWorkspaceImpl) workspace).getLocalWorkspaceFileFilter());
         if (files != null) {
             for (File file : files) {

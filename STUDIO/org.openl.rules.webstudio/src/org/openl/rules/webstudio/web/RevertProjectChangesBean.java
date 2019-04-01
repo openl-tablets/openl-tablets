@@ -32,13 +32,13 @@ public class RevertProjectChangesBean {
     }
 
     public List<ProjectHistoryItem> getHistory() {
-        List<ProjectHistoryItem> history = new ArrayList<ProjectHistoryItem>();
+        List<ProjectHistoryItem> history = new ArrayList<>();
         ProjectModel model = WebStudioUtils.getProjectModel();
 
         String[] sourceNames = getSources();
         Map<Long, File> historyMap = model.getHistoryManager().get(sourceNames);
 
-        List<String> used = new ArrayList<String>();
+        List<String> used = new ArrayList<>();
 
         for (long modifiedOn : historyMap.keySet()) {
             String sourceName = historyMap.get(modifiedOn).getName();

@@ -28,7 +28,7 @@ public class TablePriorityRuleWrappers {
     private static final Pattern SIMPLE_PRIORITY_RULE_PATTERN = Pattern.compile("([a-zA-Z]+)\\(([a-zA-Z]+)\\)");
 
     private static SimplePriorityRuleWrapper[] constructSimplePriorityRuleWrappers(String[] priorityRules) {
-        List<SimplePriorityRuleWrapper> wrappers = new ArrayList<SimplePriorityRuleWrapper>();
+        List<SimplePriorityRuleWrapper> wrappers = new ArrayList<>();
         for (String priorityRule : priorityRules) {
             try {
                 Matcher matcher = SIMPLE_PRIORITY_RULE_PATTERN.matcher(priorityRule);
@@ -57,7 +57,7 @@ public class TablePriorityRuleWrappers {
     }
 
     private static JavaClassPriorityRuleWrapper[] constructJavaClassPriorityRuleWrappers(String[] priorityRules) {
-        List<JavaClassPriorityRuleWrapper> wrappers = new ArrayList<JavaClassPriorityRuleWrapper>();
+        List<JavaClassPriorityRuleWrapper> wrappers = new ArrayList<>();
         for (String priorityRule : priorityRules) {
             try {
                 if (priorityRule.startsWith(JavaClassTablesComparator.PREFIX)) {

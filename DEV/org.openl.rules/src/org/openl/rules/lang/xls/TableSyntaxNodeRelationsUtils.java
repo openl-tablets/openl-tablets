@@ -49,7 +49,7 @@ final class TableSyntaxNodeRelationsUtils {
         }
 
         int n = 0;
-        Queue<Integer> queue = new ArrayDeque<Integer>();
+        Queue<Integer> queue = new ArrayDeque<>();
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
             if (countArray[i] == 0) {
                 queue.add(i);

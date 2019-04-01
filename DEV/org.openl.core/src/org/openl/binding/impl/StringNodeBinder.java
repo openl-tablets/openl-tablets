@@ -15,7 +15,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class StringNodeBinder extends ANodeBinder {
 
-    public static int processOctal(String s, int startIndex, StringBuilder buf) throws Exception {
+    public static int processOctal(String s, int startIndex, StringBuilder buf) {
 
         int res = 0;
         int i;

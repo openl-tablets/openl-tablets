@@ -38,7 +38,7 @@ public interface ILogicalTable extends ITable<ILogicalTable> {
      * @param gridOffset
      * @return
      */
-    int findColumnStart(int gridOffset) throws TableException;
+    int findColumnStart(int gridOffset);
 
     /**
      * Calculates # of the row starting exactly at gridOffset. Throws TableException if gridOffset does not match any
@@ -47,6 +47,6 @@ public interface ILogicalTable extends ITable<ILogicalTable> {
      * @param gridOffset
      * @return
      */
-    int findRowStart(int gridOffset) throws TableException;
+    int findRowStart(int gridOffset);
 
 }

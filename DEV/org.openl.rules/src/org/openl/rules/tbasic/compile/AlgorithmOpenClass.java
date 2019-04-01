@@ -14,7 +14,7 @@ import org.openl.types.IOpenField;
 
 public class AlgorithmOpenClass extends ComponentOpenClass {
 
-    private Set<String> invisibleFields = new HashSet<String>();
+    private Set<String> invisibleFields = new HashSet<>();
 
     public AlgorithmOpenClass(String name, OpenL openl) {
         super(name, openl);

@@ -1,12 +1,13 @@
 package org.openl.binding.impl;
 
 import org.junit.Test;
+import org.openl.binding.exception.AmbiguousMethodException;
 
 public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
     private Class<?> target = OverloadedMethods.class;
 
     @Test
-    public void testSearch() {
+    public void testSearch() throws AmbiguousMethodException {
         assertNotFound(target, "m0", A0.class);
         assertInvoke("A1", target, "m0", A1.class);
         assertInvoke("A1", target, "m0", A2.class);
@@ -15,7 +16,7 @@ public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testOneArgument() {
+    public void testOneArgument() throws AmbiguousMethodException {
 
         assertInvoke("A0", target, "m1", A0.class);
         assertInvoke("A1", target, "m1", A1.class);
@@ -25,7 +26,7 @@ public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
     }
 
     @Test
-    public void testTwoArgument() {
+    public void testTwoArgument() throws AmbiguousMethodException {
         assertNotFound(target, "m2", A0.class, A0.class);
         assertNotFound(target, "m2", A1.class, A0.class);
         assertNotFound(target, "m2", A2.class, A0.class);

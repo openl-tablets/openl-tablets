@@ -17,7 +17,7 @@ public class PathTool {
         String[] pp1 = splitPath(p1);
         String[] pp2 = splitPath(p2);
 
-        List<String> result = new ArrayList<String>(pp1.length + pp2.length - 1);
+        List<String> result = new ArrayList<>(pp1.length + pp2.length - 1);
 
         int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
 

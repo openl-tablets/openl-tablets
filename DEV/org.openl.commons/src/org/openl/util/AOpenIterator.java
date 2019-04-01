@@ -129,7 +129,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    public static final EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
+    public static final EmptyIterator<?> EMPTY = new EmptyIterator<>();
 
     @SuppressWarnings("unchecked")
     public static <T> IOpenIterator<T> empty() {
@@ -144,12 +144,12 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     public static <X> IOpenIterator<X> select(Iterator<X> it, ISelector<X> is) {
-        return new SelectIterator<X>(it, is);
+        return new SelectIterator<>(it, is);
     }
 
     @Override
     public <C> IOpenIterator<C> collect(IConvertor<T, C> ic) {
-        return new CollectIterator<T, C>(this, ic);
+        return new CollectIterator<>(this, ic);
     }
 
     // ////////////////////////////// Some useful OpenIterators
@@ -174,7 +174,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     @Override
     public IOpenIterator<T> select(ISelector<T> is) {
-        return new SelectIterator<T>(this, is);
+        return new SelectIterator<>(this, is);
     }
 
     /**

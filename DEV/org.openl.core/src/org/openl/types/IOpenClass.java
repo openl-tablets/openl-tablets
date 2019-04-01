@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaHolder;
 import org.openl.vm.IRuntimeEnv;
@@ -51,7 +52,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * @return
      * @since 5.0
      */
-    IOpenField getField(String name, boolean strictMatch);
+    IOpenField getField(String name, boolean strictMatch) throws AmbiguousVarException;
 
     IOpenField getIndexField();
 

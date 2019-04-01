@@ -48,7 +48,7 @@ public class AlgorithmCompiler {
      * Intermediate values
      **************************************************************************/
     private CompileContext mainCompileContext;
-    private List<AlgorithmFunctionCompiler> functions = new ArrayList<AlgorithmFunctionCompiler>();
+    private List<AlgorithmFunctionCompiler> functions = new ArrayList<>();
     private LabelManager labelManager;
 
     /***************************************************************************
@@ -58,7 +58,7 @@ public class AlgorithmCompiler {
 
     private IBindingContext thisContext;
 
-    private Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<String, OperationPreprocessor>();
+    private Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<>();
 
     private Stack<Collection<IOpenField>> variablesStack = new Stack<>();
 
@@ -325,7 +325,7 @@ public class AlgorithmCompiler {
     }
 
     private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
-        assert nodesToCompile.size() > 0;
+        assert !nodesToCompile.isEmpty();
 
         ConversionRuleBean conversionRule = ConversionRulesController.getInstance().getConvertionRule(nodesToCompile);
 
@@ -347,7 +347,7 @@ public class AlgorithmCompiler {
 
     private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile,
             ConversionRuleStep conversionStep) throws SyntaxNodeException {
-        assert nodesToCompile.size() > 0;
+        assert !nodesToCompile.isEmpty();
         assert conversionStep != null;
 
         String operationType = conversionStep.getOperationType();

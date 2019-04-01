@@ -9,7 +9,7 @@ import org.openl.rules.context.properties.ContextPropertyDefinition;
 
 public class ContextPropertyDefinitionWrappers {
 
-    private Map<String, ContextPropertyDefinitionWrapper> wrappers = new HashMap<String, ContextPropertyDefinitionWrapper>();
+    private Map<String, ContextPropertyDefinitionWrapper> wrappers = new HashMap<>();
 
     public ContextPropertyDefinitionWrappers(ContextPropertyDefinition[] definitions) {
         init(definitions);
@@ -25,7 +25,7 @@ public class ContextPropertyDefinitionWrappers {
     }
 
     public List<ContextPropertyDefinitionWrapper> asList() {
-        return new ArrayList<ContextPropertyDefinitionWrapper>(wrappers.values());
+        return new ArrayList<>(wrappers.values());
     }
 
     public ContextPropertyDefinitionWrapper findWrapper(String contextPropertyName) {

@@ -50,7 +50,7 @@ public class ArgumentsHelper {
     }
 
     public DomainOpenClass generateDomainClassByArgNames() {
-        Set<String> argNames = new HashSet<String>();
+        Set<String> argNames = new HashSet<>();
         argNames.addAll(argTypes.keySet());
 
         IOpenClass[] paramTypes = methodSignature.getParameterTypes();

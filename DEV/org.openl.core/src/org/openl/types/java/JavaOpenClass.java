@@ -353,7 +353,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (superClasses == null) {
                     Class<?>[] interfaces = instanceClass.getInterfaces();
                     Class<?> superClass = instanceClass.getSuperclass();
-                    List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
+                    List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
                     if (superClass != null) {
                         superClasses.add(getOpenClass(superClass));
                     }

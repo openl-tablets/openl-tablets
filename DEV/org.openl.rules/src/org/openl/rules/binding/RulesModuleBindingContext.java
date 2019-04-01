@@ -137,9 +137,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    protected synchronized void add(String namespace,
-            String typeName,
-            IOpenClass type) throws OpenLCompilationException {
+    protected synchronized void add(String namespace, String typeName, IOpenClass type) {
         if (type instanceof CustomDynamicOpenClass) {
             CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);

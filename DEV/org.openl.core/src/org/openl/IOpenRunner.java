@@ -17,9 +17,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IOpenRunner {
 
-    Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException;
+    Object run(IBoundMethodNode node, Object[] params);
 
-    Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException;
+    Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env);
 
     /**
      * Runs a single expression node. An implementation should be optimized to efficiently run single expressions or

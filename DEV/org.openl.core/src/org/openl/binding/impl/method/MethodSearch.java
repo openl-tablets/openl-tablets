@@ -31,7 +31,10 @@ import org.openl.util.OpenClassUtils;
  * @author snshor, Marat Kamalov
  *
  */
-public class MethodSearch {
+public final class MethodSearch {
+
+    private MethodSearch() {
+    }
 
     static final int[] NO_MATCH = new int[0];
 
@@ -244,7 +247,7 @@ public class MethodSearch {
     private static IMethodCaller findCastingMethod(final String name,
             IOpenClass[] params,
             ICastFactory casts,
-            Iterable<IOpenMethod> methods) {
+            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
 
         final int nParams = params.length;
         Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod> emptyList()
@@ -366,7 +369,7 @@ public class MethodSearch {
     private static IMethodCaller findVarArgMethod(final String name,
             IOpenClass[] params,
             ICastFactory casts,
-            Iterable<IOpenMethod> methods) {
+            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
         Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod> emptyList()
                                                            : CollectionUtils.findAll(methods,
                                                                method -> method.getName()
@@ -476,7 +479,7 @@ public class MethodSearch {
     private static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
-            ICastFactory casts) {
+            ICastFactory casts) throws AmbiguousMethodException {
         List<IOpenMethod> moreSpecificMethods = new ArrayList<>();
         for (IOpenMethod res : matchingMethods) {
             boolean f = true;
@@ -588,11 +591,13 @@ public class MethodSearch {
     public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory casts,
-            IMethodFactory factory) {
+            IMethodFactory factory) throws AmbiguousMethodException {
         return findMethod(name, params, casts, factory, false);
     }
 
-    public static IMethodCaller findConstructor(IOpenClass[] params, ICastFactory casts, IMethodFactory factory) {
+    public static IMethodCaller findConstructor(IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
         IMethodCaller caller = factory.getConstructor(params);
         if (caller != null) {
             return caller;
@@ -607,7 +612,7 @@ public class MethodSearch {
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory,
-            boolean strictMatch) {
+            boolean strictMatch) throws AmbiguousMethodException {
         IMethodCaller caller = null;
         if (factory instanceof ADynamicClass) {
             ADynamicClass aDynamicClass = (ADynamicClass) factory;
@@ -630,7 +635,7 @@ public class MethodSearch {
     public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory casts,
-            Iterable<IOpenMethod> methods) {
+            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
         IMethodCaller caller = findCastingMethod(name, params, casts, methods);
         if (caller != null) {
             return caller;

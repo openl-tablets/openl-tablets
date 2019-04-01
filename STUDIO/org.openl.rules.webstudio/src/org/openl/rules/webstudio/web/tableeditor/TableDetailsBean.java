@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -169,7 +170,7 @@ public class TableDetailsBean {
         List<SelectItem> propertiesToAdd = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
             .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
-        Collection<String> currentProps = new TreeSet<String>();
+        Collection<String> currentProps = new TreeSet<>();
         for (PropertyRow row : propertyRows) {
             if (row.getType().equals(PropertyRowType.PROPERTY)) {
                 currentProps.add(((TableProperty) row.getData()).getName());
@@ -218,7 +219,7 @@ public class TableDetailsBean {
         propsToRemove.add(prop.getName());
     }
 
-    public boolean isChanged() throws Exception {
+    public boolean isChanged() {
         if (propertyRows == null) {
             return false;
         }
@@ -244,7 +245,7 @@ public class TableDetailsBean {
         return false;
     }
 
-    public void save() throws Exception {
+    public void save() throws IOException {
         IOpenLTable table = getTable();
         table.getGridTable().edit();
 

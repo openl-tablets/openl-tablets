@@ -90,7 +90,7 @@ public class FileUtils {
         Collection<String> looped = null;
         File[] srcFiles = src.listFiles();
         if (srcFiles != null && srcFiles.length > 0) {
-            looped = new ArrayList<String>(srcFiles.length + 1);
+            looped = new ArrayList<>(srcFiles.length + 1);
             for (File srcFile : srcFiles) {
                 File copiedFile = new File(dest, srcFile.getName());
                 if (srcFile.isDirectory()) {

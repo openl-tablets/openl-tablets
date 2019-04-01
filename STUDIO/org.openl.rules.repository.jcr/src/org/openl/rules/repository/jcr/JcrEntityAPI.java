@@ -38,9 +38,9 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         this.path = path;
         version = new JcrVersion(node);
 
-        properties = new HashMap<String, org.openl.rules.common.Property>();
+        properties = new HashMap<>();
         initProperties();
-        props = new HashMap<String, Object>();
+        props = new HashMap<>();
         loadProps();
     }
 

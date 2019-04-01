@@ -48,7 +48,7 @@ public class LogicalTable extends ALogicalTable {
     }
 
     @Override
-    public int findColumnStart(int gridOffset) throws TableException {
+    public int findColumnStart(int gridOffset) {
         for (int i = 0; i < columnOffset.length - 1; i++) {
             if (columnOffset[i] == gridOffset) {
                 return i;
@@ -61,7 +61,7 @@ public class LogicalTable extends ALogicalTable {
     }
 
     @Override
-    public int findRowStart(int gridOffset) throws TableException {
+    public int findRowStart(int gridOffset) {
         for (int i = 0; i < rowOffset.length - 1; i++) {
             if (rowOffset[i] == gridOffset) {
                 return i;

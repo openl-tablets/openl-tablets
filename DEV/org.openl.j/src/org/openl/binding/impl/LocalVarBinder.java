@@ -26,7 +26,7 @@ public class LocalVarBinder extends ANodeBinder {
             ISyntaxNode initializationNode,
             IOpenClass varType,
             IBindingContext bindingContext,
-            boolean implyExpressionType) throws Exception {
+            boolean implyExpressionType) {
         IBoundNode init = null;
 
         if (initializationNode != null) {

@@ -20,12 +20,12 @@ public class DimensionPropertiesDomainsCollector {
     /**
      * Map of domain collectors. Key: property name. Value: domain collector for this property.
      */
-    private Map<String, IDomainCollector> domainCollectors = new HashMap<String, IDomainCollector>();
+    private Map<String, IDomainCollector> domainCollectors = new HashMap<>();
 
     /**
      * Map of domains for appropriate properties.
      */
-    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<String, IDomainAdaptor>();
+    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<>();
 
     // date domain collector should be one for all dates in project.
     private DateDomainCollector dateDomainCollector = new DateDomainCollector();
@@ -40,7 +40,7 @@ public class DimensionPropertiesDomainsCollector {
     public Map<String, IDomainAdaptor> gatherPropertiesDomains(List<Map<String, Object>> methodsProperties) {
         gatherAllDomains(methodsProperties);
         applyAllDomains();
-        return new HashMap<String, IDomainAdaptor>(propertiesDomains);
+        return new HashMap<>(propertiesDomains);
     }
 
     private void applyAllDomains() {

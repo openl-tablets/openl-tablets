@@ -176,7 +176,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         } else if (!value.getName().equals(name)) {
             org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(value,
                 NumberOperations.COPY,
-                new org.openl.meta.BigDecimalValue[] { value });
+                value);
             result.setName(name);
 
             return result;
@@ -317,13 +317,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.BigDecimalValue(value1,
-                    value2,
-                    divide(ONE, value2).getValue(),
-                    Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.BigDecimalValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -368,9 +363,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         if (number != null && divisor != null) {
             org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.BigDecimalValue(result,
-                NumberOperations.MOD,
-                new org.openl.meta.BigDecimalValue[] { number, divisor });
+            return new org.openl.meta.BigDecimalValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -417,10 +410,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigDecimalValue(
-            new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())),
-            NumberOperations.POW,
-            new org.openl.meta.BigDecimalValue[] { value1, value2 });
+        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(
+            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -437,9 +428,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         // evaluate result
         org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.BigDecimalValue(result,
-            NumberOperations.ABS,
-            new org.openl.meta.BigDecimalValue[] { value });
+        return new org.openl.meta.BigDecimalValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -772,7 +761,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
         return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMethod)),
             NumberOperations.ROUND,
-            new BigDecimalValue[] { value });
+            value);
     }
 
     public BigDecimalValue(String valueString) {
@@ -780,7 +769,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /** Function constructor **/
-    public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue[] params) {
+    public BigDecimalValue(BigDecimalValue result, NumberOperations function, BigDecimalValue... params) {
         super(function, params);
         this.value = result.getValue();
     }

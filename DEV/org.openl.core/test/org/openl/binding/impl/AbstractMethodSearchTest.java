@@ -53,12 +53,19 @@ public abstract class AbstractMethodSearchTest {
         castFactory = openLConfiguration;
     }
 
-    final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>... classes) {
+    final void assertInvoke(Object expected,
+            Class<?> target,
+            String methodName,
+            Class<?>... classes) throws AmbiguousMethodException {
         Object[] args = toArgs(classes);
         assertInvoke(expected, target, methodName, classes, args);
     }
 
-    final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>[] classes, Object[] args) {
+    final void assertInvoke(Object expected,
+            Class<?> target,
+            String methodName,
+            Class<?>[] classes,
+            Object[] args) throws AmbiguousMethodException {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         IOpenClass[] openClasses = toOpenClasses(classes);
@@ -83,7 +90,7 @@ public abstract class AbstractMethodSearchTest {
         return openClasses;
     }
 
-    final void assertNotFound(Class<?> target, String methodName, Class<?>... classes) {
+    final void assertNotFound(Class<?> target, String methodName, Class<?>... classes) throws AmbiguousMethodException {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         IOpenClass[] openClasses = toOpenClasses(classes);
@@ -104,7 +111,10 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final void assertMethod(Class<?> target, String methodName, Class<?>[] classes, Object... expectes) {
+    final void assertMethod(Class<?> target,
+            String methodName,
+            Class<?>[] classes,
+            Object... expectes) throws AmbiguousMethodException {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
             Object expected = expectes[i];
@@ -116,7 +126,7 @@ public abstract class AbstractMethodSearchTest {
             String methodName,
             Class<?> class1,
             Class<?>[] classes,
-            Object... expectes) {
+            Object... expectes) throws AmbiguousMethodException {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
             Object expected = expectes[i];
@@ -124,7 +134,10 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final void assertMethod(Object expected, Class<?> target, String methodName, Class<?>... classes) {
+    final void assertMethod(Object expected,
+            Class<?> target,
+            String methodName,
+            Class<?>... classes) throws AmbiguousMethodException {
         if (NF.equals(expected)) {
             assertNotFound(target, methodName, classes);
         } else if (AMB.equals(expected)) {

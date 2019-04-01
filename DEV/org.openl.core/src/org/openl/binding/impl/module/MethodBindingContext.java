@@ -2,6 +2,7 @@ package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
@@ -62,12 +63,12 @@ public class MethodBindingContext extends BindingContextDelegator {
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String, org.openl.types.IOpenClass)
      */
     @Override
-    public ILocalVar addVar(String namespace, String name, IOpenClass type) {
+    public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return localFrame.addVar(namespace, name, type);
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
         IOpenField var = localFrame.findLocalVar(namespace, name);
 
         if (var != null) {

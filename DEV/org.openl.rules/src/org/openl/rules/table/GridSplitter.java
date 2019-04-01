@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class GridSplitter {
 
-    private List<IGridTable> tables = new ArrayList<IGridTable>();
+    private List<IGridTable> tables = new ArrayList<>();
     private RegionsPool pool = new RegionsPool(null);
 
     private IGrid grid;

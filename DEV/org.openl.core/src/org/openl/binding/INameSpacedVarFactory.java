@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.types.IOpenField;
 
 /**
@@ -13,5 +14,5 @@ import org.openl.types.IOpenField;
  *
  */
 public interface INameSpacedVarFactory {
-    IOpenField getVar(String namespace, String name, boolean strictMatch);
+    IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException;
 }

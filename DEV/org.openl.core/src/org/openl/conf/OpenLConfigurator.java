@@ -36,8 +36,7 @@ public class OpenLConfigurator extends Configurator {
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
-    public synchronized IOpenLBuilder getBuilder(String openlName,
-            IUserContext ucxt) throws OpenConfigurationException {
+    public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) {
         String userHome = ucxt.getUserHome();
 
         String[] homes;
@@ -67,7 +66,7 @@ public class OpenLConfigurator extends Configurator {
 
             return builder;
         } catch (Exception ex) {
-            throw new OpenConfigurationException("Error creating builder: ", null, ex);
+            throw new OpenLConfigurationException("Error creating builder: ", null, ex);
         }
     }
 

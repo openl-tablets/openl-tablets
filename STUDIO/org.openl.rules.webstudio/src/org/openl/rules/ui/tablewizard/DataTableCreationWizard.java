@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,9 +46,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
     private SelectItem[] domainTypes;
     private List<TableSyntaxNode> allDataTables;
     private Collection<IOpenClass> importedClasses;
-
-    public DataTableCreationWizard() {
-    }
 
     public String getTableType() {
         return tableType;
@@ -111,7 +109,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
-        allDataTables = new ArrayList<TableSyntaxNode>();
+        allDataTables = new ArrayList<>();
         for (TableSyntaxNode tbl : WizardUtils.getTableSyntaxNodes()) {
             if (XlsNodeTypes.XLS_DATA.toString().equals(tbl.getType())) {
                 allDataTables.add(tbl);
@@ -182,7 +180,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @return possible foreign key table array
      */
     public SelectItem[] getForeignKeyTables(String typeName) {
-        List<String> tableNames = new ArrayList<String>();
+        List<String> tableNames = new ArrayList<>();
 
         IOpenClass to = getUserDefinedType(typeName);
 
@@ -224,7 +222,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @return columns of a table
      */
     public SelectItem[] getTableColumns(String typeName) {
-        List<String> columns = new ArrayList<String>();
+        List<String> columns = new ArrayList<>();
         columns.add("");
 
         IOpenClass type = getUserDefinedType(typeName);

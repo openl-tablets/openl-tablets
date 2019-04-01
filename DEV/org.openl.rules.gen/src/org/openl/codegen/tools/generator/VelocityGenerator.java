@@ -20,7 +20,7 @@ public class VelocityGenerator {
     private VelocityEngine velocityEngine;
     private static VelocityGenerator instance;
 
-    public VelocityGenerator(Properties properties) throws Exception {
+    public VelocityGenerator(Properties properties) {
         init(properties);
     }
 
@@ -29,7 +29,7 @@ public class VelocityGenerator {
      * 
      * @throws Exception if an error has occured
      */
-    private void init(Properties properties) throws Exception {
+    private void init(Properties properties) {
 
         this.velocityEngine = new VelocityEngine();
         this.velocityEngine.init(properties);
@@ -41,7 +41,7 @@ public class VelocityGenerator {
      * @return instance object
      * @throws Exception if an error has occured
      */
-    public static VelocityGenerator getInstance(Properties properties) throws Exception {
+    public static VelocityGenerator getInstance(Properties properties) {
 
         if (instance == null) {
             instance = new VelocityGenerator(properties);
@@ -58,7 +58,7 @@ public class VelocityGenerator {
      * @return generated string
      * @throws Exception if an error has occured
      */
-    public String generate(String templateName, Map<String, Object> variables) throws Exception {
+    public String generate(String templateName, Map<String, Object> variables) {
 
         Template template = velocityEngine.getTemplate(templateName);
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class UndoableActions {
 
-    private ArrayList<IUndoableAction> undoableActions = new ArrayList<IUndoableAction>();
+    private ArrayList<IUndoableAction> undoableActions = new ArrayList<>();
 
     private int currentUndoIndex = 0;
     private int undoSize = 0;

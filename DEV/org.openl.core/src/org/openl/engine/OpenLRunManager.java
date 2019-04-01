@@ -54,7 +54,7 @@ public class OpenLRunManager extends OpenLHolder {
     public Object runMethod(IOpenSourceCodeModule source,
             final String methodName,
             IOpenClass[] paramTypes,
-            Object[] params) {
+            Object[] params) throws AmbiguousMethodException {
 
         IOpenClass openClass = compileManager.compileModule(source, false, null);
         IOpenVM vm = getOpenL().getVm();

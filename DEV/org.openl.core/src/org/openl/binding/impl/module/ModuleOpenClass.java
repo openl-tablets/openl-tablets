@@ -18,6 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -87,7 +91,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * 
      * @param dependency compiled dependency module
      */
-    protected void addMethods(CompiledDependency dependency) {
+    protected void addMethods(CompiledDependency dependency) throws DuplicatedMethodException {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
@@ -118,7 +122,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return false;
     }
 
-    protected void addFields(CompiledDependency dependency) {
+    protected void addFields(CompiledDependency dependency) throws DuplicatedFieldException {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
             try {
@@ -139,7 +143,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * At first tries to get the field from current module, if can`t search in dependencies.
      */
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
         // try to get field from own field map
         //
         IOpenField field = super.getField(fname, strictMatch);
@@ -215,7 +219,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         for (IOpenClass type : compiledOpenClass.getTypes()) {
             try {
                 addType(type);
-            } catch (OpenLCompilationException e) {
+            } catch (OpenlNotCheckedException e) {
                 addError(e);
             }
         }
@@ -238,10 +242,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @throws OpenLCompilationException if an error had occurred.
      */
     @Override
-    public void addType(IOpenClass type) throws OpenLCompilationException {
+    public void addType(IOpenClass type) {
         IOpenClass openClass = internalTypes.put(type.getName(), type);
         if (openClass != null && !openClass.equals(type) && openClass.getPackageName().equals(type.getPackageName())) {
-            throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
+            throw new DuplicatedTypeException(null, type.getName());
         }
     }
 

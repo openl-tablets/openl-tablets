@@ -110,7 +110,7 @@ public class String2DataConvertorFactory {
             Class<?> componentType = clazz.getComponentType();
             convertor = new String2ArrayConvertor(componentType);
         } else {
-            convertor = new String2ConstructorConvertor<T>(clazz);
+            convertor = new String2ConstructorConvertor<>(clazz);
         }
 
         Lock writeLock = convertorsLock.writeLock();

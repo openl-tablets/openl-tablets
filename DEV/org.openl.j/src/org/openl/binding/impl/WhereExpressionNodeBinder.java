@@ -10,7 +10,7 @@ import org.openl.syntax.ISyntaxNode;
  */
 public class WhereExpressionNodeBinder extends ANodeBinder {
 
-    public static IBoundNode makeLocalVar(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    public static IBoundNode makeLocalVar(ISyntaxNode node, IBindingContext bindingContext) {
         return bindChildNode(node, bindingContext);
     }
 

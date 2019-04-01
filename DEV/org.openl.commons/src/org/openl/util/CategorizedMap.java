@@ -65,9 +65,9 @@ public class CategorizedMap {
 
     }
 
-    private HashMap<String, Category> categories = new HashMap<String, Category>();
+    private HashMap<String, Category> categories = new HashMap<>();
 
-    protected HashMap<String, Object> all = new HashMap<String, Object>();
+    protected HashMap<String, Object> all = new HashMap<>();
 
     private Object findByCategory(String str) {
         Category c = getCategory(str);
