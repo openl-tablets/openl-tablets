@@ -2321,6 +2321,11 @@ public final class RulesUtils {
     }
 
     public static double pow(Double a, Double b) {
+        if (a == null) {
+            return b == null ? null : 0;
+        } else if (b == null) {
+            return a;
+        }
         return Math.pow(a, b);
     }
 
