@@ -52,7 +52,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private int top;
     private int left;
 
-    private Map<String, String> inputParametersToReturn = new HashMap<>();
+    private Map<String, String> inputParametersToReturn = new TreeMap<>();
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         this(boundNode, null);
@@ -70,9 +70,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         } else {
             StringBuilder sb = new StringBuilder();
             for (Entry<String, String> entry : inputParametersToReturn.entrySet()) {
-                sb.append("Value ");
+                if (sb.length() > 0) {
+                    sb.append("\n");
+                }
+                sb.append("Input ");
                 sb.append(entry.getKey());
-                sb.append(" is used for return ");
+                sb.append(" is set to return ");
                 sb.append(entry.getValue());
             }
             return sb.toString();
