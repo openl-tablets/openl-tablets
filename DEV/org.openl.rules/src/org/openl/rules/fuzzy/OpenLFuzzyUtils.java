@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -321,7 +322,9 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
-    public static Token[] openlFuzzyExtract(String source, Token[] tokens) {
+    private static final Token[] EMPTY_TOKENS = new Token[] {};
+
+    public static Triple<Token[], Integer, Integer> openlFuzzyExtract(String source, Token[] tokens) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");
@@ -381,7 +384,7 @@ public final class OpenLFuzzyUtils {
         }
 
         if (max == 0) {
-            return new Token[] {};
+            return Triple.of(EMPTY_TOKENS, 0, 0);
         }
 
         int min = Integer.MAX_VALUE;
@@ -404,12 +407,12 @@ public final class OpenLFuzzyUtils {
             }
         }
         if (count == 0) {
-            return new Token[] {};
+            return Triple.of(EMPTY_TOKENS, 0, 0);
         }
         if (count == 1) {
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return new Token[] { tokens[i] };
+                    return Triple.of(new Token[] { tokens[i] }, max, min);
                 }
             }
         } else {
@@ -442,8 +445,8 @@ public final class OpenLFuzzyUtils {
                 }
             }
 
-            return ret.toArray(new Token[] {});
+            return Triple.of(ret.toArray(new Token[] {}), max, min);
         }
-        return new Token[] {};
+        return Triple.of(EMPTY_TOKENS, 0, 0);
     }
 }
