@@ -81,7 +81,7 @@ public abstract class AOpenClass implements IOpenClass {
     public static IOpenClass getArrayType(IOpenClass openClass, int dim) {
         if (dim > 0) {
             IOpenClass arrayType = JavaOpenClass
-                .getOpenClass(Array.newInstance(openClass.getInstanceClass(), dim).getClass());
+                .getOpenClass(Array.newInstance(openClass.getInstanceClass(), new int[dim]).getClass());
             if (openClass.getDomain() != null) {
                 StringBuilder domainOpenClassName = new StringBuilder(openClass.getName());
                 for (int j = 0; j < dim; j++) {
