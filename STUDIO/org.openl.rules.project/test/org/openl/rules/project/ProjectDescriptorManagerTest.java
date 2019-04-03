@@ -1,6 +1,9 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,7 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 
 public class ProjectDescriptorManagerTest {
