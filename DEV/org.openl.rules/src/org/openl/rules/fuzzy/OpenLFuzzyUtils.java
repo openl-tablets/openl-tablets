@@ -113,7 +113,7 @@ public final class OpenLFuzzyUtils {
                 map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 0, setterMethods);
             } else {
                 map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 1, setterMethods);
-                Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>();
+                Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
                 for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
                     Token updatedToken = new Token(toTokenString(tokenPrefix + " " + entry.getKey().getValue()),
                         entry.getKey().getDistance());
@@ -228,22 +228,53 @@ public final class OpenLFuzzyUtils {
                                 }
                             }
 
+                            LinkedList<LinkedList<IOpenMethod>> x2 = null;
+                            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry1 : ret.entrySet()) {
+                                Token token = entry1.getKey();
+                                if (token.getValue().equals(entry.getKey().getValue())) {
+                                    x2 = entry1.getValue();
+                                    break;
+                                }
+                            }
+
                             for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                y.addFirst(method);
+                                LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
+                                y1.addFirst(method);
                                 if (x1 == null) {
                                     x1 = new LinkedList<>();
-                                    x1.add(y);
+                                    x1.add(y1);
                                     ret.put(new Token(k, entry.getKey().getDistance() + 1), x1);
                                     distanceMap.put(k, entry.getKey().getDistance() + 1);
                                 } else {
                                     Integer d = distanceMap.get(k);
                                     if (d == null || d == entry.getKey().getDistance() + 1) {
-                                        x1.add(y);
+                                        x1.add(y1);
                                     } else {
-                                        if (d < entry.getKey().getDistance() + 1) {
+                                        if (d > entry.getKey().getDistance() + 1) {
                                             x1.clear();
-                                            x1.add(y);
+                                            x1.add(y1);
                                             distanceMap.put(k, entry.getKey().getDistance() + 1);
+                                        }
+                                    }
+                                }
+
+                                y1 = new LinkedList<>(y);
+                                y1.addFirst(method);
+                                if (x2 == null) {
+                                    x2 = new LinkedList<>();
+                                    x2.add(y1);
+                                    ret.put(new Token(entry.getKey().getValue(), entry.getKey().getDistance() + 1), x2);
+                                    distanceMap.put(entry.getKey().getValue(), entry.getKey().getDistance() + 1);
+                                } else {
+                                    Integer d = distanceMap.get(entry.getKey().getValue());
+                                    if (d == null || d == entry.getKey().getDistance() + 1) {
+                                        x2.add(y1);
+                                    } else {
+                                        if (d > entry.getKey().getDistance() + 1) {
+                                            x2.clear();
+                                            x2.add(y1);
+                                            distanceMap.put(entry.getKey().getValue(),
+                                                entry.getKey().getDistance() + 1);
                                         }
                                     }
                                 }
@@ -353,16 +384,8 @@ public final class OpenLFuzzyUtils {
             while (l < sortedSourceTokens.length && r < sortedTokens.length) {
                 double d = StringUtils.getJaroWinklerDistance(sortedSourceTokens[l], sortedTokens[r]);
                 if (d > ACCEPTABLE_SIMILARITY_VALUE) {
-                    for (String s : sortedSourceTokens) {
-                        if (Objects.equals(s, sortedSourceTokens[l])) {
-                            source1.add(sortedSourceTokens[l]);
-                        }
-                    }
-                    for (String s : sortedTokens) {
-                        if (Objects.equals(s, sortedTokens[r])) {
-                            target1.add(sortedTokens[r]);
-                        }
-                    }
+                    source1.add(sortedSourceTokens[l]);
+                    target1.add(sortedTokens[r]);
                     l++;
                     r++;
                     c++;
@@ -412,7 +435,7 @@ public final class OpenLFuzzyUtils {
         if (count == 1) {
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return Triple.of(new Token[] { tokens[i] }, max, min);
+                    return Triple.of(new Token[] { tokens[i] }, max, minDistance);
                 }
             }
         } else {
@@ -445,7 +468,7 @@ public final class OpenLFuzzyUtils {
                 }
             }
 
-            return Triple.of(ret.toArray(new Token[] {}), max, min);
+            return Triple.of(ret.toArray(new Token[] {}), max, minDistance);
         }
         return Triple.of(EMPTY_TOKENS, 0, 0);
     }
