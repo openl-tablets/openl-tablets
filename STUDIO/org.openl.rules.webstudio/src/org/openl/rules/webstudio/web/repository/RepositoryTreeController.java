@@ -1058,7 +1058,7 @@ public class RepositoryTreeController {
         }
 
 
-        return "";
+        return config.get("design-repository.comment-template.user-message.default.save").toString();
     }
 
     public String getNewProjectName() {
