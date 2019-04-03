@@ -120,7 +120,7 @@ public abstract class AbstractProductionRepoController {
             RepositorySettings settings = repositoryConfiguration.getSettings();
             if (settings instanceof CommonRepositorySettings) {
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
-                if (s.isSecure() && StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword())) {
+                if (s.isSecure() && (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword()))) {
                     throw new RepositoryValidationException(
                         "Invalid login or password. Please, check login and password");
                 }
