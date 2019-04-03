@@ -53,7 +53,8 @@
   <context-param>
     <param-name>com.sun.faces.annotationScanPackages</param-name>
     <param-value>
-      org.openl.rules.webstudio.web,org.openl.rules.ui.tablewizard
+      org.openl.rules.webstudio.web
+      org.openl.rules.ui.tablewizard
     </param-value>
   </context-param>
 
