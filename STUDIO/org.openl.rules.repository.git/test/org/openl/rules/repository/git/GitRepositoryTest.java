@@ -580,7 +580,7 @@ public class GitRepositoryTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);
-        repo.setCommentPattern("WebStudio: {0}. {1}");
+        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         repo.setGitSettingsPath(settingsPath);
         repo.initialize();

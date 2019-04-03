@@ -51,7 +51,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String baseBranch = branch;
     private String tagPrefix = "";
     private int listenerTimerPeriod = 10;
-    private String commentPattern;
+    private String commentTemplate;
     private String gitSettingsPath;
 
     private ChangesMonitor monitor;
@@ -97,7 +97,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             git.add().addFilepattern(fileInRepository).call();
             RevCommit commit = git.commit()
-                    .setMessage(StringUtils.trimToEmpty(data.getComment()))
+                    .setMessage(formatComment(CommitType.SAVE, data))
                     .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
                     .setOnly(fileInRepository)
                     .call();
@@ -130,8 +130,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             if (file.isDirectory()) {
-                String comment = StringUtils.trimToEmpty(data.getComment());
-                String commitMessage = MessageFormat.format(commentPattern, CommitType.ARCHIVE, comment);
+                String commitMessage = formatComment(CommitType.ARCHIVE, data);
 
                 // Create marker file if it absents and write current time
                 try (DataOutputStream os = new DataOutputStream(new FileOutputStream(new File(file, DELETED_MARKER_FILE)))) {
@@ -151,7 +150,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 // Files can't be archived. Only folders.
                 git.rm().addFilepattern(name).call();
                 RevCommit commit = git.commit()
-                        .setMessage(StringUtils.trimToEmpty(data.getComment()))
+                        .setMessage(formatComment(CommitType.ERASE, data))
                         .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
                         .call();
                 addTagToCommit(commit);
@@ -183,7 +182,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
-                    .setMessage(StringUtils.trimToEmpty(destData.getComment()))
+                    .setMessage(formatComment(CommitType.SAVE, destData))
                     .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
                     .call();
             addTagToCommit(commit);
@@ -231,7 +230,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String name = data.getName();
         String version = data.getVersion();
         String author = StringUtils.trimToEmpty(data.getAuthor());
-        String comment = StringUtils.trimToEmpty(data.getComment());
 
         Lock writeLock = repositoryLock.writeLock();
         try {
@@ -242,7 +240,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             RevCommit commit;
             if (version == null) {
                 git.rm().addFilepattern(name).call();
-                String commitMessage = MessageFormat.format(commentPattern, CommitType.ERASE, comment);
+                String commitMessage = formatComment(CommitType.ERASE, data);
                 commit = git.commit()
                         .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "")
                         .setMessage(commitMessage)
@@ -263,7 +261,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.rm().addFilepattern(markerFile).call();
-                String commitMessage = MessageFormat.format(commentPattern, CommitType.RESTORE, comment);
+                String commitMessage = formatComment(CommitType.RESTORE, data);
                 commit = git.commit()
                         .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "")
                         .setMessage(commitMessage)
@@ -498,8 +496,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    public void setCommentPattern(String commentPattern) {
-        this.commentPattern = commentPattern;
+    public void setCommentTemplate(String commentTemplate) {
+        this.commentTemplate = commentTemplate
+                .replace("{commit-type}", "{0}")
+                .replace("{user-message}", "{1}")
+                .replace("{username}", "{2}");
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -526,7 +527,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
-        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), start, getFileId(dirWalk), commentPattern);
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), start, getFileId(dirWalk),
+                commentTemplate);
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -540,7 +542,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
         String fullPath = dirWalk.getPathString();
 
-        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), fileCommit, getFileId(dirWalk), commentPattern);
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), fileCommit, getFileId(dirWalk),
+                commentTemplate);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -766,7 +769,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             removeAbsentFiles(basePath, folder, savedFiles, changedFiles);
 
             CommitCommand commitCommand = git.commit()
-                    .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
+                    .setMessage(formatComment(CommitType.SAVE, folderData))
                     .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(), userEmail != null ? userEmail : "");
 
             RevCommit commit;
@@ -915,7 +918,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     repository.baseBranch = baseBranch; // Base branch is only one
                     repository.setTagPrefix(tagPrefix);
                     repository.setListenerTimerPeriod(listenerTimerPeriod);
-                    repository.setCommentPattern(commentPattern);
+                    repository.setCommentTemplate(commentTemplate);
                     repository.setGitSettingsPath(gitSettingsPath);
                     repository.git = Git.open(new File(localRepositoryPath));
                     repository.repositoryLock = repositoryLock; // must be common for all instances because git repository is same
@@ -1035,6 +1038,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // uri can be a folder path. It's not valid URI but git accepts paths too.
             return new File(uriOrPath).toURI();
         }
+    }
+
+    private String formatComment(CommitType commitType, FileData data) {
+        String comment = StringUtils.trimToEmpty(data.getComment());
+        return MessageFormat.format(commentTemplate, commitType, comment, data.getAuthor());
     }
 
     private class GitRevisionGetter implements RevisionGetter {

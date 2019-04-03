@@ -64,6 +64,19 @@
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
+
+        <h:outputText value="Commit template:"/>
+        <h:inputText value="#{settings.commentTemplate}"
+                     title="Comment pattern for special commits: archive/restore/erase the project. Use {username} for predefined OpenL-specific Commit Type used by OpenL, {user-message} for meaningful message describing commit, {username} for commit author."
+                     id="#{prependId}gitCommentTemplate" validator="#{validators.commentValidationTemplate}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitCommentTemplate" styleClass="error"/>
+
+        <h:outputText value="Comment default when save:"/>
+        <h:inputText value="#{settings.defaultCommentSave}"
+                     title="Default message for 'Save project'"
+                     id="#{prependId}gitDefaultCommentSave"/>
+
     </h:panelGrid>
 
 </ui:composition>
