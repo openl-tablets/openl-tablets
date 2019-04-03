@@ -6,7 +6,11 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.Property;
 import org.openl.util.CollectionUtils;
 
 import com.thoughtworks.xstream.XStream;
