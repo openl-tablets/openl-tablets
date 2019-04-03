@@ -16,10 +16,10 @@ public final class OpenLFuzzyUtils {
     private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
     private static final int DEEP_LEVEL = 5;
 
-    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
         .withInitial(HashMap::new);
 
-    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForGetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForGetterMethods = ThreadLocal
         .withInitial(HashMap::new);
 
     private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
@@ -98,24 +98,24 @@ public final class OpenLFuzzyUtils {
     private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
             String tokenPrefix,
             boolean setterMethods) {
-        Map<IOpenClass, Map<Token, IOpenMethod[][]>> cache = null;
+        Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache = null;
         if (setterMethods) {
             cache = openlClassRecursivelyCacheForSetterMethods.get();
         } else {
             cache = openlClassRecursivelyCacheForGetterMethods.get();
         }
-        Map<Token, IOpenMethod[][]> ret = cache.get(openClass);
+        Map<String, Map<Token, IOpenMethod[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
+        final String tokenizedPrefix = toTokenString(tokenPrefix);
+        Map<Token, IOpenMethod[][]> ret = cache1.get(tokenizedPrefix);
         if (ret == null) {
-            Map<String, Integer> distanceMap = new HashMap<>(); // For
-            // optimization
             Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
             if (StringUtils.isBlank(tokenPrefix)) {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 0, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
             } else {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 1, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
                 Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
                 for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
-                    Token updatedToken = new Token(toTokenString(tokenPrefix + " " + entry.getKey().getValue()),
+                    Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
                         entry.getKey().getDistance());
                     updatedMap.put(updatedToken, entry.getValue());
                 }
@@ -137,9 +137,21 @@ public final class OpenLFuzzyUtils {
                 }
                 ret.put(entry.getKey(), m);
             }
-            cache.put(openClass, ret);
+            cache1.put(tokenizedPrefix, ret);
         }
         return ret;
+    }
+
+    public static boolean isEqualsMethodChains(IOpenMethod[] methodChain1, IOpenMethod[] methodChain2) {
+        if (methodChain1.length != methodChain2.length) {
+            return false;
+        }
+        for (int i = 0; i < methodChain1.length; i++) {
+            if (!Objects.equals(methodChain1[i], methodChain2[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isSetterMethod(IOpenMethod method) {
@@ -154,7 +166,6 @@ public final class OpenLFuzzyUtils {
 
     private static Map<Token, LinkedList<LinkedList<IOpenMethod>>> buildTokensMapToOpenClassMethodsRecursively(
             IOpenClass openClass,
-            Map<String, Integer> distanceMap,
             int deepLevel,
             boolean setterMethods) {
         if (deepLevel >= DEEP_LEVEL) {
@@ -181,27 +192,17 @@ public final class OpenLFuzzyUtils {
                     LinkedList<LinkedList<IOpenMethod>> x = null;
                     for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : ret.entrySet()) {
                         Token token = entry.getKey();
-                        if (token.getValue().equals(t)) {
+                        if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
                             x = entry.getValue();
                             break;
                         }
                     }
                     if (x == null) {
                         x = new LinkedList<>();
-                        ret.put(new Token(t, deepLevel), x);
                         x.add(methods);
-                        distanceMap.put(t, deepLevel);
+                        ret.put(new Token(t, deepLevel), x);
                     } else {
-                        Integer d = distanceMap.get(t);
-                        if (d == null || d == deepLevel) {
-                            x.add(methods);
-                        } else {
-                            if (d < deepLevel) {
-                                x.clear();
-                                x.add(methods);
-                                distanceMap.put(t, deepLevel);
-                            }
-                        }
+                        x.add(methods);
                     }
 
                     IOpenClass type = null;
@@ -214,69 +215,23 @@ public final class OpenLFuzzyUtils {
                     if (!type.isSimple() && !type.isArray()) {
                         Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassMethodsRecursively(
                             type,
-                            distanceMap,
                             deepLevel + 1,
                             setterMethods);
                         for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
-                            String k = t + " " + entry.getKey().getValue();
-                            LinkedList<LinkedList<IOpenMethod>> x1 = null;
-                            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry1 : ret.entrySet()) {
-                                Token token = entry1.getKey();
-                                if (token.getValue().equals(k)) {
-                                    x1 = entry1.getValue();
-                                    break;
+                            if (!entry.getValue().isEmpty()) {
+                                Token k = new Token(t + " " + entry.getKey().getValue(),
+                                    entry.getKey().getDistance() + 1);
+                                LinkedList<LinkedList<IOpenMethod>> v = ret.computeIfAbsent(k, e -> new LinkedList<>());
+                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
+                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
+                                    y1.addFirst(method);
+                                    v.add(y1);
                                 }
-                            }
-
-                            LinkedList<LinkedList<IOpenMethod>> x2 = null;
-                            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry1 : ret.entrySet()) {
-                                Token token = entry1.getKey();
-                                if (token.getValue().equals(entry.getKey().getValue())) {
-                                    x2 = entry1.getValue();
-                                    break;
-                                }
-                            }
-
-                            for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
-                                y1.addFirst(method);
-                                if (x1 == null) {
-                                    x1 = new LinkedList<>();
-                                    x1.add(y1);
-                                    ret.put(new Token(k, entry.getKey().getDistance() + 1), x1);
-                                    distanceMap.put(k, entry.getKey().getDistance() + 1);
-                                } else {
-                                    Integer d = distanceMap.get(k);
-                                    if (d == null || d == entry.getKey().getDistance() + 1) {
-                                        x1.add(y1);
-                                    } else {
-                                        if (d > entry.getKey().getDistance() + 1) {
-                                            x1.clear();
-                                            x1.add(y1);
-                                            distanceMap.put(k, entry.getKey().getDistance() + 1);
-                                        }
-                                    }
-                                }
-
-                                y1 = new LinkedList<>(y);
-                                y1.addFirst(method);
-                                if (x2 == null) {
-                                    x2 = new LinkedList<>();
-                                    x2.add(y1);
-                                    ret.put(new Token(entry.getKey().getValue(), entry.getKey().getDistance() + 1), x2);
-                                    distanceMap.put(entry.getKey().getValue(), entry.getKey().getDistance() + 1);
-                                } else {
-                                    Integer d = distanceMap.get(entry.getKey().getValue());
-                                    if (d == null || d == entry.getKey().getDistance() + 1) {
-                                        x2.add(y1);
-                                    } else {
-                                        if (d > entry.getKey().getDistance() + 1) {
-                                            x2.clear();
-                                            x2.add(y1);
-                                            distanceMap.put(entry.getKey().getValue(),
-                                                entry.getKey().getDistance() + 1);
-                                        }
-                                    }
+                                v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
+                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
+                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
+                                    y1.addFirst(method);
+                                    v.add(y1);
                                 }
                             }
                         }

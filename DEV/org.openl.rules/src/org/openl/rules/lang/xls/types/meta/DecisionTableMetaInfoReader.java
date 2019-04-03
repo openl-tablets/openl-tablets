@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -52,7 +53,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private int top;
     private int left;
 
-    private Map<String, String> inputParametersToReturn = new TreeMap<>();
+    private List<Pair<String, String>> inputParametersToReturn = new ArrayList<>();
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         this(boundNode, null);
@@ -69,14 +70,15 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return null;
         } else {
             StringBuilder sb = new StringBuilder();
-            for (Entry<String, String> entry : inputParametersToReturn.entrySet()) {
+            Collections.sort(inputParametersToReturn, (o1, o2) -> o1.getKey().compareTo(o2.getKey()));
+            for (Pair<String, String> p : inputParametersToReturn) {
                 if (sb.length() > 0) {
                     sb.append("\n");
                 }
                 sb.append("Input ");
-                sb.append(entry.getKey());
+                sb.append(p.getKey());
                 sb.append(" is set to return ");
-                sb.append(entry.getValue());
+                sb.append(p.getValue());
             }
             return sb.toString();
         }
@@ -487,6 +489,6 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     public void addInputParametersToReturn(String statementInInputParameters, String statementInReturn) {
-        this.inputParametersToReturn.put(statementInInputParameters, statementInReturn);
+        this.inputParametersToReturn.add(Pair.of(statementInInputParameters, statementInReturn));
     }
 }
