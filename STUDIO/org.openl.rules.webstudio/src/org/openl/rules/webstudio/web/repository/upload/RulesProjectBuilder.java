@@ -5,7 +5,6 @@ import java.io.InputStream;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -19,9 +18,11 @@ public class RulesProjectBuilder {
     private final RulesProject project;
     private final UserWorkspace workspace;
     private final String internalPath;
+    private final String comment;
 
-    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder) throws ProjectException {
+    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder, String comment) throws ProjectException {
         this.workspace = workspace;
+        this.comment = comment;
         internalPath = projectFolder + projectName;
         synchronized (this.workspace) {
             // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
@@ -73,7 +74,7 @@ public class RulesProjectBuilder {
 
             synchronized (workspace) {
                 project.close();
-                project.erase(workspace.getUser());
+                project.erase(workspace.getUser(), comment);
             }
         } catch (ProjectException e) {
             log.error("Failed to cancel new project", e);
@@ -89,7 +90,7 @@ public class RulesProjectBuilder {
 
         // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
         // unerasable history for example in Git).
-        project.getFileData().setComment(Comments.createProject(project.getName()));
+        project.getFileData().setComment(comment);
         project.save(user);
         workspace.refresh();
     }

@@ -32,13 +32,16 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private PathFilter zipFilter;
     private File uploadedFile;
     private final Charset charset;
+    private final String comment;
 
     public ZipFileProjectCreator(String uploadedFileName,
             InputStream uploadedFileStream,
             String projectName, String projectFolder, UserWorkspace userWorkspace,
+            String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector) throws IOException{
         super(projectName, projectFolder, userWorkspace);
+        this.comment = comment;
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
         charset = zipCharsetDetector.detectCharset(new ZipFromFile(uploadedFile));
@@ -79,7 +82,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 getProjectName(),
                 getProjectFolder(),
                 zipFilter,
-                folderExtractor);
+                folderExtractor,
+                comment);
     }
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {

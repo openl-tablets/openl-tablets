@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.WebStudio;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpSession;
 import java.io.File;
@@ -27,15 +29,10 @@ import java.util.List;
 @ManagedBean(name = "localUpload")
 @RequestScoped
 public class LocalUploadController {
-    private boolean selectAll = false;
-
     public static class UploadBean {
         private String projectName;
 
         private boolean selected;
-
-        public UploadBean() {
-        }
 
         public UploadBean(String projectName) {
             this.projectName = projectName;
@@ -64,13 +61,16 @@ public class LocalUploadController {
 
     private String projectFolder = "";
 
-    private void createProject(File baseFolder, RulesUserSession rulesUserSession) throws ProjectException,
-            WorkspaceException, FileNotFoundException {
+    @ManagedProperty(value = "#{designRepositoryComments}")
+    private Comments designRepoComments;
+
+    private void createProject(File baseFolder, RulesUserSession rulesUserSession, String comment) throws ProjectException,
+                                                                                                          WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
 
-        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName(), projectFolder);
+        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName(), projectFolder, comment);
     }
 
     public List<UploadBean> getProjects4Upload() {
@@ -146,7 +146,8 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
+                        String comment = designRepoComments.createProject(bean.getProjectName());
+                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
                                 + " was created successfully");
                     } catch (Exception e) {
@@ -173,11 +174,14 @@ public class LocalUploadController {
         return null;
     }
 
+    public void setDesignRepoComments(Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
+    }
+
     public boolean isSelectAll() {
         return false;
     }
 
     public void setSelectAll(boolean selectAll) {
-        this.selectAll = selectAll;
     }
 }

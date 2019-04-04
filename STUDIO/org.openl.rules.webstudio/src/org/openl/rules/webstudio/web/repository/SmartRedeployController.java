@@ -60,6 +60,9 @@ public class SmartRedeployController {
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
+    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    private Comments deployConfigRepoComments;
+
     private List<DeploymentProjectItem> items;
 
     private String repositoryConfigName;
@@ -322,6 +325,10 @@ public class SmartRedeployController {
         this.projectDescriptorResolver = projectDescriptorResolver;
     }
 
+    public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
+        this.deployConfigRepoComments = deployConfigRepoComments;
+    }
+
     private ADeploymentProject update(String deploymentName, AProject project) {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
@@ -340,7 +347,7 @@ public class SmartRedeployController {
                 if (!workspace.hasDDProject(deploymentName)) {
                     // create if absent
                     deployConfiguration = workspace.createDDProject(deploymentName);
-                    deployConfiguration.getFileData().setComment(Comments.createProject(deploymentName));
+                    deployConfiguration.getFileData().setComment(deployConfigRepoComments.createProject(deploymentName));
                 }
             }
 

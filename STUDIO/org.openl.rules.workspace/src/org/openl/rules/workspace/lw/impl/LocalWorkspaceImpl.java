@@ -2,7 +2,6 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
@@ -146,7 +145,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public void removeProject(String name) throws ProjectException {
         AProject project = getProject(name);
         notifyRemoved(project);
-        project.delete(user);
+        project.delete(user, null);
     }
 
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {

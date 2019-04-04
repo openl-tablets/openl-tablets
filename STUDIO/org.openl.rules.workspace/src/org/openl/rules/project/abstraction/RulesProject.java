@@ -88,13 +88,13 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void delete(CommonUser user) throws ProjectException {
+    public void delete(CommonUser user, String comment) throws ProjectException {
         if (isLocalOnly()) {
             // If for some reason the project is locked we must unlock it.
             unlock();
-            erase(user);
+            erase(user, comment);
         } else {
-            super.delete(user);
+            super.delete(user, comment);
         }
     }
 
@@ -136,14 +136,14 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void erase(CommonUser user) throws ProjectException {
+    public void erase(CommonUser user, String comment) throws ProjectException {
         try {
             if (designFolderName != null) {
                 FileData data = new FileData();
                 data.setName(designFolderName);
                 data.setVersion(null);
                 data.setAuthor(getUser().getUserName());
-                data.setComment(Comments.eraseProject(getName()));
+                data.setComment(comment);
                 if (!designRepository.deleteHistory(data)) {
                     throw new ProjectException("Can't erase project because it is absent or can't be deleted");
                 }
