@@ -616,9 +616,10 @@ public final class DecisionTableHelper {
                     openlFuzzyExtractResult = result;
                 } else if (openlFuzzyExtractResult.getLeft().length != 1) {
                     openlFuzzyExtractResult = result;
-                } else if (openlFuzzyExtractResult.getMiddle() < result.getMiddle()) {
+                } else if (openlFuzzyExtractResult.getMiddle() < result.getMiddle() && result.getLeft().length == 1) {
                     openlFuzzyExtractResult = result;
-                } else if (openlFuzzyExtractResult.getRight() > result.getRight()) {
+                } else if (openlFuzzyExtractResult.getRight() > result.getRight() && openlFuzzyExtractResult
+                    .getMiddle() == result.getMiddle() && result.getLeft().length == 1) {
                     openlFuzzyExtractResult = result;
                 }
             }
