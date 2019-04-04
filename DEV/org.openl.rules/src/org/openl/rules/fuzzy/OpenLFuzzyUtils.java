@@ -143,15 +143,10 @@ public final class OpenLFuzzyUtils {
     }
 
     public static boolean isEqualsMethodChains(IOpenMethod[] methodChain1, IOpenMethod[] methodChain2) {
-        if (methodChain1.length != methodChain2.length) {
-            return false;
+        if (methodChain1 == methodChain2) {
+            return true;
         }
-        for (int i = 0; i < methodChain1.length; i++) {
-            if (!Objects.equals(methodChain1[i], methodChain2[i])) {
-                return false;
-            }
-        }
-        return true;
+        return Arrays.deepEquals(methodChain1, methodChain2);
     }
 
     public static boolean isSetterMethod(IOpenMethod method) {

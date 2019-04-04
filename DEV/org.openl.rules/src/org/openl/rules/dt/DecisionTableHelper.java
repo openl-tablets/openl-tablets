@@ -1862,6 +1862,13 @@ public final class DecisionTableHelper {
                 }
             }
 
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count()); // Select with min
+            // returns
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count()); // Select with min
+            // returns
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count()); // Select with max
+            // conditions
+
             return fits.get(0);
         }
 
