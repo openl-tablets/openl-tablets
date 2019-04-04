@@ -48,6 +48,9 @@ public class CopyBean {
     @ManagedProperty(value = "#{systemConfig}")
     private Map<String, Object> config;
 
+    @ManagedProperty(value = "#{designRepositoryComments}")
+    private Comments designRepoComments;
+
     private String currentProjectName;
     private String newProjectName;
     private String projectFolder;
@@ -107,7 +110,7 @@ public class CopyBean {
 
     public String getComment() {
         if (comment == null) {
-            return Comments.copiedFrom(getCurrentProjectName());
+            return designRepoComments.copiedFrom(getCurrentProjectName());
         }
         return comment;
     }
@@ -310,5 +313,9 @@ public class CopyBean {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+    }
+
+    public void setDesignRepoComments(Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
     }
 }

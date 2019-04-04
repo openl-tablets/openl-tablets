@@ -44,7 +44,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -65,8 +65,15 @@ import org.xml.sax.InputSource;
 public class RepositoryService {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryService.class);
 
-    @Autowired
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
+
+    private final Comments designRepoComments;
+
+    public RepositoryService(MultiUserWorkspaceManager workspaceManager,
+            @Qualifier("designRepositoryComments") Comments designRepoComments) {
+        this.workspaceManager = workspaceManager;
+        this.designRepoComments = designRepoComments;
+    }
 
     /**
      * @return a list of project descriptions.
@@ -302,7 +309,7 @@ public class RepositoryService {
                 delData.setName(existing.getName());
                 delData.setVersion(existing.getVersion());
                 delData.setAuthor(existing.getAuthor());
-                delData.setComment(Comments.restoreProject(name));
+                delData.setComment(designRepoComments.restoreProject(name));
                 repository.deleteHistory(delData);
             }
 
@@ -428,9 +435,5 @@ public class RepositoryService {
     private String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
-    }
-
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
     }
 }

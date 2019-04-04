@@ -179,7 +179,7 @@ public class AProject extends AProjectFolder {
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
     }
 
-    public void delete(CommonUser user) throws ProjectException {
+    public void delete(CommonUser user, String comment) throws ProjectException {
         if (isDeleted()) {
             throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
         }
@@ -192,7 +192,7 @@ public class AProject extends AProjectFolder {
         data.setName(fileData.getName());
         data.setVersion(fileData.getVersion());
         data.setAuthor(user.getUserName());
-        data.setComment(Comments.archiveProject(getName()));
+        data.setComment(comment);
         if (!getRepository().delete(data)) {
             throw new ProjectException("Resource is absent or can't be deleted");
         }
@@ -204,13 +204,13 @@ public class AProject extends AProjectFolder {
         refresh();
     }
 
-    public void erase(CommonUser user) throws ProjectException {
+    public void erase(CommonUser user, String comment) throws ProjectException {
         FileData fileData = getFileData();
         FileData data = new FileData();
         data.setName(fileData.getName());
         data.setVersion(null);
         data.setAuthor(user.getUserName());
-        data.setComment(Comments.eraseProject(getName()));
+        data.setComment(comment);
         if (!getRepository().deleteHistory(data)) {
             throw new ProjectException("Can't erase project because it is absent or can't be deleted");
         }
@@ -225,7 +225,7 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    public void undelete(CommonUser user) throws ProjectException {
+    public void undelete(CommonUser user, String comment) throws ProjectException {
         try {
             if (!isDeleted()) {
                 throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
@@ -238,7 +238,7 @@ public class AProject extends AProjectFolder {
                 data.setName(fileData.getName());
                 data.setVersion(fileData.getVersion());
                 data.setAuthor(user.getUserName());
-                data.setComment(Comments.restoreProject(getName()));
+                data.setComment(comment);
                 repository.deleteHistory(data);
                 FileData actual = repository.check(fileData.getName());
                 setFileData(actual);

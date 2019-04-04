@@ -18,14 +18,17 @@ public class ProjectUploader {
     private PathFilter zipFilter;
     private List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
+    private final String comment;
 
     public ProjectUploader(ProjectFile uploadedFile,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
+            String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector) {
         this.projectFolder = projectFolder;
+        this.comment = comment;
         this.zipCharsetDetector = zipCharsetDetector;
         this.uploadedFiles = new ArrayList<>();
         this.uploadedFiles.add(uploadedFile);
@@ -39,12 +42,14 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
+            String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector) {
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
+        this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
     }
@@ -62,11 +67,11 @@ public class ProjectUploader {
                 // Create project creator for the single zip file
                 projectCreator = new ZipFileProjectCreator(fileName, file.getInput(), projectName,
                         projectFolder,
-                        userWorkspace, zipFilter, zipCharsetDetector);
+                        userWorkspace, comment, zipFilter, zipCharsetDetector);
             } else {
                 projectCreator = new ExcelFilesProjectCreator(projectName,
                         projectFolder,
-                        userWorkspace, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
+                        userWorkspace, comment, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
             }
             errorMessage = projectCreator.createRulesProject();
         } catch (IOException e) {

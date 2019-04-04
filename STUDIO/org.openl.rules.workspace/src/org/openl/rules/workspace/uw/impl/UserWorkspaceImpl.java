@@ -67,12 +67,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         listeners.add(listener);
     }
 
-    public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
+    public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
                 .user(getUser())
                 .lockEngine(deploymentsLockEngine)
                 .build();
-        newProject.getFileData().setComment(Comments.copiedFrom(project.getName()));
+        newProject.getFileData().setComment(comment);
         newProject.update(project, user);
 
         refresh();
@@ -389,7 +389,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         listeners.remove(listener);
     }
 
-    public void uploadLocalProject(String name, String projectFolder) throws ProjectException {
+    public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
         try {
             AProject createdProject = createProject(name);
             AProject project = localWorkspace.getProject(name);
@@ -398,12 +398,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 FileData fileData = createdProject.getFileData();
                 createdProject.setFileData(new MappedFileData(fileData.getName(), projectFolder + name));
             }
+            createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase(user);
+                    designTimeRepository.getProject(name).erase(user, comment);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);
