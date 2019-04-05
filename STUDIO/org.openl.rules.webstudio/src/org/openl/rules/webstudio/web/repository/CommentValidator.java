@@ -16,12 +16,16 @@ public class CommentValidator {
     }
 
     public void validate(String comment) {
-        if (pattern != null) {
+        if (isValidationEnabled()) {
             if (comment == null) {
                 comment = "";
             }
             FacesUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
         }
+    }
+
+    boolean isValidationEnabled() {
+        return pattern != null;
     }
 
     public static CommentValidator forDesignRepo(Map<String, Object> config) {

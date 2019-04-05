@@ -142,6 +142,11 @@ public class RepositoryTreeController {
     private CommentValidator designCommentValidator;
     private CommentValidator deployConfigCommentValidator;
 
+    private String createProjectComment;
+    private String archiveProjectComment;
+    private String restoreProjectComment;
+    private String eraseProjectComment;
+
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
     }
@@ -442,7 +447,13 @@ public class RepositoryTreeController {
             createdProject.open();
             // Analogous to rules project creation (to change "created by"
             // property and revision)
-            createdProject.getFileData().setComment(deployConfigRepoComments.createProject(projectName));
+            String comment;
+            if (isUseCustomComment(false)) {
+                comment = createProjectComment;
+            } else {
+                comment = deployConfigRepoComments.createProject(projectName);
+            }
+            createdProject.getFileData().setComment(comment);
             createdProject.save();
             createdProject.open();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
@@ -479,7 +490,12 @@ public class RepositoryTreeController {
             return null;
         }
 
-        String comment = designRepoComments.createProject(projectName);
+        String comment;
+        if (isUseCustomComment(true)) {
+            comment = createProjectComment;
+        } else {
+            comment = designRepoComments.createProject(projectName);
+        }
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName, projectFolder, userWorkspace,
             comment,
             zipFilter,
@@ -666,10 +682,13 @@ public class RepositoryTreeController {
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
 
-                Comments comments = projectArtefact instanceof RulesProject ?
-                                    designRepoComments :
-                                    deployConfigRepoComments;
-                String comment = comments.archiveProject(project.getName());
+                String comment;
+                if (isUseCustomComment(project instanceof RulesProject)) {
+                    comment = archiveProjectComment;
+                } else {
+                    Comments comments = getComments(project);
+                    comment = comments.archiveProject(project.getName());
+                }
                 project.delete(comment);
             } else {
                 projectArtefact.delete();
@@ -851,8 +870,13 @@ public class RepositoryTreeController {
                     // Delete secondary branch
                     ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
                 } else {
-                    Comments comments = project instanceof RulesProject ? designRepoComments : deployConfigRepoComments;
-                    String comment = comments.eraseProject(project.getName());
+                    String comment;
+                    if (isUseCustomComment(project instanceof RulesProject)) {
+                        comment = eraseProjectComment;
+                    } else {
+                        Comments comments = getComments(project);
+                        comment = comments.eraseProject(project.getName());
+                    }
                     project.erase(userWorkspace.getUser(), comment);
                 }
             }
@@ -1074,8 +1098,7 @@ public class RepositoryTreeController {
 
     public String getVersionComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-
-        Comments comments = project instanceof ADeploymentProject ? deployConfigRepoComments : designRepoComments;
+        Comments comments = getComments(project);
 
         if (project != null && project.isOpenedOtherVersion()) {
             return comments.restoredFrom(project.getHistoryVersion());
@@ -1083,6 +1106,10 @@ public class RepositoryTreeController {
 
 
         return comments.saveProject();
+    }
+
+    private Comments getComments(UserWorkspaceProject project) {
+        return project instanceof ADeploymentProject ? deployConfigRepoComments : designRepoComments;
     }
 
     public String getNewProjectName() {
@@ -1340,8 +1367,13 @@ public class RepositoryTreeController {
         }
 
         try {
-            Comments comments = project instanceof RulesProject ? designRepoComments : deployConfigRepoComments;
-            String comment = comments.restoreProject(project.getName());
+            String comment;
+            if (isUseCustomComment(project instanceof RulesProject)) {
+                comment = restoreProjectComment;
+            } else {
+                Comments comments = getComments(project);
+                comment = comments.restoreProject(project.getName());
+            }
             project.undelete(userWorkspace.getUser(), comment);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -1397,7 +1429,13 @@ public class RepositoryTreeController {
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            String comment = designRepoComments.createProject(projectName);
+            String comment;
+            if (isUseCustomComment(true)) {
+                comment = createProjectComment;
+            } else {
+                comment = designRepoComments.createProject(projectName);
+            }
+
             errorMessage = new ProjectUploader(uploadedFiles,
                     projectName,
                     projectFolder,
@@ -1535,7 +1573,13 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(projectName)) {
             ProjectFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
-                String comment = designRepoComments.createProject(projectName);
+                String comment;
+                if (isUseCustomComment(true)) {
+                    comment = createProjectComment;
+                } else {
+                    comment = designRepoComments.createProject(projectName);
+                }
+
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
                     projectName, projectFolder, userWorkspace,
                     comment,
@@ -1778,6 +1822,49 @@ public class RepositoryTreeController {
         }
 
         return "";
+    }
+    
+    public boolean isUseCustomComment(boolean project) {
+        // Only projects are supported for now. Deploy configs can be supported in future.
+        return project && designCommentValidator.isValidationEnabled();
+    }
+
+    public String getCreateProjectComment() {
+        return designRepoComments.createProject("");
+    }
+
+    public void setCreateProjectComment(String createProjectComment) {
+        this.createProjectComment = createProjectComment;
+    }
+
+    public String getArchiveProjectComment() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        Comments comments = getComments(project);
+        return comments.archiveProject(project.getName());
+    }
+
+    public void setArchiveProjectComment(String archiveProjectComment) {
+        this.archiveProjectComment = archiveProjectComment;
+    }
+
+    public String getRestoreProjectComment() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        Comments comments = getComments(project);
+        return comments.restoreProject(project.getName());
+    }
+
+    public void setRestoreProjectComment(String restoreProjectComment) {
+        this.restoreProjectComment = restoreProjectComment;
+    }
+
+    public String getEraseProjectComment() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        Comments comments = getComments(project);
+        return comments.eraseProject(project.getName());
+    }
+
+    public void setEraseProjectComment(String eraseProjectComment) {
+        this.eraseProjectComment = eraseProjectComment;
     }
 
     public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
