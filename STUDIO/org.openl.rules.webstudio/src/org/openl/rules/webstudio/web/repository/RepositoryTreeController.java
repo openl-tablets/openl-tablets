@@ -1811,6 +1811,11 @@ public class RepositoryTreeController {
         }
     }
 
+    public void newProjectCommentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String comment = (String) value;
+        designCommentValidator.validate(comment);
+    }
+
     public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
         if (artefact instanceof RulesProject) {
             String comment = version.getVersionComment();

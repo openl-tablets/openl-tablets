@@ -97,11 +97,11 @@
                         <ui:fragment rendered="#{repositoryTreeController.isUseCustomComment(true)}">
                         <tr>
                             <td class="label" style="width: 65px">
-                                <h:outputLabel for="commentTemplate" value="Project Folder" />
+                                <h:outputLabel for="commentTemplate" value="Comment" />
                             </td>
                             <td><h:inputText id="commentTemplate" size="35"
                                              value="#{repositoryTreeController.createProjectComment}"
-                                             validator="#{repositoryTreeController.commentValidator}"/>
+                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
                             </td>
                         </tr>
                         <tr>
@@ -144,7 +144,7 @@
                                      value="#{repositoryTreeController.projectFolder}"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                        <ui:param name="useCustomComment" value="repositoryTreeController.isUseCustomComment(true)"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
                         <h:outputLabel for="commentExcel" value="Comment" rendered="#{useCustomComment}"/>
                         <h:inputTextarea id="commentExcel"
@@ -154,7 +154,7 @@
                                          type="text"
                                          size="35"
                                          readonly="false"
-                                         validator="#{repositoryTreeController.commentValidator}"/>
+                                         validator="#{repositoryTreeController.newProjectCommentValidator}"/>
                         <h:outputText value="" rendered="#{useCustomComment}"/>
                         <h:message for="commentExcel" styleClass="error" rendered="#{useCustomComment}"/>
                     </h:panelGrid>
@@ -193,7 +193,7 @@
                                  value="#{repositoryTreeController.projectFolder}"
                                  rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                    <ui:param name="useCustomComment" value="repositoryTreeController.isUseCustomComment(true)"/>
+                    <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
                     <h:outputLabel for="commentZip" value="Comment" rendered="#{useCustomComment}"/>
                     <h:inputTextarea id="commentZip"
@@ -203,7 +203,7 @@
                                      type="text"
                                      size="35"
                                      readonly="false"
-                                     validator="#{repositoryTreeController.commentValidator}"/>
+                                     validator="#{repositoryTreeController.newProjectCommentValidator}"/>
                     <h:outputText value="" rendered="#{useCustomComment}"/>
                     <h:message for="commentZip" styleClass="error" rendered="#{useCustomComment}"/>
                 </h:panelGrid>
@@ -254,7 +254,7 @@
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
 
-                        <ui:param name="useCustomComment" value="repositoryTreeController.isUseCustomComment(true)"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
                             <h:outputLabel for="commentLocal" value="Comment"/>
@@ -264,7 +264,7 @@
                                              type="text"
                                              size="35"
                                              readonly="false"
-                                             validator="#{repositoryTreeController.commentValidator}"/>
+                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
                             <h:outputText value=""/>
                             <h:message for="commentLocal" styleClass="error"/>
                         </h:panelGrid>
