@@ -1879,6 +1879,8 @@ public class RepositoryTreeController {
         this.eraseProjectComment = eraseProjectComment;
     }
 
+    public void setProjectDescriptorSerializerFactory(
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 

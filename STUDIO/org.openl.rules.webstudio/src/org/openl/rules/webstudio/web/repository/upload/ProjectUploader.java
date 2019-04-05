@@ -73,7 +73,7 @@ public class ProjectUploader {
                 projectCreator = new ExcelFilesProjectCreator(projectName,
                         projectFolder,
                         userWorkspace, comment, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
-                        uploadedFiles.toArray(new ProjectFile[0]));
+                        uploadedFiles.toArray(new ProjectFile[0]);
                 }
                 errorMessage = projectCreator.createRulesProject();
             } catch (IOException e) {

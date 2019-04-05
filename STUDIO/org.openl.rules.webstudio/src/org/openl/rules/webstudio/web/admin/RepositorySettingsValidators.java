@@ -33,7 +33,7 @@ public class RepositorySettingsValidators {
         FacesUtils.validate(template.contains("{user-message}"), "Commit template must contain '{user-message}'");
     }
 
-    protected void validateNotBlank(String value, String field) throws ValidatorException {
+    protected void validateNotBlank(String value, String field) {
         FacesUtils.validate(StringUtils.isNotBlank(value), field + " can not be empty");
     }
 }

@@ -125,6 +125,7 @@ public class LocalUploadController {
         this.projectFolder = folder;
     }
 
+    private static Comparator<File> fileNameComparator = (f1, f2) -> {
         String name1 = f1.getName();
         String name2 = f2.getName();
         return name1.compareToIgnoreCase(name2);
