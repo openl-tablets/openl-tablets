@@ -385,7 +385,7 @@ public final class OpenLFuzzyUtils {
         if (count == 1) {
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return Triple.of(new Token[] { tokens[i] }, max, minDistance);
+                    return Triple.of(new Token[] { tokens[i] }, max, min);
                 }
             }
         } else {
@@ -418,7 +418,7 @@ public final class OpenLFuzzyUtils {
                 }
             }
 
-            return Triple.of(ret.toArray(new Token[] {}), max, minDistance);
+            return Triple.of(ret.toArray(new Token[] {}), max, min);
         }
         return Triple.of(EMPTY_TOKENS, 0, 0);
     }

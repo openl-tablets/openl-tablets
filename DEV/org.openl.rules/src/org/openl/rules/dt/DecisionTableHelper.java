@@ -1560,6 +1560,10 @@ public final class DecisionTableHelper {
                     .deepEquals(a1.getMethodsChain(), b1.getMethodsChain())) {
                 return false;
             }
+
+            if (a1.isReturn() && b1.isReturn() && methodsChainsIsCrossed(a1.getMethodsChain(), b1.getMethodsChain())) {
+                return false;
+            }
         }
         return true;
     }
@@ -1571,7 +1575,8 @@ public final class DecisionTableHelper {
             Map<Integer, List<Integer>> columnToIndex,
             List<Integer> usedIndexes,
             Set<Integer> usedParameterIndexes,
-            List<List<DTHeader>> fits) {
+            List<List<DTHeader>> fits,
+            int fuzzyReturnsFlag) {
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
             List<DTHeader> fit = new ArrayList<>();
@@ -1594,6 +1599,16 @@ public final class DecisionTableHelper {
             if (f) {
                 usedIndexes.add(index);
                 DTHeader dtHeader = dtHeaders.get(index);
+                boolean isFuzzyReturn = false;
+                if (dtHeader instanceof FuzzyDTHeader) {
+                    FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) dtHeader;
+                    if (fuzzyDTHeader.isReturn()) {
+                        isFuzzyReturn = true;
+                    }
+                }
+                if (isFuzzyReturn && fuzzyReturnsFlag == 2) {
+                    continue;
+                }
                 Set<Integer> usedParameterIndexesTo = new HashSet<>(usedParameterIndexes);
                 for (int i : dtHeader.getMethodParameterIndexes()) {
                     usedParameterIndexesTo.add(i);
@@ -1606,7 +1621,8 @@ public final class DecisionTableHelper {
                         columnToIndex,
                         usedIndexes,
                         usedParameterIndexesTo,
-                        fits);
+                        fits,
+                        isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1 : fuzzyReturnsFlag);
                 }
                 usedIndexes.remove(usedIndexes.size() - 1);
             }
@@ -1691,22 +1707,24 @@ public final class DecisionTableHelper {
             .collect(toList());
     }
 
-    private static boolean fuzzyReturnUsesTheSameField(List<DTHeader> fit) {
-        for (DTHeader f1 : fit) {
-            for (DTHeader f2 : fit) {
-                if (f1 != f2 && (f1 instanceof FuzzyDTHeader && f2 instanceof FuzzyDTHeader && f1.isReturn() && f2
-                    .isReturn())) {
-                    FuzzyDTHeader g1 = (FuzzyDTHeader) f1;
-                    FuzzyDTHeader g2 = (FuzzyDTHeader) f2;
-                    return OpenLFuzzyUtils.isEqualsMethodChains(g1.getMethodsChain(), g2.getMethodsChain());
+    private static boolean methodsChainsIsCrossed(IOpenMethod[] m1, IOpenMethod[] m2) {
+        if (m1 == null && m2 == null) {
+            return true;
+        }
+        if (m1 != null && m2 != null) {
+            int i = 0;
+            while (i < m1.length && i < m2.length) {
+                if (m1[i].equals(m2[i])) {
+                    i++;
+                } else {
+                    break;
                 }
+            }
+            if (i == m1.length || i == m2.length) {
+                return true;
             }
         }
         return false;
-    }
-
-    private static List<List<DTHeader>> filterFuzzyReturnForTheSameField(List<List<DTHeader>> fits) {
-        return fits.stream().filter(e -> !fuzzyReturnUsesTheSameField(e)).collect(toList());
     }
 
     private static boolean isAmbiguousFits(List<List<DTHeader>> fits, Predicate<DTHeader> predicate) {
@@ -1721,20 +1739,6 @@ public final class DecisionTableHelper {
             }
         }
         return false;
-    }
-
-    private static boolean allFuzzyReturnsGoesInLine(List<FuzzyDTHeader> fuzzyDTHeaders) {
-        if (fuzzyDTHeaders.isEmpty()) {
-            return true;
-        }
-        int column = -1;
-        for (FuzzyDTHeader fuzzyDTHeader : fuzzyDTHeaders) {
-            if (column > 0 && column != fuzzyDTHeader.getColumn()) {
-                return false;
-            }
-            column = fuzzyDTHeader.getColumn() + fuzzyDTHeader.getWidth();
-        }
-        return true;
     }
 
     private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
@@ -1754,11 +1758,7 @@ public final class DecisionTableHelper {
         }
         Map<Integer, List<Integer>> columnToIndex = new HashMap<>();
         for (int i = 0; i < dtHeaders.size(); i++) {
-            List<Integer> indexes = columnToIndex.get(dtHeaders.get(i).getColumn());
-            if (indexes == null) {
-                indexes = new ArrayList<>();
-                columnToIndex.put(dtHeaders.get(i).getColumn(), indexes);
-            }
+            List<Integer> indexes = columnToIndex.computeIfAbsent(dtHeaders.get(i).getColumn(), e -> new ArrayList<>());
             indexes.add(i);
             for (int j = i; j < dtHeaders.size(); j++) {
                 if (i == j || !isCompatibleHeaders(dtHeaders.get(i), dtHeaders.get(j))) {
@@ -1775,16 +1775,9 @@ public final class DecisionTableHelper {
             columnToIndex,
             new ArrayList<>(),
             new HashSet<>(),
-            fits);
-        fits = fits.stream()
-            .filter(e -> allFuzzyReturnsGoesInLine(e.stream()
-                .filter(x -> (x instanceof FuzzyDTHeader) && x.isReturn())
-                .map(x -> (FuzzyDTHeader) x)
-                .collect(toList())))
-            .collect(toList()); // All fuzzy returns goes one by one
-
+            fits,
+            0);
         fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
-        fits = filterFuzzyReturnForTheSameField(fits);
 
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
