@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+    <ui:param name="settings" value="#{repository.settings}"/>
+    <ui:param name="validators" value="#{settings.validators}"/>
+
+    <h:panelGroup id="#{prependId}commentSettings" rendered="#{not isProduction }">
+        <h:panelGrid columns="2" columnClasses="titleColumn">
+            <h:outputLabel value="Comments template:" for="#{prependId}useCustomComments"/>
+            <h:selectBooleanCheckbox id="#{prependId}useCustomComments" value="#{settings.useCustomComments}"
+                                     onmousedown="if($j(this).attr('checked')){if(!window.confirm('Validation pattern will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+                <f:ajax event="change" execute="@form" render="#{prependId}commentSettings"/>
+            </h:selectBooleanCheckbox>
+        </h:panelGrid>
+
+        <h:panelGroup rendered="#{settings.useCustomComments}">
+            <h:panelGrid columns="2" columnClasses="titleColumn">
+                <h:outputText value="Message:" styleClass="required"/>
+                <h:inputText value="#{settings.commentTemplate}"
+                             title="Comment message template for commits. Use {username} for predefined OpenL-specific Commit Type used by OpenL, {user-message} for meaningful message describing commit, {username} for commit author."
+                             id="#{prependId}commentTemplate" validator="#{validators.commentTemplate}"/>
+                <h:outputText value=""/>
+                <h:message for="#{prependId}commentTemplate" styleClass="error"/>
+
+                <h:outputText value="User message pattern:" styleClass="required"/>
+                <h:inputText value="#{settings.commentValidationPattern}"
+                             title="Regular expression to validate user message."
+                             id="#{prependId}commentPattern" validator="#{validators.commentValidationPattern}"/>
+                <h:outputText value=""/>
+                <h:message for="#{prependId}commentPattern" styleClass="error"/>
+
+                <h:outputText value="Invalid user message hint:" rendered="#{not isProduction}"/>
+                <h:inputText value="#{settings.invalidCommentMessage}"
+                             title="Message shown when user message is invalid."
+                             id="#{prependId}invalidCommentMessage"/>
+                <h:outputText value=""/>
+                <h:message for="#{prependId}invalidCommentMessage" styleClass="error"/>
+            </h:panelGrid>
+
+            <p>User message templates:</p>
+
+            <h:panelGrid columns="2" columnClasses="titleColumn">
+                <h:outputText value="Save project:"/>
+                <h:inputText value="#{settings.defaultCommentSave}"
+                             title="Default message for 'Save project'"
+                             id="#{prependId}defaultCommentSave"/>
+
+                <h:outputText value="Create project:"/>
+                <h:inputText value="#{settings.defaultCommentCreate}"
+                             title="Default message for 'Create project'"
+                             id="#{prependId}defaultCommentCreate"/>
+
+                <h:outputText value="Archive project:"/>
+                <h:inputText value="#{settings.defaultCommentArchive}"
+                             title="Default message for 'Archive project'"
+                             id="#{prependId}defaultCommentArchive"/>
+
+                <h:outputText value="Restore project:"/>
+                <h:inputText value="#{settings.defaultCommentRestore}"
+                             title="Default message for 'Restore project'"
+                             id="#{prependId}defaultCommentRestore"/>
+
+                <h:outputText value="Erase project:"/>
+                <h:inputText value="#{settings.defaultCommentErase}"
+                             title="Default message for 'Erase project'"
+                             id="#{prependId}defaultCommentErase"/>
+
+                <h:outputText value="Copy project:"/>
+                <h:inputText value="#{settings.defaultCommentCopiedFrom}"
+                             title="Default message for 'Copy project'"
+                             id="#{prependId}defaultCommentCopiedFrom"/>
+
+                <h:outputText value="Restore from old version:"/>
+                <h:inputText value="#{settings.defaultCommentRestoredFrom}"
+                             title="Default message when restore from old version"
+                             id="#{prependId}defaultCommentRestoredFrom"/>
+            </h:panelGrid>
+        </h:panelGroup>
+    </h:panelGroup>
+
+</ui:composition>

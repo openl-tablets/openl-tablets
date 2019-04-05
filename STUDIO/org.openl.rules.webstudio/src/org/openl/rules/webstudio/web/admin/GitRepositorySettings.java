@@ -18,8 +18,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private String branch;
     private String tagPrefix;
     private int listenerTimerPeriod;
-    private String commentTemplate;
-    private String defaultCommentSave;
     private String settingsPath;
 
     private final String URI;
@@ -32,8 +30,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final RepositoryMode repositoryMode;
-    private final String COMMENT_TEMPLATE;
-    private final String DEFAULT_COMMENT_SAVE;
     private final String SETTINGS_PATH;
 
     GitRepositorySettings(ConfigurationManager configManager, String configPrefix, RepositoryMode repositoryMode) {
@@ -49,8 +45,6 @@ public class GitRepositorySettings extends RepositorySettings {
         BRANCH = configPrefix + "branch";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
-        COMMENT_TEMPLATE = configPrefix + "comment-template";
-        DEFAULT_COMMENT_SAVE = configPrefix + "comment-template.user-message.default.save";
         SETTINGS_PATH = "git-settings-path";
 
         load(configManager);
@@ -73,8 +67,6 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
-        commentTemplate = configManager.getStringProperty(COMMENT_TEMPLATE);
-        defaultCommentSave = configManager.getStringProperty(DEFAULT_COMMENT_SAVE);
         settingsPath = configManager.getStringProperty(SETTINGS_PATH);
     }
 
@@ -152,22 +144,6 @@ public class GitRepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    public String getCommentTemplate() {
-        return commentTemplate;
-    }
-
-    public void setCommentTemplate(String commentTemplate) {
-        this.commentTemplate = commentTemplate;
-    }
-
-    public String getDefaultCommentSave() {
-        return defaultCommentSave;
-    }
-
-    public void setDefaultCommentSave(String defaultCommentSave) {
-        this.defaultCommentSave = defaultCommentSave;
-    }
-
     public String getSettingsPath() {
         return settingsPath;
     }
@@ -196,8 +172,6 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(BRANCH, branch);
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
-        propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
         propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
     }
 
@@ -214,7 +188,7 @@ public class GitRepositorySettings extends RepositorySettings {
                 LOCAL_REPOSITORY_PATH,
                 BRANCH,
                 TAG_PREFIX,
-                LISTENER_TIMER_PERIOD, COMMENT_TEMPLATE, DEFAULT_COMMENT_SAVE,
+                LISTENER_TIMER_PERIOD,
                 SETTINGS_PATH
         );
         load(configurationManager);
