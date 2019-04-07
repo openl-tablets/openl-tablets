@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -24,6 +23,9 @@ public final class OpenLFuzzyUtils {
 
     private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
         .withInitial(HashMap::new);
+
+    private OpenLFuzzyUtils() {
+    }
 
     public static void clearCaches() {
         openlClassCacheForSetterMethods.remove();
@@ -303,9 +305,7 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
-    private static final Token[] EMPTY_TOKENS = new Token[] {};
-
-    public static Triple<Token[], Integer, Integer> openlFuzzyExtract(String source, Token[] tokens) {
+    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");
@@ -357,7 +357,7 @@ public final class OpenLFuzzyUtils {
         }
 
         if (max == 0) {
-            return Triple.of(EMPTY_TOKENS, 0, 0);
+            return Collections.emptyList();
         }
 
         int min = Integer.MAX_VALUE;
@@ -380,12 +380,12 @@ public final class OpenLFuzzyUtils {
             }
         }
         if (count == 0) {
-            return Triple.of(EMPTY_TOKENS, 0, 0);
+            return Collections.emptyList();
         }
         if (count == 1) {
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return Triple.of(new Token[] { tokens[i] }, max, min);
+                    return Arrays.asList(new FuzzyResult(tokens[i], max, min));
                 }
             }
         } else {
@@ -417,9 +417,58 @@ public final class OpenLFuzzyUtils {
                     }
                 }
             }
-
-            return Triple.of(ret.toArray(new Token[] {}), max, min);
+            int max1 = max;
+            int min1 = min;
+            return ret.stream().map(e -> new FuzzyResult(e, max1, min1)).collect(Collectors.toList());
         }
-        return Triple.of(EMPTY_TOKENS, 0, 0);
+        return Collections.emptyList();
+    }
+
+    public static final class FuzzyResult implements Comparable<FuzzyResult> {
+        Token token;
+        int max;
+        int min;
+
+        public FuzzyResult(Token token, int max, int min) {
+            this.token = token;
+            this.max = max;
+            this.min = min;
+        }
+
+        @Override
+        public int compareTo(FuzzyResult o) {
+            if (this.max > o.max) {
+                return -1;
+            }
+            if (this.max < o.max) {
+                return 1;
+            }
+            if (this.min > o.min) {
+                return 1;
+            }
+            if (this.min < o.min) {
+                return -1;
+            }
+            if (this.token.getDistance() > o.token.getDistance()) {
+                return 1;
+            }
+            if (this.token.getDistance() < o.token.getDistance()) {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        public Token getToken() {
+            return token;
+        }
+
+        public int getMax() {
+            return max;
+        }
+
+        public int getMin() {
+            return min;
+        }
     }
 }

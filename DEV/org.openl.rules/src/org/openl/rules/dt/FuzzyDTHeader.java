@@ -1,13 +1,12 @@
 package org.openl.rules.dt;
 
-import org.apache.commons.lang3.tuple.Triple;
-import org.openl.rules.fuzzy.Token;
+import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 import org.openl.types.IOpenMethod;
 
 class FuzzyDTHeader extends DTHeader {
     IOpenMethod[] methodsChain;
     String title;
-    Triple<Token[], Integer, Integer> openlFuzzyExtractResult;
+    FuzzyResult fuzzyResult;
     boolean returnDTHeader;
 
     FuzzyDTHeader(int methodParameterIndex,
@@ -16,21 +15,21 @@ class FuzzyDTHeader extends DTHeader {
             IOpenMethod[] methodsChain,
             int column,
             int width,
-            Triple<Token[], Integer, Integer> openlFuzzyExtractResult,
+            FuzzyResult fuzzyResult,
             boolean returnDTHeader) {
         super(new int[] { methodParameterIndex }, statement, column, width);
         this.methodsChain = methodsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
-        this.openlFuzzyExtractResult = openlFuzzyExtractResult;
+        this.fuzzyResult = fuzzyResult;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public Triple<Token[], Integer, Integer> getOpenlFuzzyExtractResult() {
-        return openlFuzzyExtractResult;
+    public FuzzyResult getFuzzyResult() {
+        return fuzzyResult;
     }
 
     @Override

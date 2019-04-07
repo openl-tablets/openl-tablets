@@ -13,7 +13,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -27,6 +26,7 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
+import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.*;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -608,23 +608,17 @@ public final class DecisionTableHelper {
             if (foundInReturns) {
                 continue;
             }
-            Triple<Token[], Integer, Integer> openlFuzzyExtractResult = null;
+            FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
-                Triple<Token[], Integer, Integer> result = OpenLFuzzyUtils.openlFuzzyExtract(token.getValue(),
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(token.getValue(),
                     fuzzyContext.getParameterTokens().getTokens());
-                if (openlFuzzyExtractResult == null) {
-                    openlFuzzyExtractResult = result;
-                } else if (openlFuzzyExtractResult.getLeft().length != 1) {
-                    openlFuzzyExtractResult = result;
-                } else if (openlFuzzyExtractResult.getMiddle() < result.getMiddle() && result.getLeft().length == 1) {
-                    openlFuzzyExtractResult = result;
-                } else if (openlFuzzyExtractResult.getRight() > result.getRight() && openlFuzzyExtractResult
-                    .getMiddle() == result.getMiddle() && result.getLeft().length == 1) {
-                    openlFuzzyExtractResult = result;
+                if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
+                    .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
+                    fuzzyResult = fuzzyResults.get(0);
                 }
             }
-            if (openlFuzzyExtractResult != null && openlFuzzyExtractResult.getLeft().length == 1) {
-                Token paramToken = openlFuzzyExtractResult.getLeft()[0];
+            if (fuzzyResult != null) {
+                Token paramToken = fuzzyResult.getToken();
                 final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(paramToken.getValue());
                 IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
                 final IOpenMethod[] paramMethodChain = fuzzyContext.getParameterTokens()
@@ -1455,10 +1449,10 @@ public final class DecisionTableHelper {
         } else {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
-                Triple<Token[], Integer, Integer> openlFuzzyExtractResult = OpenLFuzzyUtils
-                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getReturnTokens());
-                for (Token token : openlFuzzyExtractResult.getLeft()) {
-                    IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(token);
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(sb.toString(),
+                    fuzzyContext.getReturnTokens());
+                for (FuzzyResult fuzzyResult : fuzzyResults) {
+                    IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
                     assert (methodChains != null);
                     for (int j = 0; j < methodChains.length; j++) {
                         assert (methodChains[j] != null);
@@ -1468,17 +1462,19 @@ public final class DecisionTableHelper {
                             methodChains[j],
                             sourceTableColumn + w,
                             w0,
-                            openlFuzzyExtractResult,
+                            fuzzyResult,
                             true));
                     }
                 }
             }
             if (!onlyReturns) {
-                Triple<Token[], Integer, Integer> openlFuzzyExtractResult = OpenLFuzzyUtils
-                    .openlFuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens());
-                for (Token token : openlFuzzyExtractResult.getLeft()) {
-                    int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(token.getValue());
-                    IOpenMethod[] methodsChain = fuzzyContext.getParameterTokens().getMethodsChain(token.getValue());
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
+                    fuzzyContext.getParameterTokens().getTokens());
+                for (FuzzyResult fuzzyResult : fuzzyResults) {
+                    int paramIndex = fuzzyContext.getParameterTokens()
+                        .getParameterIndex(fuzzyResult.getToken().getValue());
+                    IOpenMethod[] methodsChain = fuzzyContext.getParameterTokens()
+                        .getMethodsChain(fuzzyResult.getToken().getValue());
                     StringBuilder conditionStatement = new StringBuilder(
                         decisionTable.getSignature().getParameterName(paramIndex));
                     if (methodsChain != null) {
@@ -1493,10 +1489,10 @@ public final class DecisionTableHelper {
                     dtHeaders.add(new FuzzyDTHeader(paramIndex,
                         conditionStatement.toString(),
                         sb.toString(),
-                        fuzzyContext.getParameterTokens().getMethodsChain(token.getValue()),
+                        methodsChain,
                         sourceTableColumn + w,
                         w0,
-                        openlFuzzyExtractResult,
+                        fuzzyResult,
                         false));
                 }
             }
@@ -1822,14 +1818,14 @@ public final class DecisionTableHelper {
             e -> e.stream()
                 .filter(x -> x instanceof FuzzyDTHeader)
                 .map(x -> (FuzzyDTHeader) x)
-                .mapToInt(x -> x.getOpenlFuzzyExtractResult().getMiddle())
+                .mapToInt(x -> x.getFuzzyResult().getMax())
                 .sum());
 
         fits = filterHeadersByMin(fits,
             e -> e.stream()
                 .filter(x -> x instanceof FuzzyDTHeader)
                 .map(x -> (FuzzyDTHeader) x)
-                .mapToInt(x -> x.getOpenlFuzzyExtractResult().getRight())
+                .mapToInt(x -> x.getFuzzyResult().getMin())
                 .sum());
 
         if (numberOfHcondition == 0 && fits.isEmpty()) {
