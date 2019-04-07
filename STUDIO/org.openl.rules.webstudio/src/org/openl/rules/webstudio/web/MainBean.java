@@ -13,6 +13,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
@@ -38,6 +39,9 @@ public class MainBean {
     @ManagedProperty(value = "#{systemConfig}")
     private Map<String, Object> config;
 
+    @ManagedProperty(value = "#{designRepositoryComments}")
+    private Comments designRepoComments;
+
     private CommentValidator commentValidator;
 
     private String requestId;
@@ -59,6 +63,10 @@ public class MainBean {
         this.config = config;
 
         commentValidator = CommentValidator.forDesignRepo(config);
+    }
+
+    public void setDesignRepoComments(Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
     }
 
     /**
@@ -84,17 +92,20 @@ public class MainBean {
         RulesProject project = studio.getCurrentProject();
 
         if (project != null && project.isOpenedOtherVersion()) {
-            return Comments.restoredFrom(project.getHistoryVersion());
+            return designRepoComments.restoredFrom(project.getHistoryVersion());
         }
 
-        return "";
+        return designRepoComments.saveProject();
     }
 
     public void setVersionComment(String comment) {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject project = studio.getCurrentProject();
         if (project != null) {
-            project.setVersionComment(comment);
+            FileData fileData = project.getFileData();
+            if (fileData != null) {
+                fileData.setComment(comment);
+            }
         }
     }
 

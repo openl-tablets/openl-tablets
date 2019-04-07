@@ -67,9 +67,8 @@ public abstract class UserWorkspaceProject extends AProject {
         close(user);
     }
 
-    @Override
-    public void delete() throws ProjectException {
-        delete(user);
+    public void delete(String comment) throws ProjectException {
+        delete(user, comment);
     }
 
     @Override

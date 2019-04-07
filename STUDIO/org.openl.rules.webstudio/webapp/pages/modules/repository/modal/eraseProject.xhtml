@@ -17,6 +17,20 @@
     <h:form id="eraseProjectForm">
       <h:outputText value="Are you sure you want to erase the project?" />
 
+      <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+      <ui:param name="useCustomComment"
+                value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                   rendered="#{useCustomComment}">
+        <h:outputText value="Comment"/>
+        <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
+                         size="35"
+                         readonly="false" title="#{repositoryTreeController.eraseProjectComment}"
+                         validator="#{repositoryTreeController.commentValidator}"/>
+        <h:outputText value=""/>
+        <h:message for="comment" styleClass="error"/>
+      </h:panelGrid>
+
       <footer>
         <h:commandButton value="Erase" action="#{repositoryTreeController.eraseProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalEraseProject')}.hide();" />

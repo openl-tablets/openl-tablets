@@ -6,6 +6,9 @@
 
     <ui:param name="validators" value="#{settings.validators}" />
 
+    <p>Folder structure configuration. If flat structure is used, all projects are stored in a given folder.
+        If non-flat structure is used, projects locations are configured in .properties file.
+    </p>
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputLabel value="Flat folder structure:" for="#{prependId}flatFolderStructure"/>
         <h:selectBooleanCheckbox id="#{prependId}flatFolderStructure" value="#{settings.flatFolderStructure}"

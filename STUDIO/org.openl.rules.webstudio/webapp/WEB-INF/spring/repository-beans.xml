@@ -31,4 +31,14 @@
   </bean>
 
   <bean id="projectDescriptorArtefactResolver" class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
+
+  <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
+    <constructor-arg name="properties" value="#{systemConfig}"/>
+    <constructor-arg name="prefix" value="design-repository."/>
+  </bean>
+
+  <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
+    <constructor-arg name="properties" value="#{systemConfig}"/>
+    <constructor-arg name="prefix" value="deploy-config-repository."/>
+  </bean>
 </beans>

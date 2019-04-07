@@ -14,7 +14,6 @@ import javax.faces.bean.SessionScoped;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.filter.AllFilter;
@@ -481,23 +480,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
 
         return isGranted(VIEW_PROJECTS);
-    }
-
-    public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
-        if (artefact instanceof RulesProject) {
-            String prefix = Comments.COPIED_FROM_PREFIX;
-
-            String comment = version.getVersionComment();
-            if (comment != null && comment.startsWith(prefix)) {
-                String name = comment.substring(prefix.length()).trim();
-                if (getProjectNodeByPhysicalName(name) == null) {
-                    return "";
-                }
-                return name;
-            }
-        }
-
-        return "";
     }
 
     public boolean getCanOpenOtherVersion() {

@@ -1,32 +1,86 @@
 package org.openl.rules.project.abstraction;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.Map;
+
+import org.openl.util.StringUtils;
+
 public final class Comments {
-    public static final String COPIED_FROM_PREFIX = "Copied from:";
+    private final String saveProjectTemplate;
+    private final String createProjectTemplate;
+    private final String archiveProjectTemplate;
+    private final String restoreProjectTemplate;
+    private final String eraseProjectTemplate;
+    private final String copiedFromTemplate;
+    private final String restoredFromTemplate;
 
-    private Comments() {
+    public Comments(Map<String, Object> properties, String prefix) {
+        if (prefix == null) {
+            throw new IllegalArgumentException("Prefix can't be null");
+        }
+
+        saveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.save")
+                .toString();
+        createProjectTemplate = properties.get(prefix + "comment-template.user-message.default.create")
+                .toString()
+                .replace("{project-name}", "{0}");
+        archiveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.archive")
+                .toString()
+                .replace("{project-name}", "{0}");
+        restoreProjectTemplate = properties.get(prefix + "comment-template.user-message.default.restore")
+                .toString()
+                .replace("{project-name}", "{0}");
+        eraseProjectTemplate = properties.get(prefix + "comment-template.user-message.default.erase")
+                .toString()
+                .replace("{project-name}", "{0}");
+        copiedFromTemplate = properties.get(prefix + "comment-template.user-message.default.copied-from")
+                .toString()
+                .replace("{project-name}", "{0}");
+        restoredFromTemplate = properties.get(prefix + "comment-template.user-message.default.restored-from")
+                .toString()
+                .replace("{revision}", "{0}");
     }
 
-    public static String createProject(String projectName) {
-        return "Create project " + projectName;
+    public String saveProject() {
+        return saveProjectTemplate;
     }
 
-    public static String archiveProject(String projectName) {
-        return "Archive project " + projectName;
+    public String createProject(String projectName) {
+        return MessageFormat.format(createProjectTemplate, projectName);
     }
 
-    public static String restoreProject(String projectName) {
-        return "Restore project " + projectName;
+    public String archiveProject(String projectName) {
+        return MessageFormat.format(archiveProjectTemplate, projectName);
     }
 
-    public static String eraseProject(String projectName) {
-        return "Erase project " + projectName;
+    public String restoreProject(String projectName) {
+        return MessageFormat.format(restoreProjectTemplate, projectName);
     }
 
-    public static String copiedFrom(String sourceProjectName) {
-        return COPIED_FROM_PREFIX + " " + sourceProjectName;
+    public String eraseProject(String projectName) {
+        return MessageFormat.format(eraseProjectTemplate, projectName);
     }
 
-    public static String restoredFrom(String revisionNum) {
-        return "Restored from revision #" + revisionNum;
+    public String copiedFrom(String sourceProjectName) {
+        return MessageFormat.format(copiedFromTemplate, sourceProjectName);
+    }
+
+    public String parseSourceOfCopy(String comment) {
+        if (StringUtils.isBlank(comment)) {
+            return "";
+        }
+
+        Object[] parse;
+        try {
+            parse = new MessageFormat(copiedFromTemplate).parse(comment);
+        } catch (ParseException e) {
+            return "";
+        }
+        return parse.length > 0 ? parse[0].toString() : "";
+    }
+
+    public String restoredFrom(String revisionNum) {
+        return MessageFormat.format(restoredFromTemplate, revisionNum);
     }
 }

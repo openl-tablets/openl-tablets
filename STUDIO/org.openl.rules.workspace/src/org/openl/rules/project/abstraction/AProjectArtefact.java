@@ -16,7 +16,6 @@ public class AProjectArtefact {
     private AProject project;
     private Repository repository;
     private FileData fileData;
-    private String versionComment;
 
     private Date modifiedTime;
 
@@ -200,20 +199,6 @@ public class AProjectArtefact {
     public boolean isModified() {
         FileData fileData = getFileData();
         return fileData != null && (modifiedTime == null || !modifiedTime.equals(fileData.getModifiedAt()));
-    }
-
-    public void setVersionComment(String versionComment) {
-        FileData fileData = getFileData();
-        if (fileData != null) {
-            fileData.setComment(versionComment);
-        } else {
-            this.versionComment = versionComment;
-        }
-    }
-
-    public String getVersionComment() {
-        FileData fileData = getFileData();
-        return fileData == null ? versionComment : fileData.getComment();
     }
 
     /**
