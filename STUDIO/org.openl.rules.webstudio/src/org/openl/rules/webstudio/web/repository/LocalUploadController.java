@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpSession;
 
@@ -25,8 +26,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedProperty;
 @ManagedBean(name = "localUpload")
 @RequestScoped
 public class LocalUploadController {
@@ -125,10 +124,16 @@ public class LocalUploadController {
         this.projectFolder = folder;
     }
 
-    private static Comparator<File> fileNameComparator = (f1, f2) -> {
-        String name1 = f1.getName();
-        String name2 = f2.getName();
-        return name1.compareToIgnoreCase(name2);
+    /**
+     * EPBDS-8384: JSF beans discovery doesn't work if the bean contains static field with lambda expression. Possibly need
+     * to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
+     */
+    private static Comparator<File> fileNameComparator = new Comparator<File>() {
+        @Override public int compare(File f1, File f2) {
+            String name1 = f1.getName();
+            String name2 = f2.getName();
+            return name1.compareToIgnoreCase(name2);
+        }
     };
 
     private RulesUserSession getRules() {

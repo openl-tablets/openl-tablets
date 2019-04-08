@@ -87,7 +87,7 @@
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <tr>
                             <td class="label" style="width: 65px">
-                                <h:outputLabel for="projectFolderTemplate" value="Project Folder" />
+                                <h:outputLabel for="projectFolderTemplate" value="Path in repository" />
                             </td>
                             <td><h:inputText id="projectFolderTemplate" size="35"
                                     value="#{repositoryTreeController.projectFolder}"/>
@@ -100,14 +100,7 @@
                                 <h:outputLabel for="commentTemplate" value="Comment" />
                             </td>
                             <td><h:inputText id="commentTemplate" size="35"
-                                             value="#{repositoryTreeController.createProjectComment}"
-                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <h:message for="commentTemplate" styleClass="error"/>
+                                             value="#{repositoryTreeController.createProjectComment}"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -116,6 +109,8 @@
                     <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}" />
 
                     <footer>
+                        <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+                                Now errors are shown after dialog is closed. -->
                         <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
                             action="#{repositoryTreeController.createNewRulesProject}" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
@@ -138,7 +133,7 @@
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
 
-                        <h:outputLabel for="projectFolderExcel" value="Project Folder"
+                        <h:outputLabel for="projectFolderExcel" value="Path in repository"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                         <h:inputText id="projectFolderExcel" size="35"
                                      value="#{repositoryTreeController.projectFolder}"
@@ -153,10 +148,7 @@
                                          title="#{repositoryTreeController.createProjectComment}"
                                          type="text"
                                          size="35"
-                                         readonly="false"
-                                         validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                        <h:outputText value="" rendered="#{useCustomComment}"/>
-                        <h:message for="commentExcel" styleClass="error" rendered="#{useCustomComment}"/>
+                                         readonly="false"/>
                     </h:panelGrid>
 
                     <footer>
@@ -187,7 +179,7 @@
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
 
-                    <h:outputLabel for="projectFolderZip" value="Project Folder"
+                    <h:outputLabel for="projectFolderZip" value="Path in repository"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:inputText id="projectFolderZip" size="35"
                                  value="#{repositoryTreeController.projectFolder}"
@@ -202,10 +194,7 @@
                                      title="#{repositoryTreeController.createProjectComment}"
                                      type="text"
                                      size="35"
-                                     readonly="false"
-                                     validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                    <h:outputText value="" rendered="#{useCustomComment}"/>
-                    <h:message for="commentZip" styleClass="error" rendered="#{useCustomComment}"/>
+                                     readonly="false"/>
                 </h:panelGrid>
 
                 <footer>
@@ -249,7 +238,7 @@
                         </h:panelGrid>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
-                            <h:outputLabel for="projectFolderLocal" value="Project Folder"/>
+                            <h:outputLabel for="projectFolderLocal" value="Path in repository"/>
                             <h:inputText id="projectFolderLocal" size="35"
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
@@ -263,10 +252,7 @@
                                              title="#{localUpload.createProjectComment}"
                                              type="text"
                                              size="35"
-                                             readonly="false"
-                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                            <h:outputText value=""/>
-                            <h:message for="commentLocal" styleClass="error"/>
+                                             readonly="false"/>
                         </h:panelGrid>
                     </div>
 
