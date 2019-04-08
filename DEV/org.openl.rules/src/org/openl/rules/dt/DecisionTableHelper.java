@@ -666,7 +666,7 @@ public final class DecisionTableHelper {
             FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(token.getValue(),
-                    fuzzyContext.getParameterTokens().getTokens());
+                    fuzzyContext.getParameterTokens().getTokens(), false);
                 if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
                     .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
                     fuzzyResult = fuzzyResults.get(0);
@@ -1505,7 +1505,7 @@ public final class DecisionTableHelper {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(sb.toString(),
-                    fuzzyContext.getReturnTokens());
+                    fuzzyContext.getReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
                     assert (methodChains != null);
@@ -1524,7 +1524,7 @@ public final class DecisionTableHelper {
             }
             if (!onlyReturns) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
-                    fuzzyContext.getParameterTokens().getTokens());
+                    fuzzyContext.getParameterTokens().getTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     int paramIndex = fuzzyContext.getParameterTokens()
                         .getParameterIndex(fuzzyResult.getToken().getValue());
@@ -1902,6 +1902,13 @@ public final class DecisionTableHelper {
                 .filter(x -> x instanceof FuzzyDTHeader)
                 .map(x -> (FuzzyDTHeader) x)
                 .mapToInt(x -> x.getFuzzyResult().getMin())
+                .sum());
+        
+        fits = filterHeadersByMin(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
                 .sum());
 
         if (numberOfHcondition == 0 && fits.isEmpty()) {

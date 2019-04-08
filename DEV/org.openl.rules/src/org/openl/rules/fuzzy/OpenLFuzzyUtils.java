@@ -306,7 +306,7 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
-    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens) {
+    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");
@@ -374,28 +374,14 @@ public final class OpenLFuzzyUtils {
             }
         }
 
-        int count = 0;
+        List<Token> ret = new ArrayList<>();
+        int best = 0;
+        int bestL = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                count++;
-            }
-        }
-        if (count == 0) {
-            return Collections.emptyList();
-        }
-        if (count == 1) {
-            for (int i = 0; i < tokensList.length; i++) {
-                if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return Arrays.asList(new FuzzyResult(tokens[i], max, min));
-                }
-            }
-        } else {
-            List<Token> ret = new ArrayList<>();
-            int best = 0;
-            int bestL = Integer.MAX_VALUE;
-            for (int i = 0; i < tokensList.length; i++) {
-                if (f[i] == max && tokensList[i].length - f[i] == min) {
-                    Pair<String, String> pair = similarity.get(i);
+            if (f[i] == max && tokensList[i].length - f[i] == min && (ignoreDistances || tokens[i]
+                .getDistance() == minDistance)) {
+                Pair<String, String> pair = similarity.get(i);
+                if (!ignoreDistances) {
                     int d = StringUtils.getFuzzyDistance(pair.getRight(), pair.getLeft(), Locale.ENGLISH);
                     if (d > best) {
                         best = d;
@@ -416,13 +402,14 @@ public final class OpenLFuzzyUtils {
                             }
                         }
                     }
+                } else {
+                    ret.add(tokens[i]);
                 }
             }
-            int max1 = max;
-            int min1 = min;
-            return ret.stream().map(e -> new FuzzyResult(e, max1, min1)).collect(Collectors.toList());
         }
-        return Collections.emptyList();
+        int max1 = max;
+        int min1 = min;
+        return ret.stream().map(e -> new FuzzyResult(e, max1, min1)).collect(Collectors.toList());
     }
 
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
