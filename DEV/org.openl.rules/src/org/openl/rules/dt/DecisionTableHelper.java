@@ -61,9 +61,11 @@ public final class DecisionTableHelper {
         short.class,
         int.class,
         java.lang.Byte.class,
+        java.lang.Short.class,
         org.openl.meta.ByteValue.class,
         org.openl.meta.ShortValue.class,
         org.openl.meta.IntValue.class,
+        java.math.BigInteger.class,
         org.openl.meta.BigIntegerValue.class,
         java.lang.Integer.class);
     private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(long.class,
@@ -75,6 +77,7 @@ public final class DecisionTableHelper {
         org.openl.meta.LongValue.class,
         org.openl.meta.FloatValue.class,
         org.openl.meta.DoubleValue.class,
+        java.math.BigDecimal.class,
         org.openl.meta.BigDecimalValue.class);
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
     private static final List<Class<?>> STRINGS_TYPES = Arrays.asList(java.lang.String.class,
@@ -82,6 +85,56 @@ public final class DecisionTableHelper {
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
     private static final List<Class<?>> RANGES_TYPES = Arrays
         .asList(IntRange.class, DoubleRange.class, CharRange.class, StringRange.class, DateRange.class);
+
+    private static final List<Class<?>> IGNORED_CLASSES_FOR_COMPOUND_TYPE = Arrays.asList(null,
+        byte.class,
+        short.class,
+        int.class,
+        long.class,
+        float.class,
+        double.class,
+        char.class,
+        void.class,
+        java.lang.Byte.class,
+        java.lang.Short.class,
+        java.lang.Integer.class,
+        java.lang.Long.class,
+        java.lang.Float.class,
+        java.lang.Double.class,
+        java.lang.Character.class,
+        java.lang.String.class,
+        java.math.BigInteger.class,
+        java.math.BigDecimal.class,
+        Date.class,
+        IntRange.class,
+        DoubleRange.class,
+        CharRange.class,
+        StringRange.class,
+        DateRange.class,
+        org.openl.meta.ByteValue.class,
+        org.openl.meta.ShortValue.class,
+        org.openl.meta.IntValue.class,
+        org.openl.meta.LongValue.class,
+        org.openl.meta.FloatValue.class,
+        org.openl.meta.DoubleValue.class,
+        org.openl.meta.BigIntegerValue.class,
+        org.openl.meta.BigDecimalValue.class,
+        org.openl.meta.StringValue.class,
+        Object.class,
+        Map.class,
+        SortedMap.class,
+        Set.class,
+        SortedSet.class,
+        List.class,
+        Collections.class,
+        ArrayList.class,
+        LinkedList.class,
+        HashSet.class,
+        LinkedHashSet.class,
+        HashMap.class,
+        TreeSet.class,
+        TreeMap.class,
+        LinkedHashMap.class);
 
     private DecisionTableHelper() {
     }
@@ -308,13 +361,17 @@ public final class DecisionTableHelper {
     }
 
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
+        if (IGNORED_CLASSES_FOR_COMPOUND_TYPE.contains(compoundType.getInstanceClass())) {
+            return false;
+        }
+
         if (compoundType.getConstructor(IOpenClass.EMPTY) == null) {
             return false;
         }
 
         int count = 0;
         for (IOpenMethod method : compoundType.getMethods()) {
-            if (OpenLFuzzyUtils.isGetterMethod(method)) {
+            if (OpenLFuzzyUtils.isSetterMethod(method)) {
                 count++;
             }
         }
@@ -322,9 +379,7 @@ public final class DecisionTableHelper {
     }
 
     private static boolean isCompoundInputType(IOpenClass type) {
-        if (INT_TYPES.contains(type.getInstanceClass()) || DOUBLE_TYPES.contains(type.getInstanceClass()) || CHAR_TYPES
-            .contains(type.getInstanceClass()) || STRINGS_TYPES.contains(type.getInstanceClass()) || DATE_TYPES
-                .contains(type.getInstanceClass()) || RANGES_TYPES.contains(type.getInstanceClass())) {
+        if (IGNORED_CLASSES_FOR_COMPOUND_TYPE.contains(type.getInstanceClass())) {
             return false;
         }
 
@@ -1500,7 +1555,7 @@ public final class DecisionTableHelper {
         sb.delete(prev, sb.length());
     }
 
-    private static void matchWithFuzzySearch(DecisionTable decisionTable,
+    private static List<DTHeader> matchWithFuzzySearch(DecisionTable decisionTable,
             ILogicalTable originalTable,
             FuzzyContext fuzzyContext,
             int column,
@@ -1510,14 +1565,15 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext,
             boolean onlyReturns) {
         if (onlyReturns && !fuzzyContext.isFuzzySupportsForReturnType()) {
-            return;
+            return Collections.emptyList();
         }
         int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
+        List<DTHeader> newDtHeaders = new ArrayList<>();
         matchWithFuzzySearchRec(decisionTable,
             gt,
             fuzzyContext,
-            dtHeaders,
+            newDtHeaders,
             numberOfHcondition,
             firstColumnHeight,
             w,
@@ -1527,6 +1583,8 @@ public final class DecisionTableHelper {
             column,
             bindingContext,
             onlyReturns);
+        dtHeaders.addAll(newDtHeaders);
+        return Collections.unmodifiableList(newDtHeaders);
     }
 
     private static boolean isCompatibleHeaders(DTHeader a, DTHeader b) {
@@ -1564,6 +1622,9 @@ public final class DecisionTableHelper {
         return true;
     }
 
+    private static final int FITS_MAX_LIMIT = 10000;
+    private static final int MAX_NUMBER_OF_RETURNS = 3;
+
     private static void bruteForceHeaders(int column,
             int numberOfVConditionParameters,
             List<DTHeader> dtHeaders,
@@ -1572,7 +1633,14 @@ public final class DecisionTableHelper {
             List<Integer> usedIndexes,
             Set<Integer> usedParameterIndexes,
             List<List<DTHeader>> fits,
+            int numberOfReturns,
             int fuzzyReturnsFlag) {
+        if (fits.size() > FITS_MAX_LIMIT) {
+            return;
+        }
+        if (numberOfReturns + (fuzzyReturnsFlag > 1 ? 1 : 0) > MAX_NUMBER_OF_RETURNS) {
+            return;
+        }
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
             List<DTHeader> fit = new ArrayList<>();
@@ -1618,6 +1686,7 @@ public final class DecisionTableHelper {
                         usedIndexes,
                         usedParameterIndexesTo,
                         fits,
+                        dtHeader.isReturn() && !isFuzzyReturn ? numberOfReturns + 1 : numberOfReturns,
                         isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1 : fuzzyReturnsFlag);
                 }
                 usedIndexes.remove(usedIndexes.size() - 1);
@@ -1772,7 +1841,14 @@ public final class DecisionTableHelper {
             new ArrayList<>(),
             new HashSet<>(),
             fits,
+            0,
             0);
+        if (fits.size() > FITS_MAX_LIMIT) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                "Ambiguous matching of column titles to DT conditions. Too many options are found.",
+                tableSyntaxNode));
+        }
+
         fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
 
         // Declared covered columns filter
@@ -1883,16 +1959,33 @@ public final class DecisionTableHelper {
         return ret;
     }
 
+    private static boolean columnHasFormulas(ILogicalTable originalTable,
+            int firstColumnHeight,
+            int column) {
+        int h = firstColumnHeight;
+        int height = originalTable.getSource().getHeight();
+        while (h < height) {
+            ICell cell = originalTable.getSource().getCell(column, h);
+            String s = cell.getStringValue();
+            if (RuleRowHelper.isFormula(s)) {
+                return true;
+            }
+            h = h + cell.getHeight();
+        }
+        return false;
+    }
+
     private static void matchWithSimpleDTHeader(DecisionTable decisionTable,
             ILogicalTable originalTable,
             int numberOfHcondition,
             int column,
             int simpleCondition,
+            int firstColumnHeight,
+            boolean onlyIfHasFormulas,
             List<DTHeader> dtHeaders,
             List<DTHeader> simpleDtHeaders) {
         String title = originalTable.getSource().getCell(column, 0).getStringValue();
         int width = originalTable.getSource().getCell(column, 0).getWidth();
-
         if (simpleCondition < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
             simpleDtHeaders.add(new SimpleDTHeader(simpleCondition,
                 decisionTable.getSignature().getParameterName(simpleCondition),
@@ -1902,7 +1995,9 @@ public final class DecisionTableHelper {
         } else if (numberOfHcondition == 0) {
             simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
         }
-        if (numberOfHcondition == 0) {
+        if (numberOfHcondition == 0 && (!onlyIfHasFormulas || columnHasFormulas(originalTable,
+            firstColumnHeight,
+            column))) {
             dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
         }
     }
@@ -1951,7 +2046,7 @@ public final class DecisionTableHelper {
                     dtHeaders,
                     firstColumnHeight,
                     bindingContext);
-                matchWithFuzzySearch(decisionTable,
+                List<DTHeader> fuzzyHeaders = matchWithFuzzySearch(decisionTable,
                     originalTable,
                     fuzzyContext,
                     column,
@@ -1965,6 +2060,8 @@ public final class DecisionTableHelper {
                     numberOfHcondition,
                     column,
                     i,
+                    firstColumnHeight,
+                    fuzzyContext.isFuzzySupportsForReturnType() && fuzzyHeaders.stream().anyMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter.get(column) == 1,
                     dtHeaders,
                     simpleDtHeaders);
             } else {

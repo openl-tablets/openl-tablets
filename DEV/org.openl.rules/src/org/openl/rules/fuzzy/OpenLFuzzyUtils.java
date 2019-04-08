@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 
 public final class OpenLFuzzyUtils {
 
@@ -153,7 +154,7 @@ public final class OpenLFuzzyUtils {
 
     public static boolean isSetterMethod(IOpenMethod method) {
         return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-            .startsWith("set");
+            .startsWith("set") && JavaOpenClass.isVoid(method.getType());
     }
 
     public static boolean isGetterMethod(IOpenMethod method) {

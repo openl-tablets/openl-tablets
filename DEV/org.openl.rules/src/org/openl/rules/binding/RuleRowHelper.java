@@ -483,16 +483,16 @@ public final class RuleRowHelper {
         return cellTable;
     }
 
-    public static boolean isFormula(ILogicalTable valuesTable) {
-
-        String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
-
-        if (stringValue != null) {
-            stringValue = stringValue.trim();
-            return stringValue.startsWith("=");
+    public static boolean isFormula(String value) {
+        if (value != null) {
+            return value.trim().startsWith("=");
         }
-
         return false;
+    }
+
+    public static boolean isFormula(ILogicalTable valuesTable) {
+        String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
+        return isFormula(stringValue);
     }
 
     public static CellMetaInfo createCellMetaInfo(IdentifierNode identifier, IMetaInfo metaInfo, NodeType nodeType) {
