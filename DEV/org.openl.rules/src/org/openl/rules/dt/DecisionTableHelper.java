@@ -665,8 +665,8 @@ public final class DecisionTableHelper {
             }
             FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
-                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(token.getValue(),
-                    fuzzyContext.getParameterTokens().getTokens(), false);
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
+                    .openlFuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
                 if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
                     .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
                     fuzzyResult = fuzzyResults.get(0);
@@ -1504,8 +1504,8 @@ public final class DecisionTableHelper {
         } else {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
-                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(sb.toString(),
-                    fuzzyContext.getReturnTokens(), true);
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
+                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
                     assert (methodChains != null);
@@ -1523,8 +1523,8 @@ public final class DecisionTableHelper {
                 }
             }
             if (!onlyReturns) {
-                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
-                    fuzzyContext.getParameterTokens().getTokens(), true);
+                List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
+                    .openlFuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     int paramIndex = fuzzyContext.getParameterTokens()
                         .getParameterIndex(fuzzyResult.getToken().getValue());
@@ -1903,7 +1903,7 @@ public final class DecisionTableHelper {
                 .map(x -> (FuzzyDTHeader) x)
                 .mapToInt(x -> x.getFuzzyResult().getMin())
                 .sum());
-        
+
         fits = filterHeadersByMin(fits,
             e -> e.stream()
                 .filter(x -> x instanceof FuzzyDTHeader)
@@ -1966,20 +1966,18 @@ public final class DecisionTableHelper {
         return ret;
     }
 
-    private static boolean columnHasFormulas(ILogicalTable originalTable,
-            int firstColumnHeight,
-            int column) {
+    private static boolean columnWithFormulas(ILogicalTable originalTable, int firstColumnHeight, int column) {
         int h = firstColumnHeight;
         int height = originalTable.getSource().getHeight();
         while (h < height) {
             ICell cell = originalTable.getSource().getCell(column, h);
             String s = cell.getStringValue();
-            if (RuleRowHelper.isFormula(s)) {
-                return true;
+            if (!StringUtils.isEmpty(s != null ? s.trim() : s) && !RuleRowHelper.isFormula(s)) {
+                return false;
             }
             h = h + cell.getHeight();
         }
-        return false;
+        return true;
     }
 
     private static void matchWithSimpleDTHeader(DecisionTable decisionTable,
@@ -2002,7 +2000,7 @@ public final class DecisionTableHelper {
         } else if (numberOfHcondition == 0) {
             simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
         }
-        if (numberOfHcondition == 0 && (!onlyIfHasFormulas || columnHasFormulas(originalTable,
+        if (numberOfHcondition == 0 && (!onlyIfHasFormulas || columnWithFormulas(originalTable,
             firstColumnHeight,
             column))) {
             dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
@@ -2068,7 +2066,8 @@ public final class DecisionTableHelper {
                     column,
                     i,
                     firstColumnHeight,
-                    fuzzyContext.isFuzzySupportsForReturnType() && fuzzyHeaders.stream().anyMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter.get(column) == 1,
+                    fuzzyContext.isFuzzySupportsForReturnType() && fuzzyHeaders.stream()
+                        .anyMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter.get(column) == 1,
                     dtHeaders,
                     simpleDtHeaders);
             } else {
