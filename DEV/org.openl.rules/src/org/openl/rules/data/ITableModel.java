@@ -14,7 +14,7 @@ import org.openl.types.IOpenClass;
  */
 public interface ITableModel {
 
-    ColumnDescriptor[] getDescriptor();
+    ColumnDescriptor[] getDescriptors();
 
     Class<?> getInstanceClass();
 
@@ -26,4 +26,5 @@ public interface ITableModel {
 
     boolean hasColumnTitleRow();
 
+    ColumnDescriptor getDescriptor(int idx);
 }

@@ -54,7 +54,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             boolean constructor,
             IdentifierNode[] fieldChainTokens) {
 
-        super(field, displayValue, openl, constructor, fieldChainTokens);
+        super(field, displayValue, openl, constructor, fieldChainTokens, false);
 
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
@@ -165,7 +165,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             if (foreignKeyColumnChainTokens.length == 0) {
                 foreignKeyColumnChainTokens = ArrayUtils.add(foreignKeyColumnChainTokens,
                     foreignTable.getColumnName(foreignKeyIndex));
-                ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
+                ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor(foreignKeyIndex);
                 if (foreignColumnDescriptor
                     .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
                     // In the case when foreign key is like: ">policies.driver"

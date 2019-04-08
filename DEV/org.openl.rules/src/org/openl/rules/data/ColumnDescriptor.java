@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.OpenL;
 import org.openl.meta.StringValue;
@@ -46,17 +47,22 @@ public class ColumnDescriptor {
 
     private Map<String, Integer> uniqueIndex = null;
     private final IdentifierNode[] fieldChainTokens;
+    private Key key = Key.DEFAULT;
+    private int columnIdx = -1;
+    private final boolean primaryKey;
 
     public ColumnDescriptor(IOpenField field,
-            StringValue displayValue,
-            OpenL openl,
-            boolean constructor,
-            IdentifierNode[] fieldChainTokens) {
+                            StringValue displayValue,
+                            OpenL openl,
+                            boolean constructor,
+                            IdentifierNode[] fieldChainTokens,
+                            boolean primaryKey) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
         this.constructor = constructor;
         this.fieldChainTokens = fieldChainTokens;
+        this.primaryKey = primaryKey;
         if (field == null) {
             this.valuesAnArray = false;
         } else {
@@ -82,10 +88,12 @@ public class ColumnDescriptor {
         return paramType.getAggregateInfo().isAggregate(paramType);
     }
 
-    private static boolean isSupportMultirows(IOpenField field) {
+    private boolean isSupportMultirows(IOpenField field) {
         if (field instanceof FieldChain) {
             FieldChain fieldChain = (FieldChain) field;
-            for (IOpenField f : fieldChain.getFields()) {
+            IOpenField[] fields = fieldChain.getFields();
+            this.key = new Key(fieldChainTokens.length - 1, fieldChainTokens.length > 1 ? field.getName() : "this");
+            for (IOpenField f : fields) {
                 if (f instanceof CollectionElementWithMultiRowField) {
                     return true;
                 }
@@ -336,5 +344,83 @@ public class ColumnDescriptor {
 
     public boolean isValuesAnArray() {
         return valuesAnArray;
+    }
+
+    public int getColumnIdx() {
+        return columnIdx;
+    }
+
+    public void setColumnIdx(int columnIdx) {
+        this.columnIdx = columnIdx;
+    }
+
+    public Key getKey() {
+        return key;
+    }
+
+    public boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
+    }
+
+    public static final class Key implements Comparable<Key> {
+
+        private static final Key DEFAULT = new Key(0, "this");
+
+        private final int level;
+        private final String path;
+        private boolean hasPkColumn;
+
+        public Key(int level, String path) {
+            this.level = level;
+            int sep = path.lastIndexOf('.');
+            this.path = sep > 0 ? path.substring(0, sep) : path;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public boolean hasPkColumn() {
+            return hasPkColumn;
+        }
+
+        public void setHasPkColumn(boolean hasPkColumn) {
+            this.hasPkColumn = hasPkColumn;
+        }
+
+        @Override
+        public int compareTo(Key o) {
+            int i = Integer.compare(level, o.level);
+            if (i != 0) {
+                return i;
+            }
+            return path.compareTo(o.path);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Key key = (Key) o;
+            return level == key.level &&
+                    Objects.equals(path, key.path);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(level, path);
+        }
     }
 }

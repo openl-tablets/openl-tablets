@@ -590,11 +590,14 @@ public class DataTableBindHelper {
                 constructorField,
                 fieldChainTokens);
         } else {
+            boolean primaryKey = fieldChainTokens.length > 0
+                    && FPK.equals(fieldChainTokens[fieldChainTokens.length - 1].getIdentifier());
             currentColumnDescriptor = new ColumnDescriptor(descriptorField,
                 header,
                 openl,
                 constructorField,
-                fieldChainTokens);
+                fieldChainTokens,
+                primaryKey);
         }
         return currentColumnDescriptor;
     }

@@ -279,7 +279,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private void initializeTestData() {
         if (descriptors == null) {
             testObjects = (DynamicObject[]) getBoundNode().getField().getData();
-            descriptors = getBoundNode().getTable().getDataModel().getDescriptor();
+            descriptors = getBoundNode().getTable().getDataModel().getDescriptors();
         }
     }
 

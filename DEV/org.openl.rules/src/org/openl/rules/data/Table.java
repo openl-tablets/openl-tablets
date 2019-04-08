@@ -58,20 +58,20 @@ public class Table implements ITable {
 
     @Override
     public String getColumnDisplay(int n) {
-        return dataModel.getDescriptor()[n].getDisplayName();
+        return dataModel.getDescriptor(n).getDisplayName();
     }
 
     @Override
     public int getColumnIndex(String columnName) {
-
-        ColumnDescriptor[] descriptors = dataModel.getDescriptor();
+        ColumnDescriptor[] descriptors = dataModel.getDescriptors();
 
         for (int i = 0; i < descriptors.length; i++) {
-            if (descriptors[i] == null) {
+            ColumnDescriptor descriptor = descriptors[i];
+            if (descriptor == null) {
                 continue;
             }
-            if (descriptors[i].getName().equals(columnName)) {
-                return i;
+            if (descriptor.getName().equals(columnName)) {
+                return descriptor.getColumnIdx();
             }
         }
 
@@ -80,14 +80,14 @@ public class Table implements ITable {
 
     @Override
     public String getColumnName(int n) {
-        ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[n];
+        ColumnDescriptor columnDescriptor = dataModel.getDescriptor(n);
         return columnDescriptor != null ? columnDescriptor.getName() : null;
     }
 
     @Override
     public IOpenClass getColumnType(int n) {
 
-        ColumnDescriptor descriptor = dataModel.getDescriptor()[n];
+        ColumnDescriptor descriptor = dataModel.getDescriptor(n);
 
         if (!descriptor.isConstructor()) {
             return descriptor.getType();
@@ -123,12 +123,12 @@ public class Table implements ITable {
 
     @Override
     public int getNumberOfColumns() {
-        return dataModel.getDescriptor().length;
+        return dataModel.getDescriptors().length;
     }
 
     @Override
     public ColumnDescriptor getColumnDescriptor(int i) {
-        return dataModel.getDescriptor()[i];
+        return dataModel.getDescriptor(i);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class Table implements ITable {
     @Override
     public Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException {
 
-        ColumnDescriptor descriptor = dataModel.getDescriptor()[columnIndex];
+        ColumnDescriptor descriptor = dataModel.getDescriptor(columnIndex);
 
         return descriptor.getUniqueIndex(this, columnIndex);
     }
@@ -177,7 +177,7 @@ public class Table implements ITable {
 
         Object rowObject = Array.get(getDataArray(), row);
 
-        return dataModel.getDescriptor()[col].getColumnValue(rowObject);
+        return dataModel.getDescriptor(col).getColumnValue(rowObject);
     }
 
     @Override
@@ -254,7 +254,7 @@ public class Table implements ITable {
 
             for (int j = 0; j < columns; j++) {
 
-                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
+                ColumnDescriptor descriptor = dataModel.getDescriptor(j);
 
                 if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
@@ -297,7 +297,6 @@ public class Table implements ITable {
 
     @Override
     public void preLoad(OpenlToolAdaptor openlAdapter) throws Exception {
-
         int rows = logicalTable.getHeight();
         int startRow = getStartRowForData();
 
@@ -338,8 +337,8 @@ public class Table implements ITable {
 
         IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
-        for (int columnNum = 0; columnNum < columns; columnNum++) {
-            literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum, env);
+        for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
+            literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env);
         }
         env.popLocalFrame();
         if (literal == null) {
@@ -349,22 +348,19 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    private Object processColumn(OpenlToolAdaptor openlAdapter,
+    private Object processColumn(ColumnDescriptor columnDescriptor, OpenlToolAdaptor openlAdapter,
             boolean constructor,
             int rowNum,
             Object literal,
-            int columnNum,
             IRuntimeEnv env) throws SyntaxNodeException {
-
-        ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor
-                    .getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum, rowNum, 1, 1), openlAdapter);
+                    .getLiteral(dataModel.getType(), logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1), openlAdapter);
             } else {
                 try {
-                    ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
+                    ILogicalTable lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                         .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default
                         // value.
@@ -426,16 +422,11 @@ public class Table implements ITable {
     }
 
     private boolean isConstructor() {
-
-        for (int i = 0; i < dataModel.getDescriptor().length; i++) {
-
-            ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[i];
-
+        for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
             if (columnDescriptor != null && columnDescriptor.isConstructor()) {
                 return true;
             }
         }
-
         return false;
     }
 }
