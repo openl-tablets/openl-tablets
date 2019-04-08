@@ -20,18 +20,20 @@
       <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
       <ui:param name="useCustomComment"
                 value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
-                   rendered="#{useCustomComment}">
-        <h:outputText value="Comment"/>
-        <h:inputTextarea id="comment" value="#{repositoryTreeController.restoreProjectComment}" type="text"
-                         size="35"
-                         readonly="false" title="#{repositoryTreeController.restoreProjectComment}"
-                         validator="#{repositoryTreeController.commentValidator}"/>
-        <h:outputText value=""/>
-        <h:message for="comment" styleClass="error"/>
-      </h:panelGrid>
+      <h:panelGroup rendered="#{useCustomComment}">
+        <p>
+          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <h:outputText value="Comment"/>
+            <h:inputTextarea id="comment" value="#{repositoryTreeController.restoreProjectComment}" type="text"
+                             size="35"
+                             readonly="false" title="#{repositoryTreeController.restoreProjectComment}"/>
+          </h:panelGrid>
+        </p>
+      </h:panelGroup>
 
       <footer>
+        <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+                Now errors are shown after dialog is closed. -->
         <h:commandButton value="Undelete" action="#{repositoryTreeController.undeleteProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalUndeleteProject')}.hide();" />
       </footer>
