@@ -472,7 +472,13 @@ public class RepositoryTreeController {
     }
 
     public String createNewRulesProject() {
-        String msg = validateProjectName();
+        String comment;
+        if (isUseCustomComment(true)) {
+            comment = createProjectComment;
+        } else {
+            comment = designRepoComments.createProject(projectName);
+        }
+        String msg = validateCreateProjectParams(comment);
 
         if (msg != null) {
             this.clearForm();
@@ -491,12 +497,6 @@ public class RepositoryTreeController {
             return null;
         }
 
-        String comment;
-        if (isUseCustomComment(true)) {
-            comment = createProjectComment;
-        } else {
-            comment = designRepoComments.createProject(projectName);
-        }
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName, projectFolder, userWorkspace,
             comment,
             zipFilter,
@@ -528,6 +528,20 @@ public class RepositoryTreeController {
         return creationMessage;
     }
 
+    private String validateCreateProjectParams(String comment) {
+        String msg = validateProjectName();
+        if (msg != null) {
+            return msg;
+        }
+
+        msg = validateCreateProjectComment(comment);
+        if (msg != null) {
+            return msg;
+        }
+
+        return msg;
+    }
+
     private String validateProjectName() {
         try {
             String msg = null;
@@ -542,6 +556,17 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return "Internal error: " + e.getMessage();
+        }
+    }
+
+    private String validateCreateProjectComment(String comment) {
+        try {
+            if (designCommentValidator.isValidationEnabled()) {
+                designCommentValidator.validate(comment);
+            }
+            return null;
+        } catch (Exception e) {
+            return e.getMessage();
         }
     }
 
@@ -691,6 +716,9 @@ public class RepositoryTreeController {
                     Comments comments = getComments(project);
                     comment = comments.archiveProject(project.getName());
                 }
+                if (!isValidComment(project, comment)) {
+                    return null;
+                }
                 project.delete(comment);
             } else {
                 projectArtefact.delete();
@@ -735,6 +763,22 @@ public class RepositoryTreeController {
         }
 
         return null;
+    }
+
+    private boolean isValidComment(UserWorkspaceProject project, String comment) {
+        CommentValidator commentValidator = project instanceof RulesProject ?
+                                            designCommentValidator :
+                                            deployConfigCommentValidator;
+
+        if (commentValidator.isValidationEnabled()) {
+            try {
+                commentValidator.validate(comment);
+            } catch (Exception e) {
+                FacesUtils.addErrorMessage(e.getMessage());
+                return false;
+            }
+        }
+        return true;
     }
 
     public String unlockSelectedProject() {
@@ -880,6 +924,9 @@ public class RepositoryTreeController {
                     } else {
                         Comments comments = getComments(project);
                         comment = comments.eraseProject(project.getName());
+                    }
+                    if (!isValidComment(project, comment)) {
+                        return null;
                     }
                     project.erase(userWorkspace.getUser(), comment);
                 }
@@ -1378,6 +1425,9 @@ public class RepositoryTreeController {
                 Comments comments = getComments(project);
                 comment = comments.restoreProject(project.getName());
             }
+            if (!isValidComment(project, comment)) {
+                return null;
+            }
             project.undelete(userWorkspace.getUser(), comment);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -1427,19 +1477,18 @@ public class RepositoryTreeController {
     }
 
     public String createProjectWithFiles() {
-        String errorMessage = validateProjectName();
+        String comment;
+        if (isUseCustomComment(true)) {
+            comment = createProjectComment;
+        } else {
+            comment = designRepoComments.createProject(projectName);
+        }
+        String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
             FacesUtils.addErrorMessage(errorMessage);
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            String comment;
-            if (isUseCustomComment(true)) {
-                comment = createProjectComment;
-            } else {
-                comment = designRepoComments.createProject(projectName);
-            }
-
             errorMessage = new ProjectUploader(uploadedFiles,
                     projectName,
                     projectFolder,
@@ -1472,6 +1521,7 @@ public class RepositoryTreeController {
         this.setFileName(null);
         this.setProjectName(null);
         this.setProjectFolder("");
+        this.setCreateProjectComment(null);
         this.uploadedFiles.clear();
     }
 
@@ -1590,7 +1640,7 @@ public class RepositoryTreeController {
                     comment,
                     zipFilter,
                     zipCharsetDetector);
-                errorMessage = validateProjectName();
+                errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
                 }
@@ -1816,11 +1866,6 @@ public class RepositoryTreeController {
         } else if (project instanceof ADeploymentProject) {
             deployConfigCommentValidator.validate(comment);
         }
-    }
-
-    public void newProjectCommentValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String comment = (String) value;
-        designCommentValidator.validate(comment);
     }
 
     public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {

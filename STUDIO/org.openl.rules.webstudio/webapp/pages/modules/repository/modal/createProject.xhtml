@@ -100,14 +100,7 @@
                                 <h:outputLabel for="commentTemplate" value="Comment" />
                             </td>
                             <td><h:inputText id="commentTemplate" size="35"
-                                             value="#{repositoryTreeController.createProjectComment}"
-                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <h:message for="commentTemplate" styleClass="error"/>
+                                             value="#{repositoryTreeController.createProjectComment}"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -116,6 +109,8 @@
                     <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}" />
 
                     <footer>
+                        <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+                                Now errors are shown after dialog is closed. -->
                         <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
                             action="#{repositoryTreeController.createNewRulesProject}" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
@@ -153,10 +148,7 @@
                                          title="#{repositoryTreeController.createProjectComment}"
                                          type="text"
                                          size="35"
-                                         readonly="false"
-                                         validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                        <h:outputText value="" rendered="#{useCustomComment}"/>
-                        <h:message for="commentExcel" styleClass="error" rendered="#{useCustomComment}"/>
+                                         readonly="false"/>
                     </h:panelGrid>
 
                     <footer>
@@ -202,10 +194,7 @@
                                      title="#{repositoryTreeController.createProjectComment}"
                                      type="text"
                                      size="35"
-                                     readonly="false"
-                                     validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                    <h:outputText value="" rendered="#{useCustomComment}"/>
-                    <h:message for="commentZip" styleClass="error" rendered="#{useCustomComment}"/>
+                                     readonly="false"/>
                 </h:panelGrid>
 
                 <footer>
@@ -263,10 +252,7 @@
                                              title="#{localUpload.createProjectComment}"
                                              type="text"
                                              size="35"
-                                             readonly="false"
-                                             validator="#{repositoryTreeController.newProjectCommentValidator}"/>
-                            <h:outputText value=""/>
-                            <h:message for="commentLocal" styleClass="error"/>
+                                             readonly="false"/>
                         </h:panelGrid>
                     </div>
 
