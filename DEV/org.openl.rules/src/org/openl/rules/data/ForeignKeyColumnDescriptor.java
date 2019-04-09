@@ -448,14 +448,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private int getForeignKeyIndex(ITable foreignTable) {
-        int foreignKeyIndex = 0;
-
         if (foreignKey != null) {
             String columnName = foreignKey.getIdentifier();
-            foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+            return foreignTable.getColumnIndex(columnName);
+        } else {
+            return foreignTable.getDataModel().getDescriptors()[0].getColumnIdx();
         }
-
-        return foreignKeyIndex;
     }
 
     public DomainOpenClass getDomainClassForForeignTable(IDataBase db) throws SyntaxNodeException {

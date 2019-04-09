@@ -30,6 +30,7 @@ public class Table implements ITable {
 
     private BiMap<Integer, Object> rowIndexMap;
     private BiMap<Integer, String> primaryIndexMap;
+    private Map<Integer, Integer> idxToRow = new HashMap<>();
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -63,13 +64,7 @@ public class Table implements ITable {
 
     @Override
     public int getColumnIndex(String columnName) {
-        ColumnDescriptor[] descriptors = dataModel.getDescriptors();
-
-        for (int i = 0; i < descriptors.length; i++) {
-            ColumnDescriptor descriptor = descriptors[i];
-            if (descriptor == null) {
-                continue;
-            }
+        for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
             if (descriptor.getName().equals(columnName)) {
                 return descriptor.getColumnIdx();
             }
@@ -86,7 +81,6 @@ public class Table implements ITable {
 
     @Override
     public IOpenClass getColumnType(int n) {
-
         ColumnDescriptor descriptor = dataModel.getDescriptor(n);
 
         if (!descriptor.isConstructor()) {
@@ -166,7 +160,6 @@ public class Table implements ITable {
 
     @Override
     public Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException {
-
         ColumnDescriptor descriptor = dataModel.getDescriptor(columnIndex);
 
         return descriptor.getUniqueIndex(this, columnIndex);
@@ -174,22 +167,19 @@ public class Table implements ITable {
 
     @Override
     public Object getValue(int col, int row) {
-
-        Object rowObject = Array.get(getDataArray(), row);
+        int startRows = getStartRowForData();
+        int idx = row - startRows;
+        Object rowObject = rowIndexMap == null ? Array.get(dataArray, idx) : rowIndexMap.get(idx);
 
         return dataModel.getDescriptor(col).getColumnValue(rowObject);
     }
 
     @Override
     public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
-
         Map<String, Integer> index = new HashMap<>();
 
-        int rows = logicalTable.getHeight();
-
-        for (int i = 1; i < rows; i++) {
-
-            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
+        for (Map.Entry<Integer, Integer> entry : idxToRow.entrySet()) {
+            IGridTable gridTable = logicalTable.getSubtable(colIdx, entry.getValue(), 1, 1).getSource();
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
@@ -204,7 +194,7 @@ public class Table implements ITable {
                     new GridCellSourceCodeModule(gridTable));
             }
 
-            index.put(key, i - 1);
+            index.put(key, entry.getKey());
         }
 
         return index;
@@ -244,13 +234,13 @@ public class Table implements ITable {
         int rows = logicalTable.getHeight();
         int columns = logicalTable.getWidth();
 
-        int startRow = 1;
+        int startRow = getStartRowForData();
 
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
 
         for (int i = startRow; i < rows; i++) {
-
-            Object target = Array.get(dataArray, i - startRow);
+            int idx = i - startRow;
+            Object target = rowIndexMap == null ? Array.get(dataArray, idx) : rowIndexMap.get(idx);
 
             for (int j = 0; j < columns; j++) {
 
@@ -300,14 +290,38 @@ public class Table implements ITable {
         int rows = logicalTable.getHeight();
         int startRow = getStartRowForData();
 
-        dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
+        ColumnDescriptor firstDescriptor = dataModel.getDescriptors().length > 0 ? dataModel.getDescriptors()[0] : null;
+        List<Object> resultContainer = new ArrayList<>();
+        if (firstDescriptor != null && firstDescriptor.isSupportMultirows() && !firstDescriptor.isPrimaryKey()) {
+            for (int rowNum = startRow; rowNum < rows;) {
+                int height = 1;
+                String value = logicalTable.getCell(firstDescriptor.getColumnIdx(), rowNum).getStringValue();
+                //determine next rows which have the same values or null
+                //to parse it as one unique section
+                for (int j = rowNum + 1; j < rows; j++) {
+                    String nextValue = logicalTable.getCell(firstDescriptor.getColumnIdx(), j).getStringValue();
+                    if (Objects.equals(value, nextValue) || value != null && nextValue == null) {
+                        height++;
+                    } else {
+                        break;
+                    }
+                }
+                processRow(resultContainer, openlAdapter, startRow, rowNum, height);
+                rowNum += height;
+            }
+        } else {
+            for (int rowNum = startRow; rowNum < rows; rowNum++) {
+                processRow(resultContainer, openlAdapter, startRow, rowNum, 1);
+            }
+        }
 
-        for (int rowNum = startRow; rowNum < rows; rowNum++) {
-            processRow(openlAdapter, startRow, rowNum);
+        dataArray = Array.newInstance(dataModel.getInstanceClass(), resultContainer.size());
+        for (int i = 0; i < resultContainer.size(); i++) {
+            Array.set(dataArray, i, resultContainer.get(i));
         }
     }
 
-    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
+    private void processRow(List<Object> resultContainer, OpenlToolAdaptor openlAdapter, int startRow, int rowNum, int height) throws OpenLCompilationException {
 
         boolean constructor = isConstructor();
         Object literal = null;
@@ -330,37 +344,38 @@ public class Table implements ITable {
                 String errorMessage = String.format("Can`t create instance of %s", dataModel.getName());
                 throw new OpenLCompilationException(errorMessage);
             }
-            addToRowIndex(rowIndex, literal);
+            for (int i = rowIndex; i < rowIndex + height; i++) {
+                addToRowIndex(rowIndex, literal);
+            }
         }
-
-        int columns = logicalTable.getWidth();
 
         IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
-            literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env);
+            literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env, height);
         }
         env.popLocalFrame();
         if (literal == null) {
             literal = dataModel.getType().nullObject();
         }
 
-        Array.set(dataArray, rowNum - startRow, literal);
+        idxToRow.put(resultContainer.size(), rowNum);
+        resultContainer.add(literal);
     }
 
     private Object processColumn(ColumnDescriptor columnDescriptor, OpenlToolAdaptor openlAdapter,
             boolean constructor,
             int rowNum,
             Object literal,
-            IRuntimeEnv env) throws SyntaxNodeException {
+            IRuntimeEnv env, int height) throws SyntaxNodeException {
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor
-                    .getLiteral(dataModel.getType(), logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1), openlAdapter);
+                    .getLiteral(dataModel.getType(), logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, height), openlAdapter);
             } else {
                 try {
-                    ILogicalTable lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
+                    ILogicalTable lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, height);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                         .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default
                         // value.
@@ -390,7 +405,6 @@ public class Table implements ITable {
 
     @Override
     public Object findObject(int columnIndex, String skey, IBindingContext cxt) throws SyntaxNodeException {
-
         Map<String, Integer> index = getUniqueIndex(columnIndex);
 
         Integer found = index.get(skey);
@@ -413,7 +427,6 @@ public class Table implements ITable {
      * @return Start row for data rows from Data_With_Titles rows. It depends on if table has or no column title row.
      */
     private int getStartRowForData() {
-
         if (dataModel.hasColumnTitleRow()) {
             return 1;
         }
@@ -423,7 +436,7 @@ public class Table implements ITable {
 
     private boolean isConstructor() {
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
-            if (columnDescriptor != null && columnDescriptor.isConstructor()) {
+            if (columnDescriptor.isConstructor()) {
                 return true;
             }
         }
