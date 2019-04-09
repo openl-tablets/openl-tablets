@@ -1969,15 +1969,18 @@ public final class DecisionTableHelper {
     private static boolean columnWithFormulas(ILogicalTable originalTable, int firstColumnHeight, int column) {
         int h = firstColumnHeight;
         int height = originalTable.getSource().getHeight();
+        int c = 0;
+        int t = 0;
         while (h < height) {
             ICell cell = originalTable.getSource().getCell(column, h);
             String s = cell.getStringValue();
             if (!StringUtils.isEmpty(s != null ? s.trim() : s) && !RuleRowHelper.isFormula(s)) {
-                return false;
+                c++;
             }
+            t++;
             h = h + cell.getHeight();
         }
-        return true;
+        return c <= t / 2 + t % 2;
     }
 
     private static void matchWithSimpleDTHeader(DecisionTable decisionTable,
