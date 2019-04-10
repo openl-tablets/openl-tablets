@@ -24,6 +24,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
+import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
@@ -334,25 +335,33 @@ public final class DecisionTableHelper {
             IWritableGrid grid,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfHcondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
+        int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
 
         final FuzzyContext fuzzyContext = buildFuzzyContext(tableSyntaxNode,
             decisionTable,
             numberOfHcondition,
             bindingContext);
 
+        final NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter = new NumberOfColumnsUnderTitleCounter(
+            originalTable,
+            firstColumnHeight);
+
         List<DTHeader> dtHeaders = getDTHeaders(tableSyntaxNode,
             decisionTable,
             originalTable,
             fuzzyContext,
+            numberOfColumnsUnderTitleCounter,
             numberOfHcondition,
+            firstColumnHeight,
             bindingContext);
 
-        writeConditions(tableSyntaxNode,
-            decisionTable,
+        writeConditions(decisionTable,
             originalTable,
             grid,
+            numberOfColumnsUnderTitleCounter,
             dtHeaders,
             numberOfHcondition,
+            firstColumnHeight,
             bindingContext);
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
@@ -1026,12 +1035,51 @@ public final class DecisionTableHelper {
         return condition.isCondition() && !condition.isHCondition();
     }
 
-    private static void writeConditions(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static boolean getMinMaxOrder(ILogicalTable originalTable,
+            NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
+            int firstColumnHeight,
+            int column,
+            IOpenClass type) {
+        int h = firstColumnHeight;
+        int height = originalTable.getSource().getHeight();
+        int t1 = 0;
+        int t2 = 0;
+        IString2DataConvertor<?> string2DataConvertor = String2DataConvertorFactory
+            .getConvertor(type.getInstanceClass());
+        while (h < height) {
+            ICell cell1 = originalTable.getSource().getCell(column, h);
+            String s1 = cell1.getStringValue();
+            Object o1 = string2DataConvertor.parse(s1, null);
+
+            ICell cell2 = originalTable.getSource()
+                .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
+            String s2 = cell2.getStringValue();
+            Object o2 = string2DataConvertor.parse(s2, null);
+
+            if (o1 instanceof Comparable && o2 instanceof Comparable) {
+                if (((Comparable) o1).compareTo(o2) > 0) {
+                    t1++;
+                } else if (((Comparable) o1).compareTo(o2) < 0) {
+                    t2++;
+                }
+            }
+
+            h = h + cell1.getHeight();
+        }
+        return t1 <= t2;
+    }
+
+    private static final String[] MIN_MAX_ORDER = new String[] { "min", "max" };
+    private static final String[] MAX_MIN_ORDER = new String[] { "max", "min" };
+
+    private static void writeConditions(DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
+            NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             List<DTHeader> dtHeaders,
             int numberOfHcondition,
+            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         List<DTHeader> conditions = dtHeaders.stream()
@@ -1085,31 +1133,80 @@ public final class DecisionTableHelper {
                     bindingContext);
             } else {
                 grid.setCellValue(column, 0, header);
-                grid.setCellValue(column, 1, condition.getStatement());
-
-                // Set type of condition values(for Ranges and Array)
-                Pair<String, IOpenClass> typeOfValue = getTypeForConditionColumn(decisionTable,
-                    originalTable,
-                    condition,
-                    numOfHCondition,
-                    firstColumnForHConditions,
-                    bindingContext);
-                grid.setCellValue(column, 2, typeOfValue.getLeft());
-
-                if (isVCondition(condition)) {
-                    if (!bindingContext.isExecutionMode()) {
-                        writeMetaInfoForVCondition(originalTable,
-                            decisionTable,
-                            column,
-                            header,
-                            null,
-                            condition.getStatement(),
-                            new IOpenClass[] { typeOfValue.getRight() },
-                            null);
+                final int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
+                IOpenClass type = getTypeForCondition(decisionTable, condition);
+                if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && (type.getInstanceClass()
+                    .isPrimitive() || Comparable.class.isAssignableFrom(type.getInstanceClass()))) {
+                    boolean minMaxOrder = getMinMaxOrder(originalTable,
+                        numberOfColumnsUnderTitleCounter,
+                        firstColumnHeight,
+                        column,
+                        type);
+                    String statement;
+                    if (minMaxOrder) {
+                        statement = "min <= " + condition.getStatement() + " && " + condition.getStatement() + " < max";
+                    } else {
+                        statement = "max > " + condition.getStatement() + " && " + condition.getStatement() + " >= min";
                     }
-                    if (condition.getWidth() > 1) {
-                        for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                            grid.addMergedRegion(new GridRegion(row, column, row, column + condition.getWidth() - 1));
+                    grid.setCellValue(column, 1, statement);
+                    grid.setCellValue(column,
+                        2,
+                        type.getDisplayName(INamedThing.SHORT) + " " + (minMaxOrder ? "min" : "max"));
+                    int w1 = numberOfColumnsUnderTitleCounter.getWidth(column, 0);
+                    if (w1 > 1) {
+                        grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
+                    }
+                    grid.setCellValue(column + w1,
+                        2,
+                        type.getDisplayName(INamedThing.SHORT) + " " + (minMaxOrder ? "max" : "min"));
+                    int w2 = numberOfColumnsUnderTitleCounter.getWidth(column, 1);
+                    if (w2 > 1) {
+                        grid.addMergedRegion(new GridRegion(2, column + w1, 2, column + w1 + w2 - 1));
+                    }
+                    if (isVCondition(condition)) {
+                        if (!bindingContext.isExecutionMode()) {
+                            writeMetaInfoForVCondition(originalTable,
+                                decisionTable,
+                                column,
+                                header,
+                                (minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER),
+                                statement,
+                                new IOpenClass[] { type, type },
+                                null);
+                        }
+                        if (condition.getWidth() > 1) {
+                            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
+                                grid.addMergedRegion(
+                                    new GridRegion(row, column, row, column + condition.getWidth() - 1));
+                            }
+                        }
+                    }
+                } else {
+                    grid.setCellValue(column, 1, condition.getStatement());
+                    // Set type of condition values(for Ranges and Array)
+                    Pair<String, IOpenClass> typeOfValue = getTypeForConditionColumn(decisionTable,
+                        originalTable,
+                        condition,
+                        numOfHCondition,
+                        firstColumnForHConditions,
+                        bindingContext);
+                    grid.setCellValue(column, 2, typeOfValue.getLeft());
+                    if (isVCondition(condition)) {
+                        if (!bindingContext.isExecutionMode()) {
+                            writeMetaInfoForVCondition(originalTable,
+                                decisionTable,
+                                column,
+                                header,
+                                null,
+                                condition.getStatement(),
+                                new IOpenClass[] { typeOfValue.getRight() },
+                                null);
+                        }
+                        if (condition.getWidth() > 1) {
+                            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                                grid.addMergedRegion(
+                                    new GridRegion(row, column, row, column + condition.getWidth() - 1));
+                            }
                         }
                     }
                 }
@@ -2014,7 +2111,9 @@ public final class DecisionTableHelper {
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             FuzzyContext fuzzyContext,
+            NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             int numberOfHcondition,
+            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
         boolean isSmart = isSmart(tableSyntaxNode);
 
@@ -2024,7 +2123,6 @@ public final class DecisionTableHelper {
         final XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass())
             .getXlsDefinitions();
 
-        int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
         int lastColumn = originalTable.getSource().getWidth();
         if (numberOfHcondition != 0) {
             int firstColumnForHCondition = getFirstColumnForHCondition(originalTable,
@@ -2034,10 +2132,6 @@ public final class DecisionTableHelper {
                 lastColumn = firstColumnForHCondition;
             }
         }
-
-        NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter = new NumberOfColumnsUnderTitleCounter(
-            originalTable,
-            firstColumnHeight);
 
         List<DTHeader> simpleDtHeaders = new ArrayList<>();
         List<DTHeader> dtHeaders = new ArrayList<>();
@@ -2274,13 +2368,7 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext) {
         int column = condition.getColumn();
 
-        IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
-        if (condition instanceof FuzzyDTHeader) {
-            FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
-            if (fuzzyCondition.getMethodsChain() != null) {
-                type = fuzzyCondition.getMethodsChain()[fuzzyCondition.getMethodsChain().length - 1].getType();
-            }
-        }
+        IOpenClass type = getTypeForCondition(decisionTable, condition);
 
         ILogicalTable decisionValues;
         int width;
@@ -2398,6 +2486,17 @@ public final class DecisionTableHelper {
         } else {
             return Pair.of(type.getName(), type);
         }
+    }
+
+    private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {
+        IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
+        if (condition instanceof FuzzyDTHeader) {
+            FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
+            if (fuzzyCondition.getMethodsChain() != null) {
+                type = fuzzyCondition.getMethodsChain()[fuzzyCondition.getMethodsChain().length - 1].getType();
+            }
+        }
+        return type;
     }
 
     public static XlsSheetGridModel createVirtualGrid(String poiSheetName, int numberOfColumns) {
@@ -2527,22 +2626,28 @@ public final class DecisionTableHelper {
     private static class NumberOfColumnsUnderTitleCounter {
         ILogicalTable logicalTable;
         int firstColumnHeight;
-        Map<Integer, Integer> numberOfColumnsMap = new HashMap<>();
+        Map<Integer, List<Integer>> numberOfColumnsMap = new HashMap<>();
+
+        private List<Integer> init(int column) {
+            int w = logicalTable.getSource().getCell(column, 0).getWidth();
+            int i = 0;
+            List<Integer> w1 = new ArrayList<>();
+            while (i < w) {
+                int w0 = logicalTable.getSource().getCell(column + i, firstColumnHeight).getWidth();
+                i = i + w0;
+                w1.add(w0);
+            }
+            return w1;
+        }
 
         private int get(int column) {
-            Integer numberOfColumns = numberOfColumnsMap.get(column);
-            if (numberOfColumns == null) {
-                int w = logicalTable.getSource().getCell(column, 0).getWidth();
-                int i = 0;
-                int count = 0;
-                while (i < w) {
-                    i = i + logicalTable.getSource().getCell(column, firstColumnHeight).getWidth();
-                    count++;
-                }
-                numberOfColumns = count;
-                numberOfColumnsMap.put(column, count);
-            }
-            return numberOfColumns;
+            List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
+            return numberOfColumns.size();
+        }
+
+        private int getWidth(int column, int num) {
+            List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
+            return numberOfColumns.get(num);
         }
 
         private NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
