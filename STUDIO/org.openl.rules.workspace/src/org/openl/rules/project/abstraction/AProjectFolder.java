@@ -2,17 +2,22 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,10 +163,63 @@ public class AProjectFolder extends AProjectArtefact {
 
             List<FileChange> changes = new ArrayList<>();
             try {
-                findChanges(from, changes);
+                ChangesetType changesetType;
+
+                FolderRepository fromRepository = ((FolderRepository) from.getRepository());
+                FolderRepository toRepository = (FolderRepository) getRepository();
+                if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
+                    changesetType = ChangesetType.DIFF;
+
+                    List<FileData> fromList = from.isHistoric() ?
+                                              fromRepository.listFiles(from.getFolderPath(), from.getHistoryVersion()) :
+                                              fromRepository.list(from.getFolderPath());
+
+                    String toVersion = getHistoryVersion();
+                    List<FileData> toList = isHistoric()?
+                                            toRepository.listFiles(getFolderPath(), toVersion) :
+                                            toRepository.list(getFolderPath());
+
+                    // Search added and modified files
+                    for (FileData fromData : fromList) {
+                        String nameFrom = fromData.getName();
+                        String nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
+
+                        String fromUniqueId = fromData.getUniqueId();
+                        if (fromUniqueId == null) {
+                            // The file was modified or added
+                            changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream()));
+                        } else {
+                            FileData toData = find(toList, nameTo);
+                            if (toData == null) {
+                                // The file is absent in destination. Add it.
+                                changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream(), fromUniqueId));
+                            } else if(!fromUniqueId.equals(toData.getUniqueId())) {
+                                // Different revision of a file or it was modified.
+                                changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream(), fromUniqueId));
+                            }
+                            // Otherwise the file is same, no need to save it
+                        }
+                    }
+
+                    // Search deleted files
+                    for (FileData toData : toList) {
+                        String nameTo = toData.getName();
+                        String nameFrom = from.getFolderPath() + nameTo.substring(getFolderPath().length());
+
+                        FileData fromData = find(fromList, nameFrom);
+                        if (fromData == null) {
+                            // File was deleted
+                            changes.add(new FileChange(nameTo, null, toData.getUniqueId()));
+                        }
+                    }
+                } else {
+                    changesetType = ChangesetType.FULL;
+                    findChanges(from, changes);
+                }
+
                 FileData fileData = getFileData();
                 fileData.setAuthor(user == null ? null : user.getUserName());
-                setFileData(((FolderRepository) getRepository()).save(fileData, changes));
+                setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
             } catch (IOException e) {
                 throw new ProjectException("Can't update: " + e.getMessage(), e);
             } finally {
@@ -172,6 +230,16 @@ public class AProjectFolder extends AProjectArtefact {
         }
     }
 
+    private FileData find(List<FileData> list, String name) {
+        for (FileData fileData : list) {
+            if (fileData.getName().equals(name)) {
+                return fileData;
+            }
+        }
+
+        return null;
+    }
+
     private void findChanges(AProjectFolder from, List<FileChange> files) throws ProjectException {
         ResourceTransformer transformer = getResourceTransformer();
         String folderPath = getFolderPath();
@@ -180,7 +248,7 @@ public class AProjectFolder extends AProjectArtefact {
             if (artefact instanceof AProjectResource) {
                 AProjectResource resource = (AProjectResource) artefact;
                 InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
-                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content));
+                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content, resource.getFileData().getUniqueId()));
             } else {
                 findChanges((AProjectFolder) artefact, files);
             }
@@ -264,7 +332,7 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     protected boolean isRepositoryVersionable() {
-        return !(getRepository() instanceof FileSystemRepository);
+        return getRepository().supports().versions();
     }
 
     public String getHistoryVersion() {

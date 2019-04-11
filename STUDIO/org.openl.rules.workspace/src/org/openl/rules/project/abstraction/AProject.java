@@ -426,7 +426,8 @@ public class AProject extends AProjectFolder {
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserName());
-            return ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo));
+            return ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo),
+                    ChangesetType.FULL);
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {
@@ -549,6 +550,12 @@ public class AProject extends AProjectFolder {
             super.setDeleted(deleted);
         }
 
+        @Override
+        public String getUniqueId() {
+            verifyInitialized();
+            return super.getUniqueId();
+        }
+
         private void verifyInitialized() {
             if (project != null) {
                 List<FileData> fileDatas = project.getHistoryFileDatas();
@@ -573,6 +580,7 @@ public class AProject extends AProjectFolder {
                         super.setComment(repoData.getComment());
                         super.setSize(repoData.getSize());
                         super.setDeleted(repoData.isDeleted());
+                        super.setUniqueId(repoData.getUniqueId());
                     }
                 }
                 project = null;

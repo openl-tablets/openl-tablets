@@ -172,7 +172,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     @Override
     public Features supports() {
-        return new Features(this);
+        return new FeaturesBuilder(this).setVersions(false).build();
     }
 
     private void listFiles(Collection<FileData> files, File directory) {
@@ -194,7 +194,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         }
     }
 
-    private FileData getFileData(File file) throws IOException {
+    protected FileData getFileData(File file) throws IOException {
         if (!file.exists()) {
             throw new FileNotFoundException("File [" + file + "] does not exist.");
         }
@@ -273,7 +273,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
         for (FileChange change : files) {
@@ -281,19 +281,20 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             savedFiles.add(file);
             createParent(file);
 
-            FileOutputStream output = null;
-            try {
-                output = new FileOutputStream(file);
-                IOUtils.copy(change.getStream(), output);
-            } finally {
-                // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
-                // place where it was created.
-                IOUtils.closeQuietly(output);
+            InputStream stream = change.getStream();
+            if (stream != null) {
+                try (FileOutputStream output = new FileOutputStream(file)) {
+                    IOUtils.copy(stream, output);
+                }
+            } else {
+                FileUtils.deleteQuietly(file);
             }
         }
 
         File folder = new File(root, folderData.getName());
-        removeAbsentFiles(folder, savedFiles);
+        if (changesetType == ChangesetType.FULL) {
+            removeAbsentFiles(folder, savedFiles);
+        }
 
         return folder.exists() ? getFileData(folder) : null;
     }
@@ -303,6 +304,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
         if (found != null) {
             for (File file : found) {
+                if (isSkip(file)) {
+                    continue;
+                }
                 if (file.isDirectory()) {
                     removeAbsentFiles(file, toSave);
                 } else {
@@ -312,6 +316,10 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 }
             }
         }
+    }
+
+    protected boolean isSkip(File file) {
+        return false;
     }
 
     private void createParent(File file) throws FileNotFoundException {

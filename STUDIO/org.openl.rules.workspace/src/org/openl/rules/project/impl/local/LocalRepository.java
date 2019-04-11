@@ -7,12 +7,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.openl.rules.repository.api.FileChange;
-import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalRepository extends FileSystemRepository {
+    private static final String PROPERTY_UNIQUE_ID = "unique-id";
+    private static final String PROPERTY_FILE_MODIFIED = "modified";
+    private static final String FILE_PROPERTIES_FOLDER = "file-properties";
+    private static final String FILE_PROPERTIES_COMMENT = "File properties";
+
+    private final Logger log = LoggerFactory.getLogger(LocalRepository.class);
     private final PropertiesEngine propertiesEngine;
 
     public LocalRepository(File location) {
@@ -38,13 +48,18 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         FileData fileData = super.save(data, stream);
+        String uniqueId = fileData.getUniqueId();
+        if (uniqueId != null) {
+            updateFileProperties(data.getName(), PROPERTY_UNIQUE_ID, uniqueId);
+        }
         notifyModified(data.getName());
         return fileData;
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
-        FileData fileData = super.save(folderData, files);
+    public FileData save(FileData folderData, final Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
+        Iterable<FileChange> changes = new UniqueIdSaverIterable(files);
+        FileData fileData = super.save(folderData, changes, changesetType);
         notifyModified(folderData.getName());
         return fileData;
     }
@@ -52,10 +67,39 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     public boolean delete(FileData data) {
         boolean deleted = super.delete(data);
+        deleteFileProperties(data.getName());
+
         if (deleted) {
             notifyModified(data.getName());
         }
         return deleted;
+    }
+
+    @Override
+    public Features supports() {
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setVersions(false).build();
+    }
+
+    @Override
+    protected FileData getFileData(File file) throws IOException {
+        FileData fileData = super.getFileData(file);
+        Properties properties = readFileProperties(fileData.getName());
+        String uniqueId = properties.getProperty(PROPERTY_UNIQUE_ID);
+        if (uniqueId != null) {
+            String modified = properties.getProperty(PROPERTY_FILE_MODIFIED);
+            // If the file is modified, set unique id to null to mark that it's id is unknown
+            if (Boolean.parseBoolean(modified)) {
+                uniqueId = null;
+            }
+            fileData.setUniqueId(uniqueId);
+        }
+
+        return fileData;
+    }
+
+    @Override
+    protected boolean isSkip(File file) {
+        return FolderHelper.PROPERTIES_FOLDER.equals(file.getName());
     }
 
     public ProjectState getProjectState(final String pathInProject) {
@@ -79,6 +123,7 @@ public class LocalRepository extends FileSystemRepository {
                 }
 
                 propertiesEngine.createPropertiesFile(pathInProject, MODIFIED_FILE_NAME);
+                updateFileProperties(pathInProject, PROPERTY_FILE_MODIFIED, "true");
                 invokeListener();
             }
 
@@ -90,6 +135,34 @@ public class LocalRepository extends FileSystemRepository {
             @Override
             public void clearModifyStatus() {
                 propertiesEngine.deletePropertiesFile(pathInProject, MODIFIED_FILE_NAME);
+                File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
+                File[] files = new File(projectFolder, FILE_PROPERTIES_FOLDER).listFiles();
+                clearFileModifyStatus(files);
+            }
+
+            private void clearFileModifyStatus(File[] files) {
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isFile()) {
+                            Properties properties = new Properties();
+                            try (FileInputStream is = new FileInputStream(file)) {
+                                properties.load(is);
+                            } catch (IOException e) {
+                                log.error(e.getMessage(), e);
+                            }
+
+                            properties.remove(PROPERTY_FILE_MODIFIED);
+
+                            try (FileOutputStream os = new FileOutputStream(file)) {
+                                properties.store(os, FILE_PROPERTIES_COMMENT);
+                            } catch (IOException e) {
+                                log.error(e.getMessage(), e);
+                            }
+                        } else if (file.isDirectory()) {
+                            clearFileModifyStatus(file.listFiles());
+                        }
+                    }
+                }
             }
 
             @Override
@@ -177,8 +250,7 @@ public class LocalRepository extends FileSystemRepository {
                     is = new FileInputStream(file);
                     properties.load(is);
                     FileData fileData = new FileData();
-                    File propertiesFolder = propertiesEngine.getPropertiesFolder(pathInProject);
-                    File projectFolder = propertiesFolder.getParentFile();
+                    File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
 
                     String name = projectFolder.getName();
                     String version = properties.getProperty(VERSION_PROPERTY);
@@ -214,4 +286,101 @@ public class LocalRepository extends FileSystemRepository {
     private void notifyModified(String path) {
         getProjectState(path).notifyModified();
     }
+
+    private String getFilePropertiesPath(String path) {
+        String relativePath = path;
+        if (new File(relativePath).isAbsolute()) {
+            relativePath = propertiesEngine.getRelativePath(path).replace(File.separatorChar, '/');
+        }
+        if (!relativePath.contains("/")) {
+            // Not a file. Just project name
+            return "";
+        }
+        String pathInProject = relativePath.substring(relativePath.indexOf('/'));
+        return FILE_PROPERTIES_FOLDER + pathInProject;
+    }
+
+    private void updateFileProperties(String path, String propertyName, String propertyValue) {
+        Properties properties = readFileProperties(path);
+        properties.setProperty(propertyName, propertyValue);
+
+        String filePropertiesPath = getFilePropertiesPath(path);
+        if (StringUtils.isNotEmpty(filePropertiesPath)) {
+            File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
+            try (FileOutputStream os = new FileOutputStream(file)) {
+                properties.store(os, FILE_PROPERTIES_COMMENT);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private Properties readFileProperties(String path) {
+        String filePropertiesPath = getFilePropertiesPath(path);
+        if (filePropertiesPath.isEmpty()) {
+            return new Properties();
+        }
+
+        File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
+
+        Properties properties = new Properties();
+        if (fileProperties.exists()) {
+            try (FileInputStream is = new FileInputStream(fileProperties)) {
+                properties.load(is);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return properties;
+    }
+
+    private void deleteFileProperties(String path) {
+        String filePropertiesPath = getFilePropertiesPath(path);
+        if (StringUtils.isNotEmpty(filePropertiesPath)) {
+            File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
+            if (fileProperties.isFile()) {
+                FileUtils.deleteQuietly(fileProperties);
+            }
+        }
+    }
+
+    private class UniqueIdSaverIterable implements Iterable<FileChange> {
+        private final Iterable<FileChange> files;
+
+        UniqueIdSaverIterable(Iterable<FileChange> files) {
+            this.files = files;
+        }
+
+        @Override
+        public Iterator<FileChange> iterator() {
+            return new Iterator<FileChange>() {
+                private Iterator<FileChange> delegate = files.iterator();
+
+                @Override
+                public boolean hasNext() {
+                    return delegate.hasNext();
+                }
+
+                @Override
+                public FileChange next() {
+                    FileChange change = delegate.next();
+                    String uniqueId = change.getUniqueId();
+                    String path = change.getName();
+                    if (uniqueId != null) {
+                        updateFileProperties(path, PROPERTY_UNIQUE_ID, uniqueId);
+                    }
+                    if (change.getStream() == null) {
+                        deleteFileProperties(path);
+                    }
+                    return change;
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("remove");
+                }
+            };
+        }
+    }
+
 }

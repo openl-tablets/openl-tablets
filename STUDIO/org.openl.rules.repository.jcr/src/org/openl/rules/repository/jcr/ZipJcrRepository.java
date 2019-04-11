@@ -369,7 +369,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public Features supports() {
-        return new Features(this);
+        return new FeaturesBuilder(this).build();
     }
 
     private CommonUser getUser() {

@@ -246,7 +246,7 @@ public class RulesProject extends UserWorkspaceProject {
         return designFolderName == null;
     }
 
-    public boolean isRepositoryOnly() {
+    private boolean isRepositoryOnly() {
         return localFolderName == null;
     }
 
@@ -306,12 +306,6 @@ public class RulesProject extends UserWorkspaceProject {
     public boolean isModified() {
         return !isRepositoryOnly() && localRepository.getProjectState(localFolderName).isModified();
 
-    }
-
-    private void clearModifyStatus() {
-        if (!isRepositoryOnly()) {
-            localRepository.getProjectState(localFolderName).clearModifyStatus();
-        }
     }
 
     public void setModified() {

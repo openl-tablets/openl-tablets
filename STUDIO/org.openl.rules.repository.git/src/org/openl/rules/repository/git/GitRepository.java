@@ -304,7 +304,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String fileTo = destData.getName() + fileFrom.substring(srcName.length());
                         files.add(new FileChange(fileTo, fileItem.getStream()));
                     }
-                    return save(destData, files);
+                    return save(destData, files, ChangesetType.FULL);
                 } finally {
                     for (FileChange file : files) {
                         IOUtils.closeQuietly(file.getStream());
@@ -731,7 +731,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
@@ -749,24 +749,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 savedFiles.add(file);
                 createParent(file);
 
-                FileOutputStream output = null;
-                try {
-                    output = new FileOutputStream(file);
-                    IOUtils.copy(change.getStream(), output);
-                } finally {
-                    // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
-                    // place where it was created.
-                    IOUtils.closeQuietly(output);
+                InputStream stream = change.getStream();
+                if (stream != null) {
+                    try (FileOutputStream output = new FileOutputStream(file)) {
+                        IOUtils.copy(stream, output);
+                    }
+                    git.add().addFilepattern(change.getName()).call();
+                } else {
+                    git.rm().addFilepattern(change.getName()).call();
                 }
 
-                git.add().addFilepattern(change.getName()).call();
                 changedFiles.add(change.getName());
             }
 
-            // Remove absent files
-            String basePath = new File(localRepositoryPath).getAbsolutePath();
-            File folder = new File(localRepositoryPath, relativeFolder);
-            removeAbsentFiles(basePath, folder, savedFiles, changedFiles);
+            if (changesetType == ChangesetType.FULL) {
+                // Remove absent files
+                String basePath = new File(localRepositoryPath).getAbsolutePath();
+                File folder = new File(localRepositoryPath, relativeFolder);
+                removeAbsentFiles(basePath, folder, savedFiles, changedFiles);
+            }
 
             CommitCommand commitCommand = git.commit()
                     .setMessage(formatComment(CommitType.SAVE, folderData))
@@ -804,7 +805,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public Features supports() {
-        return new Features(this);
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).build();
     }
 
     @Override

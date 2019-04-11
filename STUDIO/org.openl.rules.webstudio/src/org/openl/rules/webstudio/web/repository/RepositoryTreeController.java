@@ -1253,7 +1253,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
 
             if (repositoryProject.isOpenedForEditing()) {
-                closeProjectAndReleaseResources(repositoryProject);
+                studio.getModel().clearModuleInfo();
             }
 
             repositoryProject.openVersion(version);
@@ -1812,11 +1812,8 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (selectedProject.isOpened()) {
-                closeProjectAndReleaseResources(selectedProject);
+                studio.getModel().clearModuleInfo();
                 selectedProject.setBranch(branch);
-                if (!selectedProject.isDeleted()) {
-                    selectedProject.open();
-                }
             } else {
                 selectedProject.setBranch(branch);
             }

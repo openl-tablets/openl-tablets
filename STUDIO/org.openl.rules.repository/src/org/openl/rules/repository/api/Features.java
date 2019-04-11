@@ -6,12 +6,22 @@ package org.openl.rules.repository.api;
  *
  * @see BranchRepository
  * @see FolderRepository
+ * @see FeaturesBuilder
  */
 public class Features {
     private final Repository repository;
+    private final boolean versions;
+    private final boolean mappedFolders;
+    private final boolean uniqueFileId;
 
-    public Features(Repository repository) {
+    /**
+     * Don't use this constructor directly. Use {@link FeaturesBuilder} instead.
+     */
+    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId) {
         this.repository = repository;
+        this.versions = versions;
+        this.mappedFolders = mappedFolders;
+        this.uniqueFileId = uniqueFileId;
     }
 
     /**
@@ -22,10 +32,13 @@ public class Features {
     }
 
     /**
-     * If true, repository can be casted to {@link MappedFolderRepository}
+     * If true: Repository where each project is mapped to its own Folder.
+     * It means that each external folder has it's own internal folder.
+     * This repository can manage this mapping.
+     * If false: Repository has flat structure. Every project is located inside a single folder.
      */
     public boolean mappedFolders() {
-        return repository instanceof MappedFolderRepository;
+        return mappedFolders;
     }
 
     /**
@@ -33,5 +46,19 @@ public class Features {
      */
     public boolean branches() {
         return repository instanceof BranchRepository;
+    }
+
+    /**
+     * If true, repository can have historic versions. If false, repository isn't versionable.
+     */
+    public boolean versions() {
+        return versions;
+    }
+
+    /**
+     * If true, repository can return unique id for each file (typically it's a hash)
+     */
+    public boolean uniqueFileId() {
+        return uniqueFileId;
     }
 }
