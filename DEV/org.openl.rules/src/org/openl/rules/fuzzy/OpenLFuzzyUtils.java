@@ -80,26 +80,29 @@ public final class OpenLFuzzyUtils {
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null);
+        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null, 0);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass,
-            String tokenPrefix) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, true);
+            String tokenPrefix,
+            int startLevel) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, true);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null);
+        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null, 0);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass,
-            String tokenPrefix) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, false);
+            String tokenPrefix,
+            int startLevel) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, false);
     }
 
     @SuppressWarnings("unchecked")
     private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
             String tokenPrefix,
+            int startLevel,
             boolean setterMethods) {
         Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache = null;
         if (setterMethods) {
@@ -113,9 +116,9 @@ public final class OpenLFuzzyUtils {
         if (ret == null) {
             Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
             if (StringUtils.isBlank(tokenPrefix)) {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
             } else {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
                 Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
                 for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
                     Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),

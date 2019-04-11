@@ -319,8 +319,8 @@ public final class DecisionTableHelper {
         if (numberOfHcondition == 0) {
             IOpenClass returnType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
             if (isCompoundReturnType(returnType)) {
-                returnTypeFuzzyTokens = OpenLFuzzyUtils.tokensMapToOpenClassSetterMethodsRecursively(returnType,
-                    returnType.getName());
+                returnTypeFuzzyTokens = OpenLFuzzyUtils
+                    .tokensMapToOpenClassSetterMethodsRecursively(returnType, returnType.getName(), 0);
                 returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
                 return new FuzzyContext(parameterTokens, returnTokens, returnTypeFuzzyTokens, returnType);
             }
@@ -683,10 +683,9 @@ public final class DecisionTableHelper {
             }
             if (fuzzyResult != null) {
                 Token paramToken = fuzzyResult.getToken();
-                final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(paramToken.getValue());
+                final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(paramToken);
                 IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
-                final IOpenMethod[] paramMethodChain = fuzzyContext.getParameterTokens()
-                    .getMethodsChain(paramToken.getValue());
+                final IOpenMethod[] paramMethodChain = fuzzyContext.getParameterTokens().getMethodsChain(paramToken);
                 final String statement;
                 if (paramMethodChain != null) {
                     Pair<String, IOpenClass> v = buildStatementByMethodsChain(type, paramMethodChain);
@@ -1533,25 +1532,38 @@ public final class DecisionTableHelper {
 
     private static ParameterTokens buildParameterTokens(DecisionTable decisionTable) {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
-        Map<String, Integer> tokenToParameterIndex = new HashMap<>();
-        Map<String, IOpenMethod[]> tokenToMethodsChain = new HashMap<>();
-        List<Token> tokens = new ArrayList<>();
+        Map<Token, Integer> tokenToParameterIndex = new HashMap<>();
+        Map<Token, IOpenMethod[]> tokenToMethodsChain = new HashMap<>();
+        Set<Token> tokens = new HashSet<>();
+        Set<Token> tokensToIgnore = new HashSet<>();
         for (int i = 0; i < numberOfParameters; i++) {
             IOpenClass parameterType = decisionTable.getSignature().getParameterType(i);
             if (isCompoundInputType(parameterType) && !parameterType.isArray()) {
                 Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzyUtils
                     .tokensMapToOpenClassGetterMethodsRecursively(parameterType,
-                        decisionTable.getSignature().getParameterName(i));
+                        decisionTable.getSignature().getParameterName(i),
+                        1);
                 for (Map.Entry<Token, IOpenMethod[][]> entry : openClassFuzzyTokens.entrySet()) {
-                    tokens.add(entry.getKey());
-                    tokenToParameterIndex.put(entry.getKey().getValue(), i);
-                    tokenToMethodsChain.put(entry.getKey().getValue(), entry.getValue()[0]);
+                    if (entry.getValue().length == 1 && !tokensToIgnore.contains(entry.getKey())) {
+                        if (!tokens.contains(entry.getKey())) {
+                            tokens.add(entry.getKey());
+                            tokenToParameterIndex.put(entry.getKey(), i);
+                            tokenToMethodsChain.put(entry.getKey(), entry.getValue()[0]);
+                        } else {
+                            tokens.remove(entry.getKey());
+                            tokenToParameterIndex.remove(entry.getKey());
+                            tokenToMethodsChain.remove(entry.getKey());
+                            tokensToIgnore.add(entry.getKey());
+                        }
+                    }
                 }
             }
-
+        }
+        for (int i = 0; i < numberOfParameters; i++) {
             String tokenString = OpenLFuzzyUtils.toTokenString(decisionTable.getSignature().getParameterName(i));
-            tokenToParameterIndex.put(tokenString, i);
-            tokens.add(new Token(tokenString, 0));
+            Token token = new Token(tokenString, 0);
+            tokenToParameterIndex.put(token, i);
+            tokens.add(token);
         }
 
         return new ParameterTokens(tokens.toArray(new Token[] {}), tokenToParameterIndex, tokenToMethodsChain);
@@ -1624,10 +1636,9 @@ public final class DecisionTableHelper {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                     .openlFuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
-                    int paramIndex = fuzzyContext.getParameterTokens()
-                        .getParameterIndex(fuzzyResult.getToken().getValue());
+                    int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
                     IOpenMethod[] methodsChain = fuzzyContext.getParameterTokens()
-                        .getMethodsChain(fuzzyResult.getToken().getValue());
+                        .getMethodsChain(fuzzyResult.getToken());
                     StringBuilder conditionStatement = new StringBuilder(
                         decisionTable.getSignature().getParameterName(paramIndex));
                     if (methodsChain != null) {
@@ -2600,22 +2611,22 @@ public final class DecisionTableHelper {
 
     private static final class ParameterTokens {
         Token[] tokens;
-        Map<String, Integer> tokensToParameterIndex;
-        Map<String, IOpenMethod[]> tokenToMethodsChain;
+        Map<Token, Integer> tokensToParameterIndex;
+        Map<Token, IOpenMethod[]> tokenToMethodsChain;
 
         public ParameterTokens(Token[] tokens,
-                Map<String, Integer> tokensToParameterIndex,
-                Map<String, IOpenMethod[]> tokenToMethodsChain) {
+                Map<Token, Integer> tokensToParameterIndex,
+                Map<Token, IOpenMethod[]> tokenToMethodsChain) {
             this.tokens = tokens;
             this.tokensToParameterIndex = tokensToParameterIndex;
             this.tokenToMethodsChain = tokenToMethodsChain;
         }
 
-        public IOpenMethod[] getMethodsChain(String value) {
+        public IOpenMethod[] getMethodsChain(Token value) {
             return tokenToMethodsChain.get(value);
         }
 
-        public int getParameterIndex(String value) {
+        public int getParameterIndex(Token value) {
             return tokensToParameterIndex.get(value);
         }
 
