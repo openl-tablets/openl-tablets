@@ -17,10 +17,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
@@ -104,7 +101,7 @@ public class DeploymentManager implements InitializingBean {
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(userName);
                     deploymentData.setComment(project.getFileData().getComment());
-                    folderRepo.save(deploymentData, changes);
+                    folderRepo.save(deploymentData, changes, ChangesetType.FULL);
                 }
             } else {
                 List<FileData> existingProjects = deployRepo.list(deploymentPath);

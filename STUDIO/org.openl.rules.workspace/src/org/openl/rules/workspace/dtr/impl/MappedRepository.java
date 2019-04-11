@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-public class MappedRepository implements MappedFolderRepository, BranchRepository, RRepositoryFactory, Closeable {
+public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable {
     private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
     private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
 
@@ -241,7 +241,7 @@ public class MappedRepository implements MappedFolderRepository, BranchRepositor
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
         if (folderData instanceof MappedFileData) {
             try {
                 FileChange configChange = new FileChange(configFile, updateConfigFile((MappedFileData) folderData));
@@ -249,7 +249,8 @@ public class MappedRepository implements MappedFolderRepository, BranchRepositor
 
                 // Mapping was updated on previous step.
                 Map<String, String> mapping = getMappingForRead();
-                FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping));
+                FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping),
+                        changesetType);
                 return toExternal(mapping, result);
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
@@ -258,18 +259,18 @@ public class MappedRepository implements MappedFolderRepository, BranchRepositor
             }
         } else {
             Map<String, String> mapping = getMappingForRead();
-            return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files)));
+            return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
+                    changesetType));
         }
     }
 
     @Override
     public Features supports() {
-        return new Features(delegate) {
-            @Override
-            public boolean mappedFolders() {
-                return true;
-            }
-        };
+        return new FeaturesBuilder(delegate)
+                .setVersions(delegate.supports().versions())
+                .setMappedFolders(true)
+                .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+                .build();
     }
 
     @Override
@@ -338,7 +339,7 @@ public class MappedRepository implements MappedFolderRepository, BranchRepositor
                     @Override
                     public FileChange next() {
                         FileChange external = delegate.next();
-                        return new FileChange(toInternal(mapping, external.getName()), external.getStream());
+                        return new FileChange(toInternal(mapping, external.getName()), external.getStream(), external.getUniqueId());
                     }
 
                     @Override
