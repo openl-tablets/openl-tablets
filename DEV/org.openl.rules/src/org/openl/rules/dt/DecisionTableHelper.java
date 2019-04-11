@@ -968,6 +968,7 @@ public final class DecisionTableHelper {
                         param.getType().getName() + (paramName != null ? " " + paramName : ""));
                     typeOfColumns.add(param.getType());
                 } else {
+                    parameterNames.add(null);
                     typeOfColumns.add(dtHeader.getCompositeMethod().getType());
                 }
                 int h = originalTable.getSource().getCell(column, 0).getHeight();

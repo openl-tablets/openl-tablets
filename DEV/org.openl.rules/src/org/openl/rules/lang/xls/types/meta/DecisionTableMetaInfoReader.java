@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -458,7 +457,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 String conditionStatement,
                 IOpenClass[] columnTypes,
                 String additionalDetails) {
-            super();
+            if (parameterNames != null && columnTypes != null && parameterNames.length != columnTypes.length) {
+                throw new IllegalArgumentException();
+            }
             this.header = headerName;
             this.parameterNames = parameterNames;
             this.statement = conditionStatement;
