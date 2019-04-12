@@ -29,10 +29,7 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -330,7 +327,8 @@ public class RepositoryService {
             FileData save;
             if (repository.supports().folders()) {
                 try (ZipInputStream stream = new ZipInputStream(zipFile)) {
-                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName));
+                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName),
+                            ChangesetType.FULL);
                 }
             } else {
                 data.setSize(zipSize);

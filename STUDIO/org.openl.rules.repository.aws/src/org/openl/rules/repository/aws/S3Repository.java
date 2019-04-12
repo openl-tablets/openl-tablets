@@ -378,7 +378,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public Features supports() {
-        return new Features(this);
+        return new FeaturesBuilder(this).build();
     }
 
     private void onModified() {

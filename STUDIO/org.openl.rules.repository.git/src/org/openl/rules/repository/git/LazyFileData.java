@@ -39,6 +39,9 @@ class LazyFileData extends FileData {
             String commentTemplate) {
         setBranch(branch);
         setName(fullPath);
+        if (fileId != null) {
+            setUniqueId(fileId.getName());
+        }
 
         this.fullPath = fullPath;
         this.repoFolder = repoFolder;
@@ -55,6 +58,9 @@ class LazyFileData extends FileData {
             String commentTemplate) {
         setBranch(branch);
         setName(fullPath);
+        if (fileId != null) {
+            setUniqueId(fileId.getName());
+        }
 
         this.fullPath = fullPath;
         this.repoFolder = repoFolder;

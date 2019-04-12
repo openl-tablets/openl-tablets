@@ -19,6 +19,7 @@ public class FileData {
     private String version;
     private boolean deleted;
     private String branch;
+    private String uniqueId;
 
     /**
      * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder
@@ -131,5 +132,13 @@ public class FileData {
 
     public void setBranch(String branch) {
         this.branch = branch;
+    }
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
     }
 }

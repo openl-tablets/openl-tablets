@@ -9,6 +9,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -153,7 +154,8 @@ public class RulesDeployerService implements Closeable {
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
 
         if (deployRepo.supports().folders()) {
-            ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name));
+            ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name),
+                    ChangesetType.FULL);
         } else {
             dest.setSize(contentSize);
             deployRepo.save(dest, inputStream);

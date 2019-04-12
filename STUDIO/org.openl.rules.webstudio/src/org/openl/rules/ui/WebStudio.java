@@ -1097,9 +1097,7 @@ public class WebStudio {
                 String previousBranch = project.getBranch();
                 if (!branch.equals(previousBranch)) {
                     getModel().clearModuleInfo();
-                    project.close();
                     project.setBranch(branch);
-                    project.open();
                     resetProjects();
                 }
             }

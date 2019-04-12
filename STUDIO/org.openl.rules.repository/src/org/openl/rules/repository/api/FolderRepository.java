@@ -30,10 +30,11 @@ public interface FolderRepository extends Repository {
     /**
      * Save the folder.
      *
-     * @param folderData folder descriptor
-     * @param files all files inside the folder recursively
+     * @param folderData    folder descriptor
+     * @param files         all files inside the folder recursively or only changed (modified, added, deleted) files depending on changesetType
+     * @param changesetType if {@link ChangesetType#DIFF}, only changed files. If {@link ChangesetType#FULL} all files that exist in project
      * @return the resulted folder descriptor after successful writing.
      * @throws IOException if not possible to save the folder.
      */
-    FileData save(FileData folderData, Iterable<FileChange> files) throws IOException;
+    FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException;
 }

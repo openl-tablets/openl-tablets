@@ -107,7 +107,7 @@ class ZipFolderRepository implements Repository {
 
     @Override
     public Features supports() {
-        return new Features(this);
+        return new FeaturesBuilder(this).setVersions(false).build();
     }
 
     private ZipInputStream getZipInputStream() throws IOException {

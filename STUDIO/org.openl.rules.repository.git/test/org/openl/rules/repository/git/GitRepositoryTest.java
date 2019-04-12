@@ -17,10 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FileChange;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -271,7 +268,7 @@ public class GitRepositoryTest {
         folderData.setAuthor("John Smith");
         folderData.setComment("Bulk change");
 
-        FileData savedData = repo.save(folderData, changes);
+        FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
         assertNotNull(savedData);
         List<FileData> files = repo.list("rules/project1/");
         assertContains(files, "rules/project1/new-path/file4");
@@ -281,7 +278,7 @@ public class GitRepositoryTest {
         // Save second time without changes. Mustn't fail.
         changes.get(0).getStream().reset();
         changes.get(1).getStream().reset();
-        assertNotNull(repo.save(folderData, changes));
+        assertNotNull(repo.save(folderData, changes, ChangesetType.FULL));
 
         for (FileChange file : changes) {
             IOUtils.closeQuietly(file.getStream());
@@ -482,7 +479,7 @@ public class GitRepositoryTest {
             FileChange change1 = new FileChange("rules/project-second/new/file1", IOUtils.toInputStream(text));
             FileChange change2 = new FileChange("rules/project-second/new/file2", IOUtils.toInputStream(text));
             FileData newProjectData = createFileData("rules/project-second/new", text);
-            repository.save(newProjectData, Arrays.asList(change1, change2));
+            repository.save(newProjectData, Arrays.asList(change1, change2), ChangesetType.FULL);
             assertEquals(7, repository.list("").size());
         }
     }
