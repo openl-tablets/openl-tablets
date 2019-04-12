@@ -5,10 +5,14 @@ public final class ThrowableVoidCast implements IOpenCast {
     /**
      * for error("message") method
      */
-    static IOpenCast instance = new ThrowableVoidCast();
+    private static final ThrowableVoidCast INSTANCE = new ThrowableVoidCast();
 
     private ThrowableVoidCast() {
-        // Use ThrowableVoidCast.instance.
+        // Use ThrowableVoidCast.getInstance
+    }
+
+    static ThrowableVoidCast getInstance() {
+        return INSTANCE;
     }
 
     @Override

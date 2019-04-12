@@ -1,10 +1,14 @@
 package org.openl.binding.impl.cast;
 
 final class AliasToTypeCast implements IOpenCast {
-    static IOpenCast instance = new AliasToTypeCast();
+    private static final AliasToTypeCast INSTANCE = new AliasToTypeCast();
 
     private IOpenCast typeCast;
     private int distance = CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
+
+    static AliasToTypeCast getInstance() {
+        return INSTANCE;
+    }
 
     private AliasToTypeCast() {
     }

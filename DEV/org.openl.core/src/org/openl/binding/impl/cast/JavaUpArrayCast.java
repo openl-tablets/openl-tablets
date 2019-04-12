@@ -2,10 +2,14 @@ package org.openl.binding.impl.cast;
 
 final class JavaUpArrayCast implements IOpenCast {
 
-    static IOpenCast instance = new JavaUpArrayCast();
+    private static final JavaUpArrayCast INSTANCE = new JavaUpArrayCast();
 
     private JavaUpArrayCast() {
-        // Use JavaUpArrayCast.instance.
+        // Use JavaUpArrayCast.getInstance
+    }
+
+    static JavaUpArrayCast getInstance() {
+        return INSTANCE;
     }
 
     @Override

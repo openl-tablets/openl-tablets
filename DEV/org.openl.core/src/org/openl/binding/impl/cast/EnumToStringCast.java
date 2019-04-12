@@ -1,10 +1,14 @@
 package org.openl.binding.impl.cast;
 
 final class EnumToStringCast implements IOpenCast {
-    static IOpenCast instance = new EnumToStringCast();
+    private static final EnumToStringCast INSTANCE = new EnumToStringCast();
 
     private EnumToStringCast() {
-        // Use EnumToStringCast.instance
+        // Use EnumToStringCast.getInstance
+    }
+    
+    static EnumToStringCast getInstance() {
+        return INSTANCE;
     }
 
     @Override
