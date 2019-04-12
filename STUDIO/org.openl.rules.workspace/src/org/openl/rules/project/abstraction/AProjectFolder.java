@@ -201,7 +201,8 @@ public class AProjectFolder extends AProjectArtefact {
                                 FileItem read = fromRepository.supports().versions() ?
                                                 fromRepository.readHistory(nameFrom, fromData.getVersion()) :
                                                 fromRepository.read(nameFrom);
-                                changes.add(new FileChange(nameTo, read.getStream(), fromUniqueId));
+                                FileData data = copyAndChangeName(fromData, nameTo);
+                                changes.add(new FileChange(data, read.getStream()));
                             }
                             // Otherwise the file is same, no need to save it
                         }
@@ -215,7 +216,7 @@ public class AProjectFolder extends AProjectArtefact {
                         FileData fromData = find(fromList, nameFrom);
                         if (fromData == null) {
                             // File was deleted
-                            changes.add(new FileChange(nameTo, null, toData.getUniqueId()));
+                            changes.add(new FileChange(toData, null));
                         }
                     }
                 } else {
@@ -236,6 +237,21 @@ public class AProjectFolder extends AProjectArtefact {
         }
     }
 
+    private FileData copyAndChangeName(FileData data, String newName) {
+        FileData copy = new FileData();
+        copy.setName(newName);
+        copy.setVersion(data.getVersion());
+        copy.setAuthor(data.getAuthor());
+        copy.setModifiedAt(data.getModifiedAt());
+        copy.setComment(data.getComment());
+        copy.setSize(data.getSize());
+        copy.setDeleted(data.isDeleted());
+        copy.setBranch(data.getBranch());
+        copy.setUniqueId(data.getUniqueId());
+
+        return copy;
+    }
+
     private FileData find(List<FileData> list, String name) {
         for (FileData fileData : list) {
             if (fileData.getName().equals(name)) {
@@ -254,7 +270,7 @@ public class AProjectFolder extends AProjectArtefact {
             if (artefact instanceof AProjectResource) {
                 AProjectResource resource = (AProjectResource) artefact;
                 InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
-                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content, resource.getFileData().getUniqueId()));
+                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content));
             } else {
                 findChanges((AProjectFolder) artefact, files);
             }

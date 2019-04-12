@@ -3,31 +3,26 @@ package org.openl.rules.repository.api;
 import java.io.InputStream;
 
 public class FileChange {
-    private final String name;
+    private final FileData data;
     private final InputStream stream;
-    private final String uniqueId;
 
     public FileChange(String name, InputStream stream) {
-        this.name = name;
+        this.data = new FileData();
+        data.setName(name);
+
         this.stream = stream;
-        uniqueId = null;
     }
 
-    public FileChange(String name, InputStream stream, String uniqueId) {
-        this.name = name;
+    public FileChange(FileData data, InputStream stream) {
+        this.data = data;
         this.stream = stream;
-        this.uniqueId = uniqueId;
     }
 
-    public String getName() {
-        return name;
+    public FileData getData() {
+        return data;
     }
 
     public InputStream getStream() {
         return stream;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
     }
 }

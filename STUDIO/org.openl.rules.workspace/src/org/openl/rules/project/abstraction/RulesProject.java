@@ -11,6 +11,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -295,6 +296,40 @@ public class RulesProject extends UserWorkspaceProject {
         }
         localRepository.getProjectState(localFolderName).clearModifyStatus();
         localRepository.getProjectState(localFolderName).saveFileData(fileData);
+
+        updateUniqueId();
+    }
+
+    private void updateUniqueId() {
+        if (designRepository.supports().folders()) {
+            FolderRepository fromRepository = (FolderRepository) designRepository;
+            if (fromRepository.supports().uniqueFileId()) {
+                try {
+                    localRepository.deleteAllFileProperties(localFolderName);
+
+                    String fromFilePath = designFolderName + "/";
+                    String historyVersion = getHistoryVersion();
+                    List<FileData> designFiles = historyVersion != null ?
+                                                 fromRepository.listFiles(fromFilePath, historyVersion) :
+                                                 fromRepository.list(fromFilePath);
+
+                    for (FileData designData : designFiles) {
+                        String designDataName = designData.getName();
+                        String localName = localFolderName + designDataName.substring(designFolderName.length());
+
+                        // We need to store: 1) unique id 2) file size 3) modified time. Reuse local file data to get
+                        // file size and modified time for a file to avoid lazy loading and therefore performance
+                        // degradation. Only change unique id that was gotten from design repository.
+                        FileData localData = localRepository.check(localName);
+                        localData.setUniqueId(designData.getUniqueId());
+
+                        localRepository.updateFileProperties(localData);
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
