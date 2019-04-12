@@ -3,6 +3,7 @@ package org.openl.rules.project.impl.local;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -17,8 +18,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalRepository extends FileSystemRepository {
-    private static final String PROPERTY_UNIQUE_ID = "unique-id";
-    private static final String PROPERTY_FILE_MODIFIED = "modified";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String VERSION_PROPERTY = "version";
+    private static final String BRANCH_PROPERTY = "branch";
+    private static final String AUTHOR_PROPERTY = "author";
+    private static final String MODIFIED_AT_PROPERTY = "modified-at";
+    private static final String MODIFIED_AT_LONG_PROPERTY = "modified-at-long";
+    private static final String SIZE_PROPERTY = "size";
+    private static final String COMMENT_PROPERTY = "comment";
+    private static final String UNIQUE_ID_PROPERTY = "unique-id";
+    private static final String FILE_MODIFIED_PROPERTY = "modified";
     private static final String FILE_PROPERTIES_FOLDER = "file-properties";
     private static final String FILE_PROPERTIES_COMMENT = "File properties";
 
@@ -48,18 +57,13 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         FileData fileData = super.save(data, stream);
-        String uniqueId = fileData.getUniqueId();
-        if (uniqueId != null) {
-            updateFileProperties(data.getName(), PROPERTY_UNIQUE_ID, uniqueId);
-        }
         notifyModified(data.getName());
         return fileData;
     }
 
     @Override
     public FileData save(FileData folderData, final Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
-        Iterable<FileChange> changes = new UniqueIdSaverIterable(files);
-        FileData fileData = super.save(folderData, changes, changesetType);
+        FileData fileData = super.save(folderData, files, changesetType);
         notifyModified(folderData.getName());
         return fileData;
     }
@@ -84,17 +88,51 @@ public class LocalRepository extends FileSystemRepository {
     protected FileData getFileData(File file) throws IOException {
         FileData fileData = super.getFileData(file);
         Properties properties = readFileProperties(fileData.getName());
-        String uniqueId = properties.getProperty(PROPERTY_UNIQUE_ID);
+        String uniqueId = properties.getProperty(UNIQUE_ID_PROPERTY);
         if (uniqueId != null) {
-            String modified = properties.getProperty(PROPERTY_FILE_MODIFIED);
             // If the file is modified, set unique id to null to mark that it's id is unknown
-            if (Boolean.parseBoolean(modified)) {
+            if (isFileModified(fileData, properties)) {
                 uniqueId = null;
             }
             fileData.setUniqueId(uniqueId);
         }
 
         return fileData;
+    }
+
+    /**
+     * The file is modified if any of these is true:
+     * a) it's marked as modified in properties file
+     * b) size is changed
+     * c) last modified time is changed
+     *
+     * @param fileData   file data for checking file
+     * @param properties properties of original file
+     * @return true if file is modified
+     */
+    private boolean isFileModified(FileData fileData, Properties properties) {
+        boolean modified = Boolean.parseBoolean(properties.getProperty(FILE_MODIFIED_PROPERTY));
+        if (modified) {
+            return true;
+        }
+
+        try {
+            long size = Long.parseLong(properties.getProperty(SIZE_PROPERTY));
+            if (fileData.getSize() != size) {
+                return true;
+            }
+        } catch (NumberFormatException ignored) {
+            // Can't determine saved size. So treat it as modified file
+            return true;
+        }
+
+        try {
+            Date modifiedAt = new Date(Long.parseLong(properties.getProperty(MODIFIED_AT_LONG_PROPERTY)));
+            return !modifiedAt.equals(fileData.getModifiedAt());
+        } catch (NumberFormatException ignored) {
+            // Can't determine saved date. So treat it as modified file
+            return true;
+        }
     }
 
     @Override
@@ -104,15 +142,8 @@ public class LocalRepository extends FileSystemRepository {
 
     public ProjectState getProjectState(final String pathInProject) {
         return new ProjectState() {
-            private static final String DATE_FORMAT = "yyyy-MM-dd";
             private static final String MODIFIED_FILE_NAME = ".modified";
             private static final String VERSION_FILE_NAME = ".version";
-            private static final String VERSION_PROPERTY = "version";
-            private static final String BRANCH_PROPERTY = "branch";
-            private static final String AUTHOR_PROPERTY = "author";
-            private static final String MODIFIED_AT_PROPERTY = "modified-at";
-            private static final String SIZE_PROPERTY = "size";
-            private static final String COMMENT_PROPERTY = "comment";
 
             @Override
             public void notifyModified() {
@@ -123,7 +154,7 @@ public class LocalRepository extends FileSystemRepository {
                 }
 
                 propertiesEngine.createPropertiesFile(pathInProject, MODIFIED_FILE_NAME);
-                updateFileProperties(pathInProject, PROPERTY_FILE_MODIFIED, "true");
+                setFileModified(pathInProject);
                 invokeListener();
             }
 
@@ -135,8 +166,8 @@ public class LocalRepository extends FileSystemRepository {
             @Override
             public void clearModifyStatus() {
                 propertiesEngine.deletePropertiesFile(pathInProject, MODIFIED_FILE_NAME);
-                File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
-                File[] files = new File(new File(projectFolder, FolderHelper.PROPERTIES_FOLDER), FILE_PROPERTIES_FOLDER).listFiles();
+                File propertiesFolder = propertiesEngine.getPropertiesFolder(pathInProject);
+                File[] files = new File(propertiesFolder, FILE_PROPERTIES_FOLDER).listFiles();
                 clearFileModifyStatus(files);
             }
 
@@ -151,7 +182,7 @@ public class LocalRepository extends FileSystemRepository {
                                 log.error(e.getMessage(), e);
                             }
 
-                            properties.remove(PROPERTY_FILE_MODIFIED);
+                            properties.remove(FILE_MODIFIED_PROPERTY);
 
                             try (FileOutputStream os = new FileOutputStream(file)) {
                                 properties.store(os, FILE_PROPERTIES_COMMENT);
@@ -300,9 +331,9 @@ public class LocalRepository extends FileSystemRepository {
         return FILE_PROPERTIES_FOLDER + pathInProject;
     }
 
-    private void updateFileProperties(String path, String propertyName, String propertyValue) {
+    private void setFileModified(String path) {
         Properties properties = readFileProperties(path);
-        properties.setProperty(propertyName, propertyValue);
+        properties.setProperty(FILE_MODIFIED_PROPERTY, "true");
 
         String filePropertiesPath = getFilePropertiesPath(path);
         if (StringUtils.isNotEmpty(filePropertiesPath)) {
@@ -311,6 +342,31 @@ public class LocalRepository extends FileSystemRepository {
                 properties.store(os, FILE_PROPERTIES_COMMENT);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public void updateFileProperties(FileData fileData) {
+        String path = fileData.getName();
+        String filePropertiesPath = getFilePropertiesPath(path);
+
+        if (StringUtils.isNotEmpty(filePropertiesPath)) {
+            Properties properties = readFileProperties(path);
+
+            if (fileData.getUniqueId() != null) {
+                properties.setProperty(UNIQUE_ID_PROPERTY, fileData.getUniqueId());
+            } else {
+                properties.remove(UNIQUE_ID_PROPERTY);
+            }
+            properties.setProperty(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
+            properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
+
+            File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
+            try (FileOutputStream os = new FileOutputStream(file)) {
+                properties.store(os, FILE_PROPERTIES_COMMENT);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                FileUtils.deleteQuietly(file);
             }
         }
     }
@@ -334,6 +390,12 @@ public class LocalRepository extends FileSystemRepository {
         return properties;
     }
 
+    public void deleteAllFileProperties(String path) {
+        File propertiesFolder = propertiesEngine.getPropertiesFolder(path);
+        File fileProps = new File(propertiesFolder, FILE_PROPERTIES_FOLDER);
+        FileUtils.deleteQuietly(fileProps);
+    }
+
     private void deleteFileProperties(String path) {
         String filePropertiesPath = getFilePropertiesPath(path);
         if (StringUtils.isNotEmpty(filePropertiesPath)) {
@@ -341,45 +403,6 @@ public class LocalRepository extends FileSystemRepository {
             if (fileProperties.isFile()) {
                 FileUtils.deleteQuietly(fileProperties);
             }
-        }
-    }
-
-    private class UniqueIdSaverIterable implements Iterable<FileChange> {
-        private final Iterable<FileChange> files;
-
-        UniqueIdSaverIterable(Iterable<FileChange> files) {
-            this.files = files;
-        }
-
-        @Override
-        public Iterator<FileChange> iterator() {
-            return new Iterator<FileChange>() {
-                private Iterator<FileChange> delegate = files.iterator();
-
-                @Override
-                public boolean hasNext() {
-                    return delegate.hasNext();
-                }
-
-                @Override
-                public FileChange next() {
-                    FileChange change = delegate.next();
-                    String uniqueId = change.getUniqueId();
-                    String path = change.getName();
-                    if (uniqueId != null) {
-                        updateFileProperties(path, PROPERTY_UNIQUE_ID, uniqueId);
-                    }
-                    if (change.getStream() == null) {
-                        deleteFileProperties(path);
-                    }
-                    return change;
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException("remove");
-                }
-            };
         }
     }
 

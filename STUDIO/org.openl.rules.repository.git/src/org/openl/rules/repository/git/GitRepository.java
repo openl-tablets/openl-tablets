@@ -745,7 +745,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // Add new files and update existing ones
             List<File> savedFiles = new ArrayList<>();
             for (FileChange change : files) {
-                File file = new File(localRepositoryPath, change.getName());
+                File file = new File(localRepositoryPath, change.getData().getName());
                 savedFiles.add(file);
                 createParent(file);
 
@@ -754,12 +754,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     try (FileOutputStream output = new FileOutputStream(file)) {
                         IOUtils.copy(stream, output);
                     }
-                    git.add().addFilepattern(change.getName()).call();
+                    git.add().addFilepattern(change.getData().getName()).call();
                 } else {
-                    git.rm().addFilepattern(change.getName()).call();
+                    git.rm().addFilepattern(change.getData().getName()).call();
                 }
 
-                changedFiles.add(change.getName());
+                changedFiles.add(change.getData().getName());
             }
 
             if (changesetType == ChangesetType.FULL) {

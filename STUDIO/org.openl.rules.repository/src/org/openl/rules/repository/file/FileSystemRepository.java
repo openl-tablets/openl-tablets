@@ -89,6 +89,11 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         try {
             output = new FileOutputStream(file);
             IOUtils.copy(stream, output);
+            if (data.getModifiedAt() != null) {
+                if (!file.setLastModified(data.getModifiedAt().getTime())) {
+                    log.warn("Can't set modified time to file {}", name);
+                }
+            }
         } finally {
             // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
             // place where it was created.
@@ -277,7 +282,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
         for (FileChange change : files) {
-            File file = new File(root, change.getName());
+            FileData data = change.getData();
+            File file = new File(root, data.getName());
             savedFiles.add(file);
             createParent(file);
 
@@ -285,6 +291,12 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             if (stream != null) {
                 try (FileOutputStream output = new FileOutputStream(file)) {
                     IOUtils.copy(stream, output);
+                    if (data.getModifiedAt() != null) {
+                        if (!file.setLastModified(data.getModifiedAt().getTime())) {
+                            log.warn("Can't set modified time to file {}", data.getName());
+                        }
+                    }
+
                 }
             } else {
                 FileUtils.deleteQuietly(file);

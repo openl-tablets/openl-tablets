@@ -339,7 +339,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     @Override
                     public FileChange next() {
                         FileChange external = delegate.next();
-                        return new FileChange(toInternal(mapping, external.getName()), external.getStream(), external.getUniqueId());
+                        FileData data = external.getData();
+                        String name = toInternal(mapping, external.getData().getName());
+                        data.setName(name);
+                        return new FileChange(data, external.getStream());
                     }
 
                     @Override
