@@ -364,7 +364,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
         Class<?> fromClass = from.getInstanceClass();
-        if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) {
+        if (to.isAssignableFrom(from) && !(to instanceof DomainOpenClass)) {
             // Improve for up cast
             return getUpCast(fromClass, to.getInstanceClass());
         }
@@ -551,13 +551,11 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
 
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
-                .isAssignableFrom(from.getInstanceClass())) {
+            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.isAssignableFrom(from)) {
                 return AliasToTypeCast.instance;
             }
 
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
-                .isAssignableFrom(to.getInstanceClass())) {
+            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.isAssignableFrom(to)) {
                 return new TypeToAliasCast(to);
             }
 

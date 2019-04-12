@@ -167,7 +167,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignTable.getColumnName(foreignKeyIndex));
                 ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
                 if (foreignColumnDescriptor
-                    .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
+                        .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
                     // In the case when foreign key is like: ">policies.driver"
                     String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).foreignKeyColumnChainTokens;
                     foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
@@ -200,10 +200,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext) {
 
         String message = String
-            .format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
+                .format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
 
         return SyntaxNodeExceptionUtils
-            .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
+                .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
     }
 
     /**
@@ -360,7 +360,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (fieldType.isArray()) {
                     f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
                 } else if (isCollection) {
-                    f = fieldType.getInstanceClass().isAssignableFrom(resType.getInstanceClass());
+                    f = fieldType.isAssignableFrom(resType);
                 }
 
                 if (f) {
@@ -493,7 +493,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             // Otherwise will be formatted later.
             if (foreignValue != null && !(foreignValue instanceof String)) {
                 IObjectToDataConvertor convertor = ObjectToDataConvertorFactory
-                    .getConvertor(columnType.getInstanceClass(), foreignValue.getClass());
+                        .getConvertor(columnType.getInstanceClass(), foreignValue.getClass());
                 if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
                     foreignArray[i] = convertor.convert(foreignValue);
                 }

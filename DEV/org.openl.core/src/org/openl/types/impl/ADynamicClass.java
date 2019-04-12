@@ -97,7 +97,7 @@ public abstract class ADynamicClass extends AOpenClass {
         if (constructorMap == STUB) {
             constructorMap = new HashMap<>(1);
         }
-        Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
+        Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
             if (isPublic(cc[i])) {
                 IOpenMethod om = new JavaOpenConstructor(cc[i]);
@@ -151,27 +151,27 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     public String getJavaName() {
-        return instanceClass.getName();
+        return getInstanceClass().getName();
     }
 
     @Override
     public String getPackageName() {
-        return instanceClass.getPackage().getName();
+        return getInstanceClass().getPackage().getName();
     }
 
     @Override
     public boolean isAssignableFrom(Class<?> c) {
-        return instanceClass.isAssignableFrom(c);
+        return getInstanceClass().isAssignableFrom(c);
     }
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return instanceClass.isAssignableFrom(ioc.getInstanceClass());
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
     public boolean isInstance(Object instance) {
-        return instanceClass.isInstance(instance);
+        return getInstanceClass().isInstance(instance);
     }
 
     @Override

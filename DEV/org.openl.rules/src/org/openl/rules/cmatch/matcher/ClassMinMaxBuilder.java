@@ -24,7 +24,7 @@ public class ClassMinMaxBuilder implements IMatcherBuilder {
 
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
-        return (clazz == type.getInstanceClass()) ? matcher : null;
+        return (clazz.equals(type.getInstanceClass())) ? matcher : null;
     }
 
     @Override

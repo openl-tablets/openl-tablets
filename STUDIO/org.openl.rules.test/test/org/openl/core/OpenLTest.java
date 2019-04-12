@@ -192,7 +192,7 @@ public final class OpenLTest {
                         Iterator<String> itr = restMessages.iterator();
                         boolean found = false;
                         while (itr.hasNext()) {
-                            if (actual.startsWith(itr.next())) {
+                            if (actual.contains(itr.next())) {
                                 itr.remove();
                                 found = true;
                                 break;

@@ -42,8 +42,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
     protected CellMetaInfo getHeaderMetaInfo() {
         DatatypeOpenClass dataType = getBoundNode().getDataType();
         IdentifierNode identifier = getBoundNode().getParentClassIdentifier();
-        if (identifier != null) {
-            // Has parent class
+        if (identifier != null && dataType.getSuperClass() != null) {
             return createMetaInfo(identifier, dataType.getSuperClass().getMetaInfo());
         }
         return null;

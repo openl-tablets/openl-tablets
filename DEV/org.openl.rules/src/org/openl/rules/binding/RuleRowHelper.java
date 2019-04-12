@@ -237,8 +237,8 @@ public final class RuleRowHelper {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
                         if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
-                            .getAbsoluteRegion()
-                            .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
+                                .getAbsoluteRegion()
+                                .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
                             if (!cell.getStringValue().startsWith(COMMENTARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
@@ -258,7 +258,7 @@ public final class RuleRowHelper {
             Class<?> expectedType = paramType.getInstanceClass();
 
             if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class
-                .isAssignableFrom(expectedType)) {
+                    .isAssignableFrom(expectedType)) {
                 // Convert String -> BigDecimal instead of double ->BigDecimal,
                 // otherwise we lose in precision (part of EPBDS-5879)
                 res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), null);
@@ -293,7 +293,7 @@ public final class RuleRowHelper {
 
     public static SimpleNodeUsage createConstantNodeUsage(String cellCode, ConstantOpenField constantOpenField) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-            .getName() + " = " + constantOpenField.getValueAsString();
+                .getName() + " = " + constantOpenField.getValueAsString();
         return new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER);
     }
 
@@ -362,7 +362,7 @@ public final class RuleRowHelper {
                 }
 
                 if (source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character
-                    .isLetterOrDigit(source.charAt(1)))) {
+                        .isLetterOrDigit(source.charAt(1)))) {
 
                     GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
                         openlAdapter.getBindingContext());
@@ -632,7 +632,7 @@ public final class RuleRowHelper {
 
         ILogicalTable paramSource = dataTable.getRow(0);
         Object params = RuleRowHelper
-            .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
+                .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
             return processAsObjectParams(paramType, (Object[]) params);

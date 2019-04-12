@@ -325,7 +325,7 @@ public class SpreadsheetStructureBuilder {
 
         SpreadsheetCellType spreadsheetCellType;
         if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
-            .get(rowIndex) == null) {
+                .get(rowIndex) == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
         } else if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
             spreadsheetCellType = SpreadsheetCellType.METHOD;

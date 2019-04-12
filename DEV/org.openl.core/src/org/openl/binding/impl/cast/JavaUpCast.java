@@ -2,7 +2,7 @@ package org.openl.binding.impl.cast;
 
 final class JavaUpCast implements IOpenCast {
 
-    static IOpenCast instance = new JavaUpCast();
+    static final IOpenCast instance = new JavaUpCast();
 
     private JavaUpCast() {
         // Use JavaUpCast.instance.

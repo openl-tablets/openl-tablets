@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -79,7 +80,11 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
         publisher.undeploy(TUTORIAL4);
-        assertNull(frontend.getValue(TUTORIAL4, COVERAGE));
+        try {
+            frontend.getValue(TUTORIAL4, COVERAGE);
+            Assert.fail();
+        } catch (MethodInvocationException e) {
+        }
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(1, publisher.getServices().size());
     }

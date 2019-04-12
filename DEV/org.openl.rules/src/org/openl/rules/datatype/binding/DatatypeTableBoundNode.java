@@ -177,11 +177,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     log.debug("bean {} is using generated at runtime", beanName);
                 } catch (ByteCodeGenerationException genE) {
                     throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Can't generate a Java bean for datatype %s. %s", beanName, genE.getMessage()),
+                        String.format("Can't generate a class for datatype %s. %s", beanName, genE.getMessage()),
                         genE,
                         tableSyntaxNode);
                 } catch (Exception e2) {
-                    throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName,
+                    throw SyntaxNodeExceptionUtils.createError("Can't generate a class for datatype " + beanName,
                         tableSyntaxNode);
                 }
             }
@@ -227,13 +227,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             Map<String, FieldDescription> fields) throws SyntaxNodeException {
         String beanName = dataType.getJavaName();
         IOpenClass superClass = dataType.getSuperClass();
-        if (superClass != null) {
-            if (!beanClass.getSuperclass().equals(superClass.getInstanceClass())) {
-                String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on missed parent class. Please, regenerate datatype classes.",
-                    beanName);
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
-            }
+        if (superClass != null && !beanClass.getSuperclass().equals(superClass.getInstanceClass())) {
+            String errorMessage = String.format(
+                "Datatype '%s' validation is failed on missed parent class. Please, regenerate datatype classes.",
+                beanName);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
         }
 
         for (Entry<String, FieldDescription> fieldEntry : fields.entrySet()) {

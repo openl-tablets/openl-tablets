@@ -122,7 +122,6 @@ public class POJOByteCodeGenerator {
      * @return <code>Class<?></code> descriptor for given byteCode
      */
     public byte[] byteCode() {
-        /* generate byte code */
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitClassDescription(classWriter);
         visitJAXBAnnotation(classWriter);

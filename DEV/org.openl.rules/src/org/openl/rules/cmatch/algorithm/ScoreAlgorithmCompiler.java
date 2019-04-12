@@ -82,7 +82,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
 
         IOpenClass retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
-        if (retClass != int.class && retClass != Integer.class) {
+        if (!int.class.equals(retClass) && !Integer.class.equals(retClass)) {
             String msg = "Score algorithm supports int or Integer return type only!";
             // String uri =
             // columnMatch.getTableSyntaxNode().getTableBody().getGridTable().getUri(0,
