@@ -136,7 +136,7 @@ public class LocalRepository extends FileSystemRepository {
             public void clearModifyStatus() {
                 propertiesEngine.deletePropertiesFile(pathInProject, MODIFIED_FILE_NAME);
                 File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
-                File[] files = new File(projectFolder, FILE_PROPERTIES_FOLDER).listFiles();
+                File[] files = new File(new File(projectFolder, FolderHelper.PROPERTIES_FOLDER), FILE_PROPERTIES_FOLDER).listFiles();
                 clearFileModifyStatus(files);
             }
 
