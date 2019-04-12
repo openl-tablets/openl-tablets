@@ -16,6 +16,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
@@ -170,14 +171,15 @@ public class AProjectFolder extends AProjectArtefact {
                 if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
                     changesetType = ChangesetType.DIFF;
 
+                    String fromFilePath = from.getFolderPath() + "/";
                     List<FileData> fromList = from.isHistoric() ?
-                                              fromRepository.listFiles(from.getFolderPath(), from.getHistoryVersion()) :
-                                              fromRepository.list(from.getFolderPath());
+                                              fromRepository.listFiles(fromFilePath, from.getHistoryVersion()) :
+                                              fromRepository.list(fromFilePath);
 
-                    String toVersion = getHistoryVersion();
-                    List<FileData> toList = isHistoric()?
-                                            toRepository.listFiles(getFolderPath(), toVersion) :
-                                            toRepository.list(getFolderPath());
+                    String toFilePath = getFolderPath() + "/";
+                    List<FileData> toList = isHistoric() ?
+                                            toRepository.listFiles(toFilePath, getHistoryVersion()) :
+                                            toRepository.list(toFilePath);
 
                     // Search added and modified files
                     for (FileData fromData : fromList) {
@@ -187,15 +189,19 @@ public class AProjectFolder extends AProjectArtefact {
                         String fromUniqueId = fromData.getUniqueId();
                         if (fromUniqueId == null) {
                             // The file was modified or added
-                            changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream()));
+                            FileItem read = fromRepository.supports().versions() ?
+                                            fromRepository.readHistory(nameFrom, fromData.getVersion()) :
+                                            fromRepository.read(nameFrom);
+                            changes.add(new FileChange(nameTo, read.getStream()));
                         } else {
                             FileData toData = find(toList, nameTo);
-                            if (toData == null) {
+                            if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
                                 // The file is absent in destination. Add it.
-                                changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream(), fromUniqueId));
-                            } else if(!fromUniqueId.equals(toData.getUniqueId())) {
-                                // Different revision of a file or it was modified.
-                                changes.add(new FileChange(nameTo, fromRepository.read(nameFrom).getStream(), fromUniqueId));
+                                // Or different revision of a file.
+                                FileItem read = fromRepository.supports().versions() ?
+                                                fromRepository.readHistory(nameFrom, fromData.getVersion()) :
+                                                fromRepository.read(nameFrom);
+                                changes.add(new FileChange(nameTo, read.getStream(), fromUniqueId));
                             }
                             // Otherwise the file is same, no need to save it
                         }
