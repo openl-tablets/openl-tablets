@@ -27,4 +27,6 @@ public interface ITableModel {
     boolean hasColumnTitleRow();
 
     ColumnDescriptor getDescriptor(int idx);
+
+    int getColumnCount();
 }

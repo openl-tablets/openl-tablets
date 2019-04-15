@@ -38,7 +38,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private DynamicObject[] testObjects;
     private final IDataBase db;
     private ITableModel dataModel;
-    private int columnsCount;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
@@ -58,7 +57,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         this.runmethod = copy.isRunmethod();
         this.testObjects = copy.getTestObjects();
         this.dataModel = copy.getDataModel();
-        this.columnsCount = copy.getColumnsCount();
         this.setUri(copy.getUri());
     }
 
@@ -72,11 +70,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
         }
         IOpenMethod testedMethod = getTestedMethod();
-        ColumnDescriptor[] descriptors = getDataModel().getDescriptors();
-        List<IOpenField> fields = createFieldsToTest(testedMethod, descriptors, precision);
+        List<IOpenField> fields = createFieldsToTest(testedMethod, getDataModel(), precision);
 
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(testedMethod, testObjects[i], fields, descriptors, db);
+            tests[i] = new TestDescription(testedMethod, testObjects[i], fields, getDataModel(), db);
             tests[i].setIndex(i);
             indeces.put(tests[i].getId(), i);
         }
@@ -212,7 +209,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public int getColumnsCount() {
-        return columnsCount;
+        return getDataModel().getColumnCount();
     }
 
     public IOpenMethod getTestedMethod() {
@@ -282,16 +279,16 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         if (dataModel == null) {
             testObjects = (DynamicObject[]) getBoundNode().getField().getData();
             dataModel = getBoundNode().getTable().getDataModel();
-            columnsCount = getBoundNode().getTable().getColumnsCount();
         }
     }
 
     private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod,
-            ColumnDescriptor[] descriptors,
+            ITableModel dataModel,
             Integer testTablePrecision) {
         IOpenClass resultType = testedMethod.getType();
         List<IOpenField> fieldsToTest = new ArrayList<>();
-        for (ColumnDescriptor columnDescriptor : descriptors) {
+        for (int colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
+            ColumnDescriptor columnDescriptor = dataModel.getDescriptor(colNum);
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
                 if (nodes.length == 0 || !nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {

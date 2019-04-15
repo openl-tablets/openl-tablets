@@ -79,6 +79,4 @@ public interface ITable {
 
     void setPrimaryIndexKey(int row, String value);
 
-    int getColumnsCount();
-
 }
