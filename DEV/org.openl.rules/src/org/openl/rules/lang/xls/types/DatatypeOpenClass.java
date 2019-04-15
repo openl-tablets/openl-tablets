@@ -251,6 +251,15 @@ public class DatatypeOpenClass extends ADynamicClass {
         this.bytecode = bytecode;
     }
 
+    @Override
+    public Class<?> getInstanceClass() {
+        Class<?> clazz = super.getInstanceClass();
+        if (clazz == null) {
+            throw new TypeNotPresentException(javaName, null);
+        }
+        return clazz;
+    }
+
     private static final IOpenMethod toString;
     private static final IOpenMethod equals;
     private static final IOpenMethod hashCode;

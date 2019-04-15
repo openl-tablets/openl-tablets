@@ -13,6 +13,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
@@ -70,12 +71,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
+    public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
             .user(getUser())
             .lockEngine(deploymentsLockEngine)
             .build();
-        newProject.getFileData().setComment(Comments.copiedFrom(project.getName()));
+        newProject.getFileData().setComment(comment);
         newProject.update(project, user);
 
         refresh();
@@ -419,17 +420,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void uploadLocalProject(String name) throws ProjectException {
+    public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
         try {
             AProject createdProject = createProject(name);
             AProject project = localWorkspace.getProject(name);
             project.refresh();
+            if (designTimeRepository.getRepository().supports().mappedFolders()) {
+                FileData fileData = createdProject.getFileData();
+                createdProject.setFileData(new MappedFileData(fileData.getName(), projectFolder + name));
+            }
+            createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase(user);
+                    designTimeRepository.getProject(name).erase(user, comment);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);

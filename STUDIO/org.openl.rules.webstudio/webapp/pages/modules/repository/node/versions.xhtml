@@ -44,7 +44,7 @@
         </h:outputText>
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}">
-        <ui:param name="projectReference" value="#{repositoryTreeState.getProjectReference(artefact, version)}"/>
+        <ui:param name="projectReference" value="#{repositoryTreeController.getProjectReference(artefact, version)}"/>
         <h:outputText value="#{version.versionComment}" rendered="#{empty projectReference}" />
         <h:outputText value="Copied from: " rendered="#{not empty projectReference}" />
         <h:commandLink value="#{projectReference}"

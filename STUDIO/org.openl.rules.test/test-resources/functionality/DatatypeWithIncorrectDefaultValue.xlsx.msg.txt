@@ -1,6 +1,3 @@
 ERROR: The value 'malle' is outside of valid domain 'Gender'. Valid values: [Male, Female]
-ERROR: Type 'Person' was defined with errors
-ERROR: Type 'Person' was defined with errors
-ERROR: Type 'Person' was defined with errors
-ERROR: Type 'Person' was defined with errors
-
+Error: Type org.openl.generated.beans.Person not present
+Error: Type org.openl.generated.beans.Person not present

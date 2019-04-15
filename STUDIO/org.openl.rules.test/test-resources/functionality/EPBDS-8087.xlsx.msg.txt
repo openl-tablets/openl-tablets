@@ -1,1 +1,1 @@
-ERROR: Can't generate a Java bean for datatype org.openl.generated.beans.TestDefaultValueForDouble. There is no default constructor for type: java.lang.Double
+ERROR: Can't generate a class for datatype org.openl.generated.beans.TestDefaultValueForDouble. There is no default constructor for type: java.lang.Double

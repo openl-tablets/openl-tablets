@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathFactory;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -154,7 +155,8 @@ public class ProductionRepositoryDeployer {
 
             if (deployRepo.supports().folders()) {
                 stream = new ZipInputStream(new FileInputStream(zipFile));
-                ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip((ZipInputStream) stream, target));
+                ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip((ZipInputStream) stream, target),
+                        ChangesetType.FULL);
             } else {
                 stream = new FileInputStream(zipFile);
                 dest.setSize(zipFile.length());

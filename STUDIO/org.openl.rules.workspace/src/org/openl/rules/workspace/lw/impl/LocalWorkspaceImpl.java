@@ -153,7 +153,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public void removeProject(String name) throws ProjectException {
         AProject project = getProject(name);
         notifyRemoved(project);
-        project.delete(user);
+        project.delete(user, null);
     }
 
     @Override

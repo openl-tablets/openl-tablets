@@ -1,9 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -157,15 +154,63 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public boolean deleteHistory(FileData data) {
-        Map<String, String> mapping = getMappingForRead();
-        return delegate.deleteHistory(toInternal(mapping, data));
+        if (data.getVersion() == null) {
+            // Store mapping before modification to use it later
+            Map<String, String> mapping = getMappingForRead();
+
+            Lock lock = mappingLock.writeLock();
+            try {
+                lock.lock();
+
+                Map<String, String> newMap = new HashMap<>(externalToInternal);
+                newMap.remove(data.getName());
+                ByteArrayInputStream inputStream = getStreamFromProperties(newMap);
+
+                FileData configData = new FileData();
+                configData.setName(configFile);
+                configData.setAuthor(data.getAuthor());
+                configData.setComment(data.getComment());
+                delegate.save(configData, inputStream);
+
+                // Use mapping before modification
+                boolean result = delegate.deleteHistory(toInternal(mapping, data));
+                externalToInternal = newMap;
+                return result;
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                refreshMapping();
+                return false;
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            Map<String, String> mapping = getMappingForRead();
+            return delegate.deleteHistory(toInternal(mapping, data));
+        }
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping,
-            delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+        if (destData instanceof MappedFileData) {
+            try {
+                ByteArrayInputStream configStream = updateConfigFile((MappedFileData) destData);
+                FileData configData = new FileData();
+                configData.setName(configFile);
+                configData.setAuthor(destData.getAuthor());
+                configData.setComment(destData.getComment());
+                delegate.save(configData, configStream);
+
+                Map<String, String> mapping = getMappingForRead();
+                return toExternal(mapping, delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+            } catch (IOException | RuntimeException e) {
+                // Failed to update mapping. Restore current saved version.
+                refreshMapping();
+                throw e;
+            }
+        } else {
+            Map<String, String> mapping = getMappingForRead();
+            return toExternal(mapping, delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+        }
     }
 
     @Override
@@ -196,14 +241,36 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files)));
+    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
+        if (folderData instanceof MappedFileData) {
+            try {
+                FileChange configChange = new FileChange(configFile, updateConfigFile((MappedFileData) folderData));
+                Iterable<FileChange> filesWithMapping = new CompositeFileChanges(files, configChange);
+
+                // Mapping was updated on previous step.
+                Map<String, String> mapping = getMappingForRead();
+                FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping),
+                        changesetType);
+                return toExternal(mapping, result);
+            } catch (IOException | RuntimeException e) {
+                // Failed to update mapping. Restore current saved version.
+                refreshMapping();
+                throw e;
+            }
+        } else {
+            Map<String, String> mapping = getMappingForRead();
+            return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
+                    changesetType));
+        }
     }
 
     @Override
     public Features supports() {
-        return delegate.supports();
+        return new FeaturesBuilder(delegate)
+                .setVersions(delegate.supports().versions())
+                .setMappedFolders(true)
+                .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+                .build();
     }
 
     @Override
@@ -272,7 +339,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     @Override
                     public FileChange next() {
                         FileChange external = delegate.next();
-                        return new FileChange(toInternal(mapping, external.getName()), external.getStream());
+                        FileData data = external.getData();
+                        String name = toInternal(mapping, external.getData().getName());
+                        data.setName(name);
+                        return new FileChange(data, external.getStream());
                     }
 
                     @Override
@@ -303,7 +373,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
         }
 
-        log.warn("Mapped folder for " + externalPath + " not found. Use it as is.");
+        log.debug("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
         return externalPath;
     }
 
@@ -339,20 +409,15 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         // Shouldn't occur. If occurred, it's a bug.
-        log.warn("Mapped folder for " + internalPath + " not found. Use it as is.");
+        log.warn("Mapping for internal folder '{}' is not found. Use it as is.", internalPath);
         return internalPath;
     }
 
     @Override
     public void initialize() throws RRepositoryException {
         try {
-            Map<String, String> newMapping = readExternalToInternalMap(delegate,
-                repositoryMode,
-                configFile,
-                baseFolder);
-
-            setExternalToInternal(newMapping);
-        } catch (IOException e) {
+            refreshMapping();
+        } catch (Exception e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
     }
@@ -360,10 +425,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     /**
      * Load mapping from properties file.
      *
-     * @param delegate original repository
+     * @param delegate       original repository
      * @param repositoryMode Repository mode: design or deploy config.
-     * @param configFile properties file
-     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @param configFile     properties file
+     * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
@@ -476,6 +541,64 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         return externalToInternal;
+    }
+
+
+    private void refreshMapping() {
+        try {
+            Map<String, String> currentMapping = readExternalToInternalMap(delegate,
+                    repositoryMode,
+                    configFile,
+                    baseFolder);
+
+            setExternalToInternal(currentMapping);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            setExternalToInternal(Collections.<String, String>emptyMap());
+        }
+    }
+
+    private ByteArrayInputStream updateConfigFile(MappedFileData folderData) throws IOException {
+        Lock lock = mappingLock.writeLock();
+        try {
+            lock.lock();
+            Map<String, String> newMap = new HashMap<>(externalToInternal);
+            newMap.put(folderData.getName(), folderData.getInternalPath());
+
+            ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
+            externalToInternal = newMap;
+            return configInputStream;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private ByteArrayInputStream getStreamFromProperties(Map<String, String> newMap) throws IOException {
+        String parent = StringUtils.isBlank(baseFolder) ?
+                        "" :
+                        baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
+
+        Properties prop = new Properties();
+        int i = 1;
+        for (Map.Entry<String, String> entry : newMap.entrySet()) {
+            if (entry.getKey().length() <= parent.length()) {
+                log.warn("Skip mapping for {} to {}", entry.getKey(), entry.getValue());
+                continue;
+            }
+            String name = entry.getKey().substring(parent.length());
+            String path = entry.getValue();
+
+            prop.setProperty("project." + i + ".name", name);
+            prop.setProperty("project." + i + ".path", path);
+            i++;
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            prop.store(writer, null);
+        }
+
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
     private String getProjectName(InputStream inputStream) {

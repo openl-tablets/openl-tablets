@@ -151,9 +151,9 @@ public class JavaOpenClass extends AOpenClass {
 
     private Map<String, IOpenField> initalizeFields() {
         Map<String, IOpenField> fields = new HashMap<>();
-        Field[] ff = instanceClass.getDeclaredFields();
+        Field[] ff = getInstanceClass().getDeclaredFields();
 
-        if (isPublic(instanceClass)) {
+        if (isPublic(getInstanceClass())) {
             for (int i = 0; i < ff.length; i++) {
                 if (isPublic(ff[i])) {
                     fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
@@ -230,12 +230,12 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getJavaName() {
-        return instanceClass.getName();
+        return getInstanceClass().getName();
     }
 
     @Override
     public String getPackageName() {
-        return instanceClass.getPackage().getName();
+        return getInstanceClass().getPackage().getName();
     }
 
     public String getSimpleName() {
@@ -244,7 +244,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public int hashCode() {
-        return instanceClass.hashCode();
+        return getInstanceClass().hashCode();
     }
 
     @Override
@@ -254,17 +254,17 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public boolean isAssignableFrom(Class<?> c) {
-        return instanceClass.isAssignableFrom(c);
+        return getInstanceClass().isAssignableFrom(c);
     }
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return instanceClass.isAssignableFrom(ioc.getInstanceClass());
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
     public boolean isInstance(Object instance) {
-        return instanceClass.isInstance(instance);
+        return getInstanceClass().isInstance(instance);
     }
 
     protected boolean isPublic(Class<?> declaringClass) {
@@ -283,8 +283,8 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<>();
-        Method[] mm = instanceClass.getDeclaredMethods();
-        if (isPublic(instanceClass)) {
+        Method[] mm = getInstanceClass().getDeclaredMethods();
+        if (isPublic(getInstanceClass())) {
             for (int i = 0; i < mm.length; i++) {
                 if (isPublic(mm[i])) {
                     JavaOpenMethod om = new JavaOpenMethod(mm[i]);
@@ -303,7 +303,7 @@ public class JavaOpenClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructors = new HashMap<>();
 
-        Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
+        Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
             if (isPublic(cc[i])) {
                 IOpenMethod om = new JavaOpenConstructor(cc[i]);
@@ -341,8 +341,8 @@ public class JavaOpenClass extends AOpenClass {
         if (superClasses == null) {
             synchronized (this) {
                 if (superClasses == null) {
-                    Class<?>[] interfaces = instanceClass.getInterfaces();
-                    Class<?> superClass = instanceClass.getSuperclass();
+                    Class<?>[] interfaces = getInstanceClass().getInterfaces();
+                    Class<?> superClass = getInstanceClass().getSuperclass();
                     List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
                     if (superClass != null) {
                         superClasses.add(getOpenClass(superClass));
@@ -471,7 +471,6 @@ public class JavaOpenClass extends AOpenClass {
 
     private static class JavaPrimitiveClass extends JavaOpenClass {
         private Class<?> wrapperClass;
-
         private Object nullObject;
 
         public JavaPrimitiveClass(Class<?> instanceClass, Class<?> wrapperClass, Object nullObject) {
@@ -541,7 +540,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (generatedImplClass == null) {
                     synchronized (this) {
                         if (generatedImplClass == null) {
-                            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(instanceClass);
+                            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(getInstanceClass());
                             generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
                                 builder.byteCode(),
                                 Thread.currentThread().getContextClassLoader());
@@ -555,19 +554,19 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         private Object createCollectionInstance() {
-            if (List.class.isAssignableFrom(instanceClass)) {
+            if (List.class.isAssignableFrom(getInstanceClass())) {
                 return new ArrayList<>();
             }
-            if (Set.class.isAssignableFrom(instanceClass)) {
+            if (Set.class.isAssignableFrom(getInstanceClass())) {
                 return new HashSet<>();
             }
-            if (SortedMap.class.isAssignableFrom(instanceClass)) {
+            if (SortedMap.class.isAssignableFrom(getInstanceClass())) {
                 return new TreeMap<>();
             }
-            if (Map.class.isAssignableFrom(instanceClass)) {
+            if (Map.class.isAssignableFrom(getInstanceClass())) {
                 return new HashMap<>();
             }
-            if (Collection.class.isAssignableFrom(instanceClass)) {
+            if (Collection.class.isAssignableFrom(getInstanceClass())) {
                 return new ArrayList<>();
             }
             return null;

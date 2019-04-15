@@ -92,7 +92,8 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (domain == null) {
             if (paramType.getDomain() != null) {
                 domain = makeDomainAdaptor(paramType.getDomain());
-            } else if (paramType.getInstanceClass() == boolean.class || paramType.getInstanceClass() == Boolean.class) {
+            } else if (boolean.class.equals(paramType.getInstanceClass()) || Boolean.class
+                .equals(paramType.getInstanceClass())) {
                 return constrainer.addIntBoolVar(parameterName);
             }
         }
@@ -112,15 +113,15 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
 
-        if (instanceClass == String.class || instanceClass == Date.class) {
+        if (String.class.equals(instanceClass) || Date.class.equals(instanceClass)) {
             return JavaOpenClass.INT;
         }
 
-        if (instanceClass == IntRange.class) {
+        if (IntRange.class.equals(instanceClass)) {
             return JavaOpenClass.getOpenClass(CtrIntRange.class);
         }
 
-        if (instanceClass == boolean.class || instanceClass == Boolean.class) {
+        if (boolean.class.equals(instanceClass) || Boolean.class.equals(instanceClass)) {
             return JavaOpenClass.INT;
         }
 
@@ -219,7 +220,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
 
-        if (instanceClass == boolean.class || instanceClass == Boolean.class) {
+        if (boolean.class.equals(instanceClass) || Boolean.class.equals(instanceClass)) {
             return intValue == 1 ? "true" : "false";
         }
 
@@ -243,11 +244,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     @Override
     public boolean isOverrideAscending() {
         // 1. if return type is void, return false
-        if (decisionTable.getMethod().getType() == JavaOpenClass.VOID) {
-            return false;
-        }
-
-        return true;
+        return !JavaOpenClass.VOID.equals(decisionTable.getMethod().getType());
     }
 
 }

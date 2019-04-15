@@ -38,9 +38,23 @@
             </div>
         </h:panelGroup>
 
+          <h:panelGroup rendered="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}">
+              <p>
+                  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                      <h:outputText value="Comment"/>
+                      <h:inputTextarea id="comment" value="#{repositoryTreeController.archiveProjectComment}"
+                                       type="text"
+                                       size="35"
+                                       readonly="false" title="#{repositoryTreeController.archiveProjectComment}"/>
+                  </h:panelGrid>
+              </p>
+          </h:panelGroup>
+
       </h:panelGroup>
 
       <footer>
+          <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+                  Now errors are shown after dialog is closed. -->
         <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
       </footer>

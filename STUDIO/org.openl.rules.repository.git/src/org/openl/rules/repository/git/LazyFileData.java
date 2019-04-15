@@ -27,7 +27,7 @@ class LazyFileData extends FileData {
     private ObjectId fromCommit;
     private RevCommit fileCommit;
     private ObjectId fileId;
-    private final String commentPattern;
+    private final String commentTemplate;
 
     private boolean loaded = false;
 
@@ -36,13 +36,16 @@ class LazyFileData extends FileData {
             File repoFolder,
             ObjectId fromCommit,
             ObjectId fileId,
-            String commentPattern) {
+            String commentTemplate) {
         setBranch(branch);
         setName(fullPath);
+        if (fileId != null) {
+            setUniqueId(fileId.getName());
+        }
 
         this.fullPath = fullPath;
         this.repoFolder = repoFolder;
-        this.commentPattern = commentPattern;
+        this.commentTemplate = commentTemplate;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
     }
@@ -52,13 +55,16 @@ class LazyFileData extends FileData {
             File repoFolder,
             RevCommit fileCommit,
             ObjectId fileId,
-            String commentPattern) {
+            String commentTemplate) {
         setBranch(branch);
         setName(fullPath);
+        if (fileId != null) {
+            setUniqueId(fileId.getName());
+        }
 
         this.fullPath = fullPath;
         this.repoFolder = repoFolder;
-        this.commentPattern = commentPattern;
+        this.commentTemplate = commentTemplate;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
     }
@@ -172,13 +178,16 @@ class LazyFileData extends FileData {
             super.setModifiedAt(committerIdent.getWhen());
             String message = fileCommit.getFullMessage();
             try {
-                Object[] parse = new MessageFormat(commentPattern).parse(message);
-                if (parse.length == 2) {
+                Object[] parse = new MessageFormat(commentTemplate).parse(message);
+                if (parse.length >= 2) {
                     CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
                     if (commitType == CommitType.ARCHIVE) {
                         super.setDeleted(true);
                     }
                     message = String.valueOf(parse[1]);
+                    if (parse.length > 2) {
+                        super.setAuthor(String.valueOf(parse[2]));
+                    }
                 }
             } catch (ParseException | IllegalArgumentException ignored) {
             }

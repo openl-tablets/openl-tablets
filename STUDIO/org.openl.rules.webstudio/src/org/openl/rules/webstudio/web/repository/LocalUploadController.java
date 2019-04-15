@@ -8,11 +8,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpSession;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.WebStudio;
@@ -21,21 +23,16 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 @ManagedBean(name = "localUpload")
 @RequestScoped
 public class LocalUploadController {
-    private boolean selectAll = false;
-
     public static class UploadBean {
         private String projectName;
 
         private boolean selected;
-
-        public UploadBean() {
-        }
 
         public UploadBean(String projectName) {
             this.projectName = projectName;
@@ -62,13 +59,20 @@ public class LocalUploadController {
 
     private List<UploadBean> uploadBeans;
 
-    private void createProject(File baseFolder,
-            RulesUserSession rulesUserSession) throws ProjectException, WorkspaceException, FileNotFoundException {
+    private String projectFolder = "";
+
+    private String createProjectComment;
+
+    @ManagedProperty(value = "#{designRepositoryComments}")
+    private Comments designRepoComments;
+
+    private void createProject(File baseFolder, RulesUserSession rulesUserSession, String comment) throws ProjectException,
+                                                                                                          WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
 
-        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName());
+        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName(), projectFolder, comment);
     }
 
     public List<UploadBean> getProjects4Upload() {
@@ -108,10 +112,28 @@ public class LocalUploadController {
         return uploadBeans;
     }
 
-    private static Comparator<File> fileNameComparator = (f1, f2) -> {
-        String name1 = f1.getName();
-        String name2 = f2.getName();
-        return name1.compareToIgnoreCase(name2);
+    public String getProjectFolder() {
+        return projectFolder;
+    }
+
+    public void setProjectFolder(String projectFolder) {
+        String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (!folder.isEmpty() && !folder.endsWith("/")) {
+            folder += '/';
+        }
+        this.projectFolder = folder;
+    }
+
+    /**
+     * EPBDS-8384: JSF beans discovery doesn't work if the bean contains static field with lambda expression. Possibly need
+     * to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
+     */
+    private static Comparator<File> fileNameComparator = new Comparator<File>() {
+        @Override public int compare(File f1, File f2) {
+            String name1 = f1.getName();
+            String name2 = f2.getName();
+            return name1.compareToIgnoreCase(name2);
+        }
     };
 
     private RulesUserSession getRules() {
@@ -130,8 +152,15 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
-                        FacesUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
+                        String comment;
+                        if (createProjectComment != null) {
+                            comment = createProjectComment;
+                        } else {
+                            comment = designRepoComments.createProject(bean.getProjectName());
+                        }
+                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
+                        FacesUtils.addInfoMessage("Project " + bean.getProjectName()
+                                + " was created successfully");
                     } catch (Exception e) {
                         String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {
@@ -157,11 +186,22 @@ public class LocalUploadController {
         return null;
     }
 
+    public void setDesignRepoComments(Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
+    }
+
+    public String getCreateProjectComment() {
+        return designRepoComments.createProject("");
+    }
+
+    public void setCreateProjectComment(String createProjectComment) {
+        this.createProjectComment = createProjectComment;
+    }
+
     public boolean isSelectAll() {
         return false;
     }
 
     public void setSelectAll(boolean selectAll) {
-        this.selectAll = selectAll;
     }
 }

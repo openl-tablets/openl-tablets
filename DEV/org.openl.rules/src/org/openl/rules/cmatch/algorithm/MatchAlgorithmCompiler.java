@@ -284,7 +284,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     result[i] = RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, openClass);
                 } else {
                     IString2DataConvertor converter = String2DataConvertorFactory
-                        .getConvertor(openClass.getInstanceClass());
+                            .getConvertor(openClass.getInstanceClass());
                     result[i] = converter.parse(s, null);
                 }
             } catch (Exception | LinkageError ex) {

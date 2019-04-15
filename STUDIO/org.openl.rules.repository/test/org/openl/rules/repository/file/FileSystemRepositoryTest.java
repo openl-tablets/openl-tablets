@@ -3,14 +3,20 @@ package org.openl.rules.repository.file;
 import static org.junit.Assert.*;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -26,11 +32,14 @@ public class FileSystemRepositoryTest {
         testRepo(repo);
     }
 
-    private void testRepo(Repository repo) throws IOException {
+    private void testRepo(FileSystemRepository repo) throws IOException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2018, Calendar.NOVEMBER, 25);
+
         assertList(repo, "", 0);
         assertSave(repo, ".override", "The original content");
         assertSave(repo, "first.txt", "The first file in the repository");
-        assertSave(repo, "second.txt", "The second file in the repository");
+        assertSave(repo, "second.txt", "The second file in the repository", calendar.getTime());
         assertSave(repo, "third#3", "The third file");
         assertSave(repo, "folder1/text", "The file in the folder");
         assertSave(repo, "very/very/very/deep/folder/text", "The file in the deep folder");
@@ -64,6 +73,10 @@ public class FileSystemRepositoryTest {
         ZipInputStream stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file");
         assertSaveFromZip(repo, stream);
         stream.close();
+
+        assertSave(repo, "folder", "multiple", calendar.getTime(), "folder/file1");
+        assertSave(repo, "fol/der/", "text", calendar.getTime(), "fol/der/file1", "fol/der/file2");
+
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {
@@ -95,12 +108,59 @@ public class FileSystemRepositoryTest {
     }
 
     private void assertSave(Repository repo, String name, String text) throws IOException {
+        assertSave(repo, name, text, null);
+    }
+
+    private void assertSave(Repository repo, String name, String text, Date modifiedAt) throws IOException {
         FileData data = new FileData();
         data.setName(name);
+        if (modifiedAt != null) {
+            data.setModifiedAt(modifiedAt);
+        }
+
         FileData result = repo.save(data, IOUtils.toInputStream(text));
         assertEquals("Wrong file length", text.length(), result.getSize());
         assertRead(repo, name, text);
         assertEquals("Wrong file name", name, result.getName());
+
+        if (modifiedAt != null) {
+            assertEquals("Wrong modifiedAt date", modifiedAt, result.getModifiedAt());
+        }
+    }
+
+    private void assertSave(FolderRepository repo,
+            String folderName,
+            String text,
+            Date modifiedAt,
+            String... fileNames) throws IOException {
+        FileData folder = new FileData();
+        folder.setName(folderName);
+        if (modifiedAt != null) {
+            folder.setModifiedAt(modifiedAt);
+        }
+
+        List<FileChange> changes = new ArrayList<>();
+        for (String fileName : fileNames) {
+            FileData file = new FileData();
+            file.setName(fileName);
+            if (modifiedAt != null) {
+                file.setModifiedAt(modifiedAt);
+            }
+
+            changes.add(new FileChange(file, IOUtils.toInputStream(text)));
+        }
+
+        repo.save(folder, changes, ChangesetType.FULL);
+        for (String name : fileNames) {
+            FileData result = repo.check(name);
+            assertEquals("Wrong file length", text.length(), result.getSize());
+            assertRead(repo, name, text);
+            assertEquals("Wrong file name", name, result.getName());
+
+            if (modifiedAt != null) {
+                assertEquals("Wrong modifiedAt date", modifiedAt, result.getModifiedAt());
+            }
+        }
     }
 
     private void assertSaveFromZip(Repository repo, ZipInputStream inputStream) throws IOException {

@@ -31,6 +31,7 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -48,8 +49,12 @@ public class CopyBean {
     @ManagedProperty(value = "#{systemConfig}")
     private Map<String, Object> config;
 
+    @ManagedProperty(value = "#{designRepositoryComments}")
+    private Comments designRepoComments;
+
     private String currentProjectName;
     private String newProjectName;
+    private String projectFolder;
     private boolean separateProject = false;
     private String newBranchName;
     private String comment;
@@ -76,6 +81,18 @@ public class CopyBean {
         this.newProjectName = StringUtils.trimToNull(newProjectName);
     }
 
+    public String getProjectFolder() {
+        return projectFolder;
+    }
+
+    public void setProjectFolder(String projectFolder) {
+        String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (!folder.isEmpty() && !folder.endsWith("/")) {
+            folder += '/';
+        }
+        this.projectFolder = folder;
+    }
+
     public boolean isSeparateProject() {
         return separateProject;
     }
@@ -94,7 +111,7 @@ public class CopyBean {
 
     public String getComment() {
         if (comment == null) {
-            return Comments.copiedFrom(getCurrentProjectName());
+            return designRepoComments.copiedFrom(getCurrentProjectName());
         }
         return comment;
     }
@@ -146,8 +163,13 @@ public class CopyBean {
                     int start = versions.size() - revisionsCount;
                     for (int i = start; i < versions.size(); i++) {
                         ProjectVersion version = versions.get(i);
-                        FileData fileData = new FileData();
-                        fileData.setName(designPath);
+                        FileData fileData;
+                        if (i == start && designRepository.supports().mappedFolders()) {
+                            fileData = new MappedFileData(designPath, projectFolder + newProjectName);
+                        } else {
+                            fileData = new FileData();
+                            fileData.setName(designPath);
+                        }
                         fileData.setAuthor(version.getVersionInfo().getCreatedBy());
                         fileData.setComment(version.getVersionComment());
                         designRepository.copyHistory(project.getDesignFolderName(), fileData, version.getRevision());
@@ -156,6 +178,9 @@ public class CopyBean {
 
                 AProject designProject = new AProject(designRepository, designPath);
                 AProject localProject = new AProject(project.getRepository(), project.getFolderPath());
+                if (!copyOldRevisions && designRepository.supports().mappedFolders()) {
+                    designProject.setFileData(new MappedFileData(designPath, projectFolder + newProjectName));
+                }
                 designProject.getFileData().setComment(comment);
                 designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
                 designProject.update(localProject, userWorkspace.getUser());
@@ -227,6 +252,7 @@ public class CopyBean {
         try {
             this.currentProjectName = currentProjectName;
             newProjectName = null;
+            projectFolder = "";
             comment = null;
             copyOldRevisions = Boolean.FALSE;
             revisionsCount = null;
@@ -248,6 +274,19 @@ public class CopyBean {
     public boolean isSupportsBranches() {
         RulesProject project = getCurrentProject();
         return project != null && project.isSupportsBranches();
+    }
+
+    public boolean isSupportsMappedFolders() {
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+
+            Repository designRepository = designTimeRepository.getRepository();
+            return designRepository.supports().mappedFolders();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     private RulesProject getCurrentProject() {
@@ -276,5 +315,9 @@ public class CopyBean {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+    }
+
+    public void setDesignRepoComments(Comments designRepoComments) {
+        this.designRepoComments = designRepoComments;
     }
 }

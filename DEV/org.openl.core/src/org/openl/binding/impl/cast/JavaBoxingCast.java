@@ -5,10 +5,14 @@ package org.openl.binding.impl.cast;
  */
 final class JavaBoxingCast implements IOpenCast {
 
-    static IOpenCast instance = new JavaBoxingCast();
+    private static final JavaBoxingCast INSTANCE = new JavaBoxingCast();
 
     private JavaBoxingCast() {
         // Use JavaBoxingCast.instance
+    }
+
+    static JavaBoxingCast getInstance() {
+        return INSTANCE;
     }
 
     @Override

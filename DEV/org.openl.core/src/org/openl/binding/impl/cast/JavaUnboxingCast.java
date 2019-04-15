@@ -2,10 +2,14 @@ package org.openl.binding.impl.cast;
 
 final class JavaUnboxingCast implements IOpenCast {
 
-    static IOpenCast instance = new JavaUnboxingCast();
+    private static final JavaUnboxingCast INSTANCE = new JavaUnboxingCast();
 
     private JavaUnboxingCast() {
-        // Use JavaUnboxingCast.instance
+        // Use JavaUnboxingCast.getInstance
+    }
+
+    static JavaUnboxingCast getInstance() {
+        return INSTANCE;
     }
 
     @Override

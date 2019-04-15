@@ -5,10 +5,14 @@ package org.openl.binding.impl.cast;
  */
 final class CastNotFound implements IOpenCast {
 
-    public static IOpenCast instance = new CastNotFound();
+    private static final CastNotFound INSTANCE = new CastNotFound();
 
     private CastNotFound() {
-        // Use CastNotFound.instance.
+        // Use CastNotFound.getInstance
+    }
+
+    public static CastNotFound getInstance() {
+        return INSTANCE;
     }
 
     /**

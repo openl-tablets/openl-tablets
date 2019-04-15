@@ -20,14 +20,14 @@ class PropertiesEngine {
 
     public File createPropertiesFile(String pathInProject, String propertiesFileName) {
         File propertiesFolder = getPropertiesFolder(pathInProject);
-        if (!propertiesFolder.exists()) {
-            if (!propertiesFolder.mkdirs() && !propertiesFolder.exists()) {
-                throw new IllegalStateException("Can't create the folder " + propertiesFolder);
-            }
-        }
 
         File properties = new File(propertiesFolder, propertiesFileName);
         try {
+            File parent = properties.getParentFile();
+            if (!parent.mkdirs() && !parent.exists()) {
+                throw new IllegalStateException("Can't create the folder " + parent);
+            }
+
             properties.createNewFile();
             return properties;
         } catch (IOException e) {
@@ -72,27 +72,35 @@ class PropertiesEngine {
         return path.replace(File.separatorChar, '/').contains("/" + FolderHelper.PROPERTIES_FOLDER + "/");
     }
 
+    File getProjectFolder(String path) {
+        return getPropertiesFolder(path).getParentFile();
+    }
+
     File getPropertiesFolder(String path) {
         if (!new File(path).isAbsolute()) {
             path = path.replace(File.separatorChar, '/');
             File projectFolder = new File(root, path.split("/")[0]);
             return new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
         } else {
-            log.debug("Base: {}", root.getAbsolutePath());
-            log.debug("File path: {}", path);
-
-            Path base;
-            Path pathAbsolute;
-            try {
-                base = Paths.get(root.getAbsolutePath()).toRealPath();
-                pathAbsolute = Paths.get(path).toRealPath();
-            } catch (IOException e) {
-                throw new IllegalStateException("Can't determine properties folder: " + e.getMessage(), e);
-            }
-            String relativePath = base.relativize(pathAbsolute).toString();
-            log.debug("Relative: {}", relativePath);
-            return getPropertiesFolder(relativePath);
+            return getPropertiesFolder(getRelativePath(path));
         }
+    }
+
+    String getRelativePath(String path) {
+        log.debug("Base: {}", root.getAbsolutePath());
+        log.debug("File path: {}", path);
+
+        Path base;
+        Path pathAbsolute;
+        try {
+            base = Paths.get(root.getAbsolutePath()).toRealPath();
+            pathAbsolute = Paths.get(path).toRealPath();
+        } catch (IOException e) {
+            throw new IllegalStateException("Can't determine properties folder: " + e.getMessage(), e);
+        }
+        String relativePath = base.relativize(pathAbsolute).toString();
+        log.debug("Relative: {}", relativePath);
+        return relativePath;
     }
 
 }

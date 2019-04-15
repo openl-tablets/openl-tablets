@@ -120,8 +120,7 @@ public abstract class AEngineFactory {
                         IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass,
                             interfaceMethod.getReturnType());
 
-                        if (methodReturnType.getInstanceClass()
-                            .isAssignableFrom(rulesField.getType().getInstanceClass())) {
+                        if (methodReturnType.isAssignableFrom(rulesField.getType())) {
                             // If openClass's field type is equal to method
                             // return
                             // type then add new entry to methods map.

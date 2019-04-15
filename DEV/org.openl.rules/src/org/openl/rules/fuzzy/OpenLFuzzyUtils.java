@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 
 public final class OpenLFuzzyUtils {
 
@@ -24,6 +24,9 @@ public final class OpenLFuzzyUtils {
 
     private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
         .withInitial(HashMap::new);
+
+    private OpenLFuzzyUtils() {
+    }
 
     public static void clearCaches() {
         openlClassCacheForSetterMethods.remove();
@@ -77,26 +80,29 @@ public final class OpenLFuzzyUtils {
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null);
+        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null, 0);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass,
-            String tokenPrefix) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, true);
+            String tokenPrefix,
+            int startLevel) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, true);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null);
+        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null, 0);
     }
 
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass,
-            String tokenPrefix) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, false);
+            String tokenPrefix,
+            int startLevel) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, false);
     }
 
     @SuppressWarnings("unchecked")
     private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
             String tokenPrefix,
+            int startLevel,
             boolean setterMethods) {
         Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache = null;
         if (setterMethods) {
@@ -110,9 +116,9 @@ public final class OpenLFuzzyUtils {
         if (ret == null) {
             Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
             if (StringUtils.isBlank(tokenPrefix)) {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
             } else {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, 0, setterMethods);
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
                 Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
                 for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
                     Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
@@ -151,7 +157,7 @@ public final class OpenLFuzzyUtils {
 
     public static boolean isSetterMethod(IOpenMethod method) {
         return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-            .startsWith("set");
+            .startsWith("set") && JavaOpenClass.isVoid(method.getType());
     }
 
     public static boolean isGetterMethod(IOpenMethod method) {
@@ -303,9 +309,7 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
-    private static final Token[] EMPTY_TOKENS = new Token[] {};
-
-    public static Triple<Token[], Integer, Integer> openlFuzzyExtract(String source, Token[] tokens) {
+    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");
@@ -357,7 +361,7 @@ public final class OpenLFuzzyUtils {
         }
 
         if (max == 0) {
-            return Triple.of(EMPTY_TOKENS, 0, 0);
+            return Collections.emptyList();
         }
 
         int min = Integer.MAX_VALUE;
@@ -373,28 +377,14 @@ public final class OpenLFuzzyUtils {
             }
         }
 
-        int count = 0;
+        List<Token> ret = new ArrayList<>();
+        int best = 0;
+        int bestL = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                count++;
-            }
-        }
-        if (count == 0) {
-            return Triple.of(EMPTY_TOKENS, 0, 0);
-        }
-        if (count == 1) {
-            for (int i = 0; i < tokensList.length; i++) {
-                if (f[i] == max && tokensList[i].length - f[i] == min && tokens[i].getDistance() == minDistance) {
-                    return Triple.of(new Token[] { tokens[i] }, max, minDistance);
-                }
-            }
-        } else {
-            List<Token> ret = new ArrayList<>();
-            int best = 0;
-            int bestL = Integer.MAX_VALUE;
-            for (int i = 0; i < tokensList.length; i++) {
-                if (f[i] == max && tokensList[i].length - f[i] == min) {
-                    Pair<String, String> pair = similarity.get(i);
+            if (f[i] == max && tokensList[i].length - f[i] == min && (ignoreDistances || tokens[i]
+                .getDistance() == minDistance)) {
+                Pair<String, String> pair = similarity.get(i);
+                if (!ignoreDistances) {
                     int d = StringUtils.getFuzzyDistance(pair.getRight(), pair.getLeft(), Locale.ENGLISH);
                     if (d > best) {
                         best = d;
@@ -415,11 +405,61 @@ public final class OpenLFuzzyUtils {
                             }
                         }
                     }
+                } else {
+                    ret.add(tokens[i]);
                 }
             }
-
-            return Triple.of(ret.toArray(new Token[] {}), max, minDistance);
         }
-        return Triple.of(EMPTY_TOKENS, 0, 0);
+        int max1 = max;
+        int min1 = min;
+        return ret.stream().map(e -> new FuzzyResult(e, max1, min1)).collect(Collectors.toList());
+    }
+
+    public static final class FuzzyResult implements Comparable<FuzzyResult> {
+        Token token;
+        int max;
+        int min;
+
+        public FuzzyResult(Token token, int max, int min) {
+            this.token = token;
+            this.max = max;
+            this.min = min;
+        }
+
+        @Override
+        public int compareTo(FuzzyResult o) {
+            if (this.max > o.max) {
+                return -1;
+            }
+            if (this.max < o.max) {
+                return 1;
+            }
+            if (this.min > o.min) {
+                return 1;
+            }
+            if (this.min < o.min) {
+                return -1;
+            }
+            if (this.token.getDistance() > o.token.getDistance()) {
+                return 1;
+            }
+            if (this.token.getDistance() < o.token.getDistance()) {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        public Token getToken() {
+            return token;
+        }
+
+        public int getMax() {
+            return max;
+        }
+
+        public int getMin() {
+            return min;
+        }
     }
 }

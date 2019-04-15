@@ -67,9 +67,8 @@ public abstract class UserWorkspaceProject extends AProject {
         close(user);
     }
 
-    @Override
-    public void delete() throws ProjectException {
-        delete(user);
+    public void delete(String comment) throws ProjectException {
+        delete(user, comment);
     }
 
     @Override
@@ -107,14 +106,26 @@ public abstract class UserWorkspaceProject extends AProject {
         return !isLocalOnly() && getDesignRepository().supports().branches();
     }
 
-    public void setBranch(String newBranch) throws IOException {
-        BranchRepository branchRepository = (BranchRepository) getRepository();
+    public void setBranch(String newBranch) throws ProjectException {
+        BranchRepository branchRepository = (BranchRepository) getDesignRepository();
         String currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {
-            setDesignRepository(branchRepository.forBranch(newBranch));
+            boolean opened = isOpened();
+            try {
+                setDesignRepository(branchRepository.forBranch(newBranch));
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
             setHistoryVersion(null);
             refresh();
             getFileData(); // Reinitialize file data
+            if (opened) {
+                if (isLockedByMe()) {
+                    unlock();
+                }
+                // Update files
+                open();
+            }
         }
     }
 

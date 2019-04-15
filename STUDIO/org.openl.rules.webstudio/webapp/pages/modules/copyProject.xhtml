@@ -55,6 +55,9 @@
                     <h:outputText value=""/>
                     <h:message for="newProjectName" styleClass="error"/>
 
+                    <h:outputLabel for="projectFolder" value="Path in repository:" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:inputText id="projectFolder" value="#{copyBean.projectFolder}" rendered="#{copyBean.supportsMappedFolders}"/>
+
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
                                      validatorMessage="Length is greater than allowable maximum of '255'">

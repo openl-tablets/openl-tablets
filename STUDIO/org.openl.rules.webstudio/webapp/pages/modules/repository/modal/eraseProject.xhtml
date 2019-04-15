@@ -17,7 +17,23 @@
     <h:form id="eraseProjectForm">
       <h:outputText value="Are you sure you want to erase the project?" />
 
+      <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+      <ui:param name="useCustomComment"
+                value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
+      <h:panelGroup rendered="#{useCustomComment}">
+        <p>
+          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <h:outputText value="Comment"/>
+            <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
+                             size="35"
+                             readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
+          </h:panelGrid>
+        </p>
+      </h:panelGroup>
+
       <footer>
+        <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+                Now errors are shown after dialog is closed. -->
         <h:commandButton value="Erase" action="#{repositoryTreeController.eraseProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalEraseProject')}.hide();" />
       </footer>

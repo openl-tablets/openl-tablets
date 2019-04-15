@@ -29,10 +29,7 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -44,7 +41,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -65,8 +62,15 @@ import org.xml.sax.InputSource;
 public class RepositoryService {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryService.class);
 
-    @Autowired
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
+
+    private final Comments designRepoComments;
+
+    public RepositoryService(MultiUserWorkspaceManager workspaceManager,
+            @Qualifier("designRepositoryComments") Comments designRepoComments) {
+        this.workspaceManager = workspaceManager;
+        this.designRepoComments = designRepoComments;
+    }
 
     /**
      * @return a list of project descriptions.
@@ -296,6 +300,9 @@ public class RepositoryService {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
                 }
+                if (getRepository().supports().mappedFolders()) {
+                    throw new UnsupportedOperationException("Can't create a project for repository with non-flat folder structure");
+                }
             }
 
             String fileName = getFileName(name);
@@ -308,7 +315,7 @@ public class RepositoryService {
                 delData.setName(existing.getName());
                 delData.setVersion(existing.getVersion());
                 delData.setAuthor(existing.getAuthor());
-                delData.setComment(Comments.restoreProject(name));
+                delData.setComment(designRepoComments.restoreProject(name));
                 repository.deleteHistory(delData);
             }
 
@@ -320,7 +327,8 @@ public class RepositoryService {
             FileData save;
             if (repository.supports().folders()) {
                 try (ZipInputStream stream = new ZipInputStream(zipFile)) {
-                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName));
+                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName),
+                            ChangesetType.FULL);
                 }
             } else {
                 data.setSize(zipSize);
@@ -328,7 +336,7 @@ public class RepositoryService {
             }
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
-        } catch (IOException | URISyntaxException ex) {
+        } catch (IOException | URISyntaxException | RuntimeException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
@@ -433,9 +441,5 @@ public class RepositoryService {
     private String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
-    }
-
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
     }
 }

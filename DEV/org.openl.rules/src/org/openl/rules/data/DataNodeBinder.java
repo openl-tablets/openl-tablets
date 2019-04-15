@@ -101,7 +101,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         StringBuilder sb = new StringBuilder();
         while (i < parsedHeader.length - 1) {
             if ("[]".equals(parsedHeader[i].getIdentifier()) || "]".equals(parsedHeader[i].getIdentifier()) || "["
-                .equals(parsedHeader[i].getIdentifier())) {
+                    .equals(parsedHeader[i].getIdentifier())) {
                 sb.append(parsedHeader[i].getIdentifier());
             } else {
                 break;
@@ -150,7 +150,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                 ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
 
                 dataWithTitleRows = LogicalTableHelper
-                    .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
+                        .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
                 ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess,
                     tableType,

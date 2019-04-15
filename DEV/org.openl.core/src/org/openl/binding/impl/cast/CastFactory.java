@@ -271,7 +271,7 @@ public class CastFactory implements ICastFactory {
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
-            return JavaNoCast.INSTANCE;
+            return JavaNoCast.getInstance();
         }
 
         if (to == NullOpenClass.the) {
@@ -282,17 +282,17 @@ public class CastFactory implements ICastFactory {
             if (isPrimitive(to)) {
                 return null;
             } else {
-                return JavaUpCast.instance;
+                return JavaUpCast.getInstance();
             }
         }
 
         if (ThrowableVoid.class.equals(from.getInstanceClass())) {
-            return ThrowableVoidCast.instance;
+            return ThrowableVoidCast.getInstance();
         }
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
         IOpenCast cast = castCache.get(key);
-        if (cast == CastNotFound.instance) {
+        if (cast == CastNotFound.getInstance()) {
             return null;
         }
         if (cast != null) {
@@ -301,7 +301,7 @@ public class CastFactory implements ICastFactory {
 
         IOpenCast typeCast = findCast(from, to);
         if (typeCast == null) {
-            typeCast = CastNotFound.instance;
+            typeCast = CastNotFound.getInstance();
         }
 
         IOpenCast saved = castCache.putIfAbsent(key, typeCast);
@@ -311,7 +311,7 @@ public class CastFactory implements ICastFactory {
             typeCast = saved;
         }
 
-        return typeCast == CastNotFound.instance ? null : typeCast;
+        return typeCast == CastNotFound.getInstance() ? null : typeCast;
     }
 
     private IOpenCast findCast(IOpenClass from, IOpenClass to) {
@@ -354,9 +354,9 @@ public class CastFactory implements ICastFactory {
 
     private IOpenCast getUpCast(Class<?> from, Class<?> to) {
         if (from.isArray() && to.isArray()) {
-            return JavaUpArrayCast.instance;
+            return JavaUpArrayCast.getInstance();
         }
-        return JavaUpCast.instance;
+        return JavaUpCast.getInstance();
     }
 
     private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
@@ -364,7 +364,7 @@ public class CastFactory implements ICastFactory {
             return null;
         }
         Class<?> fromClass = from.getInstanceClass();
-        if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) {
+        if (to.isAssignableFrom(from) && !(to instanceof DomainOpenClass)) {
             // Improve for up cast
             return getUpCast(fromClass, to.getInstanceClass());
         }
@@ -473,9 +473,9 @@ public class CastFactory implements ICastFactory {
         }
 
         if (fromClass.isEnum() && toClass == String.class) {
-            return EnumToStringCast.instance;
+            return EnumToStringCast.getInstance();
         }
-        if (fromClass == String.class && toClass.isEnum()) {
+        if (String.class.equals(fromClass) && toClass.isEnum()) {
             return new StringToEnumCast(toClass);
         }
         return null;
@@ -497,17 +497,17 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
-        if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
-            return JavaBoxingCast.instance;
+        if (fromClass.equals(ClassUtils.wrapperToPrimitive(toClass))) {
+            return JavaBoxingCast.getInstance();
         }
 
         if (toClass.isAssignableFrom(ClassUtils.primitiveToWrapper(fromClass))) {
-            return JavaBoxingUpCast.instance;
+            return JavaBoxingUpCast.getInstance();
         }
 
         // Apache ClassUtils has error in 2.6
-        if (fromClass == void.class && toClass == Void.class) {
-            return JavaBoxingCast.instance;
+        if (void.class.equals(fromClass) && Void.class.equals(toClass)) {
+            return JavaBoxingCast.getInstance();
         }
 
         return null;
@@ -529,13 +529,13 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
 
-        if (toClass == ClassUtils.wrapperToPrimitive(fromClass)) {
-            return JavaUnboxingCast.instance;
+        if (toClass.equals(ClassUtils.wrapperToPrimitive(fromClass))) {
+            return JavaUnboxingCast.getInstance();
         }
 
         // Apache ClassUtils has error in 2.6
-        if (fromClass == Void.class && toClass == void.class) {
-            return JavaUnboxingCast.instance;
+        if (Void.class.equals(fromClass) && void.class.equals(toClass)) {
+            return JavaUnboxingCast.getInstance();
         }
 
         return null;
@@ -551,18 +551,18 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
 
-            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
-                .isAssignableFrom(from.getInstanceClass())) {
-                return AliasToTypeCast.instance;
+            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.isAssignableFrom(from)) {
+                return AliasToTypeCast.getInstance();
             }
 
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
-                .isAssignableFrom(to.getInstanceClass())) {
+            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.isAssignableFrom(to)) {
                 return new TypeToAliasCast(to);
             }
 
-            if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return JavaUpCast.instance;
+            if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) { // This is
+                                                                                                              // not
+                                                                                                              // typo
+                return JavaUpCast.getInstance();
             }
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {

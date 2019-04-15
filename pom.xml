@@ -85,7 +85,7 @@
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.1.17</org.apache.cxf.version>
         <org.slf4j.version>1.7.25</org.slf4j.version>
-        <org.apache.poi.version>4.0.1</org.apache.poi.version>
+        <org.apache.poi.version>4.1.0</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.9.8</com.fasterxml.jackson.version>
         <jaxb.version>2.3.1</jaxb.version>
@@ -637,7 +637,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.1</version>
+                <version>4.3</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -660,7 +660,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.11</version>
+                <version>1.12</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
