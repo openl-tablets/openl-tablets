@@ -16,6 +16,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     private String fieldPathFromRoot;
     private boolean pkField = false;
     private CollectionType collectionType;
+    private IOpenClass arrayType;
 
     public CollectionElementWithMultiRowField(IOpenField field,
             String fieldPathFromRoot,
@@ -34,6 +35,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
         this.pkField = pkField;
         this.fieldPathFromRoot = fieldPathFromRoot;
         this.collectionType = collectionType;
+        this.arrayType = field.getType().getComponentClass();
     }
 
     @Override
@@ -101,7 +103,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
             }
         } else {
             if (Array.getLength(v) < elementIndex + 1) {
-                Object newArray = Array.newInstance(this.getType().getInstanceClass(), elementIndex + 1);
+                Object newArray = Array.newInstance(arrayType.getInstanceClass(), elementIndex + 1);
 
                 int oldArryLeng = Array.getLength(v);
                 for (int i = 0; i < oldArryLeng; i++) {
