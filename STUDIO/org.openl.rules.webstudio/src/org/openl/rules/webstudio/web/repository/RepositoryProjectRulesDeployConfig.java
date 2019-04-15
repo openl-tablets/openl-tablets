@@ -45,6 +45,7 @@ public class RepositoryProjectRulesDeployConfig {
     private RulesDeployGuiWrapper rulesDeploy;
     private UserWorkspaceProject lastProject;
     private String lastBranch;
+    private String version;
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
@@ -57,13 +58,17 @@ public class RepositoryProjectRulesDeployConfig {
 
     public RulesDeployGuiWrapper getRulesDeploy() {
         UserWorkspaceProject project = getProject();
-        if (lastProject != project || lastBranch != null && !lastBranch.equals(project.getBranch())) {
+        if (project == null) {
+            return null;
+        }
+
+        if (lastProject != project
+                || StringUtils.notEquals(lastBranch, project.getBranch())
+                || StringUtils.notEquals(version, project.getHistoryVersion())) {
             rulesDeploy = null;
             lastProject = project;
             lastBranch = project.getBranch();
-        }
-        if (project == null) {
-            return null;
+            version = project.getHistoryVersion();
         }
         if (rulesDeploy == null) {
             if (hasRulesDeploy(project)) {
