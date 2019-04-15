@@ -624,4 +624,9 @@ public class Table implements ITable {
         }
         return false;
     }
+
+    @Override
+    public int getColumnsCount() {
+        return logicalTable.getWidth();
+    }
 }

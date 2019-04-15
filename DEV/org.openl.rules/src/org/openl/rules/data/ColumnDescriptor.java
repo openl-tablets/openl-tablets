@@ -107,7 +107,11 @@ public class ColumnDescriptor {
 
     public ColumnGroupKey buildGroupKey() {
         if (field instanceof FieldChain) {
-            return new ColumnGroupKey(fieldChainTokens.length - 1, fieldChainTokens.length > 1 ? field.getName() : "this");
+            int fields = ((FieldChain) field).getFields().length;
+            if (isPrimaryKey() && ((FieldChain) field).getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
+                fields += 1;
+            }
+            return new ColumnGroupKey(fields - 1, fields > 1 ? field.getName() : "this");
         } else {
             return ColumnGroupKey.DEFAULT;
         }

@@ -36,8 +36,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private Map<String, Integer> indeces;
     private final boolean runmethod;
     private DynamicObject[] testObjects;
-    private ColumnDescriptor[] descriptors;
     private final IDataBase db;
+    private ITableModel dataModel;
+    private int columnsCount;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
@@ -56,7 +57,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         initProperties(copy.getMethodProperties());
         this.runmethod = copy.isRunmethod();
         this.testObjects = copy.getTestObjects();
-        this.descriptors = copy.getDescriptors();
+        this.dataModel = copy.getDataModel();
+        this.columnsCount = copy.getColumnsCount();
         this.setUri(copy.getUri());
     }
 
@@ -70,7 +72,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
         }
         IOpenMethod testedMethod = getTestedMethod();
-        ColumnDescriptor[] descriptors = getDescriptors();
+        ColumnDescriptor[] descriptors = getDataModel().getDescriptors();
         List<IOpenField> fields = createFieldsToTest(testedMethod, descriptors, precision);
 
         for (int i = 0; i < tests.length; i++) {
@@ -178,13 +180,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public int getColumnIndex(String columnName) {
-        ColumnDescriptor[] descriptors = getDescriptors();
+        ColumnDescriptor[] descriptors = getDataModel().getDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
             if (descriptors[i] == null) {
                 continue;
             }
             if (descriptors[i].getName().equals(columnName)) {
-                return i;
+                return descriptors[i].getColumnIdx();
             }
         }
 
@@ -193,8 +195,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public String getColumnName(int index) {
         if (index >= 0) {
-            ColumnDescriptor[] descriptors = getDescriptors();
-            return descriptors[index] == null ? null : descriptors[index].getName();
+            ColumnDescriptor descriptor = getDataModel().getDescriptor(index);
+            return descriptor == null ? null : descriptor.getName();
         } else {
             return null;
         }
@@ -202,15 +204,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public String getColumnDisplayName(int index) {
         if (index >= 0) {
-            ColumnDescriptor[] descriptors = getDescriptors();
-            return descriptors[index] == null ? null : descriptors[index].getDisplayName();
+            ColumnDescriptor descriptor = getDataModel().getDescriptor(index);
+            return descriptor == null ? null : descriptor.getDisplayName();
         } else {
             return null;
         }
     }
 
     public int getColumnsCount() {
-        return getDescriptors().length;
+        return columnsCount;
     }
 
     public IOpenMethod getTestedMethod() {
@@ -271,15 +273,16 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         super.setBoundNode(node);
     }
 
-    public ColumnDescriptor[] getDescriptors() {
+    public ITableModel getDataModel() {
         initializeTestData();
-        return descriptors;
+        return dataModel;
     }
 
     private void initializeTestData() {
-        if (descriptors == null) {
+        if (dataModel == null) {
             testObjects = (DynamicObject[]) getBoundNode().getField().getData();
-            descriptors = getBoundNode().getTable().getDataModel().getDescriptors();
+            dataModel = getBoundNode().getTable().getDataModel();
+            columnsCount = getBoundNode().getTable().getColumnsCount();
         }
     }
 
