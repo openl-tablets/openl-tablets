@@ -1,3 +1,3 @@
 ERROR: The value 'malle' is outside of valid domain 'Gender'. Valid values: [Male, Female]
-Error: Type org.openl.generated.beans.Person not present
-Error: Type org.openl.generated.beans.Person not present
+ERROR: Type org.openl.generated.beans.Person not present
+ERROR: Type org.openl.generated.beans.Person not present

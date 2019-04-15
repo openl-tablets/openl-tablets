@@ -93,6 +93,11 @@ public class DatatypeOpenClass extends ADynamicClass {
     public String getPackageName() {
         return packageName;
     }
+    
+    @Override
+    public boolean isArray() {
+        return false;
+    }
 
     /**
      * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
