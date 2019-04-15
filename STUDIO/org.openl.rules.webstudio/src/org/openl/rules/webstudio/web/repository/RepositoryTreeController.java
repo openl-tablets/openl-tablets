@@ -1252,8 +1252,9 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
 
-            if (repositoryProject.isOpenedForEditing()) {
+            if (repositoryProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
+                repositoryProject.releaseMyLock();
             }
 
             repositoryProject.openVersion(version);
@@ -1813,10 +1814,10 @@ public class RepositoryTreeController {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (selectedProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
-                selectedProject.setBranch(branch);
-            } else {
-                selectedProject.setBranch(branch);
+                selectedProject.releaseMyLock();
             }
+
+            selectedProject.setBranch(branch);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
             version = null;
