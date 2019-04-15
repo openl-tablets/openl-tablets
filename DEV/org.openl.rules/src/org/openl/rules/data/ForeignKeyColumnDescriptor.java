@@ -453,7 +453,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String columnName = foreignKey.getIdentifier();
             return foreignTable.getColumnIndex(columnName);
         } else {
-            return foreignTable.getDataModel().getDescriptors()[0].getColumnIdx();
+            ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
+            if (descriptor.isPrimaryKey()) {
+                return descriptor.getColumnIdx();
+            }
+            ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
+            if (firstColDescriptor.isPrimaryKey()) {
+                //first column is primary key for another level. So return column index for first descriptor
+                return descriptor.getColumnIdx();
+            }
+            //we don't have defined PK lets use first key as PK
+            return 0;
         }
     }
 
