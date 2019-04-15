@@ -84,20 +84,18 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         String name = data.getName();
         File file = new File(root, name);
         file.getParentFile().mkdirs();
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(file);
+
+        // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
+        // place where it was created.
+        try (FileOutputStream output = new FileOutputStream(file)) {
             IOUtils.copy(stream, output);
-            if (data.getModifiedAt() != null) {
-                if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                    log.warn("Can't set modified time to file {}", name);
-                }
-            }
-        } finally {
-            // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
-            // place where it was created.
-            IOUtils.closeQuietly(output);
         }
+        if (data.getModifiedAt() != null) {
+            if (!file.setLastModified(data.getModifiedAt().getTime())) {
+                log.warn("Can't set modified time to file {}", name);
+            }
+        }
+
         return getFileData(file);
     }
 
@@ -113,7 +111,6 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         }
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete()) {
-            ;
         }
         return deleted;
     }
@@ -292,12 +289,11 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             if (stream != null) {
                 try (FileOutputStream output = new FileOutputStream(file)) {
                     IOUtils.copy(stream, output);
-                    if (data.getModifiedAt() != null) {
-                        if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                            log.warn("Can't set modified time to file {}", data.getName());
-                        }
+                }
+                if (data.getModifiedAt() != null) {
+                    if (!file.setLastModified(data.getModifiedAt().getTime())) {
+                        log.warn("Can't set modified time to file {}", data.getName());
                     }
-
                 }
             } else {
                 FileUtils.deleteQuietly(file);

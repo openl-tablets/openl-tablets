@@ -34,7 +34,8 @@ public class FileSystemRepositoryTest {
 
     private void testRepo(FileSystemRepository repo) throws IOException {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2018, Calendar.NOVEMBER, 25);
+        calendar.set(2018, Calendar.NOVEMBER, 25, 10, 11, 12);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         assertList(repo, "", 0);
         assertSave(repo, ".override", "The original content");

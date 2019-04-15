@@ -10,12 +10,8 @@ import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SequentialXlsLoader extends XlsLoader {
-    private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
-
     public SequentialXlsLoader(IncludeSearcher includeSeeker) {
         super(includeSeeker);
     }
@@ -34,7 +30,15 @@ public class SequentialXlsLoader extends XlsLoader {
         // Opening the file by path is preferred because using an InputStream has a higher memory footprint than using a
         // File.
         // See POI documentation. For both: User API and SAX/Event API.
-        String path = getPath(workbookSourceModule);
+        String path;
+        try {
+            path = workbookSourceModule.getSourceFile().getAbsolutePath();
+        } catch (Exception ex) {
+            // No path found to the resource (file) on the native file system.
+            // The resource can be inside jar, zip, wsjar, vfs or other virtual file system.
+            // Example of such case is AlgorithmTableSpecification.xls.
+            path = null;
+        }
         try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
             List<? extends SheetDescriptor> sheets = excelReader.getSheets();
             boolean use1904Windowing = excelReader.isUse1904Windowing();
@@ -54,22 +58,4 @@ public class SequentialXlsLoader extends XlsLoader {
             return sheetNodes;
         }
     }
-
-    /**
-     * Get path on file system for xls/xlsx file. Returns null if path file isn't on file system (for example inside of
-     * jar). Example of such case is AlgorithmTableSpecification.xls.
-     *
-     * @param workbookSourceModule module to get the path
-     * @return path on file system or null if path can't be retrieved.
-     */
-    private String getPath(XlsWorkbookSourceCodeModule workbookSourceModule) {
-        String uri = workbookSourceModule.getSource().getUri();
-        log.debug("Workbook uri: {}", uri);
-        String path = null;
-        if (!uri.startsWith("jar:") && !uri.startsWith("vfs:")) {
-            path = workbookSourceModule.getSourceFile().getAbsolutePath();
-        }
-        return path;
-    }
-
 }

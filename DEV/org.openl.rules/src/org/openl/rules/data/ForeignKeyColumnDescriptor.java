@@ -52,9 +52,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             StringValue displayValue,
             OpenL openl,
             boolean constructor,
-            IdentifierNode[] fieldChainTokens) {
+            IdentifierNode[] fieldChainTokens,
+            int columnNum) {
 
-        super(field, displayValue, openl, constructor, fieldChainTokens);
+        super(field, displayValue, openl, constructor, fieldChainTokens, columnNum, false);
 
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
@@ -165,7 +166,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             if (foreignKeyColumnChainTokens.length == 0) {
                 foreignKeyColumnChainTokens = ArrayUtils.add(foreignKeyColumnChainTokens,
                     foreignTable.getColumnName(foreignKeyIndex));
-                ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
+                ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor(foreignKeyIndex);
                 if (foreignColumnDescriptor
                         .isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
                     // In the case when foreign key is like: ">policies.driver"
@@ -448,14 +449,22 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private int getForeignKeyIndex(ITable foreignTable) {
-        int foreignKeyIndex = 0;
-
         if (foreignKey != null) {
             String columnName = foreignKey.getIdentifier();
-            foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+            return foreignTable.getColumnIndex(columnName);
+        } else {
+            ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
+            if (descriptor.isPrimaryKey()) {
+                return descriptor.getColumnIdx();
+            }
+            ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
+            if (firstColDescriptor.isPrimaryKey()) {
+                //first column is primary key for another level. So return column index for first descriptor
+                return descriptor.getColumnIdx();
+            }
+            //we don't have defined PK lets use first key as PK
+            return 0;
         }
-
-        return foreignKeyIndex;
     }
 
     public DomainOpenClass getDomainClassForForeignTable(IDataBase db) throws SyntaxNodeException {
