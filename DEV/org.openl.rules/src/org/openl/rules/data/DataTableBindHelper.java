@@ -446,7 +446,8 @@ public class DataTableBindHelper {
                     accessorChainTokens,
                     foreignKeyCell,
                     header,
-                    fieldAccessorChainTokens);
+                    fieldAccessorChainTokens,
+                    columnNum);
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
             }
@@ -576,7 +577,8 @@ public class DataTableBindHelper {
             IdentifierNode[] foreignKeyTableAccessorChainTokens,
             ICell foreignKeyCell,
             StringValue header,
-            IdentifierNode[] fieldChainTokens) {
+            IdentifierNode[] fieldChainTokens,
+            int columnNum) {
         ColumnDescriptor currentColumnDescriptor;
 
         if (foreignKeyTable != null) {
@@ -588,7 +590,8 @@ public class DataTableBindHelper {
                 header,
                 openl,
                 constructorField,
-                fieldChainTokens);
+                fieldChainTokens,
+                columnNum);
         } else {
             boolean primaryKey = fieldChainTokens.length > 0
                     && FPK.equals(fieldChainTokens[fieldChainTokens.length - 1].getIdentifier());
@@ -597,6 +600,7 @@ public class DataTableBindHelper {
                 openl,
                 constructorField,
                 fieldChainTokens,
+                columnNum,
                 primaryKey);
         }
         return currentColumnDescriptor;

@@ -39,17 +39,15 @@ public class OpenlBasedDataTableModel implements ITableModel {
     }
 
     private static ColumnDescriptor[] initializeDescriptors(ColumnDescriptor[] descriptors) {
-        //group descriptors and put PK columns in first position of each group
+        //group descriptors by KEY and put PK columns in first position of each group
         int cntDescriptors = 0;
-        Map<ColumnDescriptor.Key, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
-        for (int i = 0; i < descriptors.length; i++) {
-            ColumnDescriptor descriptor = descriptors[i];
+        Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
+        for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor == null) {
                 continue;
             }
             cntDescriptors++;
-            descriptor.setColumnIdx(i);
-            ColumnDescriptor.Key key = descriptor.getKey();
+            ColumnDescriptor.ColumnGroupKey key = descriptor.buildGroupKey();
             List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
             if (descriptor.isPrimaryKey()) {
                 descriptorsByKey.add(0, descriptor);
@@ -58,15 +56,13 @@ public class OpenlBasedDataTableModel implements ITableModel {
             }
         }
 
+        //transform map to flat array and keep order
         ColumnDescriptor[] res = new ColumnDescriptor[cntDescriptors];
         int i = 0;
-        for (Map.Entry<ColumnDescriptor.Key, List<ColumnDescriptor>> e : descriptorGroups.entrySet()) {
-            ColumnDescriptor.Key key = e.getKey();
+        for (Map.Entry<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> e : descriptorGroups.entrySet()) {
+            ColumnDescriptor.ColumnGroupKey key = e.getKey();
             for (ColumnDescriptor descriptor : e.getValue()) {
-                if (descriptor.isPrimaryKey()) {
-                    key.setHasPkColumn(true);
-                }
-                descriptor.setKey(key);
+                descriptor.setGroupKey(key);
                 res[i] = descriptor;
                 i++;
             }
