@@ -25,6 +25,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
     private OpenL openl;
     private ColumnDescriptor[] columnDescriptors;
     private boolean hasColumnTitleRow;
+    private final int columnCount;
 
     public OpenlBasedDataTableModel(String name,
             IOpenClass type,
@@ -34,6 +35,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
         this.name = name;
         this.type = type;
         this.openl = openl;
+        this.columnCount = columnDescriptor.length; // original size of col descriptors
         this.columnDescriptors = initializeDescriptors(columnDescriptor);
         this.hasColumnTitleRow = hasColumnTitleRow;
     }
@@ -108,5 +110,10 @@ public class OpenlBasedDataTableModel implements ITableModel {
             }
         }
         return null;
+    }
+
+    @Override
+    public int getColumnCount() {
+        return columnCount;
     }
 }

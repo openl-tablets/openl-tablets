@@ -8,6 +8,7 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.syntax.impl.IdentifierNode;
@@ -24,19 +25,17 @@ public class TestDescription {
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
     private int index;
-    private ColumnDescriptor[] columnDescriptors;
     private List<IOpenField> fields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
             DynamicObject testObject,
             List<IOpenField> fields,
-            ColumnDescriptor[] columnDescriptors,
+            ITableModel dataModel,
             IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
         this.fields = fields;
-        this.columnDescriptors = columnDescriptors;
-        executionParams = initExecutionParams(testedMethod, testObject, db, columnDescriptors);
+        executionParams = initExecutionParams(testedMethod, testObject, db, dataModel);
     }
 
     public TestDescription(IOpenMethod testedMethod, Object[] arguments, IDataBase db) {
@@ -102,7 +101,7 @@ public class TestDescription {
     private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod,
             DynamicObject testObject,
             IDataBase db,
-            ColumnDescriptor[] columnDescriptors) {
+            ITableModel dataModel) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
             .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
@@ -110,7 +109,7 @@ public class TestDescription {
             Object paramValue = testObject.getFieldValue(paramName);
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
 
-            IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, columnDescriptors);
+            IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, dataModel);
 
             executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, paramType, keyField);
         }
@@ -190,10 +189,6 @@ public class TestDescription {
         return index;
     }
 
-    public ColumnDescriptor[] getColumnDescriptors() {
-        return columnDescriptors;
-    }
-
     public List<IOpenField> getFields() {
         return fields;
     }
@@ -202,13 +197,14 @@ public class TestDescription {
             IOpenClass type,
             Object value,
             IDataBase db,
-            ColumnDescriptor[] columnDescriptors) {
+            ITableModel dataModel) {
         if (value == null) {
             return null;
         }
         IOpenField foreignKeyField = null;
-        if (columnDescriptors != null) {
-            for (ColumnDescriptor columnDescriptor : columnDescriptors) {
+        if (dataModel != null) {
+            for (int colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
+                ColumnDescriptor columnDescriptor = dataModel.getDescriptor(colNum);
                 if (columnDescriptor == null) {
                     continue;
                 }

@@ -40,6 +40,15 @@ public abstract class UserWorkspaceProject extends AProject {
         return isLockedByUser(lockInfo, user);
     }
 
+    /**
+     * Unlocks the project only if it's locked by current user. Otherwise do nothing.
+     */
+    public void releaseMyLock() throws ProjectException {
+        if (isLockedByMe()) {
+            unlock();
+        }
+    }
+
     public boolean isLocalOnly() {
         return false;
     }
@@ -120,9 +129,6 @@ public abstract class UserWorkspaceProject extends AProject {
             refresh();
             getFileData(); // Reinitialize file data
             if (opened) {
-                if (isLockedByMe()) {
-                    unlock();
-                }
                 // Update files
                 open();
             }
