@@ -1590,6 +1590,8 @@ public final class DecisionTableHelper {
             sb.append(d);
         } else {
             sb.append(StringUtils.SPACE);
+            sb.append("/");
+            sb.append(StringUtils.SPACE);
             sb.append(d);
         }
         if (h + h0 < firstColumnHeight) {
@@ -1623,7 +1625,7 @@ public final class DecisionTableHelper {
                         assert (methodChains[j] != null);
                         dtHeaders.add(new FuzzyDTHeader(-1,
                             null,
-                            tokenizedTitleString,
+                            sb.toString(),
                             methodChains[j],
                             sourceTableColumn + w,
                             w0,
@@ -1751,6 +1753,7 @@ public final class DecisionTableHelper {
             List<Integer> usedIndexes,
             Set<Integer> usedParameterIndexes,
             List<List<DTHeader>> fits,
+            Set<Integer> failedToFit,
             int numberOfReturns,
             int fuzzyReturnsFlag) {
         if (fits.size() > FITS_MAX_LIMIT) {
@@ -1770,6 +1773,7 @@ public final class DecisionTableHelper {
                 return;
             }
         }
+        boolean last = true;
         for (Integer index : indexes) {
             boolean f = true;
             for (Integer usedIndex : usedIndexes) {
@@ -1779,7 +1783,6 @@ public final class DecisionTableHelper {
                 }
             }
             if (f) {
-                usedIndexes.add(index);
                 DTHeader dtHeader = dtHeaders.get(index);
                 boolean isFuzzyReturn = false;
                 if (dtHeader instanceof FuzzyDTHeader) {
@@ -1796,6 +1799,8 @@ public final class DecisionTableHelper {
                     usedParameterIndexesTo.add(i);
                 }
                 if (usedParameterIndexesTo.size() <= numberOfVConditionParameters) {
+                    last = false;
+                    usedIndexes.add(index);
                     bruteForceHeaders(column + dtHeader.getWidth(),
                         numberOfVConditionParameters,
                         dtHeaders,
@@ -1804,10 +1809,17 @@ public final class DecisionTableHelper {
                         usedIndexes,
                         usedParameterIndexesTo,
                         fits,
+                        failedToFit,
                         dtHeader.isReturn() && !isFuzzyReturn ? numberOfReturns + 1 : numberOfReturns,
                         isFuzzyReturn && fuzzyReturnsFlag != 1 ? fuzzyReturnsFlag + 1 : fuzzyReturnsFlag);
+                    usedIndexes.remove(usedIndexes.size() - 1);
                 }
-                usedIndexes.remove(usedIndexes.size() - 1);
+
+            }
+        }
+        if (indexes != null && !indexes.isEmpty() && last) {
+            for (Integer index : indexes) {
+                failedToFit.add(index);
             }
         }
     }
@@ -1929,7 +1941,7 @@ public final class DecisionTableHelper {
     }
 
     private static List<DTHeader> optimizeDtHeaders(List<DTHeader> dtHeaders) {
-        //Remove headers that intersect with declared dt header if declared dt header is matched 100%
+        // Remove headers that intersect with declared dt header if declared dt header is matched 100%
         boolean[] f = new boolean[dtHeaders.size()];
         Arrays.fill(f, false);
         for (int i = 0; i < dtHeaders.size() - 1; i++) {
@@ -1974,13 +1986,15 @@ public final class DecisionTableHelper {
         return ret;
     }
 
-    private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
+    private static List<DTHeader> fitDtHeaders(DecisionTable decisionTable,
+            TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
             List<DTHeader> simpleDtHeaders,
             int numberOfParameters,
             int numberOfHcondition,
             boolean twoColumnsForReturn,
+            int firstColumnHeight,
             IBindingContext bindingContext) {
         dtHeaders = optimizeDtHeaders(dtHeaders);
         int numberOfParametersForVCondition = numberOfParameters - numberOfHcondition;
@@ -2002,6 +2016,7 @@ public final class DecisionTableHelper {
             }
         }
         List<List<DTHeader>> fits = new ArrayList<>();
+        Set<Integer> failedToFit = new HashSet<>();
         bruteForceHeaders(0,
             numberOfParametersForVCondition,
             dtHeaders,
@@ -2010,6 +2025,7 @@ public final class DecisionTableHelper {
             new ArrayList<>(),
             new HashSet<>(),
             fits,
+            failedToFit,
             0,
             0);
         if (fits.size() > FITS_MAX_LIMIT) {
@@ -2082,6 +2098,25 @@ public final class DecisionTableHelper {
 
         if (numberOfHcondition == 0 && fits.isEmpty()) {
             fits.add(Collections.unmodifiableList(simpleDtHeaders));
+            final List<DTHeader> dths = dtHeaders;
+            OptionalInt c = failedToFit.stream().mapToInt(e -> dths.get(e).getColumn()).max();
+            StringBuilder message = new StringBuilder();
+            if (c.isPresent()) {
+                int c0 = c.getAsInt();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < firstColumnHeight; i++) {
+                    if (i > 0) {
+                        sb.append(StringUtils.SPACE);
+                        sb.append("/");
+                        sb.append(StringUtils.SPACE);
+                    }
+                    sb.append(originalTable.getCell(c0, i).getStringValue());
+                }
+                message.append("There is no match for column '" + sb.toString() + "'.");
+                message.append(StringUtils.SPACE);
+            }
+            message.append("The table is compiled as SimpleRules.");
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message.toString(), tableSyntaxNode));
         }
 
         if (!fits.isEmpty()) {
@@ -2263,13 +2298,15 @@ public final class DecisionTableHelper {
             i++;
         }
 
-        List<DTHeader> fit = fitDtHeaders(tableSyntaxNode,
+        List<DTHeader> fit = fitDtHeaders(decisionTable,
+            tableSyntaxNode,
             originalTable,
             dtHeaders,
             simpleDtHeaders,
             decisionTable.getSignature().getNumberOfParameters(),
             numberOfHcondition,
             twoColumnsForReturn,
+            firstColumnHeight,
             bindingContext);
 
         if (numberOfHcondition > 0) {
