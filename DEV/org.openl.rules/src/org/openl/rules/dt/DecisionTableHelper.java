@@ -411,11 +411,14 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static void writeReturnMetaInfo(TableSyntaxNode tableSyntaxNode, ICell cell, String description) {
+    private static void writeReturnMetaInfo(TableSyntaxNode tableSyntaxNode,
+            ICell cell,
+            String description,
+            String uri) {
         MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
-            metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
+            metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description, uri);
         }
     }
 
@@ -554,7 +557,10 @@ public final class DecisionTableHelper {
                         DecisionTableMetaInfoReader.appendParameters(sb,
                             localParameterNames.toArray(new String[] {}),
                             typeOfColumns.toArray(new IOpenClass[] {}));
-                        writeReturnMetaInfo(tableSyntaxNode, cell, sb.toString());
+                        writeReturnMetaInfo(tableSyntaxNode,
+                            cell,
+                            sb.toString(),
+                            declaredReturn.getMatchedDefinition().getDtColumnsDefinition().getUri());
                     }
                     break;
                 }
@@ -794,7 +800,7 @@ public final class DecisionTableHelper {
                 }
                 DecisionTableMetaInfoReader.appendParameters(sb1, null, new IOpenClass[] { type });
 
-                writeReturnMetaInfo(tableSyntaxNode, cell, sb1.toString());
+                writeReturnMetaInfo(tableSyntaxNode, cell, sb1.toString(), null);
             }
             i++;
         }
@@ -837,7 +843,7 @@ public final class DecisionTableHelper {
             }
             DecisionTableMetaInfoReader
                 .appendParameters(sb, null, new IOpenClass[] { decisionTable.getHeader().getType() });
-            writeReturnMetaInfo(tableSyntaxNode, cell, sb.toString());
+            writeReturnMetaInfo(tableSyntaxNode, cell, sb.toString(), null);
         }
 
         if (simpleReturnDTHeader.getWidth() > 1) {
@@ -987,7 +993,8 @@ public final class DecisionTableHelper {
                         header,
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
-                        typeOfColumns.toArray(new IOpenClass[] {}));
+                        typeOfColumns.toArray(new IOpenClass[] {}),
+                        dtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
                 } else if (dtHeader.isCondition()) {
                     writeMetaInfoForVCondition(originalTable,
                         decisionTable,
@@ -996,6 +1003,7 @@ public final class DecisionTableHelper {
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
                         typeOfColumns.toArray(new IOpenClass[] {}),
+                        dtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri(),
                         null);
                 }
             }
@@ -1172,6 +1180,7 @@ public final class DecisionTableHelper {
                                 (minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER),
                                 statement,
                                 new IOpenClass[] { type, type },
+                                null,
                                 null);
                         }
                         if (condition.getWidth() > 1) {
@@ -1200,6 +1209,7 @@ public final class DecisionTableHelper {
                                 null,
                                 condition.getStatement(),
                                 new IOpenClass[] { typeOfValue.getRight() },
+                                null,
                                 null);
                         }
                         if (condition.getWidth() > 1) {
@@ -1225,6 +1235,7 @@ public final class DecisionTableHelper {
             String[] parameterNames,
             String conditionStatement,
             IOpenClass[] typeOfColumns,
+            String url,
             String additionalDetails) {
         assert (header != null);
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
@@ -1237,6 +1248,7 @@ public final class DecisionTableHelper {
                 parameterNames,
                 conditionStatement,
                 typeOfColumns,
+                url,
                 additionalDetails);
         }
     }
@@ -1247,7 +1259,8 @@ public final class DecisionTableHelper {
             String header,
             String[] parameterNames,
             String conditionStatement,
-            IOpenClass[] typeOfColumns) {
+            IOpenClass[] typeOfColumns,
+            String url) {
         assert (header != null);
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
@@ -1259,6 +1272,7 @@ public final class DecisionTableHelper {
                 parameterNames,
                 conditionStatement,
                 typeOfColumns,
+                url,
                 null);
         }
     }
@@ -1284,6 +1298,7 @@ public final class DecisionTableHelper {
                         decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
                         new IOpenClass[] {
                                 decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()) },
+                        null,
                         null);
                 }
                 column = column + cell.getWidth();

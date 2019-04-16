@@ -17,6 +17,7 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
@@ -113,9 +114,17 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public void removeDebugInformation(IBindingContext cxt) {
     }
 
-    protected abstract void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
+    protected abstract DTColumnsDefinition createDefinition(
+            Map<String, List<IParameterDeclaration>> parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod);
+
+    protected final void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
+            IOpenMethodHeader header,
+            CompositeMethod compositeMethod) {
+        DTColumnsDefinition definition = createDefinition(parameterDeclarations, header, compositeMethod);
+        getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(definition);
+    }
 
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
         Set<String> headerTokens = new HashSet<>();
@@ -388,4 +397,5 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 cell.getStringValue());
         }
     }
+
 }

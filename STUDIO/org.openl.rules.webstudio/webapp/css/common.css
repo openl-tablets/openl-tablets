@@ -582,7 +582,8 @@ ul.enum li {
     text-align: left;
 }
 
-.title-datatype > a,
+.title-datatype > a, 
+.title-otherunderlined > a,
 .title-data > a {
     color: inherit;
     text-decoration: none;

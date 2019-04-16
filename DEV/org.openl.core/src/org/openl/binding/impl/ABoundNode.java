@@ -47,7 +47,7 @@ public abstract class ABoundNode implements IBoundNode {
         }
     }
 
-    abstract protected Object evaluateRuntime(IRuntimeEnv env) throws Exception;
+    protected abstract Object evaluateRuntime(IRuntimeEnv env) throws Exception;
 
     @Override
     public IOpenClass getType() {
