@@ -7,6 +7,7 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -30,16 +31,18 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
         assert cxt instanceof RulesModuleBindingContext;
 
-        ADtColumnsDefinitionTableBoundNode action = makeNode(tsn, module, openl, cxt);
+        ADtColumnsDefinitionTableBoundNode aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl, cxt);
 
         String tableName = parseHeader(tsn);
         if (tableName == null) {
             tableName = tableNamePrefix + tsn.getUri();
         }
 
-        action.setTableName(tableName);
+        aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
+        
+        tsn.setMetaInfoReader(new DtColumnsDefinitionMetaInfoReader(aDtColumnsDefinitionTableBoundNode));
 
-        return action;
+        return aDtColumnsDefinitionTableBoundNode;
     }
 
     /**
