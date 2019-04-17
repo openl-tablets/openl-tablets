@@ -136,6 +136,8 @@
                         <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
                         <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
                     </h:selectOneMenu>
+                    <input type="button" value="..." title="Edit project branches"
+                           onclick="openEditBranchesDialog('#{node.name}');"/>
                 </td>
             </tr>
             </h:panelGroup>

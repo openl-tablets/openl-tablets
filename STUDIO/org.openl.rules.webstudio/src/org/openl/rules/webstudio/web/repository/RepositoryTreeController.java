@@ -6,6 +6,7 @@ import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_SE
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -1827,12 +1828,17 @@ public class RepositoryTreeController {
     }
 
     public List<SelectItem> getProjectBranches() {
-        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        try {
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
-                .getRepository()).getBranches(selectedProject.getName());
+            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
+                    .getRepository()).getBranches(selectedProject.getName());
 
-        return Arrays.asList(FacesUtils.createSelectItems(branches));
+            return Arrays.asList(FacesUtils.createSelectItems(branches));
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     public TreeNode getSelectedNode() {

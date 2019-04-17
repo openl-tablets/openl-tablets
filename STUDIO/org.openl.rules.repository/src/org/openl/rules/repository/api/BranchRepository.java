@@ -10,7 +10,7 @@ public interface BranchRepository extends Repository {
 
     void deleteBranch(String projectName, String branch) throws IOException;
 
-    List<String> getBranches(String projectName);
+    List<String> getBranches(String projectName) throws IOException;
 
     BranchRepository forBranch(String branch) throws IOException;
 }

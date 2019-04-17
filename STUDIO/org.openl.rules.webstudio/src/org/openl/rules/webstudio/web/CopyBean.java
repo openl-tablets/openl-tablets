@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -237,7 +238,7 @@ public class CopyBean {
             Repository designRepository = designTimeRepository.getRepository();
             Collection<String> branches = ((BranchRepository) designRepository).getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
-        } catch (WorkspaceException ignored) {
+        } catch (WorkspaceException | IOException ignored) {
         }
 
     }
