@@ -114,11 +114,11 @@ public class DecisionTableHelper {
      */
     public static boolean looksLikeVertical(ILogicalTable table) {
 
-        if (table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
         }
 
-        if (table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return false;
         }
 
