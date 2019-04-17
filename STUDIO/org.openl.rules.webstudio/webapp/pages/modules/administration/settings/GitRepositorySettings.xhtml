@@ -9,7 +9,7 @@
 
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputText value="URL:" styleClass="required"/>
-        <h:inputText value="#{settings.uri}" styleClass="pathInput" id="#{prependId}gitUri" validator="#{validators.url}"/>
+        <h:inputText value="#{settings.uri}" id="#{prependId}gitUri" validator="#{validators.url}"/>
         <h:outputText value=""/>
         <h:message for="#{prependId}gitUri" styleClass="error"/>
         <h:outputText value="Login:"/>
