@@ -127,13 +127,13 @@
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
                             acceptedTypes="xls, xlsx, xlsm" />
 
-                        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
 
-                        <h:outputLabel for="projectFolderExcel" value="Path in repository"
+                        <h:outputLabel for="projectFolderExcel" value="Path in repository:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                         <h:inputText id="projectFolderExcel" size="35"
                                      value="#{repositoryTreeController.projectFolder}"
@@ -141,7 +141,7 @@
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
-                        <h:outputLabel for="commentExcel" value="Comment" rendered="#{useCustomComment}"/>
+                        <h:outputLabel for="commentExcel" value="Comment:" rendered="#{useCustomComment}"/>
                         <h:inputTextarea id="commentExcel"
                                          rendered="#{useCustomComment}"
                                          value="#{repositoryTreeController.createProjectComment}"
@@ -173,13 +173,13 @@
                                 oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
                     </rich:fileUpload>
 
-                    <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                    <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                     <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
 
-                    <h:outputLabel for="projectFolderZip" value="Path in repository"
+                    <h:outputLabel for="projectFolderZip" value="Path in repository:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:inputText id="projectFolderZip" size="35"
                                  value="#{repositoryTreeController.projectFolder}"
@@ -187,7 +187,7 @@
 
                     <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
-                    <h:outputLabel for="commentZip" value="Comment" rendered="#{useCustomComment}"/>
+                    <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
                     <h:inputTextarea id="commentZip"
                                      rendered="#{useCustomComment}"
                                      value="#{repositoryTreeController.createProjectComment}"
