@@ -9,7 +9,7 @@ optgroup {
     font-style: normal;
 }
 
-input[type='text'], input[type='password'], textarea, select {
+input[type='text'], input[type='password'], textarea {
     border-width: 1px;
     border-style: solid;
     border-color: #c7c7c7 #d5d5d5 #d5d5d5 #c7c7c7;
@@ -19,7 +19,26 @@ input[type='text'], input[type='password'], textarea, select {
     margin-left: 0;
     margin-right: 0;
     padding: 3px;
-    width:138px;
+    width: 350px;
+    height: 15px;
+    font-size: 100%;
+    box-sizing:content-box;
+    -ms-box-sizing:content-box;
+    -moz-box-sizing:content-box;
+    -webkit-box-sizing:content-box;
+}
+
+select {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #c7c7c7 #d5d5d5 #d5d5d5 #c7c7c7;
+    border-radius: 1px;
+    background: #ffffff;
+    color: #333;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 3px;
+    width: 220px;
     height: 15px;
     font-size: 100%;
     box-sizing:content-box;

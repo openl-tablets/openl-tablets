@@ -8,7 +8,7 @@
     xmlns:authz="http://rules.openl.org/taglibs/acegi">
 
     <f:view transient="#{module=='rules' ? true : false}">
-    <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
+    <rich:popupPanel id="modalUserProfile" width="500" autosized="true">
         <f:facet name="header">User Profile</f:facet>
 
         <f:facet name="controls">
@@ -24,7 +24,7 @@
                             <h3>Account</h3>
                             <div>
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>Username</label>
+                                    <label>Username:</label>
                                     <h:panelGroup rendered="#{systemConfig['user.mode'] == 'multi'}">
                                     <h:outputText id="username" style="font-weight: bold" value="#{userProfileBean.user.username}"/>
                                     <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
@@ -40,13 +40,13 @@
                             <h3>Name</h3>
                             <div>
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>First Name</label>
+                                    <label>First Name:</label>
                                     <h:inputText id="firstName" value="#{userProfileBean.firstName}" valueChangeListener="#{userProfileBean.firstNameListener}" />
                                     <a4j:outputPanel ajaxRendered="false" id="firstNameError">
                                         <h:message for="firstName" styleClass="error" />
                                     </a4j:outputPanel>
 
-                                    <label>Last Name</label>
+                                    <label>Last Name:</label>
                                     <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}" />
                                     <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                                         <h:message for="lastName" styleClass="error" />
@@ -62,11 +62,11 @@
                                 <table>
                                     <tbody>
                                         <tr>
-                                            <td class="titleColumn"><label>First Name</label></td>
+                                            <td class="titleColumn"><label>First Name:</label></td>
                                             <td><span style="font-weight: bold" class="firstname">#{userProfileBean.firstName}</span></td>
                                         </tr>
                                         <tr>
-                                            <td class="titleColumn"><label>Last Name</label></td>
+                                            <td class="titleColumn"><label>Last Name:</label></td>
                                             <td><span style="font-weight: bold" class="lastname">#{userProfileBean.lastName}</span></td>
                                         </tr>
                                     </tbody>
@@ -86,20 +86,20 @@
                             </div>
 
                                 <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>Current password</label>
+                                    <label>Current password:</label>
                                     <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" autocomplete="off" />
                                     <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
                                         <h:message for="currentPassword" styleClass="error" />
                                     </a4j:outputPanel>
 
-                                    <label>New password</label>
+                                    <label>New password:</label>
                                     <h:inputSecret  id="newPassword" value="#{userProfileBean.newPassword}" validator="#{userProfileBean.passwordsValidator}" >
                                         <f:attribute name="confirmPassword" value="#{confirmPassword}" />
                                         <f:attribute name="currentPassword" value="#{currentPassword}" />
                                     </h:inputSecret>
                                    <h:outputText value="" />
 
-                                    <label>Confirm password</label>
+                                    <label>Confirm password:</label>
                                     <h:inputSecret  id="confirmPassword" value="#{userProfileBean.confirmPassword}" binding="#{confirmPassword}" />
                                     <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
                                         <h:message for="confirmPassword" styleClass="error" />
@@ -117,7 +117,7 @@
                                 <h3>Project Settings</h3>
                                 <div>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
-                                        <label>View project in Single module mode</label>
+                                        <label>View project in Single module mode:</label>
                                         <h:selectBooleanCheckbox id="singleModuleMode" value="#{studio.singleModuleModeByDefault}" />
                                     </h:panelGrid>
                                 </div>
@@ -127,9 +127,9 @@
                             <h3>Table Settings</h3>
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Show Header</label>
+                                    <label>Show Header:</label>
                                     <h:selectBooleanCheckbox id="showHeader" value="#{studio.showHeader}" />
-                                    <label>Show Formulas</label>
+                                    <label>Show Formulas:</label>
                                     <h:selectBooleanCheckbox id="showFormulas" value="#{studio.showFormulas}" />
                                 </h:panelGrid>
                             </div>
@@ -138,7 +138,7 @@
                             <h3>Testing Settings</h3>
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Tests per page</label>
+                                    <label>Tests per page:</label>
                                     <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
                                         <f:selectItem itemLabel="1" itemValue="1" />
                                         <f:selectItem itemLabel="5" itemValue="5" />
@@ -146,14 +146,14 @@
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
 
-                                    <label>Failures Only</label>
+                                    <label>Failures Only:</label>
                                     <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}"
                                                              onclick="$j('#userProfileForm\\:caseFailures').toggle(this.checked);"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2" columnClasses="titleColumn" id="caseFailures" styleClass="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
                                     <h:panelGroup id="caseFailuresSetting">
-                                        <label id="caseFailuresSettingLabel">Failures per test</label>
+                                        <label id="caseFailuresSettingLabel">Failures per test:</label>
                                     </h:panelGroup>
                                     <h:selectOneMenu id="caseFailuresSettingValue" value="#{studio.testsFailuresPerTest}">
                                         <f:selectItem itemLabel="1" itemValue="1" />
@@ -164,7 +164,7 @@
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Compound Result</label>
+                                    <label>Compound Result:</label>
                                     <h:selectBooleanCheckbox id="showComplexResult" value="#{studio.showComplexResult}" />
                                 </h:panelGrid>
                             </div>

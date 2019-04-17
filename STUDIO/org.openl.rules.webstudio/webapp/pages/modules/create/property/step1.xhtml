@@ -18,7 +18,7 @@
         <h:form prependId="false">
         <table><tr><td>
             <h:panelGrid columns="2" cellspacing="5">
-                <h:outputText value="Scope" styleClass="required" />
+                <h:outputText value="Scope:" styleClass="required" />
                 <h:selectOneMenu id="scopeType" value="#{wizard.scopeType}"
                     onchange="updateCategoryNameModule()">
                     <f:selectItems value="#{wizard.scopeTypes}" />
@@ -27,7 +27,7 @@
             </td></tr>
             <tr><td>
             <div id="categoryNameModule" style="display: none; padding-left: 6px">
-                <span>Target Category</span>
+                <span>Target Category:</span>
                 <h:panelGrid columns="2">
                     <h:selectOneRadio id="categoryNameSelector" value="#{wizard.categoryNameSelector}"
                         layout="pageDirection" onchange="updateCategoryNameControls()">
