@@ -22,7 +22,7 @@
         <h:form id="diffForm" rendered="#{!param.disableUpload}">
             <div id="diffFormPanel">
                 <h:panelGrid columns="2">
-                    <h:outputText value="#{msg['ws.compare.select']}" />
+                    <h:outputText value="#{msg['ws.compare.select']}:" />
 
                     <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
@@ -30,7 +30,7 @@
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>
 
-                    <h:outputText value="#{msg['ws.compare.equals']}" />
+                    <h:outputText value="#{msg['ws.compare.equals']}:" />
                     <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualElements}" />
 
                     <h:commandButton id="compareButton" value="#{msg['ws.compare.compare']}" action="#{uploadExcelDiffController.compare}"

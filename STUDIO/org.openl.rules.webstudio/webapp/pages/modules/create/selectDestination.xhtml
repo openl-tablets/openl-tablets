@@ -12,7 +12,7 @@
 
     <h:form id="destForm" prependId="false">
       <h:panelGrid columns="2">
-        <h:outputText value="Module" styleClass="required" />
+        <h:outputText value="Module:" styleClass="required" />
         <h:selectOneMenu value="#{wizard.workbook}" disabled="#{!wizard.manyWorkbooks}">
           <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
           <f:selectItems value="#{wizard.workbooks}"/>
@@ -22,7 +22,7 @@
         <br/>
 
       <h:panelGrid columns="2">
-        <h:outputText value="Category" styleClass="required" />
+        <h:outputText value="Category:" styleClass="required" />
         <h:outputText value="" />
         <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}"
             layout="pageDirection">

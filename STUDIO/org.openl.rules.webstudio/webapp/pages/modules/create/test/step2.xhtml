@@ -10,7 +10,7 @@
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="3" cellspacing="5">
-                <h:outputText value="Name" styleClass="required" />
+                <h:outputText value="Name:" styleClass="required" />
                 <h:inputText id="technicalName" value="#{wizard.technicalName}" 
                 validator="#{wizard.validateTechnicalName}" immediate="true" />
                 <a4j:outputPanel ajaxRendered="true">

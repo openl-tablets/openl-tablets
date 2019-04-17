@@ -11,7 +11,7 @@
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="3" cellspacing="5">
-                <h:outputText value="Type" styleClass="required" />
+                <h:outputText value="Type:" styleClass="required" />
                 <h:selectOneMenu id="tableType" value="#{wizard.tableType}">
                     <f:selectItems value="#{wizard.domainTypes}" />
                 </h:selectOneMenu>
@@ -19,7 +19,7 @@
                     <h:message for="tableType" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:outputText value="Name" styleClass="required" />
+                <h:outputText value="Name:" styleClass="required" />
                 <h:inputText id="tableName" value="#{wizard.tableName}" validator="#{wizard.validateTechnicalName}" />
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="tableName" styleClass="error" />
