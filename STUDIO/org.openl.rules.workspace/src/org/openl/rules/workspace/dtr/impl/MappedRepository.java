@@ -289,7 +289,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public List<String> getBranches(String projectName) {
+    public List<String> getBranches(String projectName) throws IOException {
         return ((BranchRepository) delegate).getBranches(projectName);
     }
 
