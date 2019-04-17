@@ -13,7 +13,7 @@
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="2" rendered="#{not empty wizard.decisionTables}" cellspacing="5">
-                <h:outputText value="Table" styleClass="required" />
+                <h:outputText value="Table:" styleClass="required" />
                 <h:selectOneMenu value="#{wizard.selectedTable}">
                     <f:selectItems value="#{wizard.decisionTables}" />
                 </h:selectOneMenu>

@@ -486,7 +486,7 @@
                                         <h:selectBooleanCheckbox value="#{systemSettingsBean.runTestsInParallel}" title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature" onclick="changeRunTestsInParallel(this)"/>
                                     </h:panelGrid>
                                     <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
-                                        <h:outputText value="Thread number for tests" />
+                                        <h:outputText value="Thread number for tests:" />
                                         <h:inputText value="#{systemSettingsBean.testRunThreadCount}"
                                                      validator="#{validator.testRunThreadCountValidator}"/>
                                     </h:panelGrid>

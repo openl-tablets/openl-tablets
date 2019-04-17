@@ -22,15 +22,15 @@
       <h:commandLink value="Add more" action="#{wizard.addReturnParameter}"><h:graphicImage value="/images/add_obj.gif" alt="" /></h:commandLink>
       <h:dataTable var="p" value="#{wizard.returnValue.parameters}" id="paramTable">
         <h:column>
-          <f:facet name="header"><h:outputText value="Business Name"/></f:facet>
+          <f:facet name="header"><h:outputText value="Business Name:"/></f:facet>
           <h:inputText value="#{p.businessName}" id="pname"/>
         </h:column>
         <h:column>
-          <f:facet name="header"><h:outputText value="Technical Name"/></f:facet>
+          <f:facet name="header"><h:outputText value="Technical Name:"/></f:facet>
           <h:inputText value="#{p.name}" id="tname"/>
         </h:column>
         <h:column>
-          <f:facet name="header"><h:outputText value="Type"/></f:facet>
+          <f:facet name="header"><h:outputText value="Type:"/></f:facet>
           <h:selectOneMenu value="#{p.type}" id="type">
             <f:selectItems value="#{wizard.domainTypes}"/>
           </h:selectOneMenu>

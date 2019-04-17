@@ -11,14 +11,14 @@
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="3" cellspacing="5">
-                <h:outputText value="Name" styleClass="required" />
+                <h:outputText value="Name:" styleClass="required" />
                 <h:inputText id="technicalName" value="#{wizard.technicalName}"
                 validator="#{wizard.validateTechnicalName}" />
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="technicalName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:outputText value="Parent type" rendered="#{not empty wizard.definedDatatypes}"/>
+                <h:outputText value="Parent type:" rendered="#{not empty wizard.definedDatatypes}"/>
                 <h:selectOneMenu value="#{wizard.parent}" rendered="#{not empty wizard.definedDatatypes}">
                     <f:selectItem itemLabel="" itemValue="#{null}"/>
                     <f:selectItems value="#{wizard.definedDatatypes}" />

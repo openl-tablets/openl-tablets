@@ -23,14 +23,14 @@
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
         <h:form id="propertiesForm">
-            <h:outputLabel value="Name " for="techName"  styleClass="required" style="margin-right:3px" />
+            <h:outputLabel value="Name:" for="techName"  styleClass="required" style="margin-right:3px" />
             <h:inputText id="techName" value="#{wizard.tableName}" validator="#{wizard.validateTechnicalName}" />
             <a4j:outputPanel ajaxRendered="true">
                 <h:message for="techName" styleClass="error" />
             </a4j:outputPanel>
             <br />
             <br />
-            <h:outputText value="Properties" />
+            <h:outputText value="Properties:" />
             <br />
             <br />
             <h:panelGroup id="propertiesTable">

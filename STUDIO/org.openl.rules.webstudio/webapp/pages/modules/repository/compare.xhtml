@@ -18,7 +18,7 @@
         </h:panelGroup>
       </a4j:outputPanel>
 
-      <h:outputText value="Show equal elements" />
+      <h:outputText value="Show equal elements:" />
       <h:selectBooleanCheckbox value="#{repositoryDiffController.showEqualElements}" />
       <h:commandButton id="compareBtn" value="Compare" action="#{repositoryDiffController.compare}"
         disabled="#{empty repositoryDiffController.excelFilesUW or empty repositoryDiffController.excelFilesRepo}"

@@ -9,9 +9,13 @@
         #included-in-wildcard-message {
             color: red;
         }
+        
+        #editModuleForm table td:first-child {
+            width: 120px;
+        }
     </style>
 
-    <rich:popupPanel id="editModulePopup" width="530" autosized="true">
+    <rich:popupPanel id="editModulePopup" width="480" autosized="true">
         <f:facet name="header">
             <h:outputText id="moduleHeader" value="Edit Module" />
         </f:facet>
@@ -34,7 +38,7 @@
 
             <table class="properties properties-form wide">
                 <tr>
-                    <td>Name</td>
+                    <td>Name:</td>
                     <td><h:inputText id="moduleName" styleClass="editable-item"
                         validator="#{projectBean.validateModuleName}" /></td>
                 </tr>
@@ -45,7 +49,7 @@
                     </a4j:outputPanel></td>
                 </tr>
                 <tr>
-                    <td class="required">Path</td>
+                    <td class="required">Path:</td>
                     <td><h:inputText id="modulePath" styleClass="editable-item"
                         validator="#{projectBean.validateModulePath}" /></td>
                 </tr>
@@ -57,11 +61,11 @@
                 </tr>
                 <tr><td class="delimeter"></td></tr>
                 <tr>
-                    <td>Included Methods (RegExp)</td>
+                    <td>Included Methods (RegExp):</td>
                     <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item" /></td>
                 </tr>
                 <tr>
-                    <td>Excluded Methods (RegExp)</td>
+                    <td>Excluded Methods (RegExp):</td>
                     <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item" /></td>
                 </tr>
             </table>

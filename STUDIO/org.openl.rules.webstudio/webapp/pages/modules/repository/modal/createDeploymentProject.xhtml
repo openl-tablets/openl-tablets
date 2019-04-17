@@ -17,7 +17,7 @@
 
     <h:form id="newDProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputLabel for="projectName" styleClass="required" value="Name" />
+        <h:outputLabel for="projectName" styleClass="required" value="Name:" />
         <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeyup="$j('#newDProjectForm\\:create').prop('disabled', this.value.trim().length === 0)" />
       </h:panelGrid>
 

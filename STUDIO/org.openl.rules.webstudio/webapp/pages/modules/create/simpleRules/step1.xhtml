@@ -21,13 +21,13 @@
         <h:form>
           <f:validateBean disabled="true">
             <h:panelGrid columns="3" cellspacing="5">
-                <h:outputText value="Table Name" styleClass="required" />
+                <h:outputText value="Table Name:" styleClass="required" />
                 <h:inputText id="srTableName" value="#{wizard.tableName}" validator="#{wizard.validateTableName}"/>
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="srTableName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:outputText value="Return Value Type" styleClass="required" />
+                <h:outputText value="Return Value Type:" styleClass="required" />
                 <h:selectOneMenu value="#{wizard.returnValueType}">
                     <f:selectItems value="#{wizard.domainTypes}" />
                 </h:selectOneMenu>
@@ -36,7 +36,7 @@
                 <h:dataTable value="#{wizard.parameters}" var="parameter" rendered="#{!empty wizard.parameters}">
                     <h:column>
                         <f:facet name="header">
-                            <h:outputText value="Type" />
+                            <h:outputText value="Type:" />
                         </f:facet>
                         <h:selectOneMenu value="#{parameter.type}" valueChangeListener="#{wizard.pTypeListener}">
                             <f:selectItems value="#{wizard.domainTypes}" />
@@ -45,14 +45,14 @@
 
                     <h:column>
                         <f:facet name="header">
-                            <h:outputText value="Is Array" />
+                            <h:outputText value="Is Array:" />
                         </f:facet>
                         <h:selectBooleanCheckbox value="#{parameter.iterable}" valueChangeListener="#{wizard.pIterableListener}"/>
                     </h:column>
 
                     <h:column>
                         <f:facet name="header">
-                            <h:outputText value="Name"/>
+                            <h:outputText value="Name:"/>
                         </f:facet>
                         <h:inputText id="pname" value="#{parameter.name}"
                         valueChangeListener="#{wizard.pNameListener}" validator="#{wizard.validatePropsName}">

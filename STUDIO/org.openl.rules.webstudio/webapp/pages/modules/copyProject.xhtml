@@ -33,8 +33,8 @@
         <h:form id="copyProjectForm">
             <h:panelGroup id="modalCopyProjectData">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputText value="Project Name:"/>
-                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}"/>
+                    <h:outputLabel value="Project Name:"/>
+                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}" />
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">

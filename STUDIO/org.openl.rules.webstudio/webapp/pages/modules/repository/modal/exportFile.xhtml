@@ -16,9 +16,9 @@
 
     <h:form id="exportFileForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportFileData">
-        <h:outputText value="File Name" />
+        <h:outputText value="File Name:" />
         <h:outputLabel id="exportingFileName" value="#{node.name}" />
-        <h:outputLabel for="fileVersion" styleClass="required" value="File Revision" />
+        <h:outputLabel for="fileVersion" styleClass="required" value="File Revision:" />
         <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{node.selectedFileVersions}" />
         </h:selectOneMenu>
