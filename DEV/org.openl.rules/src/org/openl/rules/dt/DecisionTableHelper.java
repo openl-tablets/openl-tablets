@@ -188,11 +188,11 @@ public final class DecisionTableHelper {
      */
     static boolean looksLikeVertical(ILogicalTable table) {
 
-        if (table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
         }
 
-        if (table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return false;
         }
 
@@ -2070,7 +2070,8 @@ public final class DecisionTableHelper {
         }
 
         if (numberOfHcondition == 0) {
-            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isReturn) ? 1l : 0l); // Prefer full
+            fits = fits.stream().filter(e -> e.stream().anyMatch(DTHeader::isReturn)).collect(toList());
+            // Prefer full
             // matches
             // with
             // last
@@ -2302,10 +2303,17 @@ public final class DecisionTableHelper {
                         true);
                 }
                 if (i < numberOfParameters - numberOfHcondition) {
-                    dtHeaders
-                        .add(new SimpleDTHeader(i, decisionTable.getSignature().getParameterName(i), null, column, w));
+                    SimpleDTHeader simpleDTHeader = new SimpleDTHeader(i,
+                        decisionTable.getSignature().getParameterName(i),
+                        null,
+                        column,
+                        w);
+                    dtHeaders.add(simpleDTHeader);
+                    simpleDtHeaders.add(simpleDTHeader);
                 } else if (numberOfHcondition == 0) {
-                    dtHeaders.add(new SimpleReturnDTHeader(null, null, column, w));
+                    SimpleReturnDTHeader simpleReturnDTHeader = new SimpleReturnDTHeader(null, null, column, w);
+                    dtHeaders.add(simpleReturnDTHeader);
+                    simpleDtHeaders.add(simpleReturnDTHeader);
                 }
             }
 
