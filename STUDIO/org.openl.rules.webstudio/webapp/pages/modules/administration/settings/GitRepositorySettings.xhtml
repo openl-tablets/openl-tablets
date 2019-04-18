@@ -6,30 +6,30 @@
     <ui:param name="settings" value="#{repository.settings}" />
     <ui:param name="validators" value="#{settings.validators}" />
 
-    <div id="#{prependId}gitURL" class="hidden">
+    <div id="#{prependId}URLShowInfo" class="hidden">
         Remote URL or local path to Git repository.<br/><br/>
         <b>For example: </b>https://github.com/git-repo/git-repo.git or /var/local-git-repo        
     </div>
-    <div id="#{prependId}gitUserDisplayName" class="hidden">
+    <div id="#{prependId}userDisplayNameShowInfo" class="hidden">
         Git commits are associated with specified user name if value is not empty.<br/><br/>
         <b>NOTE: </b>Git server must permit to use specified user name for used login. If user name is not specified, Webstudio username is used for Git commits.        
     </div>
-    <div id="#{prependId}gitUserEmail" class="hidden">
+    <div id="#{prependId}userEmailShowInfo" class="hidden">
         Git commits are associated with specified email if value is not empty.<br/><br/>
         <b>NOTE: </b>Git server must permit to use specified email for used login.        
     </div>
-    <div id="#{prependId}gitLocalPath" class="hidden">
+    <div id="#{prependId}localPathShowInfo" class="hidden">
         A local path to directory for Git repository. Webstudio uses this specified path to upload Git repository from the server and works with it.<br/><br/> 
         <b>NOTE: </b>Read/Write rights for specified directory is mandatory for Webstudio.         
     </div>
-    <div id="#{prependId}gitBranch" class="hidden">
+    <div id="#{prependId}branchShowInfo" class="hidden">
         The main branch to commit changes. Usually, 'master' branch. 
     </div>
 
     <h:panelGrid columns="3" columnClasses="titleColumn">
         <h:outputText value="URL:" styleClass="required"/>
         <h:inputText value="#{settings.uri}" id="#{prependId}gitUri" validator="#{validators.url}"/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}gitURL');return false;" title="Details"/>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}URLShowInfo');return false;" title="Details"/>
         
         <h:outputText value=""/>
         <h:message for="#{prependId}gitUri" styleClass="error"/>
@@ -45,12 +45,12 @@
 
         <h:outputText value="User display name:"/>
         <h:inputText value="#{settings.userDisplayName}" title="Git commits are associated with specified user name if value is not empty, otherwise WebStudio username is used."/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}gitUserDisplayName');return false;" title="Details"/>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}userDisplayNameShowInfo');return false;" title="Details"/>
         
         <h:outputText value="User email:"/>
         <h:inputText value="#{settings.userEmail}" title="Git commits are associated with specified user email."
                      id="#{prependId}gitUserEmail" validator="#{validators.userEmail}"/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}gitUserEmail');return false;" title="Details"/>                     
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}userEmailShowInfo');return false;" title="Details"/>                     
         
         <h:outputText value=""/>
         <h:message for="#{prependId}gitUserEmail" styleClass="error"/>
@@ -59,7 +59,7 @@
         <h:outputText value="Local path:" styleClass="required"/>
         <h:inputText value="#{settings.localRepositoryPath}" title="Local path to directory for Git repository."
                      id="#{prependId}gitLocalRepositoryPath" validator="#{validators.localRepositoryPath}"/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}gitLocalPath');return false;" title="Details"/>                     
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}localPathShowInfo');return false;" title="Details"/>                     
         
         <h:outputText value=""/>
         <h:message for="#{prependId}gitLocalRepositoryPath" styleClass="error"/>
@@ -68,8 +68,8 @@
         <h:outputText value="Branch:" styleClass="required"/>
         <h:inputText value="#{settings.branch}" title="The main branch to commit changes."
                      id="#{prependId}gitBranch" validator="#{validators.branch}"/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}gitBranch');return false;" title="Details"/>
-                             
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}branchShowInfo');return false;" title="Details"/>
+        
         <h:outputText value=""/>
         <h:message for="#{prependId}gitBranch" styleClass="error"/>
         <h:outputText value=""/>
@@ -87,7 +87,7 @@
         <h:outputText value=""/>
 
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentNameShowInfo"/>
         <h:outputText value=""/>
         
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
