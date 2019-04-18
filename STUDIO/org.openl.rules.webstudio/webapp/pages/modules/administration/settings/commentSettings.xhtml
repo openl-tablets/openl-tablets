@@ -8,76 +8,153 @@
     <ui:param name="settings" value="#{repository.settings}"/>
     <ui:param name="validators" value="#{settings.validators}"/>
 
+    <div id="#{prependId}settingsMessage" class="hidden">
+        Comment message template for Git commits.<br/><br/>
+        <ul>
+        <li>{username} is replaced by Webstudio username.</li>
+        <li>{user-message} is replaced by user defined commit message. This part of commit message is mandatory.</li>
+        <li>{commit-type} is a system property for commits to recognize commit type from a message. This part of commit message is mandatory.</li>
+        </ul>
+        <br/><br/>
+        <b>NOTE: </b> Keep default value for non Git repositories.        
+    </div>
+    
+    <div id="#{prependId}commentValidationPattern" class="hidden">
+        A regular expression that is used to validate user message.
+    </div>
+
+    <div id="#{prependId}invalidCommentMessage" class="hidden">
+        This message is shown to user if user message isn't matched to message validation pattern.
+    </div>
+
+    <div id="#{prependId}defaultCommentCreate" class="hidden">
+        This specified value is used as default message for 'Create project' action.<br/><br/>
+        <ul>
+        <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+    
+    <div id="#{prependId}defaultCommentArchive" class="hidden">
+        This specified value is used as default message for 'Archive project' action.<br/><br/>
+        <ul>
+        <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+    
+    <div id="#{prependId}defaultCommentRestore" class="hidden">
+        This specified value is used as default message for 'Restore project' action.<br/><br/>
+        <ul>
+        <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+    
+    <div id="#{prependId}defaultCommentErase" class="hidden">
+        This specified value is used as default message for 'Erase project' action.<br/><br/>
+        <ul>
+        <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+
+    <div id="#{prependId}defaultCommentCopiedFrom" class="hidden">
+        This specified value is used as default message for 'Copy project' action.<br/><br/>
+        <ul>
+        <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+    
+    <div id="#{prependId}defaultCommentRestoredFrom" class="hidden">
+        This specified value is used as default message when a project is restored from old version.<br/><br/>
+        <ul>
+        <li>{revision} is replaced by old revision number.</li>
+        </ul>
+    </div>
+
     <h:panelGroup id="#{prependId}commentSettings" rendered="#{not isProduction }">
         <h:panelGrid columns="2" columnClasses="titleColumn">
-            <h:outputLabel value="Comments template:" for="#{prependId}useCustomComments"/>
+            <h:outputLabel value="Customize comments:" for="#{prependId}useCustomComments"/>
             <h:selectBooleanCheckbox id="#{prependId}useCustomComments" value="#{settings.useCustomComments}"
-                                     onmousedown="if($j(this).attr('checked')){if(!window.confirm('Validation pattern will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+                                     onmousedown="if($j(this).attr('checked')){if(!window.confirm('All validation patterns will be lost. Do you want to continue?')) {return false;}} return this.click()">
                 <f:ajax event="change" execute="@form" render="#{prependId}commentSettings"/>
             </h:selectBooleanCheckbox>
         </h:panelGrid>
 
         <h:panelGroup rendered="#{settings.useCustomComments}">
-            <h:panelGrid columns="2" columnClasses="titleColumn">
+            <h:panelGrid columns="3" columnClasses="titleColumn">
                 <h:outputText value="Message:" styleClass="required"/>
                 <h:inputText value="#{settings.commentTemplate}"
-                             title="Comment message template for commits. Use {username} for predefined OpenL-specific Commit Type used by OpenL, {user-message} for meaningful message describing commit, {username} for commit author."
+                             title="Comment message template for commits."
                              id="#{prependId}commentTemplate" validator="#{validators.commentTemplate}"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}settingsMessage');return false;" title="Details"/>
+                
                 <h:outputText value=""/>
                 <h:message for="#{prependId}commentTemplate" styleClass="error"/>
-
-                <h:outputText value="User message pattern:" styleClass="required"/>
+                <h:outputText value=""/>
+                
+                <h:outputText value="Message validation pattern:" styleClass="required"/>
                 <h:inputText value="#{settings.commentValidationPattern}"
-                             title="Regular expression to validate user message."
+                             title="A regular expression that is used to validate user message."
                              id="#{prependId}commentPattern" validator="#{validators.commentValidationPattern}"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}commentValidationPattern');return false;" title="Details"/>
+                
                 <h:outputText value=""/>
                 <h:message for="#{prependId}commentPattern" styleClass="error"/>
-
+                <h:outputText value=""/>
+                
                 <h:outputText value="Invalid user message hint:" rendered="#{not isProduction}"/>
                 <h:inputText value="#{settings.invalidCommentMessage}"
-                             title="Message shown when user message is invalid."
+                             title="This message is shown to user if user message isn't matched to regular expression that is used in validation pattern."
                              id="#{prependId}invalidCommentMessage"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}invalidCommentMessage');return false;" title="Details"/>
+                
                 <h:outputText value=""/>
                 <h:message for="#{prependId}invalidCommentMessage" styleClass="error"/>
+                <h:outputText value=""/>
             </h:panelGrid>
 
             <p>User message templates:</p>
 
-            <h:panelGrid columns="2" columnClasses="titleColumn">
+            <h:panelGrid columns="3" columnClasses="titleColumn">
                 <h:outputText value="Save project:"/>
                 <h:inputText value="#{settings.defaultCommentSave}"
                              title="Default message for 'Save project'"
                              id="#{prependId}defaultCommentSave"/>
-
+                <h:outputText value=""/>
+                
                 <h:outputText value="Create project:"/>
                 <h:inputText value="#{settings.defaultCommentCreate}"
                              title="Default message for 'Create project'"
                              id="#{prependId}defaultCommentCreate"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentCreate');return false;" title="Details"/>
 
                 <h:outputText value="Archive project:"/>
                 <h:inputText value="#{settings.defaultCommentArchive}"
                              title="Default message for 'Archive project'"
                              id="#{prependId}defaultCommentArchive"/>
-
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentArchive');return false;" title="Details"/>
+                
                 <h:outputText value="Restore project:"/>
                 <h:inputText value="#{settings.defaultCommentRestore}"
                              title="Default message for 'Restore project'"
                              id="#{prependId}defaultCommentRestore"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentRestore');return false;" title="Details"/>                             
 
                 <h:outputText value="Erase project:"/>
                 <h:inputText value="#{settings.defaultCommentErase}"
                              title="Default message for 'Erase project'"
                              id="#{prependId}defaultCommentErase"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentErase');return false;" title="Details"/>
 
                 <h:outputText value="Copy project:"/>
                 <h:inputText value="#{settings.defaultCommentCopiedFrom}"
                              title="Default message for 'Copy project'"
                              id="#{prependId}defaultCommentCopiedFrom"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentCopiedFrom');return false;" title="Details"/>                             
 
                 <h:outputText value="Restore from old version:"/>
                 <h:inputText value="#{settings.defaultCommentRestoredFrom}"
                              title="Default message when restore from old version"
                              id="#{prependId}defaultCommentRestoredFrom"/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentRestoredFrom');return false;" title="Details"/>
             </h:panelGrid>
         </h:panelGroup>
     </h:panelGroup>
