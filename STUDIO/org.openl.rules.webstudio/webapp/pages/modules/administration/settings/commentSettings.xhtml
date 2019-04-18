@@ -97,7 +97,7 @@
                 <h:message for="#{prependId}commentTemplate" styleClass="error"/>
                 <h:outputText value=""/>
                 
-                <h:outputText value="User message pattern:" styleClass="required"/>
+                <h:outputText value="User message pattern:"/>
                 <h:inputText value="#{settings.commentValidationPattern}"
                              title="A regular expression that is used to validate user message."
                              id="#{prependId}commentPattern" validator="#{validators.commentValidationPattern}"/>
@@ -107,10 +107,11 @@
                 <h:message for="#{prependId}commentPattern" styleClass="error"/>
                 <h:outputText value=""/>
                 
-                <h:outputText value="Invalid user message hint:" rendered="#{not isProduction}"/>
+                <h:outputText value="Invalid user message hint:" styleClass="required"/>
                 <h:inputText value="#{settings.invalidCommentMessage}"
                              title="This message is shown to user if user message isn't matched to regular expression that is used in validation pattern."
-                             id="#{prependId}invalidCommentMessage"/>
+                             id="#{prependId}invalidCommentMessage"
+                             validator="#{validators.ivalidCommentMessage}"/>
                 <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}invalidCommentMessageShowInfo');return false;" title="Details"/>
                 
                 <h:outputText value=""/>

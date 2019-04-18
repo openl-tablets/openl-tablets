@@ -140,6 +140,7 @@ public class RepositoryTreeController {
 
     private TreeNode activeProjectNode;
 
+    private boolean projectUseCustomComment;
     private CommentValidator designCommentValidator;
     private CommentValidator deployConfigCommentValidator;
 
@@ -1880,7 +1881,7 @@ public class RepositoryTreeController {
     
     public boolean isUseCustomComment(boolean project) {
         // Only projects are supported for now. Deploy configs can be supported in future.
-        return project && designCommentValidator.isValidationEnabled();
+        return project && projectUseCustomComment;
     }
 
     public String getCreateProjectComment() {
@@ -1934,6 +1935,8 @@ public class RepositoryTreeController {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+
+        projectUseCustomComment = Boolean.parseBoolean(config.get("design-repository.comment-template.use-custom-comments").toString());
 
         designCommentValidator = CommentValidator.forDesignRepo(config);
 
