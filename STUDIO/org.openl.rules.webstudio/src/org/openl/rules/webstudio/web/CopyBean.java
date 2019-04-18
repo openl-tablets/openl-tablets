@@ -31,6 +31,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -217,15 +218,19 @@ public class CopyBean {
             return;
         }
         try {
-            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = getCurrentProject();
+            if (selectedProject == null) {
+                return;
+            }
+            TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName());
+            selectedProject = repositoryTreeState.getProject(node);
             WebStudio studio = WebStudioUtils.getWebStudio();
             if (selectedProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
                 selectedProject.releaseMyLock();
             }
-
             selectedProject.setBranch(newBranchName);
-            repositoryTreeState.refreshSelectedNode();
+            repositoryTreeState.refreshNode(node);
             studio.reset();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
