@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -22,11 +23,14 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -50,6 +54,9 @@ public class CopyBean {
 
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
+
+    @ManagedProperty(value = "#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
 
     private String currentProjectName;
     private String newProjectName;
@@ -196,9 +203,31 @@ public class CopyBean {
 
             WebStudioUtils.getWebStudio().resetProjects();
             userWorkspace.refresh();
+
+            switchToNewBranch();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             FacesUtils.throwValidationError("Can't copy the project: " + e.getMessage());
+        }
+    }
+
+    private void switchToNewBranch() {
+        if (!(isSupportsBranches() && !separateProject)) {
+            return;
+        }
+        try {
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            WebStudio studio = WebStudioUtils.getWebStudio();
+            if (selectedProject.isOpened()) {
+                studio.getModel().clearModuleInfo();
+                selectedProject.releaseMyLock();
+            }
+
+            selectedProject.setBranch(newBranchName);
+            repositoryTreeState.refreshSelectedNode();
+            studio.reset();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -237,7 +266,7 @@ public class CopyBean {
             Repository designRepository = designTimeRepository.getRepository();
             Collection<String> branches = ((BranchRepository) designRepository).getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
-        } catch (WorkspaceException ignored) {
+        } catch (WorkspaceException | IOException ignored) {
         }
 
     }
@@ -317,5 +346,9 @@ public class CopyBean {
 
     public void setDesignRepoComments(Comments designRepoComments) {
         this.designRepoComments = designRepoComments;
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
     }
 }

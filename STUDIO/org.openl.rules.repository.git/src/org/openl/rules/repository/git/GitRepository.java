@@ -381,7 +381,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             .setURI(uri)
                             .setDirectory(local)
                             .setBranch(branch)
-                            .setBranchesToClone(Collections.singletonList(Constants.R_HEADS + branch));
+                            .setCloneAllBranches(true);
 
                     if (StringUtils.isNotBlank(login)) {
                         cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
@@ -398,11 +398,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             git = Git.open(local);
 
             if (!shouldClone) {
-                FetchCommand fetchCommand = git.fetch();
-                if (StringUtils.isNotBlank(login)) {
-                    fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
-                }
-                fetchCommand.call();
+                fetchAll();
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
                 if (branchAbsents) {
@@ -572,6 +568,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             writeLock.lock();
 
+            fetchAll();
+
             // TODO: Consider changing merge strategy
             PullCommand pullCommand = git.pull().setStrategy(MergeStrategy.RECURSIVE);
             if (StringUtils.isNotBlank(login)) {
@@ -585,6 +583,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } finally {
             writeLock.unlock();
         }
+    }
+
+    private void fetchAll() throws GitAPIException {
+        FetchCommand fetchCommand = git.fetch();
+        if (StringUtils.isNotBlank(login)) {
+            fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+        }
+        // For some reason "+refs/head/*:refs/remotes/origin/*" doesn't work when fetch remote branches
+        // not existing locally but "refs/head/*:refs/head/*" works (for jgit v 4.5.4.201711221230-r).
+        // Need to check if in a newer version it should be changed.
+        fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*", Constants.R_HEADS + "*"));
+        fetchCommand.setRemoveDeletedRefs(true);
+        fetchCommand.call();
     }
 
     private void push() throws GitAPIException {
@@ -819,11 +830,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             writeLock.lock();
 
-            // Checkout existing branch
-            git.checkout().setName(branch).call();
+            // If newBranch doesn't exist, create it.
+            boolean branchAbsents = git.getRepository().findRef(newBranch) == null;
+            if (branchAbsents) {
+                // Checkout existing branch
+                git.checkout().setName(branch).call();
 
-            // Create new branch
-            git.branchCreate().setName(newBranch).call();
+                // Create new branch
+                git.branchCreate().setName(newBranch).call();
+                pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
+            }
+
+            // Add mapping for projectName and newBranch
             List<String> projectBranches = branches.get(projectName);
             if (projectBranches == null) {
                 projectBranches = new ArrayList<>();
@@ -833,8 +851,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (!projectBranches.contains(newBranch)) {
                 projectBranches.add(newBranch);
             }
-
-            pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
 
             saveBranches();
         } catch (Exception e) {
@@ -855,17 +871,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             writeLock.lock();
 
-            // Can't delete checked out branch. So we check out another branch instead.
-            git.checkout().setName(baseBranch).call();
-
-            git.branchDelete().setBranchNames(branch).setForce(true).call();
-            Collection<String> projectBranches = branches.get(projectName);
-            if (projectBranches != null) {
-                projectBranches.remove(branch);
-                branchRepos.remove(branch);
-                pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
-
+            if (projectName == null) {
+                // Remove the branch from all mappings.
+                for (List<String> projectBranches : branches.values()) {
+                    projectBranches.remove(branch);
+                }
                 saveBranches();
+
+                // Remove the branch from git itself.
+                // Can't delete checked out branch. So we check out another branch instead.
+                git.checkout().setName(baseBranch).call();
+                git.branchDelete().setBranchNames(branch).setForce(true).call();
+                pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
+                branchRepos.remove(branch);
+            } else {
+                // Remove branch mapping for specific project only.
+                List<String> projectBranches = branches.get(projectName);
+                if (projectBranches != null) {
+                    projectBranches.remove(branch);
+                    saveBranches();
+                }
             }
         } catch (Exception e) {
             reset();
@@ -876,12 +901,43 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public List<String> getBranches(String projectName) {
+    public List<String> getBranches(String projectName) throws IOException {
         Lock readLock = repositoryLock.readLock();
         try {
             readLock.lock();
-            List<String> projectBranches = branches.get(projectName);
-            return projectBranches == null ? Collections.singletonList(branch) : projectBranches;
+            if (projectName == null) {
+                // Return all available branches
+                TreeSet<String> branchNames = new TreeSet<>();
+
+                List<Ref> refs = git.branchList().call();
+                for (Ref ref : refs) {
+                    String name = ref.getName();
+                    if (name.startsWith(Constants.R_HEADS)) {
+                        name = name.substring(Constants.R_HEADS.length());
+                        branchNames.add(name);
+                    }
+                }
+
+                // Local branches absent in repository may be needed to uncheck them in UI.
+                for (List<String> projectBranches : branches.values()) {
+                    branchNames.addAll(projectBranches);
+                }
+
+                return new ArrayList<>(branchNames);
+            } else {
+                // Return branches mapped to a specific project
+                List<String> projectBranches = branches.get(projectName);
+                List<String> result;
+                if (projectBranches == null) {
+                    result = Collections.singletonList(branch);
+                } else {
+                    result = new ArrayList<>(projectBranches);
+                    Collections.sort(result);
+                }
+                return result;
+            }
+        } catch (GitAPIException e) {
+            throw new IOException(e);
         } finally {
             readLock.unlock();
         }
