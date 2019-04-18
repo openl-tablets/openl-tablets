@@ -1153,7 +1153,7 @@ public class RepositoryTreeController {
         }
 
 
-        return comments.saveProject();
+        return comments.saveProject(project == null ? "" : project.getName());
     }
 
     private Comments getComments(UserWorkspaceProject project) {

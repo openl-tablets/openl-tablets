@@ -96,7 +96,7 @@ public class MainBean {
         }
 
 
-        return designRepoComments.saveProject();
+        return designRepoComments.saveProject(project == null ? "" : project.getName());
     }
 
     public void setVersionComment(String comment) {
