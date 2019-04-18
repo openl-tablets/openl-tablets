@@ -50,6 +50,9 @@
                 <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
             </h:panelGroup>
         </h:panelGroup>
+        <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}">
+            <ui:include src="/pages/modules/repository/modal/editBranches.xhtml" />
+        </h:panelGroup>
     </ui:define>
 
 </ui:composition>
