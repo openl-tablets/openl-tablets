@@ -25,6 +25,15 @@
     <div id="#{prependId}branchShowInfo" class="hidden">
         The main branch to commit changes. Usually, 'master' branch. 
     </div>
+    <div id="#{prependId}newBranchTemplateShowInfo" class="hidden">
+        This is a pattern for new branches in Git repository.<br/><br/>
+        <ul>
+            <li>{0} is replaced by project name.</li>
+            <li>{1} is replaced by user name.</li>
+            <li>{2} is replaced by current date.</li>
+        </ul><br/><br/>
+        <b>NOTE: </b>Only latin letters, numbers, '_', '-' and '/' are allowed. 
+    </div>
 
     <h:panelGrid columns="3" columnClasses="titleColumn">
         <h:outputText value="URL:" styleClass="required"/>
@@ -73,6 +82,11 @@
         <h:outputText value=""/>
         <h:message for="#{prependId}gitBranch" styleClass="error"/>
         <h:outputText value=""/>
+        
+        <h:outputText value="New branch pattern:" styleClass="required"/>
+        <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
+                     id="#{prependId}newBranchTemplate"/>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}newBranchTemplateShowInfo');return false;" title="Details"/>
 
         <h:outputText value="Changes check interval (sec):"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
