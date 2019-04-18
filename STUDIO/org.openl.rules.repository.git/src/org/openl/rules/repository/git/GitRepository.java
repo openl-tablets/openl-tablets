@@ -946,7 +946,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 List<String> projectBranches = branches.get(projectName);
                 List<String> result;
                 if (projectBranches == null) {
-                    result = Collections.singletonList(branch);
+                    result = new ArrayList<>(Collections.singletonList(branch));
                 } else {
                     result = new ArrayList<>(projectBranches);
                     Collections.sort(result);
