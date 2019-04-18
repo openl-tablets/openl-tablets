@@ -121,7 +121,7 @@
             <rich:tab header="Excel Files">
                 <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputLabel for="file" styleClass="required" value="File" />
+                        <h:outputLabel for="file" styleClass="required" value="File:" />
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
@@ -162,7 +162,7 @@
             <rich:tab header="Zip Archive">
                 <h:form id="uploadProjectForm" style="padding-top: 6px">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputLabel for="file" styleClass="required" value="File" />
+                    <h:outputLabel for="file" styleClass="required" value="File:" />
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
