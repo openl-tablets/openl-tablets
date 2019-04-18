@@ -27,6 +27,13 @@
         This message is shown to user if user message isn't matched to message validation pattern.
     </div>
 
+    <div id="#{prependId}defaultCommentSave" class="hidden">
+        This specified value is used as default message for 'Save project' action.<br/><br/>
+        <ul>
+            <li>{project-name} is replaced by current project in the message.</li>
+        </ul>
+    </div>
+
     <div id="#{prependId}defaultCommentCreate" class="hidden">
         This specified value is used as default message for 'Create project' action.<br/><br/>
         <ul>
@@ -118,7 +125,7 @@
                 <h:inputText value="#{settings.defaultCommentSave}"
                              title="Default message for 'Save project'"
                              id="#{prependId}defaultCommentSave"/>
-                <h:outputText value=""/>
+                <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}defaultCommentSave');return false;" title="Details"/>
                 
                 <h:outputText value="Create project:"/>
                 <h:inputText value="#{settings.defaultCommentCreate}"
