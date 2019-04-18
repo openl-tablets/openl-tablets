@@ -1893,6 +1893,9 @@ public class RepositoryTreeController {
 
     public String getArchiveProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null) {
+            project = repositoryTreeState.getProject(getSelectedNode());
+        }
         Comments comments = getComments(project);
         return comments.archiveProject(project.getName());
     }

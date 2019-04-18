@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class BranchesBean {
             Repository repository = project.getDesignRepository();
             if (repository.supports().branches()) {
                 try {
-                    return ((BranchRepository) repository).getBranches(null);
+                    return new ArrayList<>(((BranchRepository) repository).getBranches(null));
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
                 }
@@ -102,7 +103,7 @@ public class BranchesBean {
         Repository repository = project.getDesignRepository();
         if (repository.supports().branches()) {
             try {
-                return ((BranchRepository) repository).getBranches(projectName);
+                return new ArrayList<>(((BranchRepository) repository).getBranches(projectName));
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
