@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalEraseProject" width="250" autosized="true">
+  <rich:popupPanel id="modalEraseProject" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Confirm Erase" />
     </f:facet>
@@ -23,7 +23,7 @@
       <h:panelGroup rendered="#{useCustomComment}">
         <p>
           <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Comment"/>
+            <h:outputText value="Comment:"/>
             <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
                              size="35"
                              readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
