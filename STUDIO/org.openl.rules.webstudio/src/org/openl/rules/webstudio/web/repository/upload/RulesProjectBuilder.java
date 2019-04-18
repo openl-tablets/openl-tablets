@@ -25,12 +25,8 @@ public class RulesProjectBuilder {
         this.comment = comment;
         internalPath = projectFolder + projectName;
         synchronized (this.workspace) {
-            // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
-            AProject createdProject = workspace.createProject(projectName);
-            LockEngine lockEngine = workspace.getProjectsLockEngine();
-            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData(), lockEngine);
+            project = workspace.createProject(projectName);
         }
-        project.open();
     }
 
     protected RulesProject getProject() {
