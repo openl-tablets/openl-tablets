@@ -21,7 +21,8 @@ public final class Comments {
         }
 
         saveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.save")
-                .toString();
+                .toString()
+                .replace("{project-name}", "{0}");
         createProjectTemplate = properties.get(prefix + "comment-template.user-message.default.create")
                 .toString()
                 .replace("{project-name}", "{0}");
@@ -42,8 +43,8 @@ public final class Comments {
                 .replace("{revision}", "{0}");
     }
 
-    public String saveProject() {
-        return saveProjectTemplate;
+    public String saveProject(String projectName) {
+        return MessageFormat.format(saveProjectTemplate, projectName);
     }
 
     public String createProject(String projectName) {

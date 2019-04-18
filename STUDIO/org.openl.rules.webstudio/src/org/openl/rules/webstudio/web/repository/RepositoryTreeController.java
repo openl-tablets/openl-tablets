@@ -1156,7 +1156,7 @@ public class RepositoryTreeController {
             return comments.restoredFrom(project.getHistoryVersion());
         }
 
-        return comments.saveProject();
+        return comments.saveProject(project == null ? "" : project.getName());
     }
 
     private Comments getComments(UserWorkspaceProject project) {
