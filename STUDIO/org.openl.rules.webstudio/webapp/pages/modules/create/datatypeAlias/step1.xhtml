@@ -12,13 +12,13 @@
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="3">
-                <h:outputText value="Name" styleClass="required" />
+                <h:outputText value="Name:" styleClass="required" />
                 <h:inputText id="technicalName" value="#{wizard.technicalName}"
                 validator="#{wizard.validateTechnicalName}" />
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="technicalName" styleClass="error" />
                 </a4j:outputPanel>
-                <h:outputText value="Alias Type" styleClass="required" />
+                <h:outputText value="Alias Type:" styleClass="required" />
                 <h:selectOneMenu value="#{wizard.aliasType}">
                     <f:selectItems value="#{wizard.domainTypes}" />
                 </h:selectOneMenu>

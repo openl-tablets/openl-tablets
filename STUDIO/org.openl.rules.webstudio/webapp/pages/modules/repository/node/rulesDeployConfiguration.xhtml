@@ -34,13 +34,13 @@
     <h:panelGrid columns="2" columnClasses="label," id="rules-deploy-configuration-form">
       <ui:param name="rulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy}" />
 
-      <h:outputLabel for="#{prefix}provideRuntimeContext" value="Provide runtime context"/>
+      <h:outputLabel for="#{prefix}provideRuntimeContext" value="Provide runtime context:"/>
       <h:selectBooleanCheckbox id="#{prefix}provideRuntimeContext" value="#{rulesDeploy.provideRuntimeContext}" disabled="#{!openedForEditing}"/>
 
-      <h:outputLabel for="#{prefix}provideVariations" value="Provide variations"/>
+      <h:outputLabel for="#{prefix}provideVariations" value="Provide variations:"/>
       <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}" disabled="#{!openedForEditing}"/>
 
-      <h:outputLabel for="#{prefix}publishers" value="Create services" rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}"/>
+      <h:outputLabel for="#{prefix}publishers" value="Create services:" rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}">
         <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
                               required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
@@ -49,7 +49,7 @@
         <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}serviceName" value="Service name"/>
+      <h:outputLabel for="#{prefix}serviceName" value="Service name:"/>
       <h:panelGroup>
           <h:inputText id="#{prefix}serviceName" maxlength="100" size="40" value="#{rulesDeploy.serviceName}"
                        rendered="#{openedForEditing}"
@@ -58,7 +58,7 @@
           <h:message for="#{prefix}serviceName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}serviceClass" value="Service class"/>
+      <h:outputLabel for="#{prefix}serviceClass" value="Service class:"/>
       <h:panelGroup>
           <h:inputText id="#{prefix}serviceClass" maxlength="100" size="40" value="#{rulesDeploy.serviceClass}"
                        rendered="#{openedForEditing}"
@@ -67,7 +67,7 @@
           <h:message for="#{prefix}serviceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
       
-      <h:outputLabel for="#{prefix}rmiServiceClass" value="RMI Service class" rendered="#{repositoryProjectRulesDeployConfig.rmiServiceClassSupported}"/>
+      <h:outputLabel for="#{prefix}rmiServiceClass" value="RMI Service class:" rendered="#{repositoryProjectRulesDeployConfig.rmiServiceClassSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.rmiServiceClassSupported}">
           <h:inputText id="#{prefix}rmiServiceClass" maxlength="100" size="40" value="#{rulesDeploy.rmiServiceClass}"
                        rendered="#{openedForEditing}"
@@ -76,39 +76,39 @@
           <h:message for="#{prefix}rmiServiceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}version" value="Version" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}"/>
+      <h:outputLabel for="#{prefix}version" value="Version:" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}"/>
       <h:panelGroup id="#{prefix}version" style="white-space: nowrap;" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}">
           <oh:inputVersion value="#{rulesDeploy.version}" id="#{prefix}input-version" shortView="true" rendered="#{openedForEditing}"/>
           <h:outputText value="#{rulesDeploy.version}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}url" value="URL"/>
+      <h:outputLabel for="#{prefix}url" value="URL:"/>
       <h:panelGroup>
           <h:inputText id="#{prefix}url" maxlength="100" size="40" value="#{rulesDeploy.url}" rendered="#{openedForEditing}"/>
           <h:outputText value="#{rulesDeploy.url}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}interceptingTemplateClassName" value="Intercepting template class"/>
+      <h:outputLabel for="#{prefix}interceptingTemplateClassName" value="Intercepting template class:"/>
       <h:panelGroup>
           <h:inputText id="#{prefix}interceptingTemplateClassName" maxlength="100" size="40" value="#{rulesDeploy.interceptingTemplateClassName}" rendered="#{openedForEditing}" validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
           <h:outputText value="#{rulesDeploy.interceptingTemplateClassName}" rendered="#{!openedForEditing}"/>
           <h:message for="#{prefix}interceptingTemplateClassName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}annotationTemplateClassName" value="Annotation template class" rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}"/>
+      <h:outputLabel for="#{prefix}annotationTemplateClassName" value="Annotation template class:" rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}">
           <h:inputText id="#{prefix}annotationTemplateClassName" maxlength="100" size="40" value="#{rulesDeploy.annotationTemplateClassName}" rendered="#{openedForEditing}" validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
           <h:outputText value="#{rulesDeploy.annotationTemplateClassName}" rendered="#{!openedForEditing}"/>
           <h:message for="#{prefix}annotationTemplateClassName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}groups" value="Service groups" rendered="#{repositoryProjectRulesDeployConfig.groupsSupported}"/>
+      <h:outputLabel for="#{prefix}groups" value="Service groups:" rendered="#{repositoryProjectRulesDeployConfig.groupsSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.groupsSupported}">
           <h:inputText id="#{prefix}groups" maxlength="100" size="40" value="#{rulesDeploy.groups}" rendered="#{openedForEditing}"/>
           <h:outputText value="#{rulesDeploy.groups}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}configuration" value="Configuration (XML)"/>
+      <h:outputLabel for="#{prefix}configuration" value="Configuration (XML):"/>
       <h:panelGroup>
           <h:inputTextarea id="#{prefix}configuration" cols="30" rows="4" value="#{rulesDeploy.configuration}" rendered="#{openedForEditing}"/>
           <h:outputText value="#{rulesDeploy.configuration}" rendered="#{!openedForEditing}"/>

@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalEditUser" width="400" autosized="true">
+    <rich:popupPanel id="modalEditUser" width="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Edit User" />
         </f:facet>
@@ -19,29 +19,29 @@
         <h:form id="editUserForm">
         <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
-                <label>Username</label>
+                <label>Username:</label>
                 <h:outputText id="username" style="font-weight: bold" />
                 <h:inputHidden id="usernameHidden" value="#{usersBean.username}" />
 
-                <label>Password</label>
+                <label>Password:</label>
                 <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="passwordError">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>First Name</label>
+                <label>First Name:</label>
                 <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>Last Name</label>
+                <label>Last Name:</label>
                 <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label class="required">Groups</label>
+                <label class="required">Groups:</label>
                 <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>

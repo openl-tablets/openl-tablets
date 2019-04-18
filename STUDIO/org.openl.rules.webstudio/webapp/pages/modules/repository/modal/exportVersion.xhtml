@@ -5,7 +5,7 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalExportVersion" width="400" autosized="true">
+  <rich:popupPanel id="modalExportVersion" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Export" />
     </f:facet>
@@ -16,9 +16,9 @@
 
     <h:form id="exportVersionForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="modalExportVersionData">
-        <h:outputText value="Project Name" />
+        <h:outputText value="Project Name:" />
         <h:outputText value="#{artefact.name}" />
-        <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision" />
+        <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
         <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
         </h:selectOneMenu>

@@ -18,8 +18,6 @@
             right: 33px;
         }
 
-        .pathInput { width: 211px; }
-
         .repositoryConfig > div {
             display: table;
             border-bottom: 1px dashed #aaa;
@@ -188,7 +186,7 @@
                                 <div>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Workspace Directory:" />
-                                        <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}" styleClass="pathInput"
+                                        <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}"
                                             disabled="#{jsffn:isSystemProp('user.workspace.home')}"
                                             validator="#{validator.workSpaceDirValidator}"/>
                                     </h:panelGrid>
@@ -199,7 +197,7 @@
                                 <div id="history">
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="History Directory:" />
-                                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
+                                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}"
                                             disabled="#{jsffn:isSystemProp('project.history.home')}"
                                            validator="#{validator.historyDirValidator}"/>
                                     </h:panelGrid>
@@ -488,7 +486,7 @@
                                         <h:selectBooleanCheckbox value="#{systemSettingsBean.runTestsInParallel}" title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature" onclick="changeRunTestsInParallel(this)"/>
                                     </h:panelGrid>
                                     <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
-                                        <h:outputText value="Thread number for tests" />
+                                        <h:outputText value="Thread number for tests:" />
                                         <h:inputText value="#{systemSettingsBean.testRunThreadCount}"
                                                      validator="#{validator.testRunThreadCountValidator}"/>
                                     </h:panelGrid>

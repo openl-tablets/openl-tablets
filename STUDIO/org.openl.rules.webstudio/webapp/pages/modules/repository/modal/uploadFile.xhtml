@@ -17,13 +17,13 @@
     
     <h:form id="newFileForm" >
         <h:panelGrid id="newFilePanel" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputLabel for="file" styleClass="required" value="File" />
+            <h:outputLabel for="file" styleClass="required" value="File:" />
             <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" maxFilesQuantity="1"
                              onfilesubmit="showLoader();" oncomplete="hideLoader();">
                 <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" oncomplete="onNewFileNameChange();" />
             </rich:fileUpload>
     
-            <h:outputLabel for="fileName" styleClass="required" value="File name" />
+            <h:outputLabel for="fileName" styleClass="required" value="File name:" />
             <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"/>
         </h:panelGrid>
 

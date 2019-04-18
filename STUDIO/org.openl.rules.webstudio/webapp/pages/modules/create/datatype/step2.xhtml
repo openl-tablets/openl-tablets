@@ -31,7 +31,7 @@
                     <h:dataTable value="#{wizard.parameters}" var="parameter">
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="Type" />
+                                <h:outputText value="Type:" />
                             </f:facet>
                             <h:selectOneMenu value="#{parameter.type}">
                                 <f:selectItems value="#{wizard.domainTypes}" />
@@ -40,14 +40,14 @@
 
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="Is Array" />
+                                <h:outputText value="Is Array:" />
                             </f:facet>
                             <h:selectBooleanCheckbox value="#{parameter.iterable}" />
                         </h:column>
 
                         <h:column>
                             <f:facet name="header">
-                                <h:outputText value="Name"/>
+                                <h:outputText value="Name:"/>
                             </f:facet>
                             <h:inputText id="pname" value="#{parameter.name}" validator="#{wizard.nameValidator}"/>
                         </h:column>

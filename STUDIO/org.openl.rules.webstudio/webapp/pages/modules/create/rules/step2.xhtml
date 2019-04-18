@@ -17,19 +17,19 @@
             </h:panelGroup>
             <h:panelGroup>
                 <h:panelGrid columns="3">
-                    <h:outputLabel value="Technical Name" for="tech_name"/>
+                    <h:outputLabel value="Technical Name:" for="tech_name"/>
                     <h:inputText id="tech_name" value="#{wizard.tableName}">
                         <rich:validator />
                     </h:inputText>
                     <h:message for="tech_name" styleClass="error" />
 
-                    <h:outputLabel value="Return value" for="ret_type"/>
+                    <h:outputLabel value="Return value:" for="ret_type"/>
                     <h:selectOneMenu id="ret_type" value="#{wizard.returnType}" style="width:90%;">
                         <f:selectItems value="#{wizard.domainTypes}"/>
                     </h:selectOneMenu>
                     <h:outputText value="" />
 
-                    <h:outputLabel value="Orientation" for="t_or"/>
+                    <h:outputLabel value="Orientation:" for="t_or"/>
                     <h:selectOneRadio id="t_or" value="#{wizard.orientation}">
                         <f:selectItem itemValue="hor" itemLabel="Horizontal"/>
                         <f:selectItem itemValue="ver" itemLabel="Vertical"/>
@@ -43,13 +43,13 @@
 
                 <h:dataTable var="row" id="paramTable" value="#{wizard.parameters}">
                     <h:column>
-                        <f:facet name="header"><h:outputText value="Type"/></f:facet>
+                        <f:facet name="header"><h:outputText value="Type:"/></f:facet>
                         <h:selectOneMenu value="#{row.type}" id="type">
                             <f:selectItems value="#{wizard.domainTypes}"/>
                         </h:selectOneMenu>
                     </h:column>
                     <h:column>
-                        <f:facet name="header"><h:outputText value="Name"/></f:facet>
+                        <f:facet name="header"><h:outputText value="Name:"/></f:facet>
                         <h:inputText id="pname" value="#{row.name}"/>
                     </h:column>
 

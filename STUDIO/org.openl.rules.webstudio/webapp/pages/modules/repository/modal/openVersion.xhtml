@@ -5,7 +5,7 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalOpenVersion" width="400" autosized="true">
+  <rich:popupPanel id="modalOpenVersion" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Open Revision" />
     </f:facet>
@@ -17,9 +17,9 @@
     <h:form id="openVersionForm">
       <h:panelGroup id="modalOpenVersionData">
           <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Project Name" />
+            <h:outputText value="Project Name:" />
             <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
-            <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision" />
+            <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
             <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
                 <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
                 <f:ajax event="change" render="@form" execute="@form"/>

@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalNewProject" autosized="true" width="500">
+    <rich:popupPanel id="modalNewProject" autosized="true" width="580">
         <f:facet name="header">
             <h:outputText value="Create Project from..." />
         </f:facet>
@@ -34,8 +34,8 @@
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
                     <table class="formfields" cellspacing="1">
                         <tr>
-                        <td class="label" style="width: 65px">
-                            <h:outputLabel styleClass="required" value="Project Template" />
+                        <td class="label" style="width: 100px">
+                            <h:outputLabel styleClass="required" value="Project Template:" />
                         </td>
                         <td>
                             <div style="height: 243px; overflow: auto; border: 1px solid #ccc; margin-top: 2px">
@@ -75,8 +75,8 @@
                         </td>
                         </tr>
                         <tr>
-                        <td class="label" style="width: 65px">
-                            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <td class="label" style="width: 100px">
+                            <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                         </td>
                             <td><h:inputText id="projectName"
                                     size="35" maxlength="70"
@@ -86,8 +86,8 @@
                         </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <tr>
-                            <td class="label" style="width: 65px">
-                                <h:outputLabel for="projectFolderTemplate" value="Path in repository" />
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="projectFolderTemplate" value="Path in repository:" />
                             </td>
                             <td><h:inputText id="projectFolderTemplate" size="35"
                                     value="#{repositoryTreeController.projectFolder}"/>
@@ -96,8 +96,8 @@
                         </ui:fragment>
                         <ui:fragment rendered="#{repositoryTreeController.isUseCustomComment(true)}">
                         <tr>
-                            <td class="label" style="width: 65px">
-                                <h:outputLabel for="commentTemplate" value="Comment" />
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="commentTemplate" value="Comment:" />
                             </td>
                             <td><h:inputText id="commentTemplate" size="35"
                                              value="#{repositoryTreeController.createProjectComment}"/>
@@ -127,13 +127,13 @@
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
                             acceptedTypes="xls, xlsx, xlsm" />
 
-                        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
 
-                        <h:outputLabel for="projectFolderExcel" value="Path in repository"
+                        <h:outputLabel for="projectFolderExcel" value="Path in repository:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                         <h:inputText id="projectFolderExcel" size="35"
                                      value="#{repositoryTreeController.projectFolder}"
@@ -141,7 +141,7 @@
 
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
-                        <h:outputLabel for="commentExcel" value="Comment" rendered="#{useCustomComment}"/>
+                        <h:outputLabel for="commentExcel" value="Comment:" rendered="#{useCustomComment}"/>
                         <h:inputTextarea id="commentExcel"
                                          rendered="#{useCustomComment}"
                                          value="#{repositoryTreeController.createProjectComment}"
@@ -173,13 +173,13 @@
                                 oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
                     </rich:fileUpload>
 
-                    <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                    <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                     <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
 
-                    <h:outputLabel for="projectFolderZip" value="Path in repository"
+                    <h:outputLabel for="projectFolderZip" value="Path in repository:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:inputText id="projectFolderZip" size="35"
                                  value="#{repositoryTreeController.projectFolder}"
@@ -187,7 +187,7 @@
 
                     <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
 
-                    <h:outputLabel for="commentZip" value="Comment" rendered="#{useCustomComment}"/>
+                    <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
                     <h:inputTextarea id="commentZip"
                                      rendered="#{useCustomComment}"
                                      value="#{repositoryTreeController.createProjectComment}"
