@@ -271,7 +271,9 @@ public class RulesProject extends UserWorkspaceProject {
         if (localFolderName == null) {
             localFolderName = designProject.getName();
         }
-        new AProject(localRepository, localFolderName).update(designProject, getUser());
+
+        AProject localProject = new AProject(localRepository, localFolderName);
+        localProject.update(designProject, getUser());
         setRepository(localRepository);
         setFolderPath(localFolderName);
 
@@ -331,9 +333,13 @@ public class RulesProject extends UserWorkspaceProject {
                         // file size and modified time for a file to avoid lazy loading and therefore performance
                         // degradation. Only change unique id that was gotten from design repository.
                         FileData localData = localRepository.check(localName);
-                        localData.setUniqueId(designData.getUniqueId());
+                        if (localData != null) {
+                            localData.setUniqueId(designData.getUniqueId());
 
-                        localRepository.updateFileProperties(localData);
+                            localRepository.updateFileProperties(localData);
+                        } else {
+                            log.warn("Files in local repository for folder {} aren't found", localName);
+                        }
                     }
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
