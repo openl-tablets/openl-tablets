@@ -16,6 +16,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private String userEmail;
     private String localRepositoryPath;
     private String branch;
+    private String newBranchTemplate;
     private String tagPrefix;
     private int listenerTimerPeriod;
     private String settingsPath;
@@ -27,6 +28,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String USER_EMAIL;
     private final String LOCAL_REPOSITORY_PATH;
     private final String BRANCH;
+    private final String NEW_BRANCH_TEMPLATE;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final RepositoryMode repositoryMode;
@@ -43,6 +45,7 @@ public class GitRepositorySettings extends RepositorySettings {
         USER_EMAIL = configPrefix + "user-email";
         LOCAL_REPOSITORY_PATH = configPrefix + "local-repository-path";
         BRANCH = configPrefix + "branch";
+        NEW_BRANCH_TEMPLATE = configPrefix + "new-branch-pattern";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
         SETTINGS_PATH = "git-settings-path";
@@ -68,6 +71,7 @@ public class GitRepositorySettings extends RepositorySettings {
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
         settingsPath = configManager.getStringProperty(SETTINGS_PATH);
+        newBranchTemplate = configManager.getStringProperty(NEW_BRANCH_TEMPLATE);
     }
 
     public String getUri() {
@@ -151,7 +155,15 @@ public class GitRepositorySettings extends RepositorySettings {
     public void setSettingsPath(String settingsPath) {
         this.settingsPath = settingsPath;
     }
-
+    
+    public String getNewBranchTemplate() {
+        return newBranchTemplate;
+    }
+    
+    public void setNewBranchTemplate(String newBranchTemplate) {
+        this.newBranchTemplate = newBranchTemplate;
+    }
+    
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -170,6 +182,7 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(USER_EMAIL, userEmail);
         propertiesHolder.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         propertiesHolder.setProperty(BRANCH, branch);
+        propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
@@ -187,6 +200,7 @@ public class GitRepositorySettings extends RepositorySettings {
                 USER_EMAIL,
                 LOCAL_REPOSITORY_PATH,
                 BRANCH,
+                NEW_BRANCH_TEMPLATE,
                 TAG_PREFIX,
                 LISTENER_TIMER_PERIOD,
                 SETTINGS_PATH
@@ -207,6 +221,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setUserEmail(otherSettings.getUserEmail());
             setLocalRepositoryPath(otherSettings.getLocalRepositoryPath());
             setBranch(otherSettings.getBranch());
+            setNewBranchTemplate(otherSettings.getNewBranchTemplate());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setCommentTemplate(otherSettings.getCommentTemplate());
