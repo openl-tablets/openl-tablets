@@ -781,11 +781,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         IOUtils.copy(stream, output);
                     }
                     git.add().addFilepattern(change.getData().getName()).call();
+                    changedFiles.add(change.getData().getName());
                 } else {
-                    git.rm().addFilepattern(change.getData().getName()).call();
+                    if (file.exists()) {
+                        git.rm().addFilepattern(change.getData().getName()).call();
+                        changedFiles.add(change.getData().getName());
+                    }
                 }
-
-                changedFiles.add(change.getData().getName());
             }
 
             if (changesetType == ChangesetType.FULL) {

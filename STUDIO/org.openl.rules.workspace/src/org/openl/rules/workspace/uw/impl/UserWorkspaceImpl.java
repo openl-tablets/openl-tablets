@@ -96,8 +96,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public AProject createProject(String name) throws ProjectException {
-        return designTimeRepository.createProject(name);
+    public RulesProject createProject(String name) throws ProjectException {
+        FileData localData = new FileData();
+        localData.setName(name);
+
+        AProject designProject = designTimeRepository.createProject(name);
+        FileData designData = designProject.getFileData();
+
+        return new RulesProject(
+                this,
+                localWorkspace.getRepository(),
+                localData,
+                designProject.getRepository(),
+                designData,
+                projectsLockEngine
+        );
     }
 
     @Override
