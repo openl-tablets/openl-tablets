@@ -435,7 +435,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
         try {
-            AProject createdProject = createProject(name);
+            AProject createdProject = designTimeRepository.createProject(name);
             AProject project = localWorkspace.getProject(name);
             project.refresh();
             if (designTimeRepository.getRepository().supports().mappedFolders()) {
@@ -444,6 +444,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
+            localWorkspace.getRepository().getProjectState(name).clearModifyStatus();
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {
