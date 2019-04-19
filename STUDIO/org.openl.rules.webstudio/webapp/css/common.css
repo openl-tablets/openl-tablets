@@ -1,8 +1,12 @@
 body {
     color: #171717;
     background: #fff;
-    font-family: Verdana, Helvetica, Arial;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
     font-size: 70%;
+}
+
+.rf-tab-cnt tbody, .rf-pp-cnt tbody{
+    font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
 optgroup {
@@ -26,6 +30,8 @@ input[type='text'], input[type='password'], textarea {
     -ms-box-sizing:content-box;
     -moz-box-sizing:content-box;
     -webkit-box-sizing:content-box;
+    margin: 3px 0 0 0;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
 select {
@@ -45,6 +51,8 @@ select {
     -ms-box-sizing:content-box;
     -moz-box-sizing:content-box;
     -webkit-box-sizing:content-box;
+    margin: 3px 0 0 0;
+    font-family: Verdana, Helvetica, Arial;
 }
 
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
@@ -167,6 +175,10 @@ a.button-secondary {
 #designRepoRefresh,
 #productionRepoRefresh {
     opacity: 0.7;
+}
+
+td:empty {
+    padding: 0px;
 }
 
 img {
@@ -465,7 +477,13 @@ fieldset {
 
 .fields section div .titleColumn {
     width: 150px;
-    padding: 5px 0;
+    padding-right: 5px;
+    padding-top: 8px;
+    padding-bottom: 5px;
+}
+
+.fields section div .titleColumn:empty {
+    padding: 0px;
 }
 
 .block-column {
@@ -664,11 +682,15 @@ form .formfields {
 .label {
     color: #3f3f3f;
     padding-right: 5px;
-    padding-top: 5px;
+    padding-top: 8px;
     padding-bottom: 5px;
     width: 150px;
     vertical-align: top;
-    font-family: verdana, helvetica, arial, sans-serif;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+.label:empty {
+    padding: 0px;
 }
 
 .required:after {
