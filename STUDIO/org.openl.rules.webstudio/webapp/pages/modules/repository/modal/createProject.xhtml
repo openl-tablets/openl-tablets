@@ -99,8 +99,12 @@
                             <td class="label" style="width: 100px">
                                 <h:outputLabel for="commentTemplate" value="Comment:" />
                             </td>
-                            <td><h:inputText id="commentTemplate" size="35"
-                                             value="#{repositoryTreeController.createProjectComment}"/>
+                            <td><h:inputTextarea id="commentTemplate"
+                                         value="#{repositoryTreeController.createProjectComment}"
+                                         title="#{repositoryTreeController.createProjectComment}"
+                                         type="text"
+                                         size="35"
+                                         readonly="false"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -219,7 +223,7 @@
                                             onclick="changeStatus(this);"/>
                                         </rich:column>
                                         <rich:column>
-                                            <h:outputText value="Name:" />
+                                            <h:outputText value="Name" />
                                         </rich:column>
                                     </rich:columnGroup>
                                 </f:facet>
@@ -242,7 +246,8 @@
                             <h:inputText id="projectFolderLocal" size="35"
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
-
+                    </div>
+                    <p>
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
@@ -254,7 +259,7 @@
                                              size="35"
                                              readonly="false"/>
                         </h:panelGrid>
-                    </div>
+                    </p>
 
                     <h:panelGroup id="localUploadButtonPanel">
                     <footer>
