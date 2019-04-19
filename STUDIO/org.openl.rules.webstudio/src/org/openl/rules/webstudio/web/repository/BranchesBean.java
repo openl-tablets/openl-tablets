@@ -61,6 +61,10 @@ public class BranchesBean {
     }
 
     public void save() {
+        if (branches == null || branches.isEmpty()) {
+            FacesUtils.addErrorMessage("At least one branch must be selected!");
+            return;
+        }
         try {
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
