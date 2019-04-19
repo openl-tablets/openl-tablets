@@ -158,20 +158,20 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        return lockEngine.getLockInfo(getName());
+        return lockEngine.getLockInfo(getBranch(), getName());
     }
 
     @Override
     public void lock() throws ProjectException {
             // No need to lock local only projects. Other users don't see it.
             if (!isLocalOnly()) {
-                lockEngine.tryLock(getName(), getUser().getUserName());
+                lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
             }
     }
 
     @Override
     public void unlock() {
-        lockEngine.unlock(getName());
+        lockEngine.unlock(getBranch(), getName());
     }
 
     /**
@@ -186,7 +186,7 @@ public class RulesProject extends UserWorkspaceProject {
                 // No need to lock local only projects. Other users don't see it.
                 return true;
             }
-            return lockEngine.tryLock(getName(), getUser().getUserName());
+            return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
