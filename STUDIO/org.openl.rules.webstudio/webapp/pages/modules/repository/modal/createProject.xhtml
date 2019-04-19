@@ -219,7 +219,7 @@
                                             onclick="changeStatus(this);"/>
                                         </rich:column>
                                         <rich:column>
-                                            <h:outputText value="Name" />
+                                            <h:outputText value="Name:" />
                                         </rich:column>
                                     </rich:columnGroup>
                                 </f:facet>
@@ -238,7 +238,7 @@
                         </h:panelGrid>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
-                            <h:outputLabel for="projectFolderLocal" value="Path in repository"/>
+                            <h:outputLabel for="projectFolderLocal" value="Path in repository:"/>
                             <h:inputText id="projectFolderLocal" size="35"
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
@@ -246,7 +246,7 @@
                         <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
-                            <h:outputLabel for="commentLocal" value="Comment"/>
+                            <h:outputLabel for="commentLocal" value="Comment:"/>
                             <h:inputTextarea id="commentLocal"
                                              value="#{localUpload.createProjectComment}"
                                              title="#{localUpload.createProjectComment}"
