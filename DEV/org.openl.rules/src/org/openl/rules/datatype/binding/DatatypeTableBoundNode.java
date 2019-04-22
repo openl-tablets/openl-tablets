@@ -185,7 +185,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         tableSyntaxNode);
                 }
             }
-
             dataType.setInstanceClass(beanClass);
             validateBeanForDatatype(beanClass, fields);
         }
