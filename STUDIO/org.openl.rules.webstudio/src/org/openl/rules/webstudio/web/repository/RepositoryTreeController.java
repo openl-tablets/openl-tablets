@@ -914,7 +914,7 @@ public class RepositoryTreeController {
                 Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
                 if (project instanceof RulesProject && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
                     // Delete secondary branch
-                    ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
+                    ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
                 } else {
                     String comment;
                     if (isUseCustomComment(project instanceof RulesProject)) {
