@@ -13,4 +13,6 @@ public interface BranchRepository extends Repository {
     List<String> getBranches(String projectName) throws IOException;
 
     BranchRepository forBranch(String branch) throws IOException;
+
+    boolean isValidBranchName(String branch);
 }
