@@ -475,14 +475,14 @@ fieldset {
     color: rgb(71,71,71);
 }
 
-.fields section div .titleColumn {
+.titleColumn, .fields section div .titleColumn {
     width: 150px;
     padding-right: 5px;
     padding-top: 8px;
     padding-bottom: 5px;
 }
 
-.fields section div .titleColumn:empty {
+.titleColumn:empty, .fields section div .titleColumn:empty {
     padding: 0px;
 }
 
