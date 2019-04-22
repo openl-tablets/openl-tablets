@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.util.StringUtils;
 
 public abstract class RepositorySettings {
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
@@ -168,17 +167,31 @@ public abstract class RepositorySettings {
         propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
 
         propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
-        propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
-        propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
+        if (useCustomComments) {
+            propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
+            propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
 
-        propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
+            propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
+        } else {
+            propertiesHolder.removeProperty(COMMENT_VALIDATION_PATTERN);
+            propertiesHolder.removeProperty(INVALID_COMMENT_MESSAGE);
+
+            propertiesHolder.removeProperty(COMMENT_TEMPLATE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_SAVE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_CREATE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_ARCHIVE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_ERASE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_COPIED_FROM);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORED_FROM);
+        }
     }
 
     protected void revert(ConfigurationManager configurationManager) {
