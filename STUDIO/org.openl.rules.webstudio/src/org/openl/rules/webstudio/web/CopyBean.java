@@ -268,8 +268,9 @@ public class CopyBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            Repository designRepository = designTimeRepository.getRepository();
-            Collection<String> branches = ((BranchRepository) designRepository).getBranches(currentProjectName);
+            BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
+            FacesUtils.validate(designRepository.isValidBranchName(newBranchName), "Invalid branch name. It should not contain reserved words or symbols");
+            Collection<String> branches = designRepository.getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
         } catch (WorkspaceException | IOException ignored) {
         }

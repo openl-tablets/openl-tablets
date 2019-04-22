@@ -610,4 +610,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return null;
         }
     }
+
+    @Override
+    public boolean isValidBranchName(String branch) {
+        return true;
+    }
 }
