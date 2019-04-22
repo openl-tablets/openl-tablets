@@ -1815,12 +1815,24 @@ public class RepositoryTreeController {
     public void setProjectBranch(String branch) {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-            if (selectedProject.isOpened()) {
+            String previousBranch = selectedProject.getBranch();
+            if (branch == null || branch.equals(previousBranch)) {
+                return;
+            }
+
+            boolean opened = selectedProject.isOpened();
+            if (opened) {
                 studio.getModel().clearModuleInfo();
                 selectedProject.releaseMyLock();
             }
 
             selectedProject.setBranch(branch);
+
+            if (opened) {
+                // Update files
+                selectedProject.open();
+            }
+
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
             version = null;
