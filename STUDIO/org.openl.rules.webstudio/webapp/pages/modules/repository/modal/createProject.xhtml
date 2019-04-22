@@ -173,15 +173,16 @@
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
                                 execute="@none"
-                                render="projectName"
-                                oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
+                                render="projectName commentZip"
+                                oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
                     </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                     <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
+                            onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
 
                     <h:outputLabel for="projectFolderZip" value="Path in repository:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
@@ -198,7 +199,8 @@
                                      title="#{repositoryTreeController.createProjectComment}"
                                      type="text"
                                      size="35"
-                                     readonly="false"/>
+                                     readonly="false"
+                                    onkeyup="uploadProjectFormCommentHandler.isEdited = true;"/>
                 </h:panelGrid>
 
                 <footer>
@@ -280,6 +282,24 @@
 
         // TODO Move code to namespace
 
+        //<![CDATA[
+
+        var CommentTemplateHandler = function() {
+            this.isEdited = false;
+            this.createProjectCommentTemplate = "#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}";
+
+            var self = this;
+
+            this.generateTemplate = function(projectName, input) {
+                if (self.isEdited === false && projectName.length > 0 && self.createProjectCommentTemplate) {
+                    input.value = self.createProjectCommentTemplate.replace(/\{0}/g, projectName);
+                }
+            };
+        };
+
+        var uploadProjectFormCommentHandler = new CommentTemplateHandler();
+        //]]>
+
         enableCreateButton(false, #{rich:element("sbtFiles")});
         enableCreateButton(false, #{rich:element("sbtZips")});
         enableCreateButton(false, #{rich:element("sbtWorkspace")});
@@ -302,11 +322,15 @@
         }
 
         function hideNewProjectDialog() {
+            uploadProjectFormCommentHandler.isEdited = false;
             $j("#createProjectFormTempl\\:projectName").val("");
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
+            $j("#createProjectFormTempl\\:commentTemplate").val("");
+            $j("#createProjectFormFiles\\:commentExcel").val("");
+            $j("#uploadProjectForm\\:commentZip").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
