@@ -119,7 +119,6 @@ public abstract class UserWorkspaceProject extends AProject {
         BranchRepository branchRepository = (BranchRepository) getDesignRepository();
         String currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {
-            boolean opened = isOpened();
             try {
                 setDesignRepository(branchRepository.forBranch(newBranch));
             } catch (IOException e) {
@@ -128,10 +127,6 @@ public abstract class UserWorkspaceProject extends AProject {
             setHistoryVersion(null);
             refresh();
             getFileData(); // Reinitialize file data
-            if (opened) {
-                // Update files
-                open();
-            }
         }
     }
 

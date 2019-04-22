@@ -1099,6 +1099,10 @@ public class WebStudio {
                     getModel().clearModuleInfo();
                     project.releaseMyLock();
                     project.setBranch(branch);
+
+                    // Update files
+                    project.open();
+
                     resetProjects();
                 }
             }
