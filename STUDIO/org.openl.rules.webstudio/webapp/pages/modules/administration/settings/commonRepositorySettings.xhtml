@@ -7,9 +7,11 @@
 
     <ui:param name="settings" value="#{repository.settings}" />
     <ui:param name="validators" value="#{settings.validators}" />
+    <ui:param name="isProductionRepo" value="#{repoType eq 'PRODUCTION'}" />
+    <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
 
     <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
-        <h:outputText value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
+        <h:outputText value="#{repository.type eq 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
         <h:inputText value="#{settings.path}" disabled="#{settings.repositoryPathSystem}" id="#{prependId}uri" validator="#{validators.url}"/>
         <h:outputText value=""/>
         <h:message for="#{prependId}uri" styleClass="error"/>
@@ -23,15 +25,17 @@
         <h:outputText value="Password:" rendered="#{settings.secure}"/>
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure}" redisplay="true"/>
 
-        <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}includeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentName"/>
-        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
+        <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}includeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentName"/>
+        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
     </h:panelGrid>
 
-    <ui:include src="/pages/modules/administration/settings/commentSettings.xhtml">
-        <ui:param name="prependId" value="#{prependId}Common"/>
-        <ui:param name="repository" value="#{repository}" />
-        <ui:param name="isProduction" value="#{isProduction}" />
-    </ui:include>
-
+    <h:panelGroup rendered="#{isDesignRepo}">
+        <ui:include src="/pages/modules/administration/settings/commentSettings.xhtml">
+            <ui:param name="prependId" value="#{prependId}Common"/>
+            <ui:param name="repository" value="#{repository}" />
+            <ui:param name="repoType" value="#{repoType}" />
+        </ui:include>
+    </h:panelGroup>
+    
 </ui:composition>
