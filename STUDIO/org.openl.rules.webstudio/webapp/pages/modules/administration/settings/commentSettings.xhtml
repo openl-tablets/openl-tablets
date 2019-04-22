@@ -76,7 +76,7 @@
         </ul>
     </div>
 
-    <h:panelGroup id="#{prependId}commentSettings" rendered="#{not isProduction }">
+    <h:panelGroup id="#{prependId}commentSettings">
         <h:panelGrid columns="2" columnClasses="titleColumn">
             <h:outputLabel value="Customize comments:" for="#{prependId}useCustomComments"/>
             <h:selectBooleanCheckbox id="#{prependId}useCustomComments" value="#{settings.useCustomComments}"

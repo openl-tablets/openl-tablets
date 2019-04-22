@@ -5,6 +5,8 @@
 >
 
     <ui:param name="settings" value="#{repository.settings}" />
+    <ui:param name="isProductionRepo" value="#{repoType eq 'PRODUCTION'}" />
+    <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
 
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputText value="Bucket name:" styleClass="required"/>
@@ -39,15 +41,16 @@
         <h:outputText value=""/>
         <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
 
-        <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}s3IncludeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}s3IncludeVersionInDeploymentName"/>
-        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
+        <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}s3IncludeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}s3IncludeVersionInDeploymentName"/>
+        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
     </h:panelGrid>
-
-    <ui:include src="/pages/modules/administration/settings/commentSettings.xhtml">
-        <ui:param name="prependId" value="#{prependId}AWS"/>
-        <ui:param name="repository" value="#{repository}" />
-        <ui:param name="isProduction" value="#{isProduction}" />
-    </ui:include>
-
+    
+    <h:panelGroup rendered="#{isDesignRepo}">
+        <ui:include src="/pages/modules/administration/settings/commentSettings.xhtml">
+            <ui:param name="prependId" value="#{prependId}AWS"/>
+            <ui:param name="repository" value="#{repository}" />
+            <ui:param name="repoType" value="#{repoType}" />
+        </ui:include>
+    </h:panelGroup>
 </ui:composition>
