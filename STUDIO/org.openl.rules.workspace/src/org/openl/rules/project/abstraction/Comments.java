@@ -84,4 +84,8 @@ public final class Comments {
     public String restoredFrom(String revisionNum) {
         return MessageFormat.format(restoredFromTemplate, revisionNum);
     }
+
+    public String getCreateProjectTemplate() {
+        return createProjectTemplate;
+    }
 }

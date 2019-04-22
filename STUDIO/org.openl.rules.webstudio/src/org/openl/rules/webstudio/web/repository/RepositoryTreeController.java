@@ -475,7 +475,7 @@ public class RepositoryTreeController {
 
     public String createNewRulesProject() {
         String comment;
-        if (isUseCustomComment(true)) {
+        if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
             comment = designRepoComments.createProject(projectName);
@@ -918,7 +918,7 @@ public class RepositoryTreeController {
                 if (project instanceof RulesProject && mainRepo.supports()
                     .branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
                     // Delete secondary branch
-                    ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
+                    ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
                 } else {
                     String comment;
                     if (isUseCustomComment(project instanceof RulesProject)) {
@@ -1340,6 +1340,7 @@ public class RepositoryTreeController {
                     .getProjectDescriptorOrNull(file, zipFilter, charset);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
+                    setCreateProjectComment(designRepoComments.createProject(projectDescriptor.getName()));
                 }
             }
         } else {
@@ -1481,7 +1482,7 @@ public class RepositoryTreeController {
 
     public String createProjectWithFiles() {
         String comment;
-        if (isUseCustomComment(true)) {
+        if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
             comment = designRepoComments.createProject(projectName);
@@ -1632,7 +1633,7 @@ public class RepositoryTreeController {
             ProjectFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 String comment;
-                if (isUseCustomComment(true)) {
+                if (StringUtils.isNotBlank(createProjectComment)) {
                     comment = createProjectComment;
                 } else {
                     comment = designRepoComments.createProject(projectName);
@@ -1892,7 +1893,11 @@ public class RepositoryTreeController {
     }
 
     public String getCreateProjectComment() {
-        return designRepoComments.createProject("");
+        return createProjectComment;
+    }
+
+    public String retrieveCreateProjectCommentTemplate() {
+        return projectUseCustomComment ? designRepoComments.getCreateProjectTemplate() : null;
     }
 
     public void setCreateProjectComment(String createProjectComment) {

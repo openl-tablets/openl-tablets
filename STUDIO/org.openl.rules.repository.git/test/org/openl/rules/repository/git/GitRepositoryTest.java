@@ -561,6 +561,12 @@ public class GitRepositoryTest {
         assertNotNull(createRepository(new File(remote).toURI().toString(), local, BRANCH));
     }
 
+    @Test
+    public void testIsValidBranchName() {
+        assertTrue(repo.isValidBranchName("123"));
+        assertFalse(repo.isValidBranchName("COM1/NUL"));
+    }
+
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
         return createRepository(remote, local, BRANCH);
     }

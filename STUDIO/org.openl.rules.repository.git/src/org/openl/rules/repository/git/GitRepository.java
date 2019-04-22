@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
+    private static final String REF_PREFIX = "refs/heads/";
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
@@ -1124,6 +1125,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
         return MessageFormat.format(commentTemplate, commitType, comment, data.getAuthor());
+    }
+
+    @Override
+    public boolean isValidBranchName(String s) {
+        return s != null && Repository.isValidRefName(REF_PREFIX + s);
     }
 
     private class GitRevisionGetter implements RevisionGetter {

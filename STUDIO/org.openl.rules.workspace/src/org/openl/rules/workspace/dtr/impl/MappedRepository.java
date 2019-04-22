@@ -612,4 +612,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return null;
         }
     }
+
+    @Override
+    public boolean isValidBranchName(String branch) {
+        if (delegate instanceof BranchRepository) {
+            return ((BranchRepository) delegate).isValidBranchName(branch);
+        }
+        return true;
+    }
 }
