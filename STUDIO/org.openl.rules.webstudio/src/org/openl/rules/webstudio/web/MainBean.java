@@ -128,6 +128,7 @@ public class MainBean {
             log.error("Error on reloading user's workspace", e);
         }
         repositoryTreeState.invalidateTree();
+        repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();
     }
 
