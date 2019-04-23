@@ -26,6 +26,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -37,7 +38,6 @@ import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -698,7 +698,8 @@ public class RepositoryTreeController {
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                closeProjectForAllUsers(workspacesRoot, selectedNode.getName());
+                String branch = ((RulesProject) projectArtefact).getBranch();
+                closeProjectForAllUsers(workspacesRoot, selectedNode.getName(), branch);
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
@@ -795,7 +796,8 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             if (projectArtefact instanceof RulesProject) {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                closeProjectForAllUsers(workspacesRoot, projectArtefact.getName());
+                String branch = ((RulesProject) projectArtefact).getBranch();
+                closeProjectForAllUsers(workspacesRoot, projectArtefact.getName(), branch);
             }
             resetStudioModel();
 
@@ -819,7 +821,7 @@ public class RepositoryTreeController {
             }
             project.unlock();
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-            closeProjectForAllUsers(workspacesRoot, projectName);
+            closeProjectForAllUsers(workspacesRoot, projectName, project.getBranch());
             resetStudioModel();
         } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
@@ -831,7 +833,7 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot, String projectName) throws ProjectException {
+    private void closeProjectForAllUsers(File workspacesRoot, String projectName, String branch) throws ProjectException {
         // Needed to update UI of current user
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
         if (projectNode != null) {
@@ -849,15 +851,19 @@ public class RepositoryTreeController {
                     String userName = file.getName();
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
-                        try (FileSystemRepository repository = new FileSystemRepository()) {
-                            repository.setRoot(file);
+                        try (LocalRepository repository = new LocalRepository(file)) {
                             repository.initialize();
-                            FileData fileData = new FileData();
-                            fileData.setName(projectName);
-                            if (!repository.delete(fileData)) {
-                                if (repository.check(fileData.getName()) != null) {
-                                    log.warn(
-                                        "Can't close project because resource '" + fileData.getName() + "' is used");
+
+                            FileData savedData = repository.getProjectState(projectName).getFileData();
+                            String savedBranch = savedData == null ? null : savedData.getBranch();
+
+                            if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
+                                FileData fileData = new FileData();
+                                fileData.setName(projectName);
+                                if (!repository.delete(fileData)) {
+                                    if (repository.check(fileData.getName()) != null) {
+                                        log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
+                                    }
                                 }
                             }
                         } catch (Exception e) {
