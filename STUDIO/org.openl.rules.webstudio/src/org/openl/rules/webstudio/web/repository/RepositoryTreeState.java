@@ -306,7 +306,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      */
     public void invalidateTree() {
         synchronized (lock) {
-            invalidateSelection();
             root = null;
 
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
