@@ -201,6 +201,7 @@ public class CopyBean {
 
             WebStudioUtils.getWebStudio().resetProjects();
             userWorkspace.refresh();
+            repositoryTreeState.invalidateTree();
 
             switchToNewBranch();
         } catch (Exception e) {

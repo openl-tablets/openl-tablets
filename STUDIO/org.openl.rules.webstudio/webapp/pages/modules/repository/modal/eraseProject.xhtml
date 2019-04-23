@@ -19,7 +19,7 @@
 
       <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
       <ui:param name="useCustomComment"
-                value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
+                value="#{node.type eq 'project' and repositoryTreeController.isUseCustomComment()}"/>
       <h:panelGroup rendered="#{useCustomComment}">
         <p>
           <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">

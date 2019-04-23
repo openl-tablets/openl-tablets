@@ -5,7 +5,7 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:popupPanel id="modalCopyFile" width="530" autosized="true">
+    <rich:popupPanel id="modalCopyFile" width="580" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy file"/>
         </f:facet>
@@ -19,7 +19,6 @@
             <h:panelGroup id="modalCopyFileData">
                 <section>
                     <h3>From</h3>
-
                     <div>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label">
                             <h:outputText value="File Name:"/>
@@ -45,10 +44,8 @@
                         </h:panelGrid>
                     </div>
                 </section>
-
                 <section>
                     <h3>As</h3>
-
                     <div>
                         <ui:param name="path" value="#{repositoryTreeController.currentNodePath}"/>
                         <input type="hidden" id="copyFileForm:filePath" name="copyFileForm:filePath" value="#{path}"/>
