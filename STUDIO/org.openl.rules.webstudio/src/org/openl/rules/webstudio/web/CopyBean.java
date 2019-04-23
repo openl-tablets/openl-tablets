@@ -20,10 +20,7 @@ import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -366,5 +363,13 @@ public class CopyBean {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public boolean isConfirmationRequired() {
+        if (!isSupportsBranches()) {
+            return false;
+        }
+        RulesProject project = getCurrentProject();
+        return project != null && project.isOpened() && project.getStatus() == ProjectStatus.EDITING;
     }
 }
