@@ -3,7 +3,8 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         #copyProjectForm input[type="text"],
@@ -93,7 +94,7 @@
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
+                <a4j:commandButton id="copy" value="Copy" onclick="return confirmSwitchingToNewBranch(#{copyBean.confirmationRequired})" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
                                    oncomplete="updateStates(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
@@ -201,6 +202,13 @@
                 $newProject.hide();
             }
         }
+
+        var confirmSwitchingToNewBranch = function (required) {
+            if (!required) {
+                return true;
+            }
+            return confirm("#{msg['ws.project.warning.other.branch']}");
+        };
 
         //]]>
     </script>
