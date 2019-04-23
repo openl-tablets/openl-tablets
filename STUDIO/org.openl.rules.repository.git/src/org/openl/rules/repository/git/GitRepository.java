@@ -954,7 +954,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.lock();
             if (projectName == null) {
                 // Return all available branches
-                TreeSet<String> branchNames = new TreeSet<>();
+                TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
                 List<Ref> refs = git.branchList().call();
                 for (Ref ref : refs) {
