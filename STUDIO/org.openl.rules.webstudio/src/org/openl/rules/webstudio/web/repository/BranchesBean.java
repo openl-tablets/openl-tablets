@@ -29,6 +29,8 @@ public class BranchesBean {
 
     private List<String> branches;
 
+    private String currentBranch;
+
     public String getCurrentProjectName() {
         return currentProjectName;
     }
@@ -96,10 +98,17 @@ public class BranchesBean {
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
                 branches = getBranches(project);
+                currentBranch = project.getBranch();
+            } else {
+                currentBranch = null;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    public String getCurrentBranch() {
+        return currentBranch;
     }
 
     private List<String> getBranches(RulesProject project) {
