@@ -5,46 +5,56 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalUndeleteProject" width="530" zindex="2000" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="Confirm Undelete" />
-    </f:facet>
+    <rich:popupPanel id="modalUndeleteProject" width="530" zindex="2000"
+        autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Confirm Undelete" />
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalUndeleteProject').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="RichFaces.$('modalUndeleteProject').hide();"
+                alt="Close" />
+        </f:facet>
 
-    <h:form id="modalUndeleteProjectForm">
-      <h:outputText value="Are you sure you want to undelete the project?" />
+        <h:form id="modalUndeleteProjectForm">
+            <h:outputText
+                value="Are you sure you want to undelete the project?" />
 
-      <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
-      <ui:param name="useCustomComment"
-                value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
-      <h:panelGroup rendered="#{useCustomComment}">
-        <p>
-          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Comment:"/>
-            <h:inputTextarea id="comment" value="#{repositoryTreeController.restoreProjectComment}" type="text"
-                             size="35"
-                             readonly="false" title="#{repositoryTreeController.restoreProjectComment}"/>
-          </h:panelGrid>
-        </p>
-      </h:panelGroup>
+            <ui:param name="node"
+                value="#{repositoryTreeController.selectedNode}" />
+            <ui:param name="useCustomComment"
+                value="#{node.type eq 'project' and repositoryTreeController.isUseCustomComment()}" />
+            <h:panelGroup rendered="#{useCustomComment}">
+                <p>
+                    <h:panelGrid columns="2" styleClass="formfields"
+                        cellspacing="1" columnClasses="label,">
+                        <h:outputText value="Comment:" />
+                        <h:inputTextarea id="comment"
+                            value="#{repositoryTreeController.restoreProjectComment}"
+                            type="text" size="35" readonly="false"
+                            title="#{repositoryTreeController.restoreProjectComment}" />
+                    </h:panelGrid>
+                </p>
+            </h:panelGroup>
 
-      <footer>
-        <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+            <footer>
+                <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                 Now errors are shown after dialog is closed. -->
-        <h:commandButton value="Undelete" action="#{repositoryTreeController.undeleteProject}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalUndeleteProject')}.hide();" />
-      </footer>
-    </h:form>
+                <h:commandButton value="Undelete"
+                    action="#{repositoryTreeController.undeleteProject}"
+                    styleClass="button-primary" />
+                <input type="button" value="Cancel"
+                    onclick="#{rich:component('modalUndeleteProject')}.hide();" />
+            </footer>
+        </h:form>
 
-  </rich:popupPanel>
+    </rich:popupPanel>
 
-  <script>
-    function confirmUndeleteProject() {
-      RichFaces.$('modalUndeleteProject').show();
-    }
-  </script>
+    <script>
+        function confirmUndeleteProject() {
+          RichFaces.$('modalUndeleteProject').show();
+        }
+    </script>
 
 </ui:composition>
