@@ -287,6 +287,10 @@
         }
 
         function canOpenOtherBranch() {
+            var confirmNeeded = #{studio.currentProject.status == 'EDITING'};
+            if (!confirmNeeded) {
+                return true;
+            }
             return confirm("#{msg['ws.project.warning.other.branch']}");
         }
 
