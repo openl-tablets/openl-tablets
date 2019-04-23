@@ -45,12 +45,13 @@
             </h:panelGroup>
 
             <footer>
-                <h:commandButton id="save" value="Save" action="#{branchesBean.save}" styleClass="button-primary"/>
+                <h:commandButton id="save" value="Save" onclick="setDisabledAttributeForCurrentBranch('#{branchesBean.currentBranch}', false)"
+                                 action="#{branchesBean.save}" styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalEditBranches').hide();"/>
             </footer>
 
             <a4j:jsFunction name="renderEditBranchesForm" render="editBranchesForm"
-                            oncomplete="showEditBranchesDialog()">
+                            oncomplete="showEditBranchesDialog('#{branchesBean.currentBranch}')">
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
             </a4j:jsFunction>
 
@@ -65,8 +66,15 @@
             renderEditBranchesForm(projectName);
         }
 
-        function showEditBranchesDialog() {
+        function showEditBranchesDialog(currentBranchName) {
+            setDisabledAttributeForCurrentBranch(currentBranchName, true);
             RichFaces.$("modalEditBranches").show();
+        }
+
+        function setDisabledAttributeForCurrentBranch(currentBranchName, disabled) {
+            if (currentBranchName) {
+                $j("#projectBranchesList :input[value='" + currentBranchName + "']").attr("disabled", disabled);
+            }
         }
 
         //]]>
