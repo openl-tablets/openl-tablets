@@ -952,7 +952,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     result = new ArrayList<>(Collections.singletonList(branch));
                 } else {
                     result = new ArrayList<>(projectBranches);
-                    Collections.sort(result);
+                    Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
                 }
                 return result;
             }
