@@ -7,6 +7,10 @@ import java.util.Map;
 import org.openl.util.StringUtils;
 
 public final class Comments {
+
+    private static final String PROJECT_NAME = "'{'project-name'}'";
+    private static final String REVISION = "'{'revision'}'";
+
     private final String saveProjectTemplate;
     private final String createProjectTemplate;
     private final String archiveProjectTemplate;
@@ -20,27 +24,27 @@ public final class Comments {
             throw new IllegalArgumentException("Prefix can't be null");
         }
 
-        saveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.save")
-                .toString()
-                .replace("{project-name}", "{0}");
-        createProjectTemplate = properties.get(prefix + "comment-template.user-message.default.create")
-                .toString()
-                .replace("{project-name}", "{0}");
-        archiveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.archive")
-                .toString()
-                .replace("{project-name}", "{0}");
-        restoreProjectTemplate = properties.get(prefix + "comment-template.user-message.default.restore")
-                .toString()
-                .replace("{project-name}", "{0}");
-        eraseProjectTemplate = properties.get(prefix + "comment-template.user-message.default.erase")
-                .toString()
-                .replace("{project-name}", "{0}");
-        copiedFromTemplate = properties.get(prefix + "comment-template.user-message.default.copied-from")
-                .toString()
-                .replace("{project-name}", "{0}");
-        restoredFromTemplate = properties.get(prefix + "comment-template.user-message.default.restored-from")
-                .toString()
-                .replace("{revision}", "{0}");
+        saveProjectTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.save")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        createProjectTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.create")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        archiveProjectTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.archive")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        restoreProjectTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.restore")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        eraseProjectTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.erase")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        copiedFromTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.copied-from")
+                .toString())
+                .replace(PROJECT_NAME, "{0}");
+        restoredFromTemplate = escapeBraces(properties.get(prefix + "comment-template.user-message.default.restored-from")
+                .toString())
+                .replace(REVISION, "{0}");
     }
 
     public String saveProject(String projectName) {
@@ -87,5 +91,9 @@ public final class Comments {
 
     public String getCreateProjectTemplate() {
         return createProjectTemplate;
+    }
+
+    private static String escapeBraces(String s) {
+        return s.replaceAll("\\{(.*?)}", "'{'$1'}'");
     }
 }
