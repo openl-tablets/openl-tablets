@@ -2,14 +2,11 @@ package org.openl.rules.rest;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * A project description bean.
  * 
  * @author Yury Molchan
  */
-@XmlRootElement
 public class ProjectDescription {
     private String name; // A project name
     private String version; // Last version of the project
