@@ -117,12 +117,12 @@
             </list>
         </property>
         <property name="providers">
-            <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
-                <property name="dropRootElement" value="true"/>
-                <property name="serializeAsArray" value="true"/>
-                <property name="writeXsiType" value="false"/>
-                <property name="readXsiType" value="false"/>
-                <property name="dropCollectionWrapperElement" value="true"/>
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
+                <constructor-arg name="mapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="serializationInclusion" value="NON_DEFAULT"/>
+                    </bean>
+                </constructor-arg>
             </bean>
         </property>
     </bean>
