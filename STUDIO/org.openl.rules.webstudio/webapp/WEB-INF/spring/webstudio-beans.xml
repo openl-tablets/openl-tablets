@@ -111,6 +111,7 @@
         <property name="address" value=""/>
         <property name="serviceBeans">
             <list>
+                <ref bean="betaRepositoryService"/>
                 <ref bean="repositoryService"/>
                 <ref bean="traceService"/>
                 <ref bean="testDownloadService"/>
