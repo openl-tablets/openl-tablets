@@ -688,6 +688,11 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
+        if (isSupportsBranches() && projectArtefact.getVersion() == null) {
+            activeProjectNode = null;
+            FacesUtils.addErrorMessage("Failed to delete node. Project does not exits in the branch!");
+            return null;
+        }
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
