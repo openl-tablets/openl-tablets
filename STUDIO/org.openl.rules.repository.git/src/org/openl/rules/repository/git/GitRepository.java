@@ -90,6 +90,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(data, stream): lock");
             writeLock.lock();
 
+            reset();
             saveSingleFile(data, stream);
         } catch (Exception e) {
             reset();
@@ -132,6 +133,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("delete(): lock");
             writeLock.lock();
 
+            reset();
             git.checkout().setName(branch).call();
 
             String name = data.getName();
@@ -190,6 +192,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("copy(): lock");
             writeLock.lock();
 
+            reset();
             git.checkout().setName(branch).call();
 
             File src = new File(localRepositoryPath, srcName);
@@ -256,6 +259,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("deleteHistory(): lock");
             writeLock.lock();
 
+            reset();
             git.checkout().setName(branch).call();
 
             RevCommit commit;
@@ -317,6 +321,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("copyHistory(): lock");
             writeLock.lock();
 
+            reset();
             git.checkout().setName(branch).call();
 
             File src = new File(localRepositoryPath, srcName);
@@ -779,6 +784,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(folderData, files, changesetType): lock");
             writeLock.lock();
 
+            reset();
             saveMultipleFiles(folderData, files, changesetType);
         } catch (Exception e) {
             reset();
@@ -873,6 +879,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("createBranch(): lock");
             writeLock.lock();
 
+            reset();
+
             // If newBranch doesn't exist, create it.
             boolean branchAbsents = git.getRepository().findRef(newBranch) == null;
             if (branchAbsents) {
@@ -915,6 +923,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("deleteBranch(): lock");
             writeLock.lock();
+
+            reset();
 
             if (projectName == null) {
                 // Remove the branch from all mappings.
