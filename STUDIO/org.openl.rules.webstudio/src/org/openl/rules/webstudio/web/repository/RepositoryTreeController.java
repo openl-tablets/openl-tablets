@@ -710,7 +710,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
 
                 String comment;
-                if (project instanceof RulesProject && isUseCustomComment()) {
+                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                     comment = archiveProjectComment;
                     if (!isValidComment(project, comment)) {
                         return null;
@@ -924,7 +924,7 @@ public class RepositoryTreeController {
                     ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
                 } else {
                     String comment;
-                    if (project instanceof RulesProject && isUseCustomComment()) {
+                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                         comment = eraseProjectComment;
                         if (!isValidComment(project, comment)) {
                             return null;
@@ -1427,7 +1427,7 @@ public class RepositoryTreeController {
 
         try {
             String comment;
-            if (project instanceof RulesProject && isUseCustomComment()) {
+            if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                 comment = restoreProjectComment;
                 if (!isValidComment(project, comment)) {
                     return null;
@@ -1923,8 +1923,18 @@ public class RepositoryTreeController {
 
         return "";
     }
-    
+
+    /**
+     * Used when create a project.
+     */
     public boolean isUseCustomComment() {
+        return projectUseCustomComment;
+    }
+
+    /**
+     * Used when delete/undelete/erase a project.
+     */
+    public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
         return repositoryTreeState.getSelectedProject() != null ? projectUseCustomComment && !repositoryTreeState.getSelectedProject().isLocalOnly() : projectUseCustomComment; 
     }
