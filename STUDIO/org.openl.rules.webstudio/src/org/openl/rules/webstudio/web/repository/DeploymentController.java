@@ -309,8 +309,9 @@ public class DeploymentController {
                     }
                     repositoryTreeState.refreshNode(
                         repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
-                } catch (ProjectException e) {
+                } catch (Exception e) {
                     log.error("Failed to open project '{}'!", projectName, e);
+                    FacesUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
                 }
             }
             item.setSelected(false);
