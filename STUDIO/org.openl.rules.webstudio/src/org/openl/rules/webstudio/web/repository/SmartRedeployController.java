@@ -73,7 +73,8 @@ public class SmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject) {
+        if (project == null || project != currentProject
+                || (isSupportsBranches() && project.getVersion() == null)) {
             reset();
             return null;
         }
@@ -472,6 +473,21 @@ public class SmartRedeployController {
 
     public boolean isLoading() {
         return loading;
+    }
+
+    /**
+     * Checks if design repository supports branches
+     */
+    public boolean isSupportsBranches() {
+        try {
+            UserWorkspace userWorkspace = RepositoryUtils.getWorkspace();
+            if (userWorkspace != null) {
+                return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
 }
