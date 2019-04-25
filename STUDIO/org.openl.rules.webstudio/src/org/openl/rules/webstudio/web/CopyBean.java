@@ -27,6 +27,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -64,6 +65,7 @@ public class CopyBean {
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
+    private CommentValidator commentValidator;
 
     public boolean getCanCreate() {
         return isGranted(CREATE_PROJECTS);
@@ -282,6 +284,15 @@ public class CopyBean {
 
     }
 
+    public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String comment = (String) value;
+
+        RulesProject project = getCurrentProject();
+        if (project != null) {
+            commentValidator.validate(comment);
+        }
+    }
+
     private Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox")).getValue();
     }
@@ -353,6 +364,7 @@ public class CopyBean {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+        this.commentValidator = CommentValidator.forDesignRepo(config);
     }
 
     public void setDesignRepoComments(Comments designRepoComments) {
