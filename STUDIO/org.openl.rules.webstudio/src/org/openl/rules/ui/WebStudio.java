@@ -1100,6 +1100,11 @@ public class WebStudio {
                     project.releaseMyLock();
                     project.setBranch(branch);
 
+                    if (project.getVersion() == null) {
+                        //move back to previous branch! Because the project is not present in new branch
+                        project.setBranch(previousBranch);
+                        log.warn("Current project does not exists in '{}' branch! Project branch was switched to the previous one", branch);
+                    }
                     // Update files
                     project.open();
 
