@@ -46,9 +46,7 @@
 
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
-                                     validatorMessage="Length is greater than allowable maximum of '255'">
-                        <f:validateLength maximum="255"/>
-                    </h:inputTextarea>
+                                     validator="#{copyBean.commentValidator}"/>
                     <h:outputText value=""/>
                     <h:message for="comment" styleClass="error"/>
 
