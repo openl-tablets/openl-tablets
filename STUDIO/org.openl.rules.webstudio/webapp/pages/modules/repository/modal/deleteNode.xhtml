@@ -50,7 +50,7 @@
                     </div>
                 </h:panelGroup>
                 <h:panelGroup
-                    rendered="#{node.type eq 'project' and repositoryTreeController.isUseCustomComment()}">
+                    rendered="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}">
                     <p>
                         <h:panelGrid columns="2" styleClass="formfields"
                             cellspacing="1" columnClasses="label,">
