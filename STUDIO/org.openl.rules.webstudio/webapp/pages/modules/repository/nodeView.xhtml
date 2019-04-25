@@ -131,6 +131,7 @@
                 <td>
                     <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
                                      title="#{repositoryTreeController.projectBranch}"
+                                     validator="#{repositoryTreeController.validateProjectForBranch}"
                                      id="branchSelector"
                                      onchange="return canOpenOtherBranch(this);">
                         <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
@@ -138,6 +139,9 @@
                     </h:selectOneMenu>
                     <input type="button" value="..." title="Manage project branches"
                            onclick="openEditBranchesDialog('#{node.name}');" style="height: 23px;padding: 0px 5px;"/>
+                    <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
+                        <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>
+                    </a4j:outputPanel>
                 </td>
             </tr>
             </h:panelGroup>

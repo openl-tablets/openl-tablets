@@ -94,7 +94,7 @@
                             </td>
                         </tr>
                         </ui:fragment>
-                        <ui:fragment rendered="#{repositoryTreeController.isUseCustomComment()}">
+                        <ui:fragment rendered="#{repositoryTreeController.useCustomComment}">
                         <tr>
                             <td class="label" style="width: 100px">
                                 <h:outputLabel for="commentTemplate" value="Comment:" />
@@ -143,7 +143,7 @@
                                      value="#{repositoryTreeController.projectFolder}"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment()}"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
                         <h:outputLabel for="commentExcel" value="Comment:" rendered="#{useCustomComment}"/>
                         <h:inputTextarea id="commentExcel"
@@ -190,7 +190,7 @@
                                  value="#{repositoryTreeController.projectFolder}"
                                  rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                    <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment()}"/>
+                    <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
                     <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
                     <h:inputTextarea id="commentZip"
@@ -250,7 +250,7 @@
                         </h:panelGrid>
                     </div>
                     <p>
-                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment()}"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
                             <h:outputLabel for="commentLocal" value="Comment:"/>

@@ -688,6 +688,11 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
+        if (isSupportsBranches() && projectArtefact.getVersion() == null) {
+            activeProjectNode = null;
+            FacesUtils.addErrorMessage("Failed to delete node. Project does not exits in the branch!");
+            return null;
+        }
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
@@ -705,7 +710,7 @@ public class RepositoryTreeController {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
 
                 String comment;
-                if (project instanceof RulesProject && isUseCustomComment()) {
+                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                     comment = archiveProjectComment;
                     if (!isValidComment(project, comment)) {
                         return null;
@@ -919,7 +924,7 @@ public class RepositoryTreeController {
                     ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
                 } else {
                     String comment;
-                    if (project instanceof RulesProject && isUseCustomComment()) {
+                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                         comment = eraseProjectComment;
                         if (!isValidComment(project, comment)) {
                             return null;
@@ -1422,7 +1427,7 @@ public class RepositoryTreeController {
 
         try {
             String comment;
-            if (project instanceof RulesProject && isUseCustomComment()) {
+            if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                 comment = restoreProjectComment;
                 if (!isValidComment(project, comment)) {
                     return null;
@@ -1833,6 +1838,11 @@ public class RepositoryTreeController {
             }
 
             selectedProject.setBranch(branch);
+            if (selectedProject.getVersion() == null) {
+                //move back to previous branch! Because the project is not present in new branch
+                selectedProject.setBranch(previousBranch);
+                log.warn("Current project does not exists in '{}' branch! Project branch was switched to the previous one", branch);
+            }
 
             if (opened) {
                 // Update files
@@ -1843,6 +1853,22 @@ public class RepositoryTreeController {
             resetStudioModel();
             version = null;
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public void validateProjectForBranch(FacesContext context, UIComponent toValidate, Object value) {
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        if (!isSupportsBranches() || !(selectedProject instanceof RulesProject)) {
+            return;
+        }
+        String branch = (String) value;
+        BranchRepository repository = (BranchRepository) selectedProject.getDesignRepository();
+        try {
+            boolean exists = !repository.forBranch(branch)
+                    .listHistory(((RulesProject) selectedProject).getDesignFolderName()).isEmpty();
+            FacesUtils.validate(exists, "Current project does not exist in this branch!");
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
     }
@@ -1897,8 +1923,18 @@ public class RepositoryTreeController {
 
         return "";
     }
-    
+
+    /**
+     * Used when create a project.
+     */
     public boolean isUseCustomComment() {
+        return projectUseCustomComment;
+    }
+
+    /**
+     * Used when delete/undelete/erase a project.
+     */
+    public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
         return repositoryTreeState.getSelectedProject() != null ? projectUseCustomComment && !repositoryTreeState.getSelectedProject().isLocalOnly() : projectUseCustomComment; 
     }
