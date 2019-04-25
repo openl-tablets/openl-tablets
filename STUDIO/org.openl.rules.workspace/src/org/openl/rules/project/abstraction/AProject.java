@@ -63,7 +63,7 @@ public class AProject extends AProjectFolder {
                         fileData.setBranch(((BranchRepository) repository).getBranch());
                     }
                 } catch (IOException ex) {
-                    throw new IllegalStateException(ex);
+                    throw new IllegalStateException(ex.getMessage(), ex);
                 }
             } else {
                 fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);

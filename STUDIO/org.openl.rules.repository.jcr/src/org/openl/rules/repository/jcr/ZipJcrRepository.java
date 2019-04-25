@@ -296,6 +296,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             return createFileData(name, history);
         } catch (CommonException e) {
             throw new IOException(e);
+        } catch (NumberFormatException e) {
+            throw new IOException("Project version must be a number.");
         }
     }
 
