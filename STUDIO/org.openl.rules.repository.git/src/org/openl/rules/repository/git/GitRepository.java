@@ -432,6 +432,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             git = Git.open(local);
+            StoredConfig config = git.getRepository().getConfig();
+            if (StringUtils.isNotBlank(userDisplayName)) {
+                config.setString(ConfigConstants.CONFIG_USER_SECTION,
+                        null,
+                        ConfigConstants.CONFIG_KEY_NAME,
+                        userDisplayName);
+            } else {
+                config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME);
+            } if (StringUtils.isNotBlank(userEmail)) {
+                config.setString(ConfigConstants.CONFIG_USER_SECTION,
+                        null,
+                        ConfigConstants.CONFIG_KEY_EMAIL,
+                        userEmail);
+            } else {
+                config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
+            }
+            config.save();
 
             if (!shouldClone) {
                 fetchAll();
