@@ -18,25 +18,27 @@
         </f:facet>
 
         <h:form id="modalUndeleteProjectForm">
-            <h:outputText
-                value="Are you sure you want to undelete the project?" />
+            <h:panelGroup id="modalUndeleteProjectData">
+                <h:outputText
+                    value="Are you sure you want to undelete the project?" />
 
-            <ui:param name="node"
-                value="#{repositoryTreeController.selectedNode}" />
-            <ui:param name="useCustomComment"
-                value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}" />
-            <h:panelGroup rendered="#{useCustomComment}">
-                <p>
-                    <h:panelGrid columns="2" styleClass="formfields"
-                        cellspacing="1" columnClasses="label,">
-                        <h:outputText value="Comment:" />
-                        <h:inputTextarea id="comment"
-                            value="#{repositoryTreeController.restoreProjectComment}"
-                            type="text" size="35" readonly="false"
-                            title="#{repositoryTreeController.restoreProjectComment}" />
-                    </h:panelGrid>
-                </p>
-            </h:panelGroup>
+                <ui:param name="node"
+                    value="#{repositoryTreeController.selectedNode}" />
+                <ui:param name="useCustomComment"
+                    value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}" />
+                <h:panelGroup rendered="#{useCustomComment}">
+                    <p>
+                        <h:panelGrid columns="2" styleClass="formfields"
+                            cellspacing="1" columnClasses="label,">
+                            <h:outputText value="Comment:" />
+                            <h:inputTextarea id="comment"
+                                value="#{repositoryTreeController.restoreProjectComment}"
+                                type="text" size="35" readonly="false"
+                                title="#{repositoryTreeController.restoreProjectComment}" />
+                        </h:panelGrid>
+                    </p>
+                </h:panelGroup>
+            </h:panelGroup>>
 
             <footer>
                 <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
