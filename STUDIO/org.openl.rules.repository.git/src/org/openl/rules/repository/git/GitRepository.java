@@ -20,7 +20,9 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -676,14 +678,43 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         fetchCommand.call();
     }
 
-    private void push() throws GitAPIException {
+    private void push() throws GitAPIException, IOException {
         PushCommand push = git.push().setPushTags().add(branch);
 
         if (StringUtils.isNotBlank(login)) {
             push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
         }
 
-        push.call();
+        Iterable<PushResult> results = push.call();
+        validatePushResults(results);
+    }
+
+    private void validatePushResults(Iterable<PushResult> results) throws IOException {
+        for (PushResult result : results) {
+            Collection<RemoteRefUpdate> remoteUpdates = result.getRemoteUpdates();
+            for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
+                RemoteRefUpdate.Status status = remoteUpdate.getStatus();
+                switch (status) {
+                    case OK:
+                    case UP_TO_DATE:
+                    case NON_EXISTING:
+                        // Successful operation. Continue.
+                        break;
+                    case REJECTED_NONFASTFORWARD:
+                        throw new IOException("Remote ref update was rejected, as it would cause non fast-forward update.");
+                    case REJECTED_NODELETE:
+                        throw new IOException("Remote ref update was rejected, because remote side doesn't support/allow deleting refs.");
+                    case REJECTED_REMOTE_CHANGED:
+                        throw new IOException("Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
+                    case REJECTED_OTHER_REASON:
+                        throw new IOException(remoteUpdate.getMessage());
+                    case AWAITING_REPORT:
+                        throw new IOException("Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
+                    default:
+                        throw new IOException("Push process returned with status " + status + " and message " + remoteUpdate.getMessage());
+                }
+            }
+        }
     }
 
     private <T> T iterate(String path, WalkCommand<T> command) throws IOException {
@@ -1117,14 +1148,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return repository;
     }
 
-    private void pushBranch(RefSpec refSpec) throws GitAPIException {
+    private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
         PushCommand push = git.push().setRefSpecs(refSpec);
 
         if (StringUtils.isNotBlank(login)) {
             push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
         }
 
-        push.call();
+        Iterable<PushResult> results = push.call();
+        validatePushResults(results);
     }
 
     private void readBranches() throws IOException {
