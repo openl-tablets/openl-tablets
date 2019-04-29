@@ -208,7 +208,7 @@ public class CopyBean {
             switchToNewBranch();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.throwValidationError("Can't copy the project: " + e.getMessage());
+            FacesUtils.addErrorMessage("Can't copy the project: " + e.getMessage());
         }
     }
 
@@ -285,6 +285,10 @@ public class CopyBean {
     }
 
     public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        if (isSupportsBranches() && !isSeparateProjectSubmitted(context)) {
+            return;
+        }
+
         String comment = (String) value;
 
         RulesProject project = getCurrentProject();
