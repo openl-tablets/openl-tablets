@@ -634,6 +634,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             pull();
+
+            TreeSet<String> availableBranches = getAvailableBranches();
+            for (List<String> projectBranches : branches.values()) {
+                for (Iterator<String> it = projectBranches.iterator(); it.hasNext(); ) {
+                    String branch = it.next();
+                    if (!availableBranches.contains(branch)) {
+                        it.remove();
+                    }
+                }
+            }
+            saveBranches();
         } finally {
             writeLock.unlock();
             log.debug("pull(): unlock");
@@ -1058,16 +1069,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.lock();
             if (projectName == null) {
                 // Return all available branches
-                TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-
-                List<Ref> refs = git.branchList().call();
-                for (Ref ref : refs) {
-                    String name = ref.getName();
-                    if (name.startsWith(Constants.R_HEADS)) {
-                        name = name.substring(Constants.R_HEADS.length());
-                        branchNames.add(name);
-                    }
-                }
+                TreeSet<String> branchNames = getAvailableBranches();
 
                 // Local branches absent in repository may be needed to uncheck them in UI.
                 for (List<String> projectBranches : branches.values()) {
@@ -1146,6 +1148,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         return repository;
+    }
+
+    private TreeSet<String> getAvailableBranches() throws GitAPIException {
+        TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        List<Ref> refs = git.branchList().call();
+        for (Ref ref : refs) {
+            String name = ref.getName();
+            if (name.startsWith(Constants.R_HEADS)) {
+                name = name.substring(Constants.R_HEADS.length());
+                branchNames.add(name);
+            }
+        }
+        return branchNames;
     }
 
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {

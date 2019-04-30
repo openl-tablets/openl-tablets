@@ -349,7 +349,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         }
                     }
                 } catch (IOException e) {
-                    log.error("Skip workspace changes for project '{}' because of error: {}", rp.getName(), e.getMessage(), e);
+                    log.warn("Skip workspace changes for project '{}' because of error: {}", rp.getName(), e.getMessage());
                     desRepo = designRepository;
                     designFileData = rp.getFileData();
                     local = null;
