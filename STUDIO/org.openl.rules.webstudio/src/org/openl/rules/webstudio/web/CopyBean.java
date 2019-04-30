@@ -67,6 +67,7 @@ public class CopyBean {
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
     private CommentValidator commentValidator;
+    private String errorMessage;
 
     public boolean getCanCreate() {
         return isGranted(CREATE_PROJECTS);
@@ -151,8 +152,14 @@ public class CopyBean {
         return project == null ? 0 : project.getVersionsCount() - project.getFirstRevisionIndex();
     }
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
     public void copy() {
         try {
+            errorMessage = null;
+
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
@@ -209,7 +216,7 @@ public class CopyBean {
             switchToNewBranch();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage("Can't copy the project: " + e.getMessage());
+            errorMessage = "Can't copy the project: " + e.getMessage();
         }
     }
 
@@ -312,6 +319,7 @@ public class CopyBean {
             copyOldRevisions = Boolean.FALSE;
             revisionsCount = null;
             separateProject = false;
+            errorMessage = null;
             if (isSupportsBranches()) {
                 // Remove restricted symbols
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
