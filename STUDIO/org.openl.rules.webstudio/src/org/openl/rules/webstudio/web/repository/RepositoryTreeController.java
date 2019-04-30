@@ -556,9 +556,7 @@ public class RepositoryTreeController {
 
     private String validateCreateProjectComment(String comment) {
         try {
-            if (designCommentValidator.isValidationEnabled()) {
-                designCommentValidator.validate(comment);
-            }
+            designCommentValidator.validate(comment);
             return null;
         } catch (Exception e) {
             return e.getMessage();
@@ -769,13 +767,11 @@ public class RepositoryTreeController {
                                             designCommentValidator :
                                             deployConfigCommentValidator;
 
-        if (commentValidator.isValidationEnabled()) {
-            try {
-                commentValidator.validate(comment);
-            } catch (Exception e) {
-                FacesUtils.addErrorMessage(e.getMessage());
-                return false;
-            }
+        try {
+            commentValidator.validate(comment);
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage(e.getMessage());
+            return false;
         }
         return true;
     }
