@@ -237,9 +237,19 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             log.debug("- Not found: '{}'", new Object[] { location });
             return null;
         }
-        Arrays.sort(resources,
-            Comparator.comparing(Resource::getFilename,
-                Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder())));
+        Arrays.sort(resources, new Comparator<Resource>() {
+            @Override
+            public int compare(Resource o1, Resource o2) {
+                String fn1 = o1.getFilename();
+                String fn2 = o2.getFilename();
+
+                int compare = Integer.compare(fn1.length(), fn2.length());
+                if (compare == 0) {
+                    compare = fn1.compareTo(fn2);
+                }
+                return compare;
+            }
+        });
         CompositePropertySource propertySource = new CompositePropertySource(location);
         for (Resource resource : resources) {
             try {
