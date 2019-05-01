@@ -542,7 +542,7 @@ public final class Strings {
         increase *= max < 0 ? 16 : max > 64 ? 64 : max;
         final StringBuilder buf = new StringBuilder(str.length() + increase);
         while (end != -1) {
-            buf.append(str.substring(start, end)).append(replacement);
+            buf.append(str, start, end).append(replacement);
             start = end + replLength;
             if (--max == 0) {
                 break;
