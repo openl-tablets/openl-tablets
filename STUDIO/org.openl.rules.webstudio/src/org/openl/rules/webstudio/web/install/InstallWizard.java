@@ -982,8 +982,8 @@ public class InstallWizard {
     private void initProductionRepositoryEditor() {
         destroyRepositoryObjects();
 
-        final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(true,
-            System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
+        final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
+                System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
             workingDir + "/system-settings/",
             System.getProperty("webapp.root") + "/WEB-INF/conf/");
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();

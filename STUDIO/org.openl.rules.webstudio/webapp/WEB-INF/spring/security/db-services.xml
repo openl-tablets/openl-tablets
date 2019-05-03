@@ -9,7 +9,6 @@
     <!-- ======================== DB Services ========================== -->
 
     <bean id="dbConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-        <constructor-arg name="useSystemProperties" value="true" />
         <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/db.properties" />
         <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
     </bean>
