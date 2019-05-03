@@ -29,8 +29,8 @@ public class ConfigurationManagerFactory {
         String fullPath = propertiesFolder + propertiesName;
         String contextPath = propertiesInContextFolder == null ? null : propertiesInContextFolder + propertiesName;
         String defaultFile = defaultPropertiesLocation != null ? defaultPropertiesLocation : fullPath;
-        return new ConfigurationManager(true,
-            StringUtils.trimToNull(fullPath),
+        return new ConfigurationManager(
+                StringUtils.trimToNull(fullPath),
             StringUtils.trimToNull(contextPath),
             StringUtils.trimToNull(defaultFile),
             false);
