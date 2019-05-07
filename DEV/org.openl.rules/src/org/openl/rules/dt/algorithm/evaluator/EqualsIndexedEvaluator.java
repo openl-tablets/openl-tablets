@@ -1,12 +1,12 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
-import org.openl.rules.dt.DecisionTableRuleNode;
-import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
@@ -28,61 +28,23 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             return null;
         }
 
-        Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        Map<Object, DecisionTableRuleNode> nodeMap = null;
-        DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
-        boolean comparatorBasedMap = false;
-        for (; it.hasNext();) {
-            int i = it.nextInt();
+        EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        while (it.hasNext()) {
+            int ruleN = it.nextInt();
 
-            if (condition.isEmpty(i)) {
-                emptyBuilder.addRule(i);
-                if (map != null) {
-                    for (DecisionTableRuleNodeBuilder dtrnb : map.values()) {
-                        dtrnb.addRule(i);
-                    }
-                }
+            if (condition.isEmpty(ruleN)) {
+                builder.putEmptyRule(ruleN);
                 continue;
             }
 
-            Object value = condition.getParamValue(0, i);
+            Object value = condition.getParamValue(0, ruleN);
             if (openCast != null) {
                 value = openCast.convert(value);
             }
-            if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
-            }
-            if (map == null) {
-                if (NumberUtils.isFloatPointNumber(value)) {
-                    if (value instanceof BigDecimal) {
-                        map = new TreeMap<>();
-                        nodeMap = new TreeMap<>();
-                    } else {
-                        map = new TreeMap<>(FloatTypeComparator.getInstance());
-                        nodeMap = new TreeMap<>(FloatTypeComparator.getInstance());
-                    }
-                    comparatorBasedMap = true;
-                } else {
-                    map = new HashMap<>();
-                    nodeMap = new HashMap<>();
-                }
-            }
-
-            DecisionTableRuleNodeBuilder dtrb = map.computeIfAbsent(value,
-                e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
-
-            dtrb.addRule(i);
+            builder.putValueToRule(value, ruleN);
 
         }
-        if (map != null) {
-            for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
-                nodeMap.put(element.getKey(), element.getValue().makeNode());
-            }
-        } else {
-            nodeMap = Collections.emptyMap();
-        }
-
-        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
+        return builder.build();
     }
 
     @Override
