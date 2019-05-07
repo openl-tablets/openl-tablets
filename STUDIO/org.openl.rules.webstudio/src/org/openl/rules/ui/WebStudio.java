@@ -161,7 +161,7 @@ public class WebStudio {
         String defaultSettingsLocation = session.getServletContext()
             .getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
-        userSettingsManager = new ConfigurationManager(false, settingsLocation, defaultSettingsLocation, true);
+        userSettingsManager = new ConfigurationManager(settingsLocation, defaultSettingsLocation, true);
 
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");

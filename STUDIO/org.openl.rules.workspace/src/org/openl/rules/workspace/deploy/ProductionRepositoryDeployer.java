@@ -3,6 +3,7 @@ package org.openl.rules.workspace.deploy;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.Properties;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.xpath.XPath;
@@ -10,7 +11,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.ChangesetType;
@@ -24,6 +24,7 @@ import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+import java.util.stream.Collectors;
 
 /**
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
@@ -43,13 +44,19 @@ public class ProductionRepositoryDeployer {
      * @param config the configuration file name
      */
     public void deploy(File zipFile, String config) throws Exception {
+        Map<String, Object> properties = getConfiguration(config);
+        deployInternal(zipFile, properties, true);
+    }
+
+    private Map<String, Object> getConfiguration(String config) throws IOException {
         if (config == null || config.isEmpty()) {
             config = "deployer.properties";
         }
-        ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
+        Properties pr = new Properties();
+        pr.load(getClass().getResourceAsStream(config));
+        pr.putAll(System.getProperties());
 
-        Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
-        deployInternal(zipFile, properties, true);
+        return pr.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
     }
 
     /**
@@ -59,12 +66,8 @@ public class ProductionRepositoryDeployer {
      * @param config the configuration file name
      */
     public void redeploy(File zipFile, String config) throws Exception {
-        if (config == null || config.isEmpty()) {
-            config = "deployer.properties";
-        }
-        ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
 
-        Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
+        Map<String, Object> properties = getConfiguration(config);
         deployInternal(zipFile, properties, false);
     }
 

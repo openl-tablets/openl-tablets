@@ -23,7 +23,6 @@ public class ConfigurationManager implements PropertiesHolder {
 
     private final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
-    private boolean useSystemProperties;
     private String propsLocation;
     private String propsInContextLocation;
     private String defaultPropsLocation;
@@ -34,27 +33,24 @@ public class ConfigurationManager implements PropertiesHolder {
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
 
-    public ConfigurationManager(boolean useSystemProperties, String propsLocation) {
-        this(useSystemProperties, propsLocation, null, false);
+    public ConfigurationManager(String propsLocation) {
+        this(propsLocation, null, false);
     }
 
-    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation) {
-        this(useSystemProperties, propsLocation, defaultPropsLocation, false);
+    public ConfigurationManager(String propsLocation, String defaultPropsLocation) {
+        this(propsLocation, defaultPropsLocation, false);
     }
 
-    public ConfigurationManager(boolean useSystemProperties,
-            String propsLocation,
-            String defaultPropsLocation,
-            boolean autoSave) {
-        this(useSystemProperties, propsLocation, null, defaultPropsLocation, autoSave);
+    public ConfigurationManager(String propsLocation,
+                                String defaultPropsLocation,
+                                boolean autoSave) {
+        this(propsLocation, null, defaultPropsLocation, autoSave);
     }
 
-    public ConfigurationManager(boolean useSystemProperties,
-            String propsLocation,
-            String propsInContextLocation,
-            String defaultPropsLocation,
-            boolean autoSave) {
-        this.useSystemProperties = useSystemProperties;
+    public ConfigurationManager(String propsLocation,
+                                String propsInContextLocation,
+                                String defaultPropsLocation,
+                                boolean autoSave) {
         this.propsLocation = propsLocation;
         this.propsInContextLocation = propsInContextLocation;
         this.defaultPropsLocation = defaultPropsLocation;
@@ -67,12 +63,10 @@ public class ConfigurationManager implements PropertiesHolder {
         compositeConfiguration = new CompositeConfiguration();
         compositeConfiguration.setDelimiterParsingDisabled(true);
 
-        if (useSystemProperties) {
-            SystemConfiguration configuration = new SystemConfiguration();
-            configuration.setDelimiterParsingDisabled(true);
-            systemConfiguration = configuration;
-            compositeConfiguration.addConfiguration(systemConfiguration);
-        }
+        SystemConfiguration configuration = new SystemConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        systemConfiguration = configuration;
+        compositeConfiguration.addConfiguration(systemConfiguration);
 
         configurationToSave = createFileConfiguration(propsLocation, true);
         if (configurationToSave != null) {
