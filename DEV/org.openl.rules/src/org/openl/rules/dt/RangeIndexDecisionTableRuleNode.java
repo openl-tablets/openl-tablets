@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.openl.rules.dt.index.IRuleIndex;
 
-public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode {
+public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
 
     private final Set<Integer> ruleSet;
     private final IRuleIndex nextIndex;
@@ -16,6 +16,7 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode {
         this.nextIndex = nextIndex;
     }
 
+    @Override
     public Set<Integer> getRuleSet() {
         return ruleSet;
     }

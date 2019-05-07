@@ -10,7 +10,7 @@ public class StorageInfo {
 
     private Map<Object, Integer> uniqueIndex = new HashMap<>();
 
-    int getNumberOfSpaces() {
+    public int getNumberOfSpaces() {
         return numberOfSpaces;
     }
 

@@ -5,6 +5,7 @@ import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
+import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -62,7 +63,7 @@ public class RangeAscIndex implements IRuleIndex {
     }
 
     Set<Integer> findRules(Object value, DecisionTableRuleNode prevResult) {
-        if (!(prevResult instanceof RangeIndexDecisionTableRuleNode)) {
+        if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
             Pair<Integer, Integer> range = findIndexRange(value);
             Set<Integer> result = new HashSet<>(emptyRules);
             if (range != null) {
@@ -72,7 +73,11 @@ public class RangeAscIndex implements IRuleIndex {
             }
             return result;
         }
-        Set<Integer> prevRes = ((RangeIndexDecisionTableRuleNode) prevResult).getRuleSet();
+        return getResultAndIntersect(value, (IDecisionTableRuleNodeV2) prevResult);
+    }
+
+    private Set<Integer> getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
+        Set<Integer> prevRes = prevResult.getRuleSet();
         if (prevRes.isEmpty()) {
             return prevRes;
         }

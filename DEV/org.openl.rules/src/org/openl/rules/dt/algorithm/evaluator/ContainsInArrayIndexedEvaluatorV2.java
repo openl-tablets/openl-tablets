@@ -8,53 +8,41 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.openl.domain.IIntIterator;
-import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dt.index.EqualsIndex;
+import org.openl.rules.dt.index.EqualsIndexV2;
+import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.helpers.NumberUtils;
 
-/**
- * @author snshor
- *
- */
-public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEvaluator {
+public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEvaluator {
 
     @Override
-    public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
-
+    public IRuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
         if (iterator.size() < 1) {
             return null;
         }
 
-        Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        Map<Object, DecisionTableRuleNode> nodeMap = null;
+        DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+
+        Map<Object, DecisionTableRuleNodeBuilder> map = null;
+        Map<Object, int[]> nodeMap = null;
         boolean comparatorBasedMap = false;
 
         while (iterator.hasNext()) {
+            int ruleN = iterator.nextInt();
+            nextNodeBuilder.addRule(ruleN);
 
-            int i = iterator.nextInt();
-
-            if (condition.isEmpty(i)) {
-
-                emptyBuilder.addRule(i);
-                if (map != null) {
-                    for (DecisionTableRuleNodeBuilder builder : map.values()) {
-                        builder.addRule(i);
-                    }
-                }
-
+            if (condition.isEmpty(ruleN)) {
+                emptyBuilder.addRule(ruleN);
                 continue;
             }
 
-            Object values = condition.getParamValue(0, i);
+            Object values = condition.getParamValue(0, ruleN);
 
             int length = Array.getLength(values);
 
             for (int j = 0; j < length; j++) {
-
                 Object value = Array.get(values, j);
                 if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
                     throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
@@ -76,23 +64,24 @@ public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEval
                 }
 
                 DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
-                    e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
-                builder.addRule(i);
+                    e -> new DecisionTableRuleNodeBuilder());
+                builder.addRule(ruleN);
             }
         }
-        if (map != null) {
-            for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
-                nodeMap.put(element.getKey(), (element.getValue()).makeNode());
-            }
-        } else {
+        if (map == null) {
             nodeMap = Collections.emptyMap();
+        } else {
+            for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
+                nodeMap.put(element.getKey(), element.getValue().makeRulesAry());
+            }
         }
 
-        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
+        return new EqualsIndexV2(nextNodeBuilder.makeNode(), nodeMap, emptyBuilder.makeRulesAry());
     }
 
     @Override
     public int getPriority() {
-        return IConditionEvaluator.ARRAY_CONDITION_PRIORITY;
+        return IConditionEvaluator.ARRAY_CONDITION_PRIORITY_V2;
     }
+
 }
