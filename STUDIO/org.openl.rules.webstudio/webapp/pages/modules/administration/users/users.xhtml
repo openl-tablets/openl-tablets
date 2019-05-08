@@ -39,7 +39,7 @@
             </ui:repeat>
         </h:column>
 
-        <h:column>
+        <h:column rendered="#{systemConfig['user.mode'] == 'ad'}">
             <f:facet name="header">
                 Internal user
             </f:facet>
