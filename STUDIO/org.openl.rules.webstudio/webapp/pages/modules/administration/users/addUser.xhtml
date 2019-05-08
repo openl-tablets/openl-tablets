@@ -19,7 +19,7 @@
         <h:form id="addUserForm">
         <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Internal user</label></h:panelGroup>
+                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Local user</label></h:panelGroup>
                 <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canSelectInternalOrExternal}" value="#{usersBean.internalUser}"/>
                 <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"> </h:panelGroup>
 
