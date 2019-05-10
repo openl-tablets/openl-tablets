@@ -455,7 +455,7 @@ public class BetaRepositoryService {
 
             FileData data = new FileData();
             data.setName(fileName);
-            data.setComment(StringUtils.trimToEmpty(comment));
+            data.setComment(comment == null ? designRepoComments.saveProject(name) : comment.trim());
             data.setAuthor(getUserName());
             data.setBranch(branch);
 
