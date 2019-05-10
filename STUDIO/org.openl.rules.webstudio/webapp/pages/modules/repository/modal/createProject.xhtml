@@ -81,7 +81,8 @@
                             <td><h:inputText id="projectName"
                                     size="35" maxlength="70"
                                     value="#{repositoryTreeController.projectName}"
-                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});" />
+                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});"
+                                    onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
                             </td>
                         </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
@@ -104,7 +105,8 @@
                                          title="#{repositoryTreeController.createProjectComment}"
                                          type="text"
                                          size="35"
-                                         readonly="false"/>
+                                         readonly="false"
+                                         onkeyup="createProjectFormTemplCommentHandler.isEdited = true;"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -135,7 +137,8 @@
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
+                            onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
 
                         <h:outputLabel for="projectFolderExcel" value="Path in repository:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
@@ -152,7 +155,8 @@
                                          title="#{repositoryTreeController.createProjectComment}"
                                          type="text"
                                          size="35"
-                                         readonly="false"/>
+                                         readonly="false"
+                                         onkeyup="createProjectFormFilesCommentHandler.isEdited = true;"/>
                     </h:panelGrid>
 
                     <footer>
@@ -298,6 +302,8 @@
         };
 
         var uploadProjectFormCommentHandler = new CommentTemplateHandler();
+        var createProjectFormTemplCommentHandler = new CommentTemplateHandler();
+        var createProjectFormFilesCommentHandler = new CommentTemplateHandler();
         //]]>
 
         enableCreateButton(false, #{rich:element("sbtFiles")});
@@ -323,6 +329,8 @@
 
         function hideNewProjectDialog() {
             uploadProjectFormCommentHandler.isEdited = false;
+            createProjectFormTemplCommentHandler.isEdited = false;
+            createProjectFormFilesCommentHandler.isEdited = false;
             $j("#createProjectFormTempl\\:projectName").val("");
             initTemplates();
 
@@ -375,9 +383,11 @@
             selectedTemplate.addClass("row-selected");
 
             $j("#createProjectFormTempl\\:projectTemplate").val(selectedTemplate.find("input").val());
-            $j("#createProjectFormTempl\\:projectName").val(selectedTemplate.find("span").text());
+            var projectNameInput = $j("#createProjectFormTempl\\:projectName");
+            projectNameInput.val(selectedTemplate.find("span").text());
+            projectNameInput.trigger("change");
 
-            enableCreateButton($j("#createProjectFormTempl\\:projectName").val().trim().length > 0, #{rich:element('sbtTemplates')});
+            enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
 
         initTemplates();
