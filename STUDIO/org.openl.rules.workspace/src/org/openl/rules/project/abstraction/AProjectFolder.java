@@ -186,6 +186,8 @@ public class AProjectFolder extends AProjectArtefact {
                                             toRepository.listFiles(toFilePath, getHistoryVersion()) :
                                             toRepository.list(toFilePath);
 
+                    ResourceTransformer transformer = getResourceTransformer();
+
                     // Search added and modified files
                     for (FileData fromData : fromList) {
                         String nameFrom = fromData.getName();
@@ -207,7 +209,10 @@ public class AProjectFolder extends AProjectArtefact {
                                                 fromRepository.readHistory(nameFrom, fromData.getVersion()) :
                                                 fromRepository.read(nameFrom);
                                 FileData data = copyAndChangeName(fromData, nameTo);
-                                changes.add(new FileChange(data, read.getStream()));
+                                InputStream content = transformer != null ?
+                                        transformer.transform(new AProjectResource(from.getProject(), fromRepository, read.getData()))
+                                        : read.getStream();
+                                changes.add(new FileChange(data, content));
                             }
                             // Otherwise the file is same, no need to save it
                         }
