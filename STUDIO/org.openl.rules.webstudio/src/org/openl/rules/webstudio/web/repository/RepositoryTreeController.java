@@ -1338,8 +1338,8 @@ public class RepositoryTreeController {
                 ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter, charset);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
-                    setCreateProjectComment(designRepoComments.createProject(projectDescriptor.getName()));
                 }
+                setCreateProjectComment(designRepoComments.createProject(getProjectName()));
             }
         } else {
             setProjectName(fileName);
