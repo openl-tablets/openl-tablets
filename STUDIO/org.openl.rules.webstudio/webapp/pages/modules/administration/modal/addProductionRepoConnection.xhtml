@@ -6,12 +6,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
-  <style>
-      #modalAddRepoConnectionForm .titleColumn {
-          min-width: 140px;
-      }
-  </style>
-  <rich:popupPanel id="modalAddRepoConnection" width="400" autosized="true">
+  <rich:popupPanel id="modalAddRepoConnection" width="580" autosized="true">
     <f:facet name="header">
         <h:outputText value="Connect Deployment Repository" />
     </f:facet>
@@ -48,21 +43,21 @@
                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                     <ui:param name="prependId" value="production"/>
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
-                    <ui:param name="isProduction" value="true" />
+                    <ui:param name="repoType" value="PRODUCTION" />
                 </ui:include>
             </h:panelGroup>
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'aws_s3'}">
                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                     <ui:param name="prependId" value="production"/>
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
-                    <ui:param name="isProduction" value="true" />
+                    <ui:param name="repoType" value="PRODUCTION" />
                 </ui:include>
             </h:panelGroup>
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'git'}">
                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                     <ui:param name="prependId" value="production"/>
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
-                    <ui:param name="isProduction" value="true" />
+                    <ui:param name="repoType" value="PRODUCTION" />
                 </ui:include>
             </h:panelGroup>
         </h:panelGroup>

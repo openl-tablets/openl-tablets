@@ -8,7 +8,7 @@ import org.openl.util.CollectionUtils;
 
 public class CellMetaInfo {
     private static final int MULTI = 1 << 0;
-    private static final int RETURN_HEADER = 1 << 1;
+    private static final int RETURN_CELL = 1 << 1;
 
     private IOpenClass domain;
     private int flags = 0;
@@ -32,12 +32,12 @@ public class CellMetaInfo {
             this.flags = this.flags | MULTI;
         }
         if (returnHeader) {
-            this.flags = this.flags | RETURN_HEADER;
+            this.flags = this.flags | RETURN_CELL;
         }
     }
 
-    public boolean isReturnHeader() {
-        return (flags & RETURN_HEADER) > 0;
+    public boolean isReturnCell() {
+        return (flags & RETURN_CELL) > 0;
     }
 
     public IOpenClass getDataType() {

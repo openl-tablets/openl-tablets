@@ -3,24 +3,10 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
 
-    <style>
-        #copyProjectForm input[type="text"],
-        #copyProjectForm textarea {
-            min-width: 210px;
-        }
-
-        #copyProjectForm input[type="text"].rf-insp-inp {
-            min-width: 203px;
-        }
-
-        #copyProjectForm .label {
-            width: 170px;
-        }
-    </style>
-
-    <rich:popupPanel id="modalCopyProject" width="420" autosized="true">
+    <rich:popupPanel id="modalCopyProject" width="550" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy project"/>
         </f:facet>
@@ -33,8 +19,8 @@
         <h:form id="copyProjectForm">
             <h:panelGroup id="modalCopyProjectData">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputText value="Project Name:"/>
-                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}"/>
+                    <h:outputLabel value="Project Name:"/>
+                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}" />
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">
@@ -60,9 +46,7 @@
 
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
-                                     validatorMessage="Length is greater than allowable maximum of '255'">
-                        <f:validateLength maximum="255"/>
-                    </h:inputTextarea>
+                                     validator="#{copyBean.commentValidator}"/>
                     <h:outputText value=""/>
                     <h:message for="comment" styleClass="error"/>
 
@@ -87,14 +71,20 @@
                     <h:outputText id="copyCanBeSlowWarning" value="Copying too many revisions can be slow"
                                   styleClass="warning"/>
                 </h:panelGrid>
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                             rendered="#{not empty copyBean.errorMessage}">
+                    <h:outputText value=""/>
+                    <h:outputText value="#{copyBean.errorMessage}" styleClass="error"/>
+                </h:panelGrid>
 
                 <h:inputHidden id="hiddenProjectName" value="#{copyBean.currentProjectName}"/>
 
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
-                                   oncomplete="updateStates(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
+                <a4j:commandButton id="copy" value="Copy" onclick="return confirmSwitchingToNewBranch(#{copyBean.confirmationRequired})" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
+                                   data="#{copyBean.errorMessage}"
+                                   oncomplete="updateStates(); if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
 
@@ -201,6 +191,13 @@
                 $newProject.hide();
             }
         }
+
+        var confirmSwitchingToNewBranch = function (required) {
+            if (!required) {
+                return true;
+            }
+            return confirm("#{msg['ws.project.warning.other.branch']}");
+        };
 
         //]]>
     </script>

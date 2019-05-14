@@ -95,7 +95,7 @@ public class MainBean {
             return designRepoComments.restoredFrom(project.getHistoryVersion());
         }
 
-        return designRepoComments.saveProject();
+        return designRepoComments.saveProject(project == null ? "" : project.getName());
     }
 
     public void setVersionComment(String comment) {
@@ -127,6 +127,7 @@ public class MainBean {
             log.error("Error on reloading user's workspace", e);
         }
         repositoryTreeState.invalidateTree();
+        repositoryTreeState.invalidateSelection();
         WebStudioUtils.getWebStudio().resetProjects();
     }
 

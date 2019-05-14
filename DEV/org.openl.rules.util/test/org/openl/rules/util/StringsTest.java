@@ -12,13 +12,13 @@ public class StringsTest {
     @Test
     public void testContains() {
         // String
-        assertFalse(contains((String) null, (String) null));
+        assertFalse(contains(null, null));
         assertFalse(contains(null, ""));
         assertFalse(contains(null, "s"));
-        assertFalse(contains("", (String) null));
+        assertFalse(contains("", null));
         assertTrue(contains("", ""));
         assertFalse(contains("", "s"));
-        assertFalse(contains("asd", (String) null));
+        assertFalse(contains("asd", null));
         assertTrue(contains("asd", ""));
         assertTrue(contains("asd", "a"));
         assertTrue(contains("asd", "s"));
@@ -58,13 +58,13 @@ public class StringsTest {
         // char
         assertFalse(containsAny(null));
         assertFalse(containsAny(null, (char[]) null));
-        assertFalse(containsAny(null, new char[0]));
+        assertFalse(containsAny(null));
         assertFalse(containsAny(null, 's'));
         assertFalse(containsAny("", (char[]) null));
-        assertFalse(containsAny("", new char[0]));
+        assertFalse(containsAny(""));
         assertFalse(containsAny("", 's'));
         assertFalse(containsAny("asd", (char[]) null));
-        assertFalse(containsAny("asd", new char[0]));
+        assertFalse(containsAny("asd"));
         assertTrue(containsAny("asd", 'a'));
         assertTrue(containsAny("asd", 's'));
         assertTrue(containsAny("asd", 'd'));
@@ -414,15 +414,15 @@ public class StringsTest {
         assertNull(toNumber(""));
         assertNull(toNumber(" "));
         assertNull(toNumber("  \t  "));
-        assertEquals(Long.valueOf(1), toNumber("1"));
-        assertEquals(Long.valueOf(0), toNumber("0"));
-        assertEquals(Long.valueOf(-1), toNumber("-1"));
-        assertEquals(Long.valueOf(10000000), toNumber("10000000"));
-        assertEquals(Long.valueOf(1), toNumber("1.0"));
-        assertEquals(Double.valueOf(0.01), toNumber("0.01"));
-        assertEquals(Double.valueOf(-0.01), toNumber("-.01"));
-        assertEquals(Double.valueOf(-10000000.1), toNumber("-10000000.1"));
-        assertEquals(Double.valueOf(1), toNumber("1.000000000000000000000000000000000000000000000000000000001"));
+        assertEquals(1L, toNumber("1"));
+        assertEquals(0L, toNumber("0"));
+        assertEquals(-1L, toNumber("-1"));
+        assertEquals(10000000L, toNumber("10000000"));
+        assertEquals(1L, toNumber("1.0"));
+        assertEquals(0.01, toNumber("0.01"));
+        assertEquals(-0.01, toNumber("-.01"));
+        assertEquals(-10000000.1, toNumber("-10000000.1"));
+        assertEquals(1d, toNumber("1.000000000000000000000000000000000000000000000000000000001"));
         assertEquals(Double.POSITIVE_INFINITY, toNumber("∞"));
         assertNull(toNumber("X"));
         assertNull(toNumber("13.."));
@@ -431,7 +431,7 @@ public class StringsTest {
     @Test
     public void testConcatenate() {
         assertNull(concatenate(null));
-        assertNull(concatenate(new Object[0]));
+        assertNull(concatenate());
         assertNull(concatenate(null));
         assertNull(concatenate(null, null));
         assertEquals("", concatenate(null, "", null));

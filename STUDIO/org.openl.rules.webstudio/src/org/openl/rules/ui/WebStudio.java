@@ -161,7 +161,7 @@ public class WebStudio {
         String defaultSettingsLocation = session.getServletContext()
             .getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
-        userSettingsManager = new ConfigurationManager(false, settingsLocation, defaultSettingsLocation, true);
+        userSettingsManager = new ConfigurationManager(settingsLocation, defaultSettingsLocation, true);
 
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
@@ -262,15 +262,20 @@ public class WebStudio {
 
     public RulesProject getCurrentProject(HttpSession session) {
         if (currentProject != null) {
-            try {
-                String projectFolder = currentProject.getProjectFolder().getName();
-                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-                return rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
-            } catch (Exception e) {
-                log.error("Error when trying to get current project", e);
-            }
+            String projectFolder = currentProject.getProjectFolder().getName();
+            return getProject(projectFolder, session);
         }
         return null;
+    }
+
+    private RulesProject getProject(String projectFolder, HttpSession session) {
+        try {
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
+            return rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
+        } catch (Exception e) {
+            log.error("Error when trying to get current project", e);
+            return null;
+        }
     }
 
     public String exportModule() {
@@ -450,6 +455,18 @@ public class WebStudio {
                 FacesUtils.getFacesContext().responseComplete();
                 return;
             }
+            //switch current project branch to the selected
+            if (branchName != null && project != null) {
+                setProjectBranch(project, branchName);
+                //reload project descriptor. Because it might be changed
+                project = getProjectByName(projectName);
+                if (StringUtils.isNotBlank(projectName) && project == null) {
+                    // Not empty project name is requested but it's not found
+                    FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                    FacesUtils.getFacesContext().responseComplete();
+                    return;
+                }
+            }
             Module module = getModule(project, moduleName);
             if (StringUtils.isNotBlank(moduleName) && module == null) {
                 // Not empty module name is requested but it's not found
@@ -460,9 +477,6 @@ public class WebStudio {
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
-            if (branchName != null) {
-                setProjectBranch(branchName);
-            }
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
@@ -1090,15 +1104,25 @@ public class WebStudio {
         }
     }
 
-    private void setProjectBranch(String branch) {
+    private void setProjectBranch(ProjectDescriptor descriptor, String branch) {
         try {
-            RulesProject project = getCurrentProject();
+            String projectFolder = descriptor.getProjectFolder().getName();
+            RulesProject project = getProject(projectFolder, FacesUtils.getSession());
             if (isSupportsBranches() && project != null) {
                 String previousBranch = project.getBranch();
                 if (!branch.equals(previousBranch)) {
                     getModel().clearModuleInfo();
                     project.releaseMyLock();
                     project.setBranch(branch);
+
+                    if (project.getVersion() == null) {
+                        //move back to previous branch! Because the project is not present in new branch
+                        project.setBranch(previousBranch);
+                        log.warn("Current project does not exists in '{}' branch! Project branch was switched to the previous one", branch);
+                    }
+                    // Update files
+                    project.open();
+
                     resetProjects();
                 }
             }

@@ -7,6 +7,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.util.StringUtils;
 
 public class CommentValidator {
+    private static final int MAX_COMMENT_LENGTH = 255;
     private final Pattern pattern;
     private final String invalidMessage;
 
@@ -16,16 +17,14 @@ public class CommentValidator {
     }
 
     public void validate(String comment) {
-        if (isValidationEnabled()) {
-            if (comment == null) {
-                comment = "";
-            }
+        if (comment == null) {
+            comment = "";
+        }
+        if (pattern != null) {
             FacesUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
         }
-    }
-
-    boolean isValidationEnabled() {
-        return pattern != null;
+        FacesUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
+                "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
     public static CommentValidator forDesignRepo(Map<String, Object> config) {

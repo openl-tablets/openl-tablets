@@ -195,6 +195,7 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
 
             RepositoryValidators.validate(designRepositoryConfiguration);
             RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration,

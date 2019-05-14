@@ -18,8 +18,6 @@
             right: 33px;
         }
 
-        .pathInput { width: 211px; }
-
         .repositoryConfig > div {
             display: table;
             border-bottom: 1px dashed #aaa;
@@ -188,7 +186,7 @@
                                 <div>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Workspace Directory:" />
-                                        <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}" styleClass="pathInput"
+                                        <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}"
                                             disabled="#{jsffn:isSystemProp('user.workspace.home')}"
                                             validator="#{validator.workSpaceDirValidator}"/>
                                     </h:panelGrid>
@@ -199,7 +197,7 @@
                                 <div id="history">
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="History Directory:" />
-                                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
+                                        <h:inputText value="#{systemSettingsBean.projectHistoryHome}"
                                             disabled="#{jsffn:isSystemProp('project.history.home')}"
                                            validator="#{validator.historyDirValidator}"/>
                                     </h:panelGrid>
@@ -291,21 +289,21 @@
                                             <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                 <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
-                                                <ui:param name="isProduction" value="false" />
+                                                <ui:param name="repoType" value="DESIGN" />
                                             </ui:include>
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
                                             <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                 <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
-                                                <ui:param name="isProduction" value="false" />
+                                                <ui:param name="repoType" value="DESIGN" />
                                             </ui:include>
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{designRepository.formType == 'git'}">
                                             <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                 <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
-                                                <ui:param name="isProduction" value="false" />
+                                                <ui:param name="repoType" value="DESIGN" />
                                             </ui:include>
                                         </h:panelGroup>
 
@@ -313,6 +311,7 @@
                                             <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
                                                 <ui:param name="prependId" value="design"/>
                                                 <ui:param name="settings" value="#{systemSettingsBean.designFolderStructure}" />
+                                                <ui:param name="repoType" value="DESIGN" />
                                             </ui:include>
                                         </h:panelGroup>
                                     </h:panelGroup>
@@ -354,21 +353,21 @@
                                                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="deployConfig"/>
                                                     <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                 </ui:include>
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{deployConfigRepo.formType == 'aws_s3'}">
                                                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="deployConfig"/>
                                                     <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                 </ui:include>
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{deployConfigRepo.formType == 'git'}">
                                                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="deployConfig"/>
                                                     <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                 </ui:include>
                                             </h:panelGroup>
                                         </h:panelGroup>
@@ -377,6 +376,7 @@
                                                 <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
                                                     <ui:param name="prependId" value="deployConfig"/>
                                                     <ui:param name="settings" value="#{systemSettingsBean.deployConfigFolderStructure}" />
+                                                    <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                 </ui:include>
                                             </h:panelGroup>
                                         </h:panelGroup>
@@ -413,7 +413,7 @@
                                                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
-                                                    <ui:param name="isProduction" value="true" />
+                                                    <ui:param name="repoType" value="PRODUCTION" />
                                                     <ui:param name="isEditing" value="true" />
                                                 </ui:include>
                                             </h:panelGroup>
@@ -421,7 +421,7 @@
                                                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
-                                                    <ui:param name="isProduction" value="true" />
+                                                    <ui:param name="repoType" value="PRODUCTION" />
                                                     <ui:param name="isEditing" value="true" />
                                                 </ui:include>
                                             </h:panelGroup>
@@ -429,7 +429,7 @@
                                                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
-                                                    <ui:param name="isProduction" value="true" />
+                                                    <ui:param name="repoType" value="PRODUCTION" />
                                                     <ui:param name="isEditing" value="true" />
                                                 </ui:include>
                                             </h:panelGroup>
@@ -488,7 +488,7 @@
                                         <h:selectBooleanCheckbox value="#{systemSettingsBean.runTestsInParallel}" title="Turn on/off the &quot;Run test cases of the test in parallel&quot; feature" onclick="changeRunTestsInParallel(this)"/>
                                     </h:panelGrid>
                                     <h:panelGrid id="testRunThreadCount" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.runTestsInParallel ?'' : 'display:none'}">
-                                        <h:outputText value="Thread number for tests" />
+                                        <h:outputText value="Thread number for tests:" />
                                         <h:inputText value="#{systemSettingsBean.testRunThreadCount}"
                                                      validator="#{validator.testRunThreadCountValidator}"/>
                                     </h:panelGrid>
@@ -520,6 +520,7 @@
             </h:form>
             <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
             <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
+            <ui:include src="/pages/modules/showInfo.xhtml" />
         </div>
     </div>
 

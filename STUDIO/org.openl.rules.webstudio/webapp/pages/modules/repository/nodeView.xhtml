@@ -114,9 +114,9 @@
         <table class="formfields" style="max-width: 500px;">
             <tr>
                 <td class="label">
-                    <h:outputText value="File Name" rendered="#{node.type == 'file' || node.type == 'prodfile' }"/>
-                    <h:outputText value="Folder Name" rendered="#{node.type == 'folder' || node.type == 'prodfolder' }"/>
-                    <h:outputText value="Name" rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
+                    <h:outputText value="File Name:" rendered="#{node.type == 'file' || node.type == 'prodfile' }"/>
+                    <h:outputText value="Folder Name:" rendered="#{node.type == 'folder' || node.type == 'prodfolder' }"/>
+                    <h:outputText value="Name:" rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
                 </td>
                 <td>
                     <h:outputText value="#{node.name}" style="font-weight: bold" rendered="#{node.type != 'project' or not node.renamed}" />
@@ -126,23 +126,29 @@
             <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeState.supportsBranches}">
             <tr>
                 <td class="label">
-                    <h:outputText value="Branch" />
+                    <h:outputText value="Branch:" />
                 </td>
                 <td>
                     <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
                                      title="#{repositoryTreeController.projectBranch}"
+                                     validator="#{repositoryTreeController.validateProjectForBranch}"
                                      id="branchSelector"
                                      onchange="return canOpenOtherBranch(this);">
                         <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
                         <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
                     </h:selectOneMenu>
+                    <input type="button" value="..." title="Manage project branches"
+                           onclick="openEditBranchesDialog('#{node.name}');" style="height: 23px;padding: 0px 5px;"/>
+                    <a4j:outputPanel ajaxRendered="true" id="branchSelectorError" style="display: grid;">
+                        <h:message for="branchSelector" styleClass="error" style="padding-top: 10px;"/>
+                    </a4j:outputPanel>
                 </td>
             </tr>
             </h:panelGroup>
             <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">
             <tr>
                 <td class="label">
-                    <h:outputText value="Revision" />
+                    <h:outputText value="Revision:" />
                 </td>
                 <td>
                     <h:outputText value="#{artefact.version.versionName}" />
@@ -150,7 +156,7 @@
             </tr>
             <tr>
                 <td class="label">
-                    <h:outputText value="Status" />
+                    <h:outputText value="Status:" />
                 </td>
                 <td>
                     <h:outputText value="#{node.status}" />
@@ -158,7 +164,7 @@
             </tr>
             <tr>
                 <td class="label">
-                    <h:outputText value="Created At" />
+                    <h:outputText value="Created At:" />
                 </td>
                 <td>
                     <h:outputText value="#{node.createdAt}">
@@ -167,14 +173,14 @@
                 </td>
             </tr>
             <tr>
-                <td class="label">Created By</td>
+                <td class="label">Created By:</td>
                 <td>
                     <h:outputText value="#{node.createdBy}" />
                 </td>
             </tr>
             <h:panelGroup rendered="#{node.hasModifications}">
                 <tr>
-                    <td class="label">Modified At</td>
+                    <td class="label">Modified At:</td>
                     <td>
                         <h:outputText value="#{node.modifiedAt}">
                             <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
@@ -184,7 +190,7 @@
             </h:panelGroup>
             <h:panelGroup rendered="#{node.hasModifications}">
                 <tr>
-                    <td class="label">Modified By</td>
+                    <td class="label">Modified By:</td>
                     <td>#{node.modifiedBy}</td>
                 </tr>
             </h:panelGroup>
@@ -292,7 +298,7 @@
         }
 
         function canOpenOtherBranch(branchSelector) {
-            var confirmNeeded = #{node.type == 'project' and artefact.project.opened};
+            var confirmNeeded = #{node.type == 'project' and artefact.project.opened and artefact.project.status == 'EDITING'};
             if (!confirmNeeded) {
                 return true;
             }

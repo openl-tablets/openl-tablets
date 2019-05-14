@@ -1,0 +1,82 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <style>
+        #projectBranchesList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+
+    <rich:popupPanel id="modalEditBranches" width="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Manage branches"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close"
+                            onclick="RichFaces.$('modalEditBranches').hide();"/>
+        </f:facet>
+
+        <h:form id="editBranchesForm">
+            <h:panelGroup id="modalEditBranchesData">
+                <h:panelGroup styleClass="messages" layout="block"
+                              rendered="#{!empty facesContext.maximumSeverity}">
+                    <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                showSummary="false" tooltip="true" globalOnly="true"/>
+                </h:panelGroup>
+
+
+                <h:inputHidden id="hiddenProjectName" value="#{branchesBean.currentProjectName}"/>
+
+                <p>
+                    <h:outputText value="Branches where the project #{branchesBean.currentProjectName} is used:"/>
+                </p>
+
+                <div id="projectBranchesList">
+                    <h:selectManyCheckbox value="#{branchesBean.branches}" layout="pageDirection">
+                        <f:selectItems value="#{branchesBean.availableBranches}"/>
+                    </h:selectManyCheckbox>
+                </div>
+            </h:panelGroup>
+
+            <footer>
+                <h:commandButton id="save" value="Save" onclick="setDisabledAttributeForCurrentBranch('#{branchesBean.currentBranch}', false)"
+                                 action="#{branchesBean.save}" styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalEditBranches').hide();"/>
+            </footer>
+
+            <a4j:jsFunction name="renderEditBranchesForm" render="editBranchesForm"
+                            oncomplete="showEditBranchesDialog('#{branchesBean.currentBranch}')">
+                <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
+            </a4j:jsFunction>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+
+        function openEditBranchesDialog(projectName) {
+            renderEditBranchesForm(projectName);
+        }
+
+        function showEditBranchesDialog(currentBranchName) {
+            setDisabledAttributeForCurrentBranch(currentBranchName, true);
+            RichFaces.$("modalEditBranches").show();
+        }
+
+        function setDisabledAttributeForCurrentBranch(currentBranchName, disabled) {
+            if (currentBranchName) {
+                $j("#projectBranchesList :input[value='" + currentBranchName + "']").attr("disabled", disabled);
+            }
+        }
+
+        //]]>
+    </script>
+</ui:composition>

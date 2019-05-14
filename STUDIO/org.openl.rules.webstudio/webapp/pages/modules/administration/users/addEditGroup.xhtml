@@ -35,7 +35,7 @@
             <table cellspacing="5">
                 <tr>
                     <td>
-                        <label class="required">Name</label>
+                        <label class="required">Name:</label>
                     </td>
                     <td>
                         <h:inputText id="name" value="#{groupsBean.name}" validator="#{groupsBean.validateGroupName}"
@@ -50,7 +50,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <label>Description</label>
+                        <label>Description:</label>
                     </td>
                     <td style="width: 100%; padding-right: 11px">
                         <h:inputTextarea id="description" value="#{groupsBean.description}"
@@ -66,7 +66,7 @@
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <thead>
                 <tr id="privilegesTableHeader">
-                    <th class="required" style="min-width: 161px">Privilege</th>
+                    <th class="required" style="min-width: 161px">Privilege:</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <th><a href="javascript:void(0)"
                         onclick="setPrivileges('#{jsffn:toJSText(group.name)}')">#{group.displayName}</a>

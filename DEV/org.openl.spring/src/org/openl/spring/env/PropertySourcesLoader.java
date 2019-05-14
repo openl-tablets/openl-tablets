@@ -1,6 +1,8 @@
 package org.openl.spring.env;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,7 +17,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.*;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.PropertySources;
+import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -31,13 +39,12 @@ import org.springframework.util.StringValueResolver;
  * Spring active profiles: prod, qa<br>
  * locations: file:, file:openl.properties, file:openl/<br>
  * names: application.properties, {appName}.properties, {profile}.properties<br>
- * defaults: classpath*:openl-default.properties <br>
  * <br>
  * Then the list of resources to search is (next resource overides previous):
  * <ol>
  * <li>file:foo.jar!/openl-default.properties</li>
- * <li>file:bar.jar!/openl-default.properties</li>
  * <li>classpath:openl-default.properties</li>
+ * <li>file:bar.jar!/openl-default.properties</li>
  * <li>file:application.properties</li>
  * <li>file:WebStudio.properties</li>
  * <li>file:prod.properties</li>
@@ -57,19 +64,16 @@ import org.springframework.util.StringValueResolver;
  * <li>In Spring configuration, declaring {@code <bean class="org.openl.spring.env.PropertySourcesLoader"/>} bean.</li>
  * </ul>
  * Default resolving order (next resource overides previous):
- * <ul>
- * <p>
- * <li>OpenL default properties. <br>
- * Can be overridden using {@code openl.config.default} property.
+ * <li>OpenL default properties.
  * <ol>
  * <li>classpath*:openl-default.properties</li>
- * <li>classpath:/org/openl/main/openl.version.properties</li>
  * </ol>
  * </li>
  * <li>Application externalized configuration. <br>
  * Can be overridden using {@code openl.config.name} or {@code spring.config.name} properties for names. <br>
  * And {@code openl.config.location} or {@code spring.config.location} properties for folders and locations.
  * <ol>
+ * <li>classpath:application*-default.properties</li>
  * <li>classpath:application.properties</li>
  * <li>classpath:application-{profile}.properties</li>
  * <li>classpath:{appName}.properties</li>
@@ -122,13 +126,6 @@ import org.springframework.util.StringValueResolver;
  * {@link javax.servlet.ServletConfig#getInitParameter(java.lang.String)}</li>
  * </ol>
  * </li>
- * <p>
- * </ol>
- * To override dafault can be used the following properies:
- * <ul>
- * <li>{@code openl.config.default} - Default configs</li>
- * <li></li>
- * <li></li>
  * </ul>
  *
  * @author Yury Molchan
@@ -138,11 +135,11 @@ import org.springframework.util.StringValueResolver;
  * @see PropertyResourceResolver
  */
 public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
-    private static final String VERSION = OpenLVersion.getVersion(); // Just for init OpenLVersion class.
     public static final String OPENL_DEFAULT_PROPS = "OpenL default properties";
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
+    private static final String VERSION = OpenLVersion.getVersion(); // Just for init OpenLVersion class.
     private final Logger log = LoggerFactory.getLogger("OpenL.config");
     private ApplicationContext appContext;
     private MutablePropertySources propertySources;
@@ -236,6 +233,9 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             log.debug("- Not found: '{}'", new Object[] { location });
             return null;
         }
+        Arrays.sort(resources,
+            Comparator.comparing(Resource::getFilename,
+                Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder())));
         CompositePropertySource propertySource = new CompositePropertySource(location);
         for (Resource resource : resources) {
             try {

@@ -285,14 +285,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 IOpenCast openCast = bindingContext.getCast(paramType, methodType);
 
                 if (openCast != null) {
-                    return new EqualsIndexedEvaluator(openCast);
+                    return condition.getNumberOfEmptyRules(0) > 1
+                            ? new EqualsIndexedEvaluatorV2(openCast) : new EqualsIndexedEvaluator(openCast);
                 }
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
                 if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
                     .isAssignableFrom(methodType)) {
-                    return new ContainsInArrayIndexedEvaluator();
+                    return condition.getNumberOfEmptyRules(0) > 1
+                            ? new ContainsInArrayIndexedEvaluatorV2() : new ContainsInArrayIndexedEvaluator();
                 }
 
                 IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(methodType,
@@ -375,8 +377,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
                 ICondition condition = table.getCondition(j);
-                if (eval instanceof ContainsInArrayIndexedEvaluator) {
-                    int maxArrayLength = ((ContainsInArrayIndexedEvaluator) eval).getMaxArrayLength(condition,
+                if (eval instanceof AContainsInArrayIndexedEvaluator) {
+                    int maxArrayLength = ((AContainsInArrayIndexedEvaluator) eval).getMaxArrayLength(condition,
                         info.makeRuleIterator());
                     if (maxArrayLength > MAX_INDEXED_ARRAY_SIZE) {
                         // make condition as not indexed
@@ -636,7 +638,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         private boolean isEqualsIndex() {
-            return this.evaluator instanceof EqualsIndexedEvaluator || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
+            return this.evaluator instanceof EqualsIndexedEvaluator
+                    || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
         }
 
         private int getUniqueKeysSize() {

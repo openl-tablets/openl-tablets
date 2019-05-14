@@ -46,7 +46,7 @@
         }
 
         #editProjectForm table td:first-child {
-            width: 104px;
+            width: 130px;
         }
 
         table.properties-form td.aligned-property {
@@ -91,13 +91,13 @@
                 <div class="block-content">
                     <table class="properties">
                         <tr>
-                            <td>Revision</td>
+                            <td>Revision:</td>
                             <td>#{projectData.version.versionName}</td>
                         </tr>
                         <tr>
                             <ui:param name="statusClass"
                                 value="#{projectData.status == 'LOCAL' ? '' : (projectData.status == 'EDITING' ? 'badge-success' : 'badge-info')}" />
-                            <td>Status</td>
+                            <td>Status:</td>
                             <td>
                                 <span class="badge #{statusClass}">#{projectData.status.displayValue}</span>
                                 <h:panelGroup styleClass="badge badge-error"
@@ -107,7 +107,7 @@
                         </tr>
                         <h:panelGroup rendered="#{!empty projectData.firstVersion.versionInfo}">
                         <tr>
-                            <td>Created At</td>
+                            <td>Created At:</td>
                             <td>
                                 <h:outputText value="#{projectData.firstVersion.versionInfo.createdAt}">
                                     <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
@@ -115,13 +115,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Created By</td>
+                            <td>Created By:</td>
                             <td>#{projectData.firstVersion.versionInfo.createdBy}</td>
                         </tr>
                         </h:panelGroup>
                         <h:panelGroup rendered="#{!empty projectData.version.versionInfo}">
                         <tr>
-                            <td>Modified At</td>
+                            <td>Modified At:</td>
                             <td>
                                 <h:outputText value="#{projectData.version.versionInfo.createdAt}">
                                     <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
@@ -129,7 +129,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Modified By</td>
+                            <td>Modified By:</td>
                             <td>#{projectData.version.versionInfo.createdBy}</td>
                         </tr>
                         </h:panelGroup>
@@ -285,7 +285,7 @@
 
     <h:panelGroup rendered="#{editable}">
 
-    <rich:popupPanel id="editProjectPopup" width="460" autosized="true">
+    <rich:popupPanel id="editProjectPopup" width="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Edit Project" />
         </f:facet>
@@ -298,7 +298,7 @@
         <h:form prependId="false" id="editProjectForm">
             <table class="properties properties-form wide">
                 <tr>
-                    <td style="padding-top: 0">OpenL version compatibility</td>
+                    <td style="padding-top: 0">OpenL version compatibility:</td>
                     <td class="aligned-property" style="padding-top: 0">
                         <span id="version-compatibility-short" class="expandable-link">
                             <h:outputText value="#{projectBean.supportedVersion.lastVersion ? 'Latest version ('.concat(projectBean.supportedVersion.version).concat('+)') : projectBean.supportedVersion.version.concat('+')}" />
@@ -322,7 +322,7 @@
                 </tr>
 
                 <tr>
-                    <td>Name</td>
+                    <td>Name:</td>
                     <td class="aligned-property"><h:outputText id="projectName" value="#{project.name}"/></td>
                 </tr>
                 <tr>
@@ -333,7 +333,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Description</td>
+                    <td>Description:</td>
                     <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px" /></td>
                 </tr>
                 <tr>
@@ -347,14 +347,14 @@
             <h:panelGroup id="propertiesFileNamePatternSettings" styleClass="#{projectBean.propertiesFileNamePatternSupported ? '' : 'hidden'}">
             <table class="properties properties-form wide">
                 <tr>
-                    <td>Custom file name processor</td>
+                    <td>Custom file name processor:</td>
                     <td class="aligned-property">
                         <input id="customPropertiesFileNameProcessor" type="checkbox" checked="#{empty project.propertiesFileNameProcessor ? '' : 'checked'}"
                                onclick="$j('#propertiesFileNameProcessor').val(''); $j('.propertiesFileNameProcessorSettings').toggle(this.checked);"/>
                     </td>
                 </tr>
                 <tr class="propertiesFileNameProcessorSettings">
-                    <td>File name processor class</td>
+                    <td>File name processor class:</td>
                     <td class="aligned-property"><h:inputText id="propertiesFileNameProcessor" value="#{project.propertiesFileNameProcessor}"
                                      binding="#{projectBean.propertiesFileNameProcessorInput}"
                                      validator="#{projectBean.validatePropertiesFileNameProcessor}" /></td>
@@ -366,11 +366,11 @@
                     </a4j:outputPanel></td>
                 </tr>
                 <tr>
-                    <td>Properties pattern for a file name</td>
+                    <td>Properties pattern for a file name:</td>
                     <td class="aligned-property">
-                        <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}" styleClass="with-button"
+                        <h:inputText id="propertiesFileNamePattern" value="#{project.propertiesFileNamePattern}"
                                      validator="#{projectBean.validatePropertiesFileNamePattern}" />
-                        <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());" title="Description" class="imageButton"
+                        <a id="patternInfo" onclick="showPatternInfo($j('#propertiesFileNameProcessor').val());" title="Details" class="imageButton"
                            style="background:url('webresource/images/info.png');display: inline-block;" />
                     </td>
                 </tr>
@@ -472,7 +472,7 @@
         </h:form>
     </rich:popupPanel>
 
-    <rich:popupPanel id="manageSourcesPopup" width="330" autosized="true">
+    <rich:popupPanel id="manageSourcesPopup" width="340" autosized="true">
         <f:facet name="header">
             <h:outputText value="Manage Sources" />
         </f:facet>
@@ -483,7 +483,7 @@
         </f:facet>
 
         <h:form prependId="false" id="manageSourcesForm">
-            <h:inputTextarea id="sources" value="#{projectBean.sources}" style="width:310px;height:150px" />
+            <h:inputTextarea id="sources" value="#{projectBean.sources}" style="width:310px;height:150px" styleClass="code"/>
             <footer>
                 <a4j:commandButton id="editSourcesBtn" value="Save" action="#{projectBean.editSources}"
                     styleClass="button-primary"

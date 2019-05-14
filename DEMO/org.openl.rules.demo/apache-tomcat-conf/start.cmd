@@ -176,11 +176,13 @@ echo.
 @echo -------------------------------
 @popd
 
+@setlocal
+@pushd %~dp0
+
 @rem Apply security policy for demo
 @if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
 
 @rem Run Apache Tomcat
-@setlocal
 @echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
@@ -191,8 +193,8 @@ echo.
 @echo Using JRE_HOME:        "%_JRE_HOME%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
-@pushd %~dp0
 @call bin\startup.bat
+
 @popd
 @exit /b 0 & endlocal
 

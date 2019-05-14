@@ -182,7 +182,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public UserWorkspaceProject getSelectedProject() {
-        AProjectArtefact artefact = getSelectedNode().getData();
+        return getProject(getSelectedNode());
+    }
+
+    public UserWorkspaceProject getProject(TreeNode node) {
+        AProjectArtefact artefact = node.getData();
         if (artefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact;
         } else if (artefact != null && artefact.getProject() instanceof UserWorkspaceProject) {
@@ -209,11 +213,36 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (artefact == null) {
             return;
         }
+
+        String branch = null;
+        AProject project = artefact.getProject();
+        if (project instanceof UserWorkspaceProject) {
+            branch = ((UserWorkspaceProject) project).getBranch();
+        }
+
         Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
         while ((currentNode != null) && it.hasNext()) {
             String id = RepositoryUtils.getTreeNodeId(it.next());
             currentNode = (TreeNode) currentNode.getChild(id);
+
+            if (branch != null && currentNode != null) {
+                // If currentNode is a project, update its branch.
+                AProjectArtefact currentArtefact = currentNode.getData();
+                if (currentArtefact instanceof UserWorkspaceProject) {
+                    UserWorkspaceProject newProject = (UserWorkspaceProject) currentArtefact;
+                    if (!branch.equals(newProject.getBranch())) {
+                        try {
+                            // Update branch for the project
+                            newProject.setBranch(branch);
+                            // Rebuild children for the node
+                            currentNode.refresh();
+                        } catch (ProjectException e) {
+                            log.error("Can't update selected node: {}", e.getMessage(), e);
+                        }
+                    }
+                }
+            }
         }
 
         if (currentNode != null) {
@@ -278,7 +307,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      */
     public void invalidateTree() {
         synchronized (lock) {
-            invalidateSelection();
             root = null;
 
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).

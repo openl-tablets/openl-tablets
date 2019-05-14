@@ -46,7 +46,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     /**
      * Map for compound return column descriptions in SimpleRules header
      */
-    private final Map<CellKey, String> simpleRulesReturnDescriptions = new HashMap<>();
+    private final Map<CellKey, ReturnMetaInfo> simpleRulesReturnDescriptions = new HashMap<>();
 
     private CellMetaInfo[][] preparedMetaInfos;
     private int top;
@@ -158,7 +158,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
 
         String text = headerToString.apply(headerMetaInfo);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
+        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+            cellValue.length() - 1,
+            text,
+            headerMetaInfo.getUrl(),
+            headerMetaInfo.getUrl() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
         setPreparedMetaInfo(row,
             col,
             new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
@@ -255,7 +259,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveCompoundReturnColumn(IGridRegion region) {
-        for (Map.Entry<CellKey, String> entry : simpleRulesReturnDescriptions.entrySet()) {
+        for (Map.Entry<CellKey, ReturnMetaInfo> entry : simpleRulesReturnDescriptions.entrySet()) {
             CellKey key = entry.getKey();
             int row = key.getRow();
             int col = key.getColumn();
@@ -269,12 +273,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (StringUtils.isBlank(stringValue)) {
                 continue;
             }
-
+            ReturnMetaInfo returnMetaInfo = entry.getValue();
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                 stringValue.length() - 1,
-                entry.getValue(),
-                null,
-                NodeType.OTHER);
+                returnMetaInfo.getDetails(),
+                returnMetaInfo.getUri(),
+                returnMetaInfo.getUri() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
             CellMetaInfo metaInfo = new CellMetaInfo(JavaOpenClass.STRING,
                 false,
                 Collections.singletonList(simpleNodeUsage));
@@ -288,9 +292,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             String[] parameterNames,
             String statement,
             IOpenClass[] columnTypes,
+            String url,
             String additionalDetails) {
         simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, additionalDetails));
+            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
     }
 
     public void addSimpleRulesAction(int row,
@@ -299,13 +304,15 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             String[] parameterNames,
             String statement,
             IOpenClass[] columnTypes,
+            String url,
             String additionalInfo) {
         simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, additionalInfo));
+            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalInfo));
     }
 
-    public void addSimpleRulesReturn(int row, int col, String details) {
-        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row), details);
+    public void addSimpleRulesReturn(int row, int col, String details, String uri) {
+        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row),
+            new ReturnMetaInfo(details, uri));
     }
 
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
@@ -445,17 +452,39 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         setPreparedMetaInfo(row, col, metaInfo);
     }
 
+    private static class ReturnMetaInfo {
+        String details;
+        String uri;
+
+        public ReturnMetaInfo(String details, String uri) {
+            super();
+            this.details = details;
+            this.uri = uri;
+        }
+
+        public String getDetails() {
+            return details;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+    }
+
     private static class HeaderMetaInfo {
         String header;
         String[] parameterNames;
         String statement;
         IOpenClass[] columnTypes;
         String additionalDetails;
+        String url;
 
         public HeaderMetaInfo(String headerName,
                 String[] parameterNames,
                 String conditionStatement,
                 IOpenClass[] columnTypes,
+                String url,
                 String additionalDetails) {
             if (parameterNames != null && columnTypes != null && parameterNames.length != columnTypes.length) {
                 throw new IllegalArgumentException();
@@ -465,6 +494,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             this.statement = conditionStatement;
             this.columnTypes = columnTypes;
             this.additionalDetails = additionalDetails;
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
         }
 
         public String getAdditionalDetails() {

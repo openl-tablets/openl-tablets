@@ -10,19 +10,6 @@ grant codeBase "file:${catalina.home}/lib/-" {
         permission java.security.AllPermission;
 };
 
-// jgit tries to detect if application runs under cygwin (walks through all ${java.library.path} folders) and tries
-// to load git system properties (walks through all ${PATH} folders).
-// The request is allowed only if every ProtectionDomain in the context implies the permission. So we must ensure that
-// permission is allowed not only jgit jar but also for every classes and jars in the request stack.
-grant codeBase "file:${catalina.base}/webapps/webservice/WEB-INF/-" {
-        permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
-        permission java.nio.file.LinkPermission "symbolic";
-};
-grant codeBase "file:${catalina.base}/webapps/webstudio/WEB-INF/-" {
-        permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
-        permission java.nio.file.LinkPermission "symbolic";
-};
-
 grant {
         // Allows any thread to stop itself using the java.lang.Thread.stop()
         // method that takes no argument.

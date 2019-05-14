@@ -96,8 +96,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public AProject createProject(String name) throws ProjectException {
-        return designTimeRepository.createProject(name);
+    public RulesProject createProject(String name) throws ProjectException {
+        FileData localData = new FileData();
+        localData.setName(name);
+
+        AProject designProject = designTimeRepository.createProject(name);
+        FileData designData = designProject.getFileData();
+
+        return new RulesProject(
+                this,
+                localWorkspace.getRepository(),
+                localData,
+                designProject.getRepository(),
+                designData,
+                projectsLockEngine
+        );
     }
 
     @Override
@@ -359,10 +372,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         }
                     }
                 } catch (IOException e) {
-                    log.error("Skip workspace changes for project '{}' because of error: {}",
+                    log.warn("Skip workspace changes for project '{}' because of error: {}",
                         rp.getName(),
-                        e.getMessage(),
-                        e);
+                        e.getMessage());
                     desRepo = designRepository;
                     designFileData = rp.getFileData();
                     local = null;
@@ -422,7 +434,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
         try {
-            AProject createdProject = createProject(name);
+            AProject createdProject = designTimeRepository.createProject(name);
             AProject project = localWorkspace.getProject(name);
             project.refresh();
             if (designTimeRepository.getRepository().supports().mappedFolders()) {
@@ -431,6 +443,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
+            localWorkspace.getRepository().getProjectState(name).clearModifyStatus();
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {

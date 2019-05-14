@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -19,14 +20,16 @@ import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -52,6 +55,9 @@ public class CopyBean {
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
 
+    @ManagedProperty(value = "#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
+
     private String currentProjectName;
     private String newProjectName;
     private String projectFolder;
@@ -60,6 +66,8 @@ public class CopyBean {
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
+    private CommentValidator commentValidator;
+    private String errorMessage;
 
     public boolean getCanCreate() {
         return isGranted(CREATE_PROJECTS);
@@ -144,8 +152,14 @@ public class CopyBean {
         return project == null ? 0 : project.getVersionsCount() - project.getFirstRevisionIndex();
     }
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
     public void copy() {
         try {
+            errorMessage = null;
+
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
@@ -197,9 +211,43 @@ public class CopyBean {
 
             WebStudioUtils.getWebStudio().resetProjects();
             userWorkspace.refresh();
+            repositoryTreeState.invalidateTree();
+
+            switchToNewBranch();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.throwValidationError("Can't copy the project: " + e.getMessage());
+            errorMessage = "Can't copy the project: " + e.getMessage();
+        }
+    }
+
+    private void switchToNewBranch() {
+        if (!(isSupportsBranches() && !separateProject)) {
+            return;
+        }
+        try {
+            UserWorkspaceProject selectedProject = getCurrentProject();
+            if (selectedProject == null) {
+                return;
+            }
+            TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName());
+            selectedProject = repositoryTreeState.getProject(node);
+            WebStudio studio = WebStudioUtils.getWebStudio();
+
+            boolean opened = selectedProject.isOpened();
+            if (opened) {
+                studio.getModel().clearModuleInfo();
+                selectedProject.releaseMyLock();
+            }
+            selectedProject.setBranch(newBranchName);
+            if (opened) {
+                // Update files
+                selectedProject.open();
+            }
+
+            repositoryTreeState.refreshNode(node);
+            studio.reset();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -235,12 +283,26 @@ public class CopyBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            Repository designRepository = designTimeRepository.getRepository();
-            Collection<String> branches = ((BranchRepository) designRepository).getBranches(currentProjectName);
+            BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
+            FacesUtils.validate(designRepository.isValidBranchName(newBranchName), "Invalid branch name. It should not contain reserved words or symbols");
+            Collection<String> branches = designRepository.getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
-        } catch (WorkspaceException ignored) {
+        } catch (WorkspaceException | IOException ignored) {
         }
 
+    }
+
+    public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        if (isSupportsBranches() && !isSeparateProjectSubmitted(context)) {
+            return;
+        }
+
+        String comment = (String) value;
+
+        RulesProject project = getCurrentProject();
+        if (project != null) {
+            commentValidator.validate(comment);
+        }
     }
 
     private Boolean isSeparateProjectSubmitted(FacesContext context) {
@@ -257,6 +319,7 @@ public class CopyBean {
             copyOldRevisions = Boolean.FALSE;
             revisionsCount = null;
             separateProject = false;
+            errorMessage = null;
             if (isSupportsBranches()) {
                 // Remove restricted symbols
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
@@ -315,9 +378,22 @@ public class CopyBean {
 
     public void setConfig(Map<String, Object> config) {
         this.config = config;
+        this.commentValidator = CommentValidator.forDesignRepo(config);
     }
 
     public void setDesignRepoComments(Comments designRepoComments) {
         this.designRepoComments = designRepoComments;
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public boolean isConfirmationRequired() {
+        if (!isSupportsBranches()) {
+            return false;
+        }
+        RulesProject project = getCurrentProject();
+        return project != null && project.isOpened() && project.getStatus() == ProjectStatus.EDITING;
     }
 }

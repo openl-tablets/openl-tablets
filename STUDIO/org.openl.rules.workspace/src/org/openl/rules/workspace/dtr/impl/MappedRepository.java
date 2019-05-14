@@ -289,7 +289,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public List<String> getBranches(String projectName) {
+    public List<String> getBranches(String projectName) throws IOException {
         return ((BranchRepository) delegate).getBranches(projectName);
     }
 
@@ -611,5 +611,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } catch (XPathExpressionException e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean isValidBranchName(String branch) {
+        if (delegate instanceof BranchRepository) {
+            return ((BranchRepository) delegate).isValidBranchName(branch);
+        }
+        return true;
     }
 }

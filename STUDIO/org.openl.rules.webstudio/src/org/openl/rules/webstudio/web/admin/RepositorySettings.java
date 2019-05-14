@@ -3,10 +3,10 @@ package org.openl.rules.webstudio.web.admin;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.util.StringUtils;
 
 public abstract class RepositorySettings {
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
+    private final String USE_CUSTOM_COMMENTS;
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
     private final String COMMENT_TEMPLATE;
@@ -30,9 +30,10 @@ public abstract class RepositorySettings {
     private String defaultCommentCopiedFrom;
     private String defaultCommentRestoredFrom;
 
-    private boolean useCustomComments = false;
+    private boolean useCustomComments;
 
     RepositorySettings(ConfigurationManager configManager, String configPrefix) {
+        USE_CUSTOM_COMMENTS = configPrefix + "comment-template.use-custom-comments";
         COMMENT_VALIDATION_PATTERN = configPrefix + "comment-validation-pattern";
         INVALID_COMMENT_MESSAGE = configPrefix + "invalid-comment-message";
         COMMENT_TEMPLATE = configPrefix + "comment-template";
@@ -146,6 +147,7 @@ public abstract class RepositorySettings {
     private void load(ConfigurationManager configManager) {
         includeVersionInDeploymentName = Boolean.valueOf(configManager.getStringProperty(VERSION_IN_DEPLOYMENT_NAME));
 
+        useCustomComments = Boolean.valueOf(configManager.getStringProperty(USE_CUSTOM_COMMENTS));
         commentValidationPattern = configManager.getStringProperty(COMMENT_VALIDATION_PATTERN);
         invalidCommentMessage = configManager.getStringProperty(INVALID_COMMENT_MESSAGE);
         commentTemplate = configManager.getStringProperty(COMMENT_TEMPLATE);
@@ -159,33 +161,43 @@ public abstract class RepositorySettings {
     }
 
     protected void fixState() {
-        useCustomComments = StringUtils.isNotEmpty(getCommentValidationPattern());
     }
 
     protected void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
 
-        if (isUseCustomComments()) {
+        propertiesHolder.setProperty(USE_CUSTOM_COMMENTS, useCustomComments);
+        if (useCustomComments) {
             propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
             propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
+
+            propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
+            propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
         } else {
             propertiesHolder.removeProperty(COMMENT_VALIDATION_PATTERN);
             propertiesHolder.removeProperty(INVALID_COMMENT_MESSAGE);
-        }
 
-        propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORE, defaultCommentRestore);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_ERASE, defaultCommentErase);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
-        propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
+            propertiesHolder.removeProperty(COMMENT_TEMPLATE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_SAVE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_CREATE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_ARCHIVE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_ERASE);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_COPIED_FROM);
+            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORED_FROM);
+        }
     }
 
     protected void revert(ConfigurationManager configurationManager) {
         configurationManager.removeProperties(
                 VERSION_IN_DEPLOYMENT_NAME,
+                USE_CUSTOM_COMMENTS,
                 COMMENT_VALIDATION_PATTERN,
                 INVALID_COMMENT_MESSAGE,
                 COMMENT_TEMPLATE,
@@ -224,6 +236,7 @@ public abstract class RepositorySettings {
 
     public void copyContent(RepositorySettings other) {
         setIncludeVersionInDeploymentName(other.isIncludeVersionInDeploymentName());
+        setUseCustomComments(other.isUseCustomComments());
         setCommentValidationPattern(other.getCommentValidationPattern());
         setInvalidCommentMessage(other.getInvalidCommentMessage());
         setDefaultCommentCreate(other.getDefaultCommentCreate());

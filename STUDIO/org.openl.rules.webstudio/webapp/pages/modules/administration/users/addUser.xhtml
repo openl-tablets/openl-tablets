@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalAddUser" width="400" autosized="true">
+    <rich:popupPanel id="modalAddUser" width="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Add New User" />
         </f:facet>
@@ -19,36 +19,36 @@
         <h:form id="addUserForm">
         <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Internal user</label></h:panelGroup>
+                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Local user</label></h:panelGroup>
                 <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canSelectInternalOrExternal}" value="#{usersBean.internalUser}"/>
                 <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"> </h:panelGroup>
 
-                <label class="required">Username</label>
+                <label class="required">Username:</label>
                 <h:inputText id="username" value="#{usersBean.username}"
                     validator="#{usersBean.validateUsername}" />
                 <a4j:outputPanel ajaxRendered="true" id="nameError">
                     <h:message for="username" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:panelGroup rendered="#{usersBean.canCreateInternalUsers}"><label class="required">Password</label></h:panelGroup>
+                <h:panelGroup rendered="#{usersBean.canCreateInternalUsers}"><label class="required">Password:</label></h:panelGroup>
                 <h:inputSecret id="password" value="#{usersBean.password}" rendered="#{usersBean.canCreateInternalUsers}"/>
                 <a4j:outputPanel ajaxRendered="true" id="passwordError" rendered="#{usersBean.canCreateInternalUsers}">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>First Name</label>
+                <label>First Name:</label>
                 <h:inputText id="firstName" value="#{usersBean.firstName}" />
                 <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>Last Name</label>
+                <label>Last Name:</label>
                 <h:inputText id="lastName" value="#{usersBean.lastName}" />
                 <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label class="required">Groups</label>
+                <label class="required">Groups:</label>
                 <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>

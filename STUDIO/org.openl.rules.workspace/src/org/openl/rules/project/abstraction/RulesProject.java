@@ -165,20 +165,20 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        return lockEngine.getLockInfo(getName());
+        return lockEngine.getLockInfo(getBranch(), getName());
     }
 
     @Override
     public void lock() throws ProjectException {
         // No need to lock local only projects. Other users don't see it.
         if (!isLocalOnly()) {
-            lockEngine.tryLock(getName(), getUser().getUserName());
+            lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
         }
     }
 
     @Override
     public void unlock() {
-        lockEngine.unlock(getName());
+        lockEngine.unlock(getBranch(), getName());
     }
 
     /**
@@ -192,7 +192,7 @@ public class RulesProject extends UserWorkspaceProject {
             // No need to lock local only projects. Other users don't see it.
             return true;
         }
-        return lockEngine.tryLock(getName(), getUser().getUserName());
+        return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
@@ -271,7 +271,9 @@ public class RulesProject extends UserWorkspaceProject {
         if (localFolderName == null) {
             localFolderName = designProject.getName();
         }
-        new AProject(localRepository, localFolderName).update(designProject, getUser());
+
+        AProject localProject = new AProject(localRepository, localFolderName);
+        localProject.update(designProject, getUser());
         setRepository(localRepository);
         setFolderPath(localFolderName);
 
@@ -331,9 +333,13 @@ public class RulesProject extends UserWorkspaceProject {
                         // file size and modified time for a file to avoid lazy loading and therefore performance
                         // degradation. Only change unique id that was gotten from design repository.
                         FileData localData = localRepository.check(localName);
-                        localData.setUniqueId(designData.getUniqueId());
+                        if (localData != null) {
+                            localData.setUniqueId(designData.getUniqueId());
 
-                        localRepository.updateFileProperties(localData);
+                            localRepository.updateFileProperties(localData);
+                        } else {
+                            log.warn("Files in local repository for folder {} aren't found", localName);
+                        }
                     }
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
