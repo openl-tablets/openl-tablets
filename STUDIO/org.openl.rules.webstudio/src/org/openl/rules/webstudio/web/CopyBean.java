@@ -163,13 +163,14 @@ public class CopyBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-            Repository designRepository = designTimeRepository.getRepository();
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
 
             RulesProject project = userWorkspace.getProject(currentProjectName, false);
             if (isSupportsBranches() && !separateProject) {
+                Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
             } else {
+                Repository designRepository = designTimeRepository.getRepository();
                 String designPath = designTimeRepository.createProject(newProjectName).getFolderPath();
 
                 if (copyOldRevisions) {
