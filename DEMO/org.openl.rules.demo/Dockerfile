@@ -1,12 +1,12 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:11-jre-slim
 
 ENV TOMCAT_VERSION=8.5.28
 
-RUN apk add --update \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
       unzip \
-      ttf-dejavu \
-    && rm -rf /var/cache/apk/*
+      procps \
+      && rm -rf /var/lib/apt/lists/*
 
 COPY ./target/*.zip /tmp/
     
