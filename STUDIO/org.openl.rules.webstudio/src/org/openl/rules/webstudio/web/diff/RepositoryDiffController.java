@@ -1,9 +1,7 @@
 package org.openl.rules.webstudio.web.diff;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -120,7 +118,6 @@ public class RepositoryDiffController extends AbstractDiffController {
     public String init() {
         initProjectUW();
         initProjectRepo();
-        // setDiffTree(null);
         return null;
     }
 
@@ -159,17 +156,17 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) {
-        List<AProjectArtefact> excelArtefacts = new ArrayList<>();
         Collection<? extends AProjectArtefact> projectArtefacts;
         if (rootPath != null) {
             try {
                 projectArtefacts = getProjectFolder(project, rootPath).getArtefacts();
             } catch (Exception e) {
-                return excelArtefacts;
+                return Collections.emptyList();
             }
         } else {
             projectArtefacts = project.getArtefacts();
         }
+        List<AProjectArtefact> excelArtefacts = new ArrayList<>();
         for (AProjectArtefact projectArtefact : projectArtefacts) {
             String artefactPath = projectArtefact.getArtefactPath().getStringValue();
             if (projectArtefact.isFolder()) {
@@ -178,6 +175,12 @@ public class RepositoryDiffController extends AbstractDiffController {
                 excelArtefacts.add(projectArtefact);
             }
         }
+        Collections.sort(excelArtefacts, new Comparator<AProjectArtefact>() {
+            @Override
+            public int compare(AProjectArtefact o1, AProjectArtefact o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return excelArtefacts;
     }
 
@@ -237,7 +240,6 @@ public class RepositoryDiffController extends AbstractDiffController {
     @Override
     public String compare() {
         if (StringUtils.isEmpty(selectedExcelFileUW) || StringUtils.isEmpty(selectedExcelFileRepo)) {
-            System.err.println("exit");
             return null;
         }
         // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
