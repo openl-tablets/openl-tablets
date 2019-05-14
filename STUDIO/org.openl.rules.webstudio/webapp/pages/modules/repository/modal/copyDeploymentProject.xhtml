@@ -4,7 +4,7 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalCopyDeploymentProject" width="400" autosized="true">
+  <rich:popupPanel id="modalCopyDeploymentProject" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Copy Deploy Configuration" />
     </f:facet>
@@ -17,9 +17,9 @@
     <h:form id="copyDeploymentProjectForm">
       <h:panelGroup id="modalCopyDeploymentProjectData">
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-          <h:outputText value="Project Name" />
+          <h:outputText value="Project Name:" />
           <input id="deploymentProjectName1" value="#{artefact.name}" type="text" size="35" readonly="readonly" title="#{artefact.name}"/>
-          <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
+          <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:" />
           <h:inputText id="newProjectName" size="35"
               maxlength="50"
               value="#{repositoryTreeController.newProjectName}"

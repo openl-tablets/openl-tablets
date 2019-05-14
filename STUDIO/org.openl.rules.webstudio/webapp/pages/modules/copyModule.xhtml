@@ -17,7 +17,7 @@
         }
 
         #copyModuleForm table td:first-child {
-            width: 130px;
+            width: 120px;
         }
 
         #copyModuleForm table input[type="text"],
@@ -75,7 +75,7 @@
                 <div>
                     <table id="from-panel-short" class="properties properties-form wide">
                         <tr>
-                            <td>Module Name</td>
+                            <td>Module Name:</td>
                             <td>
                                 <span id="moduleNameLink" class="expandable-link">
                                 </span>
@@ -85,7 +85,7 @@
 
                     <table id="from-panel-full" class="properties properties-form wide" >
                         <tr class="info">
-                            <td>Module Name</td>
+                            <td>Module Name:</td>
                             <td>
                                 <h:inputHidden id="moduleNameOld"/>
                                 <!-- Disabled items are not submitted-->
@@ -93,13 +93,13 @@
                             </td>
                         </tr>
                         <tr class="module-with-wildcard info">
-                            <td>File Path Pattern</td>
+                            <td>File Path Pattern:</td>
                             <td>
                                 <h:outputText id="modulePathPattern" value="#{projectBean.modulePathPattern}"/>
                             </td>
                         </tr>
                         <tr>
-                            <td>File Path</td>
+                            <td>File Path:</td>
                             <td>
                                 <h:panelGroup id="modulePathOldPanel">
                                     <h:inputHidden id="modulePathOld"/>
@@ -129,7 +129,7 @@
                 <div>
                     <table class="properties properties-form wide">
                         <tr>
-                            <td>New Module Name</td>
+                            <td>New Module Name:</td>
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
                                 <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: #{!empty projectBean.propertiesFileNamePattern ? 'inline-block' : 'none'}; ">
@@ -164,7 +164,7 @@
                         </tr>
 
                         <tr class="new-file-name-setting-short">
-                            <td>New File Name</td>
+                            <td>New File Name:</td>
                             <td>
                                 <h:inputHidden id="modulePath"/>
                                 <span id="newFileNameLink" class="expandable-link">
@@ -179,11 +179,11 @@
                         </tr>
 
                         <tr class="new-file-name-setting-full info">
-                            <td>New File Path</td>
+                            <td>New File Path:</td>
                             <td><h:panelGroup id="newFileFolder" /></td>
                         </tr>
                         <tr class="new-file-name-setting-full">
-                            <td>New File Name</td>
+                            <td>New File Name:</td>
                             <td><h:inputText id="newFileName" validator="#{projectBean.validateModulePathForCopy}" /></td>
                         </tr>
                         <tr class="new-file-name-setting-full">
@@ -194,7 +194,7 @@
                         </tr>
 
                         <tr class="project-with-properties-pattern info">
-                            <td>Properties pattern for a file name</td>
+                            <td>Properties pattern for a file name:</td>
                             <td>
                                 <h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}"
                                               styleClass="with-button" style="display: inline-block" />

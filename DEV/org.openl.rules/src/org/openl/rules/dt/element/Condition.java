@@ -8,6 +8,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
+import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -182,4 +183,11 @@ public class Condition extends FunctionalRow implements ICondition {
         getMethod().removeDebugInformation();
     }
 
+    @Override
+    public int getNumberOfEmptyRules(int paramIndex) {
+        if (storage != null) {
+            return storage[paramIndex].getInfo().getNumberOfSpaces();
+        }
+        return 0;
+    }
 }

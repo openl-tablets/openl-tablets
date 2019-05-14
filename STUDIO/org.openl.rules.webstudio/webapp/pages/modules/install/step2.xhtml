@@ -16,8 +16,6 @@
                 list-style-type: none;
             }
 
-            .pathInput { width: 211px; }
-
             .repositoryConfig > div {
                 display: table;
                 border-bottom: 1px dashed #aaa;
@@ -40,10 +38,7 @@
             .titleColumn {
                 min-width: 170px;
             }
-
-            td.titleColumn + td > input[type="text"], td.titleColumn + td > select {
-                width: 20em;
-            }
+           
             .messages {
                 top: 7px;
             }
@@ -97,21 +92,21 @@
                                                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="design"/>
                                                     <ui:param name="repository" value="#{designRepository}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DESIGN" />
                                                 </ui:include>
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
                                                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="design"/>
                                                     <ui:param name="repository" value="#{designRepository}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DESIGN" />
                                                 </ui:include>
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{designRepository.formType == 'git'}">
                                                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                     <ui:param name="prependId" value="design"/>
                                                     <ui:param name="repository" value="#{designRepository}" />
-                                                    <ui:param name="isProduction" value="false" />
+                                                    <ui:param name="repoType" value="DESIGN" />
                                                 </ui:include>
                                             </h:panelGroup>
 
@@ -119,6 +114,7 @@
                                                 <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
                                                     <ui:param name="prependId" value="design"/>
                                                     <ui:param name="settings" value="#{installWizard.designFolderStructure}" />
+                                                    <ui:param name="repoType" value="DESIGN" />
                                                 </ui:include>
                                             </h:panelGroup>
                                         </h:panelGroup>
@@ -164,21 +160,21 @@
                                                     <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                         <ui:param name="prependId" value="deployConfig"/>
                                                         <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                        <ui:param name="isProduction" value="false" />
+                                                        <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                     </ui:include>
                                                 </h:panelGroup>
                                                 <h:panelGroup rendered="#{deployConfigRepo.formType == 'aws_s3'}">
                                                     <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                         <ui:param name="prependId" value="deployConfig"/>
                                                         <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                        <ui:param name="isProduction" value="false" />
+                                                        <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                     </ui:include>
                                                 </h:panelGroup>
                                                 <h:panelGroup rendered="#{deployConfigRepo.formType == 'git'}">
                                                     <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                         <ui:param name="prependId" value="deployConfig"/>
                                                         <ui:param name="repository" value="#{deployConfigRepo}" />
-                                                        <ui:param name="isProduction" value="false" />
+                                                        <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                     </ui:include>
                                                 </h:panelGroup>
                                             </h:panelGroup>
@@ -187,6 +183,7 @@
                                                     <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
                                                         <ui:param name="prependId" value="deployConfig"/>
                                                         <ui:param name="settings" value="#{installWizard.deployConfigFolderStructure}" />
+                                                        <ui:param name="repoType" value="DEPLOY_CONFIGURATION" />
                                                     </ui:include>
                                                 </h:panelGroup>
                                             </h:panelGroup>
@@ -231,21 +228,21 @@
                                                             <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                                 <ui:param name="prependId" value="production"/>
                                                                 <ui:param name="repository" value="#{repository}" />
-                                                                <ui:param name="isProduction" value="true" />
+                                                                <ui:param name="repoType" value="PRODUCTION" />
                                                             </ui:include>
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{repository.formType == 'aws_s3'}">
                                                             <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                                 <ui:param name="prependId" value="production"/>
                                                                 <ui:param name="repository" value="#{repository}" />
-                                                                <ui:param name="isProduction" value="true" />
+                                                                <ui:param name="repoType" value="PRODUCTION" />
                                                             </ui:include>
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{repository.formType == 'git'}">
                                                             <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                                 <ui:param name="prependId" value="production"/>
                                                                 <ui:param name="repository" value="#{repository}" />
-                                                                <ui:param name="isProduction" value="true" />
+                                                                <ui:param name="repoType" value="PRODUCTION" />
                                                             </ui:include>
                                                         </h:panelGroup>
                                                     </h:panelGroup>
@@ -292,6 +289,7 @@
                 <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
                 <c:set var="newProductionRepoController" value="#{installWizard.newProductionRepoController}"/>
                 <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
+                <ui:include src="/pages/modules/showInfo.xhtml" />
             </div>
         </div>
 

@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalEraseProject" width="250" autosized="true">
+  <rich:popupPanel id="modalEraseProject" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Confirm Erase" />
     </f:facet>
@@ -15,20 +15,22 @@
     </f:facet>
 
     <h:form id="eraseProjectForm">
-      <h:outputText value="Are you sure you want to erase the project?" />
+      <h:panelGroup id="eraseProjectData">
+        <h:outputText value="Are you sure you want to erase the project?" />
 
-      <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
-      <ui:param name="useCustomComment"
-                value="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}"/>
-      <h:panelGroup rendered="#{useCustomComment}">
-        <p>
-          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Comment"/>
-            <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
-                             size="35"
-                             readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
-          </h:panelGrid>
-        </p>
+        <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+        <ui:param name="useCustomComment"
+                  value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}"/>
+        <h:panelGroup rendered="#{useCustomComment}">
+          <p>
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+              <h:outputText value="Comment:"/>
+              <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
+                               size="35"
+                               readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
+            </h:panelGrid>
+          </p>
+        </h:panelGroup>
       </h:panelGroup>
 
       <footer>

@@ -19,6 +19,8 @@ public interface IConditionEvaluator extends IBaseConditionEvaluator {
     int EQUALS_CONDITION_PRIORITY = 0;
     int ARRAY_CONDITION_PRIORITY = 0;
     int ARRAY2_CONDITION_PRIORITY = 10; // for ContainsInOrNotInArrayIndexedEvaluator
+    int EQUALS_CONDITION_PRIORITY_V2 = 70;
+    int ARRAY_CONDITION_PRIORITY_V2 = 70;
     int RANGE_CONDITION_PRIORITY = 90;
 
     int DEFAULT_CONDITION_PRIORITY = 100;

@@ -26,11 +26,15 @@ public class RepositorySettingsValidators {
         }
     }
 
+    public void ivalidCommentMessage(FacesContext context, UIComponent toValidate, Object value) {
+        validateNotBlank((String) value, "Invalid user message hint");
+    }
+
     public void commentTemplate(FacesContext context, UIComponent toValidate, Object value) {
         String template = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(template), "Commit template can't be empty");
-        FacesUtils.validate(template.contains("{commit-type}"), "Commit template must contain '{commit-type}'");
-        FacesUtils.validate(template.contains("{user-message}"), "Commit template must contain '{user-message}'");
+        FacesUtils.validate(StringUtils.isNotBlank(template), "Comment message template can't be empty");
+        FacesUtils.validate(template.contains("{commit-type}"), "Comment message template must contain '{commit-type}'");
+        FacesUtils.validate(template.contains("{user-message}"), "Comment message template must contain '{user-message}'");
     }
 
     protected void validateNotBlank(String value, String field) {

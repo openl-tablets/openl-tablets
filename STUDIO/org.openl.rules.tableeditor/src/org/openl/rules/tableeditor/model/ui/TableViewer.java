@@ -124,7 +124,7 @@ public class TableViewer {
                 // has Explanation link
                 content = formattedValue;
             } else if (isShowLinks() && (CellMetaInfo
-                .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnHeader()))) {
+                .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnCell()))) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
@@ -183,7 +183,7 @@ public class TableViewer {
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
 
-            if (metaInfo.isReturnHeader()) {
+            if (metaInfo.isReturnCell()) {
                 buff.append("<span class=\"title title-" + NodeType.OTHER.toString()
                     .toLowerCase() + " " + Constants.TABLE_EDITOR_META_INFO_CLASS + "\">");
                 buff.append("  &#9733;");

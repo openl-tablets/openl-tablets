@@ -203,20 +203,20 @@ public class ADeploymentProject extends UserWorkspaceProject {
         if (lockEngine == null) {
             return LockInfoImpl.NO_LOCK;
         }
-        return lockEngine.getLockInfo(getName());
+        return lockEngine.getLockInfo(getBranch(), getName());
     }
 
     @Override
     public void lock() throws ProjectException {
         if (lockEngine != null) {
-            lockEngine.tryLock(getName(), getUser().getUserName());
+            lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
         }
     }
 
     @Override
     public void unlock() {
         if (lockEngine != null) {
-            lockEngine.unlock(getName());
+            lockEngine.unlock(getBranch(), getName());
         }
     }
 

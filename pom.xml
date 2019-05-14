@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.22.1</version>
+    <version>5.22.2-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>//openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -65,7 +65,7 @@
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
         <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
-        <tag>release-5.22.1</tag>
+        <tag>HEAD</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -273,8 +273,8 @@
                             <goal>verify</goal>
                         </goals>
                         <properties>
-                            <maven.compiler.source>1.7</maven.compiler.source>
-                            <maven.compiler.target>1.7</maven.compiler.target>
+                            <maven.compiler.source>${java.source.version}</maven.compiler.source>
+                            <maven.compiler.target>${java.target.version}</maven.compiler.target>
                         </properties>
                         <showErrors>true</showErrors>
                         <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->

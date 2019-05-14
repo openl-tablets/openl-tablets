@@ -60,8 +60,9 @@ class DependentParametersOptimizedAlgorithm {
                 }
 
                 if (evaluatorFactory instanceof OneParameterEqualsFactory) {
-                    return new OneParameterEqualsIndexedEvaluator((OneParameterEqualsFactory) evaluatorFactory,
-                        openCast);
+                    return condition.getNumberOfEmptyRules(0) > 1
+                            ? new OneParameterEqualsIndexedEvaluatorV2((OneParameterEqualsFactory) evaluatorFactory, openCast)
+                            : new OneParameterEqualsIndexedEvaluator((OneParameterEqualsFactory) evaluatorFactory, openCast);
                 } else {
 
                     IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
@@ -728,10 +729,33 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     public static class OneParameterEqualsIndexedEvaluator extends EqualsIndexedEvaluator {
-        OneParameterEqualsFactory oneParameterEqualsFactory;
+        private OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
                 IOpenCast openCast) {
+            super(openCast);
+            if (oneParameterEqualsFactory == null) {
+                throw new IllegalArgumentException("parameterDeclaration");
+            }
+            this.oneParameterEqualsFactory = oneParameterEqualsFactory;
+        }
+
+        @Override
+        public String getOptimizedSourceCode() {
+            return oneParameterEqualsFactory.getExpression();
+        }
+
+        @Override
+        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
+            return condition.getSourceCodeModule();
+        }
+    }
+
+    public static class OneParameterEqualsIndexedEvaluatorV2 extends EqualsIndexedEvaluatorV2 {
+        private OneParameterEqualsFactory oneParameterEqualsFactory;
+
+        public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
+                                                  IOpenCast openCast) {
             super(openCast);
             if (oneParameterEqualsFactory == null) {
                 throw new IllegalArgumentException("parameterDeclaration");

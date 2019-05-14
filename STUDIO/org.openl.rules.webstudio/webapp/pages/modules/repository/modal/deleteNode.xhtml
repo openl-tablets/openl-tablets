@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalDeleteNode" width="400" autosized="true">
+  <rich:popupPanel id="modalDeleteNode" width="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Confirm Delete" />
     </f:facet>
@@ -15,51 +15,66 @@
         onclick="RichFaces.$('modalDeleteNode').hide();" alt="Close" />
     </f:facet>
 
-    <h:form id="deleteNodeForm">
-      <h:panelGroup id="modalDeleteNodeData">
-        <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+        <h:form id="deleteNodeForm">
+            <h:panelGroup id="modalDeleteNodeData">
+                <ui:param name="node"
+                    value="#{repositoryTreeController.selectedNode}" />
 
-        <h:outputText rendered="#{node.type == 'project' || node.type == 'deployment'}"
-          value="Are you sure you want to delete the project '#{node.name}'?" />
-        <h:outputText rendered="#{node.type == 'folder'}"
-          value="Are you sure you want to delete the folder '#{node.name}'?" />
-        <h:outputText rendered="#{node.type == 'file'}"
-          value="Are you sure you want to delete the file '#{node.name}'?" />
+                <h:outputText
+                    rendered="#{node.type eq 'project' || node.type eq 'deployment'}"
+                    value="Are you sure you want to delete the project '#{node.name}'?" />
+                <h:outputText rendered="#{node.type eq 'folder'}"
+                    value="Are you sure you want to delete the folder '#{node.name}'?" />
+                <h:outputText rendered="#{node.type eq 'file'}"
+                    value="Are you sure you want to delete the file '#{node.name}'?" />
 
-        <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeController.hasDependingProjects}">
-            <div>
-                <h:outputText value="NOTE: Project " rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
-                <h:outputText value="NOTE: Projects " rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
-                <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project" varStatus="i">
-                    <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
-                </ui:repeat>
-                <h:outputText value=" which has dependency on this project is still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
-                <h:outputText value=" which have dependency on this project are still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
-            </div>
-        </h:panelGroup>
+                <h:panelGroup
+                    rendered="#{node.type == 'project' and repositoryTreeController.hasDependingProjects}">
+                    <div>
+                        <h:outputText value="NOTE: Project "
+                            rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}" />
+                        <h:outputText value="NOTE: Projects "
+                            rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}" />
+                        <ui:repeat
+                            value="#{repositoryTreeController.dependingProjects}"
+                            var="project" varStatus="i">
+                            <h:outputText
+                                value="'#{project}'#{i.last ? '' : ', '}" />
+                        </ui:repeat>
+                        <h:outputText
+                            value=" which has dependency on this project is still opened."
+                            rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}" />
+                        <h:outputText
+                            value=" which have dependency on this project are still opened."
+                            rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}" />
+                    </div>
+                </h:panelGroup>
+                <h:panelGroup
+                    rendered="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}">
+                    <p>
+                        <h:panelGrid columns="2" styleClass="formfields"
+                            cellspacing="1" columnClasses="label,">
+                            <h:outputText value="Comment:" />
+                            <h:inputTextarea id="comment"
+                                value="#{repositoryTreeController.archiveProjectComment}"
+                                type="text" size="35" readonly="false"
+                                title="#{repositoryTreeController.archiveProjectComment}" />
+                        </h:panelGrid>
+                    </p>
+                </h:panelGroup>
+            </h:panelGroup>
 
-          <h:panelGroup rendered="#{repositoryTreeController.isUseCustomComment(node.type == 'project')}">
-              <p>
-                  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                      <h:outputText value="Comment"/>
-                      <h:inputTextarea id="comment" value="#{repositoryTreeController.archiveProjectComment}"
-                                       type="text"
-                                       size="35"
-                                       readonly="false" title="#{repositoryTreeController.archiveProjectComment}"/>
-                  </h:panelGrid>
-              </p>
-          </h:panelGroup>
-
-      </h:panelGroup>
-
-      <footer>
-          <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
+            <footer>
+                <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                   Now errors are shown after dialog is closed. -->
-        <h:commandButton value="Delete" action="#{repositoryTreeController.deleteNode}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalDeleteNode')}.hide();" />
-      </footer>
-    </h:form>
+                <h:commandButton value="Delete"
+                    action="#{repositoryTreeController.deleteNode}"
+                    styleClass="button-primary" />
+                <input type="button" value="Cancel"
+                    onclick="#{rich:component('modalDeleteNode')}.hide();" />
+            </footer>
+        </h:form>
 
-  </rich:popupPanel>
+    </rich:popupPanel>
 
 </ui:composition>

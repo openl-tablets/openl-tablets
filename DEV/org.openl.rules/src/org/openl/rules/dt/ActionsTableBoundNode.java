@@ -22,14 +22,14 @@ public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
     }
 
     @Override
-    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters,
+    protected DTColumnsDefinition createDefinition(Map<String, List<IParameterDeclaration>> localParameters,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
-        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.ACTION,
+        return new DTColumnsDefinition(DTColumnsDefinitionType.ACTION,
             localParameters,
             header,
-            compositeMethod);
-        getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(conditionDefinition);
+            compositeMethod,
+            getTableSyntaxNode());
     }
 
 }

@@ -5,7 +5,7 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:popupPanel id="modalCopyFile" width="400" autosized="true">
+    <rich:popupPanel id="modalCopyFile" width="580" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy file"/>
         </f:facet>
@@ -19,16 +19,15 @@
             <h:panelGroup id="modalCopyFileData">
                 <section>
                     <h3>From</h3>
-
                     <div>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label">
-                            <h:outputText value="File Name"/>
+                            <h:outputText value="File Name:"/>
                             <h:outputLabel id="copyingFileName" value="#{node.name}"/>
 
                             <ui:param name="hasVersions"
                                       value="#{!empty repositoryTreeState.selectedProject and !repositoryTreeState.localOnly and node.hasVersions()}"/>
 
-                            <h:outputLabel for="currentRevision" value="Current Revision" rendered="#{hasVersions}"/>
+                            <h:outputLabel for="currentRevision" value="Current Revision:" rendered="#{hasVersions}"/>
                             <h:selectBooleanCheckbox id="currentRevision" value="true"
                                                      onchange="showFileRevision(!this.checked)"
                                                      rendered="#{hasVersions}"/>
@@ -36,7 +35,7 @@
 
                         <h:panelGrid columns="2" styleClass="formfields file-revision hidden" cellspacing="1"
                                      columnClasses="label">
-                            <h:outputLabel for="fileVersion" value="File Revision" rendered="#{hasVersions}"/>
+                            <h:outputLabel for="fileVersion" value="File Revision:" rendered="#{hasVersions}"/>
                             <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}"
                                              required="true"
                                              rendered="#{hasVersions}">
@@ -45,10 +44,8 @@
                         </h:panelGrid>
                     </div>
                 </section>
-
                 <section>
                     <h3>As</h3>
-
                     <div>
                         <ui:param name="path" value="#{repositoryTreeController.currentNodePath}"/>
                         <input type="hidden" id="copyFileForm:filePath" name="copyFileForm:filePath" value="#{path}"/>
@@ -56,7 +53,7 @@
                         <table class="formfields">
                             <tr>
                                 <td class="label">
-                                    <label for="copyFileForm:filePath">New File Path</label>
+                                    <label for="copyFileForm:filePath">New File Path:</label>
                                 </td>
                                 <td>
                                     <h:inputText id="newFileFolder"/>
@@ -64,7 +61,7 @@
                             </tr>
                             <tr>
                                 <td class="label">
-                                    <label for="copyFileForm:newFileName" class="required">New File Name</label>
+                                    <label for="copyFileForm:newFileName" class="required">New File Name:</label>
                                 </td>
                                 <td>
                                     <h:inputText id="newFileName"/>

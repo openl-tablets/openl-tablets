@@ -93,7 +93,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     public String getPackageName() {
         return packageName;
     }
-    
+
     @Override
     public boolean isArray() {
         return false;
@@ -256,15 +256,6 @@ public class DatatypeOpenClass extends ADynamicClass {
         this.bytecode = bytecode;
     }
 
-    @Override
-    public Class<?> getInstanceClass() {
-        Class<?> clazz = super.getInstanceClass();
-        if (clazz == null) {
-            throw new TypeNotPresentException(javaName, null);
-        }
-        return clazz;
-    }
-
     private static final IOpenMethod toString;
     private static final IOpenMethod equals;
     private static final IOpenMethod hashCode;
@@ -283,4 +274,5 @@ public class DatatypeOpenClass extends ADynamicClass {
             throw RuntimeExceptionWrapper.wrap(nsme);
         }
     }
+
 }

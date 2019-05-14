@@ -100,6 +100,9 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public List<SelectItem> getExcelFilesRepo() {
         List<SelectItem> excelItems = new ArrayList<>();
+        if (excelArtefactsRepo == null) {
+            return excelItems;
+        }
         for (AProjectArtefact excelArtefact : excelArtefactsRepo) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(), excelArtefact.getName()));
         }

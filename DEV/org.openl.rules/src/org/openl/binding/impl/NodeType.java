@@ -5,5 +5,6 @@ public enum NodeType {
     DATATYPE,
     DATA,
     FIELD,
+    OTHERUNDERLINED,
     OTHER
 }

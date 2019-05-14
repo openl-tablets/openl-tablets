@@ -191,7 +191,7 @@ public class LocalUploadController {
     }
 
     public String getCreateProjectComment() {
-        return designRepoComments.createProject("");
+        return createProjectComment;
     }
 
     public void setCreateProjectComment(String createProjectComment) {

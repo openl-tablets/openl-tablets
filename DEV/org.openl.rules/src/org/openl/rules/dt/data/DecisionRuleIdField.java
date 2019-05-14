@@ -18,7 +18,7 @@ public class DecisionRuleIdField implements IOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
         RuleExecutionObject reo = (RuleExecutionObject) target;
-        return reo.getRuleNum();
+        return reo.getRuleNum() + 1;
     }
 
     @Override

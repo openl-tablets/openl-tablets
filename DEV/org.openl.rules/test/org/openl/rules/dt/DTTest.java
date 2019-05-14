@@ -836,24 +836,24 @@ public class DTTest {
     @Test
     public void greeting102() {
         Object result = TestUtils.invoke(instance, "Greeting102", 0);
-        assertEquals("Good Morning, World! ruleNumber:0", result);
+        assertEquals("Good Morning, World! ruleNumber:1", result);
         result = TestUtils.invoke(instance, "Greeting102", 11);
-        assertEquals("Good Morning, World! ruleNumber:0", result);
+        assertEquals("Good Morning, World! ruleNumber:1", result);
         result = TestUtils.invoke(instance, "Greeting102", 12);
-        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        assertEquals("Good Afternoon, World! ruleNumber:2", result);
         result = TestUtils.invoke(instance, "Greeting102", 15);
-        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        assertEquals("Good Afternoon, World! ruleNumber:2", result);
         result = TestUtils.invoke(instance, "Greeting102", 17);
-        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        assertEquals("Good Afternoon, World! ruleNumber:2", result);
         result = TestUtils.invoke(instance, "Greeting102", 18);
-        assertEquals("Good Evening, World! ruleNumber:2", result);
+        assertEquals("Good Evening, World! ruleNumber:3", result);
         result = TestUtils.invoke(instance, "Greeting102", 20);
-        assertEquals("Good Evening, World! ruleNumber:2", result);
+        assertEquals("Good Evening, World! ruleNumber:3", result);
         result = TestUtils.invoke(instance, "Greeting102", 21);
-        assertEquals("Good Evening, World! ruleNumber:2", result);
+        assertEquals("Good Evening, World! ruleNumber:3", result);
         result = TestUtils.invoke(instance, "Greeting102", 22);
-        assertEquals("Good Night, World! ruleNumber:3", result);
+        assertEquals("Good Night, World! ruleNumber:4", result);
         result = TestUtils.invoke(instance, "Greeting102", 23);
-        assertEquals("Good Night, World! ruleNumber:3", result);
+        assertEquals("Good Night, World! ruleNumber:4", result);
     }
 }

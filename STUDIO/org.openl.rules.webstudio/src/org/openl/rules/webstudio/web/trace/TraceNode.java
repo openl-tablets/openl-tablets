@@ -1,13 +1,10 @@
 package org.openl.rules.webstudio.web.trace;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * A FancyTree tree node item.
  *
  * @author Yury Molchan
  */
-@XmlRootElement
 public class TraceNode {
     private boolean lazy;
     private String title;

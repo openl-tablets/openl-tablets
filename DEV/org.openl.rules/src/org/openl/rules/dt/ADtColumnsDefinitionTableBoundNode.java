@@ -17,8 +17,12 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
+import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -110,9 +114,17 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public void removeDebugInformation(IBindingContext cxt) {
     }
 
-    protected abstract void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
+    protected abstract DTColumnsDefinition createDefinition(
+            Map<String, List<IParameterDeclaration>> parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod);
+
+    protected final void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
+            IOpenMethodHeader header,
+            CompositeMethod compositeMethod) {
+        DTColumnsDefinition definition = createDefinition(parameterDeclarations, header, compositeMethod);
+        getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(definition);
+    }
 
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
         Set<String> headerTokens = new HashSet<>();
@@ -215,12 +227,14 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             String signatureCode1 = tableBody.getSource()
                 .getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i)
                 .getStringValue();
+            ICell inputsCell = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i);
             if (StringUtils.isEmpty(signatureCode1)) {
                 signatureCode1 = StringUtils.EMPTY;
             }
             final String signatureCode = signatureCode1;
             IGridTable expressionTable = tableBody.getSource()
                 .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
+            ICell expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
             int d = expressionTable.getCell(0, 0).getHeight();
             final int z = i;
             syntaxNodeExceptionCollector.run(new Runnable() {
@@ -229,12 +243,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 public void run() throws Exception {
                     IOpenMethodHeader header;
                     try {
+                        String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils
+                            .random(16, true, false) + "(";
+                        String headerCode = prefix + signatureCode + ")";
                         header = OpenLManager.makeMethodHeader(getOpenl(),
-                            new org.openl.source.impl.StringSourceCodeModule(
-                                JavaOpenClass.VOID.getName() + " " + RandomStringUtils
-                                    .random(16, true, false) + "(" + signatureCode + ")",
-                                null),
+                            new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
                             dtHeaderBindingContext);
+                        if (!cxt.isExecutionMode()) {
+                            addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
+                        }
                     } catch (CompositeSyntaxNodeException e) {
                         GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             expressionTable,
@@ -267,6 +284,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                         pGridCellSourceCodeModule);
                                 }
                                 uniqueSetOfParameters.add(parameterDeclaration.getName());
+                            }
+                            if (!cxt.isExecutionMode()) {
+                                ICell parameterCell = tableBody1.getSource()
+                                    .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j);
+                                addMetaInfoForParameter(parameterDeclaration, parameterCell);
                             }
                         } else {
                             nullPCodeTable = nullPCodeTable == null ? pCodeTable : nullPCodeTable;
@@ -334,6 +356,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         getXlsModuleOpenClass(),
                         dtHeaderBindingContext);
 
+                    if (!cxt.isExecutionMode()) {
+                        addMetaInfoForExpression(compositeMethod, expressionCell);
+                    }
+
                     createAndAddDefinition(localParameters, header, compositeMethod);
                 }
             });
@@ -341,6 +367,35 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             i = i + d;
         }
         syntaxNodeExceptionCollector.throwIfAny();
+    }
+
+    private void addMetaInfoForExpression(CompositeMethod compositeMethod, ICell cell) {
+        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            dtColumnsDefinitionMetaInfoReader
+                .addExpression(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), compositeMethod, cell.getStringValue());
+        }
+    }
+
+    private void addMetaInfoForInputs(IOpenMethodHeader header, ICell cell, String text, int from) {
+        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            dtColumnsDefinitionMetaInfoReader
+                .addInput(cell.getAbsoluteColumn(), cell.getAbsoluteRow(), header, text, from);
+        }
+    }
+
+    private void addMetaInfoForParameter(IParameterDeclaration parameterDeclaration, ICell cell) {
+        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+        if (metaInfoReader instanceof DtColumnsDefinitionMetaInfoReader) {
+            DtColumnsDefinitionMetaInfoReader dtColumnsDefinitionMetaInfoReader = (DtColumnsDefinitionMetaInfoReader) metaInfoReader;
+            dtColumnsDefinitionMetaInfoReader.addParameter(cell.getAbsoluteColumn(),
+                cell.getAbsoluteRow(),
+                parameterDeclaration,
+                cell.getStringValue());
+        }
     }
 
 }

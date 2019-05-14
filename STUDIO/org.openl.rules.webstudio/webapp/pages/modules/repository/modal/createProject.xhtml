@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalNewProject" autosized="true" width="500">
+    <rich:popupPanel id="modalNewProject" autosized="true" width="580">
         <f:facet name="header">
             <h:outputText value="Create Project from..." />
         </f:facet>
@@ -34,8 +34,8 @@
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
                     <table class="formfields" cellspacing="1">
                         <tr>
-                        <td class="label" style="width: 65px">
-                            <h:outputLabel styleClass="required" value="Project Template" />
+                        <td class="label" style="width: 100px">
+                            <h:outputLabel styleClass="required" value="Project Template:" />
                         </td>
                         <td>
                             <div style="height: 243px; overflow: auto; border: 1px solid #ccc; margin-top: 2px">
@@ -75,32 +75,38 @@
                         </td>
                         </tr>
                         <tr>
-                        <td class="label" style="width: 65px">
-                            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <td class="label" style="width: 100px">
+                            <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                         </td>
                             <td><h:inputText id="projectName"
                                     size="35" maxlength="70"
                                     value="#{repositoryTreeController.projectName}"
-                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});" />
+                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});"
+                                    onchange="createProjectFormTemplCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormTempl:commentTemplate')});"/>
                             </td>
                         </tr>
                         <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
                         <tr>
-                            <td class="label" style="width: 65px">
-                                <h:outputLabel for="projectFolderTemplate" value="Path in repository" />
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="projectFolderTemplate" value="Path in repository:" />
                             </td>
                             <td><h:inputText id="projectFolderTemplate" size="35"
                                     value="#{repositoryTreeController.projectFolder}"/>
                             </td>
                         </tr>
                         </ui:fragment>
-                        <ui:fragment rendered="#{repositoryTreeController.isUseCustomComment(true)}">
+                        <ui:fragment rendered="#{repositoryTreeController.useCustomComment}">
                         <tr>
-                            <td class="label" style="width: 65px">
-                                <h:outputLabel for="commentTemplate" value="Comment" />
+                            <td class="label" style="width: 100px">
+                                <h:outputLabel for="commentTemplate" value="Comment:" />
                             </td>
-                            <td><h:inputText id="commentTemplate" size="35"
-                                             value="#{repositoryTreeController.createProjectComment}"/>
+                            <td><h:inputTextarea id="commentTemplate"
+                                         value="#{repositoryTreeController.createProjectComment}"
+                                         title="#{repositoryTreeController.createProjectComment}"
+                                         type="text"
+                                         size="35"
+                                         readonly="false"
+                                         onkeyup="createProjectFormTemplCommentHandler.isEdited = true;"/>
                             </td>
                         </tr>
                         </ui:fragment>
@@ -121,34 +127,36 @@
             <rich:tab header="Excel Files">
                 <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputLabel for="file" styleClass="required" value="File" />
+                        <h:outputLabel for="file" styleClass="required" value="File:" />
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                             onfilesubmit="showLoader();" oncomplete="hideLoader();"
                             acceptedTypes="xls, xlsx, xlsm" />
 
-                        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});"
+                            onchange="createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
 
-                        <h:outputLabel for="projectFolderExcel" value="Path in repository"
+                        <h:outputLabel for="projectFolderExcel" value="Path in repository:"
                                        rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                         <h:inputText id="projectFolderExcel" size="35"
                                      value="#{repositoryTreeController.projectFolder}"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
-                        <h:outputLabel for="commentExcel" value="Comment" rendered="#{useCustomComment}"/>
+                        <h:outputLabel for="commentExcel" value="Comment:" rendered="#{useCustomComment}"/>
                         <h:inputTextarea id="commentExcel"
                                          rendered="#{useCustomComment}"
                                          value="#{repositoryTreeController.createProjectComment}"
                                          title="#{repositoryTreeController.createProjectComment}"
                                          type="text"
                                          size="35"
-                                         readonly="false"/>
+                                         readonly="false"
+                                         onkeyup="createProjectFormFilesCommentHandler.isEdited = true;"/>
                     </h:panelGrid>
 
                     <footer>
@@ -162,39 +170,41 @@
             <rich:tab header="Zip Archive">
                 <h:form id="uploadProjectForm" style="padding-top: 6px">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputLabel for="file" styleClass="required" value="File" />
+                    <h:outputLabel for="file" styleClass="required" value="File:" />
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         onfilesubmit="showLoader();" oncomplete="hideLoader();"
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
                                 execute="@none"
-                                render="projectName"
-                                oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
+                                render="projectName commentZip"
+                                oncomplete="uploadProjectFormCommentHandler.isEdited = false; enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
                     </rich:fileUpload>
 
-                    <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                    <h:outputLabel for="projectName" styleClass="required" value="Project Name:" />
                     <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});"
+                            onchange="uploadProjectFormCommentHandler.generateTemplate(this.value.trim(), #{rich:element('uploadProjectForm:commentZip')});"/>
 
-                    <h:outputLabel for="projectFolderZip" value="Path in repository"
+                    <h:outputLabel for="projectFolderZip" value="Path in repository:"
                                    rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     <h:inputText id="projectFolderZip" size="35"
                                  value="#{repositoryTreeController.projectFolder}"
                                  rendered="#{repositoryTreeController.supportsMappedFolders}"/>
 
-                    <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
+                    <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
 
-                    <h:outputLabel for="commentZip" value="Comment" rendered="#{useCustomComment}"/>
+                    <h:outputLabel for="commentZip" value="Comment:" rendered="#{useCustomComment}"/>
                     <h:inputTextarea id="commentZip"
                                      rendered="#{useCustomComment}"
                                      value="#{repositoryTreeController.createProjectComment}"
                                      title="#{repositoryTreeController.createProjectComment}"
                                      type="text"
                                      size="35"
-                                     readonly="false"/>
+                                     readonly="false"
+                                    onkeyup="uploadProjectFormCommentHandler.isEdited = true;"/>
                 </h:panelGrid>
 
                 <footer>
@@ -238,15 +248,16 @@
                         </h:panelGrid>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{repositoryTreeController.supportsMappedFolders}">
-                            <h:outputLabel for="projectFolderLocal" value="Path in repository"/>
+                            <h:outputLabel for="projectFolderLocal" value="Path in repository:"/>
                             <h:inputText id="projectFolderLocal" size="35"
                                          value="#{localUpload.projectFolder}"/>
                         </h:panelGrid>
-
-                        <ui:param name="useCustomComment" value="#{repositoryTreeController.isUseCustomComment(true)}"/>
+                    </div>
+                    <p>
+                        <ui:param name="useCustomComment" value="#{repositoryTreeController.useCustomComment}"/>
                         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                                      rendered="#{useCustomComment}">
-                            <h:outputLabel for="commentLocal" value="Comment"/>
+                            <h:outputLabel for="commentLocal" value="Comment:"/>
                             <h:inputTextarea id="commentLocal"
                                              value="#{localUpload.createProjectComment}"
                                              title="#{localUpload.createProjectComment}"
@@ -254,7 +265,7 @@
                                              size="35"
                                              readonly="false"/>
                         </h:panelGrid>
-                    </div>
+                    </p>
 
                     <h:panelGroup id="localUploadButtonPanel">
                     <footer>
@@ -274,6 +285,26 @@
     <script>
 
         // TODO Move code to namespace
+
+        //<![CDATA[
+
+        var CommentTemplateHandler = function() {
+            this.isEdited = false;
+            this.createProjectCommentTemplate = "#{repositoryTreeController.retrieveCreateProjectCommentTemplate()}";
+
+            var self = this;
+
+            this.generateTemplate = function(projectName, input) {
+                if (self.isEdited === false && projectName.length > 0 && self.createProjectCommentTemplate) {
+                    input.value = self.createProjectCommentTemplate.replace(/\{0}/g, projectName);
+                }
+            };
+        };
+
+        var uploadProjectFormCommentHandler = new CommentTemplateHandler();
+        var createProjectFormTemplCommentHandler = new CommentTemplateHandler();
+        var createProjectFormFilesCommentHandler = new CommentTemplateHandler();
+        //]]>
 
         enableCreateButton(false, #{rich:element("sbtFiles")});
         enableCreateButton(false, #{rich:element("sbtZips")});
@@ -297,11 +328,17 @@
         }
 
         function hideNewProjectDialog() {
+            uploadProjectFormCommentHandler.isEdited = false;
+            createProjectFormTemplCommentHandler.isEdited = false;
+            createProjectFormFilesCommentHandler.isEdited = false;
             $j("#createProjectFormTempl\\:projectName").val("");
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
             $j("#uploadProjectForm\\:projectName").val("");
+            $j("#createProjectFormTempl\\:commentTemplate").val("");
+            $j("#createProjectFormFiles\\:commentExcel").val("");
+            $j("#uploadProjectForm\\:commentZip").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
@@ -346,9 +383,11 @@
             selectedTemplate.addClass("row-selected");
 
             $j("#createProjectFormTempl\\:projectTemplate").val(selectedTemplate.find("input").val());
-            $j("#createProjectFormTempl\\:projectName").val(selectedTemplate.find("span").text());
+            var projectNameInput = $j("#createProjectFormTempl\\:projectName");
+            projectNameInput.val(selectedTemplate.find("span").text());
+            projectNameInput.trigger("change");
 
-            enableCreateButton($j("#createProjectFormTempl\\:projectName").val().trim().length > 0, #{rich:element('sbtTemplates')});
+            enableCreateButton(projectNameInput.val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
 
         initTemplates();
