@@ -32,15 +32,15 @@ if [[ "$_java" ]]; then
     fi
 fi
 
-memory=$(free -g | awk  '/Mem:/{print $2}')
-if [[ ${memory} -ge 4 ]]; then
-    _JAVA_MEMORY="-Xms2g -Xmx3g"
-elif [[ ${memory} -ge 6 ]]; then
-    _JAVA_MEMORY="-Xms3g -Xmx5g"
-elif [[ _memory -ge 8 ]]; then
-    _JAVA_MEMORY="-Xms4g -Xmx7g"
-elif [[ ${memory} -ge 12 ]]; then
+memory=$(free -g | awk '/Mem:/{print $2}')
+if [[ ${memory} -ge 12 ]]; then
     _JAVA_MEMORY="-Xms8g -Xmx10g"
+elif [[ ${memory} -ge 8 ]]; then
+    _JAVA_MEMORY="-Xms4g -Xmx7g"
+elif [[ _memory -ge 6 ]]; then
+    _JAVA_MEMORY="-Xms3g -Xmx5g"
+elif [[ ${memory} -ge 4 ]]; then
+    _JAVA_MEMORY="-Xms2g -Xmx3g"
 else
     _JAVA_MEMORY="-Xms512m -Xmx2g"
 fi
