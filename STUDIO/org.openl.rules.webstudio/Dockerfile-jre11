@@ -1,10 +1,10 @@
-FROM tomcat:8.5-alpine
+FROM tomcat:8.5-jre11
 
-RUN apk add --update \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
       unzip \
       ttf-dejavu \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./target/*.war /tmp/
 
