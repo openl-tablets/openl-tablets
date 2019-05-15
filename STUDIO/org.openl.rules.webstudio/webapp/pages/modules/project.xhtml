@@ -90,6 +90,12 @@
                 <h3>Summary</h3>
                 <div class="block-content">
                     <table class="properties">
+                        <h:panelGroup rendered="#{studio.supportsBranches}">
+                            <tr>
+                                <td>Branch:</td>
+                                <td>#{studio.projectBranch}</td>
+                            </tr>
+                        </h:panelGroup>
                         <tr>
                             <td>Revision:</td>
                             <td>#{projectData.version.versionName}</td>
