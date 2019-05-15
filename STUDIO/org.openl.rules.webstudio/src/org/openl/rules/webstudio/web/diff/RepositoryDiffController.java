@@ -178,7 +178,17 @@ public class RepositoryDiffController extends AbstractDiffController {
         Collections.sort(excelArtefacts, new Comparator<AProjectArtefact>() {
             @Override
             public int compare(AProjectArtefact o1, AProjectArtefact o2) {
-                return o1.getName().compareTo(o2.getName());
+                String s1 = o1.getName();
+                int t = s1.lastIndexOf(".");
+                if (t > 0) {
+                    s1 = s1.substring(0, t);
+                }
+                String s2 = o2.getName();
+                t = s2.lastIndexOf(".");
+                if (t > 0) {
+                    s2 = s2.substring(0, t);
+                }
+                return s1.compareTo(s2);
             }
         });
         return excelArtefacts;
