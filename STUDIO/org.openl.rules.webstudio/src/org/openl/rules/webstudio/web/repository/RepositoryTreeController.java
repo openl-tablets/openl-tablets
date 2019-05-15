@@ -1920,12 +1920,12 @@ public class RepositoryTreeController {
             String comment = version.getVersionComment();
             String name = designRepoComments.parseSourceOfCopy(comment);
             if (repositoryTreeState.getProjectNodeByPhysicalName(name) == null) {
-                return "";
+                return StringUtils.EMPTY;
             }
             return name;
         }
 
-        return "";
+        return StringUtils.EMPTY;
     }
 
     /**

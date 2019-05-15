@@ -52,9 +52,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
     private String baseBranch = branch;
-    private String tagPrefix = "";
+    private String tagPrefix = StringUtils.EMPTY;
     private int listenerTimerPeriod = 10;
     private String commentTemplate;
+    private String escapedCommentTemplate;
     private String gitSettingsPath;
 
     private ChangesMonitor monitor;
@@ -119,11 +120,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             git.add().addFilepattern(fileInRepository).call();
             RevCommit commit = git.commit()
-                    .setMessage(formatComment(CommitType.SAVE, data))
-                    .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
-                        userEmail != null ? userEmail : "")
-                    .setOnly(fileInRepository)
-                    .call();
+                .setMessage(formatComment(CommitType.SAVE, data))
+                .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
+                    userEmail != null ? userEmail : "")
+                .setOnly(fileInRepository)
+                .call();
             commitId = commit.getId().getName();
 
             addTagToCommit(commit);
@@ -466,16 +467,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             StoredConfig config = git.getRepository().getConfig();
             if (StringUtils.isNotBlank(userDisplayName)) {
                 config.setString(ConfigConstants.CONFIG_USER_SECTION,
-                        null,
-                        ConfigConstants.CONFIG_KEY_NAME,
-                        userDisplayName);
+                    null,
+                    ConfigConstants.CONFIG_KEY_NAME,
+                    userDisplayName);
             } else {
                 config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME);
-            } if (StringUtils.isNotBlank(userEmail)) {
-                config.setString(ConfigConstants.CONFIG_USER_SECTION,
-                        null,
-                        ConfigConstants.CONFIG_KEY_EMAIL,
-                        userEmail);
+            }
+            if (StringUtils.isNotBlank(userEmail)) {
+                config
+                    .setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL, userEmail);
             } else {
                 config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
             }
@@ -578,10 +578,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     public void setCommentTemplate(String commentTemplate) {
-        this.commentTemplate = commentTemplate
-                .replace("{commit-type}", "{0}")
-                .replace("{user-message}", "{1}")
-                .replace("{username}", "{2}");
+        this.commentTemplate = commentTemplate;
+        String ct = commentTemplate.replaceAll("\\{commit-type\\}", "{0}")
+            .replaceAll("\\{user-message\\}", "{1}")
+            .replaceAll("\\{username\\}", "{2}");
+        this.escapedCommentTemplate = escapeCurlyBrackets(ct); 
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -615,7 +616,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             new File(localRepositoryPath),
             start,
             getFileId(dirWalk),
-            commentTemplate);
+            escapedCommentTemplate);
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -634,7 +635,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             new File(localRepositoryPath),
             fileCommit,
             getFileId(dirWalk),
-            commentTemplate);
+            escapedCommentTemplate);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -656,7 +657,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
-                for (Iterator<String> it = projectBranches.iterator(); it.hasNext(); ) {
+                for (Iterator<String> it = projectBranches.iterator(); it.hasNext();) {
                     String branch = it.next();
                     if (!availableBranches.contains(branch)) {
                         it.remove();
@@ -731,17 +732,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         // Successful operation. Continue.
                         break;
                     case REJECTED_NONFASTFORWARD:
-                        throw new IOException("Remote ref update was rejected, as it would cause non fast-forward update.");
+                        throw new IOException(
+                            "Remote ref update was rejected, as it would cause non fast-forward update.");
                     case REJECTED_NODELETE:
-                        throw new IOException("Remote ref update was rejected, because remote side doesn't support/allow deleting refs.");
+                        throw new IOException(
+                            "Remote ref update was rejected, because remote side doesn't support/allow deleting refs.");
                     case REJECTED_REMOTE_CHANGED:
-                        throw new IOException("Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
+                        throw new IOException(
+                            "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
                     case REJECTED_OTHER_REASON:
                         throw new IOException(remoteUpdate.getMessage());
                     case AWAITING_REPORT:
-                        throw new IOException("Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
+                        throw new IOException(
+                            "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
                     default:
-                        throw new IOException("Push process returned with status " + status + " and message " + remoteUpdate.getMessage());
+                        throw new IOException(
+                            "Push process returned with status " + status + " and message " + remoteUpdate
+                                .getMessage());
                 }
             }
         }
@@ -808,8 +815,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     /**
-     * Reset work dir, index and discard commit.
-     * if {@code commitToDiscard} is null, then just reset work dir and index.
+     * Reset work dir, index and discard commit. if {@code commitToDiscard} is null, then just reset work dir and index.
      *
      * @param commitToDiscard if null, commit will not be discarded. If not null, commit with that id will be discarded.
      */
@@ -889,7 +895,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData,
+            Iterable<FileChange> files,
+            ChangesetType changesetType) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("save(folderData, files, changesetType): lock");
@@ -951,9 +959,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             CommitCommand commitCommand = git.commit()
-                    .setMessage(formatComment(CommitType.SAVE, folderData))
-                    .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
-                            userEmail != null ? userEmail : "");
+                .setMessage(formatComment(CommitType.SAVE, folderData))
+                .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
+                    userEmail != null ? userEmail : "");
 
             RevCommit commit;
 
@@ -961,7 +969,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 // For the cases:
                 // 1) User modified a project, then manually reverted, then pressed save.
                 // 2) Copy project that doesn't have rules.xml, check "Copy old revisions". The last one commit should
-                // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are no changes
+                // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are
                 // no changes
                 // 3) Try to deploy several times same deploy configuration. For example if we need to trigger
                 // webservices redeployment without actually changing projects.
@@ -1152,7 +1160,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     repository.setGitSettingsPath(gitSettingsPath);
                     repository.git = Git.open(new File(localRepositoryPath));
                     repository.repositoryLock = repositoryLock; // must be common for all instances because git
-                    // repository is same
+                                                                // repository is same
                     repository.branches = branches; // Can be shared between instances
                     repository.monitor = monitor;
 
@@ -1289,9 +1297,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
+    private String escapeCurlyBrackets(String value) {
+        String ret = value.replaceAll("\\{(?![012]\\})", "'{'");
+        return ret.replaceAll("(?<!\\{[012])\\}", "'}'");
+    }
+
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
-        return MessageFormat.format(commentTemplate, commitType, comment, data.getAuthor());
+        return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
     }
 
     @Override
