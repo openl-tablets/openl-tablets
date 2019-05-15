@@ -447,7 +447,7 @@ public class RepositoryTreeController {
             // Analogous to rules project creation (to change "created by"
             // property and revision)
             String comment = deployConfigRepoComments.createProject(projectName);
-            
+
             createdProject.getFileData().setComment(comment);
             createdProject.save();
             createdProject.open();
@@ -491,7 +491,9 @@ public class RepositoryTreeController {
             return null;
         }
 
-        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName, projectFolder, userWorkspace,
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
+            projectFolder,
+            userWorkspace,
             comment,
             zipFilter,
             templateFiles);
@@ -764,9 +766,8 @@ public class RepositoryTreeController {
     }
 
     private boolean isValidComment(UserWorkspaceProject project, String comment) {
-        CommentValidator commentValidator = project instanceof RulesProject ?
-                                            designCommentValidator :
-                                            deployConfigCommentValidator;
+        CommentValidator commentValidator = project instanceof RulesProject ? designCommentValidator
+                                                                            : deployConfigCommentValidator;
 
         try {
             commentValidator.validate(comment);
@@ -834,7 +835,9 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot, String projectName, String branch) throws ProjectException {
+    private void closeProjectForAllUsers(File workspacesRoot,
+            String projectName,
+            String branch) throws ProjectException {
         // Needed to update UI of current user
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
         if (projectNode != null) {
@@ -863,7 +866,8 @@ public class RepositoryTreeController {
                                 fileData.setName(projectName);
                                 if (!repository.delete(fileData)) {
                                     if (repository.check(fileData.getName()) != null) {
-                                        log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
+                                        log.warn("Can't close project because resource '" + fileData
+                                            .getName() + "' is used");
                                     }
                                 }
                             }
@@ -1156,7 +1160,7 @@ public class RepositoryTreeController {
             return comments.restoredFrom(project.getHistoryVersion());
         }
 
-        return comments.saveProject(project == null ? "" : project.getName());
+        return comments.saveProject(project == null ? StringUtils.EMPTY : project.getName());
     }
 
     private Comments getComments(UserWorkspaceProject project) {
@@ -1494,13 +1498,12 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
             errorMessage = new ProjectUploader(uploadedFiles,
-                    projectName,
-                    projectFolder,
-                    userWorkspace,
-                    comment,
-                    zipFilter,
-                    zipCharsetDetector
-            ).uploadProject();
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                zipFilter,
+                zipCharsetDetector).uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
             } else {
@@ -1640,7 +1643,9 @@ public class RepositoryTreeController {
                 }
 
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
-                    projectName, projectFolder, userWorkspace,
+                    projectName,
+                    projectFolder,
+                    userWorkspace,
                     comment,
                     zipFilter,
                     zipCharsetDetector);
@@ -1778,13 +1783,13 @@ public class RepositoryTreeController {
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
-        String projectName = FacesUtils.getRequestParameter("projectName");
+        final String projectName = FacesUtils.getRequestParameter("projectName");
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
                 .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
-            log.error("Cannot delete rules project '{}'.", projectName, e);
+            log.error("Can't delete rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
     }
@@ -1835,9 +1840,11 @@ public class RepositoryTreeController {
 
             selectedProject.setBranch(branch);
             if (selectedProject.getVersion() == null) {
-                //move back to previous branch! Because the project is not present in new branch
+                // move back to previous branch! Because the project is not present in new branch
                 selectedProject.setBranch(previousBranch);
-                log.warn("Current project does not exists in '{}' branch! Project branch was switched to the previous one", branch);
+                log.warn(
+                    "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
+                    branch);
             }
 
             if (opened) {
@@ -1862,7 +1869,8 @@ public class RepositoryTreeController {
         BranchRepository repository = (BranchRepository) selectedProject.getDesignRepository();
         try {
             boolean exists = !repository.forBranch(branch)
-                    .listHistory(((RulesProject) selectedProject).getDesignFolderName()).isEmpty();
+                .listHistory(((RulesProject) selectedProject).getDesignFolderName())
+                .isEmpty();
             FacesUtils.validate(exists, "Current project does not exist in this branch!");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -1873,8 +1881,8 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
-                    .getRepository()).getBranches(selectedProject.getName());
+            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
+                .getBranches(selectedProject.getName());
 
             return Arrays.asList(FacesUtils.createSelectItems(branches));
         } catch (IOException e) {
@@ -1932,7 +1940,11 @@ public class RepositoryTreeController {
      */
     public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
-        return repositoryTreeState.getSelectedProject() != null ? projectUseCustomComment && !repositoryTreeState.getSelectedProject().isLocalOnly() : projectUseCustomComment; 
+        return repositoryTreeState.getSelectedProject() != null
+                                                                ? projectUseCustomComment && !repositoryTreeState
+                                                                    .getSelectedProject()
+                                                                    .isLocalOnly()
+                                                                : projectUseCustomComment;
     }
 
     public String getCreateProjectComment() {
@@ -1949,11 +1961,8 @@ public class RepositoryTreeController {
 
     public String getArchiveProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-        if (project == null) {
-            project = repositoryTreeState.getProject(getSelectedNode());
-        }
         Comments comments = getComments(project);
-        return comments.archiveProject(project.getName());
+        return comments.archiveProject(project == null ? activeProjectNode.getName() : project.getName());
     }
 
     public void setArchiveProjectComment(String archiveProjectComment) {
@@ -1963,7 +1972,7 @@ public class RepositoryTreeController {
     public String getRestoreProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         Comments comments = getComments(project);
-        return comments.restoreProject(project.getName());
+        return comments.restoreProject(project == null ? activeProjectNode.getName() : project.getName());
     }
 
     public void setRestoreProjectComment(String restoreProjectComment) {
@@ -1973,7 +1982,7 @@ public class RepositoryTreeController {
     public String getEraseProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         Comments comments = getComments(project);
-        return comments.eraseProject(project.getName());
+        return comments.eraseProject(project == null ? activeProjectNode.getName() : project.getName());
     }
 
     public void setEraseProjectComment(String eraseProjectComment) {
@@ -1992,7 +2001,8 @@ public class RepositoryTreeController {
     public void setConfig(Map<String, Object> config) {
         this.config = config;
 
-        projectUseCustomComment = Boolean.parseBoolean(config.get("design-repository.comment-template.use-custom-comments").toString());
+        projectUseCustomComment = Boolean
+            .parseBoolean(config.get("design-repository.comment-template.use-custom-comments").toString());
 
         designCommentValidator = CommentValidator.forDesignRepo(config);
 
