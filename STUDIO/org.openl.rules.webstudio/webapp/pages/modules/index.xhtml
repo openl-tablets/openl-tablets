@@ -899,6 +899,11 @@
 
                 if (page && page.indexOf("modules/") > -1) {
                     var projectName = page.split("modules/")[1];
+                    //remove branch from project name. To re-render project tree in correct way
+                    var branchStartIdx = projectName.indexOf("/[");
+                    if (branchStartIdx > -1) {
+                        projectName = projectName.substring(0, branchStartIdx);
+                    }
                     var projectLink = $("#projects-tree a[href = '#" + projectName + "']");
                     if (projectLink.length) { // Firefox has bug with decoding url after refresh
                         // Select node
