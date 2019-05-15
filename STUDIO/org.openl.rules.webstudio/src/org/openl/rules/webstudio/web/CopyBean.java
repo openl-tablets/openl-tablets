@@ -233,16 +233,13 @@ public class CopyBean {
             selectedProject = repositoryTreeState.getProject(node);
             WebStudio studio = WebStudioUtils.getWebStudio();
 
-            boolean opened = selectedProject.isOpened();
-            if (opened) {
+            if (selectedProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
                 selectedProject.releaseMyLock();
             }
             selectedProject.setBranch(newBranchName);
-            if (opened) {
-                // Update files
-                selectedProject.open();
-            }
+            // Update files
+            selectedProject.open();
 
             repositoryTreeState.refreshNode(node);
             studio.reset();
