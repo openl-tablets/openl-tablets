@@ -74,7 +74,8 @@
 
             var current  = {
                 project: 0,
-                module: 0
+                module: 0,
+                branch: 0
             };
 
             var loadingPanel;
@@ -646,8 +647,9 @@
                 // Project with branch page
                 crossroads.addRoute("{project}/[{branch}]", function(reload, project, branch) {
                     var url = "project.xhtml?name=" + project;
-                    setModule(project);
-                    var leftReload = reload == "true" || !$("#projects-tree").length;
+                    var branchChanged = current.branch !== branch;
+                    setModule(project, undefined, branch);
+                    var leftReload = reload == "true" || !$("#projects-tree").length || branchChanged;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
                     determineIfModuleChanged(project, "");
@@ -740,13 +742,14 @@
                 crossroads.parse(page, params);
             };
 
-            var setModule = function(project, module) {
+            var setModule = function(project, module, branch) {
                 var newModule = project && module
                         && (!current.module || (current.project && current.module
                         && (current.project != project || current.module != module)));
 
                 current.project = project || 0;
                 current.module = module || 0;
+                current.branch = branch || 0;
 
                 return newModule;
             };
