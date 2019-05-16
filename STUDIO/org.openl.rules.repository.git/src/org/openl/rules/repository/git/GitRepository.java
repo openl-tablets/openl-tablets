@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
-    private static final String REF_PREFIX = "refs/heads/";
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
@@ -1309,7 +1308,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public boolean isValidBranchName(String s) {
-        return s != null && Repository.isValidRefName(REF_PREFIX + s);
+        return s != null && Repository.isValidRefName(Constants.R_HEADS + s);
+    }
+
+    @Override
+    public boolean branchExists(String branch) throws IOException {
+        for (String existedBranch : getBranches(null)) {
+            if (existedBranch.equalsIgnoreCase(branch)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class GitRevisionGetter implements RevisionGetter {
