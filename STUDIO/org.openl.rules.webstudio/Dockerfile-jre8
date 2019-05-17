@@ -13,9 +13,8 @@ RUN unzip /tmp/*.war -d /usr/local/tomcat/webapps/webstudio && chmod u=rw,g=r,o=
 
 # Copy tomcat configuration files
 COPY ./docker/server.xml /usr/local/tomcat/conf/
-RUN chmod u=rw,g=r,o=r /usr/local/tomcat/conf/server.xml
 COPY ./docker/catalina.properties /usr/local/tomcat/conf/
-RUN chmod u=rw,g=r,o=r /usr/local/tomcat/conf/catalina.properties
+RUN chmod u=rw,g=r,o=r /usr/local/tomcat/conf/server.xml && chmod u=rw,g=r,o=r /usr/local/tomcat/conf/catalina.properties
 
 EXPOSE 80
 
