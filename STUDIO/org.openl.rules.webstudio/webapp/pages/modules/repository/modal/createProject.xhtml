@@ -259,8 +259,8 @@
                                      rendered="#{useCustomComment}">
                             <h:outputLabel for="commentLocal" value="Comment:"/>
                             <h:inputTextarea id="commentLocal"
-                                             value="#{localUpload.createProjectComment}"
-                                             title="#{localUpload.createProjectComment}"
+                                             value="#{localUpload.createProjectCommentTemplate}"
+                                             title="#{localUpload.createProjectCommentTemplate}"
                                              type="text"
                                              size="35"
                                              readonly="false"/>
@@ -296,7 +296,7 @@
 
             this.generateTemplate = function(projectName, input) {
                 if (self.isEdited === false && projectName.length > 0 && self.createProjectCommentTemplate) {
-                    input.value = self.createProjectCommentTemplate.replace(/\{0}/g, projectName);
+                    input.value = self.createProjectCommentTemplate.replace(/\{project\-name}/g, projectName);
                 }
             };
         };

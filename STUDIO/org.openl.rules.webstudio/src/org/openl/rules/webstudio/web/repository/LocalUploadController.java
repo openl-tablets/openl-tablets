@@ -61,7 +61,7 @@ public class LocalUploadController {
 
     private String projectFolder = "";
 
-    private String createProjectComment;
+    private String createProjectCommentTemplate;
 
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
@@ -148,12 +148,8 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        String comment;
-                        if (createProjectComment != null) {
-                            comment = createProjectComment;
-                        } else {
-                            comment = designRepoComments.createProject(bean.getProjectName());
-                        }
+                        String comment = designRepoComments.createProject(createProjectCommentTemplate, bean.getProjectName());
+
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
                                 + " was created successfully");
@@ -185,12 +181,15 @@ public class LocalUploadController {
         this.designRepoComments = designRepoComments;
     }
 
-    public String getCreateProjectComment() {
-        return createProjectComment;
+    public String getCreateProjectCommentTemplate() {
+        if (createProjectCommentTemplate == null) {
+            return designRepoComments.getCreateProjectTemplate();
+        }
+        return createProjectCommentTemplate;
     }
 
-    public void setCreateProjectComment(String createProjectComment) {
-        this.createProjectComment = createProjectComment;
+    public void setCreateProjectCommentTemplate(String createProjectComment) {
+        this.createProjectCommentTemplate = createProjectComment;
     }
 
     public boolean isSelectAll() {
