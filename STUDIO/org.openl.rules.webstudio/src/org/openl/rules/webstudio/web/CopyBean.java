@@ -41,7 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor tabs will be fixed.
+ * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
+ * tabs will be fixed.
  */
 @ManagedBean
 @SessionScoped
@@ -201,11 +202,11 @@ public class CopyBean {
                 designProject.setResourceTransformer(null);
 
                 RulesProject copiedProject = new RulesProject(userWorkspace,
-                        localRepository,
-                        null,
-                        designRepository,
-                        designProject.getFileData(),
-                        userWorkspace.getProjectsLockEngine());
+                    localRepository,
+                    null,
+                    designRepository,
+                    designProject.getFileData(),
+                    userWorkspace.getProjectsLockEngine());
                 copiedProject.open();
             }
 
@@ -273,15 +274,16 @@ public class CopyBean {
 
         String newBranchName = StringUtils.trim((String) value);
         FacesUtils.validate(StringUtils.isNotBlank(newBranchName), "Can not be empty");
-        FacesUtils.validate(newBranchName.matches("[\\w\\-/]+"), "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed");
+        FacesUtils.validate(newBranchName.matches("[\\w\\-/]+"),
+            "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed");
 
-        
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
-            FacesUtils.validate(designRepository.isValidBranchName(newBranchName), "Invalid branch name. It should not contain reserved words or symbols");
+            FacesUtils.validate(designRepository.isValidBranchName(newBranchName),
+                "Invalid branch name. It should not contain reserved words or symbols");
             Collection<String> branches = designRepository.getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
         } catch (WorkspaceException | IOException ignored) {
@@ -303,7 +305,8 @@ public class CopyBean {
     }
 
     private Boolean isSeparateProjectSubmitted(FacesContext context) {
-        return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox")).getValue();
+        return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
+            .getValue();
     }
 
     public void setInitProject(String currentProjectName) {
@@ -322,8 +325,8 @@ public class CopyBean {
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = config.get("design-repository.new-branch-pattern").toString();
-
-                newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
+                newBranchName = MessageFormat.format(pattern.replaceAll("\\{(?![012]\\})", "'{'")
+                    .replaceAll("(?<!\\{[012])\\}", "'}'"), simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
