@@ -282,7 +282,9 @@ public class CopyBean {
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
             FacesUtils.validate(designRepository.isValidBranchName(newBranchName),
-            FacesUtils.validate(!designRepository.branchExists(newBranchName), "Branch " + newBranchName + " already exists");
+                "Invalid branch name. It should not contain reserved words or symbols.");
+            FacesUtils.validate(!designRepository.branchExists(newBranchName),
+                "Branch " + newBranchName + " already exists.");
         } catch (WorkspaceException | IOException ignored) {
         }
 
