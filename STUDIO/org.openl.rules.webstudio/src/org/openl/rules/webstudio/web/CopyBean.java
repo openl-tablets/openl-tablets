@@ -276,14 +276,16 @@ public class CopyBean {
         FacesUtils.validate(StringUtils.isNotBlank(newBranchName), "Can not be empty.");
         FacesUtils.validate(newBranchName.matches("[\\w\\-/]+"),
             "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
-        
+
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
             FacesUtils.validate(designRepository.isValidBranchName(newBranchName),
-            FacesUtils.validate(!designRepository.branchExists(newBranchName), "Branch " + newBranchName + " already exists.");
+                "Invalid branch name. It should not contain reserved words or symbols.");
+            FacesUtils.validate(!designRepository.branchExists(newBranchName),
+                "Branch " + newBranchName + " already exists.");
         } catch (WorkspaceException | IOException ignored) {
         }
 
