@@ -296,7 +296,7 @@
 
             this.generateTemplate = function(projectName, input) {
                 if (self.isEdited === false && projectName.length > 0 && self.createProjectCommentTemplate) {
-                    input.value = self.createProjectCommentTemplate.replace(/\{0}/g, projectName);
+                    input.value = self.createProjectCommentTemplate.replace(/\{project\-name}/g, projectName);
                 }
             };
         };
