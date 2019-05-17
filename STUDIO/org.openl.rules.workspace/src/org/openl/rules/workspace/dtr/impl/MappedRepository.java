@@ -620,4 +620,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
         return true;
     }
+
+    @Override
+    public boolean branchExists(String branch) throws IOException {
+        return delegate instanceof BranchRepository && ((BranchRepository) delegate).branchExists(branch);
+    }
 }
