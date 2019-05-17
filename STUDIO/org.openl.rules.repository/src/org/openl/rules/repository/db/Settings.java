@@ -3,11 +3,7 @@ package org.openl.rules.repository.db;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.openl.util.IOUtils;
