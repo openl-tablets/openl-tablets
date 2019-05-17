@@ -101,7 +101,7 @@
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than zero."
                      validatorMessage="Please, enter a value greater than zero."
-                     converterMessage="Must be a number greater than zero">
+                     converterMessage="Must be a number greater than zero.">
             <f:validateLongRange minimum="1" />
         </h:inputText>
         <h:outputText value=""/>
