@@ -282,7 +282,8 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
-            FacesUtils.validate(designRepository.isValidBranchName(newBranchName), "Invalid branch name. It should not contain reserved words or symbols");
+            FacesUtils.validate(designRepository.isValidBranchName(newBranchName),
+                "Invalid branch name. It should not contain reserved words or symbols");
             Collection<String> branches = designRepository.getBranches(currentProjectName);
             FacesUtils.validate(!branches.contains(newBranchName), "Branch " + newBranchName + " already exists");
         } catch (WorkspaceException | IOException ignored) {
@@ -324,8 +325,8 @@ public class CopyBean {
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = config.get("design-repository.new-branch-pattern").toString();
-
-                newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
+                newBranchName = MessageFormat.format(pattern.replaceAll("\\{(?![012]\\})", "'{'")
+                    .replaceAll("(?<!\\{[012])\\}", "'}'"), simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
