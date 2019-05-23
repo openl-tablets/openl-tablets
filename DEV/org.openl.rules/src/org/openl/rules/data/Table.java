@@ -2,6 +2,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -242,13 +243,20 @@ public class Table implements ITable {
         int rows = logicalTable.getHeight();
         int columns = logicalTable.getWidth();
 
-        int startRow = getStartRowForData();
-
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
 
-        for (int i = startRow; i < rows; i++) {
-            int idx = i - startRow;
-            Object target = rowIndexMap == null ? Array.get(dataArray, idx) : rowIndexMap.get(idx);
+        int dataArrayLength = Array.getLength(dataArray);
+        for (int i = 0; i < dataArrayLength; i++) {
+            Object target = Array.get(dataArray, i);
+
+            int rowNum = dataIdxToTableRowNum.get(i);
+            //calculate height
+            int height;
+            if (i + 1 < dataArrayLength) {
+                height = dataIdxToTableRowNum.get(i + 1) - rowNum;
+            } else {
+                height = rows - rowNum;
+            }
 
             for (int j = 0; j < columns; j++) {
 
@@ -261,12 +269,12 @@ public class Table implements ITable {
                         try {
                             if (descriptor.isConstructor()) {
                                 target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                    logicalTable.getSubtable(j, i, 1, 1),
+                                    logicalTable.getSubtable(j, rowNum, 1, height),
                                     dataBase,
                                     bindingContext);
                             } else {
                                 fkDescriptor.populateLiteralByForeignKey(target,
-                                    logicalTable.getSubtable(j, i, 1, 1),
+                                    logicalTable.getSubtable(j, rowNum, 1, height),
                                     dataBase,
                                     bindingContext);
                             }
@@ -317,8 +325,14 @@ public class Table implements ITable {
     }
 
     private boolean isSupportMultirow() {
-        ColumnDescriptor firstDescriptor = dataModel.getDescriptors().length > 0 ? dataModel.getDescriptors()[0] : null;
-        return firstDescriptor != null && firstDescriptor.isSupportMultirows();
+        if (dataModel.getDescriptors().length > 0) {
+            for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
+                if (descriptor.isSupportMultirows()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void processMultirowDataTable(List<Object> resultContainer,
@@ -329,51 +343,27 @@ public class Table implements ITable {
         Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
         for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
             ColumnDescriptor.ColumnGroupKey key = descriptor.getGroupKey();
-            List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new LinkedList<>());
-            descriptorsByKey.add(descriptor);
+            List<ColumnDescriptor> descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new ArrayList<>());
+            if (descriptor.getField() != null && !descriptor.isReference()) {
+                descriptorsByKey.add(descriptor);
+            }
         }
 
         IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
-
-        Map<Integer, DatatypeArrayMultiRowElementContext> contextToLiteralMap = new HashMap<>();
         try {
-            for (Map.Entry<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> entry : descriptorGroups.entrySet()) {
-                if (entry.getKey().getLevel() == 0) {
-                    parseRowsAndPopulateRootLiteral(contextToLiteralMap, resultContainer, entry.getValue(), openlAdapter, env, startRow, rows);
-                } else {
-                    for (int i = 0; i < resultContainer.size(); i++) {
-                        Object literal = resultContainer.get(i);
-                        int rowNum = dataIdxToTableRowNum.get(i);
-                        //calculate height
-                        int height;
-                        if (i + 1 < resultContainer.size()) {
-                            height = dataIdxToTableRowNum.get(i + 1) - rowNum;
-                        } else {
-                            height = rows - rowNum;
-                        }
-
-                        env.pushLocalFrame(new Object[]{contextToLiteralMap.get(i)});
-                        env.pushThis(literal);
-                        try {
-                            parseRowsAndPopulateLiteral(literal, entry.getValue(), openlAdapter, env, rowNum, height);
-                        } finally {
-                            env.popThis();
-                            env.popLocalFrame();
-                        }
-                    }
-                }
-            }
+            parseRowsAndPopulateRootLiteral(resultContainer, new ArrayList<>(descriptorGroups.values()), openlAdapter, env, startRow, rows);
         } catch (SyntaxNodeException e) {
             tableSyntaxNode.addError(e);
             openlAdapter.getBindingContext().addError(e);
         }
     }
 
-    private void parseRowsAndPopulateRootLiteral(Map<Integer, DatatypeArrayMultiRowElementContext> contextMap,
-                                    List<Object> resultContainer,
-                                    List<ColumnDescriptor> descriptors,
+    private void parseRowsAndPopulateRootLiteral(List<Object> resultContainer,
+                                    List<List<ColumnDescriptor>> allDescriptors,
                                     OpenlToolAdaptor openlAdapter,
                                     IRuntimeEnv env, int startRow, int rows) throws OpenLCompilationException {
+
+        List<ColumnDescriptor> descriptors = allDescriptors.get(0);
 
         Object[][] rowValues = new Object[rows - startRow][descriptors.size()];
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
@@ -386,7 +376,7 @@ public class Table implements ITable {
                             .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
                             .getSubtable(0, 0, 1, 1);
                     Object res = descriptor.parseCellValue(logicalTable, openlAdapter);
-                    if (!(prevRes != null && res == null || descriptor.isSameValue(prevRes, res))) {
+                    if (!(descriptor.isSameValue(res, prevRes))) {
                         rowValues[rowNum - startRow][colNum] = res;
                         prevRes = res;
                     }
@@ -395,24 +385,26 @@ public class Table implements ITable {
         }
 
         for (int rowNum = 0; rowNum < rowValues.length; rowNum++) {
+            int height = 1;
             Object[] thisRow = rowValues[rowNum];
             if (thisRow == null) {
                 continue;
             }
             Object literal = createLiteral();
-            addToRowIndex(rowNum + startRow, literal);
+            addToRowIndex(rowNum, literal);
             for (int j = rowNum + 1; j < rowValues.length; j++) {
                 Object[] nextRow = rowValues[j];
                 boolean isSameRow = true;
                 for (int k = 0; k < thisRow.length; k++) {
-                    isSameRow = thisRow[k] != null && nextRow[k] == null || descriptors.get(k).isSameValue(thisRow[k], nextRow[k]);
+                    isSameRow = descriptors.get(k).isSameValue(nextRow[k], thisRow[k]);
                     if (!isSameRow) {
                         break;
                     }
                 }
                 if (isSameRow) {
                     rowValues[j] = null;
-                    addToRowIndex(j + startRow, literal);
+                    addToRowIndex(j, literal);
+                    height++;
                 } else {
                     break;
                 }
@@ -422,26 +414,27 @@ public class Table implements ITable {
             env.pushLocalFrame(new Object[] { context });
             env.pushThis(literal);
             try {
-                for (int k = 0; k < thisRow.length; k++) {
-                    ColumnDescriptor descriptor = descriptors.get(k);
-                    descriptor.setFieldValue(literal, thisRow[k], env);
+                for (List<ColumnDescriptor> allDescriptor : allDescriptors) {
+                    parseRowsAndPopulateLiteral(literal, allDescriptor, openlAdapter, env, rowNum + startRow, height);
                 }
+                bindDataIndexWithTableRowNum(resultContainer.size(), rowNum + startRow);
+                resultContainer.add(literal);
             } finally {
                 env.popThis();
                 env.popLocalFrame();
             }
-
-            contextMap.put(resultContainer.size(), context);
-            bindDataIndexWithTableRowNum(resultContainer.size(), rowNum + startRow);
-            resultContainer.add(literal);
         }
     }
 
+    @SuppressWarnings("SuspiciousSystemArraycopy")
     private void parseRowsAndPopulateLiteral(Object literal,
-                                List<ColumnDescriptor> descriptors,
-                                OpenlToolAdaptor openlAdapter,
-                                IRuntimeEnv env, int rowNum, int height) throws OpenLCompilationException {
+                                             List<ColumnDescriptor> descriptors,
+                                             OpenlToolAdaptor openlAdapter,
+                                             IRuntimeEnv env, int rowNum, int height) throws OpenLCompilationException {
 
+        if (descriptors.isEmpty()) {
+            return;
+        }
         DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
 
         Object[][] rowValues = null;
@@ -459,31 +452,47 @@ public class Table implements ITable {
             }
         }
 
+        ColumnDescriptor pkDescriptor = descriptors.get(0);
+
         Object[] prevRow = null;
         for (int i = 0; i < rowValues.length; i++) {
+            boolean isSameRow;
             Object[] thisRow = rowValues[i];
             context.setRow(i);
             if (prevRow == null) {
-                context.setRowValueIsTheSameAsPrevious(false);
+                isSameRow = false;
             } else {
-                boolean isSameRow = true;
-                for (int k = 0; k < thisRow.length; k++) {
-                    if (k == 0 && prevRow[k] == null) {
-                        isSameRow = false;
-                    } else {
-                        isSameRow = descriptors.get(k).isSameValue(prevRow[k], thisRow[k]);
-                    }
-                    if (isSameRow) {
-                        thisRow[k] = prevRow[k];
-                    } else {
-                        break;
+                if (pkDescriptor.isPrimaryKey()) {
+                    isSameRow = pkDescriptor.isSameValue(thisRow[0], prevRow[0]);
+                } else {
+                    isSameRow = true;
+                    for (int k = 0; k < thisRow.length; k++) {
+                        isSameRow = descriptors.get(k).isSameValue(thisRow[k], prevRow[k]);
+                        if (!isSameRow) {
+                            break;
+                        }
                     }
                 }
-                context.setRowValueIsTheSameAsPrevious(isSameRow);
             }
+            context.setRowValueIsTheSameAsPrevious(isSameRow);
             for (int k = 0; k < thisRow.length; k++) {
                 ColumnDescriptor descriptor = descriptors.get(k);
-                descriptor.setFieldValue(literal, thisRow[k], env);
+                Object thisValue = thisRow[k];
+                if (descriptor.isValuesAnArray()) {
+                    Object currentValue = descriptor.getFieldValue(literal, env);
+                    int thisLen = Array.getLength(thisValue);
+                    if (currentValue == null || Array.getLength(currentValue) == 0) {
+                        descriptor.setFieldValue(literal, thisLen == 0 ? null : thisValue, env);
+                    } else if (thisLen != 0) {
+                        int currentLen = Array.getLength(currentValue);
+                        Object newArray = Array.newInstance(thisValue.getClass().getComponentType(), currentLen + thisLen);
+                        System.arraycopy(currentValue, 0, newArray, 0, currentLen);
+                        System.arraycopy(thisValue, 0, newArray, currentLen, thisLen);
+                        descriptor.setFieldValue(literal, newArray, env);
+                    }
+                } else {
+                    descriptor.setFieldValue(literal, thisValue, env);
+                }
             }
 
             prevRow = thisRow;
@@ -492,7 +501,6 @@ public class Table implements ITable {
     }
 
     private Object createLiteral() throws OpenLCompilationException {
-        Object literal = null;
         if (dataModel.getInstanceClass().isArray()) {
             int dim = 0;
             Class<?> type = dataModel.getInstanceClass();
@@ -500,15 +508,14 @@ public class Table implements ITable {
                 type = type.getComponentType();
                 dim++;
             }
-            literal = Array.newInstance(type, new int[dim]);
+            return Array.newInstance(type, new int[dim]);
         } else {
-            literal = dataModel.newInstance();
+            Object literal = dataModel.newInstance();
+            if (literal == null) {
+                throw new OpenLCompilationException(String.format("Can`t create instance of %s", dataModel.getName()));
+            }
+            return literal;
         }
-        if (literal == null) {
-            String errorMessage = String.format("Can`t create instance of %s", dataModel.getName());
-            throw new OpenLCompilationException(errorMessage);
-        }
-        return literal;
     }
 
     private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
