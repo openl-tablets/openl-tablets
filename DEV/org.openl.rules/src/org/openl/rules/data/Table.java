@@ -349,9 +349,8 @@ public class Table implements ITable {
             }
         }
 
-        IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         try {
-            parseRowsAndPopulateRootLiteral(resultContainer, new ArrayList<>(descriptorGroups.values()), openlAdapter, env, startRow, rows);
+            parseRowsAndPopulateRootLiteral(resultContainer, new ArrayList<>(descriptorGroups.values()), openlAdapter, startRow, rows);
         } catch (SyntaxNodeException e) {
             tableSyntaxNode.addError(e);
             openlAdapter.getBindingContext().addError(e);
@@ -361,7 +360,7 @@ public class Table implements ITable {
     private void parseRowsAndPopulateRootLiteral(List<Object> resultContainer,
                                     List<List<ColumnDescriptor>> allDescriptors,
                                     OpenlToolAdaptor openlAdapter,
-                                    IRuntimeEnv env, int startRow, int rows) throws OpenLCompilationException {
+                                    int startRow, int rows) throws OpenLCompilationException {
 
         List<ColumnDescriptor> descriptors = allDescriptors.get(0);
 
@@ -371,10 +370,12 @@ public class Table implements ITable {
                 ColumnDescriptor descriptor = descriptors.get(colNum);
                 ILogicalTable valuesTable = LogicalTableHelper.make1ColumnTable(logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, 1));
                 Object prevRes = ColumnDescriptor.PREV_RES_EMPTY;
+                int width = valuesTable.getSource().getWidth();
                 for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
                     ILogicalTable logicalTable = LogicalTableHelper
-                            .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
-                            .getSubtable(0, 0, 1, 1);
+                            .logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
+                            .getSubtable(0, 0, width, 1);
+                    logicalTable = LogicalTableHelper.make1ColumnTable(logicalTable);
                     Object res = descriptor.parseCellValue(logicalTable, openlAdapter);
                     if (!(descriptor.isSameValue(res, prevRes))) {
                         rowValues[rowNum - startRow][colNum] = res;
@@ -384,6 +385,7 @@ public class Table implements ITable {
             }
         }
 
+        IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         for (int rowNum = 0; rowNum < rowValues.length; rowNum++) {
             int height = 1;
             Object[] thisRow = rowValues[rowNum];
@@ -410,8 +412,7 @@ public class Table implements ITable {
                 }
             }
 
-            DatatypeArrayMultiRowElementContext context = new DatatypeArrayMultiRowElementContext();
-            env.pushLocalFrame(new Object[] { context });
+            env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
             env.pushThis(literal);
             try {
                 for (List<ColumnDescriptor> allDescriptor : allDescriptors) {
@@ -444,10 +445,12 @@ public class Table implements ITable {
             if (rowValues == null) {
                 rowValues = new Object[valuesTable.getSource().getHeight()][descriptors.size()];
             }
+            int width = valuesTable.getSource().getWidth();
             for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
                 ILogicalTable logicalTable = LogicalTableHelper
-                        .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
-                        .getSubtable(0, 0, 1, 1);
+                        .logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
+                        .getSubtable(0, 0, width, 1);
+                logicalTable = LogicalTableHelper.make1ColumnTable(logicalTable);
                 rowValues[i][colNum] = descriptor.parseCellValue(logicalTable, openlAdapter);
             }
         }
