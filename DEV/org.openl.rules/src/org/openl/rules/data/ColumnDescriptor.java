@@ -110,8 +110,10 @@ public class ColumnDescriptor {
             int fields = ((FieldChain) field).getFields().length;
             if (isPrimaryKey() && ((FieldChain) field).getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
                 fields += 1;
+            } else if (valuesAnArray) {
+                return new ColumnGroupKey(fields, field.getName(), true);
             }
-            return new ColumnGroupKey(fields - 1, fields > 1 ? field.getName() : "this");
+            return new ColumnGroupKey(fields - 1, fields > 1 ? field.getName() : "this", primaryKey);
         } else {
             return ColumnGroupKey.DEFAULT;
         }
@@ -234,9 +236,18 @@ public class ColumnDescriptor {
     }
 
     public void setFieldValue(Object literal, Object res, IRuntimeEnv env) {
-        if (field != null && res != null) {
-            field.set(literal, res, env);
+        if (field == null) {
+            return;
         }
+        if (res != null) {
+            field.set(literal, res, env);
+        } else {
+            field.get(literal, env); // Do not delete this line!!!
+        }
+    }
+
+    public Object getFieldValue(Object literal, IRuntimeEnv env) {
+        return field != null ? field.get(literal, env) : null;
     }
 
     private void processWithMultiRowsSupport(Object literal,
@@ -283,7 +294,6 @@ public class ColumnDescriptor {
 
     Object parseCellValue(ILogicalTable valuesTable,
                                  OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
-
         IOpenClass aggregateType = field.getType();
         IOpenClass paramType = aggregateType;
 
@@ -400,23 +410,23 @@ public class ColumnDescriptor {
 
     public static final class ColumnGroupKey implements Comparable<ColumnGroupKey> {
 
-        private static final ColumnGroupKey DEFAULT = new ColumnGroupKey(0, "this");
+        private static final ColumnGroupKey DEFAULT = new ColumnGroupKey(0, "this", false);
 
         private final int level;
         private final String path;
 
-        public ColumnGroupKey(int level, String path) {
+        public ColumnGroupKey(int level, String path, boolean pk) {
             this.level = level;
-            int sep = path.lastIndexOf('.');
-            this.path = sep > 0 ? path.substring(0, sep) : path;
+            if (pk) {
+                this.path = path;
+            } else {
+                int sep = path.lastIndexOf('.');
+                this.path = sep > 0 ? path.substring(0, sep) : path;
+            }
         }
 
         public int getLevel() {
             return level;
-        }
-
-        public String getPath() {
-            return path;
         }
 
         @Override

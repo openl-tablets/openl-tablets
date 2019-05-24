@@ -178,7 +178,10 @@ public final class PackageMojo extends BaseOpenLMojo {
                 debug("SKIP : ", artifact, " (by dependency depth)");
                 continue; // skip, unexpected size of dependencies
             }
-
+            if (skipTransitiveDependency(dependencyTrail)) {
+                debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
+                continue;
+            }
             String tr = dependencyTrail.get(1);
             String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             if (allowed.contains(key)) {
@@ -210,6 +213,18 @@ public final class PackageMojo extends BaseOpenLMojo {
         boolean runtimeScope = Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
         return !runtimeScope || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
             .equals("org.slf4j") || OPENL_ARTIFACT_TYPE.equals(type);
+    }
+
+    private boolean skipTransitiveDependency(List<String> dependencyTrail) {
+        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
+            String dependency = dependencyTrail.get(i);
+            if (dependency.startsWith("org.openl.rules:")
+                    || dependency.startsWith("org.openl:")
+                    || dependency.startsWith("org.slf4j:")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void addFile(Archiver arch, File folder, String fileName) {

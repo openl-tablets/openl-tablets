@@ -1,0 +1,5 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>just-stub</serviceName>
+</rules-deploy>
