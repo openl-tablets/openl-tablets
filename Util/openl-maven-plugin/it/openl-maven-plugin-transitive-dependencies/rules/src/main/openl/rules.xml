@@ -1,0 +1,14 @@
+<project>
+    <name>just-stub</name>
+    <modules>
+        <module>
+            <name>Common Utils</name>
+            <rules-root path="rules/Main.xlsx"/>
+        </module>
+    </modules>
+
+    <!-- Project's classpath. -->
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>
