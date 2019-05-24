@@ -653,7 +653,7 @@ public final class DecisionTableHelper {
             .filter(FuzzyDTHeader::isReturn)
             .collect(toList());
         Map<IOpenMethod[], List<Token>> m = new HashMap<>();
-        for (Token token : fuzzyContext.getReturnTokens()) {
+        for (Token token : fuzzyContext.getFuzzyReturnTokens()) {
             IOpenMethod[][] returnTypeMethodChains = fuzzyContext.getMethodChainsForReturnToken(token);
             for (int i = 0; i < returnTypeMethodChains.length; i++) {
                 boolean f = false;
@@ -702,16 +702,16 @@ public final class DecisionTableHelper {
                 }
 
                 if (!isCompoundInputType(type)) {
-                    Pair<String, IOpenClass> p = buildStatementByMethodsChain(fuzzyContext.getReturnType(),
+                    Pair<String, IOpenClass> p = buildStatementByMethodsChain(fuzzyContext.getFuzzyReturnType(),
                         methodChain);
                     IOpenCast cast = bindingContext.getCast(type, p.getValue());
                     if (cast != null && cast.isImplicit()) {
                         writeReturnStatement(fuzzyContext
-                            .getReturnType(), methodChain, generatedNames, variables, statement, sb);
+                            .getFuzzyReturnType(), methodChain, generatedNames, variables, statement, sb);
                         if (!bindingContext.isExecutionMode()) {
-                            final String statementInReturn = fuzzyContext.getReturnType()
+                            final String statementInReturn = fuzzyContext.getFuzzyReturnType()
                                 .getDisplayName(INamedThing.SHORT) + "." + buildStatementByMethodsChain(
-                                    fuzzyContext.getReturnType(),
+                                    fuzzyContext.getFuzzyReturnType(),
                                     methodChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
                         }
@@ -1632,7 +1632,7 @@ public final class DecisionTableHelper {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getReturnTokens(), true);
+                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
                     assert (methodChains != null);
@@ -1843,35 +1843,64 @@ public final class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> filterHeadersByMax(List<List<DTHeader>> fits,
-            ToLongFunction<List<DTHeader>> function) {
+            ToLongFunction<List<DTHeader>> function,
+            Predicate<List<DTHeader>> predicate) {
         long max = Long.MIN_VALUE;
-        List<List<DTHeader>> newFits = new ArrayList<>();
+        Set<Integer> functionIndexes = new HashSet<>();
+        Set<Integer> matchIndexes = new HashSet<>();
+        int index = 0;
         for (List<DTHeader> fit : fits) {
-            long current = function.applyAsLong(fit);
-            if (current > max) {
-                max = current;
-                newFits.clear();
-                newFits.add(fit);
-            } else if (current == max) {
-                newFits.add(fit);
+            if (predicate.test(fit)) {
+                long current = function.applyAsLong(fit);
+                if (current > max) {
+                    max = current;
+                    functionIndexes.clear();
+                    functionIndexes.add(index);
+                } else if (current == max) {
+                    functionIndexes.add(index);
+                }
+            } else {
+                matchIndexes.add(index);
             }
+            index++;
+        }
+
+        Set<Integer> indexes = new HashSet<>(matchIndexes);
+        indexes.addAll(functionIndexes);
+        List<List<DTHeader>> newFits = new ArrayList<>();
+        for (Integer i : indexes) {
+            newFits.add(fits.get(i));
         }
         return newFits;
     }
 
     private static List<List<DTHeader>> filterHeadersByMin(List<List<DTHeader>> fits,
-            ToLongFunction<List<DTHeader>> function) {
+            ToLongFunction<List<DTHeader>> function,
+            Predicate<List<DTHeader>> predicate) {
         long min = Long.MAX_VALUE;
-        List<List<DTHeader>> newFits = new ArrayList<>();
+        Set<Integer> functionIndexes = new HashSet<>();
+        Set<Integer> matchIndexes = new HashSet<>();
+        int index = 0;
         for (List<DTHeader> fit : fits) {
-            long current = function.applyAsLong(fit);
-            if (current < min) {
-                min = current;
-                newFits.clear();
-                newFits.add(fit);
-            } else if (current == min) {
-                newFits.add(fit);
+            if (predicate.test(fit)) {
+                long current = function.applyAsLong(fit);
+                if (current < min) {
+                    min = current;
+                    functionIndexes.clear();
+                    functionIndexes.add(index);
+                } else if (current == min) {
+                    functionIndexes.add(index);
+                }
+            } else {
+                matchIndexes.add(index);
             }
+            index++;
+        }
+        Set<Integer> indexes = new HashSet<>(matchIndexes);
+        indexes.addAll(functionIndexes);
+        List<List<DTHeader>> newFits = new ArrayList<>();
+        for (Integer i : indexes) {
+            newFits.add(fits.get(i));
         }
         return newFits;
     }
@@ -1886,7 +1915,8 @@ public final class DecisionTableHelper {
                     .map(x -> (DeclaredDTHeader) x)
                     .filter(x -> type.equals(x.getMatchedDefinition().getMatchType()))
                     .mapToLong(x -> x.getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
-                    .sum());
+                    .sum(),
+                e -> true);
         }
         return fits;
     }
@@ -2004,6 +2034,60 @@ public final class DecisionTableHelper {
         return ret;
     }
 
+    private static List<List<DTHeader>> fitFuzzyDtHeaders(List<List<DTHeader>> fits,
+            final Predicate<FuzzyDTHeader> predicate) {
+        long fuzzyConditionsCounts = fits.stream()
+            .mapToLong(e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .filter(x -> predicate.test(x))
+                .count())
+            .max()
+            .orElse(0);
+        for (int i = 0; i < fuzzyConditionsCounts; i++) {
+            final int currentFuzzyConditionsCounts = i;
+            fits = filterHeadersByMax(fits,
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .mapToInt(x -> x.getFuzzyResult().getMax())
+                    .sum(),
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .count() != currentFuzzyConditionsCounts);
+            fits = filterHeadersByMin(fits,
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .mapToInt(x -> x.getFuzzyResult().getMin())
+                    .sum(),
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .count() != currentFuzzyConditionsCounts);
+
+            fits = filterHeadersByMin(fits,
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
+                    .sum(),
+                e -> e.stream()
+                    .filter(x -> x instanceof FuzzyDTHeader)
+                    .map(x -> (FuzzyDTHeader) x)
+                    .filter(x -> predicate.test(x))
+                    .count() != currentFuzzyConditionsCounts);
+        }
+
+        return fits;
+    }
+
     private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
@@ -2058,10 +2142,11 @@ public final class DecisionTableHelper {
                 .filter(x -> x instanceof DeclaredDTHeader)
                 .mapToLong(
                     x -> ((DeclaredDTHeader) x).getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
-                .sum());
+                .sum(),
+            e -> true);
         fits = filterHeadersByMatchType(fits);
         if (numberOfHcondition != numberOfParameters) {
-            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isCondition) ? 1l : 0l); // Prefer
+            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isCondition) ? 1l : 0l, e -> true); // Prefer
             // full
             // matches
             // with
@@ -2088,30 +2173,15 @@ public final class DecisionTableHelper {
         }
 
         fits = filterHeadersByMax(fits,
-            e -> e.stream().flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count());
-
-        fits = filterHeadersByMin(fits, e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count());
-
-        fits = filterHeadersByMax(fits,
-            e -> e.stream()
-                .filter(x -> x instanceof FuzzyDTHeader)
-                .map(x -> (FuzzyDTHeader) x)
-                .mapToInt(x -> x.getFuzzyResult().getMax())
-                .sum());
+            e -> e.stream().flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count(),
+            e -> true);
 
         fits = filterHeadersByMin(fits,
-            e -> e.stream()
-                .filter(x -> x instanceof FuzzyDTHeader)
-                .map(x -> (FuzzyDTHeader) x)
-                .mapToInt(x -> x.getFuzzyResult().getMin())
-                .sum());
+            e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count(),
+            e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count() > 0);
 
-        fits = filterHeadersByMin(fits,
-            e -> e.stream()
-                .filter(x -> x instanceof FuzzyDTHeader)
-                .map(x -> (FuzzyDTHeader) x)
-                .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
-                .sum());
+        fits = fitFuzzyDtHeaders(fits, e -> !e.isReturn());
+        fits = fitFuzzyDtHeaders(fits, FuzzyDTHeader::isReturn);
 
         if (numberOfHcondition == 0 && fits.isEmpty()) {
             final List<DTHeader> dths = dtHeaders;
@@ -2154,11 +2224,15 @@ public final class DecisionTableHelper {
                 }
             }
 
-            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count()); // Select with min
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count(), e -> true); // Select
+                                                                                                            // with min
             // returns
-            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count()); // Select with min
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count(), e -> true); // Select
+                                                                                                            // with min
             // returns
-            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count()); // Select with max
+            fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count(), e -> true); // Select
+                                                                                                               // with
+                                                                                                               // max
             // conditions
 
             return fits.get(0);
@@ -2228,7 +2302,8 @@ public final class DecisionTableHelper {
                 lastColumn = firstColumnForHCondition;
             }
         }
-
+        String returnTokenString = fuzzyContext != null && fuzzyContext.isFuzzySupportsForReturnType() ? OpenLFuzzyUtils
+            .toTokenString(fuzzyContext.getFuzzyReturnType().getName()) : null;
         List<DTHeader> dtHeaders = new ArrayList<>();
         int i = 0;
         int column = 0;
@@ -2253,19 +2328,26 @@ public final class DecisionTableHelper {
                     bindingContext,
                     false);
                 if (numberOfHcondition == 0) {
+                    String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
                     boolean f = false;
                     if (fuzzyContext.isFuzzySupportsForReturnType()) {
-                        if (fuzzyHeaders.stream().noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
-                            .get(column) == 1 && columnWithFormulas(originalTable, firstColumnHeight, column)) {
+                        if (fuzzyHeaders.stream()
+                            .noneMatch(DTHeader::isReturn) && numberOfColumnsUnderTitleCounter
+                                .get(column) == 1 && columnWithFormulas(originalTable,
+                                    firstColumnHeight,
+                                    column) || !OpenLFuzzyUtils
+                                        .openlFuzzyExtract(titleForColumn,
+                                            new Token[] { new Token(returnTokenString, 0) },
+                                            true)
+                                        .isEmpty()) {
                             f = true;
                         }
                     } else {
                         f = true;
                     }
                     if (f) {
-                        String title = originalTable.getSource().getCell(column, 0).getStringValue();
                         int width = originalTable.getSource().getCell(column, 0).getWidth();
-                        dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
+                        dtHeaders.add(new SimpleReturnDTHeader(null, titleForColumn, column, width));
                     }
                 }
             } else {
@@ -2347,6 +2429,17 @@ public final class DecisionTableHelper {
             return fit;
         }
 
+    }
+
+    private static String getTitleForColumn(ILogicalTable originalTable, int firstColumnHeight, int column) {
+        StringBuilder sb = new StringBuilder();
+        for (int j = 0; j < firstColumnHeight; j++) {
+            if (j > 0) {
+                sb.append(StringUtils.SPACE);
+            }
+            sb.append(originalTable.getSource().getCell(column, 0).getStringValue());
+        }
+        return sb.toString();
     }
 
     private static int getNumberOfHConditions(ILogicalTable tableBody) {
@@ -2766,7 +2859,7 @@ public final class DecisionTableHelper {
         ParameterTokens parameterTokens;
         Token[] returnTokens = null;
         Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = null;
-        IOpenClass returnType;
+        IOpenClass fuzzyReturnType;
 
         private FuzzyContext(ParameterTokens parameterTokens) {
             this.parameterTokens = parameterTokens;
@@ -2779,14 +2872,14 @@ public final class DecisionTableHelper {
             this(parameterTokens);
             this.returnTokens = returnTokens;
             this.returnTypeFuzzyTokens = returnTypeFuzzyTokens;
-            this.returnType = returnType;
+            this.fuzzyReturnType = returnType;
         }
 
         public ParameterTokens getParameterTokens() {
             return parameterTokens;
         }
 
-        public Token[] getReturnTokens() {
+        public Token[] getFuzzyReturnTokens() {
             return returnTokens;
         }
 
@@ -2795,11 +2888,11 @@ public final class DecisionTableHelper {
         }
 
         public boolean isFuzzySupportsForReturnType() {
-            return returnTypeFuzzyTokens != null && returnTokens != null && returnType != null;
+            return returnTypeFuzzyTokens != null && returnTokens != null && fuzzyReturnType != null;
         }
 
-        public IOpenClass getReturnType() {
-            return returnType;
+        public IOpenClass getFuzzyReturnType() {
+            return fuzzyReturnType;
         }
     }
 }
