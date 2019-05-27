@@ -16,9 +16,6 @@ public final class StringRangeParser extends ARangeParser<String> {
 
     private final RangeParser[] parsers;
     private final Pattern[] patterns;
-    private final Pattern skipPattern;
-
-    private static final String SKIP_PATTERN = "\\s*(\\S+)\\s*-\\s*(\\S+)\\s*";
 
     private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S+)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*([])])\\s*";
     private static final String MIN_MAX_PATTERN = "\\s*(\\S+)\\s*([-…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*";
@@ -35,7 +32,6 @@ public final class StringRangeParser extends ARangeParser<String> {
                 Pattern.compile(MORE_LESS_PATTERN),
                 Pattern.compile(RANGE_MORE_LESS_PATTERN),
                 Pattern.compile(SIMPLE_PATTERN) };
-        skipPattern = Pattern.compile(SKIP_PATTERN);
         parsers = new RangeParser[] { new BracketsParser<>(patterns[0], adapter),
                 new MinMaxParser<>(patterns[1], adapter),
                 new VerbalParser<>(patterns[2], adapter),
@@ -55,11 +51,16 @@ public final class StringRangeParser extends ARangeParser<String> {
     }
 
     public boolean canBeNotStringRange(String value) {
-        Matcher m = patterns[5].matcher(value);
-        if (m.matches()) {
-            return true;
+        for (int i = 0; i < 5; i++) {
+            if (i == 1) { //Skip min-max pattern
+                continue;
+            }
+            Matcher m = patterns[i].matcher(value);
+            if (m.matches()) {
+                return false;
+            }
         }
-        m = skipPattern.matcher(value);
+        Matcher m = patterns[5].matcher(value);
         return m.matches();
     }
 
