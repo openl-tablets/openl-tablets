@@ -55,6 +55,7 @@ public class StringRangeTest {
     @Test
     public void testEquals() {
         assertEquals(new StringRange("B", "B"), new StringRange("B"));
+        assertEquals(new StringRange("B-B", "C-C"), new StringRange("B-B - C-C"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA-ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA..ZZ"));
