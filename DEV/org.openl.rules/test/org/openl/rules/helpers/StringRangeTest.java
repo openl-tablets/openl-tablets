@@ -263,6 +263,26 @@ public class StringRangeTest {
         new StringRange(null);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testParseException1() {
+        new StringRange("Aand more");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testParseException2() {
+        new StringRange("Aor less");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testParseException3() {
+        new StringRange("more thanA");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testParseException4() {
+        new StringRange("less thanA");
+    }
+
     private void assertInclude(StringRange range, String... args) {
         assertNotNull(range);
         assertTrue(args.length > 0);
