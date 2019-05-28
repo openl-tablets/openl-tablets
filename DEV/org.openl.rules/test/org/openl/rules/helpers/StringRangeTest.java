@@ -250,7 +250,7 @@ public class StringRangeTest {
     @Test
     public void testNulls() {
         StringRange range = new StringRange(">=AA <=ZZ");
-        assertFalse(range.contains(null));
+        assertFalse(range.contains((StringRangeValue) null));
     }
 
     @Test

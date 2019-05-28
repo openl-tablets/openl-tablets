@@ -11,8 +11,8 @@ import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 @XmlRootElement
 public class StringRange {
 
-    private final String lowerBound;
-    private final String upperBound;
+    private final StringRangeValue lowerBound;
+    private final StringRangeValue upperBound;
 
     private final BoundType lowerBoundType;
     private final BoundType upperBoundType;
@@ -22,8 +22,8 @@ public class StringRange {
     }
 
     StringRange(String lowerBound, String upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
+        this.lowerBound = StringRangeValue.valueOf(lowerBound);
+        this.upperBound = StringRangeValue.valueOf(upperBound);
         this.lowerBoundType = lowerBoundType;
         this.upperBoundType = upperBoundType;
         validate();
@@ -31,9 +31,9 @@ public class StringRange {
 
     public StringRange(String source) {
         ParseStruct<String> range = StringRangeParser.getInstance().parse(source);
-        this.lowerBound = range.min;
+        this.lowerBound = StringRangeValue.valueOf(range.min);
         this.lowerBoundType = range.leftBoundType;
-        this.upperBound = range.max;
+        this.upperBound = StringRangeValue.valueOf(range.max);
         this.upperBoundType = range.rightBoundType;
         validate();
     }
@@ -50,7 +50,7 @@ public class StringRange {
         }
     }
 
-    public String getLowerBound() {
+    public StringRangeValue getLowerBound() {
         return lowerBound;
     }
 
@@ -58,7 +58,7 @@ public class StringRange {
         return lowerBoundType;
     }
 
-    public String getUpperBound() {
+    public StringRangeValue getUpperBound() {
         return upperBound;
     }
 
@@ -66,7 +66,7 @@ public class StringRange {
         return upperBoundType;
     }
 
-    public boolean contains(String s) {
+    public boolean contains(StringRangeValue s) {
         if (s == null) {
             return false;
         }
@@ -83,7 +83,7 @@ public class StringRange {
     }
 
     public boolean contains(CharSequence s) {
-        return contains(s == null ? null : s.toString());
+        return contains(s == null ? null : StringRangeValue.valueOf(s.toString()));
     }
 
     @Override
@@ -95,8 +95,8 @@ public class StringRange {
             return false;
         }
         StringRange that = (StringRange) o;
-        return Objects.equals(lowerBound, that.lowerBound) && Objects.equals(upperBound,
-            that.upperBound) && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
+        return Objects.equals(lowerBound.getValue(), that.lowerBound.getValue()) && Objects.equals(upperBound.getValue(),
+            that.upperBound.getValue()) && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
     }
 
     @Override
@@ -107,10 +107,10 @@ public class StringRange {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (StringRangeParser.MIN_VALUE.equals(lowerBound)) {
+        if (StringRangeParser.MIN_VALUE.equals(lowerBound.getValue())) {
             sb.append(upperBoundType == BoundType.INCLUDING ? "<= " : "< ");
             sb.append(upperBound);
-        } else if (StringRangeParser.MAX_VALUE.equals(upperBound)) {
+        } else if (StringRangeParser.MAX_VALUE.equals(upperBound.getValue())) {
             sb.append(lowerBoundType == BoundType.INCLUDING ? ">= " : "> ");
             sb.append(lowerBound);
         } else {
