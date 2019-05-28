@@ -24,9 +24,7 @@ public abstract class ARangeParser<T> {
                         return res;
                     }
                 } catch (RuntimeException e) {
-                    // should not be happened
-                    Logger log = LoggerFactory.getLogger(getClass());
-                    log.error(e.getMessage(), e);
+                    throw new RuntimeException("Could not parse the range: " + range, e);
                 }
             }
         }

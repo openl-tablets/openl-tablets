@@ -1,6 +1,8 @@
 package org.openl.rules.helpers;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -43,15 +45,15 @@ public class DateRange {
 
     @SuppressWarnings("WeakerAccess")
     public DateRange(String source) {
-        ParseStruct<Date> range = DateRangeParser.getInstance().parse(source);
+        ParseStruct<Instant> range = DateRangeParser.getInstance().parse(source);
         this.lowerBoundType = range.leftBoundType;
         this.upperBoundType = range.rightBoundType;
 
-        Long lowerBound = range.min.getTime();
+        Long lowerBound = range.min.toEpochMilli();
         if (this.lowerBoundType == BoundType.EXCLUDING) {
             lowerBound += 1;
         }
-        Long upperBound = range.max.getTime();
+        Long upperBound = range.max.toEpochMilli();
         if (this.upperBoundType == BoundType.EXCLUDING) {
             upperBound -= 1;
         }
@@ -105,38 +107,41 @@ public class DateRange {
 
     @Override
     public String toString() {
-        SimpleDateFormat formatter = DateRangeParser.getDateTimeFormatter();
         StringBuilder sb = new StringBuilder();
         if (Long.MIN_VALUE == lowerBound) {
             sb.append(upperBoundType == BoundType.INCLUDING ? "<= " : "< ");
-            sb.append(formatter.format(getDateUpperBound()));
+            sb.append(DateRangeParser.dateTimeFormatter.format(getDateUpperBound()));
         } else if (Long.MAX_VALUE == upperBound) {
             sb.append(lowerBoundType == BoundType.INCLUDING ? ">= " : "> ");
-            sb.append(formatter.format(getDateLowerBound()));
+            sb.append(DateRangeParser.dateTimeFormatter.format(getDateLowerBound()));
         } else {
             sb.append(lowerBoundType == BoundType.INCLUDING ? '[' : '(');
-            sb.append(formatter.format(getDateLowerBound()));
+            sb.append(DateRangeParser.dateTimeFormatter.format(getDateLowerBound()));
             sb.append("; ");
-            sb.append(formatter.format(getDateUpperBound()));
+            sb.append(DateRangeParser.dateTimeFormatter.format(getDateUpperBound()));
             sb.append(upperBoundType == BoundType.INCLUDING ? ']' : ')');
         }
         return sb.toString();
     }
 
-    private Date getDateUpperBound() {
+    private LocalDateTime getDateUpperBound() {
         long time = upperBound;
         if (this.upperBoundType == BoundType.EXCLUDING) {
             time += 1;
         }
-        return new Date(time);
+        return Instant.ofEpochMilli(time)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
-    private Date getDateLowerBound() {
+    private LocalDateTime getDateLowerBound() {
         long time = lowerBound;
         if (this.lowerBoundType == BoundType.EXCLUDING) {
             time -= 1;
         }
-        return new Date(time);
+        return Instant.ofEpochMilli(time)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     // CAST METHODS
