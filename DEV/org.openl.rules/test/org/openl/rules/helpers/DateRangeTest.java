@@ -3,7 +3,10 @@ package org.openl.rules.helpers;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.junit.Test;
 
@@ -11,6 +14,8 @@ public class DateRangeTest {
 
     @Test
     public void testToString() {
+        assertEquals("[02/11/2020 01:01:01; 02/11/2020 01:01:01]", new DateRange("2/11/2020 01:01:1").toString());
+        assertEquals("[12/12/2019 00:00:00; 12/12/2019 00:00:00]", new DateRange("12/12/2019").toString());
         assertEquals("[03/12/2019 00:00:00; 03/12/2019 00:00:00]", new DateRange("03/12/2019").toString());
 
         assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]", new DateRange("03/12/2019 - 12/01/2019").toString());
@@ -529,6 +534,20 @@ public class DateRangeTest {
         assertParseException("");
         assertParseException("3/2/2019 1:1:1 sdsdsd");
         assertParseException("sdsdsd 3/2/2019 1:1:1");
+
+        try {
+            new DateRange("2/11/2020 99:99:99");
+            fail("Must be failed!");
+        } catch (RuntimeException e) {
+            assertEquals("Could not parse the range: 2/11/2020 99:99:99", e.getMessage());
+        }
+
+        try {
+            new DateRange("2/99/2020 12:1:1");
+            fail("Must be failed!");
+        } catch (RuntimeException e) {
+            assertEquals("Could not parse the range: 2/99/2020 12:1:1", e.getMessage());
+        }
     }
 
     private void assertParseException(String range) {
@@ -559,7 +578,11 @@ public class DateRangeTest {
     }
 
     private Date toDate(String s) throws ParseException {
-        return DateRangeParser.getDateTimeFormatter().parse(s);
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
+        formatter.setLenient(false); // Strict matching
+        formatter.getCalendar().set(0, 0, 0, 0, 0, 0); // at
+        formatter.getCalendar().set(Calendar.MILLISECOND, 0);
+        return formatter.parse(s);
     }
 
 }

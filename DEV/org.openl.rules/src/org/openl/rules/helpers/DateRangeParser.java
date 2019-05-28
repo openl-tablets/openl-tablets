@@ -1,17 +1,30 @@
 package org.openl.rules.helpers;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DateRangeParser extends ARangeParser<Date> {
+public class DateRangeParser extends ARangeParser<Instant> {
 
-    private static final String DEFAULT_DATE_PATTERN = "MM/dd/yyyy";
-    private static final String DEFAULT_DATE_TIME_PATTERN = "MM/dd/yyyy HH:mm:ss";
+    /**
+     * Parses strings like:
+     *
+     * 1/1/2019
+     * 01/01/2019
+     * 01/01/2019 2:2:2
+     * 1/1/2019 2:2:2
+     * 1/1/2019 02:02:02
+     * 01/01/2019 02:02:02
+     */
+    private static final DateTimeFormatter dateTimeParser = DateTimeFormatter.ofPattern("M/d/yyyy[ H:m:s]");
+
+    //for date formatting which includes leading zeros in month, day, hour, minutes and seconds
+    static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy[ HH:mm:ss]");
 
     private static final class InstanceHolder {
         private static final DateRangeParser INSTANCE = new DateRangeParser();
@@ -67,48 +80,31 @@ public class DateRangeParser extends ARangeParser<Date> {
         return parsers;
     }
 
-    private static final class DateRangeBoundAdapter implements RangeBoundAdapter<Date> {
+    private static final class DateRangeBoundAdapter implements RangeBoundAdapter<Instant> {
+
+        private static final Instant MIN = Instant.ofEpochMilli(Long.MIN_VALUE);
+        private static final Instant MAX = Instant.ofEpochMilli(Long.MAX_VALUE);
 
         @Override
-        public Date adaptValue(String s) {
-            try {
-                return getDateTimeFormatter().parse(s);
-            } catch (ParseException e1) {
-                try {
-                    return getDateFormatter().parse(s);
-                } catch (ParseException e2) {
-                    RuntimeException res = new IllegalArgumentException(e2);
-                    res.addSuppressed(e1);
-                    throw res;
-                }
-            }
+        public Instant adaptValue(String s) {
+            TemporalAccessor res = dateTimeParser.parseBest(s, LocalDateTime::from, LocalDate::from);
+            return toInstant(res);
+        }
+
+        private Instant toInstant(TemporalAccessor t) {
+            LocalDateTime localDateTime = t instanceof LocalDate ? ((LocalDate) t).atStartOfDay() : ((LocalDateTime) t);
+            return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
         }
 
         @Override
-        public Date getMinLeftBound() {
-            return new Date(Long.MIN_VALUE);
+        public Instant getMinLeftBound() {
+            return MIN;
         }
 
         @Override
-        public Date getMaxRightBound() {
-            return new Date(Long.MAX_VALUE);
+        public Instant getMaxRightBound() {
+            return MAX;
         }
-    }
-
-    static SimpleDateFormat getDateFormatter() {
-        return getDateFormatter(DEFAULT_DATE_PATTERN);
-    }
-
-    static SimpleDateFormat getDateTimeFormatter() {
-        return getDateFormatter(DEFAULT_DATE_TIME_PATTERN);
-    }
-
-    private static SimpleDateFormat getDateFormatter(String pattern) {
-        SimpleDateFormat formatter = new SimpleDateFormat(pattern, Locale.US);
-        formatter.setLenient(false); // Strict matching
-        formatter.getCalendar().set(0, 0, 0, 0, 0, 0); // at
-        formatter.getCalendar().set(Calendar.MILLISECOND, 0);
-        return formatter;
     }
 
 }
