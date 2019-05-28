@@ -10,10 +10,7 @@ import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -1064,8 +1061,64 @@ public final class RulesUtils {
         return ArrayUtils.contains(array, elem);
     }
 
+    public static boolean contains(String[] array, String elem) {
+        return ArrayUtils.contains(array, elem);
+    }
+
     public static boolean contains(Character[] array, Character elem) {
         return ArrayUtils.contains(array, elem);
+    }
+
+    public static boolean contains(IntRange[] array, Integer elem) {
+        if (array == null) {
+            return false;
+        }
+        for (IntRange range : array) {
+            if (range != null && range.contains(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean contains(DoubleRange[] array, Double elem) {
+        if (array == null) {
+            return false;
+        }
+        for (DoubleRange range : array) {
+            if (range != null && range.contains(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean contains(CharRange[] array, Character elem) {
+        if (array == null) {
+            return false;
+        }
+        for (CharRange range : array) {
+            if (range != null && range.contains(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean contains(StringRange[] array, CharSequence elem) {
+        if (array == null) {
+            return false;
+        }
+        for (StringRange range : array) {
+            if (range != null && range.contains(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean contains(StringRange[] array, String elem) {
+        return contains(array, (CharSequence) elem);
     }
 
     // ------------------------------------------------
@@ -1148,6 +1201,102 @@ public final class RulesUtils {
 
     public static boolean contains(Boolean[] ary1, Boolean[] ary2) {
         return ArrayTool.containsAll(ary1, ary2);
+    }
+
+    public static boolean contains(IntRange[] ary1, Integer[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Integer elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+
+    public static boolean contains(IntRange[] ary1, int[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Integer elem : ary2) {
+            if (!contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return ary2.length > 0;
+    }
+
+    public static boolean contains(DoubleRange[] ary1, Double[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Double elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+
+    public static boolean contains(DoubleRange[] ary1, double[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Double elem : ary2) {
+            if (!contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return ary2.length > 0;
+    }
+
+    public static boolean contains(CharRange[] ary1, Character[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Character elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+
+    public static boolean contains(CharRange[] ary1, char[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Character elem : ary2) {
+            if (!contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return ary2.length > 0;
+    }
+
+    public static boolean contains(StringRange[] ary1, CharSequence[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (CharSequence elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+
+    public static boolean contains(StringRange[] ary1, String[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (String elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
     /**

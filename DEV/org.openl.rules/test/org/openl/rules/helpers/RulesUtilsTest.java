@@ -296,6 +296,38 @@ public class RulesUtilsTest {
 
         boolean testContainsIntegerInIntegerArr(Integer[] searchIn, Integer searchFor);
 
+        boolean testContainsIntegerTypeInIntRangeArr(IntRange[] searchIn, Integer searchFor);
+
+        boolean testContainsIntegerTypeInIntRangeArr2(IntRange[] searchIn, int searchFor);
+
+        boolean testContainsDoubleTypeInDoubleRangeArr(DoubleRange[] searchIn, Double searchFor);
+
+        boolean testContainsDoubleTypeInDoubleRangeArr2(DoubleRange[] searchIn, double searchFor);
+
+        boolean testContainsCharacterTypeInCharRangeArr(CharRange[] searchIn, Character searchFor);
+
+        boolean testContainsCharacterTypeInCharRangeArr2(CharRange[] searchIn, char searchFor);
+
+        boolean testContainsStringTypeInStringRangeArr(StringRange[] searchIn, String searchFor);
+
+        boolean testContainsCharSequenceTypeInStringRangeArr(StringRange[] searchIn, CharSequence searchFor);
+
+        boolean testContainsIntegerArrTypeInIntRangeArr(IntRange[] searchIn, Integer[] searchFor);
+
+        boolean testContainsIntegerArrTypeInIntRangeArr2(IntRange[] searchIn, int[] searchFor);
+
+        boolean testContainsDoubleArrTypeInDoubleRangeArr(DoubleRange[] searchIn, Double[] searchFor);
+
+        boolean testContainsDoubleArrTypeInDoubleRangeArr2(DoubleRange[] searchIn, double[] searchFor);
+
+        boolean testContainsCharacterArrTypeInCharRangeArr(CharRange[] searchIn, Character[] searchFor);
+
+        boolean testContainsCharacterArrTypeInCharRangeArr2(CharRange[] searchIn, char[] searchFor);
+
+        boolean testContainsStringArrTypeInStringRangeArr(StringRange[] searchIn, String[] searchFor);
+
+        boolean testContainsCharSequenceArrTypeInStringRangeArr(StringRange[] searchIn, CharSequence[] searchFor);
+
         Object testIndexOfObject(Object[] objects, Object object);
 
         Object testIndexOfBoolType(boolean[] bs, boolean b);
@@ -2126,6 +2158,109 @@ public class RulesUtilsTest {
     }
 
     @Test
+    public void testIntegerInIntRangeArrContains() {
+        Integer searchFor = 2;
+        Integer searchFor2 = 100;
+        Integer searchForFailed = 5;
+        IntRange[] searchIn = { new IntRange("1 - 3"), new IntRange("55 - 100") };
+
+        assertFalse(instance.testContainsIntegerTypeInIntRangeArr(null, searchFor));
+        assertFalse(instance.testContainsIntegerTypeInIntRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsIntegerTypeInIntRangeArr(searchIn, searchFor));
+        assertTrue(instance.testContainsIntegerTypeInIntRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testIntegerInIntRangeArrContains2() {
+        int searchFor = 2;
+        int searchFor2 = 100;
+        int searchForFailed = 5;
+        IntRange[] searchIn = { new IntRange("1 - 3"), new IntRange("55 - 100") };
+
+        assertFalse(instance.testContainsIntegerTypeInIntRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsIntegerTypeInIntRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsIntegerTypeInIntRangeArr2(searchIn, searchFor));
+        assertTrue(instance.testContainsIntegerTypeInIntRangeArr2(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testDoubleInDoubleRangeArrContains() {
+        Double searchFor = 2d;
+        Double searchFor2 = 100d;
+        Double searchForFailed = 5d;
+        DoubleRange[] searchIn = { new DoubleRange("1 - 3"), new DoubleRange("55 - 100") };
+
+        assertFalse(instance.testContainsDoubleTypeInDoubleRangeArr(null, searchFor));
+        assertFalse(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchFor));
+        assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testDoubleInDoubleRangeArrContains2() {
+        double searchFor = 2d;
+        double searchFor2 = 100d;
+        double searchForFailed = 5d;
+        DoubleRange[] searchIn = { new DoubleRange("1 - 3"), new DoubleRange("55 - 100") };
+
+        assertFalse(instance.testContainsDoubleTypeInDoubleRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsDoubleTypeInDoubleRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr2(searchIn, searchFor));
+        assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr2(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testCharacterInCharRangeArrContains() {
+        Character searchFor = 'B';
+        Character searchFor2 = 'T';
+        Character searchForFailed = 'D';
+        CharRange[] searchIn = { new CharRange("A - C"), new CharRange("E - Z") };
+
+        assertFalse(instance.testContainsCharacterTypeInCharRangeArr(null, searchFor));
+        assertFalse(instance.testContainsCharacterTypeInCharRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharacterTypeInCharRangeArr(searchIn, searchFor));
+        assertTrue(instance.testContainsCharacterTypeInCharRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testCharacterInCharRangeArrContains2() {
+        char searchFor = 'B';
+        char searchFor2 = 'T';
+        char searchForFailed = 'D';
+        CharRange[] searchIn = { new CharRange("A - C"), new CharRange("E - Z") };
+
+        assertFalse(instance.testContainsCharacterTypeInCharRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsCharacterTypeInCharRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharacterTypeInCharRangeArr2(searchIn, searchFor));
+        assertTrue(instance.testContainsCharacterTypeInCharRangeArr2(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testStringInStringRangeArrContains() {
+        String searchFor = "A2";
+        String searchFor2 = "T";
+        String searchForFailed = "A22";
+        StringRange[] searchIn = { new StringRange("A1 - A3"), new StringRange("E - Z") };
+
+        assertFalse(instance.testContainsStringTypeInStringRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsStringTypeInStringRangeArr(searchIn, searchFor));
+        assertTrue(instance.testContainsStringTypeInStringRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testCharSequenceInStringRangeArrContains() {
+        CharSequence searchFor = "A2";
+        CharSequence searchFor2 = "T";
+        CharSequence searchForFailed = "A22";
+        StringRange[] searchIn = { new StringRange("A1 - A3"), new StringRange("E - Z") };
+
+        assertFalse(instance.testContainsCharSequenceTypeInStringRangeArr(null, searchFor));
+        assertFalse(instance.testContainsCharSequenceTypeInStringRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharSequenceTypeInStringRangeArr(searchIn, searchFor));
+        assertTrue(instance.testContainsCharSequenceTypeInStringRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
     public void testObjectArrInObjectArrContains() {
         Object[] searchFor = { new ObjectValue("5"), new ObjectValue("1") };
         Object[] searchForFailed = { new ObjectValue("666") };
@@ -2325,6 +2460,117 @@ public class RulesUtilsTest {
     }
 
     @Test
+    public void testContainsIntegerArrInIntRangeArr() {
+        Integer[] searchFor = { 2, null, 77 };
+        Integer[] searchForFailed = { 2, null, 5 };
+        IntRange[] searchIn = { new IntRange("1 - 3"), new IntRange("55 - 100") };
+
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr(null, searchFor));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr(searchIn, null));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr(searchIn, new Integer[] {}));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr(searchIn, new Integer[] { null, null, null }));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsIntegerArrTypeInIntRangeArr(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsIntegerArrInIntRangeArr2() {
+        int[] searchFor = { 2, 77 };
+        int[] searchForFailed = { 2, 5 };
+        IntRange[] searchIn = { new IntRange("1 - 3"), new IntRange("55 - 100") };
+
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr2(searchIn, null));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr2(searchIn, new int[] {}));
+        assertFalse(instance.testContainsIntegerArrTypeInIntRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsIntegerArrTypeInIntRangeArr2(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsDoubleArrInDoubleRangeArr() {
+        Double[] searchFor = { 2d, null, 77d };
+        Double[] searchForFailed = { 2d, null, 5d };
+        DoubleRange[] searchIn = { new DoubleRange("1 - 3"), new DoubleRange("55 - 100") };
+
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(null, searchFor));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, null));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, new Double[] {}));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, new Double[] { null, null, null }));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsDoubleArrInDoubleRangeArr2() {
+        double[] searchFor = { 2d, 77d };
+        double[] searchForFailed = { 2d, 5d };
+        DoubleRange[] searchIn = { new DoubleRange("1 - 3"), new DoubleRange("55 - 100") };
+
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr2(searchIn, null));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr2(searchIn, new double[] {}));
+        assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDoubleArrTypeInDoubleRangeArr2(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsCharacterArrInCharacterRangeArr() {
+        Character[] searchFor = { 'B', null, 'T' };
+        Character[] searchForFailed = { 'B', null, 'D' };
+        CharRange[] searchIn = { new CharRange("A - C"), new CharRange("T - Z") };
+
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr(null, searchFor));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr(searchIn, null));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr(searchIn, new Character[] {}));
+        assertFalse(
+            instance.testContainsCharacterArrTypeInCharRangeArr(searchIn, new Character[] { null, null, null }));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharacterArrTypeInCharRangeArr(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsCharacterArrInCharacterRangeArr2() {
+        char[] searchFor = { 'B', 'T' };
+        char[] searchForFailed = { 'B', 'D' };
+        CharRange[] searchIn = { new CharRange("A - C"), new CharRange("T - Z") };
+
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr2(null, searchFor));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr2(searchIn, null));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr2(searchIn, new char[] {}));
+        assertFalse(instance.testContainsCharacterArrTypeInCharRangeArr2(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharacterArrTypeInCharRangeArr2(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsStringArrInStringRangeArr() {
+        String[] searchFor = { "B", null, "T" };
+        String[] searchForFailed = { "B", null, "D" };
+        StringRange[] searchIn = { new StringRange("A - C"), new StringRange("T - Z") };
+
+        assertFalse(instance.testContainsStringArrTypeInStringRangeArr(null, searchFor));
+        assertFalse(instance.testContainsStringArrTypeInStringRangeArr(searchIn, null));
+        assertFalse(instance.testContainsStringArrTypeInStringRangeArr(searchIn, new String[] {}));
+        assertFalse(instance.testContainsStringArrTypeInStringRangeArr(searchIn, new String[] { null, null, null }));
+        assertFalse(instance.testContainsStringArrTypeInStringRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsStringArrTypeInStringRangeArr(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsCharSequenceArrInStringRangeArr() {
+        CharSequence[] searchFor = { "B", null, "T" };
+        CharSequence[] searchForFailed = { "B", null, "D" };
+        StringRange[] searchIn = { new StringRange("A - C"), new StringRange("T - Z") };
+
+        assertFalse(instance.testContainsCharSequenceArrTypeInStringRangeArr(null, searchFor));
+        assertFalse(instance.testContainsCharSequenceArrTypeInStringRangeArr(searchIn, null));
+        assertFalse(instance.testContainsCharSequenceArrTypeInStringRangeArr(searchIn, new CharSequence[] {}));
+        assertFalse(instance.testContainsCharSequenceArrTypeInStringRangeArr(searchIn,
+            new CharSequence[] { null, null, null }));
+        assertFalse(instance.testContainsCharSequenceArrTypeInStringRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsCharSequenceArrTypeInStringRangeArr(searchIn, searchFor));
+    }
+
+    @Test
     public void testObjectIndexOf() {
         assertEquals(-1, instance.testIndexOfObject(null, 3));
         assertEquals(-1, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, 9));
@@ -2470,8 +2716,8 @@ public class RulesUtilsTest {
 
     @Test
     public void testStringArrIntersection() {
-        String[] searchIn = new String[] { "abc", "def", "ghi", "jkl" };
-        String[] searchFor = new String[] { "def", "jkl" };
+        String[] searchIn = { "abc", "def", "ghi", "jkl" };
+        String[] searchFor = { "def", "jkl" };
         assertArrayEquals(searchFor, instance.testIntersectionStringArr(searchIn, searchFor));
     }
 
