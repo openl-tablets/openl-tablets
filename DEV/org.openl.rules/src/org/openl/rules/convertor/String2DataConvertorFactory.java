@@ -17,8 +17,10 @@ import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.StringRange;
 import org.openl.types.IOpenClass;
 
 /**
@@ -64,6 +66,8 @@ public class String2DataConvertorFactory {
         convertors.put(DoubleValue.class, new String2DoubleValueConvertor());
         convertors.put(IntRange.class, new String2IntRangeConvertor());
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
+        convertors.put(CharRange.class, new String2CharRangeConvertor());
+        convertors.put(StringRange.class, new String2StringRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
         convertors.put(BigDecimalValue.class, new String2BigDecimalValueConverter());

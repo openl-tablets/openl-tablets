@@ -8,8 +8,8 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
-import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.StringRange;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -129,7 +129,7 @@ public class Condition extends FunctionalRow implements ICondition {
             declaringClass,
             signature,
             methodType);
-
+        
         if (!hasFormulas()) {
             return source;
         }
@@ -152,10 +152,9 @@ public class Condition extends FunctionalRow implements ICondition {
                         source.getUri()); // Contains syntax to full code (must be the same as indexed variant)
                 }
 
-                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass())) {
+                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) || StringRange.class.isAssignableFrom(params[0].getType().getInstanceClass())) {
                     return new StringSourceCodeModule(params[0].getName() + ".contains(" + source.getCode() + ")",
                         source.getUri()); // Range syntax to full code (must be the same as indexed variant)
-
                 }
 
                 return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple

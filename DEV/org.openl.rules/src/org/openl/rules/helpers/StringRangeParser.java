@@ -50,18 +50,14 @@ public final class StringRangeParser extends ARangeParser<String> {
         return false;
     }
 
-    public boolean canBeNotStringRange(String value) {
+    public boolean likelyRangeThanString(String value) {
         for (int i = 0; i < 5; i++) {
-            if (i == 1) { //Skip min-max pattern
-                continue;
-            }
             Matcher m = patterns[i].matcher(value);
             if (m.matches()) {
-                return false;
+                return true;
             }
         }
-        Matcher m = patterns[5].matcher(value);
-        return m.matches();
+        return false;
     }
 
     public static StringRangeParser getInstance() {
