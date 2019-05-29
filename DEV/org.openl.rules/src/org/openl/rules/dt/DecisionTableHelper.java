@@ -44,7 +44,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -2404,14 +2403,11 @@ public final class DecisionTableHelper {
                     parameterIsUsed[paramIndex] = true;
                 }
             }
-
             int k = 0;
-            i = numberOfParameters - 1;
-            while (k < numberOfHcondition && i >= 0) {
-                if (!parameterIsUsed[i]) {
+            for (boolean f : parameterIsUsed) {
+                if (!f) {
                     k++;
                 }
-                i--;
             }
 
             if (k < numberOfHcondition) {
@@ -2424,15 +2420,18 @@ public final class DecisionTableHelper {
                 .max()
                 .orElse(0);
 
-            List<DTHeader> fit1 = new ArrayList<>(fit);
+            List<DTHeader> fitWithHConditions = new ArrayList<>(fit);
             int j = 0;
-            for (int w = i + 1; w < numberOfParameters; w++) {
-                if (!parameterIsUsed[w] && j < numberOfHcondition) {
-                    fit1.add(new SimpleDTHeader(w, decisionTable.getSignature().getParameterName(w), column + j, j));
+            int w = 0;
+            while (w < numberOfParameters && j < numberOfHcondition) {
+                if (!parameterIsUsed[w]) {
+                    fitWithHConditions
+                        .add(new SimpleDTHeader(w, decisionTable.getSignature().getParameterName(w), column + j, j));
                     j++;
                 }
+                w++;
             }
-            return Collections.unmodifiableList(fit1);
+            return Collections.unmodifiableList(fitWithHConditions);
         } else {
             return fit;
         }
@@ -2535,10 +2534,10 @@ public final class DecisionTableHelper {
         }
         return Pair.of(true, values);
     }
-    
+
     private static boolean parsableAsRange(String src, Class<?> rangeClass, IBindingContext bindingContext) {
         try {
-                String2DataConvertorFactory.parse(DoubleRange.class, src, bindingContext);
+            String2DataConvertorFactory.parse(DoubleRange.class, src, bindingContext);
         } catch (Exception e) {
             return false;
         }
@@ -2678,7 +2677,9 @@ public final class DecisionTableHelper {
                     if (!f.getKey()) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value, IntRange.class, bindingContext)) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value,
+                        IntRange.class,
+                        bindingContext)) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2697,7 +2698,9 @@ public final class DecisionTableHelper {
                     if (!f.getKey()) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value, DoubleRange.class, bindingContext)) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value,
+                        DoubleRange.class,
+                        bindingContext)) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2713,7 +2716,9 @@ public final class DecisionTableHelper {
                     if (!f.getKey()) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value, CharRange.class, bindingContext)) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsRange(value,
+                        CharRange.class,
+                        bindingContext)) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
