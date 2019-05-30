@@ -2537,7 +2537,7 @@ public final class DecisionTableHelper {
 
     public static boolean parsableAsRange(String src, Class<?> rangeClass, IBindingContext bindingContext) {
         try {
-            String2DataConvertorFactory.parse(DoubleRange.class, src, bindingContext);
+            String2DataConvertorFactory.parse(rangeClass, src, bindingContext);
         } catch (Exception e) {
             return false;
         }
