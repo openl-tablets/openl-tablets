@@ -2521,7 +2521,7 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static Pair<Boolean, String[]> parsableAsArray(String src, Class<?> clazz, IBindingContext bindingContext) {
+    public static Pair<Boolean, String[]> parsableAsArray(String src, Class<?> clazz, IBindingContext bindingContext) {
         String[] values = StringTool.splitAndEscape(src,
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
@@ -2535,7 +2535,7 @@ public final class DecisionTableHelper {
         return Pair.of(true, values);
     }
 
-    private static boolean parsableAsRange(String src, Class<?> rangeClass, IBindingContext bindingContext) {
+    public static boolean parsableAsRange(String src, Class<?> rangeClass, IBindingContext bindingContext) {
         try {
             String2DataConvertorFactory.parse(DoubleRange.class, src, bindingContext);
         } catch (Exception e) {

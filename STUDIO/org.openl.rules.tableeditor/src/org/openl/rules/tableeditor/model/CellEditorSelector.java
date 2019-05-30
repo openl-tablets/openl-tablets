@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
@@ -116,9 +117,11 @@ public class CellEditorSelector {
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass,
                 INumberRange.class) && (!instanceClass.equals(CharRange.class))) {
-                if (ClassUtils.isAssignable(instanceClass, IntRange.class)) {
+                if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
+                    .parsableAsRange(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
-                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class)) {
+                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
+                    .parsableAsRange(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
                 }
             }

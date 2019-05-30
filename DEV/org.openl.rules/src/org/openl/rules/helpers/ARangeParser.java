@@ -4,8 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class ARangeParser<T> {
 

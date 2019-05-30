@@ -42,14 +42,12 @@ public class TableEditorRenderer extends TableViewerRenderer {
         boolean editing = Constants.MODE_EDIT.equals(mode);
 
         String action = editor.getBeforeEditAction();
-        if (action != null) {
-            if (editing) {
-                Boolean successful = (Boolean) FacesUtils.invokeMethodExpression(action);
+        if (action != null && editing) {
+            Boolean successful = (Boolean) FacesUtils.invokeMethodExpression(action);
 
-                if (!successful) {
-                    editor.setEditable(false);
-                    editor.setMode(Constants.MODE_VIEW);
-                }
+            if (!successful) {
+                editor.setEditable(false);
+                editor.setMode(Constants.MODE_VIEW);
             }
         }
     }
