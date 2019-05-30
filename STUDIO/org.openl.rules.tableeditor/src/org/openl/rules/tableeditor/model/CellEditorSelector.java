@@ -113,7 +113,6 @@ public class CellEditorSelector {
                 } else {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
-
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass,
                 INumberRange.class) && (!instanceClass.equals(CharRange.class))) {

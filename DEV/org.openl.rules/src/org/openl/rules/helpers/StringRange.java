@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.openl.binding.impl.NumericComparableString;
 import org.openl.meta.StringValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
@@ -11,8 +12,8 @@ import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 @XmlRootElement
 public class StringRange {
 
-    private final StringRangeValue lowerBound;
-    private final StringRangeValue upperBound;
+    private final NumericComparableString lowerBound;
+    private final NumericComparableString upperBound;
 
     private final BoundType lowerBoundType;
     private final BoundType upperBoundType;
@@ -22,8 +23,8 @@ public class StringRange {
     }
 
     StringRange(String lowerBound, String upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-        this.lowerBound = StringRangeValue.valueOf(lowerBound);
-        this.upperBound = StringRangeValue.valueOf(upperBound);
+        this.lowerBound = NumericComparableString.valueOf(lowerBound);
+        this.upperBound = NumericComparableString.valueOf(upperBound);
         this.lowerBoundType = lowerBoundType;
         this.upperBoundType = upperBoundType;
         validate();
@@ -31,9 +32,9 @@ public class StringRange {
 
     public StringRange(String source) {
         ParseStruct<String> range = StringRangeParser.getInstance().parse(source);
-        this.lowerBound = StringRangeValue.valueOf(range.min);
+        this.lowerBound = NumericComparableString.valueOf(range.min);
         this.lowerBoundType = range.leftBoundType;
-        this.upperBound = StringRangeValue.valueOf(range.max);
+        this.upperBound = NumericComparableString.valueOf(range.max);
         this.upperBoundType = range.rightBoundType;
         validate();
     }
@@ -50,7 +51,7 @@ public class StringRange {
         }
     }
 
-    public StringRangeValue getLowerBound() {
+    public NumericComparableString getLowerBound() {
         return lowerBound;
     }
 
@@ -58,7 +59,7 @@ public class StringRange {
         return lowerBoundType;
     }
 
-    public StringRangeValue getUpperBound() {
+    public NumericComparableString getUpperBound() {
         return upperBound;
     }
 
@@ -66,7 +67,7 @@ public class StringRange {
         return upperBoundType;
     }
 
-    public boolean contains(StringRangeValue s) {
+    public boolean contains(NumericComparableString s) {
         if (s == null) {
             return false;
         }
@@ -83,7 +84,7 @@ public class StringRange {
     }
 
     public boolean contains(CharSequence s) {
-        return contains(s == null ? null : StringRangeValue.valueOf(s.toString()));
+        return contains(s == null ? null : NumericComparableString.valueOf(s.toString()));
     }
 
     @Override

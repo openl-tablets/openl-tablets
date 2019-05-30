@@ -327,10 +327,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 case NE:
                 case NE_ALT:
                 case STRICT_NE:
-                case 123:
-                case 124:
-                case 125:
-                case 126: {
+                case STRING_EQ:
+                case STRING_NE:
+                case STRING_NE_ALT:
+                case 130:
+                case 131:
+                case 132:
+                case 133: {
 
                     break;
                 }
@@ -340,19 +343,19 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                 case EQ:
-                case 123:
-                case 124: {
+                case 130:
+                case 131: {
                     switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case EQ: {
                             x = jj_consume_token(EQ);
                             break;
                         }
-                        case 123: {
-                            x = jj_consume_token(123);
+                        case 130: {
+                            x = jj_consume_token(130);
                             break;
                         }
-                        case 124: {
-                            x = jj_consume_token(124);
+                        case 131: {
+                            x = jj_consume_token(131);
                             break;
                         }
                         default:
@@ -365,8 +368,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 }
                 case NE:
                 case NE_ALT:
-                case 125:
-                case 126: {
+                case 132:
+                case 133: {
                     switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case NE: {
                             x = jj_consume_token(NE);
@@ -376,12 +379,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             x = jj_consume_token(NE_ALT);
                             break;
                         }
-                        case 125: {
-                            x = jj_consume_token(125);
+                        case 132: {
+                            x = jj_consume_token(132);
                             break;
                         }
-                        case 126: {
-                            x = jj_consume_token(126);
+                        case 133: {
+                            x = jj_consume_token(133);
                             break;
                         }
                         default:
@@ -402,8 +405,32 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.strict_ne";
                     break;
                 }
+                case STRING_EQ: {
+                    x = jj_consume_token(STRING_EQ);
+                    func = "op.binary.string_eq";
+                    break;
+                }
+                case STRING_NE:
+                case STRING_NE_ALT: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        case STRING_NE: {
+                            x = jj_consume_token(STRING_NE);
+                            break;
+                        }
+                        case STRING_NE_ALT: {
+                            x = jj_consume_token(STRING_NE_ALT);
+                            break;
+                        }
+                        default:
+                            jj_la1[12] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    func = "op.binary.string_ne";
+                    break;
+                }
                 default:
-                    jj_la1[12] = jj_gen;
+                    jj_la1[13] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -435,18 +462,22 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 case STRICT_LE:
                 case GE:
                 case STRICT_GE:
-                case 127:
-                case 128:
-                case 129:
-                case 130:
-                case 131:
-                case 132:
-                case 133: {
+                case STRING_LE:
+                case STRING_LT:
+                case STRING_GE:
+                case STRING_GT:
+                case 134:
+                case 135:
+                case 136:
+                case 137:
+                case 138:
+                case 139:
+                case 140: {
 
                     break;
                 }
                 default:
-                    jj_la1[13] = jj_gen;
+                    jj_la1[14] = jj_gen;
                     break label_8;
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -455,8 +486,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.lt";
                     break;
                 }
-                case 127: {
-                    x = jj_consume_token(127);
+                case 134: {
+                    x = jj_consume_token(134);
                     func = "op.binary.lt";
                     break;
                 }
@@ -465,8 +496,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.gt";
                     break;
                 }
-                case 128: {
-                    x = jj_consume_token(128);
+                case 135: {
+                    x = jj_consume_token(135);
                     func = "op.binary.gt";
                     break;
                 }
@@ -475,18 +506,18 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.le";
                     break;
                 }
-                case 129: {
-                    x = jj_consume_token(129);
+                case 136: {
+                    x = jj_consume_token(136);
                     func = "op.binary.le";
                     break;
                 }
-                case 130: {
-                    x = jj_consume_token(130);
+                case 137: {
+                    x = jj_consume_token(137);
                     func = "op.binary.le";
                     break;
                 }
-                case 131: {
-                    x = jj_consume_token(131);
+                case 138: {
+                    x = jj_consume_token(138);
                     func = "op.binary.le";
                     break;
                 }
@@ -495,13 +526,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.ge";
                     break;
                 }
-                case 132: {
-                    x = jj_consume_token(132);
+                case 139: {
+                    x = jj_consume_token(139);
                     func = "op.binary.ge";
                     break;
                 }
-                case 133: {
-                    x = jj_consume_token(133);
+                case 140: {
+                    x = jj_consume_token(140);
                     func = "op.binary.ge";
                     break;
                 }
@@ -525,8 +556,28 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     func = "op.binary.strict_le";
                     break;
                 }
+                case STRING_LE: {
+                    x = jj_consume_token(STRING_LE);
+                    func = "op.binary.string_le";
+                    break;
+                }
+                case STRING_LT: {
+                    x = jj_consume_token(STRING_LT);
+                    func = "op.binary.string_lt";
+                    break;
+                }
+                case STRING_GE: {
+                    x = jj_consume_token(STRING_GE);
+                    func = "op.binary.string_ge";
+                    break;
+                }
+                case STRING_GT: {
+                    x = jj_consume_token(STRING_GT);
+                    func = "op.binary.string_gt";
+                    break;
+                }
                 default:
-                    jj_la1[14] = jj_gen;
+                    jj_la1[15] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -550,7 +601,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[15] = jj_gen;
+                    jj_la1[16] = jj_gen;
                     break label_9;
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -570,7 +621,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[16] = jj_gen;
+                    jj_la1[17] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -591,7 +642,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[17] = jj_gen;
+                    jj_la1[18] = jj_gen;
                     break label_10;
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -606,7 +657,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[18] = jj_gen;
+                    jj_la1[19] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -628,7 +679,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[19] = jj_gen;
+                    jj_la1[20] = jj_gen;
                     break label_11;
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -648,7 +699,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[20] = jj_gen;
+                    jj_la1[21] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -714,7 +765,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[21] = jj_gen;
+                jj_la1[22] = jj_gen;
                 if (jj_2_4(2147483647)) {
                     CastExpression();
                 } else {
@@ -740,7 +791,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[22] = jj_gen;
+                            jj_la1[23] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
@@ -788,14 +839,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[23] = jj_gen;
+                        jj_la1[24] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[24] = jj_gen;
+                jj_la1[25] = jj_gen;
                 ;
         }
     }
@@ -867,7 +918,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[25] = jj_gen;
+                jj_la1[26] = jj_gen;
                 if (jj_2_6(2147483647)) {
                     function();
                 } else if (jj_2_7(2)) {
@@ -879,7 +930,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[26] = jj_gen;
+                            jj_la1[27] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
@@ -918,7 +969,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[27] = jj_gen;
+                    jj_la1[28] = jj_gen;
                     break label_14;
             }
             x1 = jj_consume_token(IDENTIFIER);
@@ -976,7 +1027,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[28] = jj_gen;
+                jj_la1[29] = jj_gen;
                 if (jj_2_8(2147483647)) {
                     jj_consume_token(DOT);
                     function();
@@ -994,7 +1045,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[29] = jj_gen;
+                            jj_la1[30] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
@@ -1067,7 +1118,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[30] = jj_gen;
+                jj_la1[31] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1109,7 +1160,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[31] = jj_gen;
+                    jj_la1[32] = jj_gen;
                     break label_15;
             }
             TypeDimension();
@@ -1130,7 +1181,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[32] = jj_gen;
+                jj_la1[33] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1169,7 +1220,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[33] = jj_gen;
+                    jj_la1[34] = jj_gen;
                     break label_17;
             }
         }
@@ -1182,7 +1233,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[34] = jj_gen;
+                    jj_la1[35] = jj_gen;
                     break label_18;
             }
             jj_consume_token(COMMA);
@@ -1196,7 +1247,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[35] = jj_gen;
+                        jj_la1[36] = jj_gen;
                         break label_19;
                 }
             }
@@ -1249,7 +1300,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[36] = jj_gen;
+                            jj_la1[37] = jj_gen;
                             break label_20;
                     }
                     jj_consume_token(COMMA);
@@ -1259,7 +1310,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[37] = jj_gen;
+                jj_la1[38] = jj_gen;
                 ;
         }
         x2 = jj_consume_token(RPAREN);
@@ -1309,7 +1360,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                                     break;
                                 }
                                 default:
-                                    jj_la1[38] = jj_gen;
+                                    jj_la1[39] = jj_gen;
                                     break label_21;
                             }
                             jj_consume_token(COMMA);
@@ -1319,7 +1370,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[39] = jj_gen;
+                        jj_la1[40] = jj_gen;
                         ;
                 }
                 x2 = jj_consume_token(RPAREN);
@@ -1332,7 +1383,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[40] = jj_gen;
+                jj_la1[41] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1379,7 +1430,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                                 break;
                             }
                             default:
-                                jj_la1[41] = jj_gen;
+                                jj_la1[42] = jj_gen;
                                 break label_24;
                         }
                     }
@@ -1388,7 +1439,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[42] = jj_gen;
+                    jj_la1[43] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -1427,66 +1478,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[43] = jj_gen;
+                    jj_la1[44] = jj_gen;
                     ;
             }
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                case 134:
-                case 135:
-                case 136: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                        case 134: {
-                            jj_consume_token(134);
-                            break;
-                        }
-                        case 135: {
-                            jj_consume_token(135);
-                            break;
-                        }
-                        case 136: {
-                            jj_consume_token(136);
-                            break;
-                        }
-                        default:
-                            jj_la1[44] = jj_gen;
-                            jj_consume_token(-1);
-                            throw new ParseException();
-                    }
-                    prefix = "selectall.index";
-                    break;
-                }
-                case 137:
-                case 138:
-                case 139: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                        case 137: {
-                            jj_consume_token(137);
-                            break;
-                        }
-                        case 138: {
-                            jj_consume_token(138);
-                            break;
-                        }
-                        case 139: {
-                            jj_consume_token(139);
-                            break;
-                        }
-                        default:
-                            jj_la1[45] = jj_gen;
-                            jj_consume_token(-1);
-                            throw new ParseException();
-                    }
-                    prefix = "selectfirst.index";
-                    break;
-                }
-                case 140:
                 case 141:
-                case 142: {
+                case 142:
+                case 143: {
                     switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                        case 140: {
-                            jj_consume_token(140);
-                            break;
-                        }
                         case 141: {
                             jj_consume_token(141);
                             break;
@@ -1495,37 +1494,26 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             jj_consume_token(142);
                             break;
                         }
-                        default:
-                            jj_la1[46] = jj_gen;
-                            jj_consume_token(-1);
-                            throw new ParseException();
-                    }
-                    prefix = "orderby.index";
-                    break;
-                }
-                case 143:
-                case 144: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case 143: {
                             jj_consume_token(143);
                             break;
                         }
+                        default:
+                            jj_la1[45] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    prefix = "selectall.index";
+                    break;
+                }
+                case 144:
+                case 145:
+                case 146: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case 144: {
                             jj_consume_token(144);
                             break;
                         }
-                        default:
-                            jj_la1[47] = jj_gen;
-                            jj_consume_token(-1);
-                            throw new ParseException();
-                    }
-                    prefix = "orderdecreasingby.index";
-                    break;
-                }
-                case 145:
-                case 146:
-                case 147: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case 145: {
                             jj_consume_token(145);
                             break;
@@ -1534,21 +1522,22 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             jj_consume_token(146);
                             break;
                         }
+                        default:
+                            jj_la1[46] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    prefix = "selectfirst.index";
+                    break;
+                }
+                case 147:
+                case 148:
+                case 149: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case 147: {
                             jj_consume_token(147);
                             break;
                         }
-                        default:
-                            jj_la1[48] = jj_gen;
-                            jj_consume_token(-1);
-                            throw new ParseException();
-                    }
-                    prefix = "splitby.index";
-                    break;
-                }
-                case 148:
-                case 149: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                         case 148: {
                             jj_consume_token(148);
                             break;
@@ -1558,11 +1547,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[49] = jj_gen;
+                            jj_la1[47] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
-                    prefix = "transform.index";
+                    prefix = "orderby.index";
                     break;
                 }
                 case 150:
@@ -1577,7 +1566,69 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
+                            jj_la1[48] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    prefix = "orderdecreasingby.index";
+                    break;
+                }
+                case 152:
+                case 153:
+                case 154: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        case 152: {
+                            jj_consume_token(152);
+                            break;
+                        }
+                        case 153: {
+                            jj_consume_token(153);
+                            break;
+                        }
+                        case 154: {
+                            jj_consume_token(154);
+                            break;
+                        }
+                        default:
+                            jj_la1[49] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    prefix = "splitby.index";
+                    break;
+                }
+                case 155:
+                case 156: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        case 155: {
+                            jj_consume_token(155);
+                            break;
+                        }
+                        case 156: {
+                            jj_consume_token(156);
+                            break;
+                        }
+                        default:
                             jj_la1[50] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                    prefix = "transform.index";
+                    break;
+                }
+                case 157:
+                case 158: {
+                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        case 157: {
+                            jj_consume_token(157);
+                            break;
+                        }
+                        case 158: {
+                            jj_consume_token(158);
+                            break;
+                        }
+                        default:
+                            jj_la1[51] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
@@ -1585,7 +1636,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[51] = jj_gen;
+                    jj_la1[52] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -1647,7 +1698,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[52] = jj_gen;
+                jj_la1[53] = jj_gen;
                 if (jj_2_16(2147483647)) {
                     DateTimeLiteral();
                 } else {
@@ -1665,7 +1716,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[53] = jj_gen;
+                            jj_la1[54] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
@@ -1686,7 +1737,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[54] = jj_gen;
+                jj_la1[55] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1706,7 +1757,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[55] = jj_gen;
+                        jj_la1[56] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
@@ -1719,7 +1770,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[56] = jj_gen;
+                jj_la1[57] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1752,7 +1803,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[57] = jj_gen;
+                jj_la1[58] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1768,7 +1819,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[58] = jj_gen;
+                jj_la1[59] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1789,7 +1840,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[59] = jj_gen;
+                jj_la1[60] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1804,7 +1855,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[60] = jj_gen;
+                jj_la1[61] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1818,7 +1869,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[61] = jj_gen;
+                jj_la1[62] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1840,7 +1891,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[62] = jj_gen;
+                jj_la1[63] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1866,7 +1917,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[63] = jj_gen;
+                jj_la1[64] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1881,7 +1932,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[64] = jj_gen;
+                jj_la1[65] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1900,7 +1951,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[65] = jj_gen;
+                jj_la1[66] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1916,8 +1967,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 op = "literal.range.unary.prefix.lt";
                 break;
             }
-            case 152: {
-                x = jj_consume_token(152);
+            case 159: {
+                x = jj_consume_token(159);
                 op = "literal.range.unary.prefix.lt";
                 break;
             }
@@ -1931,8 +1982,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 op = "literal.range.unary.prefix.gt";
                 break;
             }
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 op = "literal.range.unary.prefix.gt";
                 break;
             }
@@ -1942,7 +1993,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[66] = jj_gen;
+                jj_la1[67] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1957,7 +2008,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[67] = jj_gen;
+                jj_la1[68] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1978,18 +2029,18 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[68] = jj_gen;
+                jj_la1[69] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 154: {
-                x = jj_consume_token(154);
+            case 161: {
+                x = jj_consume_token(161);
                 op = "literal.range.unary.suffix.or.less";
                 break;
             }
-            case 155: {
-                x = jj_consume_token(155);
+            case 162: {
+                x = jj_consume_token(162);
                 op = "literal.range.unary.suffix.and.more";
                 break;
             }
@@ -1999,7 +2050,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[69] = jj_gen;
+                jj_la1[70] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2021,7 +2072,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[70] = jj_gen;
+                jj_la1[71] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2037,7 +2088,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[71] = jj_gen;
+                jj_la1[72] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2053,7 +2104,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[72] = jj_gen;
+                jj_la1[73] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2068,7 +2119,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[73] = jj_gen;
+                jj_la1[74] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2091,7 +2142,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[74] = jj_gen;
+                jj_la1[75] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2107,7 +2158,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[75] = jj_gen;
+                jj_la1[76] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2123,7 +2174,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[76] = jj_gen;
+                jj_la1[77] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2138,7 +2189,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[77] = jj_gen;
+                jj_la1[78] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2150,29 +2201,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token x;
         boolean including;
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 including = false;
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                    case INTEGER_LITERAL:
-                    case BUSINESS_INTEGER_LITERAL: {
-                        LiteralBI();
-                        break;
-                    }
-                    case MINUS: {
-                        NegLiteralBI();
-                        break;
-                    }
-                    default:
-                        jj_la1[78] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
-                }
-                break;
-            }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case BUSINESS_INTEGER_LITERAL: {
@@ -2188,20 +2219,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(155);
-                including = true;
                 break;
             }
-            default:
-                jj_la1[80] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
-        }
-        syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 152: {
-                x = jj_consume_token(152);
-                including = false;
+            case MINUS:
+            case INTEGER_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case BUSINESS_INTEGER_LITERAL: {
@@ -2213,15 +2235,24 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[81] = jj_gen;
+                        jj_la1[80] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
+                x = jj_consume_token(162);
+                including = true;
                 break;
             }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
+            default:
+                jj_la1[81] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+        }
+        syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
+        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            case 159: {
+                x = jj_consume_token(159);
+                including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case BUSINESS_INTEGER_LITERAL: {
@@ -2237,26 +2268,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(154);
-                including = true;
                 break;
             }
-            default:
-                jj_la1[83] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
-        }
-        syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
-        syntaxBuilder.nop("literal.range.brackets", null, 4);
-    }
-
-    final public void rangeInvertedVerboseBounds() throws ParseException {
-        Token x;
-        boolean including;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 152: {
-                x = jj_consume_token(152);
-                including = false;
+            case MINUS:
+            case INTEGER_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case BUSINESS_INTEGER_LITERAL: {
@@ -2268,15 +2284,30 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[84] = jj_gen;
+                        jj_la1[83] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
+                x = jj_consume_token(161);
+                including = true;
                 break;
             }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
+            default:
+                jj_la1[84] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+        }
+        syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
+        syntaxBuilder.nop("literal.range.brackets", null, 4);
+    }
+
+    final public void rangeInvertedVerboseBounds() throws ParseException {
+        Token x;
+        boolean including;
+        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            case 159: {
+                x = jj_consume_token(159);
+                including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case BUSINESS_INTEGER_LITERAL: {
@@ -2292,19 +2323,39 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(154);
+                break;
+            }
+            case MINUS:
+            case INTEGER_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
+                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    case INTEGER_LITERAL:
+                    case BUSINESS_INTEGER_LITERAL: {
+                        LiteralBI();
+                        break;
+                    }
+                    case MINUS: {
+                        NegLiteralBI();
+                        break;
+                    }
+                    default:
+                        jj_la1[86] = jj_gen;
+                        jj_consume_token(-1);
+                        throw new ParseException();
+                }
+                x = jj_consume_token(161);
                 including = true;
                 break;
             }
             default:
-                jj_la1[86] = jj_gen;
+                jj_la1[87] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
         syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
@@ -2317,7 +2368,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[87] = jj_gen;
+                        jj_la1[88] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
@@ -2337,16 +2388,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[88] = jj_gen;
+                        jj_la1[89] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(155);
+                x = jj_consume_token(162);
                 including = true;
                 break;
             }
             default:
-                jj_la1[89] = jj_gen;
+                jj_la1[90] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2389,7 +2440,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[90] = jj_gen;
+                    jj_la1[91] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -2410,7 +2461,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[91] = jj_gen;
+                jj_la1[92] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2427,7 +2478,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[92] = jj_gen;
+                jj_la1[93] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2448,7 +2499,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[93] = jj_gen;
+                jj_la1[94] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2464,7 +2515,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[94] = jj_gen;
+                jj_la1[95] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2478,7 +2529,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[95] = jj_gen;
+                jj_la1[96] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2501,7 +2552,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[96] = jj_gen;
+                jj_la1[97] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2527,7 +2578,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[97] = jj_gen;
+                jj_la1[98] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2543,7 +2594,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[98] = jj_gen;
+                jj_la1[99] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2563,7 +2614,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[99] = jj_gen;
+                jj_la1[100] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2579,8 +2630,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 op = "literal.range.unary.prefix.lt";
                 break;
             }
-            case 152: {
-                x = jj_consume_token(152);
+            case 159: {
+                x = jj_consume_token(159);
                 op = "literal.range.unary.prefix.lt";
                 break;
             }
@@ -2594,8 +2645,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 op = "literal.range.unary.prefix.gt";
                 break;
             }
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 op = "literal.range.unary.prefix.gt";
                 break;
             }
@@ -2605,7 +2656,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[100] = jj_gen;
+                jj_la1[101] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2621,7 +2672,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[101] = jj_gen;
+                jj_la1[102] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2643,18 +2694,18 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[102] = jj_gen;
+                jj_la1[103] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 154: {
-                x = jj_consume_token(154);
+            case 161: {
+                x = jj_consume_token(161);
                 op = "literal.range.unary.suffix.or.less";
                 break;
             }
-            case 155: {
-                x = jj_consume_token(155);
+            case 162: {
+                x = jj_consume_token(162);
                 op = "literal.range.unary.suffix.and.more";
                 break;
             }
@@ -2664,7 +2715,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[103] = jj_gen;
+                jj_la1[104] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2686,7 +2737,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[104] = jj_gen;
+                jj_la1[105] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2703,7 +2754,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[105] = jj_gen;
+                jj_la1[106] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2719,7 +2770,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[106] = jj_gen;
+                jj_la1[107] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2735,7 +2786,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[107] = jj_gen;
+                jj_la1[108] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2758,7 +2809,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[108] = jj_gen;
+                jj_la1[109] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2775,7 +2826,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[109] = jj_gen;
+                jj_la1[110] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2791,7 +2842,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[110] = jj_gen;
+                jj_la1[111] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2807,7 +2858,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[111] = jj_gen;
+                jj_la1[112] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -2819,31 +2870,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token x;
         boolean including;
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 including = false;
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-                    case INTEGER_LITERAL:
-                    case FLOATING_POINT_LITERAL:
-                    case BUSINESS_INTEGER_LITERAL: {
-                        LiteralFloat();
-                        break;
-                    }
-                    case MINUS: {
-                        NegLiteralFloat();
-                        break;
-                    }
-                    default:
-                        jj_la1[112] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
-                }
-                break;
-            }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case FLOATING_POINT_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case FLOATING_POINT_LITERAL:
@@ -2860,20 +2889,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(155);
-                including = true;
                 break;
             }
-            default:
-                jj_la1[114] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
-        }
-        syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 152: {
-                x = jj_consume_token(152);
-                including = false;
+            case MINUS:
+            case INTEGER_LITERAL:
+            case FLOATING_POINT_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case FLOATING_POINT_LITERAL:
@@ -2886,16 +2907,24 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[115] = jj_gen;
+                        jj_la1[114] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
+                x = jj_consume_token(162);
+                including = true;
                 break;
             }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case FLOATING_POINT_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
+            default:
+                jj_la1[115] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+        }
+        syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
+        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            case 159: {
+                x = jj_consume_token(159);
+                including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case FLOATING_POINT_LITERAL:
@@ -2912,26 +2941,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(154);
-                including = true;
                 break;
             }
-            default:
-                jj_la1[117] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
-        }
-        syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
-        syntaxBuilder.nop("literal.range.brackets", null, 4);
-    }
-
-    final public void rangeInvertedVerboseBoundsFloat() throws ParseException {
-        Token x;
-        boolean including;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 152: {
-                x = jj_consume_token(152);
-                including = false;
+            case MINUS:
+            case INTEGER_LITERAL:
+            case FLOATING_POINT_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case FLOATING_POINT_LITERAL:
@@ -2944,16 +2959,30 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[118] = jj_gen;
+                        jj_la1[117] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
+                x = jj_consume_token(161);
+                including = true;
                 break;
             }
-            case MINUS:
-            case INTEGER_LITERAL:
-            case FLOATING_POINT_LITERAL:
-            case BUSINESS_INTEGER_LITERAL: {
+            default:
+                jj_la1[118] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+        }
+        syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
+        syntaxBuilder.nop("literal.range.brackets", null, 4);
+    }
+
+    final public void rangeInvertedVerboseBoundsFloat() throws ParseException {
+        Token x;
+        boolean including;
+        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            case 159: {
+                x = jj_consume_token(159);
+                including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
                     case FLOATING_POINT_LITERAL:
@@ -2970,19 +2999,41 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(154);
+                break;
+            }
+            case MINUS:
+            case INTEGER_LITERAL:
+            case FLOATING_POINT_LITERAL:
+            case BUSINESS_INTEGER_LITERAL: {
+                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    case INTEGER_LITERAL:
+                    case FLOATING_POINT_LITERAL:
+                    case BUSINESS_INTEGER_LITERAL: {
+                        LiteralFloat();
+                        break;
+                    }
+                    case MINUS: {
+                        NegLiteralFloat();
+                        break;
+                    }
+                    default:
+                        jj_la1[120] = jj_gen;
+                        jj_consume_token(-1);
+                        throw new ParseException();
+                }
+                x = jj_consume_token(161);
                 including = true;
                 break;
             }
             default:
-                jj_la1[120] = jj_gen;
+                jj_la1[121] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
         syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-            case 153: {
-                x = jj_consume_token(153);
+            case 160: {
+                x = jj_consume_token(160);
                 including = false;
                 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
                     case INTEGER_LITERAL:
@@ -2996,7 +3047,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[121] = jj_gen;
+                        jj_la1[122] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
@@ -3018,16 +3069,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                         break;
                     }
                     default:
-                        jj_la1[122] = jj_gen;
+                        jj_la1[123] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                x = jj_consume_token(155);
+                x = jj_consume_token(162);
                 including = true;
                 break;
             }
             default:
-                jj_la1[123] = jj_gen;
+                jj_la1[124] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -3071,7 +3122,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[124] = jj_gen;
+                    jj_la1[125] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -3108,7 +3159,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[125] = jj_gen;
+                jj_la1[126] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -3169,7 +3220,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[126] = jj_gen;
+                    jj_la1[127] = jj_gen;
                     break label_25;
             }
             BlockStatement();
@@ -3189,7 +3240,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[127] = jj_gen;
+                jj_la1[128] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -3273,7 +3324,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[128] = jj_gen;
+                    jj_la1[129] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -3365,7 +3416,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[129] = jj_gen;
+                    jj_la1[130] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -3403,7 +3454,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[130] = jj_gen;
+                jj_la1[131] = jj_gen;
                 ;
         }
         syntaxBuilder.nop("control.if", pos(x1), nodes);
@@ -3455,7 +3506,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[131] = jj_gen;
+                jj_la1[132] = jj_gen;
                 ;
         }
         jj_consume_token(SEMICOLON);
@@ -3493,7 +3544,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[132] = jj_gen;
+                    jj_la1[133] = jj_gen;
                     break label_27;
             }
             jj_consume_token(COMMA);
@@ -3514,7 +3565,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[133] = jj_gen;
+                jj_la1[134] = jj_gen;
                 ;
         }
         if (withInitializer) {
@@ -3535,7 +3586,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[134] = jj_gen;
+                    jj_la1[135] = jj_gen;
                     break label_28;
             }
             TypeDimension();
@@ -3576,7 +3627,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[135] = jj_gen;
+                jj_la1[136] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -3627,7 +3678,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[136] = jj_gen;
+                jj_la1[137] = jj_gen;
                 ;
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -3636,7 +3687,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[137] = jj_gen;
+                jj_la1[138] = jj_gen;
                 ;
         }
         x2 = jj_consume_token(RBRACE);
@@ -3680,7 +3731,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[138] = jj_gen;
+                jj_la1[139] = jj_gen;
                 ;
         }
         jj_consume_token(SEMICOLON);
@@ -3714,7 +3765,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[139] = jj_gen;
+                jj_la1[140] = jj_gen;
                 ;
         }
         jj_consume_token(SEMICOLON);
@@ -3748,7 +3799,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[140] = jj_gen;
+                jj_la1[141] = jj_gen;
                 ;
         }
         jj_consume_token(RPAREN);
@@ -3791,7 +3842,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[141] = jj_gen;
+                    jj_la1[142] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -3809,7 +3860,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[142] = jj_gen;
+                    jj_la1[143] = jj_gen;
                     break label_30;
             }
             jj_consume_token(COMMA);
@@ -3835,7 +3886,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[143] = jj_gen;
+                jj_la1[144] = jj_gen;
                 ;
         }
         OptionalSemiColon();
@@ -3852,7 +3903,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[144] = jj_gen;
+                jj_la1[145] = jj_gen;
                 ;
         }
         OptionalSemiColon();
@@ -3879,7 +3930,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[145] = jj_gen;
+                jj_la1[146] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -3909,7 +3960,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                             break;
                         }
                         default:
-                            jj_la1[146] = jj_gen;
+                            jj_la1[147] = jj_gen;
                             break label_31;
                     }
                     jj_consume_token(COMMA);
@@ -3919,7 +3970,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 break;
             }
             default:
-                jj_la1[147] = jj_gen;
+                jj_la1[148] = jj_gen;
                 ;
         }
         x2 = jj_consume_token(RPAREN);
@@ -3948,7 +3999,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[148] = jj_gen;
+                    jj_la1[149] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -3966,7 +4017,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     break;
                 }
                 default:
-                    jj_la1[149] = jj_gen;
+                    jj_la1[150] = jj_gen;
                     break label_32;
             }
             MethodOrVarDeclaration();
@@ -4500,217 +4551,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         }
     }
 
-    private boolean jj_3R_252() {
-        if (jj_3R_270()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_271()) {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_145() {
-        if (jj_scan_token(GT)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_42() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(134)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(135)) {
-                jj_scanpos = xsp;
-                if (jj_scan_token(136)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_59() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_145()) {
-            jj_scanpos = xsp;
-            if (jj_3R_146()) {
-                return true;
-            }
-        }
-        xsp = jj_scanpos;
-        if (jj_3R_147()) {
-            jj_scanpos = xsp;
-            if (jj_3R_148()) {
-                return true;
-            }
-        }
-        xsp = jj_scanpos;
-        if (jj_3R_149()) {
-            jj_scanpos = xsp;
-            if (jj_3R_150()) {
-                return true;
-            }
-        }
-        xsp = jj_scanpos;
-        if (jj_3R_151()) {
-            jj_scanpos = xsp;
-            if (jj_3R_152()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_207() {
-        if (jj_scan_token(LPAREN)) {
-            return true;
-        }
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_252()) {
-            jj_scanpos = xsp;
-        }
-        if (jj_scan_token(RPAREN)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_41() {
-        if (jj_3R_86()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3_15() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_41()) {
-            jj_scanpos = xsp;
-        }
-        xsp = jj_scanpos;
-        if (jj_3R_42()) {
-            jj_scanpos = xsp;
-            if (jj_3R_43()) {
-                jj_scanpos = xsp;
-                if (jj_3R_44()) {
-                    jj_scanpos = xsp;
-                    if (jj_3R_45()) {
-                        jj_scanpos = xsp;
-                        if (jj_3R_46()) {
-                            jj_scanpos = xsp;
-                            if (jj_3R_47()) {
-                                jj_scanpos = xsp;
-                                if (jj_3R_48()) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_206() {
-        if (jj_3R_84()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_331() {
-        if (jj_scan_token(STRICT_NE)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_200() {
-        if (jj_scan_token(PLUS)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_330() {
-        if (jj_scan_token(STRICT_EQ)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_73() {
-        if (jj_3R_206()) {
-            return true;
-        }
-        if (jj_3R_207()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_210() {
-        if (jj_scan_token(LBRACKET)) {
-            return true;
-        }
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3_15()) {
-            jj_scanpos = xsp;
-        }
-        if (jj_3R_38()) {
-            return true;
-        }
-        if (jj_scan_token(RBRACKET)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_199() {
-        if (jj_scan_token(155)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_198() {
-        if (jj_scan_token(154)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_329() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(68)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(69)) {
-                jj_scanpos = xsp;
-                if (jj_scan_token(125)) {
-                    jj_scanpos = xsp;
-                    if (jj_scan_token(126)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     private boolean jj_3R_197() {
         if (jj_3R_234()) {
             return true;
@@ -4721,6 +4561,18 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_196() {
         if (jj_3R_233()) {
             return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_333() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(104)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(105)) {
+                return true;
+            }
         }
         return false;
     }
@@ -4747,17 +4599,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_328() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(62)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(123)) {
-                jj_scanpos = xsp;
-                if (jj_scan_token(124)) {
-                    return true;
-                }
-            }
+    private boolean jj_3R_332() {
+        if (jj_scan_token(STRING_EQ)) {
+            return true;
         }
         return false;
     }
@@ -4775,38 +4619,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_322() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_328()) {
-            jj_scanpos = xsp;
-            if (jj_3R_329()) {
-                jj_scanpos = xsp;
-                if (jj_3R_330()) {
-                    jj_scanpos = xsp;
-                    if (jj_3R_331()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        if (jj_3R_253()) {
+    private boolean jj_3R_331() {
+        if (jj_scan_token(STRICT_NE)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_208() {
-        if (jj_3R_253()) {
+    private boolean jj_3R_330() {
+        if (jj_scan_token(STRICT_EQ)) {
             return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_322()) {
-                jj_scanpos = xsp;
-                break;
-            }
         }
         return false;
     }
@@ -4860,59 +4682,52 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_314() {
-        if (jj_scan_token(BIT_AND)) {
-            return true;
-        }
-        if (jj_3R_208()) {
-            return true;
+    private boolean jj_3R_329() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(68)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(69)) {
+                jj_scanpos = xsp;
+                if (jj_scan_token(132)) {
+                    jj_scanpos = xsp;
+                    if (jj_scan_token(133)) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
 
     private boolean jj_3R_192() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_372() {
+    private boolean jj_3R_378() {
         if (jj_3R_214()) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_371() {
+    private boolean jj_3R_377() {
         Token xsp;
-        if (jj_3R_372()) {
+        if (jj_3R_378()) {
             return true;
         }
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_372()) {
+            if (jj_3R_378()) {
                 jj_scanpos = xsp;
                 break;
             }
         }
         if (jj_3R_251()) {
             return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_74() {
-        if (jj_3R_208()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_314()) {
-                jj_scanpos = xsp;
-                break;
-            }
         }
         return false;
     }
@@ -4924,8 +4739,50 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
+    private boolean jj_3R_328() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(62)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(130)) {
+                jj_scanpos = xsp;
+                if (jj_scan_token(131)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean jj_3R_190() {
         if (jj_scan_token(LE)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_322() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_328()) {
+            jj_scanpos = xsp;
+            if (jj_3R_329()) {
+                jj_scanpos = xsp;
+                if (jj_3R_330()) {
+                    jj_scanpos = xsp;
+                    if (jj_3R_331()) {
+                        jj_scanpos = xsp;
+                        if (jj_3R_332()) {
+                            jj_scanpos = xsp;
+                            if (jj_3R_333()) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (jj_3R_253()) {
             return true;
         }
         return false;
@@ -4942,18 +4799,23 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_189() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_312() {
-        if (jj_scan_token(BIT_XOR)) {
+    private boolean jj_3R_208() {
+        if (jj_3R_253()) {
             return true;
         }
-        if (jj_3R_74()) {
-            return true;
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_322()) {
+                jj_scanpos = xsp;
+                break;
+            }
         }
         return false;
     }
@@ -4974,21 +4836,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         }
         if (jj_scan_token(RBRACKET)) {
             return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_33() {
-        if (jj_3R_74()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_312()) {
-                jj_scanpos = xsp;
-                break;
-            }
         }
         return false;
     }
@@ -5024,12 +4871,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_369() {
+    private boolean jj_3R_375() {
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3_12()) {
             jj_scanpos = xsp;
-            if (jj_3R_371()) {
+            if (jj_3R_377()) {
                 return true;
             }
         }
@@ -5058,24 +4905,24 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3_2() {
-        if (jj_scan_token(BIT_OR)) {
+    private boolean jj_3R_314() {
+        if (jj_scan_token(BIT_AND)) {
             return true;
         }
-        if (jj_3R_33()) {
+        if (jj_3R_208()) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_281() {
-        if (jj_3R_33()) {
+    private boolean jj_3R_74() {
+        if (jj_3R_208()) {
             return true;
         }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3_2()) {
+            if (jj_3R_314()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -5083,14 +4930,39 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_365() {
-        if (jj_3R_369()) {
+    private boolean jj_3R_371() {
+        if (jj_3R_375()) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_370() {
+    private boolean jj_3R_312() {
+        if (jj_scan_token(BIT_XOR)) {
+            return true;
+        }
+        if (jj_3R_74()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_33() {
+        if (jj_3R_74()) {
+            return true;
+        }
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_312()) {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_376() {
         if (jj_scan_token(COMMA)) {
             return true;
         }
@@ -5114,29 +4986,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_306() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(72)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(7)) {
-                return true;
-            }
-        }
-        if (jj_3R_281()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_368() {
+    private boolean jj_3R_374() {
         if (jj_3R_38()) {
             return true;
         }
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_370()) {
+            if (jj_3R_376()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -5151,17 +5008,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_275() {
-        if (jj_3R_281()) {
+    private boolean jj_3_2() {
+        if (jj_scan_token(BIT_OR)) {
             return true;
         }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_306()) {
-                jj_scanpos = xsp;
-                break;
-            }
+        if (jj_3R_33()) {
+            return true;
         }
         return false;
     }
@@ -5176,13 +5028,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_364() {
+    private boolean jj_3R_370() {
         if (jj_scan_token(LPAREN)) {
             return true;
         }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_368()) {
+        if (jj_3R_374()) {
             jj_scanpos = xsp;
         }
         if (jj_scan_token(RPAREN)) {
@@ -5198,6 +5050,21 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
+    private boolean jj_3R_281() {
+        if (jj_3R_33()) {
+            return true;
+        }
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3_2()) {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
     private boolean jj_3R_325() {
         if (jj_scan_token(NEW)) {
             return true;
@@ -5207,9 +5074,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_364()) {
+        if (jj_3R_370()) {
             jj_scanpos = xsp;
-            if (jj_3R_365()) {
+            if (jj_3R_371()) {
                 return true;
             }
         }
@@ -5230,21 +5097,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_296() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(71)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(6)) {
-                return true;
-            }
-        }
-        if (jj_3R_275()) {
-            return true;
-        }
-        return false;
-    }
-
     private boolean jj_3R_177() {
         if (jj_3R_234()) {
             return true;
@@ -5255,21 +5107,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_176() {
         if (jj_3R_233()) {
             return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_265() {
-        if (jj_3R_275()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_296()) {
-                jj_scanpos = xsp;
-                break;
-            }
         }
         return false;
     }
@@ -5306,8 +5143,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3_1() {
-        if (jj_scan_token(IMPL)) {
+    private boolean jj_3R_306() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(72)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(7)) {
+                return true;
+            }
+        }
+        if (jj_3R_281()) {
             return true;
         }
         return false;
@@ -5323,12 +5168,17 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_294() {
-        if (jj_scan_token(IMPL)) {
+    private boolean jj_3R_275() {
+        if (jj_3R_281()) {
             return true;
         }
-        if (jj_3R_265()) {
-            return true;
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_306()) {
+                jj_scanpos = xsp;
+                break;
+            }
         }
         return false;
     }
@@ -5341,21 +5191,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         while (true) {
             xsp = jj_scanpos;
             if (jj_3R_212()) {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_213() {
-        if (jj_3R_265()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_294()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -5395,17 +5230,38 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_283() {
-        if (jj_scan_token(HOOK)) {
+    private boolean jj_3R_296() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(71)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(6)) {
+                return true;
+            }
+        }
+        if (jj_3R_275()) {
             return true;
         }
-        if (jj_3R_81()) {
+        return false;
+    }
+
+    private boolean jj_3R_265() {
+        if (jj_3R_275()) {
             return true;
         }
-        if (jj_scan_token(COLON)) {
-            return true;
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_296()) {
+                jj_scanpos = xsp;
+                break;
+            }
         }
-        if (jj_3R_81()) {
+        return false;
+    }
+
+    private boolean jj_3_1() {
+        if (jj_scan_token(IMPL)) {
             return true;
         }
         return false;
@@ -5414,18 +5270,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_173() {
         if (jj_scan_token(DDOT)) {
             return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_81() {
-        if (jj_3R_213()) {
-            return true;
-        }
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_283()) {
-            jj_scanpos = xsp;
         }
         return false;
     }
@@ -5439,6 +5283,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
 
     private boolean jj_3R_171() {
         if (jj_scan_token(MINUS)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_294() {
+        if (jj_scan_token(IMPL)) {
+            return true;
+        }
+        if (jj_3R_265()) {
             return true;
         }
         return false;
@@ -5458,31 +5312,21 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_367() {
+    private boolean jj_3R_373() {
         if (jj_3R_201()) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_292() {
-        if (jj_scan_token(REMASSIGN)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_363() {
-        if (jj_scan_token(COMMA)) {
+    private boolean jj_3R_213() {
+        if (jj_3R_265()) {
             return true;
         }
         Token xsp;
-        if (jj_3R_367()) {
-            return true;
-        }
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_367()) {
+            if (jj_3R_294()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -5490,9 +5334,20 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_291() {
-        if (jj_scan_token(XORASSIGN)) {
+    private boolean jj_3R_369() {
+        if (jj_scan_token(COMMA)) {
             return true;
+        }
+        Token xsp;
+        if (jj_3R_373()) {
+            return true;
+        }
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_373()) {
+                jj_scanpos = xsp;
+                break;
+            }
         }
         return false;
     }
@@ -5540,6 +5395,22 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
+    private boolean jj_3R_283() {
+        if (jj_scan_token(HOOK)) {
+            return true;
+        }
+        if (jj_3R_81()) {
+            return true;
+        }
+        if (jj_scan_token(COLON)) {
+            return true;
+        }
+        if (jj_3R_81()) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean jj_3_25() {
         if (jj_3R_58()) {
             return true;
@@ -5557,13 +5428,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_290() {
-        if (jj_scan_token(ORASSIGN)) {
-            return true;
-        }
-        return false;
-    }
-
     private boolean jj_3_24() {
         if (jj_3R_57()) {
             return true;
@@ -5571,14 +5435,19 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_289() {
-        if (jj_scan_token(ANDASSIGN)) {
+    private boolean jj_3R_81() {
+        if (jj_3R_213()) {
             return true;
+        }
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_283()) {
+            jj_scanpos = xsp;
         }
         return false;
     }
 
-    private boolean jj_3R_362() {
+    private boolean jj_3R_368() {
         if (jj_3R_201()) {
             return true;
         }
@@ -5603,13 +5472,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 jj_scanpos = xsp;
                 break;
             }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_288() {
-        if (jj_scan_token(SLASHASSIGN)) {
-            return true;
         }
         return false;
     }
@@ -5652,19 +5514,19 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
             return true;
         }
         Token xsp;
-        if (jj_3R_362()) {
+        if (jj_3R_368()) {
             return true;
         }
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_362()) {
+            if (jj_3R_368()) {
                 jj_scanpos = xsp;
                 break;
             }
         }
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_363()) {
+            if (jj_3R_369()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -5675,15 +5537,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_287() {
-        if (jj_scan_token(STARASSIGN)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_286() {
-        if (jj_scan_token(MINUSASSIGN)) {
+    private boolean jj_3R_292() {
+        if (jj_scan_token(REMASSIGN)) {
             return true;
         }
         return false;
@@ -5696,8 +5551,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_285() {
-        if (jj_scan_token(PLUSASSIGN)) {
+    private boolean jj_3R_291() {
+        if (jj_scan_token(XORASSIGN)) {
             return true;
         }
         return false;
@@ -5729,8 +5584,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_284() {
-        if (jj_scan_token(ASSIGN)) {
+    private boolean jj_3R_290() {
+        if (jj_scan_token(ORASSIGN)) {
             return true;
         }
         return false;
@@ -5745,6 +5600,174 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
 
     private boolean jj_3R_85() {
         if (jj_3R_214()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3_9() {
+        if (jj_scan_token(DOT)) {
+            return true;
+        }
+        if (jj_scan_token(IDENTIFIER)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_289() {
+        if (jj_scan_token(ANDASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3_18() {
+        if (jj_3R_51()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_40() {
+        if (jj_3R_84()) {
+            return true;
+        }
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_85()) {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3_17() {
+        if (jj_3R_50()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_288() {
+        if (jj_scan_token(SLASHASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_131() {
+        if (jj_3R_53()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_82() {
+        if (jj_scan_token(IDENTIFIER)) {
+            return true;
+        }
+        Token xsp;
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3_9()) {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_130() {
+        if (jj_3R_52()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_287() {
+        if (jj_scan_token(STARASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_129() {
+        if (jj_3R_51()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_286() {
+        if (jj_scan_token(MINUSASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_128() {
+        if (jj_3R_50()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_56() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_128()) {
+            jj_scanpos = xsp;
+            if (jj_3R_129()) {
+                jj_scanpos = xsp;
+                if (jj_3R_130()) {
+                    jj_scanpos = xsp;
+                    if (jj_3R_131()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_285() {
+        if (jj_scan_token(PLUSASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_205() {
+        if (jj_3R_39()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_284() {
+        if (jj_scan_token(ASSIGN)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_72() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_204()) {
+            jj_scanpos = xsp;
+            if (jj_3R_205()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_204() {
+        if (jj_scan_token(VOID)) {
             return true;
         }
         return false;
@@ -5786,38 +5809,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3_9() {
-        if (jj_scan_token(DOT)) {
-            return true;
-        }
-        if (jj_scan_token(IDENTIFIER)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3_18() {
-        if (jj_3R_51()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_40() {
-        if (jj_3R_84()) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_85()) {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
     private boolean jj_3R_38() {
         if (jj_3R_81()) {
             return true;
@@ -5826,100 +5817,6 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         xsp = jj_scanpos;
         if (jj_3R_280()) {
             jj_scanpos = xsp;
-        }
-        return false;
-    }
-
-    private boolean jj_3_17() {
-        if (jj_3R_50()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_131() {
-        if (jj_3R_53()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_82() {
-        if (jj_scan_token(IDENTIFIER)) {
-            return true;
-        }
-        Token xsp;
-        while (true) {
-            xsp = jj_scanpos;
-            if (jj_3_9()) {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_130() {
-        if (jj_3R_52()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_129() {
-        if (jj_3R_51()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_128() {
-        if (jj_3R_50()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_56() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_128()) {
-            jj_scanpos = xsp;
-            if (jj_3R_129()) {
-                jj_scanpos = xsp;
-                if (jj_3R_130()) {
-                    jj_scanpos = xsp;
-                    if (jj_3R_131()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_205() {
-        if (jj_3R_39()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_72() {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_204()) {
-            jj_scanpos = xsp;
-            if (jj_3R_205()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_204() {
-        if (jj_scan_token(VOID)) {
-            return true;
         }
         return false;
     }
@@ -5954,7 +5851,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(155)) {
+        if (jj_scan_token(162)) {
             return true;
         }
         return false;
@@ -5990,7 +5887,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_111() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         Token xsp;
@@ -6027,7 +5924,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(154)) {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -6058,7 +5955,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_109() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         Token xsp;
@@ -6135,7 +6032,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(154)) {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -6156,7 +6053,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_107() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         Token xsp;
@@ -6196,7 +6093,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                                 jj_scanpos = xsp;
                                 if (jj_scan_token(45)) {
                                     jj_scanpos = xsp;
-                                    if (jj_scan_token(113)) {
+                                    if (jj_scan_token(120)) {
                                         jj_scanpos = xsp;
                                         if (jj_scan_token(24)) {
                                             jj_scanpos = xsp;
@@ -6254,7 +6151,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(155)) {
+        if (jj_scan_token(162)) {
             return true;
         }
         return false;
@@ -6295,7 +6192,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_105() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         Token xsp;
@@ -6550,7 +6447,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_366() {
+    private boolean jj_3R_372() {
         if (jj_scan_token(IDENTIFIER)) {
             return true;
         }
@@ -6595,7 +6492,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_366()) {
+            if (jj_3R_372()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -6668,7 +6565,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_143() {
-        if (jj_scan_token(155)) {
+        if (jj_scan_token(162)) {
             return true;
         }
         return false;
@@ -6696,7 +6593,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_142() {
-        if (jj_scan_token(154)) {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -6845,7 +6742,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_136() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         return false;
@@ -6888,7 +6785,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_133() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         return false;
@@ -6939,7 +6836,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_361() {
+    private boolean jj_3R_367() {
         if (jj_scan_token(DECR)) {
             return true;
         }
@@ -6953,19 +6850,19 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_360() {
+    private boolean jj_3R_366() {
         if (jj_scan_token(INCR)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_359() {
+    private boolean jj_3R_365() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_360()) {
+        if (jj_3R_366()) {
             jj_scanpos = xsp;
-            if (jj_3R_361()) {
+            if (jj_3R_367()) {
                 return true;
             }
         }
@@ -6997,7 +6894,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         }
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_359()) {
+        if (jj_3R_365()) {
             jj_scanpos = xsp;
         }
         return false;
@@ -7474,7 +7371,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_355() {
+    private boolean jj_3R_361() {
         if (jj_scan_token(EXP)) {
             return true;
         }
@@ -7505,7 +7402,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_355()) {
+            if (jj_3R_361()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -7522,7 +7419,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(155)) {
+        if (jj_scan_token(162)) {
             return true;
         }
         return false;
@@ -7553,7 +7450,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_167() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         Token xsp;
@@ -7567,7 +7464,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_358() {
+    private boolean jj_3R_364() {
         if (jj_scan_token(REM)) {
             return true;
         }
@@ -7584,7 +7481,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_357() {
+    private boolean jj_3R_363() {
         if (jj_scan_token(SLASH)) {
             return true;
         }
@@ -7605,7 +7502,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_356() {
+    private boolean jj_3R_362() {
         if (jj_scan_token(STAR)) {
             return true;
         }
@@ -7621,7 +7518,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(154)) {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -7634,14 +7531,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_352() {
+    private boolean jj_3R_358() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_356()) {
+        if (jj_3R_362()) {
             jj_scanpos = xsp;
-            if (jj_3R_357()) {
+            if (jj_3R_363()) {
                 jj_scanpos = xsp;
-                if (jj_3R_358()) {
+                if (jj_3R_364()) {
                     return true;
                 }
             }
@@ -7673,7 +7570,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_352()) {
+            if (jj_3R_358()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -7682,7 +7579,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_165() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         Token xsp;
@@ -7711,9 +7608,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_268() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(105)) {
+        if (jj_scan_token(112)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(99)) {
+            if (jj_scan_token(106)) {
                 return true;
             }
         }
@@ -7746,14 +7643,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_354() {
+    private boolean jj_3R_360() {
         if (jj_scan_token(MINUS)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_353() {
+    private boolean jj_3R_359() {
         if (jj_scan_token(PLUS)) {
             return true;
         }
@@ -7779,12 +7676,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_348() {
+    private boolean jj_3R_354() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_353()) {
+        if (jj_3R_359()) {
             jj_scanpos = xsp;
-            if (jj_3R_354()) {
+            if (jj_3R_360()) {
                 return true;
             }
         }
@@ -7829,7 +7726,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_348()) {
+            if (jj_3R_354()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -7853,7 +7750,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(154)) {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -7895,7 +7792,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_163() {
-        if (jj_scan_token(152)) {
+        if (jj_scan_token(159)) {
             return true;
         }
         Token xsp;
@@ -7916,14 +7813,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_351() {
+    private boolean jj_3R_357() {
         if (jj_scan_token(RUNSIGNEDSHIFT)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_350() {
+    private boolean jj_3R_356() {
         if (jj_scan_token(RSIGNEDSHIFT)) {
             return true;
         }
@@ -7951,7 +7848,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_349() {
+    private boolean jj_3R_355() {
         if (jj_scan_token(LSHIFT)) {
             return true;
         }
@@ -7974,20 +7871,20 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 return true;
             }
         }
-        if (jj_scan_token(155)) {
+        if (jj_scan_token(162)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_332() {
+    private boolean jj_3R_334() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_349()) {
+        if (jj_3R_355()) {
             jj_scanpos = xsp;
-            if (jj_3R_350()) {
+            if (jj_3R_356()) {
                 jj_scanpos = xsp;
-                if (jj_3R_351()) {
+                if (jj_3R_357()) {
                     return true;
                 }
             }
@@ -8026,7 +7923,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         Token xsp;
         while (true) {
             xsp = jj_scanpos;
-            if (jj_3R_332()) {
+            if (jj_3R_334()) {
                 jj_scanpos = xsp;
                 break;
             }
@@ -8042,7 +7939,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     }
 
     private boolean jj_3R_161() {
-        if (jj_scan_token(153)) {
+        if (jj_scan_token(160)) {
             return true;
         }
         Token xsp;
@@ -8121,15 +8018,15 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_347() {
-        if (jj_scan_token(STRICT_LE)) {
+    private boolean jj_3R_353() {
+        if (jj_scan_token(STRING_GT)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_346() {
-        if (jj_scan_token(STRICT_LT)) {
+    private boolean jj_3R_352() {
+        if (jj_scan_token(STRING_GE)) {
             return true;
         }
         return false;
@@ -8162,15 +8059,15 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_345() {
-        if (jj_scan_token(STRICT_GE)) {
+    private boolean jj_3R_351() {
+        if (jj_scan_token(STRING_LT)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_344() {
-        if (jj_scan_token(STRICT_GT)) {
+    private boolean jj_3R_350() {
+        if (jj_scan_token(STRING_LE)) {
             return true;
         }
         return false;
@@ -8183,8 +8080,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_343() {
-        if (jj_scan_token(133)) {
+    private boolean jj_3R_349() {
+        if (jj_scan_token(STRICT_LE)) {
             return true;
         }
         return false;
@@ -8204,8 +8101,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_342() {
-        if (jj_scan_token(132)) {
+    private boolean jj_3R_348() {
+        if (jj_scan_token(STRICT_LT)) {
             return true;
         }
         return false;
@@ -8228,15 +8125,15 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_341() {
-        if (jj_scan_token(GE)) {
+    private boolean jj_3R_347() {
+        if (jj_scan_token(STRICT_GE)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_340() {
-        if (jj_scan_token(131)) {
+    private boolean jj_3R_346() {
+        if (jj_scan_token(STRICT_GT)) {
             return true;
         }
         return false;
@@ -8245,9 +8142,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_48() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(150)) {
+        if (jj_scan_token(157)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(151)) {
+            if (jj_scan_token(158)) {
                 return true;
             }
         }
@@ -8261,8 +8158,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_339() {
-        if (jj_scan_token(130)) {
+    private boolean jj_3R_345() {
+        if (jj_scan_token(140)) {
             return true;
         }
         return false;
@@ -8275,8 +8172,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_338() {
-        if (jj_scan_token(129)) {
+    private boolean jj_3R_344() {
+        if (jj_scan_token(139)) {
             return true;
         }
         return false;
@@ -8285,9 +8182,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_47() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(148)) {
+        if (jj_scan_token(155)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(149)) {
+            if (jj_scan_token(156)) {
                 return true;
             }
         }
@@ -8327,15 +8224,15 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_337() {
-        if (jj_scan_token(LE)) {
+    private boolean jj_3R_343() {
+        if (jj_scan_token(GE)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_336() {
-        if (jj_scan_token(128)) {
+    private boolean jj_3R_342() {
+        if (jj_scan_token(138)) {
             return true;
         }
         return false;
@@ -8344,11 +8241,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_46() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(145)) {
+        if (jj_scan_token(152)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(146)) {
+            if (jj_scan_token(153)) {
                 jj_scanpos = xsp;
-                if (jj_scan_token(147)) {
+                if (jj_scan_token(154)) {
                     return true;
                 }
             }
@@ -8356,8 +8253,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_335() {
-        if (jj_scan_token(GT)) {
+    private boolean jj_3R_341() {
+        if (jj_scan_token(137)) {
             return true;
         }
         return false;
@@ -8377,8 +8274,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_334() {
-        if (jj_scan_token(127)) {
+    private boolean jj_3R_340() {
+        if (jj_scan_token(136)) {
             return true;
         }
         return false;
@@ -8387,17 +8284,17 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private boolean jj_3R_45() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(143)) {
+        if (jj_scan_token(150)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(144)) {
+            if (jj_scan_token(151)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean jj_3R_333() {
-        if (jj_scan_token(LT)) {
+    private boolean jj_3R_339() {
+        if (jj_scan_token(LE)) {
             return true;
         }
         return false;
@@ -8420,39 +8317,147 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
+    private boolean jj_3R_338() {
+        if (jj_scan_token(135)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_149() {
+        if (jj_scan_token(LT)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_44() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(147)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(148)) {
+                jj_scanpos = xsp;
+                if (jj_scan_token(149)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_337() {
+        if (jj_scan_token(GT)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_148() {
+        if (jj_3R_234()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_147() {
+        if (jj_3R_233()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_336() {
+        if (jj_scan_token(134)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_43() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_scan_token(144)) {
+            jj_scanpos = xsp;
+            if (jj_scan_token(145)) {
+                jj_scanpos = xsp;
+                if (jj_scan_token(146)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_271() {
+        if (jj_scan_token(COMMA)) {
+            return true;
+        }
+        if (jj_3R_270()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_335() {
+        if (jj_scan_token(LT)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_146() {
+        if (jj_scan_token(GE)) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean jj_3R_327() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_333()) {
+        if (jj_3R_335()) {
             jj_scanpos = xsp;
-            if (jj_3R_334()) {
+            if (jj_3R_336()) {
                 jj_scanpos = xsp;
-                if (jj_3R_335()) {
+                if (jj_3R_337()) {
                     jj_scanpos = xsp;
-                    if (jj_3R_336()) {
+                    if (jj_3R_338()) {
                         jj_scanpos = xsp;
-                        if (jj_3R_337()) {
+                        if (jj_3R_339()) {
                             jj_scanpos = xsp;
-                            if (jj_3R_338()) {
+                            if (jj_3R_340()) {
                                 jj_scanpos = xsp;
-                                if (jj_3R_339()) {
+                                if (jj_3R_341()) {
                                     jj_scanpos = xsp;
-                                    if (jj_3R_340()) {
+                                    if (jj_3R_342()) {
                                         jj_scanpos = xsp;
-                                        if (jj_3R_341()) {
+                                        if (jj_3R_343()) {
                                             jj_scanpos = xsp;
-                                            if (jj_3R_342()) {
+                                            if (jj_3R_344()) {
                                                 jj_scanpos = xsp;
-                                                if (jj_3R_343()) {
+                                                if (jj_3R_345()) {
                                                     jj_scanpos = xsp;
-                                                    if (jj_3R_344()) {
+                                                    if (jj_3R_346()) {
                                                         jj_scanpos = xsp;
-                                                        if (jj_3R_345()) {
+                                                        if (jj_3R_347()) {
                                                             jj_scanpos = xsp;
-                                                            if (jj_3R_346()) {
+                                                            if (jj_3R_348()) {
                                                                 jj_scanpos = xsp;
-                                                                if (jj_3R_347()) {
-                                                                    return true;
+                                                                if (jj_3R_349()) {
+                                                                    jj_scanpos = xsp;
+                                                                    if (jj_3R_350()) {
+                                                                        jj_scanpos = xsp;
+                                                                        if (jj_3R_351()) {
+                                                                            jj_scanpos = xsp;
+                                                                            if (jj_3R_352()) {
+                                                                                jj_scanpos = xsp;
+                                                                                if (jj_3R_353()) {
+                                                                                    return true;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -8474,23 +8479,23 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_149() {
-        if (jj_scan_token(LT)) {
+    private boolean jj_3R_145() {
+        if (jj_scan_token(GT)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_44() {
+    private boolean jj_3R_252() {
+        if (jj_3R_270()) {
+            return true;
+        }
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(140)) {
-            jj_scanpos = xsp;
-            if (jj_scan_token(141)) {
+        while (true) {
+            xsp = jj_scanpos;
+            if (jj_3R_271()) {
                 jj_scanpos = xsp;
-                if (jj_scan_token(142)) {
-                    return true;
-                }
+                break;
             }
         }
         return false;
@@ -8511,28 +8516,14 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_148() {
-        if (jj_3R_234()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_147() {
-        if (jj_3R_233()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean jj_3R_43() {
+    private boolean jj_3R_42() {
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_scan_token(137)) {
+        if (jj_scan_token(141)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(138)) {
+            if (jj_scan_token(142)) {
                 jj_scanpos = xsp;
-                if (jj_scan_token(139)) {
+                if (jj_scan_token(143)) {
                     return true;
                 }
             }
@@ -8540,18 +8531,143 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         return false;
     }
 
-    private boolean jj_3R_271() {
-        if (jj_scan_token(COMMA)) {
+    private boolean jj_3R_59() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_145()) {
+            jj_scanpos = xsp;
+            if (jj_3R_146()) {
+                return true;
+            }
+        }
+        xsp = jj_scanpos;
+        if (jj_3R_147()) {
+            jj_scanpos = xsp;
+            if (jj_3R_148()) {
+                return true;
+            }
+        }
+        xsp = jj_scanpos;
+        if (jj_3R_149()) {
+            jj_scanpos = xsp;
+            if (jj_3R_150()) {
+                return true;
+            }
+        }
+        xsp = jj_scanpos;
+        if (jj_3R_151()) {
+            jj_scanpos = xsp;
+            if (jj_3R_152()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_207() {
+        if (jj_scan_token(LPAREN)) {
             return true;
         }
-        if (jj_3R_270()) {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_252()) {
+            jj_scanpos = xsp;
+        }
+        if (jj_scan_token(RPAREN)) {
             return true;
         }
         return false;
     }
 
-    private boolean jj_3R_146() {
-        if (jj_scan_token(GE)) {
+    private boolean jj_3R_41() {
+        if (jj_3R_86()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3_15() {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_41()) {
+            jj_scanpos = xsp;
+        }
+        xsp = jj_scanpos;
+        if (jj_3R_42()) {
+            jj_scanpos = xsp;
+            if (jj_3R_43()) {
+                jj_scanpos = xsp;
+                if (jj_3R_44()) {
+                    jj_scanpos = xsp;
+                    if (jj_3R_45()) {
+                        jj_scanpos = xsp;
+                        if (jj_3R_46()) {
+                            jj_scanpos = xsp;
+                            if (jj_3R_47()) {
+                                jj_scanpos = xsp;
+                                if (jj_3R_48()) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_206() {
+        if (jj_3R_84()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_200() {
+        if (jj_scan_token(PLUS)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_73() {
+        if (jj_3R_206()) {
+            return true;
+        }
+        if (jj_3R_207()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_210() {
+        if (jj_scan_token(LBRACKET)) {
+            return true;
+        }
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3_15()) {
+            jj_scanpos = xsp;
+        }
+        if (jj_3R_38()) {
+            return true;
+        }
+        if (jj_scan_token(RBRACKET)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_199() {
+        if (jj_scan_token(162)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_198() {
+        if (jj_scan_token(161)) {
             return true;
         }
         return false;
@@ -8568,18 +8684,20 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     private Token jj_scanpos, jj_lastpos;
     private int jj_la;
     private int jj_gen;
-    final private int[] jj_la1 = new int[150];
+    final private int[] jj_la1 = new int[151];
     static private int[] jj_la1_0;
     static private int[] jj_la1_1;
     static private int[] jj_la1_2;
     static private int[] jj_la1_3;
     static private int[] jj_la1_4;
+    static private int[] jj_la1_5;
     static {
         jj_la1_init_0();
         jj_la1_init_1();
         jj_la1_init_2();
         jj_la1_init_3();
         jj_la1_init_4();
+        jj_la1_init_5();
     }
 
     private static void jj_la1_init_0() {
@@ -8590,6 +8708,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x40,
                 0x80,
                 0x80,
+                0x0,
                 0x0,
                 0x0,
                 0x0,
@@ -8748,6 +8867,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0xc0000000,
                 0x40000000,
                 0x0,
+                0x0,
                 0xc0000000,
                 0x3c00000,
                 0x3c00000,
@@ -8901,6 +9021,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x70,
                 0x0,
                 0x30,
+                0x0,
                 0x70,
                 0xf,
                 0xf,
@@ -9051,12 +9172,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x78000000,
-                0x18000000,
-                0x60000000,
-                0x78000000,
-                0x80000000,
-                0x80000000,
+                0x380,
+                0x0,
+                0x0,
+                0x300,
+                0x380,
+                0x78,
+                0x78,
                 0x0,
                 0x0,
                 0x0,
@@ -9064,27 +9186,24 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x13be08,
+                0x9df0400,
                 0x0,
                 0x0,
-                0x1be08,
-                0x20000,
-                0x20000,
+                0xdf0400,
+                0x1000000,
+                0x1000000,
                 0x0,
                 0x0,
-                0x3be08,
+                0x1df0400,
                 0x0,
-                0x20000,
-                0x20000,
+                0x1000000,
+                0x1000000,
                 0x0,
-                0x20000,
+                0x1000000,
                 0x0,
-                0x13be08,
+                0x9df0400,
                 0x0,
-                0x13be08,
-                0x0,
-                0x0,
-                0x0,
+                0x9df0400,
                 0x0,
                 0x0,
                 0x0,
@@ -9094,104 +9213,107 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x1a608,
-                0x1800,
-                0x408,
-                0x208,
-                0x608,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x408,
-                0x0,
-                0x408,
-                0x408,
-                0x0,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x0,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x408,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x608,
-                0x0,
-                0x608,
-                0x608,
-                0x0,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x0,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x608,
-                0x0,
-                0x13be08,
-                0x0,
-                0x13be08,
-                0x13be08,
-                0x0,
-                0x13be08,
                 0x0,
                 0x0,
                 0x0,
-                0x13be08,
-                0x13be08,
+                0xd30400,
+                0xc0000,
+                0x20400,
+                0x10400,
+                0x30400,
                 0x0,
-                0x13be08,
-                0x13be08,
-                0x13be08,
-                0x13be08,
+                0x20400,
                 0x0,
-                0x20000,
-                0x20000,
+                0x20400,
+                0x0,
+                0x20400,
+                0x0,
+                0x20400,
+                0x20400,
+                0x0,
+                0x20400,
+                0x20400,
                 0x0,
                 0x0,
-                0x20000,
-                0x20000,
-                0x20000, };
+                0x20400,
+                0x0,
+                0x20400,
+                0x0,
+                0x20400,
+                0x0,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x20400,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x30400,
+                0x0,
+                0x30400,
+                0x30400,
+                0x0,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x0,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x30400,
+                0x0,
+                0x9df0400,
+                0x0,
+                0x9df0400,
+                0x9df0400,
+                0x0,
+                0x9df0400,
+                0x0,
+                0x0,
+                0x0,
+                0x9df0400,
+                0x9df0400,
+                0x0,
+                0x9df0400,
+                0x9df0400,
+                0x9df0400,
+                0x9df0400,
+                0x0,
+                0x1000000,
+                0x1000000,
+                0x0,
+                0x0,
+                0x1000000,
+                0x1000000,
+                0x1000000, };
     }
 
     private static void jj_la1_init_4() {
@@ -9204,18 +9326,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
+                0x3c,
+                0xc,
+                0x30,
                 0x0,
-                0x0,
-                0x0,
-                0x0,
-                0x3f,
-                0x3f,
-                0x0,
-                0x0,
-                0x0,
-                0x0,
-                0x0,
-                0x0,
+                0x3c,
+                0x1fc0,
+                0x1fc0,
                 0x0,
                 0x0,
                 0x0,
@@ -9239,14 +9356,20 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x1c0,
-                0xe00,
-                0x7000,
-                0x18000,
-                0xe0000,
-                0x300000,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0xe000,
+                0x70000,
+                0x380000,
                 0xc00000,
-                0xffffc0,
+                0x7000000,
+                0x18000000,
+                0x60000000,
+                0x7fffe000,
                 0x0,
                 0x0,
                 0x0,
@@ -9261,10 +9384,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x3000000,
-                0x0,
-                0x0,
-                0xc000000,
+                0x80000000,
                 0x0,
                 0x0,
                 0x0,
@@ -9275,30 +9395,16 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x2000000,
-                0x0,
-                0x0,
-                0x1000000,
-                0x0,
-                0x0,
-                0x1000000,
-                0x0,
-                0x0,
-                0x2000000,
                 0x0,
                 0x0,
                 0x0,
                 0x0,
                 0x0,
                 0x0,
+                0x80000000,
                 0x0,
                 0x0,
-                0x0,
-                0x0,
-                0x3000000,
-                0x0,
-                0x0,
-                0xc000000,
+                0x80000000,
                 0x0,
                 0x0,
                 0x0,
@@ -9309,16 +9415,187 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                 0x0,
                 0x0,
                 0x0,
-                0x2000000,
                 0x0,
                 0x0,
-                0x1000000,
+                0x0,
+                0x80000000,
                 0x0,
                 0x0,
-                0x1000000,
                 0x0,
                 0x0,
-                0x2000000,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x80000000,
+                0x0,
+                0x0,
+                0x80000000,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0, };
+    }
+
+    private static void jj_la1_init_5() {
+        jj_la1_5 = new int[] { 0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
+                0x0,
+                0x0,
+                0x6,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
+                0x0,
+                0x0,
+                0x6,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x0,
+                0x1,
                 0x0,
                 0x0,
                 0x0,
@@ -9367,7 +9644,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9391,7 +9668,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9406,7 +9683,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9430,7 +9707,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9444,7 +9721,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9458,7 +9735,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             jj_la1[i] = -1;
         }
         for (int i = 0; i < jj_2_rtns.length; i++) {
@@ -9612,12 +9889,12 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     /** Generate ParseException. */
     public ParseException generateParseException() {
         jj_expentries.clear();
-        boolean[] la1tokens = new boolean[156];
+        boolean[] la1tokens = new boolean[163];
         if (jj_kind >= 0) {
             la1tokens[jj_kind] = true;
             jj_kind = -1;
         }
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 151; i++) {
             if (jj_la1[i] == jj_gen) {
                 for (int j = 0; j < 32; j++) {
                     if ((jj_la1_0[i] & (1 << j)) != 0) {
@@ -9635,10 +9912,13 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
                     if ((jj_la1_4[i] & (1 << j)) != 0) {
                         la1tokens[128 + j] = true;
                     }
+                    if ((jj_la1_5[i] & (1 << j)) != 0) {
+                        la1tokens[160 + j] = true;
+                    }
                 }
             }
         }
-        for (int i = 0; i < 156; i++) {
+        for (int i = 0; i < 163; i++) {
             if (la1tokens[i]) {
                 jj_expentry = new int[1];
                 jj_expentry[0] = i;

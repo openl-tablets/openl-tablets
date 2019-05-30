@@ -3,6 +3,7 @@ package org.openl.rules.helpers;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.binding.impl.NumericComparableString;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class StringRangeTest {
@@ -250,7 +251,7 @@ public class StringRangeTest {
     @Test
     public void testNulls() {
         StringRange range = new StringRange(">=AA <=ZZ");
-        assertFalse(range.contains((StringRangeValue) null));
+        assertFalse(range.contains((NumericComparableString) null));
     }
 
     @Test

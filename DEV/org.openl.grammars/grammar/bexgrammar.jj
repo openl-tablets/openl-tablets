@@ -320,6 +320,13 @@ TOKEN :
 | < RUNSIGNEDSHIFTASSIGN : ">>>=" >
 | < EXP : "**" >
 | < IMPL : "->" >
+| < STRING_LE : "string<=" >
+| < STRING_LT : "string<" >
+| < STRING_GE : "string>=" >
+| < STRING_GT : "string>" >
+| < STRING_EQ : "string==" >
+| < STRING_NE : "string!=" >
+| < STRING_NE_ALT : "string<>" > 
 }
 
 /* JAVA LITERALS */
@@ -743,6 +750,14 @@ void EqualityExpression() :
       {
         func = "op.binary.strict_ne";
       }
+    | x = < STRING_EQ >
+      {
+        func = "op.binary.string_eq";
+      }
+    | (x = < STRING_NE > | x = < STRING_NE_ALT >)
+      {
+        func = "op.binary.string_ne";
+      }
     )
     RelationalExpression()
     {
@@ -834,6 +849,22 @@ void RelationalExpression() :
     | x = < STRICT_LE >
       {
         func = "op.binary.strict_le";
+      }
+    | x = < STRING_LE >
+      {
+        func = "op.binary.string_le";
+      }
+    | x = < STRING_LT >
+      {
+        func = "op.binary.string_lt";
+      }
+    | x = < STRING_GE >
+      {
+        func = "op.binary.string_ge";
+      }
+    | x = < STRING_GT >
+      {
+        func = "op.binary.string_gt";
       }
     )
     ShiftExpression()

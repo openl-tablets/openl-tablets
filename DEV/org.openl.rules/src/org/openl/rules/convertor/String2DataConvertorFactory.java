@@ -55,6 +55,7 @@ public class String2DataConvertorFactory {
         convertors.put(Float.class, new String2FloatConvertor());
         convertors.put(Double.class, new String2DoubleConvertor());
         convertors.put(Character.class, new String2CharConvertor());
+        convertors.put(CharSequence.class, new String2StringConvertor());
         convertors.put(Boolean.class, new String2BooleanConvertor());
         convertors.put(Long.class, new String2LongConvertor());
 

@@ -1,17 +1,24 @@
-package org.openl.rules.helpers;
+package org.openl.binding.impl;
 
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
-public class StringRangeValue implements Comparable<StringRangeValue> {
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class NumericComparableString implements Comparable<NumericComparableString> {
     private static final Pattern NUMBERS = Pattern.compile("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
 
     private final String[] splits;
     private final BigInteger[] splitsNumbers;
     private final String value;
 
-    public static StringRangeValue valueOf(String value) {
-        return new StringRangeValue(value);
+    public static NumericComparableString valueOf(String value) {
+        return new NumericComparableString(value);
+    }
+
+    public static NumericComparableString valueOf(CharSequence value) {
+        return new NumericComparableString(value.toString());
     }
 
     private void initSplitsNumbers() {
@@ -24,7 +31,7 @@ public class StringRangeValue implements Comparable<StringRangeValue> {
         }
     }
 
-    private StringRangeValue(String value) {
+    private NumericComparableString(String value) {
         if (value == null) {
             throw new IllegalArgumentException(
                 "Error initializing StringRangeValue class. Parameter \"value\" can't be null.");
@@ -36,7 +43,7 @@ public class StringRangeValue implements Comparable<StringRangeValue> {
     }
 
     @Override
-    public int compareTo(StringRangeValue v) {
+    public int compareTo(NumericComparableString v) {
         int length = Math.min(splits.length, v.splits.length);
 
         for (int i = 0; i < length; i++) {
@@ -55,6 +62,31 @@ public class StringRangeValue implements Comparable<StringRangeValue> {
 
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NumericComparableString other = (NumericComparableString) obj;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (this.compareTo(other) != 0)
+            return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
     }
 
     @Override

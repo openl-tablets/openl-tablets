@@ -195,47 +195,61 @@ public interface BExGrammarConstants {
     /** RegularExpression Id. */
     int IMPL = 98;
     /** RegularExpression Id. */
-    int INTEGER_LITERAL = 99;
+    int STRING_LE = 99;
     /** RegularExpression Id. */
-    int DECIMAL_LITERAL = 100;
+    int STRING_LT = 100;
     /** RegularExpression Id. */
-    int HEX_LITERAL = 101;
+    int STRING_GE = 101;
     /** RegularExpression Id. */
-    int OCTAL_LITERAL = 102;
+    int STRING_GT = 102;
     /** RegularExpression Id. */
-    int FP_LITERAL1 = 103;
+    int STRING_EQ = 103;
     /** RegularExpression Id. */
-    int FP_LITERAL2 = 104;
+    int STRING_NE = 104;
     /** RegularExpression Id. */
-    int FLOATING_POINT_LITERAL = 105;
+    int STRING_NE_ALT = 105;
     /** RegularExpression Id. */
-    int BUSINESS_INTEGER_LITERAL = 106;
+    int INTEGER_LITERAL = 106;
     /** RegularExpression Id. */
-    int DATE_FORMAT_LITERAL_4_2_2 = 107;
+    int DECIMAL_LITERAL = 107;
     /** RegularExpression Id. */
-    int TIME_FORMAT_LITERAL = 108;
+    int HEX_LITERAL = 108;
     /** RegularExpression Id. */
-    int PERCENT_LITERAL = 109;
+    int OCTAL_LITERAL = 109;
     /** RegularExpression Id. */
-    int EXPONENT = 110;
+    int FP_LITERAL1 = 110;
     /** RegularExpression Id. */
-    int CHARACTER_LITERAL = 111;
+    int FP_LITERAL2 = 111;
     /** RegularExpression Id. */
-    int STRING_LITERAL = 112;
+    int FLOATING_POINT_LITERAL = 112;
     /** RegularExpression Id. */
-    int IDENTIFIER = 113;
+    int BUSINESS_INTEGER_LITERAL = 113;
     /** RegularExpression Id. */
-    int LETTER = 114;
+    int DATE_FORMAT_LITERAL_4_2_2 = 114;
     /** RegularExpression Id. */
-    int DIGIT = 115;
+    int TIME_FORMAT_LITERAL = 115;
     /** RegularExpression Id. */
-    int RANGE_VARIABLE = 116;
+    int PERCENT_LITERAL = 116;
     /** RegularExpression Id. */
-    int SINGLE_LINE_COMMENT = 119;
+    int EXPONENT = 117;
     /** RegularExpression Id. */
-    int FORMAL_COMMENT = 120;
+    int CHARACTER_LITERAL = 118;
     /** RegularExpression Id. */
-    int MULTI_LINE_COMMENT = 121;
+    int STRING_LITERAL = 119;
+    /** RegularExpression Id. */
+    int IDENTIFIER = 120;
+    /** RegularExpression Id. */
+    int LETTER = 121;
+    /** RegularExpression Id. */
+    int DIGIT = 122;
+    /** RegularExpression Id. */
+    int RANGE_VARIABLE = 123;
+    /** RegularExpression Id. */
+    int SINGLE_LINE_COMMENT = 126;
+    /** RegularExpression Id. */
+    int FORMAL_COMMENT = 127;
+    /** RegularExpression Id. */
+    int MULTI_LINE_COMMENT = 128;
 
     /** Lexical state. */
     int DEFAULT = 0;
@@ -344,6 +358,13 @@ public interface BExGrammarConstants {
             "\">>>=\"",
             "\"**\"",
             "\"->\"",
+            "\"string<=\"",
+            "\"string<\"",
+            "\"string>=\"",
+            "\"string>\"",
+            "\"string==\"",
+            "\"string!=\"",
+            "\"string<>\"",
             "<INTEGER_LITERAL>",
             "<DECIMAL_LITERAL>",
             "<HEX_LITERAL>",
@@ -362,12 +383,12 @@ public interface BExGrammarConstants {
             "<LETTER>",
             "<DIGIT>",
             "<RANGE_VARIABLE>",
-            "<token of kind 117>",
+            "<token of kind 124>",
             "\"/*\"",
             "<SINGLE_LINE_COMMENT>",
             "\"*/\"",
             "\"*/\"",
-            "<token of kind 122>",
+            "<token of kind 129>",
             "\"equals to\"",
             "\"is same as\"",
             "\"does not equal to\"",

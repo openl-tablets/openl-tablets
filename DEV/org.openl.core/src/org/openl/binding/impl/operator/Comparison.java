@@ -2,6 +2,9 @@ package org.openl.binding.impl.operator;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Objects;
+
+import org.openl.binding.impl.NumericComparableString;
 
 /**
  * Contains comparison operators for:
@@ -305,6 +308,71 @@ public class Comparison {
 
     public static <T extends Comparable<T>> Boolean le(T x, T y) {
         return ge(y, x);
+    }
+
+    /* String operators */
+    public static boolean string_eq(CharSequence x, CharSequence y) {
+        return Objects.equals(x, y);
+    }
+
+    public static boolean string_eq(String x, String y) {
+        return Objects.equals(x, y);
+    }
+
+    public static boolean string_ne(CharSequence x, CharSequence y) {
+        return !string_eq(x, y);
+    }
+
+    public static boolean string_ne(String x, String y) {
+        return !string_eq(x, y);
+    }
+
+    public static boolean string_lt(CharSequence x, CharSequence y) {
+        if (x == y) {
+            return false;
+        }
+        return x == null || y != null && NumericComparableString.valueOf(x)
+            .compareTo(NumericComparableString.valueOf(y)) < 0;
+    }
+
+    public static boolean string_lt(String x, String y) {
+        if (Objects.equals(x, y)) {
+            return false;
+        }
+        return x == null || y != null && NumericComparableString.valueOf(x)
+            .compareTo(NumericComparableString.valueOf(y)) < 0;
+    }
+
+    public static boolean string_le(CharSequence x, CharSequence y) {
+        if (x == y) {
+            return true;
+        }
+        return x == null || y != null && NumericComparableString.valueOf(x)
+            .compareTo(NumericComparableString.valueOf(y)) <= 0;
+    }
+
+    public static boolean string_le(String x, String y) {
+        if (Objects.equals(x, y)) {
+            return true;
+        }
+        return x == null || y != null && NumericComparableString.valueOf(x)
+            .compareTo(NumericComparableString.valueOf(y)) <= 0;
+    }
+
+    public static boolean string_ge(CharSequence x, CharSequence y) {
+        return string_le(y, x);
+    }
+
+    public static boolean string_ge(String x, String y) {
+        return string_le(y, x);
+    }
+
+    public static boolean string_gt(CharSequence x, CharSequence y) {
+        return string_lt(y, x);
+    }
+
+    public static boolean string_gt(String x, String y) {
+        return string_lt(y, x);
     }
 
     /* Strict operators */
