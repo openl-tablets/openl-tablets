@@ -134,11 +134,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         // This reflection implementation for JBoss vfs
         URLConnection conn = resourceURL.openConnection();
         Object content = conn.getContent();
-        Class<?> clazz = content.getClass();
+        String urlString = resourceURL.toString();
+        urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
+        Object jarFile = new URL(urlString).openConnection().getContent();
+        Class<?> clazz = jarFile.getClass();
         if ("org.jboss.vfs.VirtualFile".equals(clazz.getName())) {
-            String urlString = resourceURL.toString();
-            urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
-            Object jarFile = new URL(urlString).openConnection().getContent();
             java.lang.reflect.Method getChildrenMethod = clazz.getMethod("getChildren");
             List<?> children = (List<?>) getChildrenMethod.invoke(jarFile);
             if (!children.isEmpty()) {
