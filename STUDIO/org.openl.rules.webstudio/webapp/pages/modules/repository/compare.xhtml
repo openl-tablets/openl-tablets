@@ -22,7 +22,10 @@
       <h:selectBooleanCheckbox value="#{repositoryDiffController.showEqualElements}" />
       <h:commandButton id="compareBtn" value="Compare" action="#{repositoryDiffController.compare}"
         disabled="#{empty repositoryDiffController.excelFilesUW or empty repositoryDiffController.excelFilesRepo}"
-        style="margin-left: 10px;" />
+                       style="margin-left: 10px;">
+          <f:actionListener binding="#{repositoryDiffController.resetTreeSelection('newTree')}"/>
+          <f:ajax execute="@form" render="@form :diffTreeForm"/>
+      </h:commandButton>
       <table style="border: 1px dashed rgb(170,170,170); margin-top: 10px">
         <tr>
           <td style="width: 448px;">
