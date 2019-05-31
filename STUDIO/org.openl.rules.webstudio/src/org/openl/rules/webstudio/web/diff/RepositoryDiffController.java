@@ -7,6 +7,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -23,6 +24,8 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.richfaces.component.UITree;
+import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,6 +296,16 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
 
         return null;
+    }
+
+    /**
+     * Reset current selection in UITree to prevent NPE while rendering a new tree
+     */
+    public void resetTreeSelection(String componentId) {
+        UIComponent treeComponent = RichFunction.findComponent(componentId);
+        if (treeComponent instanceof UITree) {
+            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        }
     }
 
     @PreDestroy
