@@ -14,7 +14,7 @@ public class IntRangeParser {
 
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
-    private static final String INT_PATTERN = "\\$?(-?(?:\\d{1,10},){0,10}\\d{1,10})([KMB]?)";
+    private static final String INT_PATTERN = "\\$?(-?(?:\\d{1,19},){0,19}\\d{1,19})([KMB]?)";
 
     protected final RangeParser[] PARSERS = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
@@ -31,7 +31,7 @@ public class IntRangeParser {
         return INSTANCE;
     }
 
-    private static final int MAX_RANGE_POSSIBLE_LENGTH = 50;
+    private static final int MAX_RANGE_POSSIBLE_LENGTH = 100;
 
     public RangeWithBounds parse(String range) {
         if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {
@@ -70,7 +70,7 @@ public class IntRangeParser {
             minNumber = maxNumber = number;
             minMultiplier = maxMultiplier = multiplier;
 
-            int value = parseIntWithMultiplier(number, multiplier);
+            long value = parseIntWithMultiplier(number, multiplier);
 
             return new RangeWithBounds(value, value);
         }
@@ -90,7 +90,7 @@ public class IntRangeParser {
             String prefix = matcher.group(1);
             String number = matcher.group(2);
             String multiplier = matcher.group(3);
-            int value = parseIntWithMultiplier(number, multiplier);
+            long value = parseIntWithMultiplier(number, multiplier);
 
             if ("<".equals(prefix) || "less than".equals(prefix)) {
                 maxNumber = number;
@@ -140,7 +140,7 @@ public class IntRangeParser {
 
             String number = matcher.group(1);
             String multiplier = matcher.group(2);
-            int value = parseIntWithMultiplier(number, multiplier);
+            long value = parseIntWithMultiplier(number, multiplier);
 
             String suffix = matcher.group(3);
             if ("or less".equals(suffix)) {
@@ -175,11 +175,11 @@ public class IntRangeParser {
 
             minNumber = matcher.group(1);
             minMultiplier = matcher.group(2);
-            int min = parseIntWithMultiplier(minNumber, minMultiplier);
+            long min = parseIntWithMultiplier(minNumber, minMultiplier);
             String separator = matcher.group(3);
             maxNumber = matcher.group(4);
             maxMultiplier = matcher.group(5);
-            int max = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long max = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
             RangeWithBounds.BoundType boundType = "…".equals(separator) || "..."
                 .equals(separator) ? RangeWithBounds.BoundType.EXCLUDING : RangeWithBounds.BoundType.INCLUDING;
@@ -202,10 +202,10 @@ public class IntRangeParser {
 
             minNumber = matcher.group(2);
             minMultiplier = matcher.group(3);
-            int min = parseIntWithMultiplier(minNumber, minMultiplier);
+            long min = parseIntWithMultiplier(minNumber, minMultiplier);
             maxNumber = matcher.group(5);
             maxMultiplier = matcher.group(6);
-            int max = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long max = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
             RangeWithBounds.BoundType minBound = "[".equals(matcher.group(1)) ? RangeWithBounds.BoundType.INCLUDING
                                                                               : RangeWithBounds.BoundType.EXCLUDING;
@@ -230,10 +230,10 @@ public class IntRangeParser {
 
             minNumber = matcher.group(2);
             minMultiplier = matcher.group(3);
-            int first = parseIntWithMultiplier(minNumber, minMultiplier);
+            long first = parseIntWithMultiplier(minNumber, minMultiplier);
             maxNumber = matcher.group(5);
             maxMultiplier = matcher.group(6);
-            int second = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long second = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
             String firstBound = matcher.group(1);
             String secondBound = matcher.group(4);
@@ -257,10 +257,10 @@ public class IntRangeParser {
 
             minNumber = matcher.group(2);
             minMultiplier = matcher.group(3);
-            int first = parseIntWithMultiplier(minNumber, minMultiplier);
+            long first = parseIntWithMultiplier(minNumber, minMultiplier);
             maxNumber = matcher.group(6);
             maxMultiplier = matcher.group(7);
-            int second = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long second = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
             String firstBound1 = matcher.group(1);
             String firstBound2 = matcher.group(4);

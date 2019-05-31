@@ -18,7 +18,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        int max = range.getMax();
+        long max = range.getMax();
 
         if (max != Character.MAX_VALUE) {
             max = max + 1;

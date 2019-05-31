@@ -5,10 +5,10 @@ import java.util.*;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
-import org.openl.rules.helpers.IntRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IParameterDeclaration;
@@ -50,8 +50,8 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     @Override
     @SuppressWarnings("unchecked")
     protected IDomain<?> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
 
         int nRules = condition.getNumberOfRules();
         for (int ruleN = 0; ruleN < nRules; ruleN++) {
@@ -80,14 +80,19 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
                 }
             }
 
-            if (!(vFrom instanceof Integer)) {
-                throw new DomainCanNotBeDefined("Domain can't be converted to Integer", null);
+            if (!(vFrom instanceof Long)) {
+                throw new DomainCanNotBeDefined("Domain can't be converted to Long", null);
             }
 
-            min = Math.min(min, (Integer) vFrom);
-            max = Math.max(max, (Integer) vTo - 1);
+            min = Math.min(min, (Long) vFrom);
+            max = Math.max(max, (Long) vTo - 1);
         }
-        return new IntRange(min, max);
+        min = min < Integer.MIN_VALUE ? Integer.MIN_VALUE : min;
+        min = min >= Integer.MAX_VALUE ? Integer.MAX_VALUE - 1 : min;
+        max = max < Integer.MIN_VALUE ? Integer.MIN_VALUE : max;
+        max = max >= Integer.MAX_VALUE ? Integer.MAX_VALUE - 1 : max;
+
+        return new IntRangeDomain((int) min, (int) max);
     }
 
     List<IndexNode> mergeRulesByValue(List<IndexNode> nodes) {

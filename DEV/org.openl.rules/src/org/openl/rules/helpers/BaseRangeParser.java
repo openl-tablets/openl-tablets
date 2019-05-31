@@ -25,8 +25,8 @@ public abstract class BaseRangeParser implements RangeParser {
         return maxMultiplier;
     }
 
-    protected int parseMultiplier(String suffix) {
-        int multiplier;
+    protected long parseMultiplier(String suffix) {
+        long multiplier;
         if ("K".equals(suffix)) {
             multiplier = 1000;
         } else if ("M".equals(suffix)) {
@@ -39,8 +39,8 @@ public abstract class BaseRangeParser implements RangeParser {
         return multiplier;
     }
 
-    protected int parseIntWithMultiplier(String number, String suffix) {
-        int result = Integer.parseInt(number.replace(",", ""));
+    protected long parseIntWithMultiplier(String number, String suffix) {
+        long result = Long.parseLong(number.replace(",", ""));
 
         if (StringUtils.isNotEmpty(suffix)) {
             result *= parseMultiplier(suffix);

@@ -10,7 +10,7 @@ public class CharRange extends IntRange {
     }
 
     public CharRange(char c) {
-        super((int) c);
+        super(c);
     }
 
     public CharRange(String range) {
@@ -38,19 +38,19 @@ public class CharRange extends IntRange {
         return printChar(min) + "-" + printChar(max);
     }
 
-    private String printChar(int ch) {
-        return isPrintable(ch) ? String.valueOf((char) ch) : "'u" + Integer.toHexString(ch) + "'";
+    private String printChar(long ch) {
+        return isPrintable(ch) ? String.valueOf((char) ch) : "'u" + Integer.toHexString((char) ch) + "'";
     }
 
-    private boolean isPrintable(int ch) {
-        if (Character.isWhitespace(ch) || Character.isISOControl(ch)) {
+    private boolean isPrintable(long ch) {
+        if (Character.isWhitespace((char) ch) || Character.isISOControl((char) ch)) {
             return false;
         }
 
         if (ch < 255) {
             return true;
         }
-        return Character.isUnicodeIdentifierPart(ch);
+        return Character.isUnicodeIdentifierPart((char) ch);
     }
 
     public static CharRange autocast(char x, CharRange y) {

@@ -6,20 +6,20 @@ import org.openl.rules.helpers.IntRange;
 
 public class CtrIntRange extends IntRange {
 
-    public CtrIntRange(int min, int max) {
+    public CtrIntRange(long min, long max) {
         super(min, max);
     }
 
     public IntBoolExp contains(IntExp exp) {
-        return exp.ge(getMin()).and(exp.le(getMax()));
+        return exp.ge((int) getMin()).and(exp.le((int) getMax()));
     }
 
     @Override
-    public int getMax() {
+    public long getMax() {
 
-        int max = super.getMax();
+        long max = super.getMax();
 
-        if (max == Integer.MAX_VALUE) {
+        if (max >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE - 1;
         }
 
@@ -27,11 +27,11 @@ public class CtrIntRange extends IntRange {
     }
 
     @Override
-    public int getMin() {
+    public long getMin() {
 
-        int min = super.getMin();
+        long min = super.getMin();
 
-        if (min == Integer.MIN_VALUE) {
+        if (min <= Integer.MIN_VALUE) {
             return Integer.MIN_VALUE + 1;
         }
 

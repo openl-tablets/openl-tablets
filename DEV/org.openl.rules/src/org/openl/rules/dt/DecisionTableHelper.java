@@ -65,21 +65,21 @@ public final class DecisionTableHelper {
     private static final List<Class<?>> INT_TYPES = Arrays.asList(byte.class,
         short.class,
         int.class,
+        long.class,
         java.lang.Byte.class,
         java.lang.Short.class,
+        java.lang.Integer.class,
+        java.lang.Long.class,
         org.openl.meta.ByteValue.class,
         org.openl.meta.ShortValue.class,
         org.openl.meta.IntValue.class,
+        org.openl.meta.LongValue.class,
         java.math.BigInteger.class,
-        org.openl.meta.BigIntegerValue.class,
-        java.lang.Integer.class);
-    private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(long.class,
-        float.class,
+        org.openl.meta.BigIntegerValue.class);
+    private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(float.class,
         double.class,
-        java.lang.Long.class,
         java.lang.Float.class,
         java.lang.Double.class,
-        org.openl.meta.LongValue.class,
         org.openl.meta.FloatValue.class,
         org.openl.meta.DoubleValue.class,
         java.math.BigDecimal.class,
@@ -2690,12 +2690,11 @@ public final class DecisionTableHelper {
             try {
                 if (INT_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, IntRange.class, bindingContext);
-                    if (!f.getKey()) {
+                    boolean parsableAsSingleRange = parsableAs(value, IntRange.class, bindingContext);
+                    if (!f.getKey() && !parsableAsSingleRange) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAs(value,
-                        IntRange.class,
-                        bindingContext)) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2711,12 +2710,12 @@ public final class DecisionTableHelper {
                     }
                 } else if (DOUBLE_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, DoubleRange.class, bindingContext);
-                    if (!f.getKey()) {
+                    boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
+                    if (!f.getKey() && !parsableAsSingleRange) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAs(value,
-                        DoubleRange.class,
-                        bindingContext)) {
+                    if (f
+                        .getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2729,12 +2728,11 @@ public final class DecisionTableHelper {
                     }
                 } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, CharRange.class, bindingContext);
-                    if (!f.getKey()) {
+                    boolean parsableAsSingleRange = parsableAs(value, CharRange.class, bindingContext);
+                    if (!f.getKey() && !parsableAsSingleRange) {
                         isAllRangesFlag = false;
                     }
-                    if (f.getKey() && f.getValue().length > 1 && !parsableAs(value,
-                        CharRange.class,
-                        bindingContext)) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2752,7 +2750,8 @@ public final class DecisionTableHelper {
                     }
                 } else if (STRINGS_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, StringRange.class, bindingContext);
-                    if (!f.getKey()) {
+                    boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
+                    if (!f.getKey() && !parsableAsSingleRange) {
                         isAllRangesFlag = false;
                     }
                     if (f.getKey() && f.getValue().length > 1) {

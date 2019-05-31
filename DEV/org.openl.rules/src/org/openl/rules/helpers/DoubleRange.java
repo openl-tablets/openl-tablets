@@ -138,8 +138,8 @@ public class DoubleRange implements INumberRange {
     }
 
     @Override
-    public boolean containsNumber(Number num) {
-        return contains(num.doubleValue());
+    public boolean containsNumber(Number n) {
+        return n != null && contains(n.doubleValue());
     }
 
     @Override

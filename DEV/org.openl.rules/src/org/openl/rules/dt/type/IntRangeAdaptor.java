@@ -2,13 +2,13 @@ package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.IntRange;
 
-public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
+public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Long> {
     private static final IntRangeAdaptor INSTANCE = new IntRangeAdaptor();
 
     private IntRangeAdaptor() {
     }
 
-    public static IRangeAdaptor<IntRange, Integer> getInstance() {
+    public static IRangeAdaptor<IntRange, Long> getInstance() {
         return INSTANCE;
     }
 
@@ -16,14 +16,14 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
      * {@inheritDoc}
      */
     @Override
-    public Integer getMax(IntRange range) {
+    public Long getMax(IntRange range) {
         if (range == null) {
             return null;
         }
 
-        int max = range.getMax();
+        long max = range.getMax();
 
-        if (max != Integer.MAX_VALUE) {
+        if (max != Long.MAX_VALUE) {
             max = max + 1;
         }
 
@@ -34,7 +34,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
      * {@inheritDoc}
      */
     @Override
-    public Integer getMin(IntRange range) {
+    public Long getMin(IntRange range) {
         if (range == null) {
             return null;
         }
@@ -43,11 +43,11 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
     }
 
     @Override
-    public Integer adaptValueType(Object value) {
+    public Long adaptValueType(Object value) {
         if (value == null) {
             return null;
         }
-        return ((Number) value).intValue();
+        return ((Number) value).longValue();
     }
 
     @Override

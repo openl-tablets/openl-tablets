@@ -13,9 +13,9 @@ public class IntRangeParsingTest {
     public void testDollarSymbol() {
         assertEquals(new IntRange(13, 200), new IntRange("$13 - 200"));
         assertEquals(new IntRange(11, 31), new IntRange("[$11; $32)"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">$2"));
+        assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange(">$2"));
         assertEquals(new IntRange(10, 10), new IntRange("$10"));
-        assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("$2 +"));
+        assertEquals(new IntRange(2, Long.MAX_VALUE), new IntRange("$2 +"));
     }
 
     @Test
@@ -69,8 +69,8 @@ public class IntRangeParsingTest {
     @Test
     public void testExtraSpacesAndPluses() {
         assertEquals(new IntRange(3, 5), new IntRange("3 - 5"));
-        assertEquals(new IntRange(100, Integer.MAX_VALUE), new IntRange(">= 100"));
-        assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("2   +"));
+        assertEquals(new IntRange(100, Long.MAX_VALUE), new IntRange(">= 100"));
+        assertEquals(new IntRange(2, Long.MAX_VALUE), new IntRange("2   +"));
     }
 
     @Test(expected = CompositeSyntaxNodeException.class)
@@ -85,10 +85,10 @@ public class IntRangeParsingTest {
 
     @Test
     public void testKMB() {
-        assertEquals(new IntRange(1000000, Integer.MAX_VALUE), new IntRange("1M+"));
+        assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("1M+"));
         assertEquals(new IntRange(2000000000, 2000000000), new IntRange("2B"));
         assertEquals(new IntRange(1000, 36000000), new IntRange("1K .. 36M"));
-        assertEquals(new IntRange(Integer.MIN_VALUE, 24000), new IntRange("<=24K"));
+        assertEquals(new IntRange(Long.MIN_VALUE, 24000), new IntRange("<=24K"));
     }
 
     @Test
@@ -104,9 +104,9 @@ public class IntRangeParsingTest {
 
     @Test
     public void testMoreLessFormat() {
-        assertEquals(new IntRange(Integer.MIN_VALUE, 11), new IntRange("<12"));
-        assertEquals(new IntRange(Integer.MIN_VALUE, 7), new IntRange("<=7"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
+        assertEquals(new IntRange(Long.MIN_VALUE, 11), new IntRange("<12"));
+        assertEquals(new IntRange(Long.MIN_VALUE, 7), new IntRange("<=7"));
+        assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange(">2"));
     }
 
     @Test
@@ -119,14 +119,14 @@ public class IntRangeParsingTest {
 
     @Test
     public void testPlusFormat() {
-        assertEquals(new IntRange(0, Integer.MAX_VALUE), new IntRange("0+"));
+        assertEquals(new IntRange(0, Long.MAX_VALUE), new IntRange("0+"));
     }
 
     @Test
     public void testSignedNumber() {
         assertEquals(new IntRange(-15, -8), new IntRange("-15 - -8"));
-        assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100+"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange(">2"));
+        assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("-100+"));
+        assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange(">2"));
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
         assertEquals(new IntRange(-4, 2), new IntRange("-4-2"));
         assertEquals(new IntRange(-4, 2), new IntRange("[-4-2]"));
@@ -135,8 +135,8 @@ public class IntRangeParsingTest {
     @Test
     public void testThousandsSeparator() {
         assertEquals(new IntRange(-123456, 987654), new IntRange("-123,456 - 987,654"));
-        assertEquals(new IntRange(123456, Integer.MAX_VALUE), new IntRange("123,456+"));
-        assertEquals(new IntRange(123457, Integer.MAX_VALUE), new IntRange(">123,456"));
+        assertEquals(new IntRange(123456, Long.MAX_VALUE), new IntRange("123,456+"));
+        assertEquals(new IntRange(123457, Long.MAX_VALUE), new IntRange(">123,456"));
         assertEquals(new IntRange(123456, 123456), new IntRange("123,456"));
         assertEquals(new IntRange(123456, 987653), new IntRange("[123,456 - 987,654)"));
         assertEquals(new IntRange(123456, 987654), new IntRange(">=123,456 <=987,654"));
@@ -145,9 +145,9 @@ public class IntRangeParsingTest {
 
     @Test
     public void testVerbal() {
-        assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));
-        assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
+        assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("-100 and more"));
+        assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange("more than 2"));
+        assertEquals(new IntRange(Long.MIN_VALUE, -11), new IntRange("less than -10"));
     }
 
     @Test

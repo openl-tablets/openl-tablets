@@ -65,17 +65,17 @@ public class IntRangeRulesParsingTest {
     }
 
     /**
-     * Test that Integer.MAX_VALUE won`t get to range. As during current implementation it can`t be covered. See
+     * Test that Long.MAX_VALUE won`t get to range. As during current implementation it can`t be covered. See
      * {@link IntRangeAdaptor#getMax(org.openl.rules.helpers.IntRange)}
      */
     @Test
     public void testMaxInt() {
-        assertNull(invoke("testMaxInt", true, 2147483646));
+        assertNull(invoke("testMaxInt", true, Long.MAX_VALUE - 1));
     }
 
     @Test
     public void testMaxInt1() {
-        assertEquals("rule1", invoke("testMaxInt1", true, 2147483645));
+        assertEquals("rule1", invoke("testMaxInt1", true, 9223372036854775701l));
     }
 
     @Test
@@ -96,9 +96,9 @@ public class IntRangeRulesParsingTest {
                 new Object[] { "Type 2", (short) -80 }));
     }
 
-    private Object invoke(String methodName, boolean param1, int param2) {
+    private Object invoke(String methodName, boolean param1, long param2) {
         return TestUtils
-            .invoke(instance, methodName, new Class[] { boolean.class, int.class }, new Object[] { param1, param2 });
+            .invoke(instance, methodName, new Class[] { boolean.class, long.class }, new Object[] { param1, param2 });
     }
 
 }

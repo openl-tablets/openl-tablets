@@ -31,7 +31,7 @@ public class DoubleRangeParser {
         return INSTANCE;
     }
 
-    private static final int MAX_RANGE_POSSIBLE_LENGTH = 100;
+    private static final int MAX_RANGE_POSSIBLE_LENGTH = 200;
 
     public RangeWithBounds parse(String range) {
         if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {
