@@ -117,10 +117,10 @@ public class CellEditorSelector {
             } else if (ClassUtils.isAssignable(instanceClass,
                 INumberRange.class) && (!instanceClass.equals(CharRange.class))) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
-                    .parsableAsRange(initialValue, instanceClass, null)) {
+                    .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
                 } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
-                    .parsableAsRange(initialValue, instanceClass, null)) {
+                    .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
                 }
             }

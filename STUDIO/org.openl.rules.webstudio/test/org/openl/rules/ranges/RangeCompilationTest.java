@@ -7,6 +7,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -30,7 +31,7 @@ public class RangeCompilationTest {
 
         DecisionTable dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleTextDates", openClass);
         assertConditionsNumber(dt, 1);
-        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInArrayIndexedEvaluator.class);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 
         dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleDates", openClass);
         assertConditionsNumber(dt, 1);
@@ -42,7 +43,7 @@ public class RangeCompilationTest {
 
         dt = findDt("NotStringRange_WhenJustSimpleStringAndSkippedPatternAreDefined", openClass);
         assertConditionsNumber(dt, 1);
-        assertConditionEvaluatorClass(dt.getConditionRows()[0], ContainsInArrayIndexedEvaluator.class);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 
         dt = findDt("StringRange_WhenAtLeastOneRangeDefined", openClass);
         assertConditionsNumber(dt, 1);
