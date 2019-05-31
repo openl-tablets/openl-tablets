@@ -87,6 +87,36 @@ public class StringRange {
         return contains(s == null ? null : NumericComparableString.valueOf(s.toString()));
     }
 
+    public int compareUpperBound(StringRange range) {
+        if (upperBound.compareTo(range.upperBound) < 0) {
+            return -1;
+        } else if (upperBound.compareTo(range.upperBound) == 0) {
+            if (upperBoundType == BoundType.INCLUDING && range.upperBoundType == BoundType.EXCLUDING) {
+                return -1;
+            } else if (upperBoundType == range.upperBoundType) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    public int compareLowerBound(StringRange range) {
+        if (lowerBound.compareTo(range.lowerBound) < 0) {
+            return -1;
+        } else if (lowerBound.compareTo(range.lowerBound) == 0) {
+            if (lowerBoundType == BoundType.INCLUDING && range.lowerBoundType == BoundType.EXCLUDING) {
+                return -1;
+            } else if (lowerBoundType == range.lowerBoundType) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    public boolean contains(StringRange range) {
+        return compareLowerBound(range) <= 0 && compareUpperBound(range) >= 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -96,8 +126,10 @@ public class StringRange {
             return false;
         }
         StringRange that = (StringRange) o;
-        return Objects.equals(lowerBound.getValue(), that.lowerBound.getValue()) && Objects.equals(upperBound.getValue(),
-            that.upperBound.getValue()) && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
+        return Objects.equals(lowerBound.getValue(), that.lowerBound.getValue()) && Objects.equals(
+            upperBound.getValue(),
+            that.upperBound
+                .getValue()) && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
     }
 
     @Override
