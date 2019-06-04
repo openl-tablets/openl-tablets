@@ -2714,8 +2714,7 @@ public final class DecisionTableHelper {
                     if (!f.getKey() && !parsableAsSingleRange) {
                         isAllRangesFlag = false;
                     }
-                    if (f
-                        .getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
                         isRangesArrayFlag = true;
                     }
                     Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
@@ -2827,37 +2826,41 @@ public final class DecisionTableHelper {
         return createVirtualGrid(sheet);
     }
 
-    static boolean isCollect(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isCollect(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getHeader().isCollect();
     }
 
-    static boolean isSmart(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSmart(TableSyntaxNode tableSyntaxNode) {
         return isSmartDecisionTable(tableSyntaxNode) || isSmartLookupTable(tableSyntaxNode);
     }
 
-    static boolean isLookup(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSimple(TableSyntaxNode tableSyntaxNode) {
+        return isSimpleDecisionTable(tableSyntaxNode) || isSimpleLookupTable(tableSyntaxNode);
+    }
+
+    public static boolean isLookup(TableSyntaxNode tableSyntaxNode) {
         return isSimpleLookupTable(tableSyntaxNode) || isSmartLookupTable(tableSyntaxNode);
     }
 
-    static boolean isSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SMART_DECISION_TABLE.equals(dtType);
     }
 
-    static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType);
     }
 
-    static boolean isSmartLookupTable(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSmartLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SMART_DECISION_LOOKUP.equals(dtType);
     }
 
-    static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
         return IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType) || isSmartLookupTable(tableSyntaxNode);
     }
