@@ -116,15 +116,10 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
         synchronized (fileAccessLock) {
             File sourceFile = null;
             try {
-                if (src instanceof URLSourceCodeModule) {
-                    URL url = ((URLSourceCodeModule) src).getUrl();
-                    sourceFile = new File(url.toURI());
-                } else {
-                    URI uri = new URI(getUri());
-                    sourceFile = new File(uri);
-                }
+                URI uri = new URI(getUri());
+                sourceFile = new File(uri);
             } catch (URISyntaxException me) {
-                log.error("Can not get source file", me);
+                log.debug("Can not get source file", me);
             }
             return sourceFile;
         }
