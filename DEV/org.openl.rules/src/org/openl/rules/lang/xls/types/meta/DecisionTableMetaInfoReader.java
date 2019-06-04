@@ -12,10 +12,7 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableBoundNode;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.*;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.*;
@@ -92,35 +89,38 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
             DecisionTable decisionTable = getDecisionTable();
 
-            IBaseCondition[] conditionRows = decisionTable.getConditionRows();
-            IBaseAction[] actionRows = decisionTable.getActionRows();
-
             saveSimpleRulesMetaInfo(region);
             saveCompoundReturnColumn(region);
 
-            if (conditionRows != null) {
-                // Condition description
-                for (IBaseCondition conditionRow : conditionRows) {
-                    saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+            if (!DecisionTableHelper.isSmart(decisionTable.getSyntaxNode()) && !DecisionTableHelper
+                .isSimple(decisionTable.getSyntaxNode())) {
+
+                IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+                if (conditionRows != null) {
+                    // Condition description
+                    for (IBaseCondition conditionRow : conditionRows) {
+                        saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+                    }
+
+                    // Condition values
+                    for (IBaseCondition condition : conditionRows) {
+                        FunctionalRow funcRow = (FunctionalRow) condition;
+                        saveValueMetaInfo(funcRow, region);
+                    }
                 }
 
-                // Condition values
-                for (IBaseCondition condition : conditionRows) {
-                    FunctionalRow funcRow = (FunctionalRow) condition;
-                    saveValueMetaInfo(funcRow, region);
-                }
-            }
+                IBaseAction[] actionRows = decisionTable.getActionRows();
+                if (actionRows != null) {
+                    // Action description
+                    for (IBaseAction action : actionRows) {
+                        saveDescriptionMetaInfo((FunctionalRow) action, region);
+                    }
 
-            if (actionRows != null) {
-                // Action description
-                for (IBaseAction action : actionRows) {
-                    saveDescriptionMetaInfo((FunctionalRow) action, region);
-                }
-
-                // Action values
-                for (IBaseAction action : actionRows) {
-                    FunctionalRow funcRow = (FunctionalRow) action;
-                    saveValueMetaInfo(funcRow, region);
+                    // Action values
+                    for (IBaseAction action : actionRows) {
+                        FunctionalRow funcRow = (FunctionalRow) action;
+                        saveValueMetaInfo(funcRow, region);
+                    }
                 }
             }
         } catch (Exception e) {
