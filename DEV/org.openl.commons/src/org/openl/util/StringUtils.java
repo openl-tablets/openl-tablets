@@ -427,6 +427,29 @@ public class StringUtils {
         return str == null ? null : str.trim();
     }
 
+    public static String trimStart(final String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return str;
+        }
+        int start = 0;
+        while (start != strLen && Character.isWhitespace(str.charAt(start))) {
+            start++;
+        }
+        return str.substring(start);
+    }
+
+    public static String trimEnd(final String str) {
+        int end;
+        if (str == null || (end = str.length()) == 0) {
+            return str;
+        }
+        while (end != 0 && Character.isWhitespace(str.charAt(end - 1))) {
+            end--;
+        }
+        return str.substring(0, end);
+    }
+
     /**
      * <p>
      * Removes control characters (char &lt;= 32) from both ends of this String returning {@code null} if the String is

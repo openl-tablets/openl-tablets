@@ -438,11 +438,5 @@ public class StringToolTest extends TestCase {
         assertNotNull(escapedTokens6);
         assertTrue(escapedTokens6.length == 1);
         assertTrue("Trucks, Tractors, And Trailers Zone Rated".equals(escapedTokens6[0]));
-
-        String[] escapedTokens7 = StringTool
-            .splitAndEscape("  Trucks  \\, Tractors  \\, And Trailers Zone Rated", COMMA, escaper);
-        assertNotNull(escapedTokens7);
-        assertTrue(escapedTokens7.length == 1);
-        assertTrue("  Trucks  , Tractors  , And Trailers Zone Rated".equals(escapedTokens7[0]));
     }
 }

@@ -117,6 +117,7 @@ public final class RuleRowHelper {
             for (String token : tokens) {
 
                 String str = StringPool.intern(token);
+
                 Object res = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, str);
 
                 if (res == null) {
@@ -237,8 +238,8 @@ public final class RuleRowHelper {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
                         if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
-                                .getAbsoluteRegion()
-                                .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
+                            .getAbsoluteRegion()
+                            .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
                             if (!cell.getStringValue().startsWith(COMMENTARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
@@ -258,7 +259,7 @@ public final class RuleRowHelper {
             Class<?> expectedType = paramType.getInstanceClass();
 
             if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class
-                    .isAssignableFrom(expectedType)) {
+                .isAssignableFrom(expectedType)) {
                 // Convert String -> BigDecimal instead of double ->BigDecimal,
                 // otherwise we lose in precision (part of EPBDS-5879)
                 res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), null);
@@ -291,10 +292,10 @@ public final class RuleRowHelper {
         return res;
     }
 
-    public static SimpleNodeUsage createConstantNodeUsage(String cellCode, ConstantOpenField constantOpenField) {
+    public static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-                .getName() + " = " + constantOpenField.getValueAsString();
-        return new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER);
+            .getName() + " = " + constantOpenField.getValueAsString();
+        return new SimpleNodeUsage(start, end, description, constantOpenField.getUri(), NodeType.OTHER);
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
@@ -338,7 +339,7 @@ public final class RuleRowHelper {
             String paramName,
             String ruleName,
             ILogicalTable cell,
-            OpenlToolAdaptor openlAdapter,
+            OpenlToolAdaptor openlAdaptor,
             String source) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
@@ -346,29 +347,29 @@ public final class RuleRowHelper {
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
         if (source != null && (source = source.trim()).length() != 0) {
-            if (openlAdapter.getHeader() != null) {
-                IOpenMethodHeader old_header = openlAdapter.getHeader();
-                OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(),
+            if (openlAdaptor.getHeader() != null) {
+                IOpenMethodHeader oldHeader = openlAdaptor.getHeader();
+                OpenMethodHeader newHeader = new OpenMethodHeader(oldHeader.getName(),
                     paramType,
-                    old_header.getSignature(),
-                    old_header.getDeclaringClass());
-                openlAdapter.setHeader(newHeader);
+                    oldHeader.getSignature(),
+                    oldHeader.getDeclaringClass());
+                openlAdaptor.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
                     GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(),
-                        openlAdapter.getBindingContext());
+                        openlAdaptor.getBindingContext());
 
-                    return openlAdapter.makeMethod(srcCode);
+                    return openlAdaptor.makeMethod(srcCode);
                 }
 
                 if (source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character
-                        .isLetterOrDigit(source.charAt(1)))) {
+                    .isLetterOrDigit(source.charAt(1)))) {
 
                     GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
-                        openlAdapter.getBindingContext());
+                        openlAdaptor.getBindingContext());
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
-                    return openlAdapter.makeMethod(code);
+                    return openlAdaptor.makeMethod(code);
                 }
             }
 
@@ -381,18 +382,13 @@ public final class RuleRowHelper {
             Object result = null;
 
             try {
-                IBindingContext bindingContext = openlAdapter.getBindingContext();
+                IBindingContext bindingContext = openlAdaptor.getBindingContext();
                 // Pasre as constant value
                 ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
                 ICell theValueCell = cell.getSource().getCell(0, 0);
                 if (constantOpenField != null) {
                     if (!bindingContext.isExecutionMode()) {
-                        MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
-                        if (metaInfoReader instanceof BaseMetaInfoReader) {
-                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(theValueCell.getStringValue(),
-                                constantOpenField);
-                            ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
-                        }
+                        addContantMetaInfo(openlAdaptor, constantOpenField, theValueCell);
                     }
                     if (constantOpenField.getValue() != null) {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
@@ -402,7 +398,7 @@ public final class RuleRowHelper {
                         result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
                     } else {
                         if (theValueCell.hasNativeType()) {
-                            result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdapter, theValueCell);
+                            result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdaptor, theValueCell);
                         }
                         if (result == null) {
                             result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
@@ -420,7 +416,7 @@ public final class RuleRowHelper {
                     expectedType.getSimpleName());
                 IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cellTable,
-                    openlAdapter.getBindingContext());
+                    openlAdaptor.getBindingContext());
                 if (e instanceof CompositeSyntaxNodeException) {
                     throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                 } else {
@@ -429,7 +425,7 @@ public final class RuleRowHelper {
             }
 
             if (result instanceof IMetaHolder) {
-                setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, openlAdapter.getBindingContext());
+                setMetaInfo((IMetaHolder) result, cell, paramName, ruleName, openlAdaptor.getBindingContext());
             }
 
             try {
@@ -438,7 +434,7 @@ public final class RuleRowHelper {
                 String message = String.format("Invalid cell value '%s'", source);
                 IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cellTable,
-                    openlAdapter.getBindingContext());
+                    openlAdaptor.getBindingContext());
 
                 throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
             }
@@ -447,6 +443,26 @@ public final class RuleRowHelper {
         }
 
         return null;
+    }
+
+    private static void addContantMetaInfo(OpenlToolAdaptor openlAdapter,
+            ConstantOpenField constantOpenField,
+            ICell theValueCell) {
+        MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
+        if (metaInfoReader instanceof BaseMetaInfoReader) {
+            String[] tokens = StringTool.splitAndEscape(theValueCell.getStringValue(), ARRAY_ELEMENTS_SEPARATOR, null);
+            String cellValue = theValueCell.getStringValue();
+            int startFrom = 0; 
+            for (String token : tokens) {
+                int start = cellValue.indexOf(token, startFrom);
+                startFrom = start + token.length() - 1;
+                if (token.equals(constantOpenField.getName())) {
+                    int end = start + constantOpenField.getName().length() - 1;
+                    SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
+                    ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
+                }
+            }
+        }
     }
 
     /**
@@ -608,6 +624,25 @@ public final class RuleRowHelper {
 
         if (oneCellTable) {
             if (!isFormula) {
+                // try to load as constant first
+                String[] tokens = extractElementsFromCommaSeparatedArray(dataTable.getRow(0));
+                if (tokens != null && tokens.length == 1) {
+                    ConstantOpenField constantOpenField = findConstantField(openlAdaptor.getBindingContext(),
+                        tokens[0]);
+                    if (constantOpenField != null) {
+                        IOpenCast openCast = openlAdaptor.getBindingContext()
+                            .getCast(constantOpenField.getType(), paramType);
+                        if (openCast != null && openCast.isImplicit()) {
+                            if (!openlAdaptor.getBindingContext().isExecutionMode()) {
+                                addContantMetaInfo(openlAdaptor,
+                                    constantOpenField,
+                                    dataTable.getRow(0).getSource().getCell(0, 0));
+                            }
+                            return openCast.convert(constantOpenField.getValue());
+                        }
+                    }
+                }
+
                 // load comma separated array
                 return loadCommaSeparatedArrayParams(dataTable,
                     paramName,
@@ -632,7 +667,7 @@ public final class RuleRowHelper {
 
         ILogicalTable paramSource = dataTable.getRow(0);
         Object params = RuleRowHelper
-                .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
+            .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
             return processAsObjectParams(paramType, (Object[]) params);
