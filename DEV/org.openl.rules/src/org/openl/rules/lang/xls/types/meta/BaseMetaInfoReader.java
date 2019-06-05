@@ -1,8 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.NodeUsage;
@@ -23,7 +21,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
 
     private final Logger log = LoggerFactory.getLogger(BaseMetaInfoReader.class);
-    private final Map<CellKey, NodeUsage> constantsMap = new HashMap<>();
+    private final Map<CellKey, List<NodeUsage>> constantsMap = new HashMap<>();
 
     private T boundNode;
 
@@ -42,7 +40,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     public void addConstant(ICell cell, NodeUsage nodeUsage) {
         int row = cell.getAbsoluteRow();
         int col = cell.getAbsoluteColumn();
-        constantsMap.put(CellKey.CellKeyFactory.getCellKey(col, row), nodeUsage);
+        List<NodeUsage> nodeUsages = constantsMap.computeIfAbsent(CellKey.CellKeyFactory.getCellKey(col, row), e -> new ArrayList<NodeUsage>());
+        nodeUsages.add(nodeUsage);
     }
 
     @Override
@@ -52,9 +51,9 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 return null;
             }
 
-            NodeUsage nodeUsage = constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row));
-            if (nodeUsage != null) {
-                return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+            List<NodeUsage> nodeUsages = constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row));
+            if (nodeUsages != null) {
+                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
             }
 
             if (isHeaderRow(row)) {

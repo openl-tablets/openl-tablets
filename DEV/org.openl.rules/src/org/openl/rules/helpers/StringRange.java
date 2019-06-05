@@ -155,6 +155,11 @@ public class StringRange {
         }
         return sb.toString();
     }
+    
+    //AUTOCASTS
+    public static StringRange autocast(String x, StringRange y) {
+        return new StringRange(x);
+    }
 
     // CAST METHODS
     public static StringRange cast(char[] x, StringRange y) {

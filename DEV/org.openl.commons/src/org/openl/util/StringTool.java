@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -72,13 +73,18 @@ public class StringTool {
             for (int i = 0; i < tokens.length; i++) {
                 if (tokens[i].endsWith(escapeSymbol)) {
                     String noEscapeToken = tokens[i].substring(0, tokens[i].length() - 1);
-                    buf.append(noEscapeToken).append(splitSymbol);
+                    if (buf.length() == 0) {
+                        buf.append(StringUtils.trimStart(noEscapeToken));
+                    } else {
+                        buf.append(noEscapeToken);
+                    }
+                    buf.append(splitSymbol);
                 } else {
                     if (buf.length() == 0) {
                         tokens[i] = tokens[i].trim();
                         resultList.add(tokens[i]);
                     } else {
-                        buf.append(tokens[i]);
+                        buf.append(StringUtils.trimEnd(tokens[i]));
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
                     }
@@ -87,6 +93,9 @@ public class StringTool {
             result = resultList.toArray(EMPTY_STRING_ARRAY);
         } else {
             result = tokens;
+            for (int i = 0; i < tokens.length; i++) {
+                result[i] = result[i] != null ? result[i].trim() : null;
+            }
         }
 
         return result;
