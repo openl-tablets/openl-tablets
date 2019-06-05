@@ -92,35 +92,38 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             saveSimpleRulesMetaInfo(region);
             saveCompoundReturnColumn(region);
 
-            if (!DecisionTableHelper.isSmart(decisionTable.getSyntaxNode()) && !DecisionTableHelper
-                .isSimple(decisionTable.getSyntaxNode())) {
-
-                IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+            IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+            IBaseAction[] actionRows = decisionTable.getActionRows();
+            
+            if ((!DecisionTableHelper.isSmart(decisionTable.getSyntaxNode()) && !DecisionTableHelper
+                .isSimple(decisionTable.getSyntaxNode()))) {
                 if (conditionRows != null) {
                     // Condition description
                     for (IBaseCondition conditionRow : conditionRows) {
                         saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
                     }
-
-                    // Condition values
-                    for (IBaseCondition condition : conditionRows) {
-                        FunctionalRow funcRow = (FunctionalRow) condition;
-                        saveValueMetaInfo(funcRow, region);
-                    }
                 }
 
-                IBaseAction[] actionRows = decisionTable.getActionRows();
                 if (actionRows != null) {
                     // Action description
                     for (IBaseAction action : actionRows) {
                         saveDescriptionMetaInfo((FunctionalRow) action, region);
                     }
+                }
+            }
+            if (conditionRows != null) {
+                // Condition values
+                for (IBaseCondition condition : conditionRows) {
+                    FunctionalRow funcRow = (FunctionalRow) condition;
+                    saveValueMetaInfo(funcRow, region);
+                }
+            }
 
-                    // Action values
-                    for (IBaseAction action : actionRows) {
-                        FunctionalRow funcRow = (FunctionalRow) action;
-                        saveValueMetaInfo(funcRow, region);
-                    }
+            if (actionRows != null) {
+                // Action values
+                for (IBaseAction action : actionRows) {
+                    FunctionalRow funcRow = (FunctionalRow) action;
+                    saveValueMetaInfo(funcRow, region);
                 }
             }
         } catch (Exception e) {
