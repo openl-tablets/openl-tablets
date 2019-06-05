@@ -14,16 +14,11 @@ public class DateRangeParser extends ARangeParser<Instant> {
     /**
      * Parses strings like:
      *
-     * 1/1/2019
-     * 01/01/2019
-     * 01/01/2019 2:2:2
-     * 1/1/2019 2:2:2
-     * 1/1/2019 02:02:02
-     * 01/01/2019 02:02:02
+     * 1/1/2019 01/01/2019 01/01/2019 2:2:2 1/1/2019 2:2:2 1/1/2019 02:02:02 01/01/2019 02:02:02
      */
     private static final DateTimeFormatter dateTimeParser = DateTimeFormatter.ofPattern("M/d/yyyy[ H:m:s]");
 
-    //for date formatting which includes leading zeros in month, day, hour, minutes and seconds
+    // for date formatting which includes leading zeros in month, day, hour, minutes and seconds
     static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy[ HH:mm:ss]");
 
     private static final class InstanceHolder {
@@ -70,9 +65,14 @@ public class DateRangeParser extends ARangeParser<Instant> {
         return false;
     }
 
-    public boolean canBeNotDateRange(String value) {
-        Matcher m = patterns[5].matcher(value);
-        return m.matches();
+    public boolean likelyRangeThanDate(String value) {
+        for (int i = 0; i < 5; i++) {
+            Matcher m = patterns[i].matcher(value);
+            if (m.matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

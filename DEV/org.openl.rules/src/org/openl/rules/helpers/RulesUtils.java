@@ -1061,6 +1061,10 @@ public final class RulesUtils {
         return ArrayUtils.contains(array, elem);
     }
 
+    public static boolean contains(Date[] array, Date elem) {
+        return ArrayUtils.contains(array, elem);
+    }
+    
     public static boolean contains(String[] array, String elem) {
         return ArrayUtils.contains(array, elem);
     }
@@ -1105,6 +1109,18 @@ public final class RulesUtils {
         return false;
     }
 
+    public static boolean contains(DateRange[] array, Date elem) {
+        if (array == null) {
+            return false;
+        }
+        for (DateRange range : array) {
+            if (range != null && range.contains(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static boolean contains(StringRange[] array, CharSequence elem) {
         if (array == null) {
             return false;
@@ -1292,6 +1308,18 @@ public final class RulesUtils {
             return false;
         }
         for (String elem : ary2) {
+            if (elem != null && !contains(ary1, elem)) {
+                return false;
+            }
+        }
+        return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+    
+    public static boolean contains(DateRange[] ary1, Date[] ary2) {
+        if (ary2 == null) {
+            return false;
+        }
+        for (Date elem : ary2) {
             if (elem != null && !contains(ary1, elem)) {
                 return false;
             }

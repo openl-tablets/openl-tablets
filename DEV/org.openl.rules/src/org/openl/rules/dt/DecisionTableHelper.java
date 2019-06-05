@@ -2752,12 +2752,29 @@ public final class DecisionTableHelper {
                     }
                 } else if (DATE_TYPES.contains(type.getInstanceClass())) {
                     Object o = cellValue.getSource().getCell(0, 0).getObjectValue();
-                    if (!DateRangeParser.getInstance().isDateRange(value) && !(o instanceof Date)) {
-                        isAllParsableAsRangeFlag = false;
-                        break;
+                    if (o instanceof Date) {
+                        continue;
                     }
-                    if (!DateRangeParser.getInstance().canBeNotDateRange(value) && !(o instanceof Date)) {
+                    Pair<Boolean, String[]> f = parsableAsArray(value, DateRange.class, bindingContext);
+                    boolean parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);
+                    if (!f.getKey() && !parsableAsSingleRange) {
+                        isAllParsableAsRangeFlag = false;
+                    }
+                    if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                        isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
+                    }
+                    if (o instanceof String && DateRangeParser.getInstance().likelyRangeThanDate(value)) {
                         isAllLikelyNotRangeFlag = false;
+                    }
+                    for (String v : f.getValue()) {
+                        if (DateRangeParser.getInstance().likelyRangeThanDate(v)) {
+                            isAllElementsLikelyNotRangeFlag = false;
+                            break;
+                        }
+                    }
+                    Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
+                    if (!g.getKey()) {
+                        isAllParsableAsArrayFlag = false;
                     }
                 } else if (STRING_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, StringRange.class, bindingContext);
@@ -2786,22 +2803,33 @@ public final class DecisionTableHelper {
             }
         }
 
-        if (DATE_TYPES.contains(type.getInstanceClass()) && isAllParsableAsRangeFlag && !isAllLikelyNotRangeFlag) {
-            return Triple.of(new String[] { DateRange.class.getSimpleName() },
-                JavaOpenClass.getOpenClass(DateRange.class),
-                condition.getStatement());
-        } else if (INT_TYPES.contains(
-            type.getInstanceClass()) && isAllParsableAsRangeFlag && (!isAllParsableAsArrayFlag || zeroStartedNumbersFoundFlag)) {
-            return buildTripleForTypeForConditionColumn(IntRange.class, condition, isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
-        } else if (DOUBLE_TYPES.contains(
-            type.getInstanceClass()) && isAllParsableAsRangeFlag && (!isAllParsableAsArrayFlag || zeroStartedNumbersFoundFlag)) {
-            return buildTripleForTypeForConditionColumn(DoubleRange.class, condition, isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
-        } else if (CHAR_TYPES.contains(type.getInstanceClass()) && isAllParsableAsRangeFlag && !isAllParsableAsArrayFlag) {
-            return buildTripleForTypeForConditionColumn(CharRange.class, condition, isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
+        if (DATE_TYPES.contains(type
+            .getInstanceClass()) && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
+                                                                                                                         : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
+            return buildTripleForTypeForConditionColumn(DateRange.class,
+                condition,
+                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
+        } else if (INT_TYPES.contains(type
+            .getInstanceClass()) && isAllParsableAsRangeFlag && (!isAllParsableAsArrayFlag || zeroStartedNumbersFoundFlag)) {
+            return buildTripleForTypeForConditionColumn(IntRange.class,
+                condition,
+                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
+        } else if (DOUBLE_TYPES.contains(type
+            .getInstanceClass()) && isAllParsableAsRangeFlag && (!isAllParsableAsArrayFlag || zeroStartedNumbersFoundFlag)) {
+            return buildTripleForTypeForConditionColumn(DoubleRange.class,
+                condition,
+                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
+        } else if (CHAR_TYPES
+            .contains(type.getInstanceClass()) && isAllParsableAsRangeFlag && !isAllParsableAsArrayFlag) {
+            return buildTripleForTypeForConditionColumn(CharRange.class,
+                condition,
+                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
         } else if (STRING_TYPES.contains(type
             .getInstanceClass()) && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
-                                                                           : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
-            return buildTripleForTypeForConditionColumn(StringRange.class, condition, isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
+                                                                                                                         : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
+            return buildTripleForTypeForConditionColumn(StringRange.class,
+                condition,
+                isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
         }
 
         if (!type.isArray() && isAllParsableAsArrayFlag && (!isAllParsableAsSingleFlag || arraySeparatorFoundFlag)) {

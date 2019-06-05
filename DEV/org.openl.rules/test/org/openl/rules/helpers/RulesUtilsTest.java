@@ -296,7 +296,11 @@ public class RulesUtilsTest {
 
         boolean testContainsIntegerInIntegerArr(Integer[] searchIn, Integer searchFor);
 
+        boolean testContainsDateInDateArr(Date[] searchIn, Date searchFor);
+
         boolean testContainsIntegerTypeInIntRangeArr(IntRange[] searchIn, Integer searchFor);
+
+        boolean testContainsDateTypeInDateRangeArr(DateRange[] searchIn, Date searchFor);
 
         boolean testContainsIntegerTypeInIntRangeArr2(IntRange[] searchIn, int searchFor);
 
@@ -327,6 +331,8 @@ public class RulesUtilsTest {
         boolean testContainsStringArrTypeInStringRangeArr(StringRange[] searchIn, String[] searchFor);
 
         boolean testContainsCharSequenceArrTypeInStringRangeArr(StringRange[] searchIn, CharSequence[] searchFor);
+
+        boolean testContainsDateArrTypeInDateRangeArr(DateRange[] searchIn, Date[] searchFor);
 
         Object testIndexOfObject(Object[] objects, Object object);
 
@@ -2081,6 +2087,19 @@ public class RulesUtilsTest {
     }
 
     @Test
+    public void testContainsDateTypeInDateArr() {
+        Date searchFor = new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime();
+        Date searchForFailed = new GregorianCalendar(2014, Calendar.MARCH, 11).getTime();
+        Date[] searchIn = { new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(),
+                new GregorianCalendar(2014, Calendar.FEBRUARY, 12).getTime(),
+                new GregorianCalendar(2015, Calendar.FEBRUARY, 11).getTime() };
+
+        assertFalse(instance.testContainsDateInDateArr(null, searchFor));
+        assertFalse(instance.testContainsDateInDateArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDateInDateArr(searchIn, searchFor));
+    }
+
+    @Test
     public void testCharInCharArrContains() {
         Character searchFor = 'Z';
         Character searchForFailed = 'X';
@@ -2194,6 +2213,17 @@ public class RulesUtilsTest {
         assertFalse(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchForFailed));
         assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchFor));
         assertTrue(instance.testContainsDoubleTypeInDoubleRangeArr(searchIn, searchFor2));
+    }
+
+    @Test
+    public void testDateInDateRangeArrContains() {
+        Date searchFor = new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime();
+        Date searchForFailed = new GregorianCalendar(2017, Calendar.FEBRUARY, 11).getTime();
+        DateRange[] searchIn = { new DateRange("1/1/2014 - 1/1/2015"), new DateRange("1/1/2017 - 1/1/2017") };
+
+        assertFalse(instance.testContainsDateTypeInDateRangeArr(null, searchFor));
+        assertFalse(instance.testContainsDateTypeInDateRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDateTypeInDateRangeArr(searchIn, searchFor));
     }
 
     @Test
@@ -2498,6 +2528,24 @@ public class RulesUtilsTest {
         assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, new Double[] { null, null, null }));
         assertFalse(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, searchForFailed));
         assertTrue(instance.testContainsDoubleArrTypeInDoubleRangeArr(searchIn, searchFor));
+    }
+
+    @Test
+    public void testContainsDateArrInDateRangeArr() {
+        Date[] searchFor = { new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(),
+                null,
+                new GregorianCalendar(2016, Calendar.FEBRUARY, 11).getTime() };
+        Date[] searchForFailed = { new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(),
+                null,
+                new GregorianCalendar(2017, Calendar.FEBRUARY, 11).getTime() };
+        DateRange[] searchIn = { new DateRange("1/1/2013-12/12/2016"), null, new DateRange("12/12/2016") };
+
+        assertFalse(instance.testContainsDateArrTypeInDateRangeArr(null, searchFor));
+        assertFalse(instance.testContainsDateArrTypeInDateRangeArr(searchIn, null));
+        assertFalse(instance.testContainsDateArrTypeInDateRangeArr(searchIn, new Date[] {}));
+        assertFalse(instance.testContainsDateArrTypeInDateRangeArr(searchIn, new Date[] { null, null, null }));
+        assertFalse(instance.testContainsDateArrTypeInDateRangeArr(searchIn, searchForFailed));
+        assertTrue(instance.testContainsDateArrTypeInDateRangeArr(searchIn, searchFor));
     }
 
     @Test
