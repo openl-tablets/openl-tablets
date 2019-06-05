@@ -2759,7 +2759,7 @@ public final class DecisionTableHelper {
                     }
                 } else if (STRING_TYPES.contains(type.getInstanceClass())) {
                     Pair<Boolean, String[]> f = parsableAsArray(value, StringRange.class, bindingContext);
-                    boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
+                    boolean parsableAsSingleRange = parsableAs(value, StringRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
                         isAllParsableAsRangeFlag = false;
                     }
