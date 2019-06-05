@@ -2669,7 +2669,7 @@ public final class DecisionTableHelper {
             }
 
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-            if (constantOpenField != null && RANGE_TYPES.contains(constantOpenField.getType().getInstanceClass())) {
+            if (constantOpenField != null) {
                 if (constantOpenField.getType().isArray() && RANGE_TYPES
                     .contains(constantOpenField.getType().getComponentClass().getInstanceClass())) {
                     isAllParsableAsArrayFlag = false;
@@ -2683,6 +2683,8 @@ public final class DecisionTableHelper {
                     isAllElementsLikelyNotRangeFlag = false;
                 }
                 if (constantOpenField.getType().isArray()) {
+                    isAllParsableAsSingleFlag = false;
+                } else {
                     isAllParsableAsSingleFlag = false;
                 }
                 continue;
