@@ -20,7 +20,7 @@ public final class StringRangeParser extends ARangeParser<String> {
     private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S+)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*([])])\\s*";
     private static final String MIN_MAX_PATTERN = "\\s*(\\S+)\\s*([-…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*";
     private static final String VERBAL_PATTERN = "\\s*(\\S+)\\s*(\\+|(?<=\\s)and more|(?<=\\s)or less)\\s*";
-    private static final String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than(?=\\s)|more than(?=\\s))\\s*(\\S+)\\s*";
+    private static final String MORE_LESS_PATTERN = "\\s*(<=?|>=?|less than(?=\\s)|more than(?=\\s))\\s*(\\S+)\\s*";
     private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*";
     private static final String SIMPLE_PATTERN = "\\s*(\\S+)\\s*";
 
