@@ -2662,6 +2662,7 @@ public final class DecisionTableHelper {
                     }
                     if (cellType.isArray()) {
                         isAllParsableAsSingleFlag = false;
+                        isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                     }
                 } catch (CompositeSyntaxNodeException e) {
                 }
@@ -2684,9 +2685,8 @@ public final class DecisionTableHelper {
                 }
                 if (constantOpenField.getType().isArray()) {
                     isAllParsableAsSingleFlag = false;
-                } else {
-                    isAllParsableAsSingleFlag = false;
-                }
+                    isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
+                } 
                 continue;
             }
 
@@ -2843,9 +2843,7 @@ public final class DecisionTableHelper {
 
         if (!type.isArray()) {
             if (DATE_TYPES.contains(type.getInstanceClass())) {
-                return Triple.of(new String[] { DateRange.class.getSimpleName() },
-                    JavaOpenClass.getOpenClass(DateRange.class),
-                    condition.getStatement());
+                return buildTripleForTypeForConditionColumn(DateRange.class, condition, true);
             } else if (INT_TYPES.contains(type.getInstanceClass())) {
                 return buildTripleForTypeForConditionColumn(IntRange.class, condition, true);
             } else if (DOUBLE_TYPES.contains(type.getInstanceClass())) {

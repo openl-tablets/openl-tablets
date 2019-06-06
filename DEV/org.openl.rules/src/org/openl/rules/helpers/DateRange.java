@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
+import org.openl.meta.LongValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
@@ -144,14 +145,23 @@ public class DateRange {
                 .toLocalDateTime();
     }
 
-    // CAST METHODS
-    public static DateRange cast(Calendar x, StringRange y) {
+    // AUTOCAST METHODS
+    public static DateRange autocast(Date x, DateRange y) {
+        return new DateRange(x);
+    }
+
+    public static DateRange autocast(Calendar x, DateRange y) {
         return new DateRange(x.getTime());
     }
 
-    public static DateRange cast(long x, StringRange y) {
+    public static DateRange autocast(long x, DateRange y) {
         return new DateRange(new Date(x));
     }
     // END
+    // CAST METHODS
+    public static DateRange cast(LongValue x, DateRange y) {
+        return new DateRange(new Date(x.longValue()));
+    }
+    //END
 
 }
