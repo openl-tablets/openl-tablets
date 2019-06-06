@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.18.5-SNAPSHOT</version>
+		<version>5.18.5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch</artifactId>
