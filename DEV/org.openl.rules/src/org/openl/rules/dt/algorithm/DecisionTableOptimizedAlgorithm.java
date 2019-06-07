@@ -326,7 +326,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         .isAssignableFrom(clazz)) {
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
                         throw SyntaxNodeExceptionUtils
-                            .createError(message, null, null, condition.getSourceCodeModule());
+                            .createError(message, null, null, condition.getUserDefinedExpressionSource());
                     }
                     return new CombinedRangeIndexEvaluator(null, 2);
                 }
@@ -364,7 +364,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             methodType.getName(),
             parametersString);
 
-        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
+        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getUserDefinedExpressionSource());
     }
 
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,

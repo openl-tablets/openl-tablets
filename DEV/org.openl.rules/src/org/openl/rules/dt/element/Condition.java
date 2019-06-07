@@ -1,5 +1,7 @@
 package org.openl.rules.dt.element;
 
+import java.util.Date;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -8,6 +10,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
+import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.table.ILogicalTable;
@@ -21,6 +24,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
     private IMethodCaller evaluator;
     private IConditionEvaluator conditionEvaluator;
+    private IOpenSourceCodeModule userDefinedOpenSourceCodeModule;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -119,6 +123,14 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
+    public IOpenSourceCodeModule getUserDefinedExpressionSource() {
+        if (userDefinedOpenSourceCodeModule == null) {
+            return getSourceCodeModule();
+        }
+        return userDefinedOpenSourceCodeModule;
+    }
+
+    @Override
     protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
             OpenL openl,
             IOpenClass declaringClass,
@@ -129,12 +141,9 @@ public class Condition extends FunctionalRow implements ICondition {
             declaringClass,
             signature,
             methodType);
-        
-        if (!hasFormulas()) {
-            return source;
-        }
 
         if (signature.getNumberOfParameters() == 1 && signature.getParameterName(0).equals(source.getCode())) {
+            userDefinedOpenSourceCodeModule = source;
             IParameterDeclaration[] params = getParams(source,
                 signature,
                 declaringClass,
@@ -148,26 +157,52 @@ public class Condition extends FunctionalRow implements ICondition {
                         .getComponentClass()
                         .getInstanceClass()
                         .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
-                    return new StringSourceCodeModule("contains(" + params[0].getName() + ", " + source.getCode() + ")",
-                        source.getUri()); // Contains syntax to full code (must be the same as indexed variant)
+                    return !hasFormulas() ? source
+                                          : new StringSourceCodeModule(
+                                              "contains(" + params[0].getName() + ", " + source.getCode() + ")",
+                                              source.getUri()); // Contains syntax to full code (must be the same as
+                                                                // indexed variant)
                 }
 
-                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) || StringRange.class.isAssignableFrom(params[0].getType().getInstanceClass())) {
-                    return new StringSourceCodeModule(params[0].getName() + ".contains(" + source.getCode() + ")",
-                        source.getUri()); // Range syntax to full code (must be the same as indexed variant)
+                boolean rangeExpression = false;
+                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Number.class
+                    .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
+                    rangeExpression = true;
+                } else if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && signature
+                    .getParameterType(0)
+                    .getInstanceClass()
+                    .isPrimitive() && !char.class.equals(signature.getParameterType(0).getInstanceClass())) {
+                    rangeExpression = true;
+                } else if (DateRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Date.class
+                    .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
+                    rangeExpression = true;
+                } else if (StringRange.class
+                    .isAssignableFrom(params[0].getType().getInstanceClass()) && CharSequence.class
+                        .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
+                    rangeExpression = true;
+                }
+                if (rangeExpression) {
+                    return !hasFormulas() ? source
+                                          : new StringSourceCodeModule(
+                                              params[0].getName() + ".contains(" + source.getCode() + ")",
+                                              source.getUri()); // Range syntax to full code (must be the same as
+                                                                // indexed variant)
                 }
 
-                return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple
+                return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(0)
+                    .isArray()) ? source
+                                : new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(),
+                                    source.getUri()); // Simple
                 // syntax
                 // to
                 // full
                 // code
             }
             if (params.length == 2) {
-                return new StringSourceCodeModule(
-                    params[0].getName() + "<=" + source.getCode() + " and " + source.getCode() + "<" + params[1]
-                        .getName(),
-                    source.getUri()); // Simple
+                return !hasFormulas() ? source
+                                      : new StringSourceCodeModule(params[0].getName() + "<=" + source
+                                          .getCode() + " and " + source.getCode() + "<" + params[1].getName(),
+                                          source.getUri()); // Simple
                 // syntax
                 // to
                 // full
