@@ -1,6 +1,5 @@
 package org.openl.rules.helpers;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -9,7 +8,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DateRangeParser extends ARangeParser<Instant> {
+public class DateRangeParser extends ARangeParser<Long> {
 
     /**
      * Parses strings like:
@@ -80,29 +79,29 @@ public class DateRangeParser extends ARangeParser<Instant> {
         return parsers;
     }
 
-    private static final class DateRangeBoundAdapter implements RangeBoundAdapter<Instant> {
+    private static final class DateRangeBoundAdapter implements RangeBoundAdapter<Long> {
 
-        private static final Instant MIN = Instant.ofEpochMilli(Long.MIN_VALUE);
-        private static final Instant MAX = Instant.ofEpochMilli(Long.MAX_VALUE);
+        private static final Long MIN = Long.MIN_VALUE;
+        private static final Long MAX = Long.MAX_VALUE;
 
         @Override
-        public Instant adaptValue(String s) {
+        public Long adaptValue(String s) {
             TemporalAccessor res = dateTimeParser.parseBest(s, LocalDateTime::from, LocalDate::from);
             return toInstant(res);
         }
 
-        private Instant toInstant(TemporalAccessor t) {
+        private Long toInstant(TemporalAccessor t) {
             LocalDateTime localDateTime = t instanceof LocalDate ? ((LocalDate) t).atStartOfDay() : ((LocalDateTime) t);
-            return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         }
 
         @Override
-        public Instant getMinLeftBound() {
+        public Long getMinLeftBound() {
             return MIN;
         }
 
         @Override
-        public Instant getMaxRightBound() {
+        public Long getMaxRightBound() {
             return MAX;
         }
     }

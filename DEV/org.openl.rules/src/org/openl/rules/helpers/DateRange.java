@@ -46,15 +46,15 @@ public class DateRange {
 
     @SuppressWarnings("WeakerAccess")
     public DateRange(String source) {
-        ParseStruct<Instant> range = DateRangeParser.getInstance().parse(source);
+        ParseStruct<Long> range = DateRangeParser.getInstance().parse(source);
         this.lowerBoundType = range.leftBoundType;
         this.upperBoundType = range.rightBoundType;
 
-        Long lowerBound = range.min.toEpochMilli();
+        Long lowerBound = range.min;
         if (this.lowerBoundType == BoundType.EXCLUDING) {
             lowerBound += 1;
         }
-        Long upperBound = range.max.toEpochMilli();
+        Long upperBound = range.max;
         if (this.upperBoundType == BoundType.EXCLUDING) {
             upperBound -= 1;
         }
