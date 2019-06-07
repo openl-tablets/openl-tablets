@@ -258,10 +258,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the result of addition operation
      */
     public static org.openl.meta.DoubleValue add(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.ADD.toString());
-        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -286,15 +282,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      */
     public static org.openl.meta.DoubleValue multiply(org.openl.meta.DoubleValue value1,
             org.openl.meta.DoubleValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.MULTIPLY.toString());
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return value1;
+        if (value1 == null || value2 == null) {
+            return null;
         }
 
         return new org.openl.meta.DoubleValue(value1,
@@ -313,9 +302,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      */
     public static org.openl.meta.DoubleValue subtract(org.openl.meta.DoubleValue value1,
             org.openl.meta.DoubleValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -344,26 +330,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      */
     public static org.openl.meta.DoubleValue divide(org.openl.meta.DoubleValue value1,
             org.openl.meta.DoubleValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.DIVIDE.toString());
-        if (value1 == null && value2 == null) {
+        if (value1 == null || value2 == null) {
             return null;
-        }
-
-        if (value1 == null && value2.doubleValue() != 0) {
-            return new org.openl.meta.DoubleValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-        }
-
-        if (value2 == null) {
-            return new org.openl.meta.DoubleValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
-        }
-
-        if (value2.doubleValue() == 0) {
-            // FIXME: temporary commented the throwing exception
-            // Is needed for the one of the commercial products, pls contact Denis Levchuk
-            //
-            return new org.openl.meta.DoubleValue(value1, value2, Double.POSITIVE_INFINITY, Formulas.DIVIDE);
         }
 
         return new org.openl.meta.DoubleValue(value1,

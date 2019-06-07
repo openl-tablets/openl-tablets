@@ -1,11 +1,15 @@
 package org.openl.rules.binding;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
+import org.openl.binding.impl.Operators;
 import org.openl.conf.OperatorsNamespace;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.*;
 import org.openl.meta.number.Formulas;
+
 
 @Deprecated
 @OperatorsNamespace
@@ -171,6 +175,100 @@ public class WholeNumberDivideOperators {
         }
 
         return new BigIntegerValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
+    }
+
+    public static Float divide(Float x, Float y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1.0f;
+        }
+        return x / y;
+    }
+
+    public static Double divide(Double x, Double y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1.0;
+        }
+        return x / y;
+    }
+
+    public static BigDecimal divide(BigDecimal x, BigDecimal y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = BigDecimal.ONE;
+        }
+        return x.divide(y, MathContext.DECIMAL128);
+    }
+
+    public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.FloatValue(value1, value2, Operators.divide(1.0f, value2.getValue()), Formulas.DIVIDE);
+        }
+
+        if (value2 == null) {
+            return new org.openl.meta.FloatValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+        }
+
+        if (value2.doubleValue() == 0) {
+            throw new OpenLRuntimeException("Division by zero");
+        }
+
+        return new org.openl.meta.FloatValue(value1,
+                value2,
+                Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
+    }
+
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.DoubleValue value1,
+                                                    org.openl.meta.DoubleValue value2) {
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(1.0, value2.getValue()), Formulas.DIVIDE);
+        }
+
+        if (value2 == null) {
+            return new org.openl.meta.DoubleValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+        }
+
+        return new org.openl.meta.DoubleValue(value1,
+                value2,
+                Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
+    }
+
+    public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1,
+                                                        org.openl.meta.BigDecimalValue value2) {
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new org.openl.meta.BigDecimalValue(value1, value2, Operators.divide(BigDecimal.ONE, value2.getValue()), Formulas.DIVIDE);
+        }
+
+        if (value2 == null) {
+            return new org.openl.meta.BigDecimalValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+        }
+
+        if (value2.doubleValue() == 0) {
+            throw new OpenLRuntimeException("Division by zero");
+        }
+
+        return new org.openl.meta.BigDecimalValue(value1,
+                value2,
+                Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
     }
 
 }
