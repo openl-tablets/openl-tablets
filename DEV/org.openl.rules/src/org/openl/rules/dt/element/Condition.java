@@ -197,7 +197,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
                     return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(i)
                         .isArray()) ? source
-                                    : new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(),
+                                    : new StringSourceCodeModule(source.getCode() + " == " + params[0].getName(),
                                         source.getUri()); // Simple
                     // syntax
                     // to
