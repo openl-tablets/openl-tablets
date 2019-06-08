@@ -141,72 +141,73 @@ public class Condition extends FunctionalRow implements ICondition {
             declaringClass,
             signature,
             methodType);
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            if (signature.getParameterName(i).equals(source.getCode())) {
+                userDefinedOpenSourceCodeModule = source;
+                IParameterDeclaration[] params = getParams(source,
+                    signature,
+                    declaringClass,
+                    methodType,
+                    openl,
+                    bindingContext);
+                if (params.length == 1) {
+                    if (params[0].getType()
+                        .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null && params[0]
+                            .getType()
+                            .getComponentClass()
+                            .getInstanceClass()
+                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
+                        return !hasFormulas() ? source
+                                              : new StringSourceCodeModule(
+                                                  "contains(" + params[0].getName() + ", " + source.getCode() + ")",
+                                                  source.getUri()); // Contains syntax to full code (must be the same as
+                                                                    // indexed variant)
+                    }
 
-        if (signature.getNumberOfParameters() == 1 && signature.getParameterName(0).equals(source.getCode())) {
-            userDefinedOpenSourceCodeModule = source;
-            IParameterDeclaration[] params = getParams(source,
-                signature,
-                declaringClass,
-                methodType,
-                openl,
-                bindingContext);
-            if (params.length == 1) {
-                if (params[0].getType()
-                    .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null && params[0]
-                        .getType()
-                        .getComponentClass()
+                    boolean rangeExpression = false;
+                    if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Number.class
+                        .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
+                        rangeExpression = true;
+                    } else if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && signature
+                        .getParameterType(i)
                         .getInstanceClass()
-                        .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
-                    return !hasFormulas() ? source
-                                          : new StringSourceCodeModule(
-                                              "contains(" + params[0].getName() + ", " + source.getCode() + ")",
-                                              source.getUri()); // Contains syntax to full code (must be the same as
-                                                                // indexed variant)
-                }
+                        .isPrimitive() && !char.class.equals(signature.getParameterType(i).getInstanceClass())) {
+                        rangeExpression = true;
+                    } else if (DateRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Date.class
+                        .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
+                        rangeExpression = true;
+                    } else if (StringRange.class
+                        .isAssignableFrom(params[0].getType().getInstanceClass()) && CharSequence.class
+                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
+                        rangeExpression = true;
+                    }
+                    if (rangeExpression) {
+                        return !hasFormulas() ? source
+                                              : new StringSourceCodeModule(
+                                                  params[0].getName() + ".contains(" + source.getCode() + ")",
+                                                  source.getUri()); // Range syntax to full code (must be the same as
+                                                                    // indexed variant)
+                    }
 
-                boolean rangeExpression = false;
-                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Number.class
-                    .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
-                    rangeExpression = true;
-                } else if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && signature
-                    .getParameterType(0)
-                    .getInstanceClass()
-                    .isPrimitive() && !char.class.equals(signature.getParameterType(0).getInstanceClass())) {
-                    rangeExpression = true;
-                } else if (DateRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Date.class
-                    .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
-                    rangeExpression = true;
-                } else if (StringRange.class
-                    .isAssignableFrom(params[0].getType().getInstanceClass()) && CharSequence.class
-                        .isAssignableFrom(signature.getParameterType(0).getInstanceClass())) {
-                    rangeExpression = true;
+                    return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(i)
+                        .isArray()) ? source
+                                    : new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(),
+                                        source.getUri()); // Simple
+                    // syntax
+                    // to
+                    // full
+                    // code
                 }
-                if (rangeExpression) {
+                if (params.length == 2) {
                     return !hasFormulas() ? source
-                                          : new StringSourceCodeModule(
-                                              params[0].getName() + ".contains(" + source.getCode() + ")",
-                                              source.getUri()); // Range syntax to full code (must be the same as
-                                                                // indexed variant)
+                                          : new StringSourceCodeModule(params[0].getName() + "<=" + source
+                                              .getCode() + " and " + source.getCode() + "<" + params[1].getName(),
+                                              source.getUri()); // Simple
+                    // syntax
+                    // to
+                    // full
+                    // code
                 }
-
-                return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(0)
-                    .isArray()) ? source
-                                : new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(),
-                                    source.getUri()); // Simple
-                // syntax
-                // to
-                // full
-                // code
-            }
-            if (params.length == 2) {
-                return !hasFormulas() ? source
-                                      : new StringSourceCodeModule(params[0].getName() + "<=" + source
-                                          .getCode() + " and " + source.getCode() + "<" + params[1].getName(),
-                                          source.getUri()); // Simple
-                // syntax
-                // to
-                // full
-                // code
             }
         }
         return source;
