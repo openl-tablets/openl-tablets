@@ -104,11 +104,11 @@ public class TestDoubleValue {
 
         v1 = null;
         v2 = new DoubleValue(22.22);
-        assertEquals(22.22, DoubleValue.multiply(v1, v2).doubleValue(), 0.001);
+        assertNull(DoubleValue.multiply(v1, v2));
 
         v1 = new DoubleValue(25.29);
         v2 = null;
-        assertEquals(25.29, DoubleValue.multiply(v1, v2).doubleValue(), 0.001);
+        assertNull(DoubleValue.multiply(v1, v2));
 
         v1 = null;
         v2 = null;
@@ -135,16 +135,16 @@ public class TestDoubleValue {
 
         v1 = new DoubleValue(0);
         v2 = new DoubleValue(0.00000000);
-        assertEquals(Double.POSITIVE_INFINITY, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
+        assertEquals(Double.NaN, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
 
         v1 = null;
         v2 = new DoubleValue(12);
-        assertEquals(0.08333, DoubleValue.divide(v1, v2).doubleValue(), 0.001);
+        assertNull(DoubleValue.divide(v1, v2));
 
         v1 = new DoubleValue(34);
         v2 = null;
 
-        assertEquals(34, DoubleValue.divide(v1, v2).doubleValue(), 0.1);
+        assertNull(DoubleValue.divide(v1, v2));
 
         v1 = null;
         v2 = null;
@@ -152,7 +152,7 @@ public class TestDoubleValue {
 
         v1 = null;
         v2 = new DoubleValue(0);
-        assertEquals(Double.POSITIVE_INFINITY, DoubleValue.divide(v1, v2).doubleValue(), 0.01);
+        assertNull(DoubleValue.divide(v1, v2));
     }
 
     @Test

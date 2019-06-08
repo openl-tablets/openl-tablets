@@ -144,10 +144,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @return the result of addition operation
      */
     public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.ADD.toString());
-        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -172,15 +168,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      */
     public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1,
             org.openl.meta.ShortValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.MULTIPLY.toString());
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return value1;
+        if (value1 == null || value2 == null) {
+            return null;
         }
 
         return new org.openl.meta.ShortValue(value1,
@@ -199,9 +188,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      */
     public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1,
             org.openl.meta.ShortValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -230,27 +216,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      */
     public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1,
             org.openl.meta.ShortValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.DIVIDE.toString());
-        if (value1 == null && value2 == null) {
+        if (value1 == null || value2 == null) {
             return null;
-        }
-
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null,
-                    new DoubleValue(value2.doubleValue()),
-                    divide(ONE, value2).getValue(),
-                    Formulas.DIVIDE);
-            }
-        }
-
-        if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
-                null,
-                value1.getValue(),
-                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
