@@ -10,6 +10,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.StringRange;
@@ -175,6 +176,11 @@ public class Condition extends FunctionalRow implements ICondition {
                         rangeExpression = true;
                     } else if (DateRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Date.class
                         .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
+                        rangeExpression = true;
+                    } else if (CharRange.class.isAssignableFrom(params[0].getType()
+                        .getInstanceClass()) && (Character.class
+                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass()) || char.class
+                                .equals(signature.getParameterType(i).getInstanceClass()))) {
                         rangeExpression = true;
                     } else if (StringRange.class
                         .isAssignableFrom(params[0].getType().getInstanceClass()) && CharSequence.class
