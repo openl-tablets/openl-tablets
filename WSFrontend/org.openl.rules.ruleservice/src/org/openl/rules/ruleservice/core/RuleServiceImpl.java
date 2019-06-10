@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.slf4j.Logger;
@@ -48,9 +49,15 @@ public class RuleServiceImpl implements RuleService {
                 throw new IllegalStateException("Invalid state!!!");
             }
             if (sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
-                undeploy(service.getName());
                 OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
-                deploy(serviceDescription, openLService);
+                Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
+                try {
+                    lock.lock();
+                    undeploy(service.getName());
+                    deploy(serviceDescription, openLService);
+                } finally {
+                    lock.unlock();
+                }
             }
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on redeploy service", e);

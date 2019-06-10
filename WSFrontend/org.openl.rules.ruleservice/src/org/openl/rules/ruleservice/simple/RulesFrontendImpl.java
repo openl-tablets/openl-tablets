@@ -7,10 +7,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
+import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
@@ -62,7 +64,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     @Override
     public OpenLService findServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
-        return runningServices.get(serviceName);
+        return getService(serviceName);
     }
 
     /**
@@ -75,7 +77,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
             Object[] params) throws MethodInvocationException {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
         Objects.requireNonNull(ruleName, "ruleName argument can't be null!");
-        OpenLService service = runningServices.get(serviceName);
+        OpenLService service = getService(serviceName);
         if (service == null) {
             throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
         }
@@ -115,6 +117,18 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         }
     }
 
+    private OpenLService getService(String serviceName) {
+        Lock lock = RuleServiceRedeployLock.getInstance().getReadLock();
+        OpenLService service = null;
+        try {
+            lock.lock();
+            service = runningServices.get(serviceName);
+        } finally {
+            lock.unlock();
+        }
+        return service;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -148,7 +162,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
         Object result = null;
 
-        OpenLService service = runningServices.get(serviceName);
+        OpenLService service = getService(serviceName);
         if (service != null) {
             try {
                 Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
