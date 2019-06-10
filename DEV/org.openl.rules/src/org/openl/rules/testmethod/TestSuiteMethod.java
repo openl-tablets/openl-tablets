@@ -303,122 +303,122 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
                 }
 
-                if (columnDescriptor.isReference() && !resultType.isSimple() && !resultType.isArray()) {
-                    fieldsToTest.addAll(resultType.getFields().values());
-                } else {
-                    IOpenField[] fieldSequence;
-                    String identifier1 = nodes[0].getIdentifier();
-                    boolean resIsCollection = StringUtils
-                        .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier1) || StringUtils
-                            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier1);
-                    int startIndex = 0;
-                    IOpenClass currentType = resultType;
+                IOpenField[] fieldSequence;
+                boolean resIsCollection = isCollectionType(nodes[0].getIdentifier());
+                int startIndex = 0;
+                IOpenClass currentType = resultType;
 
-                    if (resIsCollection) {
-                        startIndex = 1;
-                        fieldSequence = new IOpenField[nodes.length];
-                        IOpenField arrayField = new ThisField(resultType);
-                        CollectionType collectionType = getCollectionType(arrayField.getType());
-                        IOpenField arrayAccessField;
-                        if (collectionType == CollectionType.MAP) {
-                            Object key = DataTableBindHelper.getCollectionKey(nodes[0]);
-                            arrayAccessField = new CollectionElementField(arrayField,
-                                key,
-                                arrayField.getType().getComponentClass());
-                        } else {
-                            int index = DataTableBindHelper.getCollectionIndex(nodes[0]);
-                            arrayAccessField = new CollectionElementField(arrayField,
-                                index,
-                                arrayField.getType().getComponentClass(),
-                                collectionType);
-                        }
-                        if (arrayAccessField.getType().isArray()) {
-                            currentType = arrayAccessField.getType().getComponentClass();
-                        } else {
-                            currentType = arrayAccessField.getType();
-                        }
-                        fieldSequence[0] = arrayAccessField;
+                if (resIsCollection) {
+                    startIndex = 1;
+                    fieldSequence = new IOpenField[nodes.length];
+                    IOpenField arrayField = new ThisField(resultType);
+                    CollectionType collectionType = getCollectionType(arrayField.getType());
+                    IOpenField arrayAccessField;
+                    if (collectionType == CollectionType.MAP) {
+                        Object key = DataTableBindHelper.getCollectionKey(nodes[0]);
+                        arrayAccessField = new CollectionElementField(arrayField,
+                            key,
+                            arrayField.getType().getComponentClass());
                     } else {
-                        fieldSequence = new IOpenField[nodes.length - 1];
+                        int index = DataTableBindHelper.getCollectionIndex(nodes[0]);
+                        arrayAccessField = new CollectionElementField(arrayField,
+                            index,
+                            arrayField.getType().getComponentClass(),
+                            collectionType);
                     }
-                    int i;
-                    for (i = startIndex; i < fieldSequence.length; i++) {
-                        String identifier = nodes[i + 1 - startIndex].getIdentifier();
-                        boolean isCollection = StringUtils
-                            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier) || StringUtils
-                                .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
-                        if (isCollection) {
-                            IOpenField arrayField = currentType
+                    if (arrayAccessField.getType().isArray()) {
+                        currentType = arrayAccessField.getType().getComponentClass();
+                    } else {
+                        currentType = arrayAccessField.getType();
+                    }
+                    fieldSequence[0] = arrayAccessField;
+                } else {
+                    fieldSequence = new IOpenField[nodes.length - 1];
+                }
+                int i;
+                for (i = startIndex; i < fieldSequence.length; i++) {
+                    String identifier = nodes[i + 1 - startIndex].getIdentifier();
+                    boolean isCollection = isCollectionType(identifier);
+                    if (isCollection) {
+                        IOpenField arrayField = currentType
+                            .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
+                        // Try process field as SpreadsheetResult
+                        if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
+                            .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
+                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass
+                                .getOpenClass(SpreadsheetResult.class);
+                            arrayField = spreadsheetResultOpenClass
                                 .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
-                            // Try process field as SpreadsheetResult
-                            if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
-                                .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
-                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass
-                                    .getOpenClass(SpreadsheetResult.class);
-                                arrayField = spreadsheetResultOpenClass
-                                    .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
-                            }
-                            if (arrayField != null) {
-                                IOpenClass type = arrayField.getType();
-                                CollectionType collectionType = getCollectionType(type);
-                                IOpenField arrayAccessField;
-                                if (collectionType == CollectionType.MAP) {
-                                    Object key = DataTableBindHelper.getCollectionKey(nodes[i + 1 - startIndex]);
-                                    arrayAccessField = new CollectionElementField(arrayField,
-                                        key,
-                                        type.getComponentClass());
-                                } else {
-                                    int arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
-                                    arrayAccessField = new CollectionElementField(arrayField,
-                                        arrayIndex,
-                                        type.getComponentClass(),
-                                        collectionType);
-                                }
-                                fieldSequence[i] = arrayAccessField;
-                            }
-                        } else {
-                            fieldSequence[i] = currentType.getField(identifier);
-                            if (fieldSequence[i] == null) {
-                                // Try process field as SpreadsheetResult
-                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass
-                                    .getOpenClass(SpreadsheetResult.class);
-                                IOpenField openField = spreadsheetResultOpenClass.getField(identifier);
-                                if (openField != null) {
-                                    fieldSequence[i] = openField;
-                                }
-                            }
                         }
+                        if (arrayField != null) {
+                            IOpenClass type = arrayField.getType();
+                            CollectionType collectionType = getCollectionType(type);
+                            IOpenField arrayAccessField;
+                            if (collectionType == CollectionType.MAP) {
+                                Object key = DataTableBindHelper.getCollectionKey(nodes[i + 1 - startIndex]);
+                                arrayAccessField = new CollectionElementField(arrayField,
+                                    key,
+                                    type.getComponentClass());
+                            } else {
+                                int arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
+                                arrayAccessField = new CollectionElementField(arrayField,
+                                    arrayIndex,
+                                    type.getComponentClass(),
+                                    collectionType);
+                            }
+                            fieldSequence[i] = arrayAccessField;
+                        }
+                    } else {
+                        fieldSequence[i] = currentType.getField(identifier);
                         if (fieldSequence[i] == null) {
-                            break;
-                        }
-                        if (fieldSequence[i].getType().isArray() && isCollection) {
-                            currentType = fieldSequence[i].getType().getComponentClass();
-                        } else {
-                            currentType = fieldSequence[i].getType();
+                            // Try process field as SpreadsheetResult
+                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass
+                                .getOpenClass(SpreadsheetResult.class);
+                            IOpenField openField = spreadsheetResultOpenClass.getField(identifier);
+                            if (openField != null) {
+                                fieldSequence[i] = openField;
+                            }
                         }
                     }
-                    if (i == 0 || i == fieldSequence.length) {
-                        if (fieldSequence.length == 0) {
-                            fieldSequence = new IOpenField[] { new ThisField(resultType) };
-                        }
-                        if (fieldPrecision != null) {
-                            fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                        } else {
-                            if (fieldSequence.length > 1) {
-                                boolean hasNull = false;
-                                for (IOpenField field : fieldSequence) {
-                                    if (field == null) {
-                                        hasNull = true;
-                                    }
-                                }
-                                if (!hasNull) {
-                                    fieldsToTest.add(new FieldChain(currentType, fieldSequence));
-                                }
+                    if (fieldSequence[i] == null) {
+                        break;
+                    }
+                    if (fieldSequence[i].getType().isArray() && isCollection) {
+                        currentType = fieldSequence[i].getType().getComponentClass();
+                    } else {
+                        currentType = fieldSequence[i].getType();
+                    }
+                }
+                if (i == 0 || i == fieldSequence.length) {
+                    if (fieldSequence.length == 0) {
+                        if (columnDescriptor.isReference()) {
+                            if (resultType.isSimple() || resultType.isArray()) {
+                                fieldsToTest.add(new ThisField(resultType));
                             } else {
-                                IOpenField field = fieldSequence[0];
-                                if (field != null) {
-                                    fieldsToTest.add(field);
+                                fieldsToTest.addAll(resultType.getFields().values());
+                            }
+                            continue;
+                        } else {
+                            fieldSequence = new IOpenField[]{new ThisField(resultType)};
+                        }
+                    }
+                    if (fieldPrecision != null) {
+                        fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+                    } else {
+                        if (fieldSequence.length > 1) {
+                            boolean hasNull = false;
+                            for (IOpenField field : fieldSequence) {
+                                if (field == null) {
+                                    hasNull = true;
                                 }
+                            }
+                            if (!hasNull) {
+                                fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                            }
+                        } else {
+                            IOpenField field = fieldSequence[0];
+                            if (field != null) {
+                                fieldsToTest.add(field);
                             }
                         }
                     }
@@ -426,6 +426,11 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             }
         }
         return fieldsToTest;
+    }
+
+    private static boolean isCollectionType(String identifier) {
+        return StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier)
+                || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
     }
 
     private static CollectionType getCollectionType(IOpenClass type) {
