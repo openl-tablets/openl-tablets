@@ -2690,10 +2690,6 @@ public final class DecisionTableHelper {
                 continue;
             }
 
-            if (!parsableAs(value, type.getInstanceClass(), bindingContext)) {
-                isAllParsableAsSingleFlag = false;
-            }
-
             if (value.indexOf(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR) >= 0) {
                 arraySeparatorFoundFlag = true;
             }
@@ -2701,6 +2697,9 @@ public final class DecisionTableHelper {
             /* try to create range by values **/
             try {
                 if (INT_TYPES.contains(type.getInstanceClass())) {
+                    if (!parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                        isAllParsableAsSingleFlag = false;
+                    }
                     Pair<Boolean, String[]> f = parsableAsArray(value, IntRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, IntRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
@@ -2721,6 +2720,9 @@ public final class DecisionTableHelper {
                         isAllParsableAsArrayFlag = false;
                     }
                 } else if (DOUBLE_TYPES.contains(type.getInstanceClass())) {
+                    if (!parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                        isAllParsableAsSingleFlag = false;
+                    }
                     Pair<Boolean, String[]> f = parsableAsArray(value, DoubleRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
@@ -2738,6 +2740,9 @@ public final class DecisionTableHelper {
                         isAllParsableAsArrayFlag = false;
                     }
                 } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
+                    if (!parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                        isAllParsableAsSingleFlag = false;
+                    }
                     Pair<Boolean, String[]> f = parsableAsArray(value, CharRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, CharRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
@@ -2754,6 +2759,9 @@ public final class DecisionTableHelper {
                     Object o = cellValue.getSource().getCell(0, 0).getObjectValue();
                     if (o instanceof Date) {
                         continue;
+                    }
+                    if (o instanceof String && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                        isAllParsableAsSingleFlag = false;
                     }
                     Pair<Boolean, String[]> f = parsableAsArray(value, DateRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);

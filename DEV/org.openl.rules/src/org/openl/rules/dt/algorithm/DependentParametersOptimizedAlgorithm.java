@@ -56,13 +56,19 @@ class DependentParametersOptimizedAlgorithm {
                         expressionType.getName(),
                         condition.getName());
 
-                    throw new SyntaxNodeException(message, null, null, condition.getSourceCodeModule());
+                    throw new SyntaxNodeException(message, null, null, condition.getUserDefinedExpressionSource());
                 }
 
                 if (evaluatorFactory instanceof OneParameterEqualsFactory) {
-                    return condition.getNumberOfEmptyRules(0) > 1
-                            ? new OneParameterEqualsIndexedEvaluatorV2((OneParameterEqualsFactory) evaluatorFactory, openCast)
-                            : new OneParameterEqualsIndexedEvaluator((OneParameterEqualsFactory) evaluatorFactory, openCast);
+                    if (!paramType.isArray() && !expressionType.isArray()) {
+                        return condition.getNumberOfEmptyRules(0) > 1
+                                                                      ? new OneParameterEqualsIndexedEvaluatorV2(
+                                                                          (OneParameterEqualsFactory) evaluatorFactory,
+                                                                          openCast)
+                                                                      : new OneParameterEqualsIndexedEvaluator(
+                                                                          (OneParameterEqualsFactory) evaluatorFactory,
+                                                                          openCast);
+                    }
                 } else {
 
                     IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
@@ -79,7 +85,7 @@ class DependentParametersOptimizedAlgorithm {
                     rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
                     return rix;
                 }
-
+                break;
             case 2:
 
                 IOpenClass paramType0 = params[0].getType();
@@ -93,7 +99,7 @@ class DependentParametersOptimizedAlgorithm {
                             paramType0.getName(),
                             expressionType.getName(),
                             condition.getName());
-                        throw new SyntaxNodeException(message, null, null, condition.getSourceCodeModule());
+                        throw new SyntaxNodeException(message, null, null, condition.getUserDefinedExpressionSource());
                     }
                     IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
                         expressionType,
@@ -428,7 +434,7 @@ class DependentParametersOptimizedAlgorithm {
 
         if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
-                condition.getSourceCodeModule());
+                condition.getUserDefinedExpressionSource());
         }
 
         if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
@@ -455,7 +461,7 @@ class DependentParametersOptimizedAlgorithm {
 
         if (rel1 == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op1,
-                condition.getSourceCodeModule());
+                condition.getUserDefinedExpressionSource());
         }
 
         if (!rel1.isLessThan()) {
@@ -468,7 +474,7 @@ class DependentParametersOptimizedAlgorithm {
         RelationType rel2 = RelationType.findElement(op2);
         if (rel2 == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op2,
-                condition.getSourceCodeModule());
+                condition.getUserDefinedExpressionSource());
         }
 
         if (!rel2.isLessThan()) {
@@ -579,7 +585,7 @@ class DependentParametersOptimizedAlgorithm {
 
         if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
-                condition.getSourceCodeModule());
+                condition.getUserDefinedExpressionSource());
         }
 
         String oppositeOp = relation.opposite;
@@ -588,7 +594,7 @@ class DependentParametersOptimizedAlgorithm {
 
         if (relation == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp,
-                condition.getSourceCodeModule());
+                condition.getUserDefinedExpressionSource());
         }
 
         if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
@@ -755,7 +761,7 @@ class DependentParametersOptimizedAlgorithm {
         private OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
-                                                  IOpenCast openCast) {
+                IOpenCast openCast) {
             super(openCast);
             if (oneParameterEqualsFactory == null) {
                 throw new IllegalArgumentException("parameterDeclaration");

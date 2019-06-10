@@ -33,7 +33,7 @@ public interface IDecisionRow extends IBaseDecisionRow {
     boolean isAction();
 
     boolean isCondition();
-
+    
     void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,

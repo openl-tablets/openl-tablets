@@ -156,10 +156,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      */
     public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1,
             org.openl.meta.BigIntegerValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.ADD.toString());
-        // conditions big types
+
         if (value1 == null) {
             return value2;
         }
@@ -184,15 +181,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      */
     public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1,
             org.openl.meta.BigIntegerValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.MULTIPLY.toString());
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return value1;
+        if (value1 == null || value2 == null) {
+            return null;
         }
 
         return new org.openl.meta.BigIntegerValue(value1,
@@ -211,9 +201,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      */
     public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1,
             org.openl.meta.BigIntegerValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -242,25 +229,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      */
     public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigIntegerValue value1,
             org.openl.meta.BigIntegerValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.DIVIDE.toString());
-        if (value1 == null && value2 == null) {
+        if (value1 == null || value2 == null) {
             return null;
-        }
-
-        if (value1 == null && value2.doubleValue() != 0) {
-            return new org.openl.meta.BigDecimalValue(null,
-                new BigDecimalValue(new BigDecimal(value2.getValue())),
-                divide(ONE, value2).getValue(),
-                Formulas.DIVIDE);
-        }
-
-        if (value2 == null) {
-            return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())),
-                null,
-                new BigDecimal(value1.getValue()),
-                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {

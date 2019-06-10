@@ -53,11 +53,11 @@ public class IntValueTest {
     public void testMultiply() {
         IntValue v1 = new IntValue(123);
         IntValue v2 = null;
-        assertEquals(123, IntValue.multiply(v1, v2).intValue());
+        assertNull(IntValue.multiply(v1, v2));
 
         v1 = null;
         v2 = new IntValue(12);
-        assertEquals(12, IntValue.multiply(v1, v2).intValue());
+        assertNull(IntValue.multiply(v1, v2));
 
         v1 = null;
         v2 = null;
@@ -72,15 +72,15 @@ public class IntValueTest {
 
         IntValue val1 = new IntValue(10);
         IntValue val2 = null;
-        assertEquals(10, IntValue.divide(val1, val2).intValue());
+        assertNull(IntValue.divide(val1, val2));
 
         val1 = null;
         val2 = new IntValue(10);
-        assertEquals(0, IntValue.divide(val1, val2).intValue());
+        assertNull(IntValue.divide(val1, val2));
 
         val1 = null;
         val2 = null;
-        assertEquals(null, IntValue.divide(val1, val2));
+        assertNull(IntValue.divide(val1, val2));
     }
 
     @Test(expected = OpenLRuntimeException.class)
