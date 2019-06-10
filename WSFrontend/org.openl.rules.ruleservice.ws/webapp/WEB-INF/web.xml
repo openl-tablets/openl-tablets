@@ -16,6 +16,10 @@
     <filter>
         <filter-name>RuleServiceRedeployLockFilter</filter-name>
         <filter-class>org.openl.rules.ruleservice.servlet.RuleServiceRedeployLockFilter</filter-class>
+        <init-param>
+            <param-name>ignorePrefixes</param-name>
+            <param-value>/rules/deploy</param-value>
+        </init-param>
     </filter>
     <!-- Filters Mapping -->
     <filter-mapping>
