@@ -248,15 +248,15 @@ class DependentParametersOptimizedAlgorithm {
         IBoundNode[] children = binaryOpNode.getChildren();
         if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
             String[] ret = new String[3];
-            if (binaryOpNode.getSyntaxNode().getType().endsWith("ge")) {
+            if (binaryOpNode.getSyntaxNode().getType().endsWith("ge") && !binaryOpNode.getSyntaxNode().getType().endsWith("string_ge")) {
                 ret[1] = ">=";
-            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("gt")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("gt") && !binaryOpNode.getSyntaxNode().getType().endsWith("string_gt")) {
                 ret[1] = ">";
-            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("le")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("le") && !binaryOpNode.getSyntaxNode().getType().endsWith("string_le")) {
                 ret[1] = "<=";
-            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("lt")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("lt") && !binaryOpNode.getSyntaxNode().getType().endsWith("string_lt")) {
                 ret[1] = "<";
-            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("eq")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("eq") && !binaryOpNode.getSyntaxNode().getType().endsWith("string_eq")) {
                 ret[1] = "==";
             } else {
                 return null;

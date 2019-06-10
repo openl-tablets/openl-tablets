@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
@@ -1069,6 +1070,11 @@ public final class DecisionTableHelper {
             String s2 = cell2.getStringValue();
             Object o2 = string2DataConvertor.parse(s2, null);
 
+            if (JavaOpenClass.STRING.equals(type)) {
+                o1 = NumericComparableString.valueOf((String) o1);
+                o2 = NumericComparableString.valueOf((String) o2);
+            }
+
             if (o1 instanceof Comparable && o2 instanceof Comparable) {
                 if (((Comparable) o1).compareTo(o2) > 0) {
                     t1++;
@@ -1155,10 +1161,17 @@ public final class DecisionTableHelper {
                         column,
                         type);
                     String statement;
+                    String stringOperator = StringUtils.EMPTY;
+                    if (JavaOpenClass.STRING.equals(type)) {
+                        stringOperator = "string";
+                    }
+
                     if (minMaxOrder) {
-                        statement = "min <= " + condition.getStatement() + " && " + condition.getStatement() + " < max";
+                        statement = "min " + stringOperator + "<= " + condition.getStatement() + " && " + condition
+                            .getStatement() + " " + stringOperator + "< max";
                     } else {
-                        statement = "max > " + condition.getStatement() + " && " + condition.getStatement() + " >= min";
+                        statement = "max " + stringOperator + "> " + condition.getStatement() + " && " + condition
+                            .getStatement() + " " + stringOperator + ">= min";
                     }
                     grid.setCellValue(column, 1, statement);
                     grid.setCellValue(column,
@@ -2686,7 +2699,7 @@ public final class DecisionTableHelper {
                 if (constantOpenField.getType().isArray()) {
                     isAllParsableAsSingleFlag = false;
                     isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
-                } 
+                }
                 continue;
             }
 
