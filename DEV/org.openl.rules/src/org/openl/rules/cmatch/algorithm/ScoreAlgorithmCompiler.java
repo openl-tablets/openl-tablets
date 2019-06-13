@@ -78,8 +78,6 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     @Override
     protected void parseSpecialRows(IBindingContext bindingContext,
             ColumnMatch columnMatch) throws SyntaxNodeException {
-        super.parseSpecialRows(bindingContext, columnMatch);
-
         IOpenClass retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
         if (!int.class.equals(retClass) && !Integer.class.equals(retClass)) {
@@ -90,8 +88,6 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             String uri = columnMatch.getSourceUrl();
             throw SyntaxNodeExceptionUtils.createError(msg, new StringSourceCodeModule(null, uri));
         }
-
-        int retValuesCount = columnMatch.getReturnValues().length;
 
         // score
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
@@ -106,10 +102,11 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             columnMatch,
             scoreRow,
             JavaOpenClass.getOpenClass(Integer.class));
-        int[] scores = new int[retValuesCount];
-        for (int i = 0; i < retValuesCount; i++) {
+        int[] scores = new int[objScores.length];
+        for (int i = 0; i < objScores.length; i++) {
             scores[i] = (Integer) objScores[i];
         }
+        columnMatch.setReturnValues(objScores);
         columnMatch.setColumnScores(scores);
     }
 
