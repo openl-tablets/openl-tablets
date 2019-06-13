@@ -176,6 +176,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             if (Boolean.class.equals(returnType)) {
                 pattern = "[a-zA-Z]+";
             } else if (Date.class.equals(returnType)) {
+                if (format == null) {
+                    format = "yyyyMMdd"; // default pattern for easier declaration and be ordered by date naturally
+                }
                 dateFormats.put(propertyName, new SimpleDateFormat(format));
                 pattern = dateFormatToPattern(format);
             } else if (returnType.isEnum()) {
