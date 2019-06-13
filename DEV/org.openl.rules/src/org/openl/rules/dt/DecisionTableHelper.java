@@ -22,6 +22,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
@@ -2603,6 +2604,7 @@ public final class DecisionTableHelper {
      * @param vColumnCounter Counter of vertical conditions. Needed for calculating position of horizontal condition
      * @return type of condition values
      */
+    @SuppressWarnings("unchecked")
     private static Triple<String[], IOpenClass, String> getTypeForConditionColumn(DecisionTable decisionTable,
             ILogicalTable originalTable,
             DTHeader condition,
@@ -2631,6 +2633,7 @@ public final class DecisionTableHelper {
         boolean isAllLikelyNotRangeFlag = true;
         boolean isAllElementsLikelyNotRangeFlag = true;
         boolean isAllParsableAsSingleFlag = true;
+        boolean isAllParsableAsDomainFlag = true;
         boolean isAllParsableAsArrayFlag = true;
         boolean arraySeparatorFoundFlag = false;
 
@@ -2798,6 +2801,9 @@ public final class DecisionTableHelper {
                         isAllParsableAsArrayFlag = false;
                     }
                 } else if (STRING_TYPES.contains(type.getInstanceClass())) {
+                    if (type.getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value)) {
+                        isAllParsableAsDomainFlag = false;
+                    }
                     Pair<Boolean, String[]> f = parsableAsArray(value, StringRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, StringRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
@@ -2846,8 +2852,8 @@ public final class DecisionTableHelper {
                 condition,
                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
         } else if (isSmart(decisionTable.getSyntaxNode()) && STRING_TYPES.contains(type
-            .getInstanceClass()) && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
-                                                                                                                         : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
+            .getInstanceClass()) && !isAllParsableAsDomainFlag && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
+                                                                                                                                                       : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
             return buildTripleForTypeForConditionColumn(StringRange.class,
                 condition,
                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
@@ -2871,7 +2877,8 @@ public final class DecisionTableHelper {
                 return buildTripleForTypeForConditionColumn(DoubleRange.class, condition, true);
             } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
                 return buildTripleForTypeForConditionColumn(CharRange.class, condition, true);
-            } else if (STRING_TYPES.contains(type.getInstanceClass()) && isSmart(decisionTable.getSyntaxNode())) {
+            } else if (STRING_TYPES.contains(type.getInstanceClass()) && isSmart(
+                decisionTable.getSyntaxNode()) && !isAllParsableAsDomainFlag) {
                 return buildTripleForTypeForConditionColumn(StringRange.class, condition, true);
             }
             return Triple
