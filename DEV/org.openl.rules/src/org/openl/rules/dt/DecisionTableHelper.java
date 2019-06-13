@@ -2845,7 +2845,7 @@ public final class DecisionTableHelper {
             return buildTripleForTypeForConditionColumn(CharRange.class,
                 condition,
                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
-        } else if (STRING_TYPES.contains(type
+        } else if (isSmart(decisionTable.getSyntaxNode()) && STRING_TYPES.contains(type
             .getInstanceClass()) && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
                                                                                                                          : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
             return buildTripleForTypeForConditionColumn(StringRange.class,
@@ -2871,13 +2871,11 @@ public final class DecisionTableHelper {
                 return buildTripleForTypeForConditionColumn(DoubleRange.class, condition, true);
             } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
                 return buildTripleForTypeForConditionColumn(CharRange.class, condition, true);
-            } else if (STRING_TYPES.contains(type.getInstanceClass())) {
+            } else if (STRING_TYPES.contains(type.getInstanceClass()) && isSmart(decisionTable.getSyntaxNode())) {
                 return buildTripleForTypeForConditionColumn(StringRange.class, condition, true);
-            } else {
-                return Triple.of(new String[] { type.getName() + "[]" },
-                    AOpenClass.getArrayType(type, 1),
-                    condition.getStatement());
             }
+            return Triple
+                .of(new String[] { type.getName() + "[]" }, AOpenClass.getArrayType(type, 1), condition.getStatement());
         } else {
             return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
         }
