@@ -1114,6 +1114,7 @@ public final class DecisionTableHelper {
             .max()
             .orElse(0);
 
+        Map<DTHeader, IOpenClass> hConditionTypes = new HashMap<>();
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
             if (column > originalTable.getSource().getWidth()) {
@@ -1239,13 +1240,15 @@ public final class DecisionTableHelper {
                                     new GridRegion(row, column, row, column + condition.getWidth() - 1));
                             }
                         }
+                    } else {
+                        hConditionTypes.put(condition, typeOfValue.getMiddle());
                     }
                 }
             }
         }
 
         if (!bindingContext.isExecutionMode()) {
-            writeMetaInfoForHConditions(originalTable, decisionTable, conditions);
+            writeMetaInfoForHConditions(originalTable, decisionTable, conditions, hConditionTypes);
         }
     }
 
@@ -1300,7 +1303,8 @@ public final class DecisionTableHelper {
 
     private static void writeMetaInfoForHConditions(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            List<DTHeader> conditions) {
+            List<DTHeader> conditions,
+            Map<DTHeader, IOpenClass> hConditionTypes) {
         MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
         for (DTHeader condition : conditions) {
@@ -1312,13 +1316,16 @@ public final class DecisionTableHelper {
                 ICell cell = originalTable.getSource().getCell(column, j);
                 String cellValue = cell.getStringValue();
                 if (cellValue != null && metaInfoReader instanceof DecisionTableMetaInfoReader) {
+                    IOpenClass type = hConditionTypes.get(condition);
+                    if (type == null) {
+                        type = decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex());
+                    }
                     ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
                         cell.getAbsoluteColumn(),
                         (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (j + 1)).intern(),
                         null,
                         decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
-                        new IOpenClass[] {
-                                decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()) },
+                        new IOpenClass[] { type },
                         null,
                         null);
                 }
@@ -2608,7 +2615,7 @@ public final class DecisionTableHelper {
     private static Triple<String[], IOpenClass, String> getTypeForConditionColumn(DecisionTable decisionTable,
             ILogicalTable originalTable,
             DTHeader condition,
-            int numOfHCondition,
+            int indexOfHCondition,
             int firstColumnForHConditions,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
@@ -2624,7 +2631,7 @@ public final class DecisionTableHelper {
             int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
             skip = calculateRowsCount(originalTable, column, firstColumnHeight);
         } else {
-            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHCondition - 1));
+            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(indexOfHCondition - 1));
             width = decisionValues.getWidth();
             skip = firstColumnForHConditions;
         }
