@@ -284,7 +284,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         if (folderItems.get(0).getData() instanceof MappedFileData) {
-            throw new UnsupportedEncodingException();
+            throw new UnsupportedOperationException();
         }
         Map<String, String> mapping = getMappingForRead();
 
