@@ -71,6 +71,11 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean delete(FileData data) {
         throw new UnsupportedOperationException();
     }

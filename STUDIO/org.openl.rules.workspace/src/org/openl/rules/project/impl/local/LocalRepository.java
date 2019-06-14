@@ -62,10 +62,28 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        List<FileData> result = super.save(fileItems);
+        for (FileData data : result) {
+            notifyModified(data.getName());
+        }
+        return result;
+    }
+
+    @Override
     public FileData save(FileData folderData, final Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
         FileData fileData = super.save(folderData, files, changesetType);
         notifyModified(folderData.getName());
         return fileData;
+    }
+
+    @Override
+    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
+        List<FileData> result = super.save(folderItems, changesetType);
+        for (FileData data : result) {
+            notifyModified(data.getName());
+        }
+        return result;
     }
 
     @Override
