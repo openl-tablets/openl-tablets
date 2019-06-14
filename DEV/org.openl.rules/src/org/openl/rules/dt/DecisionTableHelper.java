@@ -22,6 +22,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
@@ -1113,6 +1114,7 @@ public final class DecisionTableHelper {
             .max()
             .orElse(0);
 
+        Map<DTHeader, IOpenClass> hConditionTypes = new HashMap<>();
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
             if (column > originalTable.getSource().getWidth()) {
@@ -1238,13 +1240,15 @@ public final class DecisionTableHelper {
                                     new GridRegion(row, column, row, column + condition.getWidth() - 1));
                             }
                         }
+                    } else {
+                        hConditionTypes.put(condition, typeOfValue.getMiddle());
                     }
                 }
             }
         }
 
         if (!bindingContext.isExecutionMode()) {
-            writeMetaInfoForHConditions(originalTable, decisionTable, conditions);
+            writeMetaInfoForHConditions(originalTable, decisionTable, conditions, hConditionTypes);
         }
     }
 
@@ -1299,7 +1303,8 @@ public final class DecisionTableHelper {
 
     private static void writeMetaInfoForHConditions(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            List<DTHeader> conditions) {
+            List<DTHeader> conditions,
+            Map<DTHeader, IOpenClass> hConditionTypes) {
         MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
         for (DTHeader condition : conditions) {
@@ -1311,13 +1316,16 @@ public final class DecisionTableHelper {
                 ICell cell = originalTable.getSource().getCell(column, j);
                 String cellValue = cell.getStringValue();
                 if (cellValue != null && metaInfoReader instanceof DecisionTableMetaInfoReader) {
+                    IOpenClass type = hConditionTypes.get(condition);
+                    if (type == null) {
+                        type = decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex());
+                    }
                     ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
                         cell.getAbsoluteColumn(),
                         (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (j + 1)).intern(),
                         null,
                         decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
-                        new IOpenClass[] {
-                                decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()) },
+                        new IOpenClass[] { type },
                         null,
                         null);
                 }
@@ -2603,10 +2611,11 @@ public final class DecisionTableHelper {
      * @param vColumnCounter Counter of vertical conditions. Needed for calculating position of horizontal condition
      * @return type of condition values
      */
+    @SuppressWarnings("unchecked")
     private static Triple<String[], IOpenClass, String> getTypeForConditionColumn(DecisionTable decisionTable,
             ILogicalTable originalTable,
             DTHeader condition,
-            int numOfHCondition,
+            int indexOfHCondition,
             int firstColumnForHConditions,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
@@ -2622,7 +2631,7 @@ public final class DecisionTableHelper {
             int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
             skip = calculateRowsCount(originalTable, column, firstColumnHeight);
         } else {
-            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHCondition - 1));
+            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(indexOfHCondition - 1));
             width = decisionValues.getWidth();
             skip = firstColumnForHConditions;
         }
@@ -2631,6 +2640,7 @@ public final class DecisionTableHelper {
         boolean isAllLikelyNotRangeFlag = true;
         boolean isAllElementsLikelyNotRangeFlag = true;
         boolean isAllParsableAsSingleFlag = true;
+        boolean isAllParsableAsDomainFlag = true;
         boolean isAllParsableAsArrayFlag = true;
         boolean arraySeparatorFoundFlag = false;
 
@@ -2798,6 +2808,9 @@ public final class DecisionTableHelper {
                         isAllParsableAsArrayFlag = false;
                     }
                 } else if (STRING_TYPES.contains(type.getInstanceClass())) {
+                    if (type.getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value)) {
+                        isAllParsableAsDomainFlag = false;
+                    }
                     Pair<Boolean, String[]> f = parsableAsArray(value, StringRange.class, bindingContext);
                     boolean parsableAsSingleRange = parsableAs(value, StringRange.class, bindingContext);
                     if (!f.getKey() && !parsableAsSingleRange) {
@@ -2845,9 +2858,9 @@ public final class DecisionTableHelper {
             return buildTripleForTypeForConditionColumn(CharRange.class,
                 condition,
                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
-        } else if (STRING_TYPES.contains(type
-            .getInstanceClass()) && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
-                                                                                                                         : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
+        } else if (isSmart(decisionTable.getSyntaxNode()) && STRING_TYPES.contains(type
+            .getInstanceClass()) && !isAllParsableAsDomainFlag && isAllParsableAsRangeFlag && ((isNotParsableAsSingleRangeButParsableAsRangesArrayFlag ? !isAllElementsLikelyNotRangeFlag
+                                                                                                                                                       : !isAllLikelyNotRangeFlag) || !isAllParsableAsArrayFlag)) {
             return buildTripleForTypeForConditionColumn(StringRange.class,
                 condition,
                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag);
@@ -2871,13 +2884,12 @@ public final class DecisionTableHelper {
                 return buildTripleForTypeForConditionColumn(DoubleRange.class, condition, true);
             } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
                 return buildTripleForTypeForConditionColumn(CharRange.class, condition, true);
-            } else if (STRING_TYPES.contains(type.getInstanceClass())) {
+            } else if (STRING_TYPES.contains(type.getInstanceClass()) && isSmart(
+                decisionTable.getSyntaxNode()) && !isAllParsableAsDomainFlag) {
                 return buildTripleForTypeForConditionColumn(StringRange.class, condition, true);
-            } else {
-                return Triple.of(new String[] { type.getName() + "[]" },
-                    AOpenClass.getArrayType(type, 1),
-                    condition.getStatement());
             }
+            return Triple
+                .of(new String[] { type.getName() + "[]" }, AOpenClass.getArrayType(type, 1), condition.getStatement());
         } else {
             return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
         }

@@ -46,7 +46,7 @@ public class RangeCompilationTest {
 
         dt = findDt("StringRange_WhenAtLeastOneRangeDefined", openClass);
         assertConditionsNumber(dt, 1);
-        assertConditionEvaluatorClass(dt.getConditionRows()[0], CombinedRangeIndexEvaluator.class);
+        assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
     }
 
     private <T extends IConditionEvaluator> void assertConditionEvaluatorClass(IBaseCondition condition,

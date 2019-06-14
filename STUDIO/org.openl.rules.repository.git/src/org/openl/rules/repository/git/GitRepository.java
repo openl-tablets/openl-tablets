@@ -14,15 +14,19 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
+import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -61,6 +65,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private Git git;
 
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
+    private ReadWriteLock remoteRepoLock = new ReentrantReadWriteLock();
 
     private Map<String, List<String>> branches = new HashMap<>();
 
@@ -693,12 +698,24 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private ObjectId getLastRevision() throws GitAPIException, IOException {
+        FetchResult fetchResult;
+
+        Lock readLock = repositoryLock.readLock();
+        Lock remoteLock = remoteRepoLock.writeLock();
+        try {
+            readLock.lock();
+            remoteLock.lock();
+
+            fetchResult = fetchAll();
+        } finally {
+            remoteLock.unlock();
+            readLock.unlock();
+        }
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(): lock");
             writeLock.lock();
-
-            pull();
 
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
@@ -710,12 +727,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
             }
             saveBranches();
+
+            for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
+                git.checkout().setName(refUpdate.getLocalName()).call();
+
+                // It's assumed that we don't have unpushed commits at this point so there must be no additional merge
+                // while checking last revision. Accept only fast forwards.
+                git.merge()
+                    .include(refUpdate.getNewObjectId())
+                    .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                    .call();
+            }
+            reset();
         } finally {
             writeLock.unlock();
             log.debug("pull(): unlock");
         }
 
-        Lock readLock = repositoryLock.readLock();
         try {
             log.debug("getLastRevision(): lock");
             readLock.lock();
@@ -727,21 +755,37 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void pull() throws GitAPIException {
-        fetchAll();
-
-        // TODO: Consider changing merge strategy
-        PullCommand pullCommand = git.pull().setStrategy(MergeStrategy.RECURSIVE);
-        if (StringUtils.isNotBlank(login)) {
-            pullCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+        FetchResult fetchResult;
+        Lock remoteLock = remoteRepoLock.writeLock();
+        try {
+            remoteLock.lock();
+            fetchResult = fetchAll();
+        } finally {
+            remoteLock.unlock();
         }
 
-        PullResult pullResult = pullCommand.call();
-        if (!pullResult.isSuccessful()) {
-            throw new IllegalStateException("Can't pull: " + pullResult.toString());
+        Ref r = fetchResult.getAdvertisedRef(branch);
+        if (r == null) {
+            r = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
+        }
+
+        if (r == null) {
+            throw new RefNotAdvertisedException(MessageFormat.format(
+                JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME,
+                branch));
+        }
+
+        MergeResult mergeResult = git.merge()
+            .include(r.getObjectId())
+            .setStrategy(MergeStrategy.RECURSIVE)
+            .call();
+
+        if (!mergeResult.getMergeStatus().isSuccessful()) {
+            throw new IllegalStateException("Can't merge: " + mergeResult.toString());
         }
     }
 
-    private void fetchAll() throws GitAPIException {
+    private FetchResult fetchAll() throws GitAPIException {
         FetchCommand fetchCommand = git.fetch();
         if (StringUtils.isNotBlank(login)) {
             fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
@@ -751,18 +795,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // Need to check if in a newer version it should be changed.
         fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*", Constants.R_HEADS + "*"));
         fetchCommand.setRemoveDeletedRefs(true);
-        fetchCommand.call();
+        fetchCommand.setTimeout(listenerTimerPeriod);
+        return fetchCommand.call();
     }
 
     private void push() throws GitAPIException, IOException {
-        PushCommand push = git.push().setPushTags().add(branch);
+        Lock remoteLock = remoteRepoLock.writeLock();
+        try {
+            remoteLock.lock();
 
-        if (StringUtils.isNotBlank(login)) {
-            push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+            PushCommand push = git.push().setPushTags().add(branch).setTimeout(listenerTimerPeriod);
+
+            if (StringUtils.isNotBlank(login)) {
+                push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+            }
+
+            Iterable<PushResult> results = push.call();
+            validatePushResults(results);
+        } finally {
+            remoteLock.unlock();
         }
-
-        Iterable<PushResult> results = push.call();
-        validatePushResults(results);
     }
 
     private void validatePushResults(Iterable<PushResult> results) throws IOException {
@@ -1216,25 +1268,50 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public GitRepository forBranch(String branch) throws IOException {
-        GitRepository repository = branchRepos.get(branch);
+        GitRepository repository;
+
+        Lock readLock = repositoryLock.readLock();
+        try {
+            log.debug("forBranch(): read: lock");
+            readLock.lock();
+            repository = branchRepos.get(branch);
+            if (repository == null && git.getRepository().findRef(branch) == null) {
+                List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+
+                boolean branchExist = false;
+                String remoteBranchName = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/" + branch;
+                for (Ref ref : refs) {
+                    String name = ref.getName();
+                    if (remoteBranchName.equals(name)) {
+                        branchExist = true;
+                        break;
+                    }
+                }
+
+                if (!branchExist) {
+                    throw new IOException("Can't find branch '" + branch + "'");
+                }
+            }
+        } catch (GitAPIException e) {
+            throw new IOException(e);
+        } finally {
+            readLock.unlock();
+            log.debug("forBranch(): read: unlock");
+        }
         if (repository == null) {
             Lock writeLock = repositoryLock.writeLock();
             try {
-                log.debug("forBranch(): lock");
+                log.debug("forBranch(): write: lock");
                 writeLock.lock();
 
                 repository = branchRepos.get(branch);
                 if (repository == null) {
-                    boolean branchAbsents = git.getRepository().findRef(branch) == null;
-                    if (branchAbsents) {
-                        FetchCommand fetchCommand = git.fetch();
-                        if (StringUtils.isNotBlank(login)) {
-                            fetchCommand
-                                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
-                        }
-                        fetchCommand.setRefSpecs(new RefSpec().setSource(Constants.R_HEADS + branch)
-                            .setDestination(Constants.R_HEADS + branch));
-                        fetchCommand.call();
+                    if (git.getRepository().findRef(branch) == null) {
+                        git.branchCreate()
+                            .setName(branch)
+                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                            .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+                            .call();
                     }
 
                     repository = new GitRepository();
@@ -1254,6 +1331,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     repository.git = Git.open(new File(localRepositoryPath));
                     repository.repositoryLock = repositoryLock; // must be common for all instances because git
                                                                 // repository is same
+                    repository.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
+                                                                // repository is same
                     repository.branches = branches; // Can be shared between instances
                     repository.monitor = monitor;
 
@@ -1263,7 +1342,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new IOException(e);
             } finally {
                 writeLock.unlock();
-                log.debug("forBranch(): unlock");
+                log.debug("forBranch(): write: unlock");
             }
         }
 
@@ -1285,7 +1364,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
-        PushCommand push = git.push().setRefSpecs(refSpec);
+        PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(listenerTimerPeriod);
 
         if (StringUtils.isNotBlank(login)) {
             push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
