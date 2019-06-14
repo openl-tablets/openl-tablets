@@ -100,6 +100,35 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        Connection connection = null;
+        try {
+            connection = getConnection();
+            connection.setAutoCommit(false);
+            for (FileItem fileItem : fileItems) {
+                FileData data = fileItem.getData();
+                PreparedStatement statement = null;
+                try {
+                    statement = createInsertFileStatement(connection, data, fileItem.getStream());
+                    statement.executeUpdate();
+                } finally {
+                    safeClose(statement);
+                }
+                data.setVersion(null);
+                result.add(data);
+            }
+            connection.commit();
+            invokeListener();
+        } catch (SQLException e) {
+            throw new IOException(e);
+        } finally {
+            safeClose(connection);
+        }
+        return result;
+    }
+
+    @Override
     public boolean delete(FileData path) {
         FileData data;
         try {
@@ -452,17 +481,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.insertFile);
-            statement.setString(1, data.getName());
-            statement.setString(2, data.getAuthor());
-            statement.setString(3, data.getComment());
-            if (stream != null) {
-                statement.setBinaryStream(4, stream);
-            } else {
-                // Workaround for PostreSQL
-                statement.setBinaryStream(4, null, 0);
-            }
-
+            statement = createInsertFileStatement(connection, data, stream);
             statement.executeUpdate();
             
             data.setVersion(null);
@@ -474,6 +493,22 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             safeClose(statement);
             safeClose(connection);
         }
+    }
+
+    private PreparedStatement createInsertFileStatement(Connection connection, FileData data, InputStream stream)
+            throws SQLException {
+
+        PreparedStatement statement = connection.prepareStatement(settings.insertFile);
+        statement.setString(1, data.getName());
+        statement.setString(2, data.getAuthor());
+        statement.setString(3, data.getComment());
+        if (stream != null) {
+            statement.setBinaryStream(4, stream);
+        } else {
+            // Workaround for PostreSQL
+            statement.setBinaryStream(4, null, 0);
+        }
+        return statement;
     }
 
     @Override

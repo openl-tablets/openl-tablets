@@ -101,6 +101,16 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        for (FileItem fileItem : fileItems) {
+            FileData saved = save(fileItem.getData(), fileItem.getStream());
+            result.add(saved);
+        }
+        return result;
+    }
+
+    @Override
     public boolean delete(FileData data) {
         File file = new File(root, data.getName());
         boolean deleted;
@@ -306,6 +316,16 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         }
 
         return folder.exists() ? getFileData(folder) : null;
+    }
+
+    @Override
+    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        for (FolderItem folderItem : folderItems) {
+            FileData saved = save(folderItem.getData(), folderItem.getFiles(), changesetType);
+            result.add(saved);
+        }
+        return result;
     }
 
     private void removeAbsentFiles(File directory, Collection<File> toSave) {

@@ -221,6 +221,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        for (FileItem fileItem : fileItems) {
+            result.add(save(fileItem.getData(), fileItem.getStream()));
+        }
+        return result;
+    }
+
+    @Override
     public boolean delete(FileData data) {
         try {
             String path = data.getName();
