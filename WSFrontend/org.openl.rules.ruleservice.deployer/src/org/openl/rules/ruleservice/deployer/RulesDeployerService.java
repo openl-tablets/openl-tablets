@@ -132,7 +132,7 @@ public class RulesDeployerService implements Closeable {
         if (projectFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Map<String, byte[]>> projects = new ArrayList<>();
+        List<FileItem> fileItems = new ArrayList<>();
         for (String projectFolder : projectFolders) {
             Map<String, byte[]> newProjectEntries = new HashMap<>();
             for (Map.Entry<String, byte[]> entry : zipEntries.entrySet()) {
@@ -143,24 +143,19 @@ public class RulesDeployerService implements Closeable {
                 }
             }
             if (!newProjectEntries.isEmpty()) {
-                projects.add(newProjectEntries);
+                FileData dest = createFileData(newProjectEntries, deploymentName, name, overridable);
+                if (dest == null) {
+                    return Collections.emptyList();
+                }
+                ByteArrayOutputStream zipbaos = DeploymentUtils.archiveAsZip(newProjectEntries);
+                if (!deployRepo.supports().folders()) {
+                    dest.setSize(zipbaos.size());
+                }
+                fileItems.add(new FileItem(dest, new ByteArrayInputStream(zipbaos.toByteArray())));
             }
         }
-        if (projects.isEmpty()) {
+        if (fileItems.isEmpty()) {
             throw new RuntimeException("Invalid deployment structure! Cannot detect projects.");
-        }
-
-        List<FileItem> fileItems = new ArrayList<>();
-        for (Map<String, byte[]> project : projects) {
-            FileData dest = createFileData(project, deploymentName, name, overridable);
-            if (dest == null) {
-                return Collections.emptyList();
-            }
-            ByteArrayOutputStream zipbaos = DeploymentUtils.archiveAsZip(project);
-            if (!deployRepo.supports().folders()) {
-                dest.setSize(zipbaos.size());
-            }
-            fileItems.add(new FileItem(dest, new ByteArrayInputStream(zipbaos.toByteArray())));
         }
         return fileItems;
     }
