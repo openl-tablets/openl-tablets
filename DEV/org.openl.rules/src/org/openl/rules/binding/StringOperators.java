@@ -10,7 +10,7 @@ import org.openl.meta.number.Formulas;
 
 @OperatorsNamespace
 @Deprecated
-public class StringOperators extends Operators {
+public class StringOperators {
 
     private static final int STRING_TO_TYPE_DISTANCE = 40;
     private static final int TYPE_TO_STRING_DISTANCE = 41;
