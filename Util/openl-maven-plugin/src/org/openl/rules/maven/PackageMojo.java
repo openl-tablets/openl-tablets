@@ -3,10 +3,9 @@ package org.openl.rules.maven;
 import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -22,7 +21,11 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.ZipUtils;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Package an OpenL project in ZIP archive.
@@ -35,6 +38,8 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
+    private static final String DEPLOYMENT_YAML = "deployment.yaml";
+    private static final String DEPLOYMENT_CLASSIFIER = "deployment";
 
     @Component
     ArchiverManager archiverManager;
@@ -85,6 +90,19 @@ public final class PackageMojo extends BaseOpenLMojo {
      */
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
+
+    /**
+     * Enables generation of deployed zip. This zip includes exploded main OpenL project and all depended OpenL projects
+     * which are located in separated folders inside archive.
+     */
+    @Parameter(defaultValue = "false")
+    private boolean deploymentPackage;
+
+    /**
+     * The name of deployment archive
+     */
+    @Parameter(defaultValue = "${project.build.finalName}")
+    private String deploymentName;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -159,6 +177,31 @@ public final class PackageMojo extends BaseOpenLMojo {
                 project.getArtifact().setFile(outputFile);
             }
         }
+
+        if (deploymentPackage) {
+            File outputDeploymentDir = new File(outputDirectory, finalName + "-" + DEPLOYMENT_CLASSIFIER);
+            if (outputDeploymentDir.isDirectory()) {
+                info("Cleaning up '", outputDeploymentDir, "' directory...");
+                FileUtils.delete(outputDeploymentDir);
+            }
+            outputDeploymentDir.mkdir();
+            Set<Artifact> openLDependencies = getOpenLDependencies();
+            for (Artifact openLArtifact : openLDependencies) {
+                File artifactFile = openLArtifact.getFile();
+                unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
+            }
+            unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
+            generateDeploymentFile(outputDeploymentDir);
+
+            File outputFile = getOutputFile(outputDirectory, deploymentName, DEPLOYMENT_CLASSIFIER, OPENL_ARTIFACT_TYPE);
+            Archiver arch = archiverManager.getArchiver(OPENL_ARTIFACT_TYPE);
+            arch.setIncludeEmptyDirs(false);
+            arch.addFileSet(fileSet(outputDeploymentDir).includeEmptyDirs(false));
+            arch.setDestFile(outputFile);
+            arch.createArchive();
+            info("Attaching the deployment artifact '", outputFile, ",");
+            projectHelper.attachArtifact(project, OPENL_ARTIFACT_TYPE, DEPLOYMENT_CLASSIFIER, outputFile);
+        }
     }
 
     private Set<Artifact> getDependencies() {
@@ -210,9 +253,12 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private boolean skipToProcess(String groupId, String type, String scope) {
-        boolean runtimeScope = Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
-        return !runtimeScope || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
+        return !isRuntimeScope(scope) || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
             .equals("org.slf4j") || OPENL_ARTIFACT_TYPE.equals(type);
+    }
+
+    private boolean isRuntimeScope(String scope) {
+        return Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
     }
 
     private boolean skipTransitiveDependency(List<String> dependencyTrail) {
@@ -264,5 +310,32 @@ public final class PackageMojo extends BaseOpenLMojo {
         fileName.append('.').append(format);
 
         return new File(basedir, fileName.toString());
+    }
+
+    private Set<Artifact> getOpenLDependencies() {
+        Set<Artifact> openLDependencies = new HashSet<>();
+        for (Artifact artifact : project.getArtifacts()) {
+            if (OPENL_ARTIFACT_TYPE.equals(artifact.getType()) && isRuntimeScope(artifact.getScope())) {
+                openLDependencies.add(artifact);
+                debug("ADD : ", artifact);
+            }
+        }
+        return openLDependencies;
+    }
+
+    private void unpackZip(File baseDir, String name, File zip) throws IOException {
+        File outDir = new File(baseDir, name);
+        ZipUtils.extractAll(zip, outDir);
+    }
+
+    private void generateDeploymentFile(File baseDir) throws IOException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("name", deploymentName);
+        try (FileWriter writer = new FileWriter(new File(baseDir, DEPLOYMENT_YAML))) {
+            DumperOptions options = new DumperOptions();
+            options.setPrettyFlow(true);
+            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            new Yaml(options).dump(properties, writer);
+        }
     }
 }

@@ -204,17 +204,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         try {
-            ObjectMetadata metaData = new ObjectMetadata();
-            metaData.setContentType("application/zip");
-            if (data.getSize() != FileData.UNDEFINED_SIZE) {
-                metaData.setContentLength(data.getSize());
-            }
-            if (!StringUtils.isBlank(data.getAuthor())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(data.getAuthor()));
-            }
-            if (!StringUtils.isBlank(data.getComment())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
-            }
+            ObjectMetadata metaData = createInsertFileMetadata(data);
 
             s3.putObject(bucketName, data.getName(), stream, metaData);
 
@@ -224,6 +214,40 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
+    }
+
+    private ObjectMetadata createInsertFileMetadata(FileData data) {
+        ObjectMetadata metaData = new ObjectMetadata();
+        metaData.setContentType("application/zip");
+        if (data.getSize() != FileData.UNDEFINED_SIZE) {
+            metaData.setContentLength(data.getSize());
+        }
+        if (!StringUtils.isBlank(data.getAuthor())) {
+            metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(data.getAuthor()));
+        }
+        if (!StringUtils.isBlank(data.getComment())) {
+            metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
+        }
+        return metaData;
+    }
+
+    @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        try{
+            for (FileItem fileItem : fileItems) {
+                FileData data = fileItem.getData();
+                ObjectMetadata metaData = createInsertFileMetadata(data);
+                s3.putObject(bucketName, data.getName(), fileItem.getStream(), metaData);
+            }
+        } catch (SdkClientException e) {
+            throw new IOException(e);
+        }
+        onModified();
+        List<FileData> result = new ArrayList<>();
+        for (FileItem fileItem : fileItems) {
+            result.add(check(fileItem.getData().getName()));
+        }
+        return result;
     }
 
     @Override

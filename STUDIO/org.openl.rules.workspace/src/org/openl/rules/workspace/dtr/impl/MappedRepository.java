@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -112,6 +113,18 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
     }
 
+    @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        Map<String, String> mapping = getMappingForRead();
+        List<FileItem> fileItemsInternal = fileItems.stream()
+                .map(fi -> new FileItem(toInternal(mapping, fi.getData()), fi.getStream()))
+                .collect(Collectors.toList());
+        List<FileData> result = delegate.save(fileItemsInternal);
+
+        return result.stream()
+                .map(dt -> toExternal(mapping, dt))
+                .collect(Collectors.toList());
+    }
     @Override
     public boolean delete(FileData data) {
         Map<String, String> mapping = getMappingForRead();
@@ -262,6 +275,27 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
                     changesetType));
         }
+    }
+
+    @Override
+    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
+        if (folderItems.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (folderItems.get(0).getData() instanceof MappedFileData) {
+            throw new UnsupportedOperationException();
+        }
+        Map<String, String> mapping = getMappingForRead();
+
+        List<FolderItem> folderItemsInternal = folderItems.stream()
+                .map(fi -> new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, fi.getFiles())))
+                .collect(Collectors.toList());
+        List<FileData> result = delegate.save(folderItemsInternal, changesetType);
+
+        return result.stream()
+                .map(dt -> toExternal(mapping, dt))
+                .collect(Collectors.toList());
     }
 
     @Override

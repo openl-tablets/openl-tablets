@@ -1356,6 +1356,11 @@
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.15</version>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
