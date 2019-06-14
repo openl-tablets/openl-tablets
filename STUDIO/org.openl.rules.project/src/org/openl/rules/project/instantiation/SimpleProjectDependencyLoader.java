@@ -75,7 +75,8 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         }
 
         if (this.dependencyName.equals(dependencyName)) {
-            boolean isCircularDependency = dependencyManager.getCompilationStack().contains(dependencyName);
+            boolean isCircularDependency = !ProjectExternalDependenciesHelper
+                .isProject(dependencyName) && dependencyManager.getCompilationStack().contains(dependencyName);
             if (!isCircularDependency && !dependencyManager.getCompilationStack().isEmpty()) {
                 AbstractProjectDependencyManager.DependencyReference dr = new AbstractProjectDependencyManager.DependencyReference(
                     dependencyManager.getCompilationStack().getLast(),
@@ -110,9 +111,9 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
             AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
         RulesInstantiationStrategy rulesInstantiationStrategy;
         ClassLoader classLoader = buildClassLoader(dependencyManager);
+        log.debug("Creating dependency for dependencyName = {}", dependencyName);
+        dependencyManager.getCompilationStack().add(dependencyName);
         if (!isProject && modules.size() == 1) {
-            dependencyManager.getCompilationStack().add(dependencyName);
-            log.debug("Creating dependency for dependencyName = {}", dependencyName);
             rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(modules.iterator().next(), executionMode, dependencyManager, classLoader);
         } else {

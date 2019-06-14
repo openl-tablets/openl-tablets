@@ -10,7 +10,6 @@ import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.Dependency;
@@ -164,10 +163,6 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             String projectDependencyName = ProjectExternalDependenciesHelper
                 .buildDependencyNameForProjectName(projectDescriptor.getName());
             if (dependencyName.equals(projectDependencyName)) {
-                for (Module module : projectDescriptor.getModules()) {
-                    reset(new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)));
-                }
                 ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
                 if (classLoader != null) {
                     oldClassLoaders.add(classLoader);
@@ -178,13 +173,13 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         }
 
         List<DependencyReference> dependenciesToReset = new ArrayList<>();
-        List<DependencyReference> dependenciesRefernciesToClear = new ArrayList<>();
+        List<DependencyReference> dependenciesReferenciesToClear = new ArrayList<>();
         for (DependencyReference dependencyReference : getDependencyReferences()) {
             if (dependencyReference.getReference().equals(dependencyName)) {
                 dependenciesToReset.add(dependencyReference);
             }
-            if (dependencyReference.getDependency().equals(dependencyName)) {
-                dependenciesRefernciesToClear.add(dependencyReference);
+            if (dependencyReference.getDependency().equals(dependencyName)) { 
+                dependenciesReferenciesToClear.add(dependencyReference);
             }
         }
 
@@ -196,7 +191,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             SimpleProjectDependencyLoader simpleProjectDependencyLoader = ((SimpleProjectDependencyLoader) dependencyLoader);
             if (simpleProjectDependencyLoader.getDependencyName().equals(dependencyName)) {
-                for (DependencyReference dependencyReference : dependenciesRefernciesToClear) {
+                for (DependencyReference dependencyReference : dependenciesReferenciesToClear) {
                     getDependencyReferences().remove(dependencyReference);
                 }
                 simpleProjectDependencyLoader.reset();

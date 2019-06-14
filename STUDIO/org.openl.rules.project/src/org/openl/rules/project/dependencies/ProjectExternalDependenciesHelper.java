@@ -12,21 +12,25 @@ import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 
 public final class ProjectExternalDependenciesHelper {
+
+    public static final String VIRTUAL_MODULE_PREFIX = "VIRTUAL_MODULE(";
+    public static final String VIRTUAL_MODULE_SUFFIX = ")";
+
     private ProjectExternalDependenciesHelper() {
     }
 
     public static String buildDependencyNameForProjectName(String projectName) {
-        return "VIRTUAL_MODULE(" + projectName + ")";
+        return VIRTUAL_MODULE_PREFIX + projectName + VIRTUAL_MODULE_SUFFIX;
     }
 
     public static boolean isProject(String dependencyName) {
-        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName
-            .lastIndexOf(')') == dependencyName.length() - 1;
+        return dependencyName.indexOf(VIRTUAL_MODULE_PREFIX) == 0 && dependencyName
+            .lastIndexOf(VIRTUAL_MODULE_SUFFIX) == dependencyName.length() - 1;
     }
 
     public static String getProjectName(String dependencyName) {
         if (isProject(dependencyName)) {
-            return dependencyName.substring("VIRTUAL_MODULE(".length(), dependencyName.length() - 1);
+            return dependencyName.substring(VIRTUAL_MODULE_PREFIX.length(), dependencyName.length() - 1);
         }
         return null;
     }
