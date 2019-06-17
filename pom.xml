@@ -105,6 +105,7 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
+        <module>EXT</module>
         <module>DEMO</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
@@ -1162,12 +1163,12 @@
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
-                <version>3.0.7</version>
+                <version>3.7.1</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-mapping</artifactId>
-                <version>3.0.7</version>
+                <version>3.7.1</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

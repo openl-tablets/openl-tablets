@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+        <artifactId>org.openl.rules.ext-pom</artifactId>
         <version>5.22.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.ruleservice.activiti</artifactId>
+    <artifactId>org.openl.rules.activiti</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - Activiti</name>
-    <description>Classes and utilities to integrate OpenL RuleService with Activiti</description>
+    <name>OpenL - EXT - Activiti</name>
+    <description>Classes and utilities to integrate OpenL Rules Project with Activiti</description>
     <url>//openl-tablets.org</url>
     <build>
         <plugins>
@@ -27,12 +27,21 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.activiti</artifactId>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice</artifactId>
+            <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

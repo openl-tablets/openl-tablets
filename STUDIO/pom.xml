@@ -20,8 +20,9 @@
         <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
         <module>org.openl.commons.web</module>
-        <module>org.openl.rules.webstudio</module>
+        <module>org.openl.rules.jackson</module>
         <module>org.openl.rules.variation</module>
+        <module>org.openl.rules.webstudio</module>
         <module>org.openl.rules.project</module>
         <module>org.openl.rules.demo</module>
         <module>org.openl.security</module>
@@ -29,8 +30,6 @@
         <module>org.openl.security.saml</module>
         <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
-        <module>org.openl.rules.activiti</module>
-        <module>org.openl.rules.jackson</module>
         <!-- Tests -->
         <module>org.openl.rules.test</module>
     </modules>

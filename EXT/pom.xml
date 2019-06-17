@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>openl-tablets</artifactId>
+        <version>5.22.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>org.openl.rules.ext-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>OpenL - EXT</name>
+    <description>OpenL Extensions Pom Project</description>
+    <modules>
+        <module>org.openl.rules.cassandra</module>
+        <module>org.openl.rules.activiti</module>
+        <module>org.openl.rules.ruleservice.activiti</module>
+    </modules>
+</project>
