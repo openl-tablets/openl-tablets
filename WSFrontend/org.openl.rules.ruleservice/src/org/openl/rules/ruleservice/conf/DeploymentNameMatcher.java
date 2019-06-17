@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 final class DeploymentNameMatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeploymentNameMatcher.class);
+    private final Logger log = LoggerFactory.getLogger(DeploymentNameMatcher.class);
     private static final Pattern WILDCARD_REDUNDANT_OCCUR = Pattern.compile("\\*{2,}");
     public static final DeploymentNameMatcher DEFAULT = new DeploymentNameMatcher();
 
@@ -59,7 +59,7 @@ final class DeploymentNameMatcher {
                 continue;
             }
             if (WILDCARD_REDUNDANT_OCCUR.matcher(pattern).find()) {
-                LOG.warn("Rule name pattern '{}' cannot have more than one wildcard letter in a row", pattern);
+                log.warn("Rule name pattern '{}' cannot have more than one wildcard letter in a row", pattern);
             } else {
                 if (delimiter != null) {
                     regex.append(delimiter);
