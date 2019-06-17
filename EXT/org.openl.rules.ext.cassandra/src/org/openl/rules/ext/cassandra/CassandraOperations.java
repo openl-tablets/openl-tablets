@@ -1,4 +1,4 @@
-package org.openl.rules.cassandra;
+package org.openl.rules.ext.cassandra;
 
 /*-
  * #%L

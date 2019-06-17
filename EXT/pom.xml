@@ -12,8 +12,8 @@
     <name>OpenL - EXT</name>
     <description>OpenL Extensions Pom Project</description>
     <modules>
-        <module>org.openl.rules.cassandra</module>
         <module>org.openl.rules.activiti</module>
         <module>org.openl.rules.ruleservice.activiti</module>
+        <module>org.openl.rules.ext.cassandra</module>
     </modules>
 </project>

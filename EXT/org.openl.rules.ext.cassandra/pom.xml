@@ -9,7 +9,8 @@
         <version>5.22.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.cassandra</artifactId>
+    <groupId>org.openl.rules.ext</groupId>
+    <artifactId>org.openl.rules.ext.cassandra</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - EXT - Cassandra</name>
     <description>OpenL - Cassandra Support</description>
