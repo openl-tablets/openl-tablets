@@ -879,10 +879,16 @@ public class ProjectModel {
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-        if (!isParallel) {
-            return test.invokeSequentially(openClass, 1);
-        } else {
-            return test.invokeParallel(testSuiteExecutor, openClass, 1);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
+            if (!isParallel) {
+                return test.invokeSequentially(openClass, 1);
+            } else {
+                return test.invokeParallel(testSuiteExecutor, openClass, 1);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
