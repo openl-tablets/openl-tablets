@@ -112,7 +112,7 @@ public class ChangesMonitor implements Runnable {
         try {
             return getter.getRevision();
         } catch (Throwable th) {
-            log.warn("An exception has occurred durrng retrieving the last change set from the repository", th);
+            log.warn("An exception has occurred during retrieving the last change set from the repository", th);
             return null;
         }
     }

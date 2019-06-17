@@ -114,6 +114,7 @@
                 <ref bean="repositoryService"/>
                 <ref bean="traceService"/>
                 <ref bean="testDownloadService"/>
+                <ref bean="fileDownloadService"/>
             </list>
         </property>
         <property name="providers">
