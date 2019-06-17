@@ -109,7 +109,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
+        try {
+            return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
+        } catch (MergeConflictException e) {
+            throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                    e.getBaseCommit(),
+                    e.getOurCommit(),
+                    e.getTheirCommit());
+        }
     }
 
     @Override
@@ -252,15 +259,31 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping),
                         changesetType);
                 return toExternal(mapping, result);
+            } catch (MergeConflictException e) {
+                refreshMapping();
+                Map<String, String> mapping = getMappingForRead();
+                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                        e.getBaseCommit(),
+                        e.getOurCommit(),
+                        e.getTheirCommit());
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
                 refreshMapping();
                 throw e;
             }
         } else {
-            Map<String, String> mapping = getMappingForRead();
-            return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
-                    changesetType));
+            try {
+                Map<String, String> mapping = getMappingForRead();
+                return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
+                        changesetType));
+            } catch (MergeConflictException e) {
+                Map<String, String> mapping = getMappingForRead();
+                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                        e.getBaseCommit(),
+                        e.getOurCommit(),
+                        e.getTheirCommit());
+
+            }
         }
     }
 
@@ -354,7 +377,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         };
     }
 
-    private FileData toInternal(Map<String, String> externalToInternal, FileData data) {
+    private FileData toInternal(final Map<String, String> externalToInternal, FileData data) {
         FileData copy = new FileData();
         copy.setVersion(data.getVersion());
         copy.setAuthor(data.getAuthor());
@@ -362,6 +385,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         copy.setSize(data.getSize());
         copy.setDeleted(data.isDeleted());
         copy.setName(toInternal(externalToInternal, data.getName()));
+
+        for (AdditionalData value : data.getAdditionalData().values()) {
+            copy.addAdditionalData(value.convertPaths(new PathConverter() {
+                @Override
+                public String convert(String oldPath) {
+                    return toInternal(externalToInternal, oldPath);
+                }
+            }));
+        }
+
         return copy;
     }
 
@@ -398,6 +431,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         data.setName(toExternal(externalToInternal, data.getName()));
         return data;
+    }
+
+    private List<String> toExternal(Map<String, String> externalToInternal, Collection<String> internal) {
+        List<String> external = new ArrayList<>(internal.size());
+
+        for (String path : internal) {
+            external.add(toExternal(externalToInternal, path));
+        }
+
+        return external;
     }
 
     private String toExternal(Map<String, String> externalToInternal, String internalPath) {
