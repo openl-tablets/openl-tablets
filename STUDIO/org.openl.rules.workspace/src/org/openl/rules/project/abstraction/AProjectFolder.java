@@ -205,13 +205,21 @@ public class AProjectFolder extends AProjectArtefact {
                             if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
                                 // The file is absent in destination. Add it.
                                 // Or different revision of a file.
-                                FileItem read = fromRepository.supports().versions() ?
-                                                fromRepository.readHistory(nameFrom, fromData.getVersion()) :
-                                                fromRepository.read(nameFrom);
                                 FileData data = copyAndChangeName(fromData, nameTo);
-                                InputStream content = transformer != null ?
-                                        transformer.transform(new AProjectResource(from.getProject(), fromRepository, read.getData()))
-                                        : read.getStream();
+                                InputStream content;
+                                if (transformer != null) {
+                                    FileData fileData = fromRepository.supports().versions() ?
+                                                    fromRepository.checkHistory(nameFrom, fromData.getVersion()) :
+                                                    fromRepository.check(nameFrom);
+                                    content = transformer.transform(new AProjectResource(from.getProject(),
+                                        fromRepository,
+                                        fileData));
+                                } else {
+                                    FileItem read = fromRepository.supports().versions() ?
+                                                    fromRepository.readHistory(nameFrom, fromData.getVersion()) :
+                                                    fromRepository.read(nameFrom);
+                                    content = read.getStream();
+                                }
                                 changes.add(new FileChange(data, content));
                             }
                             // Otherwise the file is same, no need to save it
