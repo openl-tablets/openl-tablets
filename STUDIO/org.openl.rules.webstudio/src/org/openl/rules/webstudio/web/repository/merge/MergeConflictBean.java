@@ -24,10 +24,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.IOUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,6 +131,7 @@ public class MergeConflictBean {
         }
 
         // Save
+        List<FileChange> resolvedFiles = new ArrayList<>();
         try {
             RulesProject project = mergeConflict.getProject();
             WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext()
@@ -142,7 +143,6 @@ public class MergeConflictBean {
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
 
-            List<FileChange> resolvedFiles = new ArrayList<>();
             for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
                 String name = entry.getKey();
                 ConflictResolution conflictResolution = entry.getValue();
@@ -180,6 +180,10 @@ public class MergeConflictBean {
             String message = "Failed to resolve conflict. See logs for details.";
             log.error(message, e);
             throw new ValidationException(message);
+        } finally {
+            for (FileChange file : resolvedFiles) {
+                IOUtils.closeQuietly(file.getStream());
+            }
         }
     }
 
