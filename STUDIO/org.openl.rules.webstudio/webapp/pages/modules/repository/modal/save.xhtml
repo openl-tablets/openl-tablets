@@ -43,6 +43,8 @@
                            oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
+
+      <a4j:jsFunction name="refreshRepositoryAfterSave" render="projectTree nodeView"/>
     </h:form>
 
   </rich:popupPanel>
@@ -56,7 +58,7 @@
     function onSaveComplete(mergeConflict, successful) {
       if (mergeConflict) {
         RichFaces.$('modalSave').hide();
-        openResolveConflictDialog();
+        openResolveConflictDialog(refreshRepositoryAfterSave);
       } else if (successful) {
         RichFaces.$('modalSave').hide();
       }

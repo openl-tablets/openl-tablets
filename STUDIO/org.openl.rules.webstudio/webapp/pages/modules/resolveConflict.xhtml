@@ -85,7 +85,7 @@
       </footer>
 
       <a4j:jsFunction name="refreshResolveConflictDialog" action="#{mergeConflictBean.init}" render="@form" oncomplete="showResolveConflictDialog();" />
-      <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}" oncomplete="RichFaces.$('modalResolveConflicts').hide();" />
+      <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}" oncomplete="afterResolveConflict(); RichFaces.$('modalResolveConflicts').hide();" />
       <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
         <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}" />
       </a4j:jsFunction>
@@ -95,7 +95,10 @@
 
   <script>
       //<![CDATA[
-      function openResolveConflictDialog() {
+      var afterResolveConflict = function () {};
+
+      function openResolveConflictDialog(afterResolveFunction) {
+        afterResolveConflict = afterResolveFunction;
         refreshResolveConflictDialog();
       }
 
