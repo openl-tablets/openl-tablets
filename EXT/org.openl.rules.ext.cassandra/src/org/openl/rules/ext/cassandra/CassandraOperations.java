@@ -12,12 +12,10 @@ package org.openl.rules.ext.cassandra;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.HostDistance;
-import com.datastax.driver.core.PoolingOptions;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 
 public class CassandraOperations {
 
@@ -118,4 +116,17 @@ public class CassandraOperations {
         }
         return cluster;
     }
+
+    public static final ResultSet cassandraExecute(String query) throws IOException {
+        return CassandraOperations.getInstance().getSession().execute(query);
+    }
+
+    public static final ResultSet cassandraExecute(String query, Object... values) throws IOException {
+        return CassandraOperations.getInstance().getSession().execute(query, values);
+    }
+
+    public static final ResultSet cassandraExecute(String query, Map<String, Object> values) throws IOException {
+        return CassandraOperations.getInstance().getSession().execute(query, values);
+    }
+
 }
