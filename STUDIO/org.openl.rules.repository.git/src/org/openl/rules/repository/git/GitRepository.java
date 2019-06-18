@@ -118,12 +118,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
-            ConflictResolveData conflictResolveData = data.getAdditionalData(ConflictResolveData.class);
             String parentVersion = data.getVersion();
-            // Checkout parent version to avoid blindly overriding other people's changes.
-            git.checkout().setName(parentVersion != null ? parentVersion : branch).call();
-
             String fileInRepository = data.getName();
+
+            boolean checkoutOldVersion = isCheckoutOldVersion(fileInRepository, parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+
             File file = new File(localRepositoryPath, fileInRepository);
             createParent(file);
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
@@ -136,16 +136,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .setOnly(fileInRepository)
                 .call();
             commitId = commit.getId().getName();
-            RevCommit lastCommit = commit;
 
-            if (conflictResolveData != null) {
-                lastCommit = resolveConflict(data.getAuthor(), conflictResolveData);
-            }
-
-            // Merge detached commit to existing branch.
-            git.checkout().setName(branch).call();
-            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
-            validateMergeConflict(mergeDetached, false);
+            resolveAndMerge(data, checkoutOldVersion, commit);
 
             addTagToCommit(commit);
 
@@ -1058,12 +1050,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         String commitId = null;
         try {
-            ConflictResolveData conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
             String parentVersion = folderData.getVersion();
-            // Checkout parent version to avoid blindly overriding other people's changes.
-            git.checkout().setName(parentVersion != null ? parentVersion : branch).call();
-
             String relativeFolder = folderData.getName();
+
+            boolean checkoutOldVersion = isCheckoutOldVersion(relativeFolder, parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
 
             List<String> changedFiles = new ArrayList<>();
 
@@ -1089,16 +1080,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             RevCommit commit = commitChangedFiles(commitCommand, changedFiles);
             commitId = commit.getId().getName();
-            RevCommit lastCommit = commit;
 
-            if (conflictResolveData != null) {
-                lastCommit = resolveConflict(folderData.getAuthor(), conflictResolveData);
-            }
-
-            // Merge detached commit to existing branch.
-            git.checkout().setName(branch).call();
-            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
-            validateMergeConflict(mergeDetached, false);
+            resolveAndMerge(folderData, checkoutOldVersion, commit);
 
             addTagToCommit(commit);
 
@@ -1150,6 +1133,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             commit = commitCommand.call();
         }
         return commit;
+    }
+
+    private void resolveAndMerge(FileData folderData, boolean checkoutOldVersion, RevCommit commit) throws
+                                                                                                    GitAPIException,
+                                                                                                    IOException {
+        ConflictResolveData conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
+
+        RevCommit lastCommit = commit;
+
+        if (conflictResolveData != null) {
+            lastCommit = resolveConflict(folderData.getAuthor(), conflictResolveData);
+        }
+
+        if (checkoutOldVersion || conflictResolveData != null) {
+            // Merge detached commit to existing branch.
+            git.checkout().setName(branch).call();
+            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
+            validateMergeConflict(mergeDetached, false);
+        }
     }
 
     private RevCommit resolveConflict(String author, ConflictResolveData conflictResolveData) throws
@@ -1564,6 +1566,27 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
         return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
+    }
+
+    private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
+        if (baseVersion != null) {
+            List<Ref> tags = git.tagList().call();
+
+            Iterator<RevCommit> iterator = git.log()
+                .add(resolveBranchId())
+                .addPath(path)
+                .setMaxCount(1)
+                .call()
+                .iterator();
+            if (iterator.hasNext()) {
+                String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
+                return !baseVersion.equals(lastVersion);
+            } else {
+                throw new FileNotFoundException("Can't find commit for path '" + path + "' and version '" + baseVersion + "'");
+            }
+        }
+
+        return false;
     }
 
     @Override
