@@ -704,39 +704,11 @@ public final class RulesUtils {
     }
 
     // SORT
-    public static java.lang.Byte[] sort(java.lang.Byte[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.lang.Short[] sort(java.lang.Short[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.lang.Integer[] sort(java.lang.Integer[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.lang.Long[] sort(java.lang.Long[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.lang.Float[] sort(java.lang.Float[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.lang.Double[] sort(java.lang.Double[] values) {
-        return MathUtils.sort(values);
-    }
-
-    public static java.math.BigInteger[] sort(java.math.BigInteger[] values) {
-        return MathUtils.sort(values);
-    }
-
     /**
-     * Sorts the specified array of BigDecimals into ascending order, according to the {@linkplain Comparable natural
-     * ordering} of its elements. All elements in the array must implement the {@link Comparable} interface.
-     * Furthermore, all elements in the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must
-     * not throw a {@code ClassCastException} for any elements {@code e1} and {@code e2} in the array).
+     * Sorts the specified array into ascending order, according to the {@linkplain Comparable natural ordering} of its
+     * elements. All elements in the array must implement the {@link Comparable} interface. Furthermore, all elements in
+     * the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must not throw a
+     * {@code ClassCastException} for any elements {@code e1} and {@code e2} in the array).
      * <p/>
      * <p/>
      * This sort is guaranteed to be <i>stable</i>: equal elements will not be reordered as a result of the sort.
@@ -760,10 +732,25 @@ public final class RulesUtils {
      * Annual ACM-SIAM Symposium on Discrete Algorithms, pp 467-474, January 1993.
      *
      * @param values the array to be sorted
-     * @return a sorted array of BigDecimals
+     * @return a sorted array
      */
-    public static java.math.BigDecimal[] sort(java.math.BigDecimal[] values) {
-        return MathUtils.sort(values);
+    @SuppressWarnings("unchecked")
+    public static <T extends Comparable<?>> T[] sort(T[] values) {
+        T[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = ((T[]) Array.newInstance(values.getClass().getComponentType(), values.length));
+            T[] notNullArray = ArrayTool.removeNulls(values);
+            if (notNullArray == values) {
+                notNullArray = values.clone();
+            }
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
+        }
+        return sortedArray;
+
     }
 
     /**
@@ -868,34 +855,6 @@ public final class RulesUtils {
      */
     public static double[] sort(double[] values) {
         return MathUtils.sort(values);
-    }
-
-    public static String[] sort(String[] values) {
-        String[] sortedArray = null;
-
-        if (values != null) {
-            sortedArray = new String[values.length];
-            String[] notNullArray = ArrayTool.removeNulls(values);
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
-        }
-        return sortedArray;
-    }
-
-    public static Date[] sort(Date[] values) {
-        Date[] sortedArray = null;
-
-        if (values != null) {
-            sortedArray = new Date[values.length];
-            Date[] notNullArray = ArrayTool.removeNulls(values);
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
-        }
-        return sortedArray;
     }
 
     // <<< Contains Functions >>>
@@ -1064,7 +1023,7 @@ public final class RulesUtils {
     public static boolean contains(Date[] array, Date elem) {
         return ArrayUtils.contains(array, elem);
     }
-    
+
     public static boolean contains(String[] array, String elem) {
         return ArrayUtils.contains(array, elem);
     }
@@ -1120,7 +1079,7 @@ public final class RulesUtils {
         }
         return false;
     }
-    
+
     public static boolean contains(StringRange[] array, CharSequence elem) {
         if (array == null) {
             return false;
@@ -1314,7 +1273,7 @@ public final class RulesUtils {
         }
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
-    
+
     public static boolean contains(DateRange[] ary1, Date[] ary2) {
         if (ary2 == null) {
             return false;
