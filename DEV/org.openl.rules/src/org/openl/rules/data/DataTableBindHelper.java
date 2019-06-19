@@ -56,14 +56,14 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     public static final Pattern COLLECTION_ACCESS_BY_INDEX_PATTERN = Pattern
-            .compile("\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+        .compile("\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
     public static final Pattern COLLECTION_ACCESS_BY_KEY_PATTERN = Pattern
-            .compile("\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+        .compile("\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
 
     static final Pattern THIS_ARRAY_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*$");
     static final Pattern THIS_LIST_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:]+|)$");
     static final Pattern THIS_MAP_ACCESS_PATTERN = Pattern
-            .compile("\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+        .compile("\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
     public static final Pattern PRECISION_PATTERN = Pattern.compile("^\\(\\-?[0-9]+\\)$");
     public static final Pattern SPREADSHEETRESULTFIELD_PATTERN = Pattern.compile("^\\$.+\\$.+$");
     private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
@@ -149,9 +149,29 @@ public class DataTableBindHelper {
                 return false;
             }
             int fieldsCount1 = countChangeableFields(dataTableBody, tableType);
-            int fieldsCount2 = countChangeableFields(dataTableBody.transpose(), tableType);
+            ILogicalTable dataTableBodyT = dataTableBody.transpose();
+            int fieldsCount2 = countChangeableFields(dataTableBodyT, tableType);
 
-            return fieldsCount1 >= fieldsCount2;
+            if (fieldsCount1 > fieldsCount2) {
+                return true;
+            } else if (fieldsCount1 < fieldsCount2) {
+                return false;
+            } else {
+                int refCount1 = countRefs(dataTableBody, tableType);
+                int refCount2 = countRefs(dataTableBodyT, tableType);
+                if (refCount1 < refCount2) {
+                    return true;
+                } else if (refCount1 > refCount2) {
+                    return false;
+                } else {
+                    if (TestMethodOpenClass.class.isAssignableFrom(tableType.getClass())) {
+                        int resCount1 = countResFields(dataTableBody, tableType);
+                        int resCount2 = countResFields(dataTableBodyT, tableType);
+                        return resCount1 >= resCount2;
+                    }
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -196,7 +216,64 @@ public class DataTableBindHelper {
             IOpenField field = findField(fieldName, null, tableType);
 
             if (field != null && !field.isConst() && field.isWritable()) {
-                count += 1;
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private static int countRefs(ILogicalTable dataTable, IOpenClass tableType) {
+        int count = 0;
+        int width = dataTable.getWidth();
+
+        for (int i = 0; i < width; ++i) {
+
+            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (fieldName == null) {
+                continue;
+            }
+
+            fieldName = StringUtils.trim(fieldName);
+
+            if (fieldName.startsWith(">")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int countResFields(ILogicalTable dataTable, IOpenClass tableType) {
+
+        int count = 0;
+        int width = dataTable.getWidth();
+
+        for (int i = 0; i < width; ++i) {
+
+            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
+
+            if (fieldName == null) {
+                continue;
+            }
+
+            // Remove extra spaces.
+            //
+            fieldName = StringUtils.trim(fieldName);
+
+            // if it is field chain get first token
+            int dotIndex = fieldName.indexOf('.');
+            if (dotIndex > 0) {
+                fieldName = fieldName.substring(0, dotIndex);
+            }
+            // if it is array field correct field name
+            int brIndex = fieldName.indexOf('[');
+            if (brIndex > 0) {
+                fieldName = fieldName.substring(0, brIndex);
+            }
+
+            if ("_res_".equals(fieldName)) {
+                count++;
             }
         }
 
@@ -415,7 +492,7 @@ public class DataTableBindHelper {
                     }
                 }
                 if (!constructorField && (!(fieldAccessorChainTokens.length == 1 && hasForeignKeysRow && CONSTRUCTOR_FIELD
-                        .equals(fieldAccessorChainTokens[0].getIdentifier())))) {
+                    .equals(fieldAccessorChainTokens[0].getIdentifier())))) {
                     descriptorField = processFieldsChain(bindingContext, table, type, fieldAccessorChainTokens);
                 }
 
@@ -427,7 +504,7 @@ public class DataTableBindHelper {
 
                     if (foreignKeyTable != null) {
                         accessorChainTokens = Tokenizer
-                                .tokenize(foreignKeyTable.getModule(), LINK_DELIMETERS, foreignKeyTable.getLocation());
+                            .tokenize(foreignKeyTable.getModule(), LINK_DELIMETERS, foreignKeyTable.getLocation());
 
                         if (!ArrayUtils.isEmpty(accessorChainTokens)) {
                             foreignKeyTable = accessorChainTokens.length > 0 ? accessorChainTokens[0] : null;
@@ -436,7 +513,7 @@ public class DataTableBindHelper {
                 }
 
                 StringValue header = DataTableBindHelper
-                        .makeColumnTitle(bindingContext, dataWithTitleRows, columnNum, hasColumnTytleRow);
+                    .makeColumnTitle(bindingContext, dataWithTitleRows, columnNum, hasColumnTytleRow);
 
                 ColumnDescriptor currentColumnDescriptor = getColumnDescriptor(openl,
                     descriptorField,
@@ -593,8 +670,8 @@ public class DataTableBindHelper {
                 fieldChainTokens,
                 columnNum);
         } else {
-            boolean primaryKey = fieldChainTokens.length > 0
-                    && FPK.equals(fieldChainTokens[fieldChainTokens.length - 1].getIdentifier());
+            boolean primaryKey = fieldChainTokens.length > 0 && FPK
+                .equals(fieldChainTokens[fieldChainTokens.length - 1].getIdentifier());
             currentColumnDescriptor = new ColumnDescriptor(descriptorField,
                 header,
                 openl,
@@ -646,9 +723,9 @@ public class DataTableBindHelper {
         StringBuilder partPathFromRoot = new StringBuilder();
 
         boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && fieldAccessorChainTokens[0]
-                .getIdentifier()
-                .trim()
-                .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
+            .getIdentifier()
+            .trim()
+            .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
@@ -656,7 +733,7 @@ public class DataTableBindHelper {
 
             IOpenField fieldInChain;
             if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && identifier
-                    .equals(FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
+                .equals(FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
                 // support.
                 // PK
                 // for
@@ -727,7 +804,7 @@ public class DataTableBindHelper {
                 fieldInChain = getWritableField(bindingContext, fieldNameNode, table, loadedFieldType);
 
                 if ((fieldIndex != fieldAccessorChain.length - 1) && fieldInChain != null && (fieldInChain.getType()
-                        .isArray() || List.class.isAssignableFrom(fieldInChain.getType().getInstanceClass()))) {
+                    .isArray() || List.class.isAssignableFrom(fieldInChain.getType().getInstanceClass()))) {
                     fieldInChain = getWritableCollectionElement(bindingContext,
                         fieldNameNode,
                         table,
@@ -738,8 +815,8 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
-                    .getType()
-                    .equals(JavaOpenClass.OBJECT)) {
+                .getType()
+                .equals(JavaOpenClass.OBJECT)) {
                 if (StringUtils.matches(SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                     aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
@@ -838,7 +915,7 @@ public class DataTableBindHelper {
         // Try use object type as SpreadsheetResult
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
             field = DataTableBindHelper
-                    .findField(fieldName, table, JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+                .findField(fieldName, table, JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         if (field == null) {
             String errorMessage;
@@ -894,7 +971,7 @@ public class DataTableBindHelper {
         // Try find field in SpreadsheetResult type
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
             field = DataTableBindHelper
-                    .findField(name, table, JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+                .findField(name, table, JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
 
         if (field == null) {
@@ -905,10 +982,10 @@ public class DataTableBindHelper {
         }
 
         if (!Map.class.isAssignableFrom(field.getType().getInstanceClass()) && !List.class
-                .isAssignableFrom(field.getType().getInstanceClass()) && !field.getType()
+            .isAssignableFrom(field.getType().getInstanceClass()) && !field.getType()
                 .isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
             String message = String
-                    .format("Field '%s' isn't a collection! The field type is '%s'", name, field.getType().toString());
+                .format("Field '%s' isn't a collection! The field type is '%s'", name, field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
