@@ -163,6 +163,7 @@ class LazyFileData extends FileData {
                     iterator = git.log()
                             .add(fromCommit)
                             .addPath(fullPath)
+                            .setMaxCount(1)
                             .call()
                             .iterator();
                 } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
