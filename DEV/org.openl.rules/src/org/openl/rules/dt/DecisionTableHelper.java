@@ -2654,6 +2654,10 @@ public final class DecisionTableHelper {
         boolean isStringType = STRING_TYPES.contains(type.getInstanceClass());
         boolean isRangeType = RANGE_TYPES.contains(type.getInstanceClass());
 
+        boolean[] h = new boolean[width];
+        Arrays.fill(h, true);
+        boolean hHasOnlyTrues = true;
+
         for (int valueNum = skip; valueNum < width; valueNum++) {
             ILogicalTable cellValue;
             if (isVCondition(condition)) {
@@ -2665,6 +2669,7 @@ public final class DecisionTableHelper {
             String value = cellValue.getSource().getCell(0, 0).getStringValue();
 
             if (value == null || StringUtils.isEmpty(value)) {
+                h[valueNum] = false;
                 continue;
             }
             if (RuleRowHelper.isFormula(value) && !isRangeType) {
@@ -2696,6 +2701,8 @@ public final class DecisionTableHelper {
                     }
                 } catch (CompositeSyntaxNodeException e) {
                 }
+                h[valueNum] = false;
+                hHasOnlyTrues = false;
                 continue;
             }
 
@@ -2717,23 +2724,51 @@ public final class DecisionTableHelper {
                     isAllParsableAsSingleFlag = false;
                     isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                 }
+                h[valueNum] = false;
+                hHasOnlyTrues = false;
                 continue;
             }
 
             if (value.indexOf(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR) >= 0) {
                 arraySeparatorFoundFlag = true;
             }
+            try {
+                if (isIntType || isDoubleType || isCharType) {
+                    if (isAllParsableAsSingleFlag && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
+                        isAllParsableAsSingleFlag = false;
+                    }
+                } else if (isStringType) {
+                    if (isAllParsableAsDomainFlag && (type.getDomain() == null || !((IDomain<String>) type.getDomain())
+                        .selectObject(value))) {
+                        isAllParsableAsDomainFlag = false;
+                    }
+                }
+            } catch (Exception e2) {
+            }
+        }
+
+        if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag && hHasOnlyTrues) {
+            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
+        } else if (isStringType && isAllParsableAsDomainFlag && hHasOnlyTrues) {
+            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
+        }
+
+        for (int valueNum = skip; valueNum < width; valueNum++) {
+            if (!h[valueNum]) {
+                continue;
+            }
+            ILogicalTable cellValue;
+            if (isVCondition(condition)) {
+                cellValue = decisionValues.getRow(valueNum);
+            } else {
+                cellValue = decisionValues.getColumn(valueNum);
+            }
+
+            String value = cellValue.getSource().getCell(0, 0).getStringValue();
 
             /* try to create range by values **/
             try {
                 if (isIntType) {
-                    Boolean parsableAsSingle = null;
-                    if (isAllParsableAsSingleFlag) {
-                        parsableAsSingle = parsableAs(value, type.getInstanceClass(), bindingContext);
-                        if (!parsableAsSingle) {
-                            isAllParsableAsSingleFlag = false;
-                        }
-                    }
                     if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                         Pair<Boolean, String[]> f = parsableAsArray(value, IntRange.class, bindingContext);
                         boolean parsableAsSingleRange = parsableAs(value, IntRange.class, bindingContext);
@@ -2745,30 +2780,21 @@ public final class DecisionTableHelper {
                         }
                     }
                     if (isAllParsableAsArrayFlag) {
-                        if (parsableAsSingle != null && parsableAsSingle) {
-                            if (!zeroStartedNumbersFoundFlag && value.startsWith("0")) {
-                                zeroStartedNumbersFoundFlag = true;
-                            }
-                        } else {
-                            Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
-                            if (g.getKey() && !zeroStartedNumbersFoundFlag) { // If array element
-                                                                              // starts with 0 and
-                                                                              // can be range
-                                // and
-                                // array for all elements then use Range by default. But if
-                                // no zero started elements then default String[]
-                                zeroStartedNumbersFoundFlag = Arrays.stream(g.getRight())
-                                    .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
-                            }
-                            if (!g.getKey()) {
-                                isAllParsableAsArrayFlag = false;
-                            }
+                        Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
+                        if (g.getKey() && !zeroStartedNumbersFoundFlag) { // If array element
+                                                                          // starts with 0 and
+                                                                          // can be range
+                            // and
+                            // array for all elements then use Range by default. But if
+                            // no zero started elements then default String[]
+                            zeroStartedNumbersFoundFlag = Arrays.stream(g.getRight())
+                                .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
+                        }
+                        if (!g.getKey()) {
+                            isAllParsableAsArrayFlag = false;
                         }
                     }
                 } else if (isDoubleType) {
-                    if (isAllParsableAsSingleFlag && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
-                        isAllParsableAsSingleFlag = false;
-                    }
                     if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                         Pair<Boolean, String[]> f = parsableAsArray(value, DoubleRange.class, bindingContext);
                         boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
@@ -2790,9 +2816,6 @@ public final class DecisionTableHelper {
                         }
                     }
                 } else if (isCharType) {
-                    if (isAllParsableAsSingleFlag && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
-                        isAllParsableAsSingleFlag = false;
-                    }
                     if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                         Pair<Boolean, String[]> f = parsableAsArray(value, CharRange.class, bindingContext);
                         boolean parsableAsSingleRange = parsableAs(value, CharRange.class, bindingContext);
@@ -2850,10 +2873,6 @@ public final class DecisionTableHelper {
                         }
                     }
                 } else if (isStringType) {
-                    if (isAllParsableAsDomainFlag && (type.getDomain() == null || !((IDomain<String>) type.getDomain())
-                        .selectObject(value))) {
-                        isAllParsableAsDomainFlag = false;
-                    }
                     Pair<Boolean, String[]> f = null;
                     if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                         f = parsableAsArray(value, StringRange.class, bindingContext);
