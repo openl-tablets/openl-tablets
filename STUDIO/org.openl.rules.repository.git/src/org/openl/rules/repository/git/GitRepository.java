@@ -700,14 +700,30 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             saveBranches();
 
             for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
-                git.checkout().setName(refUpdate.getLocalName()).call();
+                RefUpdate.Result result = refUpdate.getResult();
+                switch (result) {
+                    case FAST_FORWARD:
+                        git.checkout().setName(refUpdate.getLocalName()).call();
 
-                // It's assumed that we don't have unpushed commits at this point so there must be no additional merge
-                // while checking last revision. Accept only fast forwards.
-                git.merge()
-                    .include(refUpdate.getNewObjectId())
-                    .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                    .call();
+                        // It's assumed that we don't have unpushed commits at this point so there must be no additional merge
+                        // while checking last revision. Accept only fast forwards.
+                        git.merge()
+                            .include(refUpdate.getNewObjectId())
+                            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                            .call();
+                        break;
+                    case REJECTED_CURRENT_BRANCH:
+                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be deleted
+                        break;
+                    case NEW:
+                    case NO_CHANGE:
+                    case FORCED:
+                        // Do nothing
+                        break;
+                    default:
+                        log.warn("Unsupported type of fetch result type: {}", result);
+                        break;
+                }
             }
             reset();
         } finally {
