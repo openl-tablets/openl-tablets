@@ -2656,7 +2656,7 @@ public final class DecisionTableHelper {
 
         boolean[] h = new boolean[width];
         Arrays.fill(h, true);
-        boolean hHasOnlyTrues = true;
+        boolean canMadeDecisionAboutSingle = true;
 
         for (int valueNum = skip; valueNum < width; valueNum++) {
             ILogicalTable cellValue;
@@ -2684,6 +2684,7 @@ public final class DecisionTableHelper {
                         decisionTable.getDeclaringClass(),
                         bindingContext);
                     IOpenClass cellType = compositeMethod.getType();
+                    canMadeDecisionAboutSingle = canMadeDecisionAboutSingle && type.equals(cellType);
                     if (cellType.isArray() && RANGE_TYPES.contains(cellType.getComponentClass().getInstanceClass())) {
                         isAllParsableAsArrayFlag = false;
                         isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
@@ -2699,10 +2700,10 @@ public final class DecisionTableHelper {
                         isAllParsableAsSingleFlag = false;
                         isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                     }
+
                 } catch (CompositeSyntaxNodeException e) {
                 }
                 h[valueNum] = false;
-                hHasOnlyTrues = false;
                 continue;
             }
 
@@ -2725,7 +2726,7 @@ public final class DecisionTableHelper {
                     isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                 }
                 h[valueNum] = false;
-                hHasOnlyTrues = false;
+                canMadeDecisionAboutSingle = canMadeDecisionAboutSingle && type.equals(constantOpenField.getType());
                 continue;
             }
 
@@ -2733,23 +2734,19 @@ public final class DecisionTableHelper {
                 arraySeparatorFoundFlag = true;
             }
             try {
-                if (isIntType || isDoubleType || isCharType) {
-                    if (isAllParsableAsSingleFlag && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
-                        isAllParsableAsSingleFlag = false;
-                    }
-                } else if (isStringType) {
-                    if (isAllParsableAsDomainFlag && (type.getDomain() == null || !((IDomain<String>) type.getDomain())
-                        .selectObject(value))) {
-                        isAllParsableAsDomainFlag = false;
-                    }
+                if ((isIntType || isDoubleType || isCharType) && (isAllParsableAsSingleFlag && !parsableAs(value,
+                    type.getInstanceClass(),
+                    bindingContext))) {
+                    isAllParsableAsSingleFlag = false;
+                } else if (isStringType && isAllParsableAsDomainFlag && (type
+                    .getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value))) {
+                    isAllParsableAsDomainFlag = false;
                 }
             } catch (Exception e2) {
             }
         }
 
-        if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag && hHasOnlyTrues) {
-            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
-        } else if (isStringType && isAllParsableAsDomainFlag && hHasOnlyTrues) {
+        if (canMadeDecisionAboutSingle && (((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag) || (isStringType && isAllParsableAsDomainFlag))) {
             return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
         }
 
