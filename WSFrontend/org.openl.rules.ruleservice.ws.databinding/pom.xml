@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Web Services - Databinding</name>
     <description>OpenL Rules Webservice Databinding</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>

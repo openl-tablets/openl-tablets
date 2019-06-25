@@ -9,9 +9,9 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - RuleService - Web Services</name>
+    <name>OpenL WebServices</name>
     <description>OpenL Rules Webservice(war)</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-ws</war.name>
         <generate-application.properties>process-resources</generate-application.properties>

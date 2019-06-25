@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Web Services - Logging</name>
     <description>OpenL Rules Webservice Logging Core</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <!-- CXF -->
         <dependency>

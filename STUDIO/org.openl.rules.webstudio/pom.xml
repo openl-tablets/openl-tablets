@@ -9,9 +9,9 @@
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - STUDIO - WebStudio</name>
+    <name>OpenL WebStudio</name>
     <description>OpenL WebStudio</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <generate-application.properties>process-resources</generate-application.properties>

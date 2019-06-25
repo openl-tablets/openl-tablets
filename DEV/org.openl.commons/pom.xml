@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
     <name>OpenL - DEV - Commons</name>
     <description>Common reusable components</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <build>
         <resources>
             <resource>

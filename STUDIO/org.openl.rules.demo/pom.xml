@@ -11,5 +11,5 @@
     <packaging>jar</packaging>
     <name>OpenL Tablets - STUDIO - Demo</name>
     <description>OpenL Tablets Demo Projects</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
 </project>

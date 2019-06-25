@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Core - Annotations</name>
     <description>Common OpenL Rules Service Annotation</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <!-- Required for Java11 -->
         <dependency>
