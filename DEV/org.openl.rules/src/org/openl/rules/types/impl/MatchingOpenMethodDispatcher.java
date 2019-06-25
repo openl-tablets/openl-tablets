@@ -309,7 +309,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     // <<< INSERT MatchingProperties >>>
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
-        List<String> propNames = new ArrayList<>();
+        List<String> propNames = new ArrayList<String>();
 
         if (context.getCurrentDate() != null) {
             propNames.add("effectiveDate");
@@ -357,5 +357,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-    // <<< END INSERT MatchingProperties >>>
+// <<< END INSERT MatchingProperties >>>
 }

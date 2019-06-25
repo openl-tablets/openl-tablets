@@ -128,153 +128,80 @@ public interface ITableProperties {
 
     // <<< INSERT >>>
     java.lang.String getName();
-
     void setName(java.lang.String name);
-
     java.lang.String getCategory();
-
     void setCategory(java.lang.String category);
-
     java.lang.String getCreatedBy();
-
     void setCreatedBy(java.lang.String createdBy);
-
     java.util.Date getCreatedOn();
-
     void setCreatedOn(java.util.Date createdOn);
-
     java.lang.String getModifiedBy();
-
     void setModifiedBy(java.lang.String modifiedBy);
-
     java.util.Date getModifiedOn();
-
     void setModifiedOn(java.util.Date modifiedOn);
-
     java.lang.String getDescription();
-
     void setDescription(java.lang.String description);
-
     java.lang.String[] getTags();
-
     void setTags(java.lang.String... tags);
-
     java.util.Date getEffectiveDate();
-
     void setEffectiveDate(java.util.Date effectiveDate);
-
     java.util.Date getExpirationDate();
-
     void setExpirationDate(java.util.Date expirationDate);
-
     java.util.Date getStartRequestDate();
-
     void setStartRequestDate(java.util.Date startRequestDate);
-
     java.util.Date getEndRequestDate();
-
     void setEndRequestDate(java.util.Date endRequestDate);
-
     org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions();
-
     void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum... caRegions);
-
     org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces();
-
     void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum... caProvinces);
-
     org.openl.rules.enumeration.CountriesEnum[] getCountry();
-
     void setCountry(org.openl.rules.enumeration.CountriesEnum... country);
-
     org.openl.rules.enumeration.RegionsEnum[] getRegion();
-
     void setRegion(org.openl.rules.enumeration.RegionsEnum... region);
-
     org.openl.rules.enumeration.CurrenciesEnum[] getCurrency();
-
     void setCurrency(org.openl.rules.enumeration.CurrenciesEnum... currency);
-
     org.openl.rules.enumeration.LanguagesEnum[] getLang();
-
     void setLang(org.openl.rules.enumeration.LanguagesEnum... lang);
-
     java.lang.String[] getLob();
-
     void setLob(java.lang.String... lob);
-
     org.openl.rules.enumeration.OriginsEnum getOrigin();
-
     void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
-
     org.openl.rules.enumeration.UsRegionsEnum[] getUsregion();
-
     void setUsregion(org.openl.rules.enumeration.UsRegionsEnum... usregion);
-
     org.openl.rules.enumeration.UsStatesEnum[] getState();
-
     void setState(org.openl.rules.enumeration.UsStatesEnum... state);
-
     java.lang.String getVersion();
-
     void setVersion(java.lang.String version);
-
     java.lang.Boolean getActive();
-
     void setActive(java.lang.Boolean active);
-
     java.lang.String getId();
-
     void setId(java.lang.String id);
-
     java.lang.String getBuildPhase();
-
     void setBuildPhase(java.lang.String buildPhase);
-
     org.openl.rules.enumeration.ValidateDTEnum getValidateDT();
-
     void setValidateDT(org.openl.rules.enumeration.ValidateDTEnum validateDT);
-
     java.lang.Boolean getFailOnMiss();
-
     void setFailOnMiss(java.lang.Boolean failOnMiss);
-
     java.lang.String getScope();
-
     void setScope(java.lang.String scope);
-
     java.lang.String getDatatypePackage();
-
     void setDatatypePackage(java.lang.String datatypePackage);
-
     java.lang.Boolean getCacheable();
-
     void setCacheable(java.lang.Boolean cacheable);
-
     org.openl.rules.enumeration.RecalculateEnum getRecalculate();
-
     void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
-
     java.lang.String getPrecision();
-
     void setPrecision(java.lang.String precision);
-
     java.lang.Boolean getAutoType();
-
     void setAutoType(java.lang.Boolean autoType);
-
     java.lang.Boolean getCalculateAllCells();
-
     void setCalculateAllCells(java.lang.Boolean calculateAllCells);
-
     java.lang.Boolean getParallel();
-
     void setParallel(java.lang.Boolean parallel);
-
     java.lang.String getNature();
-
     void setNature(java.lang.String nature);
-    // <<< END INSERT >>>
+// <<< END INSERT >>>
 
     void setCategoryProperties(Map<String, Object> categoryProperties);
 

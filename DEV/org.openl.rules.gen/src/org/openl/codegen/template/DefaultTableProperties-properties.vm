@@ -1,8 +1,10 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+    @Override
     public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)() {
         return ($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass)) getPropertyValue("$tablePropertyDefinition.Name");
     }
-
+	
+    @Override
     public void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getVarArgTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name) {
         setFieldValue("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
         reset();

@@ -6,7 +6,7 @@ public class CodeGenConstants {
 
     public static final String DEFINITIONS_XLS = "../org.openl.rules/doc/TablePropertyDefinition.xlsx";
 
-    public static final String ACTIVITI_SOURCE_LOCATION = "../../STUDIO/org.openl.rules.activiti/src/";
+    public static final String ACTIVITI_SOURCE_LOCATION = "../../EXT/org.openl.rules.activiti/src/";
     public static final String ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH = "org/openl/rules/activiti/util/";
     public static final String ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME = "IRulesRuntimeContextUtils";
 

@@ -1,14 +1,16 @@
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.simplePriorityRuleWrappers )
         maxMinPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
-
+            @Override
             public String getOperationName() {
                 return "$priorityRuleWrapper.operationName";
             }
-
+            
+            @Override
             public $priorityRuleWrapper.propertyType getProprtyValue(ITableProperties properties) {
                 return properties.get$tool.formatAccessorName($priorityRuleWrapper.propertyName)();
             }
 
+            @Override
             public int compareNotNulls($priorityRuleWrapper.propertyType propertyValue1, $priorityRuleWrapper.propertyType propertyValue2) {
                 return ${priorityRuleWrapper.operationName}(propertyValue1, propertyValue2);
             }

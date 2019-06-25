@@ -1,14 +1,11 @@
 package org.openl.rules.types;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
+import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
@@ -157,11 +154,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return Collections.unmodifiableList(candidates);
     }
 
-    private Map<UUID, IOpenMethod> cache = new LinkedHashMap<>();
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-
-    private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
-
     /**
      * Invokes appropriate method using runtime context.
      */
@@ -183,12 +175,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         //
         IOpenMethod method = null;
 
-        if (context instanceof IRulesRuntimeContextMutableUUID) {
-            IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
-            method = findInCache(contextMutableUUID);
+        if (context instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
+            IRulesRuntimeContextOptimizationForOpenMethodDispatcher rulesRuntimeContextOptimizationForOpenMethodDispatcher = (IRulesRuntimeContextOptimizationForOpenMethodDispatcher) context;
+            method = rulesRuntimeContextOptimizationForOpenMethodDispatcher.getMethodForOpenMethodDispatcher(this);
             if (method == null) {
                 method = findMatchingMethod(candidates, context);
-                putToCache(contextMutableUUID, method);
+                rulesRuntimeContextOptimizationForOpenMethodDispatcher.putMethodForOpenMethodDispatcher(this, method);
             }
         } else {
             method = findMatchingMethod(candidates, context);
@@ -225,33 +217,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             method = ((IOpenMethodWrapper) method).getDelegate();
         }
 
-        return method;
-    }
-
-    private void putToCache(IRulesRuntimeContextMutableUUID contextMutableUUID, IOpenMethod method) {
-        Lock writeLock = readWriteLock.writeLock();
-        try {
-            writeLock.lock();
-            cache.put(contextMutableUUID.contextUUID(), method);
-            if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
-                Iterator<UUID> itr = cache.keySet().iterator();
-                itr.next();
-                itr.remove();
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    private IOpenMethod findInCache(IRulesRuntimeContextMutableUUID contextMutableUUID) {
-        IOpenMethod method;
-        Lock readLock = readWriteLock.readLock();
-        try {
-            readLock.lock();
-            method = cache.get(contextMutableUUID.contextUUID());
-        } finally {
-            readLock.unlock();
-        }
         return method;
     }
 

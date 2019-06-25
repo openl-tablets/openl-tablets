@@ -77,409 +77,373 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public java.lang.String getName() {
         return (java.lang.String) getPropertyValue("name");
     }
-
+	
     @Override
     public void setName(java.lang.String name) {
         setFieldValue("name", name);
         reset();
     }
-
     @Override
     public java.lang.String getCategory() {
         return (java.lang.String) getPropertyValue("category");
     }
-
+	
     @Override
     public void setCategory(java.lang.String category) {
         setFieldValue("category", category);
         reset();
     }
-
     @Override
     public java.lang.String getCreatedBy() {
         return (java.lang.String) getPropertyValue("createdBy");
     }
-
+	
     @Override
     public void setCreatedBy(java.lang.String createdBy) {
         setFieldValue("createdBy", createdBy);
         reset();
     }
-
     @Override
     public java.util.Date getCreatedOn() {
         return (java.util.Date) getPropertyValue("createdOn");
     }
-
+	
     @Override
     public void setCreatedOn(java.util.Date createdOn) {
         setFieldValue("createdOn", createdOn);
         reset();
     }
-
     @Override
     public java.lang.String getModifiedBy() {
         return (java.lang.String) getPropertyValue("modifiedBy");
     }
-
+	
     @Override
     public void setModifiedBy(java.lang.String modifiedBy) {
         setFieldValue("modifiedBy", modifiedBy);
         reset();
     }
-
     @Override
     public java.util.Date getModifiedOn() {
         return (java.util.Date) getPropertyValue("modifiedOn");
     }
-
+	
     @Override
     public void setModifiedOn(java.util.Date modifiedOn) {
         setFieldValue("modifiedOn", modifiedOn);
         reset();
     }
-
     @Override
     public java.lang.String getDescription() {
         return (java.lang.String) getPropertyValue("description");
     }
-
+	
     @Override
     public void setDescription(java.lang.String description) {
         setFieldValue("description", description);
         reset();
     }
-
     @Override
     public java.lang.String[] getTags() {
         return (java.lang.String[]) getPropertyValue("tags");
     }
-
+	
     @Override
     public void setTags(java.lang.String... tags) {
         setFieldValue("tags", tags);
         reset();
     }
-
     @Override
     public java.util.Date getEffectiveDate() {
         return (java.util.Date) getPropertyValue("effectiveDate");
     }
-
+	
     @Override
     public void setEffectiveDate(java.util.Date effectiveDate) {
         setFieldValue("effectiveDate", effectiveDate);
         reset();
     }
-
     @Override
     public java.util.Date getExpirationDate() {
         return (java.util.Date) getPropertyValue("expirationDate");
     }
-
+	
     @Override
     public void setExpirationDate(java.util.Date expirationDate) {
         setFieldValue("expirationDate", expirationDate);
         reset();
     }
-
     @Override
     public java.util.Date getStartRequestDate() {
         return (java.util.Date) getPropertyValue("startRequestDate");
     }
-
+	
     @Override
     public void setStartRequestDate(java.util.Date startRequestDate) {
         setFieldValue("startRequestDate", startRequestDate);
         reset();
     }
-
     @Override
     public java.util.Date getEndRequestDate() {
         return (java.util.Date) getPropertyValue("endRequestDate");
     }
-
+	
     @Override
     public void setEndRequestDate(java.util.Date endRequestDate) {
         setFieldValue("endRequestDate", endRequestDate);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
         return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions");
     }
-
+	
     @Override
     public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum... caRegions) {
         setFieldValue("caRegions", caRegions);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
         return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces");
     }
-
+	
     @Override
     public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum... caProvinces) {
         setFieldValue("caProvinces", caProvinces);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
         return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
     }
-
+	
     @Override
     public void setCountry(org.openl.rules.enumeration.CountriesEnum... country) {
         setFieldValue("country", country);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
         return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region");
     }
-
+	
     @Override
     public void setRegion(org.openl.rules.enumeration.RegionsEnum... region) {
         setFieldValue("region", region);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
         return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency");
     }
-
+	
     @Override
     public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum... currency) {
         setFieldValue("currency", currency);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
         return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang");
     }
-
+	
     @Override
     public void setLang(org.openl.rules.enumeration.LanguagesEnum... lang) {
         setFieldValue("lang", lang);
         reset();
     }
-
     @Override
     public java.lang.String[] getLob() {
         return (java.lang.String[]) getPropertyValue("lob");
     }
-
+	
     @Override
     public void setLob(java.lang.String... lob) {
         setFieldValue("lob", lob);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.OriginsEnum getOrigin() {
         return (org.openl.rules.enumeration.OriginsEnum) getPropertyValue("origin");
     }
-
+	
     @Override
     public void setOrigin(org.openl.rules.enumeration.OriginsEnum origin) {
         setFieldValue("origin", origin);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
         return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion");
     }
-
+	
     @Override
     public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum... usregion) {
         setFieldValue("usregion", usregion);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.UsStatesEnum[] getState() {
         return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state");
     }
-
+	
     @Override
     public void setState(org.openl.rules.enumeration.UsStatesEnum... state) {
         setFieldValue("state", state);
         reset();
     }
-
     @Override
     public java.lang.String getVersion() {
         return (java.lang.String) getPropertyValue("version");
     }
-
+	
     @Override
     public void setVersion(java.lang.String version) {
         setFieldValue("version", version);
         reset();
     }
-
     @Override
     public java.lang.Boolean getActive() {
         return (java.lang.Boolean) getPropertyValue("active");
     }
-
+	
     @Override
     public void setActive(java.lang.Boolean active) {
         setFieldValue("active", active);
         reset();
     }
-
     @Override
     public java.lang.String getId() {
         return (java.lang.String) getPropertyValue("id");
     }
-
+	
     @Override
     public void setId(java.lang.String id) {
         setFieldValue("id", id);
         reset();
     }
-
     @Override
     public java.lang.String getBuildPhase() {
         return (java.lang.String) getPropertyValue("buildPhase");
     }
-
+	
     @Override
     public void setBuildPhase(java.lang.String buildPhase) {
         setFieldValue("buildPhase", buildPhase);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.ValidateDTEnum getValidateDT() {
         return (org.openl.rules.enumeration.ValidateDTEnum) getPropertyValue("validateDT");
     }
-
+	
     @Override
     public void setValidateDT(org.openl.rules.enumeration.ValidateDTEnum validateDT) {
         setFieldValue("validateDT", validateDT);
         reset();
     }
-
     @Override
     public java.lang.Boolean getFailOnMiss() {
         return (java.lang.Boolean) getPropertyValue("failOnMiss");
     }
-
+	
     @Override
     public void setFailOnMiss(java.lang.Boolean failOnMiss) {
         setFieldValue("failOnMiss", failOnMiss);
         reset();
     }
-
     @Override
     public java.lang.String getScope() {
         return (java.lang.String) getPropertyValue("scope");
     }
-
+	
     @Override
     public void setScope(java.lang.String scope) {
         setFieldValue("scope", scope);
         reset();
     }
-
     @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
     }
-
+	
     @Override
     public void setDatatypePackage(java.lang.String datatypePackage) {
         setFieldValue("datatypePackage", datatypePackage);
         reset();
     }
-
     @Override
     public java.lang.Boolean getCacheable() {
         return (java.lang.Boolean) getPropertyValue("cacheable");
     }
-
+	
     @Override
     public void setCacheable(java.lang.Boolean cacheable) {
         setFieldValue("cacheable", cacheable);
         reset();
     }
-
     @Override
     public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
         return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate");
     }
-
+	
     @Override
     public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
         setFieldValue("recalculate", recalculate);
         reset();
     }
-
     @Override
     public java.lang.String getPrecision() {
         return (java.lang.String) getPropertyValue("precision");
     }
-
+	
     @Override
     public void setPrecision(java.lang.String precision) {
         setFieldValue("precision", precision);
         reset();
     }
-
     @Override
     public java.lang.Boolean getAutoType() {
         return (java.lang.Boolean) getPropertyValue("autoType");
     }
-
+	
     @Override
     public void setAutoType(java.lang.Boolean autoType) {
         setFieldValue("autoType", autoType);
         reset();
     }
-
     @Override
     public java.lang.Boolean getCalculateAllCells() {
         return (java.lang.Boolean) getPropertyValue("calculateAllCells");
     }
-
+	
     @Override
     public void setCalculateAllCells(java.lang.Boolean calculateAllCells) {
         setFieldValue("calculateAllCells", calculateAllCells);
         reset();
     }
-
     @Override
     public java.lang.Boolean getParallel() {
         return (java.lang.Boolean) getPropertyValue("parallel");
     }
-
+	
     @Override
     public void setParallel(java.lang.Boolean parallel) {
         setFieldValue("parallel", parallel);
         reset();
     }
-
     @Override
     public java.lang.String getNature() {
         return (java.lang.String) getPropertyValue("nature");
     }
-
+	
     @Override
     public void setNature(java.lang.String nature) {
         setFieldValue("nature", nature);
         reset();
     }
-    // <<< END INSERT >>>
+// <<< END INSERT >>>
 
     /**
      * {@inheritDoc}
