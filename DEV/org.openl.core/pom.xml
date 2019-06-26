@@ -42,5 +42,13 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
         </dependency>
+        <!-- Required for Java11. -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
+            <!-- Annotation classes are used in generated from Datatype Table classes.
+            To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
     </dependencies>
 </project>

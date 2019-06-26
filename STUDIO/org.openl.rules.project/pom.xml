@@ -69,5 +69,13 @@
             <artifactId>commons-beanutils</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Required for Java11. -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>test</scope>
+            <!-- Annotation classes are used in generated from Datatype Table classes.
+            To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
     </dependencies>
 </project>

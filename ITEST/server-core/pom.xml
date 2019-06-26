@@ -50,20 +50,13 @@
             <artifactId>cxf-rt-transports-http</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.jws</groupId>
-            <artifactId>jsr181-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sun.activation</groupId>
-            <artifactId>javax.activation</artifactId>
+            <artifactId>jakarta.activation</artifactId>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
     </dependencies>
 </project>

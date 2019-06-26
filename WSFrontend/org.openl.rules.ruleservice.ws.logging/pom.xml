@@ -30,11 +30,5 @@
             <artifactId>org.openl.rules.ruleservice</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Required for Java11 -->
-        <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>
