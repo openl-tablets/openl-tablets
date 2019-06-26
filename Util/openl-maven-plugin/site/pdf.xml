@@ -17,6 +17,7 @@
             <item name="openl:compile" ref="compile-mojo.xml"/>
             <item name="openl:test" ref="test-mojo.xml"/>
             <item name="openl:package" ref="package-mojo.xml"/>
+            <item name="openl:deploy" ref="deploy-mojo.xml"/>
             <item name="openl:help" ref="help-mojo.xml"/>
         </item>
         <item name="Configuration with all Goals" ref="configuration-with-all-goals.apt"/>

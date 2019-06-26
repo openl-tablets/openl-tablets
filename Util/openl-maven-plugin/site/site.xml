@@ -9,6 +9,7 @@
                 <item name="openl:compile" href="compile-mojo.html"/>
                 <item name="openl:test" href="test-mojo.html"/>
                 <item name="openl:package" href="package-mojo.html"/>
+                <item name="openl:deploy" href="deploy-mojo.html"/>
                 <item name="openl:help" href="help-mojo.html"/>
             </item>
         </menu>
