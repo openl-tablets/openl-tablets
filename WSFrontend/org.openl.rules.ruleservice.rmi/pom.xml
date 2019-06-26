@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - RMI</name>
     <description>OpenL Rules Rulesevice RMI</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>

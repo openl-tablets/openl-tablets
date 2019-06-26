@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - Security</name>
     <description>OpenL Common Security</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>

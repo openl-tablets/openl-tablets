@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - Security - Standalone</name>
     <description>Internal OpenL security implementation</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <dependency>
             <groupId>org.openl</groupId>

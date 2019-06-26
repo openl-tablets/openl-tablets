@@ -5,9 +5,10 @@
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
     <version>5.22.2-SNAPSHOT</version>
-    <name>OpenL Tablets - General POM</name>
-    <url>//openl-tablets.org</url>
+    <name>OpenL Tablets</name>
+    <url>http://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
+    <inceptionYear>2004</inceptionYear>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -15,46 +16,49 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>http://openl-tablets.org</url>
+    </organization>
     <developers>
         <developer>
-            <id>StanislavShor</id>
             <name>Stanislav Shor</name>
-            <email>sshor@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
-            <roles>
-                <role>architect</role>
-            </roles>
-            <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>YuryMolchan</id>
             <name>Yury Molchan</name>
             <email>ymolchan@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
             <timezone>+3</timezone>
         </developer>
         <developer>
-            <id>MaratKamalov</id>
             <name>Marat Kamalov</name>
             <email>mkamalov@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
             <timezone>+3</timezone>
         </developer>
         <developer>
-            <id>NailSamatov</id>
             <name>Nail Samatov</name>
             <email>nsamatov@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
+        </developer>
+        <developer>
+            <name>Vlad Pikus</name>
+            <email>vpikus@eisgroup.com</email>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>

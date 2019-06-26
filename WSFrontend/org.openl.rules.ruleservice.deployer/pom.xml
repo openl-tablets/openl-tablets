@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Rules Deployer</name>
     <description>OpenL Rules Deployer</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <build>
         <plugins>
             <plugin>

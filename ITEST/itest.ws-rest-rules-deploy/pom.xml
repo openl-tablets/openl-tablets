@@ -12,7 +12,7 @@
     <artifactId>itest.ws-rest-rules-deploy</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - Test Rules Deployment via REST for OpenL web service</name>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
 
     <dependencies>
         <!-- Itegration Tests-->

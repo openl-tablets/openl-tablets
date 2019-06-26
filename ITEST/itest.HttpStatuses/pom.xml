@@ -12,7 +12,7 @@
     <artifactId>itest.httpStatuses</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - HttpStatuses Test</name>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
 
     <dependencies>
         <!-- Itegration Tests-->

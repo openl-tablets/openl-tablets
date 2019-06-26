@@ -12,7 +12,7 @@
     <artifactId>itest.SpreadsheetResult</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - SpreadsheetResult Test</name>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
 
     <dependencies>
         <!-- Itegration Tests-->
