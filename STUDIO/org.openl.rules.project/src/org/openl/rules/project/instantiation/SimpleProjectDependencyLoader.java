@@ -75,8 +75,8 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         }
 
         if (this.dependencyName.equals(dependencyName)) {
-            boolean isCircularDependency = !ProjectExternalDependenciesHelper
-                .isProject(dependencyName) && dependencyManager.getCompilationStack().contains(dependencyName);
+            boolean isCircularDependency = !isProject && dependencyManager.getCompilationStack()
+                .contains(dependencyName);
             if (!isCircularDependency && !dependencyManager.getCompilationStack().isEmpty()) {
                 AbstractProjectDependencyManager.DependencyReference dr = new AbstractProjectDependencyManager.DependencyReference(
                     dependencyManager.getCompilationStack().getLast(),
