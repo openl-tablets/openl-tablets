@@ -52,8 +52,13 @@ public class InputArgsBean {
     }
 
     public boolean isMethodHasParameters() {
-        IOpenMethod testMethod = getTestedMethod();
-        return testMethod != null && testMethod.getSignature().getNumberOfParameters() > 0;
+        try {
+            IOpenMethod testMethod = getTestedMethod();
+            return testMethod != null && testMethod.getSignature().getNumberOfParameters() > 0;
+        } catch (Exception | LinkageError e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     public void setUri(String uri) {
@@ -68,12 +73,12 @@ public class InputArgsBean {
         this.currentTreeNode = currentTreeNode;
     }
 
-    public IOpenMethod getTestedMethod() {
+    private IOpenMethod getTestedMethod() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
         return projectModel.getMethod(uri);
     }
 
-    public ParameterDeclarationTreeNode getCurrentNode() {
+    private ParameterDeclarationTreeNode getCurrentNode() {
         return (ParameterDeclarationTreeNode) currentTreeNode.getRowData();
     }
 
@@ -146,7 +151,7 @@ public class InputArgsBean {
         currentnode.addChild(currentnode.getChildren().size() + 1, null);
     }
 
-    public ParameterWithValueDeclaration[] initArguments() {
+    private ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
         ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature()
             .getNumberOfParameters()];
@@ -168,13 +173,18 @@ public class InputArgsBean {
     }
 
     public ParameterWithValueDeclaration[] getArguments() {
-        if (arguments == null) {
-            arguments = initArguments();
+        try {
+            if (arguments == null) {
+                arguments = initArguments();
+            }
+            return arguments;
+        } catch (Exception | LinkageError e) {
+            log.error(e.getMessage(), e);
+            return new ParameterWithValueDeclaration[0];
         }
-        return arguments;
     }
 
-    public ParameterDeclarationTreeNode[] initArgumentTreeNodes() {
+    private ParameterDeclarationTreeNode[] initArgumentTreeNodes() {
         ParameterWithValueDeclaration[] args = getArguments();
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -187,10 +197,15 @@ public class InputArgsBean {
     }
 
     public ParameterDeclarationTreeNode[] getArgumentTreeNodes() {
-        if (argumentTreeNodes == null) {
-            argumentTreeNodes = initArgumentTreeNodes();
+        try {
+            if (argumentTreeNodes == null) {
+                argumentTreeNodes = initArgumentTreeNodes();
+            }
+            return argumentTreeNodes;
+        } catch (Exception | LinkageError e) {
+            log.error(e.getMessage(), e);
+            return new ParameterDeclarationTreeNode[0];
         }
-        return argumentTreeNodes;
     }
 
     public SelectItem[] getPossibleTypes(ParameterDeclarationTreeNode currentNode) {
@@ -203,7 +218,7 @@ public class InputArgsBean {
             }
 
             return result.toArray(new SelectItem[0]);
-        } catch (Throwable e) {
+        } catch (Exception | LinkageError e) {
             log.error(e.getMessage(), e);
             return new SelectItem[0];
         }
