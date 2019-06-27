@@ -25,7 +25,7 @@
       <footer>
         <a4j:commandButton value="Apply" action="#{mergeConflictBean.applyConflictResolution}" render="@form :modalResolveConflictsData" styleClass="button-primary"
                            oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide();}"/>
-        <input class="restore-changed-state" type="button" value="Cancel" onclick="cancelConflictResolution();" />
+        <input type="button" value="Cancel" onclick="cancelConflictResolution();" />
       </footer>
 
       <a4j:jsFunction name="refreshUploadConflictResolutionDialog" render="@form" oncomplete="showUploadConflictResolutionDialog();" />
