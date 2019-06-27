@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -88,6 +89,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     }
 
     public void close() {
+        setFilesToCompare(Collections.<File>emptyList());
         deleteTempFiles();
         setDiffTree(null);
     }
