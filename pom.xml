@@ -488,7 +488,7 @@
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <doclint>none</doclint>
                             <skip>${maven.javadoc.skip}</skip>
                         </configuration>
                         <executions>
