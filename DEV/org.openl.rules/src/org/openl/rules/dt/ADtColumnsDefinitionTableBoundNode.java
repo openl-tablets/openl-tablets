@@ -258,6 +258,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                             cxt);
                         throw SyntaxNodeExceptionUtils.createError(
                             String.format("Failed to parse the cell '%s'", eGridCellSourceCodeModule.getCode()),
+                            e,
+                            null,
                             eGridCellSourceCodeModule);
                     }
                     int j = 0;
