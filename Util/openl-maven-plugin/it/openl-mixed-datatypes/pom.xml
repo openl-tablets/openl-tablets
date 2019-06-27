@@ -38,5 +38,11 @@
             <artifactId>org.openl.rules</artifactId>
             <version>${org.openl.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
