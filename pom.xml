@@ -1284,7 +1284,7 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>5.2.4</version>
+                <version>4.2.0</version>
             </dependency>
             <!-- Hibernate -->
             <dependency>
