@@ -17,7 +17,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
-import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
@@ -131,7 +130,7 @@ public class MergeConflictBean {
         }
 
         // Save
-        List<FileChange> resolvedFiles = new ArrayList<>();
+        List<FileItem> resolvedFiles = new ArrayList<>();
         try {
             RulesProject project = mergeConflict.getProject();
             WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext()
@@ -155,17 +154,17 @@ public class MergeConflictBean {
                         if (file == null) {
                             throw new FileNotFoundException("File " + localName + " is not found");
                         }
-                        resolvedFiles.add(new FileChange(name, file.getStream()));
+                        resolvedFiles.add(new FileItem(name, file.getStream()));
                         break;
                     case THEIRS:
                         file = designRepository.readHistory(name, mergeConflict.getException().getTheirCommit());
                         if (file == null) {
                             throw new FileNotFoundException("File '" + name + "' is not found");
                         }
-                        resolvedFiles.add(new FileChange(name, file.getStream()));
+                        resolvedFiles.add(new FileItem(name, file.getStream()));
                         break;
                     case CUSTOM:
-                        resolvedFiles.add(new FileChange(name, conflictResolution.getCustomResolutionFile().getInput()));
+                        resolvedFiles.add(new FileItem(name, conflictResolution.getCustomResolutionFile().getInput()));
                         break;
                     default:
                         throw new ValidationException("Can't merge with resolution type " + conflictResolution.getResolutionType());
@@ -181,7 +180,7 @@ public class MergeConflictBean {
             log.error(message, e);
             throw new ValidationException(message);
         } finally {
-            for (FileChange file : resolvedFiles) {
+            for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
         }
