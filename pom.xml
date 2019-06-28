@@ -4,10 +4,11 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.22.2-SNAPSHOT</version>
-    <name>OpenL Tablets - General POM</name>
-    <url>//openl-tablets.org</url>
+    <version>5.22.3-SNAPSHOT</version>
+    <name>OpenL Tablets</name>
+    <url>http://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
+    <inceptionYear>2004</inceptionYear>
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -15,46 +16,49 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>http://openl-tablets.org</url>
+    </organization>
     <developers>
         <developer>
-            <id>StanislavShor</id>
             <name>Stanislav Shor</name>
-            <email>sshor@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
-            <roles>
-                <role>architect</role>
-            </roles>
-            <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>YuryMolchan</id>
             <name>Yury Molchan</name>
             <email>ymolchan@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
             <timezone>+3</timezone>
         </developer>
         <developer>
-            <id>MaratKamalov</id>
             <name>Marat Kamalov</name>
             <email>mkamalov@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
             <timezone>+3</timezone>
         </developer>
         <developer>
-            <id>NailSamatov</id>
             <name>Nail Samatov</name>
             <email>nsamatov@eisgroup.com</email>
-            <organization>EIS</organization>
-            <organizationUrl>http://eisgroup.com</organizationUrl>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
+        </developer>
+        <developer>
+            <name>Vlad Pikus</name>
+            <email>vpikus@eisgroup.com</email>
+            <organization>EIS Group</organization>
+            <organizationUrl>https://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
@@ -75,24 +79,22 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>4.3.19.RELEASE</org.springframework.version>
-        <org.springsecurity.version>4.2.8.RELEASE</org.springsecurity.version>
+        <org.springframework.version>4.3.24.RELEASE</org.springframework.version>
+        <org.springsecurity.version>4.2.13.RELEASE</org.springsecurity.version>
         <org.hibernate.version>4.3.11.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>7.1</asm.version>
-        <cglib.version>3.2.10</cglib.version>
+        <cglib.version>3.2.12</cglib.version>
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.1.17</org.apache.cxf.version>
-        <org.slf4j.version>1.7.25</org.slf4j.version>
+        <org.apache.cxf.version>3.3.2</org.apache.cxf.version>
+        <org.slf4j.version>1.7.26</org.slf4j.version>
         <org.apache.poi.version>4.1.0</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <com.fasterxml.jackson.version>2.9.8</com.fasterxml.jackson.version>
-        <jaxb.version>2.3.1</jaxb.version>
+        <com.fasterxml.jackson.version>2.9.9</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.http.port>9999</jetty.http.port>
-        <jetty.server.version>9.2.26.v20180806</jetty.server.version>
+        <jetty.server.version>9.4.19.v20190610</jetty.server.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -105,6 +107,7 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
+        <module>EXT</module>
         <module>DEMO</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
@@ -146,7 +149,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.1</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -159,7 +162,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -169,32 +172,32 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <version>2.8.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.19</version>
+                    <version>1.20</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.8</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-plugin</artifactId>
-                    <version>1.9</version>
+                    <version>1.11.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.8.1</version>
                     <configuration>
                         <source>${java.source.version}</source>
                         <target>${java.target.version}</target>
@@ -203,7 +206,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
+                    <version>2.22.2</version>
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
@@ -213,7 +216,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>3.2.3</version>
                     <configuration>
                         <warSourceDirectory>webapp</warSourceDirectory>
                     </configuration>
@@ -227,14 +230,9 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>1.3</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>3.1.2</version>
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
                         <archive>
@@ -286,11 +284,6 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>properties-maven-plugin</artifactId>
-                    <version>1.0-alpha-2</version>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>groovy-maven-plugin</artifactId>
                     <version>2.0</version>
@@ -298,21 +291,22 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pdf-plugin</artifactId>
-                    <version>1.3</version>
+                    <version>1.4</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                         <docDescriptor>${basedir}/site/pdf.xml</docDescriptor>
+                        <includeReports>false</includeReports>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.6</version>
+                    <version>3.7.1</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
@@ -320,13 +314,8 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <!-- Java 7 -->
                     <version>${jetty.server.version}</version>
                     <configuration>
-                        <httpConnector>
-                            <!-- To be compatible with Jetty 9.4 -->
-                            <port>${jetty.http.port}</port>
-                        </httpConnector>
                         <systemProperties>
                             <systemProperty>
                                 <name>openl.home</name>
@@ -338,7 +327,7 @@
                         <dependency>
                             <groupId>com.h2database</groupId>
                             <artifactId>h2</artifactId>
-                            <version>1.4.196</version>
+                            <version>1.4.199</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -348,6 +337,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
                 <configuration>
                     <timestampPropertyName>build.date</timestampPropertyName>
                     <timestampFormat>{0,date,yyyy-MM-dd}</timestampFormat>
@@ -417,7 +407,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.3</version>
+                        <version>0.8.4</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
                             <includes>
@@ -481,7 +471,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -494,11 +484,11 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>3.1.0</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <doclint>none</doclint>
                             <skip>${maven.javadoc.skip}</skip>
                         </configuration>
                         <executions>
@@ -619,12 +609,6 @@
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
-            </dependency>
-            <!-- HikariCP - A high-performance JDBC connection pool. -->
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP-java7</artifactId>
-                <version>2.4.13</version>
             </dependency>
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
             or are considered to be so standard as to justify existence in java.lang. -->
@@ -963,24 +947,6 @@
                 <artifactId>jcr</artifactId>
                 <version>2.0</version>
             </dependency>
-            <!-- Hibernate -->
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${org.hibernate.version}</version>
-            </dependency>
-            <!-- Integration for Ehcache into Hibernate as a second-level caching service -->
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-ehcache</artifactId>
-                <version>${org.hibernate.version}</version>
-            </dependency>
-            <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>5.1.1.Final</version>
-            </dependency>
             <!-- Contains the core Apache Derby database engine, which also includes the embedded JDBC driver. -->
             <dependency>
                 <groupId>org.apache.derby</groupId>
@@ -1009,37 +975,12 @@
             <dependency>
                 <groupId>com.helger</groupId>
                 <artifactId>jcodemodel</artifactId>
-                <version>2.8.6</version>
-            </dependency>
-            <!-- required for Java9 -->
-            <dependency>
-                <!-- JAX-WS (JSR 224) API -->
-                <!-- https://docs.oracle.com/javase/9/docs/api/java.xml.ws-summary.html -->
-                <groupId>javax.xml.ws</groupId>
-                <artifactId>jaxws-api</artifactId>
-                <version>2.3.0</version>
+                <version>3.2.3</version>
             </dependency>
             <dependency>
-                <!-- https://docs.oracle.com/javase/9/docs/api/javax/jws/package-summary.html -->
-                <groupId>javax.jws</groupId>
-                <artifactId>jsr181-api</artifactId>
-                <version>1.0-MR1</version>
-<!--
-                <artifactId>javax.jws-api</artifactId>
-                <version>1.1</version>
--->
-            </dependency>
-            <dependency>
-                <!-- https://docs.oracle.com/javase/9/docs/api/java.activation-summary.html -->
-                <groupId>com.sun.activation</groupId>
-                <artifactId>javax.activation</artifactId>
-                <version>1.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <!-- Java7 -->
-                <version>1.2</version>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>1.3.4</version>
             </dependency>
             <!-- Apache CXF Runtime JAX-WS Frontend -->
             <dependency>
@@ -1056,7 +997,7 @@
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
-                <version>1.3.8</version>
+                <version>1.4.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>stax</groupId>
@@ -1069,11 +1010,23 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
                 <version>${org.apache.cxf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.annotation</groupId>
+                        <artifactId>javax.annotation-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description</artifactId>
                 <version>${org.apache.cxf.version}</version>
+            </dependency>
+            <dependency>
+                <!-- for cxf-rt-frontend-jaxrs -->
+                <groupId>org.jvnet.staxex</groupId>
+                <artifactId>stax-ex</artifactId>
+                <version>1.8.1</version>
             </dependency>
             <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
@@ -1130,12 +1083,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.14.0</version>
+                <version>3.22.2</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
-                <version>1.5.19</version>
+                <version>1.5.22</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
@@ -1160,14 +1113,24 @@
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-elasticsearch</artifactId>
+                <version>2.1.14.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
-                <version>3.0.7</version>
+                <version>3.7.1</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-mapping</artifactId>
-                <version>3.0.7</version>
+                <version>3.7.1</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -1201,37 +1164,25 @@
             <!-- http://download.java.net/java/jdk9/docs/api/java.xml.bind-summary.html -->
             <!-- Required for Java11 -->
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>javax.activation-api</artifactId>
-                        <groupId>javax.activation</groupId>
-                    </exclusion>
-                </exclusions>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.activation</groupId>
+                <artifactId>jakarta.activation-api</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>3.0.8</version>
             </dependency>
             <!-- Full jar with all schemas. It's a replacement for poi-ooxml-schemas jar when the full schema is needed -->
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>ooxml-schemas</artifactId>
                 <version>1.4</version>
-            </dependency>
-            <!-- JAXB (JSR 222) Reference Implementation -->
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.istack</groupId>
-                <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.7</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>txw2</artifactId>
-                <version>${jaxb.version}</version>
             </dependency>
             <!-- serialize objects to XML (or JSON) and back again. -->
             <dependency>
@@ -1249,25 +1200,19 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.3</version>
-            </dependency>
-            <!-- editing bytecodes in Java -->
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>3.18.2-GA</version>
+                <version>2.10.2</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
-                <version>2.10.5</version>
+                <version>2.10.6</version>
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
-                <version>1.9.0</version>
+                <version>1.9.12</version>
             </dependency>
             <dependency>
                 <groupId>commons-jxpath</groupId>
@@ -1280,21 +1225,15 @@
                 <artifactId>hessian</artifactId>
                 <version>4.0.38</version>
             </dependency>
-            <!-- Flyway: The agile database migration framework for Java. -->
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>4.2.0</version>
-            </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.86</version>
+                <version>1.11.580</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.86</version>
+                <version>1.11.580</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1321,20 +1260,55 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.6</version>
+                <version>4.5.9</version>
             </dependency>
-
+            <!-- HikariCP - A high-performance JDBC connection pool. -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>3.3.1</version>
+            </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>6.2.2.jre7</version>
+                <version>7.2.2.jre8</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.196</version>
+                <version>1.4.199</version>
+            </dependency>
+            <!-- Flyway: The agile database migration framework for Java. -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <!-- Hibernate -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${org.hibernate.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.transaction</groupId>
+                        <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Integration for Ehcache into Hibernate as a second-level caching service -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-ehcache</artifactId>
+                <version>${org.hibernate.version}</version>
+            </dependency>
+            <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.1.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -1356,11 +1330,22 @@
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.24</version>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
                 <version>5.18.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.activiti</groupId>
@@ -1388,7 +1373,7 @@
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-archiver</artifactId>
-                <version>3.7.0</version>
+                <version>4.1.0</version>
             </dependency>
             <!-- OpenL modules -->
             <!-- DEV -->
@@ -1608,16 +1593,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-elasticsearch</artifactId>
-                <version>2.1.14.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>2.4.0</version>
             </dependency>
             <!-- Util -->
             <dependency>

@@ -1,0 +1,17 @@
+<project>
+    <name>openl-parent-project</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>openl-child-dependency</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

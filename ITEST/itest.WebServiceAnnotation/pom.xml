@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>itest.WebServiceAnnotation</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - Test service annotation for OpenL web service</name>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
 
     <dependencies>
         <!-- Itegration Tests-->

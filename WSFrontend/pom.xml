@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.ruleservice-pom</artifactId>
@@ -14,7 +14,6 @@
     <modules>
         <module>org.openl.rules.ruleservice.annotation</module>
         <module>org.openl.rules.ruleservice</module>
-        <module>org.openl.rules.ruleservice.activiti</module>
         <module>org.openl.rules.ruleservice.rmi.frontend</module>
         <module>org.openl.rules.ruleservice.rmi</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>

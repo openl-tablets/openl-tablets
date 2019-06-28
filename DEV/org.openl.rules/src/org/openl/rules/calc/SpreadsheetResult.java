@@ -23,6 +23,8 @@ public class SpreadsheetResult implements Serializable {
     private static final long serialVersionUID = 8704762477153429384L;
     private static final int MAX_WIDTH = 4;
     private static final int MAX_HEIGHT = 10;
+    private static final int MAX_DEPTH = 2;
+    private static final int MAX_VALUE_LENGTH = 10 * 1024;
 
     private Object[][] results;
     private String[] columnNames;
@@ -184,34 +186,64 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
+    private static final ThreadLocal<Integer> DEPTH_LOCAL_THREAD = new ThreadLocal<>();
+
+    private String truncateStringValue(String value) {
+        if (value.length() > MAX_VALUE_LENGTH) {
+            return value.substring(0, MAX_VALUE_LENGTH) + " ... TRUNCATED ...";
+        } else {
+            return value;
+        }
+    }
+
     private String printTable() {
         StringBuilder sb = new StringBuilder();
-        int maxWidth = Math.min(MAX_WIDTH, getWidth());
-        int maxHeight = Math.min(MAX_HEIGHT, getHeight());
+        Integer d = DEPTH_LOCAL_THREAD.get();
+        d = d != null ? d : 0;
+        try {
+            DEPTH_LOCAL_THREAD.set(d + 1);
+            int maxWidth = Math.min(MAX_WIDTH, getWidth());
+            int maxHeight = Math.min(MAX_HEIGHT, getHeight());
 
-        int[] width = new int[maxWidth + 1];
+            int[] width = new int[maxWidth + 1];
 
-        for (int i1 = 0; i1 <= maxHeight; i1++) {
-            for (int j1 = 0; j1 <= maxWidth; j1++) {
-                width[j1] = Math.max(width[j1], getStringValue(j1, i1).length());
-            }
-        }
-
-        for (int i = 0; i <= maxHeight; i++) {
-            for (int j = 0; j <= maxWidth; j++) {
-                if (j != 0) {
-                    sb.append(" | ");
-                }
-                String cell = getStringValue(j, i);
-                sb.append(cell);
-                for (int k = 0; k < width[j] - cell.length(); k++) {
-                    sb.append(' ');
+            for (int i1 = 0; i1 <= maxHeight; i1++) {
+                for (int j1 = 0; j1 <= maxWidth; j1++) {
+                    width[j1] = Math.max(width[j1],
+                        i1 > 0 && j1 > 0 && (getValue(i1 - 1,
+                            j1 - 1) instanceof SpreadsheetResult) && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
+                                .length() : truncateStringValue(getStringValue(j1, i1)).length());
                 }
             }
-            sb.append('\n');
-        }
-        if (getWidth() > MAX_WIDTH || getHeight() > MAX_HEIGHT) {
-            sb.append("... TRUNCATED TABLE ...");
+
+            for (int i = 0; i <= maxHeight; i++) {
+                for (int j = 0; j <= maxWidth; j++) {
+                    if (j != 0) {
+                        sb.append(" | ");
+                    }
+                    String cell;
+                    if (i > 0 && j > 0 && (getValue(i - 1, j - 1) instanceof SpreadsheetResult) && d > MAX_DEPTH) {
+                        cell = "... TRUNCATED TABLE ...";
+                    } else {
+                        cell = truncateStringValue(getStringValue(j, i));
+                    }
+
+                    sb.append(cell);
+                    for (int k = 0; k < width[j] - cell.length(); k++) {
+                        sb.append(' ');
+                    }
+                }
+                sb.append('\n');
+            }
+            if (getWidth() > MAX_WIDTH || getHeight() > MAX_HEIGHT) {
+                sb.append("... TRUNCATED TABLE ...");
+            }
+        } finally {
+            if (d == 0) {
+                DEPTH_LOCAL_THREAD.remove();
+            } else {
+                DEPTH_LOCAL_THREAD.set(d);
+            }
         }
 
         return sb.toString();

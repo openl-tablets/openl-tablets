@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.calculation.result</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - DEV - Rules - Calculation Result</name>
     <description>The heart of OpenL</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>
@@ -47,6 +47,14 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
             <optional>true</optional>
+        </dependency>
+        <!-- Required for Java11. -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
+            <!-- Annotation classes are used in generated from Datatype Table classes.
+            To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
     </dependencies>
 </project>

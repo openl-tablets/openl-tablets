@@ -1,5 +1,8 @@
 package org.openl.rules.context;
 
+import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.types.IOpenMethod;
+
 /**
  * Runtime context delegator.
  *
@@ -7,6 +10,8 @@ package org.openl.rules.context;
  */
 public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
 
+    private static final long serialVersionUID = -2172865302513540686L;
+    
     private IRulesRuntimeContext delegate;
 
     public RulesRuntimeContextDelegator(IRulesRuntimeContext delegate) {
@@ -27,6 +32,23 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         return super.toString() + "Delegated context:" + delegate.toString();
     }
 
+    @Override
+    public IOpenMethod getMethodForOpenMethodDispatcher(OpenMethodDispatcher openMethodDispatcher) {
+        if (openMethodDispatcher instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
+            return ((IRulesRuntimeContextOptimizationForOpenMethodDispatcher) delegate)
+                .getMethodForOpenMethodDispatcher(openMethodDispatcher);
+        }
+        return null;
+    }
+
+    @Override
+    public void putMethodForOpenMethodDispatcher(OpenMethodDispatcher openMethodDispatcher, IOpenMethod method) {
+        if (openMethodDispatcher instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
+            ((IRulesRuntimeContextOptimizationForOpenMethodDispatcher) delegate)
+                .putMethodForOpenMethodDispatcher(openMethodDispatcher, method);
+        }
+    }
+
     // <<< INSERT >>>
     @Override
     public java.util.Date getCurrentDate() {
@@ -35,7 +57,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getCurrentDate();
     }
-
     @Override
     public java.util.Date getRequestDate() {
         if (super.getRequestDate() == null) {
@@ -43,7 +64,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getRequestDate();
     }
-
     @Override
     public java.lang.String getLob() {
         if (super.getLob() == null) {
@@ -51,7 +71,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getLob();
     }
-
     @Override
     public java.lang.String getNature() {
         if (super.getNature() == null) {
@@ -59,7 +78,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getNature();
     }
-
     @Override
     public org.openl.rules.enumeration.UsStatesEnum getUsState() {
         if (super.getUsState() == null) {
@@ -67,7 +85,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getUsState();
     }
-
     @Override
     public org.openl.rules.enumeration.CountriesEnum getCountry() {
         if (super.getCountry() == null) {
@@ -75,7 +92,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getCountry();
     }
-
     @Override
     public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
         if (super.getUsRegion() == null) {
@@ -83,7 +99,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getUsRegion();
     }
-
     @Override
     public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
         if (super.getCurrency() == null) {
@@ -91,7 +106,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getCurrency();
     }
-
     @Override
     public org.openl.rules.enumeration.LanguagesEnum getLang() {
         if (super.getLang() == null) {
@@ -99,7 +113,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getLang();
     }
-
     @Override
     public org.openl.rules.enumeration.RegionsEnum getRegion() {
         if (super.getRegion() == null) {
@@ -107,7 +120,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getRegion();
     }
-
     @Override
     public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
         if (super.getCaProvince() == null) {
@@ -115,7 +127,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getCaProvince();
     }
-
     @Override
     public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
         if (super.getCaRegion() == null) {
@@ -123,6 +134,6 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         }
         return super.getCaRegion();
     }
-    // <<< END INSERT >>>
+// <<< END INSERT >>>
 
 }

@@ -81,6 +81,12 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             }
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "DependencyReference [reference=" + reference + ", dependency=" + dependency + "]";
+        }
+
     }
 
     private final ClassLoader rootClassLoader;
@@ -157,52 +163,60 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
 
     private List<ClassLoader> oldClassLoaders = new ArrayList<>();
 
-    @Override
-    public synchronized void reset(IDependency dependency) {
+    private void reset(IDependency dependency, Set<String> doNotDoTheSameResetTwice) {
         final String dependencyName = dependency.getNode().getIdentifier();
+        if (doNotDoTheSameResetTwice.contains(dependencyName)) {
+            return;
+        }
+        doNotDoTheSameResetTwice.add(dependencyName);
         for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
             String projectDependencyName = ProjectExternalDependenciesHelper
                 .buildDependencyNameForProjectName(projectDescriptor.getName());
             if (dependencyName.equals(projectDependencyName)) {
-                for (Module module : projectDescriptor.getModules()) {
-                    reset(new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)));
-                }
                 ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
                 if (classLoader != null) {
                     oldClassLoaders.add(classLoader);
                 }
                 classLoaders.remove(projectDescriptor.getName());
+                for (Module module : projectDescriptor.getModules()) {
+                    reset(new Dependency(DependencyType.MODULE,
+                        new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)), doNotDoTheSameResetTwice);
+                }
                 break;
             }
         }
 
         List<DependencyReference> dependenciesToReset = new ArrayList<>();
-        List<DependencyReference> dependenciesRefernciesToClear = new ArrayList<>();
+        List<DependencyReference> dependenciesReferenciesToClear = new ArrayList<>();
         for (DependencyReference dependencyReference : getDependencyReferences()) {
             if (dependencyReference.getReference().equals(dependencyName)) {
                 dependenciesToReset.add(dependencyReference);
             }
             if (dependencyReference.getDependency().equals(dependencyName)) {
-                dependenciesRefernciesToClear.add(dependencyReference);
+                dependenciesReferenciesToClear.add(dependencyReference);
             }
         }
 
         for (DependencyReference dependencyReference : dependenciesToReset) {
             reset(new Dependency(DependencyType.MODULE,
-                new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)));
+                new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)), doNotDoTheSameResetTwice);
         }
 
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             SimpleProjectDependencyLoader simpleProjectDependencyLoader = ((SimpleProjectDependencyLoader) dependencyLoader);
             if (simpleProjectDependencyLoader.getDependencyName().equals(dependencyName)) {
-                for (DependencyReference dependencyReference : dependenciesRefernciesToClear) {
+                for (DependencyReference dependencyReference : dependenciesReferenciesToClear) {
                     getDependencyReferences().remove(dependencyReference);
                 }
                 simpleProjectDependencyLoader.reset();
                 break;
             }
         }
+    }
+    
+    @Override
+    public synchronized void reset(IDependency dependency) {
+        reset(dependency, new HashSet<>());
     }
 
     @Override

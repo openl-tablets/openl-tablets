@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.repository.jcr</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - STUDIO - Repository Jcr</name>
     <description>JSR 170 based OpenL Repository implementation</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>

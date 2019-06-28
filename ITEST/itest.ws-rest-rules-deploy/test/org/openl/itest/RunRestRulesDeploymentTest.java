@@ -15,6 +15,9 @@ import org.springframework.web.client.RestTemplate;
 
 public class RunRestRulesDeploymentTest {
 
+    private static final String SINGLE_DEPLOYMENT_ENDPOINT = "/REST/deployed-rules/hello";
+    private static final String MULTIPLE_DEPLOYMENT_ENDPOINT = "/REST/project1/sayHello";
+
     private static JettyServer server;
     private static String baseURI;
 
@@ -38,39 +41,65 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() {
-        assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest().getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest(SINGLE_DEPLOYMENT_ENDPOINT).getStatusCode());
 
         ResponseEntity<String> response = doDeploy("/rules-to-deploy.zip", HttpMethod.POST);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        String body = pingDeployedService();
+        String body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
         assertEquals("Hello, Vlad", body);
 
         // should not be updated
         response = doDeploy("/rules-to-deploy_v2.zip", HttpMethod.POST);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        body = pingDeployedService();
+        body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
         assertEquals("Hello, Vlad", body);
 
         // should be updated
         response = doDeploy("/rules-to-deploy_v2.zip", HttpMethod.PUT);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        body = pingDeployedService();
+        body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
         assertEquals("Hello, Mr. Vlad", body);
     }
 
-    private String pingDeployedService() {
-        ResponseEntity<String> response = sendHelloRequest();
+    @Test
+    public void testDeployRules_multipleDeployment() {
+        assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest(MULTIPLE_DEPLOYMENT_ENDPOINT).getStatusCode());
+
+        ResponseEntity<String> response = doDeploy("/multiple-deployment_v1.zip", HttpMethod.POST);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        String body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
+        //TODO: looks like we have a bug. because response looks wrong. It should return "Hello, Vlad! v1"
+        assertEquals("Hello, {\"name\": \"Vlad\"}! v1", body);
+
+        // should not be updated
+        response = doDeploy("/multiple-deployment_v2.zip", HttpMethod.POST);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
+        assertEquals("Hello, {\"name\": \"Vlad\"}! v1", body);
+
+        // should not be updated
+        response = doDeploy("/multiple-deployment_v2.zip", HttpMethod.PUT);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
+        assertEquals("Hello, Mr. {\"name\": \"Vlad\"}! v2", body);
+    }
+
+    private String pingDeployedService(String endpoint) {
+        ResponseEntity<String> response = sendHelloRequest(endpoint);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         String body = response.getBody();
         assertNotNull(body);
         return body;
     }
 
-    private ResponseEntity<String> sendHelloRequest() {
-        return rest.exchange("/REST/deployed-rules/hello",
+    private ResponseEntity<String> sendHelloRequest(String endpoint) {
+        return rest.exchange(endpoint,
             HttpMethod.POST,
             RestClientFactory.request("{\"name\": \"Vlad\"}"),
             String.class);

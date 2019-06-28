@@ -10,7 +10,6 @@
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
         if ("$contextPropertyDefinition.Name".equals(name)) {
             set$tool.formatAccessorName($contextPropertyDefinition.Name)(($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass))value);
-            uuid = UUID.randomUUID();
             return;
         }
 #end
@@ -25,7 +24,7 @@
     public void set$tool.formatAccessorName($contextPropertyDefinition.Name)($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name) {
         this.$contextPropertyDefinition.Name = $contextPropertyDefinition.Name;
         internalMap.put("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
-        uuid = UUID.randomUUID();
+        cache = null;
     }
 
 #end

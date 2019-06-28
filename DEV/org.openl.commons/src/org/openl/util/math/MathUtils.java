@@ -688,49 +688,72 @@ public class MathUtils {
     // SORT
     public static <T extends Comparable<?>> T[] sort(T[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            T[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static byte[] sort(byte[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            byte[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static short[] sort(short[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            short[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static int[] sort(int[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            int[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static long[] sort(long[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            long[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static float[] sort(float[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            float[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }
 
     public static double[] sort(double[] values) {
         if (values != null) {
-            Arrays.sort(values);
+            double[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
+        }
+        return values;
+    }
+
+    public static char[] sort(char[] values) {
+        if (values != null) {
+            char[] copy = values.clone();
+            Arrays.sort(copy);
+            return copy;
         }
         return values;
     }

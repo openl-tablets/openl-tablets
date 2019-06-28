@@ -27,6 +27,12 @@
             <artifactId>org.openl.rules.project</artifactId>
             <version>${symbol_dollar}{org.openl.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- The dependency for runtime -->
         <dependency>
             <groupId>org.slf4j</groupId>

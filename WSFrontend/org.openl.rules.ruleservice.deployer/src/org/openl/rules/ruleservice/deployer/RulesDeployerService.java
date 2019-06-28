@@ -1,22 +1,18 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
@@ -25,8 +21,10 @@ import org.slf4j.LoggerFactory;
  */
 public class RulesDeployerService implements Closeable {
 
+    private static final String RULES_XML = "rules.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
-    private static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
+    static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
+    private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -85,77 +83,149 @@ public class RulesDeployerService implements Closeable {
     }
 
     private void deployInternal(String originalName, InputStream in, boolean overridable) throws Exception {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        IOUtils.copyAndClose(in, outputStream);
-        String name = originalName != null ? originalName : DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copyAndClose(in, baos);
 
-        if (outputStream.size() == 0) {
+        if (baos.size() == 0) {
             throw new RuntimeException("Zip file input stream is empty");
         }
 
-        DeploymentDTO deployment = new DeploymentDTO(name,
-            new ByteArrayInputStream(outputStream.toByteArray()),
-            outputStream.size());
+        Map<String, byte[]> zipEntries = DeploymentUtils.unzip(new ByteArrayInputStream(baos.toByteArray()));
 
-        deployInternal(deployment, overridable);
-    }
-
-    private void deployInternal(DeploymentDTO deployment, boolean overridable) throws Exception {
-        ZipInputStream zipStream = null;
-        try {
-            String projectName = deployment.getName();
-            String apiVersion = null;
-
-            zipStream = new ZipInputStream(deployment.getInputStream());
-            ZipEntry zipEntry;
-            boolean doesNotContainZippedFiles = true;
-            while ((zipEntry = zipStream.getNextEntry()) != null) {
-                InputStream fileStream = new ZippedFileInputStream(zipStream);
-                if (!zipEntry.isDirectory()) {
-                    String zippedFileName = DeploymentUtils.getFileName(zipEntry.getName());
-                    if ("rules.xml".equals(zippedFileName)) {
-                        String name = DeploymentUtils.getProjectName(fileStream);
-                        if (name != null && !name.isEmpty()) {
-                            projectName = name;
-                        }
-                    } else if ("rules-deploy.xml".equals(zippedFileName)) {
-                        apiVersion = DeploymentUtils.getApiVersion(fileStream);
-                    }
-                    doesNotContainZippedFiles = false;
-                }
-                fileStream.close();
+        String deploymentName = getDeploymentName(zipEntries);
+        String name = originalName != null ? originalName : DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
+        if (deploymentName == null) {
+            FileData dest = createFileData(zipEntries, null, name, overridable);
+            if (dest != null) {
+                doDeploy(dest, baos.size(), new ByteArrayInputStream(baos.toByteArray()));
             }
+        } else {
+            List<FileItem> fileItems = splitMultipleDeployment(zipEntries, deploymentName, name, overridable);
 
-            if (doesNotContainZippedFiles) {
-                throw new RuntimeException("Target zip file doesn't contain entries");
+            if (deployRepo.supports().folders()) {
+                List<FolderItem> folderItems = fileItems.stream().map(fi -> {
+                        FileData data = fi.getData();
+                        FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
+                            data.getName());
+                        return new FolderItem(data, files);
+                    }).collect(Collectors.toList());
+                ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
+            } else {
+                deployRepo.save(fileItems);
             }
-
-            String deploymentName = projectName;
-            if (apiVersion != null && !apiVersion.isEmpty()) {
-                deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
-            }
-
-            if (!overridable && isRulesDeployed(deploymentName)) {
-                log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
-                return;
-            }
-
-            InputStream inputStream = deployment.getInputStream();
-            inputStream.reset();
-            doDeploy(deployPath + deploymentName + '/' + projectName, deployment.getContentSize(), inputStream);
-        } finally {
-            IOUtils.closeQuietly(zipStream);
         }
     }
 
-    private void doDeploy(String name, Integer contentSize, InputStream inputStream) throws IOException {
-        FileData dest = new FileData();
-        dest.setName(name);
-        dest.setAuthor(DEFAULT_AUTHOR_NAME);
+    private List<FileItem> splitMultipleDeployment(Map<String, byte[]> zipEntries,
+            String deploymentName,
+            String name,
+            boolean overridable) throws Exception {
+        Set<String> projectFolders = new HashSet<>();
+        String rulesXml = "/" + RULES_XML;
+        for (String fileName : zipEntries.keySet()) {
+            int last = fileName.lastIndexOf(rulesXml);
+            if (last > 0) {
+                String projectFolder = fileName.substring(0, last + 1);
+                projectFolders.add(projectFolder);
+            }
+        }
+        if (projectFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<FileItem> fileItems = new ArrayList<>();
+        for (String projectFolder : projectFolders) {
+            Map<String, byte[]> newProjectEntries = new HashMap<>();
+            for (Map.Entry<String, byte[]> entry : zipEntries.entrySet()) {
+                String originalPath = entry.getKey();
+                if (originalPath.startsWith(projectFolder)) {
+                    String newPath = originalPath.substring(projectFolder.length());
+                    newProjectEntries.put(newPath, entry.getValue());
+                }
+            }
+            if (!newProjectEntries.isEmpty()) {
+                FileData dest = createFileData(newProjectEntries, deploymentName, name, overridable);
+                if (dest == null) {
+                    return Collections.emptyList();
+                }
+                ByteArrayOutputStream zipbaos = DeploymentUtils.archiveAsZip(newProjectEntries);
+                if (!deployRepo.supports().folders()) {
+                    dest.setSize(zipbaos.size());
+                }
+                fileItems.add(new FileItem(dest, new ByteArrayInputStream(zipbaos.toByteArray())));
+            }
+        }
+        if (fileItems.isEmpty()) {
+            throw new RuntimeException("Invalid deployment structure! Cannot detect projects.");
+        }
+        return fileItems;
+    }
 
+    private String getDeploymentName(Map<String, byte[]> zipEntries) {
+        String deploymentName = DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
+        if (zipEntries.get(DEPLOYMENT_DESCRIPTOR_FILE_NAME + ".xml") != null) {
+            return deploymentName;
+        } else {
+            byte[] bytes = zipEntries.get(DEPLOYMENT_DESCRIPTOR_FILE_NAME + ".yaml");
+            if (bytes == null) {
+                return null;
+            }
+            try (InputStream fileStream = new ByteArrayInputStream(bytes)) {
+                Yaml yaml = new Yaml();
+                Map properties = yaml.loadAs(fileStream, Map.class);
+                return Optional.ofNullable(properties.get("name"))
+                    .map(Object::toString)
+                    .filter(StringUtils::isNotBlank)
+                    .orElse(deploymentName);
+            } catch (IOException e) {
+                log.debug(e.getMessage(), e);
+                return deploymentName;
+            }
+        }
+    }
+
+    private FileData createFileData(Map<String, byte[]> zipEntries,
+            String defaultDeploymentName,
+            String defaultName,
+            boolean overridable) throws Exception {
+
+        String projectName = readProjectName(zipEntries.get(RULES_XML), defaultName);
+        String apiVersion = readApiVersion(zipEntries.get("rules-deploy.xml"));
+
+        String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;
+        if (apiVersion != null && !apiVersion.isEmpty()) {
+            deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
+        }
+
+        if (!overridable && isRulesDeployed(deploymentName)) {
+            log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+            return null;
+        }
+        FileData dest = new FileData();
+        dest.setName(deployPath + deploymentName + '/' + projectName);
+        dest.setAuthor(DEFAULT_AUTHOR_NAME);
+        return dest;
+    }
+
+    private String readProjectName(byte[] bytes, String defaultName) {
+        if (bytes == null) {
+            return null;
+        }
+        String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
+        return name == null || name.isEmpty() ? defaultName : name;
+    }
+
+    private String readApiVersion(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        return DeploymentUtils.getApiVersion(new ByteArrayInputStream(bytes));
+    }
+
+    private void doDeploy(FileData dest, Integer contentSize, InputStream inputStream) throws IOException {
         if (deployRepo.supports().folders()) {
-            ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name),
-                    ChangesetType.FULL);
+            ((FolderRepository) deployRepo).save(dest,
+                new FileChangesFromZip(new ZipInputStream(inputStream), dest.getName()),
+                ChangesetType.FULL);
         } else {
             dest.setSize(contentSize);
             deployRepo.save(dest, inputStream);

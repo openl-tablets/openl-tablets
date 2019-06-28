@@ -164,10 +164,17 @@ public class DecisionTableLookupConvertor {
         validateHCHeaders(hcHeaderTable);
     }
 
-    private IGridTable getLookupValuesTable(ILogicalTable originaltable, int firstLookupGridColumn, IGrid grid) {
+    private IGridTable getLookupValuesTable(ILogicalTable originaltable,
+            int firstLookupGridColumn,
+            IGrid grid) throws OpenLCompilationException {
         ILogicalTable valueTable = originaltable.getRows(DISPLAY_ROW + 1);
-
-        GridRegion lookupValuesRegion = new GridRegion((valueTable.getSource()).getRegion());
+        GridRegion lookupValuesRegion;
+        if (valueTable != null) {
+            lookupValuesRegion = new GridRegion((valueTable.getSource()).getRegion());
+        } else {
+            String message = String.format("The table must have at least one row with values!");
+            throw new OpenLCompilationException(message);
+        }
         lookupValuesRegion.setLeft(firstLookupGridColumn);
 
         return new GridTable(lookupValuesRegion, grid);

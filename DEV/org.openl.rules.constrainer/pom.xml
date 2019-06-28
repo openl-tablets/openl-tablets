@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.constrainer</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - DEV - Rules Constrainer</name>
     <description>OpenL Constraint Programming engine</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <build>
         <plugins>
             <plugin>

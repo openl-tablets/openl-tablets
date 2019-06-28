@@ -143,7 +143,8 @@ public class DecisionTableLoader {
                 ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
                 info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
-
+            } catch (OpenLCompilationException e) {
+                throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
                 throw SyntaxNodeExceptionUtils.createError("Can't convert table", e, tableSyntaxNode);
             }

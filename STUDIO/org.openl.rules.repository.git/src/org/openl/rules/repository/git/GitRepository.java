@@ -115,10 +115,57 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return check(data.getName());
     }
 
+    @Override
+    public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("save(multipleFiles): lock");
+            writeLock.lock();
+            reset();
+            String[] commitIds = new String[fileItems.size()];
+            try {
+                git.checkout().setName(branch).call();
+                int i = 0;
+                for (FileItem fileItem : fileItems) {
+                    commitIds[i++] = createCommit(fileItem.getData(), fileItem.getStream());
+                }
+                push();
+            } catch (Exception e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw new IOException(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            reset();
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            writeLock.unlock();
+            log.debug("save(multipleFiles): unlock");
+        }
+        monitor.fireOnChange();
+
+        for (FileItem fileItem : fileItems) {
+            result.add(check(fileItem.getData().getName()));
+        }
+        return result;
+    }
+
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
             String parentVersion = data.getVersion();
+            commitId = createCommit(data, stream);
+            push();
+        } catch (Exception e) {
+            reset(commitId);
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+    private String createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
+        String commitId = null;
+        try {
             String fileInRepository = data.getName();
 
             boolean checkoutOldVersion = isCheckoutOldVersion(fileInRepository, parentVersion);
@@ -130,25 +177,24 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             git.add().addFilepattern(fileInRepository).call();
             RevCommit commit = git.commit()
-                .setMessage(formatComment(CommitType.SAVE, data))
-                .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
-                    userEmail != null ? userEmail : "")
-                .setOnly(fileInRepository)
-                .call();
+                    .setMessage(formatComment(CommitType.SAVE, data))
+                    .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
+                            userEmail != null ? userEmail : "")
+                    .setOnly(fileInRepository)
+                    .call();
             commitId = commit.getId().getName();
 
             resolveAndMerge(data, checkoutOldVersion, commit);
 
             addTagToCommit(commit);
-
-            push();
+        } catch (IOException | GitAPIException e) {
         } catch (IOException e) {
             reset(commitId);
             throw e;
-        } catch (Exception e) {
             reset(commitId);
-            throw new IOException(e.getMessage(), e);
+            throw e;
         }
+        return commitId;
     }
 
     @Override
@@ -1060,13 +1106,62 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return check(folderData.getName());
     }
 
+    @Override
+    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
+        List<FileData> result = new ArrayList<>();
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            log.debug("save(folderItems, changesetType): lock");
+            writeLock.lock();
+            reset();
+            String[] commitIds = new String[folderItems.size()];
+            try {
+                git.checkout().setName(branch).call();
+                int i = 0;
+                for (FolderItem folderItem : folderItems) {
+                    commitIds[i++] = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
+                }
+                push();
+            } catch (Exception e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw new IOException(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            reset();
+            throw new IOException(e.getMessage(), e);
+        } finally {
+            writeLock.unlock();
+            log.debug("save(folderItems, changesetType): unlock");
+        }
+        monitor.fireOnChange();
+
+        for (FolderItem folderItem : folderItems) {
+            result.add(check(folderItem.getData().getName()));
+        }
+        return result;
+    }
+
     private void saveMultipleFiles(FileData folderData,
-            Iterable<FileChange> files,
-            ChangesetType changesetType) throws IOException {
+                                   Iterable<FileChange> files,
+                                   ChangesetType changesetType) throws IOException {
 
         String commitId = null;
         try {
             String parentVersion = folderData.getVersion();
+            commitId = createCommit(folderData, files, changesetType);
+            push();
+        } catch (Exception e) {
+            reset(commitId);
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+    private String createCommit(FileData folderData,
+                                Iterable<FileChange> files,
+                                ChangesetType changesetType) throws IOException, GitAPIException {
+        String commitId = null;
+        try {
             String relativeFolder = folderData.getName();
 
             boolean checkoutOldVersion = isCheckoutOldVersion(relativeFolder, parentVersion);
@@ -1155,7 +1250,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                                                                                     GitAPIException,
                                                                                                     IOException {
         ConflictResolveData conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
-
         RevCommit lastCommit = commit;
 
         if (conflictResolveData != null) {
@@ -1168,6 +1262,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
             validateMergeConflict(mergeDetached, false);
         }
+        return commitId;
     }
 
     private RevCommit resolveConflict(String author, ConflictResolveData conflictResolveData) throws

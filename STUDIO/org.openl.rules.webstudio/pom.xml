@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - STUDIO - WebStudio</name>
+    <name>OpenL WebStudio</name>
     <description>OpenL WebStudio</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <generate-application.properties>process-resources</generate-application.properties>
@@ -48,8 +48,8 @@
                         </dependency>
                     </ignoredDependencies>
                     <exceptions>
-                    	<exception>
-                    	    <conflictingDependencies>
+                        <exception>
+                            <conflictingDependencies>
                                 <dependency>
                                     <groupId>org.apache.jackrabbit</groupId>
                                     <artifactId>jackrabbit-jcr-commons</artifactId>
@@ -59,12 +59,12 @@
                                     <artifactId>jackrabbit-jcr-rmi</artifactId>
                                 </dependency>
                             </conflictingDependencies>
-                    		<classes>
-                    			<class>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</class>
-                    		</classes>
-                    	</exception>
-                    	<exception>
-                    	    <conflictingDependencies>
+                            <classes>
+                                <class>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</class>
+                            </classes>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
                                 <dependency>
                                     <groupId>xmlpull</groupId>
                                     <artifactId>xmlpull</artifactId>
@@ -74,14 +74,15 @@
                                     <artifactId>xpp3_min</artifactId>
                                 </dependency>
                             </conflictingDependencies>
-                    		<classes>
-                    			<class>org.xmlpull.v1.XmlPullParser</class>
-                    			<class>org.xmlpull.v1.XmlPullParserException</class>
-                    		</classes>
-                    	</exception>
+                            <classes>
+                                <class>org.xmlpull.v1.XmlPullParser</class>
+                                <class>org.xmlpull.v1.XmlPullParserException</class>
+                            </classes>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
-                    	<ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
+                        <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
+                        <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
@@ -288,23 +289,6 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
-        <!-- Required for Java11. -->
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.istack</groupId>
-            <artifactId>istack-commons-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>txw2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>javax.activation</artifactId>
-        </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -315,6 +299,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>
@@ -327,4 +316,25 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>java11</id>
+            <activation>
+                <jdk>[1.8,9)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun.activation</groupId>
+                    <artifactId>jakarta.activation</artifactId>
+                    <version>1.2.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.1_spec</artifactId>
+                    <version>1.1.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

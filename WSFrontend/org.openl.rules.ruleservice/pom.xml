@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.22.2-SNAPSHOT</version>
+        <version>5.22.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.ruleservice</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Core</name>
     <description>Common OpenL Rules service</description>
-    <url>//openl-tablets.org</url>
+    <url>http://openl-tablets.org</url>
     <build>
         <plugins>
             <plugin>
@@ -109,8 +109,8 @@
         </dependency>
         <!-- Required for Java11 -->
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

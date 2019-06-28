@@ -271,7 +271,8 @@ public final class TestMojo extends BaseOpenLMojo {
         if (openLRules.hasErrors()) {
             error("");
             error("There are compilation errors. It can affect test execution.");
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
+                .filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
                 String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();
@@ -299,10 +300,16 @@ public final class TestMojo extends BaseOpenLMojo {
                     String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
                     info("Running ", test.getName(), moduleInfo);
                     TestUnitsResults result;
-                    if (testSuiteExecutor == null) {
-                        result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
-                    } else {
-                        result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
+                    ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Thread.currentThread().setContextClassLoader(openLRules.getClassLoader());
+                        if (testSuiteExecutor == null) {
+                            result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
+                        } else {
+                            result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
+                        }
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(oldClassLoader);
                     }
                     writeReport(result);
 
@@ -386,8 +393,9 @@ public final class TestMojo extends BaseOpenLMojo {
                 String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
-                info("  Test case: #", num,
-                        ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                info("  Test case: #",
+                    num,
+                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",
@@ -400,7 +408,8 @@ public final class TestMojo extends BaseOpenLMojo {
                     int rowNum = 0;
                     for (ComparedResult comparisonResult : comparisonResults) {
                         if (comparisonResult.getStatus() != TR_OK) {
-                            if (comparisonResult.getFieldName() == null || ThisField.THIS.equals(comparisonResult.getFieldName())) {
+                            if (comparisonResult.getFieldName() == null || ThisField.THIS
+                                .equals(comparisonResult.getFieldName())) {
                                 info("    Expected: <" + comparisonResult
                                     .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
                                 summaryBuilder.append(" expected: <")
