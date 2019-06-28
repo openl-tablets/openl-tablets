@@ -100,11 +100,17 @@ public class ChangesMonitor implements Runnable {
         getter = null;
         if (scheduledPool != null) {
             scheduledPool.shutdownNow();
-            scheduledPool = null;
         }
         if (scheduled != null) {
             scheduled.cancel(true);
             scheduled = null;
+        }
+        if (scheduledPool != null) {
+            try {
+                scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
+            } catch (InterruptedException ignored) {
+            }
+            scheduledPool = null;
         }
     }
 
