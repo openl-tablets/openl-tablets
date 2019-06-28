@@ -598,6 +598,45 @@ public class GitRepositoryTest {
     }
 
     @Test
+    public void mergeConflictInFileMultipleProjects() throws RRepositoryException, IOException {
+        // Prepare the test: clone master branch
+        File remote = new File(root, "remote");
+        File local1 = new File(root, "temp1");
+        File local2 = new File(root, "temp2");
+
+        String baseCommit = null;
+        String theirCommit = null;
+
+        final String filePath = "rules/project1/file2";
+
+        try (GitRepository repository1 = createRepository(remote, local1);
+            GitRepository repository2 = createRepository(remote, local2)) {
+            baseCommit = repository1.check(filePath).getVersion();
+            // First user commit
+            String text1 = "foo\nbar";
+            FileData save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
+            theirCommit = save1.getVersion();
+
+            // Second user commit (our). Will merge with first user's change (their).
+            String text2 = "foo\nbaz";
+            FileData fileData = createFileData(filePath, text2);
+            InputStream stream = IOUtils.toInputStream(text2);
+            repository2.save(Collections.singletonList(new FileItem(fileData, stream)));
+
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            Collection<String> conflictedFiles = e.getConflictedFiles();
+
+            assertEquals(1, conflictedFiles.size());
+            assertEquals(filePath, conflictedFiles.iterator().next());
+
+            assertEquals(baseCommit, e.getBaseCommit());
+            assertEquals(theirCommit, e.getTheirCommit());
+            assertNotNull(e.getOurCommit());
+        }
+    }
+
+    @Test
     public void mergeConflictInFolder() throws RRepositoryException, IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
@@ -686,6 +725,65 @@ public class GitRepositoryTest {
                 String file1Content = IOUtils.toStringAndClose(repository2.read("rules/project1/file1").getStream());
                 assertEquals("Other user's non-conflicting modification is absent.", "Modified", file1Content);
             }
+        }
+    }
+
+    @Test
+    public void mergeConflictInFolderMultipleProjects() throws RRepositoryException, IOException {
+        // Prepare the test: clone master branch
+        File remote = new File(root, "remote");
+        File local1 = new File(root, "temp1");
+        File local2 = new File(root, "temp2");
+
+        String baseCommit = null;
+        String theirCommit = null;
+
+        final String folderPath = "rules/project1";
+
+        final String conflictedFile = "rules/project1/file2";
+        try (GitRepository repository1 = createRepository(remote, local1);
+            GitRepository repository2 = createRepository(remote, local2)) {
+            baseCommit = repository1.check(folderPath).getVersion();
+            // First user commit
+            String text1 = "foo\nbar";
+            List<FileChange> changes1 = Arrays.asList(
+                    new FileChange("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text1))
+            );
+
+            FileData folderData1 = new FileData();
+            folderData1.setName("rules/project1");
+            folderData1.setAuthor("John Smith");
+            folderData1.setComment("Bulk change by John");
+
+            FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
+            theirCommit = save1.getVersion();
+
+            // Second user commit (our). Will merge with first user's change (their).
+            String text2 = "foo\nbaz";
+            List<FileChange> changes2 = Arrays.asList(
+                    new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text2))
+            );
+
+            FileData folderData2 = new FileData();
+            folderData2.setName("rules/project1");
+            folderData2.setAuthor("Jane Smith");
+            folderData2.setComment("Bulk change by Jane");
+            FolderItem folderItem = new FolderItem(folderData2, changes2);
+            repository2.save(Collections.singletonList(folderItem), ChangesetType.DIFF);
+
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            Collection<String> conflictedFiles = e.getConflictedFiles();
+
+            assertEquals(1, conflictedFiles.size());
+            assertEquals(conflictedFile, conflictedFiles.iterator().next());
+
+            assertEquals(baseCommit, e.getBaseCommit());
+            assertEquals(theirCommit, e.getTheirCommit());
+            assertNotNull(e.getOurCommit());
         }
     }
 
@@ -832,7 +930,7 @@ public class GitRepositoryTest {
             changes++;
         }
 
-        public int getChanges() {
+        int getChanges() {
             return changes;
         }
     }
