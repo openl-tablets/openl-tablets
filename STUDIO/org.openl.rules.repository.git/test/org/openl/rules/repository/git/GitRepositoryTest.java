@@ -2,7 +2,12 @@ package org.openl.rules.repository.git;
 
 import static org.junit.Assert.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -21,7 +26,15 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileChange;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -575,6 +588,8 @@ public class GitRepositoryTest {
             assertNotNull(e.getOurCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
+                assertNotEquals("Our conflicted commit must be reverted but it exists.", e.getOurCommit(), repository2.check(filePath).getVersion());
+
                 String text2 = "foo\nbaz";
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
@@ -633,6 +648,10 @@ public class GitRepositoryTest {
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
             assertNotNull(e.getOurCommit());
+
+            try (GitRepository repository2 = createRepository(remote, local2)) {
+                assertNotEquals("Our conflicted commit must be reverted but it exists.", e.getOurCommit(), repository2.check(filePath).getVersion());
+            }
         }
     }
 
@@ -693,6 +712,8 @@ public class GitRepositoryTest {
             assertNotNull(e.getOurCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
+                assertNotEquals("Our conflicted commit must be reverted but it exists.", e.getOurCommit(), repository2.check(conflictedFile).getVersion());
+
                 String text2 = "foo\nbaz";
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
@@ -784,6 +805,10 @@ public class GitRepositoryTest {
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
             assertNotNull(e.getOurCommit());
+
+            try (GitRepository repository2 = createRepository(remote, local2)) {
+                assertNotEquals("Our conflicted commit must be reverted but it exists.", e.getOurCommit(), repository2.check(conflictedFile).getVersion());
+            }
         }
     }
 
