@@ -1,6 +1,6 @@
 FROM openjdk:8-jre-alpine
 
-ENV TOMCAT_VERSION=8.5.28
+ENV TOMCAT_VERSION=9.0.21
 
 RUN apk add --update \
       bash \
