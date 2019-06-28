@@ -110,7 +110,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
+        try {
+            return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
+        } catch (MergeConflictException e) {
+            throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                    e.getBaseCommit(),
+                    e.getOurCommit(),
+                    e.getTheirCommit());
+        }
     }
 
     @Override
@@ -204,9 +211,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (destData instanceof MappedFileData) {
+        if (isUpdateConfigNeeded(destData)) {
             try {
-                ByteArrayInputStream configStream = updateConfigFile((MappedFileData) destData);
+                ByteArrayInputStream configStream = updateConfigFile(destData);
                 FileData configData = new FileData();
                 configData.setName(configFile);
                 configData.setAuthor(destData.getAuthor());
@@ -255,9 +262,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
-        if (folderData instanceof MappedFileData) {
+        if (isUpdateConfigNeeded(folderData)) {
             try {
-                FileChange configChange = new FileChange(configFile, updateConfigFile((MappedFileData) folderData));
+                FileChange configChange = new FileChange(configFile, updateConfigFile(folderData));
                 Iterable<FileChange> filesWithMapping = new CompositeFileChanges(files, configChange);
 
                 // Mapping was updated on previous step.
@@ -265,15 +272,31 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping),
                         changesetType);
                 return toExternal(mapping, result);
+            } catch (MergeConflictException e) {
+                refreshMapping();
+                Map<String, String> mapping = getMappingForRead();
+                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                        e.getBaseCommit(),
+                        e.getOurCommit(),
+                        e.getTheirCommit());
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
                 refreshMapping();
                 throw e;
             }
         } else {
-            Map<String, String> mapping = getMappingForRead();
-            return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
-                    changesetType));
+            try {
+                Map<String, String> mapping = getMappingForRead();
+                return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
+                        changesetType));
+            } catch (MergeConflictException e) {
+                Map<String, String> mapping = getMappingForRead();
+                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                        e.getBaseCommit(),
+                        e.getOurCommit(),
+                        e.getTheirCommit());
+
+            }
         }
     }
 
@@ -388,7 +411,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         };
     }
 
-    private FileData toInternal(Map<String, String> externalToInternal, FileData data) {
+    private FileData toInternal(final Map<String, String> externalToInternal, FileData data) {
         FileData copy = new FileData();
         copy.setVersion(data.getVersion());
         copy.setAuthor(data.getAuthor());
@@ -396,6 +419,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         copy.setSize(data.getSize());
         copy.setDeleted(data.isDeleted());
         copy.setName(toInternal(externalToInternal, data.getName()));
+
+        for (AdditionalData value : data.getAdditionalData().values()) {
+            copy.addAdditionalData(value.convertPaths(new PathConverter() {
+                @Override
+                public String convert(String oldPath) {
+                    return toInternal(externalToInternal, oldPath);
+                }
+            }));
+        }
+
         return copy;
     }
 
@@ -432,6 +465,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         data.setName(toExternal(externalToInternal, data.getName()));
         return data;
+    }
+
+    private List<String> toExternal(Map<String, String> externalToInternal, Collection<String> internal) {
+        List<String> external = new ArrayList<>(internal.size());
+
+        for (String path : internal) {
+            external.add(toExternal(externalToInternal, path));
+        }
+
+        return external;
     }
 
     private String toExternal(Map<String, String> externalToInternal, String internalPath) {
@@ -590,12 +633,18 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
-    private ByteArrayInputStream updateConfigFile(MappedFileData folderData) throws IOException {
+    private ByteArrayInputStream updateConfigFile(FileData folderData) throws IOException {
+        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
+        if (mappingData == null) {
+            log.warn("Unexpected behavior: FileMappingData is absent.");
+            return null;
+        }
+
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
             Map<String, String> newMap = new HashMap<>(externalToInternal);
-            newMap.put(folderData.getName(), folderData.getInternalPath());
+            newMap.put(folderData.getName(), mappingData.getInternalPath());
 
             ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
             externalToInternal = newMap;
@@ -643,6 +692,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } catch (XPathExpressionException e) {
             return null;
         }
+    }
+
+    private boolean isUpdateConfigNeeded(FileData folderData) {
+        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
+        if (mappingData != null) {
+            String external = folderData.getName();
+            String internal = getMappingForRead().get(external);
+            return !mappingData.getInternalPath().equals(internal);
+        }
+        return false;
     }
 
     @Override

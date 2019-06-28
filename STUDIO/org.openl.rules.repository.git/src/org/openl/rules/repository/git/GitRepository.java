@@ -99,6 +99,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
             saveSingleFile(data, stream);
+        } catch (IOException e) {
+            reset();
+            throw e;
         } catch (Exception e) {
             reset();
             throw new IOException(e.getMessage(), e);
@@ -152,7 +155,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
-            git.checkout().setName(branch).call();
+            String parentVersion = data.getVersion();
             commitId = createCommit(data, stream);
             push();
         } catch (Exception e) {
@@ -160,11 +163,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             throw new IOException(e.getMessage(), e);
         }
     }
-
     private String createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
         String commitId = null;
         try {
             String fileInRepository = data.getName();
+
+            boolean checkoutOldVersion = isCheckoutOldVersion(fileInRepository, parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+
             File file = new File(localRepositoryPath, fileInRepository);
             createParent(file);
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
@@ -178,8 +184,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
             commitId = commit.getId().getName();
 
+            resolveAndMerge(data, checkoutOldVersion, commit);
+
             addTagToCommit(commit);
         } catch (IOException | GitAPIException e) {
+        } catch (IOException e) {
+            reset(commitId);
+            throw e;
             reset(commitId);
             throw e;
         }
@@ -281,6 +292,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             addTagToCommit(commit);
 
             push();
+        } catch (IOException e) {
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             reset(commitId);
             throw new IOException(e);
@@ -308,17 +322,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        return iterateHistory(path, new ListFilesHistoryVisitor(version));
+        return parseHistory(path, version, new ListFilesHistoryVisitor(version));
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        return iterateHistory(name, new CheckHistoryVisitor(version));
+        return parseHistory(name, version, new CheckHistoryVisitor(version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        return iterateHistory(name, new ReadHistoryVisitor(version));
+        return parseHistory(name, version, new ReadHistoryVisitor(version));
     }
 
     @Override
@@ -435,6 +449,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     }
                 }
             }
+        } catch (IOException e) {
+            reset();
+            throw e;
         } catch (Exception e) {
             reset();
             throw new IOException(e);
@@ -629,10 +646,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
-        String ct = commentTemplate.replaceAll("\\{commit-type\\}", "{0}")
-            .replaceAll("\\{user-message\\}", "{1}")
-            .replaceAll("\\{username\\}", "{2}");
-        this.escapedCommentTemplate = escapeCurlyBrackets(ct); 
+        String ct = commentTemplate.replaceAll("\\{commit-type}", "{0}")
+            .replaceAll("\\{user-message}", "{1}")
+            .replaceAll("\\{username}", "{2}");
+        this.escapedCommentTemplate = escapeCurlyBrackets(ct);
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -729,14 +746,30 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             saveBranches();
 
             for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
-                git.checkout().setName(refUpdate.getLocalName()).call();
+                RefUpdate.Result result = refUpdate.getResult();
+                switch (result) {
+                    case FAST_FORWARD:
+                        git.checkout().setName(refUpdate.getLocalName()).call();
 
-                // It's assumed that we don't have unpushed commits at this point so there must be no additional merge
-                // while checking last revision. Accept only fast forwards.
-                git.merge()
-                    .include(refUpdate.getNewObjectId())
-                    .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                    .call();
+                        // It's assumed that we don't have unpushed commits at this point so there must be no additional merge
+                        // while checking last revision. Accept only fast forwards.
+                        git.merge()
+                            .include(refUpdate.getNewObjectId())
+                            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                            .call();
+                        break;
+                    case REJECTED_CURRENT_BRANCH:
+                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be deleted
+                        break;
+                    case NEW:
+                    case NO_CHANGE:
+                    case FORCED:
+                        // Do nothing
+                        break;
+                    default:
+                        log.warn("Unsupported type of fetch result type: {}", result);
+                        break;
+                }
             }
             reset();
         } finally {
@@ -754,7 +787,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull() throws GitAPIException {
+    private void pull() throws GitAPIException, MergeConflictException {
         FetchResult fetchResult;
         Lock remoteLock = remoteRepoLock.writeLock();
         try {
@@ -781,7 +814,36 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .call();
 
         if (!mergeResult.getMergeStatus().isSuccessful()) {
+            validateMergeConflict(mergeResult, true);
             throw new IllegalStateException("Can't merge: " + mergeResult.toString());
+        }
+    }
+
+    private void validateMergeConflict(MergeResult mergeResult, boolean theirToOur) throws GitAPIException, MergeConflictException {
+        if (mergeResult != null && mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
+            ObjectId[] mergedCommits = mergeResult.getMergedCommits();
+            Repository repository = git.getRepository();
+            List<Ref> tags = git.tagList().call();
+
+            String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
+            String commit1 = mergedCommits.length > 0 ? getVersionName(repository, tags, mergedCommits[0]) : null;
+            String commit2 = mergedCommits.length > 1 ? getVersionName(repository, tags, mergedCommits[1]) : null;
+
+            String ourCommit;
+            String theirCommit;
+
+            if (theirToOur) {
+                ourCommit = commit1;
+                theirCommit = commit2;
+            } else {
+                ourCommit = commit2;
+                theirCommit = commit1;
+            }
+
+            throw new MergeConflictException(mergeResult.getConflicts().keySet(),
+                    baseCommit,
+                    ourCommit,
+                    theirCommit);
         }
     }
 
@@ -869,6 +931,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     return command.apply(repository, null, path);
                 }
             }
+        } catch (IOException e) {
+            throw e;
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
@@ -896,11 +960,36 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             return historyVisitor.getResult();
+        } catch (IOException e) {
+            throw e;
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
             readLock.unlock();
             log.debug("iterateHistory(): unlock");
+        }
+    }
+
+    private <T> T parseHistory(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
+        Lock readLock = repositoryLock.readLock();
+        try {
+            log.debug("parseHistory(): lock");
+            readLock.lock();
+
+            List<Ref> tags = git.tagList().call();
+
+            try (RevWalk walk = new RevWalk(git.getRepository())) {
+                RevCommit commit = walk.parseCommit(getCommitByVersion(version));
+                historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
+                return historyVisitor.getResult();
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            readLock.unlock();
+            log.debug("parseHistory(): unlock");
         }
     }
 
@@ -977,7 +1066,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private void addTagToCommit(RevCommit commit) throws GitAPIException {
+    private void addTagToCommit(RevCommit commit) throws GitAPIException, MergeConflictException {
         pull();
 
         if (!tagPrefix.isEmpty()) {
@@ -1002,6 +1091,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
             saveMultipleFiles(folderData, files, changesetType);
+        } catch (IOException e) {
+            reset();
+            throw e;
         } catch (Exception e) {
             reset();
             throw new IOException(e.getMessage(), e);
@@ -1057,7 +1149,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         String commitId = null;
         try {
-            git.checkout().setName(branch).call();
+            String parentVersion = folderData.getVersion();
             commitId = createCommit(folderData, files, changesetType);
             push();
         } catch (Exception e) {
@@ -1065,13 +1157,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             throw new IOException(e.getMessage(), e);
         }
     }
-
     private String createCommit(FileData folderData,
                                 Iterable<FileChange> files,
                                 ChangesetType changesetType) throws IOException, GitAPIException {
         String commitId = null;
         try {
             String relativeFolder = folderData.getName();
+
+            boolean checkoutOldVersion = isCheckoutOldVersion(relativeFolder, parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
 
             List<String> changedFiles = new ArrayList<>();
 
@@ -1080,21 +1174,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             for (FileChange change : files) {
                 File file = new File(localRepositoryPath, change.getData().getName());
                 savedFiles.add(file);
-                createParent(file);
-
-                InputStream stream = change.getStream();
-                if (stream != null) {
-                    try (FileOutputStream output = new FileOutputStream(file)) {
-                        IOUtils.copy(stream, output);
-                    }
-                    git.add().addFilepattern(change.getData().getName()).call();
-                    changedFiles.add(change.getData().getName());
-                } else {
-                    if (file.exists()) {
-                        git.rm().addFilepattern(change.getData().getName()).call();
-                        changedFiles.add(change.getData().getName());
-                    }
-                }
+                applyChangeInWorkspace(change, changedFiles);
             }
 
             if (changesetType == ChangesetType.FULL) {
@@ -1105,35 +1185,149 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             CommitCommand commitCommand = git.commit()
-                    .setMessage(formatComment(CommitType.SAVE, folderData))
-                    .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
-                            userEmail != null ? userEmail : "");
+                .setMessage(formatComment(CommitType.SAVE, folderData))
+                .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
+                    userEmail != null ? userEmail : "");
 
-            RevCommit commit;
-
-            if (git.status().call().getUncommittedChanges().isEmpty()) {
-                // For the cases:
-                // 1) User modified a project, then manually reverted, then pressed save.
-                // 2) Copy project that doesn't have rules.xml, check "Copy old revisions". The last one commit should
-                // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are
-                // no changes
-                // 3) Try to deploy several times same deploy configuration. For example if we need to trigger
-                // webservices redeployment without actually changing projects.
-                commit = commitCommand.setAllowEmpty(true).call();
-            } else {
-                for (String fileName : changedFiles) {
-                    commitCommand.setOnly(fileName);
-                }
-                commit = commitCommand.call();
-            }
+            RevCommit commit = commitChangedFiles(commitCommand, changedFiles);
             commitId = commit.getId().getName();
 
+            resolveAndMerge(folderData, checkoutOldVersion, commit);
+
             addTagToCommit(commit);
-        } catch (IOException | GitAPIException e) {
+
+            push();
+        } catch (IOException e) {
             reset(commitId);
             throw e;
+        } catch (Exception e) {
+            reset(commitId);
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
+    private void applyChangeInWorkspace(FileChange change, Collection<String> changedFiles) throws IOException, GitAPIException {
+        File file = new File(localRepositoryPath, change.getData().getName());
+        createParent(file);
+
+        InputStream stream = change.getStream();
+        if (stream != null) {
+            try (FileOutputStream output = new FileOutputStream(file)) {
+                IOUtils.copy(stream, output);
+            }
+            git.add().addFilepattern(change.getData().getName()).call();
+            changedFiles.add(change.getData().getName());
+        } else {
+            if (file.exists()) {
+                git.rm().addFilepattern(change.getData().getName()).call();
+                changedFiles.add(change.getData().getName());
+            }
+        }
+    }
+
+    private RevCommit commitChangedFiles(CommitCommand commitCommand, Collection<String> changedFiles) throws
+                                                                                                 GitAPIException {
+        RevCommit commit;
+        if (git.status().call().getUncommittedChanges().isEmpty()) {
+            // For the cases:
+            // 1) User modified a project, then manually reverted, then pressed save.
+            // 2) Copy project that doesn't have rules.xml, check "Copy old revisions". The last one commit should
+            // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are
+            // no changes
+            // 3) Try to deploy several times same deploy configuration. For example if we need to trigger
+            // webservices redeployment without actually changing projects.
+            commit = commitCommand.setAllowEmpty(true).call();
+        } else {
+            for (String fileName : changedFiles) {
+                commitCommand.setOnly(fileName);
+            }
+            commit = commitCommand.call();
+        }
+        return commit;
+    }
+
+    private void resolveAndMerge(FileData folderData, boolean checkoutOldVersion, RevCommit commit) throws
+                                                                                                    GitAPIException,
+                                                                                                    IOException {
+        ConflictResolveData conflictResolveData = folderData.getAdditionalData(ConflictResolveData.class);
+        RevCommit lastCommit = commit;
+
+        if (conflictResolveData != null) {
+            lastCommit = resolveConflict(folderData.getAuthor(), conflictResolveData);
+        }
+
+        if (checkoutOldVersion || conflictResolveData != null) {
+            // Merge detached commit to existing branch.
+            git.checkout().setName(branch).call();
+            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
+            validateMergeConflict(mergeDetached, false);
         }
         return commitId;
+    }
+
+    private RevCommit resolveConflict(String author, ConflictResolveData conflictResolveData) throws
+                                                                                              GitAPIException,
+                                                                                              IOException {
+        // Merge with a commit we have a conflict.
+        MergeResult mergeResult = git.merge()
+            .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
+            .call();
+
+        if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
+            log.debug("Merge status: {}", mergeResult.getMergeStatus());
+            throw new IOException("There is no merge conflict, nothing to resolve.");
+        }
+
+        // Resolve merge conflict.
+        String mergeMessage = conflictResolveData.getMergeMessage();
+        if (mergeMessage == null) {
+            mergeMessage = "Merge";
+        }
+        CommitCommand conflictResolveCommit = git.commit()
+                .setMessage(mergeMessage)
+                .setCommitter(userDisplayName != null ? userDisplayName : author,
+                        userEmail != null ? userEmail : "");
+
+        Status status = git.status().call();
+
+        Set<String> changedFiles = new HashSet<>();
+        for (FileChange change : conflictResolveData.getResolvedFiles()) {
+            applyChangeInWorkspace(change, changedFiles);
+        }
+
+        for (String changed : status.getChanged()) {
+            if (!changedFiles.contains(changed)) {
+                git.add().addFilepattern(changed).call();
+                changedFiles.add(changed);
+            }
+        }
+        for (String added : status.getAdded()) {
+            if (!changedFiles.contains(added)) {
+                git.add().addFilepattern(added).call();
+                changedFiles.add(added);
+            }
+        }
+        for (String removed : status.getRemoved()) {
+            if (!changedFiles.contains(removed)) {
+                git.rm().addFilepattern(removed).call();
+                changedFiles.add(removed);
+            }
+        }
+
+        return commitChangedFiles(conflictResolveCommit, changedFiles);
+    }
+
+    private ObjectId getCommitByVersion(String version) throws IOException {
+        Ref ref = git.getRepository().findRef(version);
+        if (ref == null) {
+            // Version is a hash for commit
+            return git.getRepository().resolve(version);
+        }
+
+        // Version is a tag.
+        ObjectId objectId = git.getRepository().peel(ref).getPeeledObjectId();
+        // Not annotated tags return null for getPeeledObjectId().
+        return objectId == null ? ref.getObjectId() : objectId;
     }
 
     @Override
@@ -1178,6 +1372,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             saveBranches();
+        } catch (IOException e) {
+            reset();
+            try {
+                git.branchDelete().setBranchNames(newBranch).call();
+            } catch (Exception ignored) {
+            }
+            throw e;
         } catch (Exception e) {
             reset();
             try {
@@ -1221,6 +1422,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     saveBranches();
                 }
             }
+        } catch (IOException e) {
+            reset();
+            throw e;
         } catch (Exception e) {
             reset();
             throw new IOException(e.getMessage(), e);
@@ -1338,6 +1542,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                     branchRepos.put(branch, repository);
                 }
+            } catch (IOException e) {
+                throw e;
             } catch (Exception e) {
                 throw new IOException(e);
             } finally {
@@ -1470,13 +1676,34 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private String escapeCurlyBrackets(String value) {
-        String ret = value.replaceAll("\\{(?![012]\\})", "'{'");
-        return ret.replaceAll("(?<!\\{[012])\\}", "'}'");
+        String ret = value.replaceAll("\\{(?![012]})", "'{'");
+        return ret.replaceAll("(?<!\\{[012])}", "'}'");
     }
 
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
         return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
+    }
+
+    private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
+        if (baseVersion != null) {
+            List<Ref> tags = git.tagList().call();
+
+            Iterator<RevCommit> iterator = git.log()
+                .add(resolveBranchId())
+                .addPath(path)
+                .setMaxCount(1)
+                .call()
+                .iterator();
+            if (iterator.hasNext()) {
+                String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
+                return !baseVersion.equals(lastVersion);
+            } else {
+                throw new FileNotFoundException("Can't find commit for path '" + path + "' and version '" + baseVersion + "'");
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -1675,6 +1902,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     history.addAll(new ListCommand(commit.getId()).apply(repository, rootWalk, fullPath));
+                } catch (FileNotFoundException ignored) {
                 }
 
                 return true;
@@ -1707,8 +1935,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     result = createFileData(rootWalk, commit);
-                    return true;
+                } catch (FileNotFoundException e) {
+                    result = null;
                 }
+
+                return true;
             }
 
             return false;
@@ -1739,8 +1970,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     FileData fileData = createFileData(rootWalk, commit);
                     ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                     result = new FileItem(fileData, loader.openStream());
-                    return true;
+                } catch (FileNotFoundException e) {
+                    result = null;
                 }
+
+                return true;
             }
 
             return false;
