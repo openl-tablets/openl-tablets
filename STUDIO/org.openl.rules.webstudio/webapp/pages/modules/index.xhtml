@@ -419,6 +419,10 @@
                         if (reqs-- == 1) {
                             loadingPanel.hide();
                         }
+                        if (reqs < 0) {
+                            reqs = 0;
+                            console.warn('hideLoader() without showLoader() is called.');
+                        }
                     },
                     success: function(content) {
                         message(content, 4000, true, "success");

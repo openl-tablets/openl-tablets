@@ -40,7 +40,9 @@
       </h:panelGroup>
 
       <footer>
-        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary" oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalSave').hide();goToNewProject();}" />
+        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary"
+                           data="#{studio.mergeConflict}"
+                           oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});"/>
         <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('modalSave').hide();" />
       </footer>
     </h:form>
@@ -52,6 +54,16 @@
       function openSaveDialog() {
           RichFaces.$("modalSave").show();
           focusElement('saveForm:comment');
+      }
+
+      function onSaveComplete(mergeConflict, successful) {
+        if (mergeConflict) {
+          RichFaces.$('modalSave').hide();
+          openResolveConflictDialog(goToNewProject);
+        } else if (successful) {
+          RichFaces.$('modalSave').hide();
+          goToNewProject();
+        }
       }
 
       function goToNewProject() {
