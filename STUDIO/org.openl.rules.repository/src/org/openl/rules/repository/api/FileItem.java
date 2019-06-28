@@ -9,9 +9,23 @@ public class FileItem {
     private FileData data;
     private InputStream stream;
 
+    /**
+     * @param name the full path name from the root folder.
+     * @param stream the stream for the file. The file is deleted if stream is null.
+     */
+    public FileItem(String name, InputStream stream) {
+        this.data = new FileData();
+        data.setName(name);
+
+        this.stream = stream;
+    }
+
+    /**
+     * @param data the file descriptor
+     * @param stream the stream for the file. The file is deleted if stream is null.
+     */
     public FileItem(FileData data, InputStream stream) {
         assert data != null;
-        assert stream != null;
         this.data = data;
         this.stream = stream;
     }
