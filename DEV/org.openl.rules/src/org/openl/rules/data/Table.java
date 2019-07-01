@@ -2,7 +2,6 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -458,11 +457,14 @@ public class Table implements ITable {
         ColumnDescriptor pkDescriptor = descriptors.get(0);
 
         Object[] prevRow = null;
+        boolean shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey()
+                && !pkDescriptor.isDeclaredClassSupportMultirow();
+
         for (int i = 0; i < rowValues.length; i++) {
             boolean isSameRow;
             Object[] thisRow = rowValues[i];
             context.setRow(i);
-            if (prevRow == null) {
+            if (prevRow == null || shouldSkipMergingSameValues) {
                 isSameRow = false;
             } else {
                 if (pkDescriptor.isPrimaryKey()) {

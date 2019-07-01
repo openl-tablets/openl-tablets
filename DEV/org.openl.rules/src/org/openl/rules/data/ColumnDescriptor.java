@@ -25,6 +25,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
+import org.openl.types.impl.DatatypeOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -378,6 +379,35 @@ public class ColumnDescriptor {
         }
 
         return arrayValues;
+    }
+
+    boolean isDeclaredClassSupportMultirow() {
+        IOpenField targetField = getTargetField();
+        if (!(targetField instanceof DatatypeOpenField)) {
+            return true;
+        }
+        IOpenClass declaredClass = targetField.getDeclaringClass();
+
+        for (IOpenField declaredField : declaredClass.getFields().values()) {
+            IOpenClass fieldType = declaredField.getType();
+            IAggregateInfo info = fieldType.getAggregateInfo();
+            if (info != null && info.isAggregate(fieldType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private IOpenField getTargetField() {
+        if (!(field instanceof FieldChain)) {
+            return null;
+        }
+        FieldChain fieldChain = (FieldChain) field;
+        IOpenField[] fields = fieldChain.getFields();
+        if (fields.length == 0) {
+            return null;
+        }
+        return fields[fields.length - 1];
     }
 
     public boolean isSupportMultirows() {
