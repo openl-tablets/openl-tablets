@@ -25,8 +25,8 @@ public class RuleServiceRedeployLockFilter implements javax.servlet.Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
                                                                                               ServletException {
         for (String ignorePrefix : ignorePrefixes) {
-            String path = ((HttpServletRequest) request).getRequestURI();
-            if (path.startsWith(ignorePrefix)) {
+            String path = ((HttpServletRequest) request).getPathInfo();
+            if (path != null && path.startsWith(ignorePrefix)) {
                 chain.doFilter(request, response);
                 return;
             }
