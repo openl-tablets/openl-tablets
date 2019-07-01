@@ -13,7 +13,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
 import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
@@ -140,7 +139,7 @@ public class FileSystemRepositoryTest {
             folder.setModifiedAt(modifiedAt);
         }
 
-        List<FileChange> changes = new ArrayList<>();
+        List<FileItem> changes = new ArrayList<>();
         for (String fileName : fileNames) {
             FileData file = new FileData();
             file.setName(fileName);
@@ -148,7 +147,7 @@ public class FileSystemRepositoryTest {
                 file.setModifiedAt(modifiedAt);
             }
 
-            changes.add(new FileChange(file, IOUtils.toInputStream(text)));
+            changes.add(new FileItem(file, IOUtils.toInputStream(text)));
         }
 
         repo.save(folder, changes, ChangesetType.FULL);

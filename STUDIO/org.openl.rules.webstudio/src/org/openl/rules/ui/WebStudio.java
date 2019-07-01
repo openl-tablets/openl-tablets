@@ -39,11 +39,13 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.*;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
@@ -198,27 +200,41 @@ public class WebStudio {
     }
 
     public void saveProject(HttpSession session) {
+        RulesProject project = null;
         try {
-            RulesProject project = getCurrentProject(session);
+            FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            project = getCurrentProject(session);
             if (project == null) {
                 return;
             }
             saveProject(project);
         } catch (Exception e) {
             String msg;
-            if (e.getCause() instanceof FileNotFoundException) {
+            Throwable cause = e.getCause();
+            if (cause instanceof FileNotFoundException) {
                 if (e.getMessage().contains(".xls")) {
                     msg = "Failed to save the project. Please close module Excel file and try again.";
                 } else {
                     msg = "Failed to save the project because some resources are used";
                 }
+                log.debug(msg, e);
+            } else if (cause instanceof MergeConflictException) {
+                MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause, project);
+                FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_MERGE_CONFLICT, info);
+                msg = "Failed to save the project because of merge conflict.";
+                log.debug(msg, e);
+                return;
             } else {
                 msg = "Failed to save the project. See logs for details.";
+                log.error(msg, e);
             }
 
-            log.error(msg, e);
             throw new ValidationException(msg);
         }
+    }
+
+    public boolean isMergeConflict() {
+        return FacesUtils.getSessionMap().containsKey(Constants.SESSION_PARAM_MERGE_CONFLICT);
     }
 
     public boolean isRenamed(RulesProject project) {

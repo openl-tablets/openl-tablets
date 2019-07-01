@@ -1,0 +1,48 @@
+<ui:composition
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+  <rich:popupPanel id="modalUploadConflictResolution" width="530" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Upload a file" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close" onclick="cancelConflictResolution();" />
+    </f:facet>
+
+    <h:form id="uploadFileForm">
+      <h:panelGroup id="modalUploadFileData">
+        <rich:fileUpload fileUploadListener="#{mergeConflictBean.uploadListener}"/>
+      </h:panelGroup>
+
+      <footer>
+        <a4j:commandButton value="Apply" action="#{mergeConflictBean.applyConflictResolution}" render="@form :modalResolveConflictsData" styleClass="button-primary"
+                           oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalUploadConflictResolution').hide();}"/>
+        <input type="button" value="Cancel" onclick="cancelConflictResolution();" />
+      </footer>
+
+      <a4j:jsFunction name="refreshUploadConflictResolutionDialog" render="@form" oncomplete="showUploadConflictResolutionDialog();" />
+      <a4j:jsFunction name="cancelConflictResolution" action="#{mergeConflictBean.cancelConflictResolution}" render=":modalResolveConflictsData" oncomplete="RichFaces.$('modalUploadConflictResolution').hide();" />
+    </h:form>
+
+  </rich:popupPanel>
+
+  <script>
+      //<![CDATA[
+      function openUploadConflictResolutionDialog() {
+        refreshUploadConflictResolutionDialog();
+      }
+
+      function showUploadConflictResolutionDialog() {
+        RichFaces.$("modalUploadConflictResolution").show();
+      }
+      //]]>
+  </script>
+</ui:composition>

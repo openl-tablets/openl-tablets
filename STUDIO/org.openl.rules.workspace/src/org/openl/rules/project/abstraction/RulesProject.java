@@ -9,11 +9,11 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,21 +74,39 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        AProject designProject = new AProject(designRepository, designFolderName);
+        save(user, null);
+    }
+
+    public void save(AdditionalData additionalData) throws ProjectException {
+        save(getUser(), additionalData);
+    }
+
+    private void save(CommonUser user, AdditionalData additionalData) throws ProjectException {
+        String oldVersion = getHistoryVersion();
+        AProject designProject = new AProject(designRepository, designFolderName, oldVersion);
         AProject localProject = new AProject(localRepository, localFolderName);
 
         FileData fileData = getFileData();
-        if (fileData instanceof MappedFileData) {
-            String internalPath = ((MappedFileData) fileData).getInternalPath();
-            designProject.setFileData(new MappedFileData(designFolderName, internalPath));
+        for (AdditionalData value : fileData.getAdditionalData().values()) {
+            designProject.getFileData().addAdditionalData(value);
         }
 
+        designProject.getFileData().addAdditionalData(additionalData);
         designProject.getFileData().setComment(fileData.getComment());
         designProject.update(localProject, user);
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
-        resetLocalFileData();
+
+        refresh();
+        // If there are additional commits (merge commits) we can't assume that their hash codes are same as for local files
+        List<FileData> fileDatas = getHistoryFileDatas();
+        boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2).getVersion().equals(oldVersion);
+        if (extraCommits) {
+            openVersion(version);
+        } else {
+            resetLocalFileData(true);
+        }
         unlock();
     }
 
@@ -284,7 +302,8 @@ public class RulesProject extends UserWorkspaceProject {
             setLastHistoryVersion(designVersion);
         }
 
-        resetLocalFileData();
+        refresh();
+        resetLocalFileData(true);
     }
 
     @Override
@@ -299,9 +318,7 @@ public class RulesProject extends UserWorkspaceProject {
         return fileData;
     }
 
-    private void resetLocalFileData() {
-        refresh();
-
+    private void resetLocalFileData(boolean needUpdateUniqueId) {
         FileData fileData = getFileData();
         if (designRepository.supports().branches()) {
             fileData.setBranch(((BranchRepository) designRepository).getBranch());
@@ -309,7 +326,9 @@ public class RulesProject extends UserWorkspaceProject {
         localRepository.getProjectState(localFolderName).clearModifyStatus();
         localRepository.getProjectState(localFolderName).saveFileData(fileData);
 
-        updateUniqueId();
+        if (needUpdateUniqueId) {
+            updateUniqueId();
+        }
     }
 
     private void updateUniqueId() {
@@ -393,5 +412,9 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public Repository getDesignRepository() {
         return designRepository;
+    }
+
+    public Repository getLocalRepository() {
+        return localRepository;
     }
 }
