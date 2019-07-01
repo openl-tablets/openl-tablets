@@ -7,7 +7,6 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -48,7 +47,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         return out.toString();
     }
 
-    @XmlTransient
     private transient Map<IOpenMethod, IOpenMethod> cache = null;
 
     @Override
