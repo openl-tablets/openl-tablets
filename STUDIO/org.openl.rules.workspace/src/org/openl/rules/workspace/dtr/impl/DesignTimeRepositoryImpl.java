@@ -34,11 +34,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "deploy-config-repository.folder-structure.flat";
     private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "deploy-config-repository.folder-structure.configuration";
 
-    private Repository repository;
-    private Repository deployConfigRepository;
-    private String rulesLocation;
-    private String deploymentConfigurationLocation;
-    private boolean projectsRefreshNeeded = true;
+    private volatile Repository repository;
+    private volatile Repository deployConfigRepository;
+    private volatile String rulesLocation;
+    private volatile String deploymentConfigurationLocation;
+    private volatile boolean projectsRefreshNeeded = true;
 
     /**
      * Project Cache
@@ -54,52 +54,57 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         this.config = config;
     }
 
-    private synchronized void init() {
-        if (repository != null) {
-            return;
-        }
+    private void init() {
+        synchronized (projects) {
+            if (repository != null) {
+                return;
+            }
 
-        rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
-        if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
-            rulesLocation += "/";
-        }
-        deploymentConfigurationLocation = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME).toString();
-        if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
-            deploymentConfigurationLocation += "/";
-        }
-        boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
-        boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
-        boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
+            rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
+            if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
+                rulesLocation += "/";
+            }
+            deploymentConfigurationLocation = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME).toString();
+            if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
+                deploymentConfigurationLocation += "/";
+            }
+            boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
+            boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
+            boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
 
-        try {
-            repository = createRepo(RepositoryMode.DESIGN, flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            try {
+                repository = createRepo(RepositoryMode.DESIGN,
+                    flatProjects,
+                    PROJECTS_NESTED_FOLDER_CONFIG,
+                    rulesLocation);
 
-            if (!separateDeployConfigRepo) {
-                deployConfigRepository = repository;
-            } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
+                if (!separateDeployConfigRepo) {
+                    deployConfigRepository = repository;
+                } else {
+                    deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
                         flatDeployConfig,
                         DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                         deploymentConfigurationLocation);
+                }
+
+                addListener(new DesignTimeRepositoryListener() {
+                    @Override
+                    public void onRepositoryModified() {
+                        synchronized (projects) {
+                            projectsRefreshNeeded = true;
+                        }
+                    }
+                });
+            } catch (RRepositoryException e) {
+                log.error("Cannot init DTR! {}", e.getMessage(), e);
+                throw new IllegalStateException("Can't initialize Design Repository.", e);
             }
 
-            addListener(new DesignTimeRepositoryListener() {
-                @Override
-                public void onRepositoryModified() {
-                    synchronized (projects) {
-                        projectsRefreshNeeded = true;
-                    }
-                }
-            });
-        } catch (RRepositoryException e) {
-            log.error("Cannot init DTR! {}", e.getMessage(), e);
-            throw new IllegalStateException("Can't initialize Design Repository.", e);
-        }
-
-        RepositoryListener callback = new RepositoryListener(listeners);
-        repository.setListener(callback);
-        if (separateDeployConfigRepo) {
-            deployConfigRepository.setListener(callback);
+            RepositoryListener callback = new RepositoryListener(listeners);
+            repository.setListener(callback);
+            if (separateDeployConfigRepo) {
+                deployConfigRepository.setListener(callback);
+            }
         }
     }
 
@@ -305,25 +310,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * destroy-method
      */
-    public synchronized void destroy() throws Exception {
-        if (repository != null) {
-            repository.setListener(null);
-            if (repository instanceof Closeable) {
-                ((Closeable) repository).close();
-            }
-            if (deployConfigRepository == repository) {
-                deployConfigRepository = null;
-            }
-            repository = null;
-        }
-        if (deployConfigRepository != null) {
-            deployConfigRepository.setListener(null);
-            if (deployConfigRepository instanceof Closeable) {
-                ((Closeable) deployConfigRepository).close();
-            }
-        }
-
+    public void destroy() throws Exception {
         synchronized (projects) {
+            if (repository != null) {
+                repository.setListener(null);
+                if (repository instanceof Closeable) {
+                    ((Closeable) repository).close();
+                }
+                if (deployConfigRepository == repository) {
+                    deployConfigRepository = null;
+                }
+                repository = null;
+            }
+            if (deployConfigRepository != null) {
+                deployConfigRepository.setListener(null);
+                if (deployConfigRepository instanceof Closeable) {
+                    ((Closeable) deployConfigRepository).close();
+                }
+            }
+
             projects.clear();
             projectsVersions.clear();
         }
