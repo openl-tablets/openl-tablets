@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.rules.repository.api.Repository;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -97,6 +98,9 @@ public class RepositoryInstatiator {
     }
 
     private static Object convert(Class<?> parameterType, String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        if (parameterType.isPrimitive()) {
+            parameterType = ClassUtils.primitiveToWrapper(parameterType);
+        }
         Method valueOfMethod = parameterType.getMethod("valueOf", String.class);
         return valueOfMethod.invoke(null, value);
     }
