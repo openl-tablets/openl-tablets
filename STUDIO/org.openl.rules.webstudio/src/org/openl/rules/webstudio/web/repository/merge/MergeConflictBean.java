@@ -11,6 +11,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.validation.ValidationException;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -241,11 +242,18 @@ public class MergeConflictBean {
 
     @PreDestroy
     public void destroy() {
-        clearMergeStatus();
+        try {
+            clearMergeStatus();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public void clearMergeStatus() {
-        FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        FacesContext facesContext = FacesUtils.getFacesContext();
+        if (facesContext != null) {
+            facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        }
         conflictResolutions.clear();
         conflictedFile = null;
         mergeMessage = null;
