@@ -19,6 +19,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private String newBranchTemplate;
     private String tagPrefix;
     private int listenerTimerPeriod;
+    private int connectionTimeout;
     private String settingsPath;
 
     private final String URI;
@@ -31,6 +32,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String NEW_BRANCH_TEMPLATE;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
+    private final String CONNECTION_TIMEOUT;
     private final RepositoryMode repositoryMode;
     private final String SETTINGS_PATH;
 
@@ -48,6 +50,7 @@ public class GitRepositorySettings extends RepositorySettings {
         NEW_BRANCH_TEMPLATE = configPrefix + "new-branch-pattern";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
+        CONNECTION_TIMEOUT = configPrefix + "connection-timeout";
         SETTINGS_PATH = "git-settings-path";
 
         load(configManager);
@@ -70,6 +73,7 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
+        connectionTimeout = configManager.getLongProperty(CONNECTION_TIMEOUT, 60L).intValue();
         settingsPath = configManager.getStringProperty(SETTINGS_PATH);
         newBranchTemplate = configManager.getStringProperty(NEW_BRANCH_TEMPLATE);
     }
@@ -139,13 +143,19 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     public int getListenerTimerPeriod() {
-        // Convert to seconds
         return listenerTimerPeriod;
     }
 
     public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        // Convert to milliseconds
         this.listenerTimerPeriod = listenerTimerPeriod;
+    }
+
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
     }
 
     public String getSettingsPath() {
@@ -185,6 +195,7 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+        propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
         propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
     }
 
@@ -222,6 +233,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setNewBranchTemplate(otherSettings.getNewBranchTemplate());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
+            setConnectionTimeout(otherSettings.getConnectionTimeout());
             setCommentTemplate(otherSettings.getCommentTemplate());
             setSettingsPath(otherSettings.getSettingsPath());
         }

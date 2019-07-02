@@ -110,6 +110,19 @@
         <h:message for="#{prependId}gitListenerTimerPeriod" styleClass="error"/>
         <h:outputText value=""/>
 
+        <h:outputText value="Connection timeout (sec):"/>
+        <h:inputText value="#{settings.connectionTimeout}" id="#{prependId}gitConnectionTimeout"
+                     title="Repository connection timeout. Must be greater than zero."
+                     validatorMessage="Please, enter a value greater than zero."
+                     converterMessage="Must be a number greater than zero.">
+            <f:validateLongRange minimum="1" />
+        </h:inputText>
+        <h:outputText value=""/>
+
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitConnectionTimeout" styleClass="error"/>
+        <h:outputText value=""/>
+
         <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentNameShowInfo"/>
         <h:outputText value=""/>
