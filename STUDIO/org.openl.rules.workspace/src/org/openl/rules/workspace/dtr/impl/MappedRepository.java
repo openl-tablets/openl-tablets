@@ -147,7 +147,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     log.warn(e.getMessage(), e);
                 }
 
-                callback.onChange();
+                if (callback != null) {
+                    callback.onChange();
+                }
             }
         });
     }
