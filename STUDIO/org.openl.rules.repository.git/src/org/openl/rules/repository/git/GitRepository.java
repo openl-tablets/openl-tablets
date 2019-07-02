@@ -58,6 +58,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String baseBranch = branch;
     private String tagPrefix = StringUtils.EMPTY;
     private int listenerTimerPeriod = 10;
+    private int connectionTimeout = 60;
     private String commentTemplate;
     private String escapedCommentTemplate;
     private String gitSettingsPath;
@@ -643,6 +644,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
         String ct = commentTemplate.replaceAll("\\{commit-type}", "{0}")
@@ -858,7 +863,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // Need to check if in a newer version it should be changed.
         fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*", Constants.R_HEADS + "*"));
         fetchCommand.setRemoveDeletedRefs(true);
-        fetchCommand.setTimeout(listenerTimerPeriod);
+        fetchCommand.setTimeout(connectionTimeout);
         return fetchCommand.call();
     }
 
@@ -866,7 +871,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             remoteRepoLock.lock();
 
-            PushCommand push = git.push().setPushTags().add(branch).setTimeout(listenerTimerPeriod);
+            PushCommand push = git.push().setPushTags().add(branch).setTimeout(connectionTimeout);
 
             if (StringUtils.isNotBlank(login)) {
                 push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
@@ -1538,6 +1543,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.baseBranch = baseBranch; // Base branch is only one
         repo.setTagPrefix(tagPrefix);
         repo.setListenerTimerPeriod(listenerTimerPeriod);
+        repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
         repo.setGitSettingsPath(gitSettingsPath);
         repo.git = Git.open(new File(localRepositoryPath));
@@ -1565,7 +1571,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
-        PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(listenerTimerPeriod);
+        PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
         if (StringUtils.isNotBlank(login)) {
             push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
