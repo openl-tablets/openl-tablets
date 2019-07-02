@@ -11,7 +11,7 @@
     <property name="enableLocks" value="#{systemConfig['user.mode'] != 'single'}" />
   </bean>
 
-  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" destroy-method="destroy">
+  <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init" destroy-method="destroy">
     <property name="config" value="#{systemConfig}" />
   </bean>
 

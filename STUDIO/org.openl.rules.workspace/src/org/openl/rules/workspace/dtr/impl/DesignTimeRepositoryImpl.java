@@ -54,7 +54,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         this.config = config;
     }
 
-    private void init() {
+    public void init() {
         synchronized (projects) {
             if (repository != null) {
                 return;
@@ -337,6 +337,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public Repository getRepository() {
         if (repository == null) {
+            // repository field can be cleared in Admin page during testing connection to a new repository
             init();
         }
         return repository;
@@ -344,6 +345,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private Repository getDeployConfigRepository() {
         if (deployConfigRepository == null) {
+            // deployConfigRepository field can be cleared in Admin page during testing connection to a new repository
             init();
         }
         return deployConfigRepository;
