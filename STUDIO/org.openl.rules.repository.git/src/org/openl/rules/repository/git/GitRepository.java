@@ -559,6 +559,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readBranches();
 
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
+
+            for (String branch : getAvailableBranches()) {
+                branchRepos.put(branch, createRepository(branch));
+            }
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             if (cause == null) {
@@ -1497,36 +1501,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 repository = branchRepos.get(branch);
                 if (repository == null) {
-                    if (git.getRepository().findRef(branch) == null) {
-                        git.branchCreate()
-                            .setName(branch)
-                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                            .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
-                            .call();
-                    }
-
-                    repository = new GitRepository();
-
-                    repository.setUri(uri);
-                    repository.setLogin(login);
-                    repository.setPassword(password);
-                    repository.setUserDisplayName(userDisplayName);
-                    repository.setUserEmail(userEmail);
-                    repository.setLocalRepositoryPath(localRepositoryPath);
-                    repository.setBranch(branch);
-                    repository.baseBranch = baseBranch; // Base branch is only one
-                    repository.setTagPrefix(tagPrefix);
-                    repository.setListenerTimerPeriod(listenerTimerPeriod);
-                    repository.setCommentTemplate(commentTemplate);
-                    repository.setGitSettingsPath(gitSettingsPath);
-                    repository.git = Git.open(new File(localRepositoryPath));
-                    repository.repositoryLock = repositoryLock; // must be common for all instances because git
-                                                                // repository is same
-                    repository.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
-                                                                // repository is same
-                    repository.branches = branches; // Can be shared between instances
-                    repository.monitor = monitor;
-
+                    repository = createRepository(branch);
                     branchRepos.put(branch, repository);
                 }
             } catch (IOException e) {
@@ -1540,6 +1515,39 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         return repository;
+    }
+
+    private GitRepository createRepository(String branch) throws IOException, GitAPIException {
+        if (git.getRepository().findRef(branch) == null) {
+            git.branchCreate()
+                .setName(branch)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+                .call();
+        }
+
+        GitRepository repo = new GitRepository();
+
+        repo.setUri(uri);
+        repo.setLogin(login);
+        repo.setPassword(password);
+        repo.setUserDisplayName(userDisplayName);
+        repo.setUserEmail(userEmail);
+        repo.setLocalRepositoryPath(localRepositoryPath);
+        repo.setBranch(branch);
+        repo.baseBranch = baseBranch; // Base branch is only one
+        repo.setTagPrefix(tagPrefix);
+        repo.setListenerTimerPeriod(listenerTimerPeriod);
+        repo.setCommentTemplate(commentTemplate);
+        repo.setGitSettingsPath(gitSettingsPath);
+        repo.git = Git.open(new File(localRepositoryPath));
+        repo.repositoryLock = repositoryLock; // must be common for all instances because git
+        // repository is same
+        repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
+        // repository is same
+        repo.branches = branches; // Can be shared between instances
+        repo.monitor = monitor;
+        return repo;
     }
 
     private TreeSet<String> getAvailableBranches() throws GitAPIException {
