@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -65,7 +66,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private Git git;
 
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
-    private ReadWriteLock remoteRepoLock = new ReentrantReadWriteLock();
+    private ReentrantLock remoteRepoLock = new ReentrantLock();
 
     private Map<String, List<String>> branches = new HashMap<>();
 
@@ -712,14 +713,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         FetchResult fetchResult;
 
         Lock readLock = repositoryLock.readLock();
-        Lock remoteLock = remoteRepoLock.writeLock();
+        boolean remoteLocked = remoteRepoLock.tryLock();
+        if (!remoteLocked) {
+            // Skip because is already fetching by other thread.
+            return null;
+        }
         try {
             readLock.lock();
-            remoteLock.lock();
 
             fetchResult = fetchAll();
         } finally {
-            remoteLock.unlock();
+            remoteRepoLock.unlock();
             readLock.unlock();
         }
 
@@ -783,12 +787,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private void pull() throws GitAPIException, MergeConflictException {
         FetchResult fetchResult;
-        Lock remoteLock = remoteRepoLock.writeLock();
         try {
-            remoteLock.lock();
+            remoteRepoLock.lock();
             fetchResult = fetchAll();
         } finally {
-            remoteLock.unlock();
+            remoteRepoLock.unlock();
         }
 
         Ref r = fetchResult.getAdvertisedRef(branch);
@@ -856,9 +859,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void push() throws GitAPIException, IOException {
-        Lock remoteLock = remoteRepoLock.writeLock();
         try {
-            remoteLock.lock();
+            remoteRepoLock.lock();
 
             PushCommand push = git.push().setPushTags().add(branch).setTimeout(listenerTimerPeriod);
 
@@ -869,7 +871,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Iterable<PushResult> results = push.call();
             validatePushResults(results);
         } finally {
-            remoteLock.unlock();
+            remoteRepoLock.unlock();
         }
     }
 
