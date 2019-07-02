@@ -545,7 +545,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             config.save();
 
             if (!shouldClone) {
-                fetchAll();
+                try {
+                    fetchAll();
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                }
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
                 if (branchAbsents) {
