@@ -374,8 +374,6 @@ public class GitRepositoryTest {
         assertEquals(2, project1History.size());
         assertEquals("Rules_2", project1History.get(0).getVersion());
         assertEquals("Rules_3", project1History.get(1).getVersion());
-
-        assertEquals(1, repo.listHistory("rules/project1/folder").size());
     }
 
     @Test
@@ -780,7 +778,7 @@ public class GitRepositoryTest {
         }
         File file = new File(parent, fileName);
         if (!file.createNewFile()) {
-            throw new IOException("Could not create file " + file.getAbsolutePath());
+            throw new IOException("Could not create file " + file);
         }
         writeText(file, text);
         return file;
