@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.diff;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -16,9 +15,13 @@ public class ExcelDiffController extends AbstractDiffController {
      */
     protected static final int MAX_FILES_COUNT = 2;
 
-    private List<File> filesToCompare = Collections.emptyList();
+    private List<File> filesToCompare;
 
-    protected void setFilesToCompare(List<File> filesToCompare) {
+    public List<File> getFilesToCompare() {
+        return filesToCompare;
+    }
+
+    public void setFilesToCompare(List<File> filesToCompare) {
         this.filesToCompare = new ArrayList<>(filesToCompare);
     }
 
