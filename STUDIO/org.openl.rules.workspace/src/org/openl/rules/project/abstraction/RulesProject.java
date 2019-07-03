@@ -14,6 +14,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +88,9 @@ public class RulesProject extends UserWorkspaceProject {
         AProject localProject = new AProject(localRepository, localFolderName);
 
         FileData fileData = getFileData();
-        for (AdditionalData value : fileData.getAdditionalData().values()) {
-            designProject.getFileData().addAdditionalData(value);
+        if (fileData instanceof MappedFileData) {
+            String internalPath = ((MappedFileData) fileData).getInternalPath();
+            designProject.setFileData(new MappedFileData(designFolderName, internalPath));
         }
 
         designProject.getFileData().addAdditionalData(additionalData);

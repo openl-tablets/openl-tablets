@@ -8,7 +8,7 @@ import org.openl.rules.project.abstraction.*;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class RulesProjectBuilder {
         WorkspaceUser user = workspace.getUser();
         Repository designRepository = project.getDesignRepository();
         if (designRepository.supports().mappedFolders()) {
-            project.getFileData().addAdditionalData(new FileMappingData(internalPath));
+            project.setFileData(new MappedFileData(project.getDesignFolderName(), internalPath));
         }
 
         // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain

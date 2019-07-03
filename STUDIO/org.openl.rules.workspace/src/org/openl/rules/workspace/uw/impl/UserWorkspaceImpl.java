@@ -13,7 +13,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
@@ -439,7 +439,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             project.refresh();
             if (designTimeRepository.getRepository().supports().mappedFolders()) {
                 FileData fileData = createdProject.getFileData();
-                fileData.addAdditionalData(new FileMappingData(projectFolder + name));
+                createdProject.setFileData(new MappedFileData(fileData.getName(), projectFolder + name));
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);

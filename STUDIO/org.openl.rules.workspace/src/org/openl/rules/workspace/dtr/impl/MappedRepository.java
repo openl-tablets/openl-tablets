@@ -211,9 +211,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (isUpdateConfigNeeded(destData)) {
+        if (destData instanceof MappedFileData) {
             try {
-                ByteArrayInputStream configStream = updateConfigFile(destData);
+                ByteArrayInputStream configStream = updateConfigFile((MappedFileData) destData);
                 FileData configData = new FileData();
                 configData.setName(configFile);
                 configData.setAuthor(destData.getAuthor());
@@ -262,9 +262,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
-        if (isUpdateConfigNeeded(folderData)) {
+        if (folderData instanceof MappedFileData) {
             try {
-                FileChange configChange = new FileChange(configFile, updateConfigFile(folderData));
+                FileChange configChange = new FileChange(configFile, updateConfigFile((MappedFileData) folderData));
                 Iterable<FileChange> filesWithMapping = new CompositeFileChanges(files, configChange);
 
                 // Mapping was updated on previous step.
@@ -635,18 +635,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
-    private ByteArrayInputStream updateConfigFile(FileData folderData) throws IOException {
-        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
-        if (mappingData == null) {
-            log.warn("Unexpected behavior: FileMappingData is absent.");
-            return null;
-        }
-
+    private ByteArrayInputStream updateConfigFile(MappedFileData folderData) throws IOException {
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
             Map<String, String> newMap = new HashMap<>(externalToInternal);
-            newMap.put(folderData.getName(), mappingData.getInternalPath());
+            newMap.put(folderData.getName(), folderData.getInternalPath());
 
             ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
             externalToInternal = newMap;
@@ -694,16 +688,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } catch (XPathExpressionException e) {
             return null;
         }
-    }
-
-    private boolean isUpdateConfigNeeded(FileData folderData) {
-        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
-        if (mappingData != null) {
-            String external = folderData.getName();
-            String internal = getMappingForRead().get(external);
-            return !mappingData.getInternalPath().equals(internal);
-        }
-        return false;
     }
 
     @Override

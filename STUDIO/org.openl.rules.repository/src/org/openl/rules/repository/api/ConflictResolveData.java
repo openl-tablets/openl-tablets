@@ -53,6 +53,6 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
                 };
             }
         };
-        return new ConflictResolveData(commitToMerge, convertedFolders, mergeMessage);
+        return new ConflictResolveData(commitToMerge, convertedFolders,mergeMessage);
     }
 }

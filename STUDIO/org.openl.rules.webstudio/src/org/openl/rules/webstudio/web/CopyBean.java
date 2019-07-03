@@ -6,6 +6,7 @@ import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -172,29 +173,28 @@ public class CopyBean {
                 Repository designRepository = designTimeRepository.getRepository();
                 String designPath = designTimeRepository.createProject(newProjectName).getFolderPath();
 
-                FileMappingData mappingData = new FileMappingData(projectFolder + newProjectName);
-
                 if (copyOldRevisions) {
                     List<ProjectVersion> versions = project.getVersions();
                     int start = versions.size() - revisionsCount;
                     for (int i = start; i < versions.size(); i++) {
                         ProjectVersion version = versions.get(i);
-
-                        FileData fileData = new FileData();
-                        fileData.setName(designPath);
+                        FileData fileData;
+                        if (i == start && designRepository.supports().mappedFolders()) {
+                            fileData = new MappedFileData(designPath, projectFolder + newProjectName);
+                        } else {
+                            fileData = new FileData();
+                            fileData.setName(designPath);
+                        }
                         fileData.setAuthor(version.getVersionInfo().getCreatedBy());
                         fileData.setComment(version.getVersionComment());
-                        if (designRepository.supports().mappedFolders()) {
-                            fileData.addAdditionalData(mappingData);
-                        }
                         designRepository.copyHistory(project.getDesignFolderName(), fileData, version.getRevision());
                     }
                 }
 
                 AProject designProject = new AProject(designRepository, designPath);
                 AProject localProject = new AProject(project.getRepository(), project.getFolderPath());
-                if (designRepository.supports().mappedFolders()) {
-                    designProject.getFileData().addAdditionalData(mappingData);
+                if (!copyOldRevisions && designRepository.supports().mappedFolders()) {
+                    designProject.setFileData(new MappedFileData(designPath, projectFolder + newProjectName));
                 }
                 designProject.getFileData().setComment(comment);
                 designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
