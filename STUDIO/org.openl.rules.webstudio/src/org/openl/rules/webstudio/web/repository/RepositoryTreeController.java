@@ -37,14 +37,12 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -54,7 +52,6 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -216,10 +213,8 @@ public class RepositoryTreeController {
     }
 
     public String saveProject() {
-        UserWorkspaceProject project = null;
         try {
-            FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
-            project = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
             if (!project.isModified()) {
                 log.warn("Tried to save a project without any changes.");
                 return null;
@@ -233,19 +228,9 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof MergeConflictException) {
-                log.debug("Failed to save the project because of merge conflict.", e);
-                if (project instanceof RulesProject) {
-                    MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause,
-                        (RulesProject) project);
-                    FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_MERGE_CONFLICT, info);
-                }
-            } else {
-                String msg = e.getMessage();
-                log.error(msg, e);
-                FacesUtils.addErrorMessage(msg);
-            }
+            String msg = e.getMessage();
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg);
         }
         return null;
     }

@@ -5,7 +5,6 @@ public final class Constants {
     public static final String REQUEST_PARAM_ID = "id";
     public static final String REQUEST_PARAM_PROJECT = "project";
     public static final String REQUEST_PARAM_NAME = "name";
-    public static final String REQUEST_PARAM_VERSION = "version";
     public static final String REQUEST_PARAM_URI = "uri";
     public static final String REQUEST_PARAM_PAGE = "p";
     public static final String REQUEST_PARAM_PERPAGE = "pp";
@@ -20,7 +19,6 @@ public final class Constants {
 
     public static final String SESSION_PARAM_EXPLANATOR = "explanator";
     public static final String SESSION_PARAM_PARAMETERS = "parameters";
-    public static final String SESSION_PARAM_MERGE_CONFLICT = "mergeConflict";
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
 

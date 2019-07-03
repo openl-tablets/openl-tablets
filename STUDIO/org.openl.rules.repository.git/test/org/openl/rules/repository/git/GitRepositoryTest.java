@@ -6,8 +6,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
@@ -17,9 +15,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -31,17 +27,19 @@ public class GitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1/";
     private static final String TAG_PREFIX = "Rules_";
 
-    private static File template;
     private File root;
     private GitRepository repo;
     private ChangesCounter changesCounter;
 
-    @BeforeClass
-    public static void initTest() throws GitAPIException, IOException {
-        template = Files.createTempDirectory("openl-template").toFile();
+    @Before
+    public void setUp() throws GitAPIException, IOException, RRepositoryException {
+        root = Files.createTempDirectory("openl").toFile();
+
+        File remote = new File(root, "remote");
+        File local = new File(root, "local");
 
         // Initialize remote repository
-        try (Git git = Git.init().setDirectory(template).call()) {
+        try (Git git = Git.init().setDirectory(remote).call()) {
             Repository repository = git.getRepository();
 
             File parent = repository.getDirectory().getParentFile();
@@ -88,24 +86,7 @@ public class GitRepositoryTest {
                 .call();
             addTag(git, commit, 4);
         }
-    }
 
-    @AfterClass
-    public static void clearTest() throws IOException {
-        FileUtils.delete(template);
-        if (template.exists()) {
-            fail("Can't delete folder " + template);
-        }
-    }
-
-    @Before
-    public void setUp() throws IOException, RRepositoryException {
-        root = Files.createTempDirectory("openl").toFile();
-
-        File remote = new File(root, "remote");
-        File local = new File(root, "local");
-
-        FileUtils.copy(template, remote);
         repo = createRepository(remote, local);
 
         changesCounter = new ChangesCounter();
@@ -536,152 +517,6 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFile() throws RRepositoryException, IOException {
-        // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
-
-        String baseCommit = null;
-        String theirCommit = null;
-
-        final String filePath = "rules/project1/file2";
-
-        try (GitRepository repository1 = createRepository(remote, local1);
-            GitRepository repository2 = createRepository(remote, local2)) {
-            baseCommit = repository1.check(filePath).getVersion();
-            // First user commit
-            String text1 = "foo\nbar";
-            FileData save1 = repository1.save(createFileData(filePath, text1), IOUtils.toInputStream(text1));
-            theirCommit = save1.getVersion();
-
-            // Second user commit (our). Will merge with first user's change (their).
-            String text2 = "foo\nbaz";
-            repository2.save(createFileData(filePath, text2), IOUtils.toInputStream(text2));
-
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            Collection<String> conflictedFiles = e.getConflictedFiles();
-
-            assertEquals(1, conflictedFiles.size());
-            assertEquals(filePath, conflictedFiles.iterator().next());
-
-            assertEquals(baseCommit, e.getBaseCommit());
-            assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
-
-            try (GitRepository repository2 = createRepository(remote, local2)) {
-                String text2 = "foo\nbaz";
-                String resolveText = "foo\nbar\nbaz";
-                String mergeMessage = "Merge with " + theirCommit;
-
-                List<FileChange> resolveConflicts = Collections.singletonList(new FileChange(filePath,
-                    IOUtils.toInputStream(resolveText)));
-
-                FileData fileData = createFileData(filePath, text2);
-                fileData.setVersion(baseCommit);
-                fileData.addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
-                FileData localData = repository2.save(fileData, IOUtils.toInputStream(text2));
-
-                FileItem remoteItem = repository2.read(filePath);
-                assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
-                FileData remoteData = remoteItem.getData();
-                assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("John Smith", remoteData.getAuthor());
-                assertEquals(mergeMessage, remoteData.getComment());
-            }
-        }
-    }
-
-    @Test
-    public void mergeConflictInFolder() throws RRepositoryException, IOException {
-        // Prepare the test: clone master branch
-        File remote = new File(root, "remote");
-        File local1 = new File(root, "temp1");
-        File local2 = new File(root, "temp2");
-
-        String baseCommit = null;
-        String theirCommit = null;
-
-        final String folderPath = "rules/project1";
-
-        final String conflictedFile = "rules/project1/file2";
-        try (GitRepository repository1 = createRepository(remote, local1);
-            GitRepository repository2 = createRepository(remote, local2)) {
-            baseCommit = repository1.check(folderPath).getVersion();
-            // First user commit
-            String text1 = "foo\nbar";
-            List<FileChange> changes1 = Arrays.asList(
-                    new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                    new FileChange(conflictedFile, IOUtils.toInputStream(text1))
-            );
-
-            FileData folderData1 = new FileData();
-            folderData1.setName("rules/project1");
-            folderData1.setAuthor("John Smith");
-            folderData1.setComment("Bulk change by John");
-
-            FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
-            theirCommit = save1.getVersion();
-
-            // Second user commit (our). Will merge with first user's change (their).
-            String text2 = "foo\nbaz";
-            List<FileChange> changes2 = Arrays.asList(
-                    new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileChange(conflictedFile, IOUtils.toInputStream(text2))
-            );
-
-            FileData folderData2 = new FileData();
-            folderData2.setName("rules/project1");
-            folderData2.setAuthor("Jane Smith");
-            folderData2.setComment("Bulk change by Jane");
-            repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-            fail("MergeConflictException is expected");
-        } catch (MergeConflictException e) {
-            Collection<String> conflictedFiles = e.getConflictedFiles();
-
-            assertEquals(1, conflictedFiles.size());
-            assertEquals(conflictedFile, conflictedFiles.iterator().next());
-
-            assertEquals(baseCommit, e.getBaseCommit());
-            assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
-
-            try (GitRepository repository2 = createRepository(remote, local2)) {
-                String text2 = "foo\nbaz";
-                String resolveText = "foo\nbar\nbaz";
-                String mergeMessage = "Merge with " + theirCommit;
-
-                List<FileChange> changes2 = Arrays.asList(
-                        new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileChange(conflictedFile, IOUtils.toInputStream(text2))
-                );
-
-                List<FileChange> resolveConflicts = Collections.singletonList(new FileChange(conflictedFile,
-                        IOUtils.toInputStream(resolveText)));
-
-                FileData folderData2 = new FileData();
-                folderData2.setName("rules/project1");
-                folderData2.setAuthor("Jane Smith");
-                folderData2.setComment("Bulk change by Jane");
-                folderData2.setVersion(baseCommit);
-                folderData2.addAdditionalData(new ConflictResolveData(e.getTheirCommit(),
-                    resolveConflicts,
-                    mergeMessage));
-                FileData localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
-
-                FileItem remoteItem = repository2.read(conflictedFile);
-                assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
-                FileData remoteData = remoteItem.getData();
-                assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("Jane Smith", remoteData.getAuthor());
-                assertEquals(mergeMessage, remoteData.getComment());
-            }
-        }
-    }
-
-    @Test
     public void testBranches() throws IOException, RRepositoryException {
         repo.createBranch("project1", "project1/test1");
         repo.createBranch("project1", "project1/test2");
@@ -772,7 +607,7 @@ public class GitRepositoryTest {
         return null;
     }
 
-    private static File createNewFile(File parent, String fileName, String text) throws IOException {
+    private File createNewFile(File parent, String fileName, String text) throws IOException {
         if (!parent.mkdirs() && !parent.exists()) {
             throw new IOException("Could not create folder " + parent);
         }
@@ -784,13 +619,13 @@ public class GitRepositoryTest {
         return file;
     }
 
-    private static void writeText(File file, String text) throws FileNotFoundException, UnsupportedEncodingException {
+    private void writeText(File file, String text) throws FileNotFoundException, UnsupportedEncodingException {
         try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.displayName())) {
             writer.append(text);
         }
     }
 
-    private static void addTag(Git git, RevCommit commit, int version) throws GitAPIException {
+    private void addTag(Git git, RevCommit commit, int version) throws GitAPIException {
         git.tag().setObjectId(commit).setName(TAG_PREFIX + version).call();
     }
 
