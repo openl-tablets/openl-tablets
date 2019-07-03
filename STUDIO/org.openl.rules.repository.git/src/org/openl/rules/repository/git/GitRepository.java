@@ -119,24 +119,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         List<FileData> result = new ArrayList<>();
         Lock writeLock = repositoryLock.writeLock();
-        String firstCommitId = null;
         try {
             log.debug("save(multipleFiles): lock");
             writeLock.lock();
             reset();
-            git.checkout().setName(branch).call();
-            for (FileItem fileItem : fileItems) {
-                String commitId = createCommit(fileItem.getData(), fileItem.getStream(), false);
-                if (firstCommitId == null) {
-                    firstCommitId = commitId;
+            String[] commitIds = new String[fileItems.size()];
+            try {
+                git.checkout().setName(branch).call();
+                int i = 0;
+                for (FileItem fileItem : fileItems) {
+                    commitIds[i++] = createCommit(fileItem.getData(), fileItem.getStream(), false);
                 }
+                push();
+            } catch (IOException e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw e;
+            } catch (Exception e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw new IOException(e.getMessage(), e);
             }
-            push();
-        } catch (IOException e) {
-            reset(firstCommitId);
-            throw e;
         } catch (Exception e) {
-            reset(firstCommitId);
+            reset();
             throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
@@ -1102,24 +1109,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
         List<FileData> result = new ArrayList<>();
         Lock writeLock = repositoryLock.writeLock();
-        String firstCommitId = null;
         try {
             log.debug("save(folderItems, changesetType): lock");
             writeLock.lock();
             reset();
-            git.checkout().setName(branch).call();
-            for (FolderItem folderItem : folderItems) {
-                String commitId = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType, false);
-                if (firstCommitId == null) {
-                    firstCommitId = commitId;
+            String[] commitIds = new String[folderItems.size()];
+            try {
+                git.checkout().setName(branch).call();
+                int i = 0;
+                for (FolderItem folderItem : folderItems) {
+                    commitIds[i++] = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType, false);
                 }
+                push();
+            } catch (IOException e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw e;
+            } catch (Exception e) {
+                for (String commitId : commitIds) {
+                    reset(commitId);
+                }
+                throw new IOException(e.getMessage(), e);
             }
-            push();
-        } catch (IOException e) {
-            reset(firstCommitId);
-            throw e;
         } catch (Exception e) {
-            reset(firstCommitId);
+            reset();
             throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
