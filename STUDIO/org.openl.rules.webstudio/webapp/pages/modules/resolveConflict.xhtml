@@ -17,90 +17,85 @@
       <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close" onclick="closeResolveConflictDialog();" />
     </f:facet>
 
-    <div class="scrollable">
-      <h:form id="resolveConflictsForm">
-        <h:panelGroup id="modalResolveConflictsData">
-          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Our version:"/>
-            <h:outputText value="#{mergeConflictBean.ourCommit}"/>
+    <h:form id="resolveConflictsForm">
+      <h:panelGroup id="modalResolveConflictsData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:outputText value="Our version:"/>
+          <h:outputText value="#{mergeConflictBean.ourCommit}"/>
 
-            <h:outputText value="Their version:"/>
-            <h:outputText value="#{mergeConflictBean.theirCommit}"/>
+          <h:outputText value="Their version:"/>
+          <h:outputText value="#{mergeConflictBean.theirCommit}"/>
 
-            <h:outputText value="Base version:"/>
-            <h:outputText value="#{mergeConflictBean.baseCommit}"/>
+          <h:outputText value="Base version:"/>
+          <h:outputText value="#{mergeConflictBean.baseCommit}"/>
 
-            <h:outputText value="Comment:"/>
-            <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
+          <h:outputText value="Comment:"/>
+          <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
+            <f:ajax execute="@this"/>
+          </h:inputTextarea>
+
+          <h:outputText value="Conflicts:"/>
+          <h:outputText value=""/>
+        </h:panelGrid>
+
+        <rich:dataTable value="#{mergeConflictBean.conflictedFiles}" var="conflict" rowKeyVar="row" styleClass="table">
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="File" />
+            </f:facet>
+            <h:outputText value="#{conflict}" title="#{conflict}"/>
+          </rich:column>
+          <rich:column style="min-width: 80px">
+            <f:facet name="header">
+              <h:outputText value="Compare"/>
+            </f:facet>
+            <h:panelGroup rendered="#{mergeConflictBean.canCompare(conflict)}">
+              <div>
+                <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
+                   title="Compare">Compare</a>
+              </div>
+            </h:panelGroup>
+            <div>
+              <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
+                 title="Download our version">Download Our</a>
+            </div>
+            <div>
+              <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                 title="Download their version">Download Their</a>
+            </div>
+            <div>
+              <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                 title="Download base version">Download Base</a>
+            </div>
+          </rich:column>
+          <rich:column style="min-width: 160px">
+            <f:facet name="header">
+              <h:outputText value="Resolve" />
+            </f:facet>
+            <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
+                              layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
+              <f:selectItem itemValue="OURS" itemLabel="Use our"/>
+              <f:selectItem itemValue="THEIRS" itemLabel="Use their"/>
+              <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
               <f:ajax execute="@this"/>
-            </h:inputTextarea>
+            </h:selectOneRadio>
+          </rich:column>
+        </rich:dataTable>
 
-            <h:outputText value="Conflicts:"/>
-            <h:outputText value=""/>
-          </h:panelGrid>
+      </h:panelGroup>
 
-          <rich:dataTable value="#{mergeConflictBean.conflictedFiles}" var="conflict" rowKeyVar="row" styleClass="table">
-            <rich:column>
-              <f:facet name="header">
-                <h:outputText value="File"/>
-              </f:facet>
-              <h:outputText value="#{conflict}" title="#{conflict}"/>
-            </rich:column>
-            <rich:column style="min-width: 80px">
-              <f:facet name="header">
-                <h:outputText value="Compare"/>
-              </f:facet>
-              <h:panelGroup rendered="#{mergeConflictBean.canCompare(conflict)}">
-                <div>
-                  <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
-                     title="Compare">Compare</a>
-                </div>
-              </h:panelGroup>
-              <div>
-                <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
-                   title="Download our version">Download Our</a>
-              </div>
-              <div>
-                <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
-                   title="Download their version">Download Their</a>
-              </div>
-              <div>
-                <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
-                   title="Download base version">Download Base</a>
-              </div>
-            </rich:column>
-            <rich:column style="min-width: 160px">
-              <f:facet name="header">
-                <h:outputText value="Resolve"/>
-              </f:facet>
-              <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
-                                layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
-                <f:selectItem itemValue="OURS" itemLabel="Use our"/>
-                <f:selectItem itemValue="THEIRS" itemLabel="Use their"/>
-                <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
-                <f:ajax execute="@this"/>
-              </h:selectOneRadio>
-            </rich:column>
-          </rich:dataTable>
+      <footer>
+        <a4j:commandButton value="Save" action="#{mergeConflictBean.saveAndResolve}" render="@form" styleClass="button-primary"
+                           oncomplete="if (#{!facesContext.validationFailed}) {closeResolveConflictDialog();}"/>
+        <input class="restore-changed-state" type="button" value="Cancel" onclick="closeResolveConflictDialog();" />
+      </footer>
 
-        </h:panelGroup>
-
-        <footer>
-          <a4j:commandButton value="Save" action="#{mergeConflictBean.saveAndResolve}" render="@form"
-                             styleClass="button-primary"
-                             oncomplete="if (#{!facesContext.validationFailed}) {closeResolveConflictDialog();}"/>
-          <input class="restore-changed-state" type="button" value="Cancel" onclick="closeResolveConflictDialog();"/>
-        </footer>
-
-        <a4j:jsFunction name="refreshResolveConflictDialog" action="#{mergeConflictBean.init}" render="@form"
-                        oncomplete="showResolveConflictDialog();"/>
-        <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(); RichFaces.$('modalResolveConflicts').hide();"/>
-        <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
-          <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}"/>
-        </a4j:jsFunction>
-      </h:form>
-    </div>
+      <a4j:jsFunction name="refreshResolveConflictDialog" action="#{mergeConflictBean.init}" render="@form" oncomplete="showResolveConflictDialog();" />
+      <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}" oncomplete="afterResolveConflict(); RichFaces.$('modalResolveConflicts').hide();" />
+      <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
+        <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}" />
+      </a4j:jsFunction>
+    </h:form>
 
   </rich:popupPanel>
 
@@ -114,14 +109,7 @@
       }
 
       function showResolveConflictDialog() {
-        var $dialog = RichFaces.$("modalResolveConflicts");
-        $dialog.show();
-
-        var maxHeight = $j(window).height() * 0.8;
-        if ($dialog.height() > maxHeight) {
-          $dialog.setSize($dialog.width(), maxHeight);
-          $dialog.moveTo($j(window).height() * 0.1, $dialog.getLeft());
-        }
+        RichFaces.$("modalResolveConflicts").show();
       }
 
       function uploadConflictResolution(conflict, resolutionElement) {
