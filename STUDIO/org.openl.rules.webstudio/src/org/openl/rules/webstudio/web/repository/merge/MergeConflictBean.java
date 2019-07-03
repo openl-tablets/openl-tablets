@@ -235,11 +235,6 @@ public class MergeConflictBean {
         mergeMessage = null;
     }
 
-    public boolean canCompare(String file) {
-        file = file.toLowerCase();
-        return file.endsWith(".xls") || file.endsWith(".xlsx");
-    }
-
     private MergeConflictInfo getMergeConflict() {
         return (MergeConflictInfo) FacesUtils.getSessionMap()
                 .get(Constants.SESSION_PARAM_MERGE_CONFLICT);
