@@ -126,13 +126,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             git.checkout().setName(branch).call();
             for (FileItem fileItem : fileItems) {
-                RevCommit commit = createCommit(fileItem.getData(), fileItem.getStream());
+                String commitId = createCommit(fileItem.getData(), fileItem.getStream(), false);
                 if (firstCommitId == null) {
-                    firstCommitId = commit.getId().getName();
+                    firstCommitId = commitId;
                 }
-
-                resolveAndMerge(fileItem.getData(), false, commit);
-                addTagToCommit(commit);
             }
             push();
         } catch (IOException e) {
@@ -159,12 +156,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             String parentVersion = data.getVersion();
             boolean checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
             git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
-            RevCommit commit = createCommit(data, stream);
-            commitId = commit.getId().getName();
-
-            resolveAndMerge(data, checkoutOldVersion, commit);
-            addTagToCommit(commit);
-
+            commitId = createCommit(data, stream, checkoutOldVersion);
             push();
         } catch (IOException e) {
             reset(commitId);
@@ -175,7 +167,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private RevCommit createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
+    private String createCommit(FileData data, InputStream stream, boolean checkoutOldVersion) throws GitAPIException, IOException {
         String fileInRepository = data.getName();
 
         File file = new File(localRepositoryPath, fileInRepository);
@@ -183,12 +175,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
         git.add().addFilepattern(fileInRepository).call();
-        return git.commit()
+        RevCommit commit = git.commit()
                 .setMessage(formatComment(CommitType.SAVE, data))
                 .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
                         userEmail != null ? userEmail : "")
                 .setOnly(fileInRepository)
                 .call();
+        String commitId = commit.getId().getName();
+
+        resolveAndMerge(data, checkoutOldVersion, commit);
+
+        addTagToCommit(commit);
+        return commitId;
     }
 
     @Override
@@ -1111,13 +1109,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             git.checkout().setName(branch).call();
             for (FolderItem folderItem : folderItems) {
-                RevCommit commit = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
+                String commitId = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType, false);
                 if (firstCommitId == null) {
-                    firstCommitId = commit.getId().getName();
+                    firstCommitId = commitId;
                 }
-
-                resolveAndMerge(folderItem.getData(), false, commit);
-                addTagToCommit(commit);
             }
             push();
         } catch (IOException e) {
@@ -1148,12 +1143,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             boolean checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
             git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
 
-            RevCommit commit = createCommit(folderData, files, changesetType);
-            commitId = commit.getId().getName();
-
-            resolveAndMerge(folderData, checkoutOldVersion, commit);
-            addTagToCommit(commit);
-
+            commitId = createCommit(folderData, files, changesetType, checkoutOldVersion);
             push();
         } catch (IOException e) {
             reset(commitId);
@@ -1164,7 +1154,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private RevCommit createCommit(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException, GitAPIException {
+    private String createCommit(FileData folderData,
+                                Iterable<FileChange> files,
+                                ChangesetType changesetType,
+                                boolean checkoutOldVersion) throws IOException, GitAPIException {
         String relativeFolder = folderData.getName();
 
         List<String> changedFiles = new ArrayList<>();
@@ -1189,7 +1182,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
                 userEmail != null ? userEmail : "");
 
-        return commitChangedFiles(commitCommand, changedFiles);
+        RevCommit commit = commitChangedFiles(commitCommand, changedFiles);
+        String commitId = commit.getId().getName();
+
+        resolveAndMerge(folderData, checkoutOldVersion, commit);
+
+        addTagToCommit(commit);
+
+        return commitId;
     }
 
     private void applyChangeInWorkspace(FileChange change, Collection<String> changedFiles) throws IOException, GitAPIException {
