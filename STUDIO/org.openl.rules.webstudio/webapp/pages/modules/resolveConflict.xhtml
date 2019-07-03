@@ -68,8 +68,8 @@
             </f:facet>
             <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
                               layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
-              <f:selectItem itemValue="OURS" itemLabel="Use our"/>
-              <f:selectItem itemValue="THEIRS" itemLabel="Use their"/>
+              <f:selectItem itemValue="OUR" itemLabel="Use our"/>
+              <f:selectItem itemValue="THEIR" itemLabel="Use their"/>
               <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
               <f:ajax execute="@this"/>
             </h:selectOneRadio>
