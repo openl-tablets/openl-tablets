@@ -134,7 +134,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 fileData.setAuthor(user == null ? null : user.getUserName());
                 fileData.setSize(out.size());
 
-                FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
+                FileChange change = new FileChange(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
                     new ByteArrayInputStream(out.toByteArray()));
                 setFileData(((FolderRepository) getRepository()).save(fileData, Collections.singletonList(change),
                         ChangesetType.FULL));

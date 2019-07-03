@@ -259,11 +259,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException {
         if (isUpdateConfigNeeded(folderData)) {
             try {
-                FileItem configChange = new FileItem(configFile, updateConfigFile(folderData));
-                Iterable<FileItem> filesWithMapping = new CompositeFileChanges(files, configChange);
+                FileChange configChange = new FileChange(configFile, updateConfigFile(folderData));
+                Iterable<FileChange> filesWithMapping = new CompositeFileChanges(files, configChange);
 
                 // Mapping was updated on previous step.
                 Map<String, String> mapping = getMappingForRead();
@@ -378,13 +378,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return mapping;
     }
 
-    private Iterable<FileItem> toInternal(final Map<String, String> mapping, final Iterable<FileItem> files) {
-        return new Iterable<FileItem>() {
+    private Iterable<FileChange> toInternal(final Map<String, String> mapping, final Iterable<FileChange> files) {
+        return new Iterable<FileChange>() {
             @SuppressWarnings("NullableProblems")
             @Override
-            public Iterator<FileItem> iterator() {
-                return new Iterator<FileItem>() {
-                    private final Iterator<FileItem> delegate = files.iterator();
+            public Iterator<FileChange> iterator() {
+                return new Iterator<FileChange>() {
+                    private final Iterator<FileChange> delegate = files.iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -392,12 +392,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     }
 
                     @Override
-                    public FileItem next() {
-                        FileItem external = delegate.next();
+                    public FileChange next() {
+                        FileChange external = delegate.next();
                         FileData data = external.getData();
                         String name = toInternal(mapping, external.getData().getName());
                         data.setName(name);
-                        return new FileItem(data, external.getStream());
+                        return new FileChange(data, external.getStream());
                     }
 
                     @Override

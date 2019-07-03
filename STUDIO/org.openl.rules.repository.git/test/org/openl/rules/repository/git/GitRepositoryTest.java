@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
@@ -290,9 +291,9 @@ public class GitRepositoryTest {
 
     @Test
     public void saveFolder() throws IOException {
-        List<FileItem> changes = Arrays.asList(
-                new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+        List<FileChange> changes = Arrays.asList(
+            new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+            new FileChange("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -311,7 +312,7 @@ public class GitRepositoryTest {
         changes.get(1).getStream().reset();
         assertNotNull(repo.save(folderData, changes, ChangesetType.FULL));
 
-        for (FileItem file : changes) {
+        for (FileChange file : changes) {
             IOUtils.closeQuietly(file.getStream());
         }
     }
@@ -509,8 +510,8 @@ public class GitRepositoryTest {
 
             // Check that changes are saved to correct branch.
             String text = "New file";
-            FileItem change1 = new FileItem("rules/project-second/new/file1", IOUtils.toInputStream(text));
-            FileItem change2 = new FileItem("rules/project-second/new/file2", IOUtils.toInputStream(text));
+            FileChange change1 = new FileChange("rules/project-second/new/file1", IOUtils.toInputStream(text));
+            FileChange change2 = new FileChange("rules/project-second/new/file2", IOUtils.toInputStream(text));
             FileData newProjectData = createFileData("rules/project-second/new", text);
             repository.save(newProjectData, Arrays.asList(change1, change2), ChangesetType.FULL);
             assertEquals(7, repository.list("").size());
@@ -591,7 +592,7 @@ public class GitRepositoryTest {
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
 
-                List<FileItem> resolveConflicts = Collections.singletonList(new FileItem(filePath,
+                List<FileChange> resolveConflicts = Collections.singletonList(new FileChange(filePath,
                     IOUtils.toInputStream(resolveText)));
 
                 FileData fileData = createFileData(filePath, text2);
@@ -670,10 +671,10 @@ public class GitRepositoryTest {
             baseCommit = repository1.check(folderPath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
-            List<FileItem> changes1 = Arrays.asList(
-                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text1))
+            List<FileChange> changes1 = Arrays.asList(
+                    new FileChange("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text1))
             );
 
             FileData folderData1 = new FileData();
@@ -686,9 +687,9 @@ public class GitRepositoryTest {
 
             // Second user commit (our). Will merge with first user's change (their).
             String text2 = "foo\nbaz";
-            List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text2))
+            List<FileChange> changes2 = Arrays.asList(
+                    new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text2))
             );
 
             FileData folderData2 = new FileData();
@@ -715,12 +716,12 @@ public class GitRepositoryTest {
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
 
-                List<FileItem> changes2 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text2))
+                List<FileChange> changes2 = Arrays.asList(
+                        new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                        new FileChange(conflictedFile, IOUtils.toInputStream(text2))
                 );
 
-                List<FileItem> resolveConflicts = Collections.singletonList(new FileItem(conflictedFile,
+                List<FileChange> resolveConflicts = Collections.singletonList(new FileChange(conflictedFile,
                         IOUtils.toInputStream(resolveText)));
 
                 FileData folderData2 = new FileData();
@@ -764,10 +765,10 @@ public class GitRepositoryTest {
             baseCommit = repository1.check(folderPath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
-            List<FileItem> changes1 = Arrays.asList(
-                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text1))
+            List<FileChange> changes1 = Arrays.asList(
+                    new FileChange("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text1))
             );
 
             FileData folderData1 = new FileData();
@@ -780,9 +781,9 @@ public class GitRepositoryTest {
 
             // Second user commit (our). Will merge with first user's change (their).
             String text2 = "foo\nbaz";
-            List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text2))
+            List<FileChange> changes2 = Arrays.asList(
+                    new FileChange("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileChange(conflictedFile, IOUtils.toInputStream(text2))
             );
 
             FileData folderData2 = new FileData();

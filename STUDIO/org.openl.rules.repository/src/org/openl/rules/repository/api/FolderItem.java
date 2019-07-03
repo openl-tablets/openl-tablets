@@ -3,9 +3,9 @@ package org.openl.rules.repository.api;
 public class FolderItem {
 
     private final FileData data;
-    private final Iterable<FileItem> files;
+    private final Iterable<FileChange> files;
 
-    public FolderItem(FileData data, Iterable<FileItem> files) {
+    public FolderItem(FileData data, Iterable<FileChange> files) {
         this.data = data;
         this.files = files;
     }
@@ -14,7 +14,7 @@ public class FolderItem {
         return data;
     }
 
-    public Iterable<FileItem> getFiles() {
+    public Iterable<FileChange> getFiles() {
         return files;
     }
 }

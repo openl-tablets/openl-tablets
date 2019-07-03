@@ -14,6 +14,7 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
@@ -166,7 +167,7 @@ public class AProjectFolder extends AProjectArtefact {
         if (this.isFolder()) {
             AProjectFolder from = (AProjectFolder) newFolder;
 
-            List<FileItem> changes = new ArrayList<>();
+            List<FileChange> changes = new ArrayList<>();
             try {
                 ChangesetType changesetType;
 
@@ -198,7 +199,7 @@ public class AProjectFolder extends AProjectArtefact {
                             FileItem read = fromRepository.supports().versions() ?
                                             fromRepository.readHistory(nameFrom, fromData.getVersion()) :
                                             fromRepository.read(nameFrom);
-                            changes.add(new FileItem(nameTo, read.getStream()));
+                            changes.add(new FileChange(nameTo, read.getStream()));
                         } else {
                             FileData toData = find(toList, nameTo);
                             if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
@@ -219,7 +220,7 @@ public class AProjectFolder extends AProjectArtefact {
                                                     fromRepository.read(nameFrom);
                                     content = read.getStream();
                                 }
-                                changes.add(new FileItem(data, content));
+                                changes.add(new FileChange(data, content));
                             }
                             // Otherwise the file is same, no need to save it
                         }
@@ -233,7 +234,7 @@ public class AProjectFolder extends AProjectArtefact {
                         FileData fromData = find(fromList, nameFrom);
                         if (fromData == null) {
                             // File was deleted
-                            changes.add(new FileItem(toData, null));
+                            changes.add(new FileChange(toData, null));
                         }
                     }
                 } else {
@@ -247,7 +248,7 @@ public class AProjectFolder extends AProjectArtefact {
             } catch (IOException e) {
                 throw new ProjectException("Can't update: " + e.getMessage(), e);
             } finally {
-                for (FileItem change : changes) {
+                for (FileChange change : changes) {
                     IOUtils.closeQuietly(change.getStream());
                 }
             }
@@ -279,7 +280,7 @@ public class AProjectFolder extends AProjectArtefact {
         return null;
     }
 
-    private void findChanges(AProjectFolder from, List<FileItem> files) throws ProjectException {
+    private void findChanges(AProjectFolder from, List<FileChange> files) throws ProjectException {
         ResourceTransformer transformer = getResourceTransformer();
         String folderPath = getFolderPath();
 
@@ -287,7 +288,7 @@ public class AProjectFolder extends AProjectArtefact {
             if (artefact instanceof AProjectResource) {
                 AProjectResource resource = (AProjectResource) artefact;
                 InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
-                files.add(new FileItem(folderPath + "/" + artefact.getInternalPath(), content));
+                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content));
             } else {
                 findChanges((AProjectFolder) artefact, files);
             }

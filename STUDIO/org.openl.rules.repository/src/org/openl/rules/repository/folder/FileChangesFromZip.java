@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FileChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileChangesFromZip implements Iterable<FileItem> {
+public class FileChangesFromZip implements Iterable<FileChange> {
     private final Logger log = LoggerFactory.getLogger(FileChangesFromZip.class);
     private final ZipInputStream stream;
     private final String folderTo;
@@ -20,8 +20,8 @@ public class FileChangesFromZip implements Iterable<FileItem> {
     }
 
     @Override
-    public Iterator<FileItem> iterator() {
-        return new Iterator<FileItem>() {
+    public Iterator<FileChange> iterator() {
+        return new Iterator<FileChange>() {
             private ZipEntry entry;
 
             @Override
@@ -39,8 +39,8 @@ public class FileChangesFromZip implements Iterable<FileItem> {
             }
 
             @Override
-            public FileItem next() {
-                return new FileItem(folderTo + "/" + entry.getName(), stream);
+            public FileChange next() {
+                return new FileChange(folderTo + "/" + entry.getName(), stream);
             }
 
             @Override

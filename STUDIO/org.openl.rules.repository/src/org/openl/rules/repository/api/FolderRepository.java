@@ -36,7 +36,7 @@ public interface FolderRepository extends Repository {
      * @return the resulted folder descriptor after successful writing.
      * @throws IOException if not possible to save the folder.
      */
-    FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException;
+    FileData save(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException;
 
     /**
      *  Save multiple files at once

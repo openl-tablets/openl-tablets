@@ -4,10 +4,10 @@ import java.util.Iterator;
 
 public class ConflictResolveData implements AdditionalData<ConflictResolveData> {
     private final String commitToMerge;
-    private final Iterable<FileItem> resolvedFiles;
+    private final Iterable<FileChange> resolvedFiles;
     private final String mergeMessage;
 
-    public ConflictResolveData(String commitToMerge, Iterable<FileItem> resolvedFiles, String mergeMessage) {
+    public ConflictResolveData(String commitToMerge, Iterable<FileChange> resolvedFiles, String mergeMessage) {
         this.commitToMerge = commitToMerge;
         this.resolvedFiles = resolvedFiles;
         this.mergeMessage = mergeMessage;
@@ -17,7 +17,7 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
         return commitToMerge;
     }
 
-    public Iterable<FileItem> getResolvedFiles() {
+    public Iterable<FileChange> getResolvedFiles() {
         return resolvedFiles;
     }
 
@@ -27,11 +27,11 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
 
     @Override
     public ConflictResolveData convertPaths(final PathConverter converter) {
-        Iterable<FileItem> convertedFolders = new Iterable<FileItem>() {
+        Iterable<FileChange> convertedFolders = new Iterable<FileChange>() {
             @Override
-            public Iterator<FileItem> iterator() {
-                return new Iterator<FileItem>() {
-                    private final Iterator<FileItem> delegate = resolvedFiles.iterator();
+            public Iterator<FileChange> iterator() {
+                return new Iterator<FileChange>() {
+                    private final Iterator<FileChange> delegate = resolvedFiles.iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -39,11 +39,11 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
                     }
 
                     @Override
-                    public FileItem next() {
-                        FileItem oldPath = delegate.next();
+                    public FileChange next() {
+                        FileChange oldPath = delegate.next();
                         FileData data = oldPath.getData();
                         data.setName(converter.convert(oldPath.getData().getName()));
-                        return new FileItem(data, oldPath.getStream());
+                        return new FileChange(data, oldPath.getStream());
                     }
 
                     @Override

@@ -3,26 +3,26 @@ package org.openl.rules.workspace.dtr.impl;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FileChange;
 
-public class CompositeFileChanges implements Iterable<FileItem> {
-    private final Iterable<FileItem> first;
-    private final Iterable<FileItem> second;
+public class CompositeFileChanges implements Iterable<FileChange> {
+    private final Iterable<FileChange> first;
+    private final Iterable<FileChange> second;
 
-    public CompositeFileChanges(Iterable<FileItem> first, FileItem... second) {
+    public CompositeFileChanges(Iterable<FileChange> first, FileChange... second) {
         this(first, Arrays.asList(second));
     }
 
-    public CompositeFileChanges(Iterable<FileItem> first, Iterable<FileItem> second) {
+    public CompositeFileChanges(Iterable<FileChange> first, Iterable<FileChange> second) {
         this.first = first;
         this.second = second;
     }
 
     @Override
-    public Iterator<FileItem> iterator() {
-        return new Iterator<FileItem>() {
-            private Iterator<FileItem> firstIterator = first.iterator();
-            private Iterator<FileItem> secondIterator = second.iterator();
+    public Iterator<FileChange> iterator() {
+        return new Iterator<FileChange>() {
+            private Iterator<FileChange> firstIterator = first.iterator();
+            private Iterator<FileChange> secondIterator = second.iterator();
 
             @Override
             public boolean hasNext() {
@@ -38,7 +38,7 @@ public class CompositeFileChanges implements Iterable<FileItem> {
             }
 
             @Override
-            public FileItem next() {
+            public FileChange next() {
                 return firstIterator != null ? firstIterator.next() : secondIterator.next();
             }
 
