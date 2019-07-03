@@ -1279,12 +1279,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             applyChangeInWorkspace(change, changedFiles);
         }
 
-        for (String changed : status.getChanged()) {
-            if (!changedFiles.contains(changed)) {
-                git.add().addFilepattern(changed).call();
-                changedFiles.add(changed);
-            }
-        }
         for (String added : status.getAdded()) {
             if (!changedFiles.contains(added)) {
                 git.add().addFilepattern(added).call();

@@ -614,7 +614,6 @@ public class GitRepositoryTest {
             // First user commit
             String text1 = "foo\nbar";
             List<FileChange> changes1 = Arrays.asList(
-                    new FileChange("rules/project1/file1", IOUtils.toInputStream("Modified")),
                     new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                     new FileChange(conflictedFile, IOUtils.toInputStream(text1))
             );
@@ -680,9 +679,6 @@ public class GitRepositoryTest {
                 assertEquals(localData.getVersion(), remoteData.getVersion());
                 assertEquals("Jane Smith", remoteData.getAuthor());
                 assertEquals(mergeMessage, remoteData.getComment());
-
-                String file1Content = IOUtils.toStringAndClose(repository2.read("rules/project1/file1").getStream());
-                assertEquals("Other user's non-conflicting modification is absent.", "Modified", file1Content);
             }
         }
     }
