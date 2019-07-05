@@ -1884,6 +1884,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 history.add(createFileData(rootWalk, commit));
             } catch (FileNotFoundException e) {
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
+                FileData data = new LazyFileData(branch,
+                    fullPath,
+                    new File(localRepositoryPath),
+                    commit,
+                    null,
+                    escapedCommentTemplate);
+                // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
+                data.setDeleted(true);
+
+                history.add(data);
             }
 
             return false;

@@ -363,11 +363,16 @@ public class GitRepositoryTest {
         assertNull("'project1' isn't erased", deletedProject);
 
         // Life after erase
-        assertEquals(5, repo.listHistory(projectPath).size());
+        List<FileData> versionsAfterErase = repo.listHistory(projectPath);
+        assertEquals(6, versionsAfterErase.size());
+        FileData erasedData = versionsAfterErase.get(versionsAfterErase.size() - 1);
+        assertTrue(erasedData.isDeleted());
+        assertEquals(0, repo.listFiles(projectPath, erasedData.getVersion()).size());
+
         // Create new version
         String text = "Reincarnation";
         repo.save(createFileData(projectPath + "/folder/reincarnate", text), IOUtils.toInputStream(text));
-        assertEquals(6, repo.listHistory(projectPath).size());
+        assertEquals(7, repo.listHistory(projectPath).size());
 
         // manually add the file with name ".archived". It shouldn't prevent to delete the project
         repo.save(createFileData(projectPath + "/" + GitRepository.DELETED_MARKER_FILE, ""), IOUtils.toInputStream(""));
