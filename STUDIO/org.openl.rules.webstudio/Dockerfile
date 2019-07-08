@@ -1,21 +1,7 @@
-FROM tomcat:8.5-alpine
+FROM tomcat:9-jdk8
 
-RUN apk add --update \
-      bash \
-      unzip \
-      ttf-dejavu \
-    && rm -rf /var/cache/apk/*
+# Delete existing Web applications
+RUN rm -rf webapps/*
 
-COPY ./target/*.war /tmp/
-
-# Unzip war into webapps dir && Remove temporal ws war && Make .openl dir
-RUN unzip /tmp/*.war -d /usr/local/tomcat/webapps/webstudio && rm /tmp/*.war && mkdir /root/.openl && mkdir -p /usr/local/tomcat/shared/lib
-
-# Copy tomcat configuration files
-COPY ./docker/server.xml /usr/local/tomcat/conf/
-COPY ./docker/catalina.properties /usr/local/tomcat/conf/
-
-EXPOSE 80
-
-#Start Tomcat
-CMD ["/usr/local/tomcat/bin/catalina.sh", "run"]
+# Copy WebStudio application
+COPY target/webstudio/ webapps/ROOT/
