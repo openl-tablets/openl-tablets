@@ -11,7 +11,7 @@
     <packaging>war</packaging>
     <name>OpenL WebServices</name>
     <description>OpenL Rules Webservice(war)</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <properties>
         <war.name>openl-tablets-ws</war.name>
         <generate-application.properties>process-resources</generate-application.properties>

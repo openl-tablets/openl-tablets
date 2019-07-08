@@ -12,5 +12,5 @@
     <packaging>jar</packaging>
     <name>OpenL Rules : Util</name>
     <description>Utils method which are called from OpenL rules only</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
 </project>

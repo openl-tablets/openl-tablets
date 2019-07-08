@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - DEV - Rules</name>
     <description>The heart of OpenL</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <build>
         <plugins>
             <plugin>

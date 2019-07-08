@@ -12,7 +12,7 @@
     <artifactId>server-core</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - Core</name>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
 
     <dependencies>
         <dependency>

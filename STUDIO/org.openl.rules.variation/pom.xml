@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - Variation</name>
     <description>Classes and utilities to work with OpenL Rules Variations</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>

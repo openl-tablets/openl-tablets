@@ -6,7 +6,7 @@
     <packaging>pom</packaging>
     <version>5.22.4-SNAPSHOT</version>
     <name>OpenL Tablets</name>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
     <inceptionYear>2004</inceptionYear>
     <licenses>
@@ -18,7 +18,7 @@
     </licenses>
     <organization>
         <name>OpenL Tablets</name>
-        <url>http://openl-tablets.org</url>
+        <url>https://openl-tablets.org</url>
     </organization>
     <developers>
         <developer>

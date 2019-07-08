@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - STUDIO - TableEditor</name>
     <description>TableEditor JSF Component</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <properties>
         <sonar.sources>src,js</sonar.sources>
     </properties>

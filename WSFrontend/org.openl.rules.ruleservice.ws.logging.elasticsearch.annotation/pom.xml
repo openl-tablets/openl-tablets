@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Web Services - Logging ElasticSearch Annotation</name>
     <description>OpenL Rules Webservice(war)</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <dependencies>
         <!-- RulesService -->
         <dependency>

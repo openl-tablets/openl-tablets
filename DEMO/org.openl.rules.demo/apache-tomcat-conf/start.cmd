@@ -204,7 +204,7 @@ echo.
 @echo       To get more information about OpenL Tablets DEMO,
 @echo       please refer to "Demo Package Guide" on our site:
 @echo.
-@echo       http://openl-tablets.org/documentation/user-guides
+@echo       https://openl-tablets.org/documentation/user-guides
 @echo.
 @echo %delay% seconds delay before closing this window.
 @choice /C C /T %delay% /D C /N /M "Press [C] key to Close this windows immediatly." & endlocal & exit /b %errorcode%

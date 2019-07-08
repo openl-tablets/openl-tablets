@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>OpenL - EXT - Activiti</name>
     <description>Classes and utilities to integrate OpenL Rules Project with Activiti</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
     <build>
         <plugins>
             <plugin>

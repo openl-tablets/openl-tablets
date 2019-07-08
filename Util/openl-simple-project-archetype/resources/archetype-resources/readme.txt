@@ -40,14 +40,14 @@ WRAPPER CLASS
 
 Current project uses OpenL dynamic wrapper to show how OpenL rules can be used in java application. 
 
-For more information about OpenL Tablets visit our site http://openl-tablets.org .
+For more information about OpenL Tablets visit our site https://openl-tablets.org .
 
 OPENL PROJECT DESCRIPTOR
 
 OpenL project descriptor is just simple xml file which contains information about current OpenL project. It is used 
 by OpenL WebStudio and web services deploy manager to obtain information about project.
 
-For more information about OpenL Tablets visit our site http://openl-tablets.org .
+For more information about OpenL Tablets visit our site https://openl-tablets.org .
 
 CONFIGURATION CHANGING
 

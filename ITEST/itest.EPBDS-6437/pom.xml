@@ -12,7 +12,7 @@
     <artifactId>itest.EPBDS-6437</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - EPBDS-6437 - Timezone in requests</name>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
 
     <dependencies>
         <!-- Itegration Tests-->

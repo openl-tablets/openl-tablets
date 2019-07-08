@@ -11,5 +11,5 @@
     <packaging>jar</packaging>
     <name>OpenL - RuleService - Web Services - Logging Cassandra Annotation</name>
     <description>OpenL Rules Webservice Logging Cassandra</description>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
 </project>

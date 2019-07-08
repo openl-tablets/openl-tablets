@@ -12,7 +12,7 @@
     <artifactId>itest.smoke</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - Smock test</name>
-    <url>http://openl-tablets.org</url>
+    <url>https://openl-tablets.org</url>
 
     <dependencies>
         <dependency>
