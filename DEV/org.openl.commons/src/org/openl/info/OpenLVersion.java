@@ -63,7 +63,7 @@ public final class OpenLVersion {
         Logger logger = LoggerFactory.getLogger("OpenL");
 
         logger.info("***** OpenL Tablets v{}  ({}, #{})", getVersion(), getBuildDate(), getBuildNumber());
-        logger.info("***** Site : http:{}", getUrl());
+        logger.info("***** Site : {}", getUrl());
 
         new SysInfoLogger().log();
         new ClasspathLogger().log();
