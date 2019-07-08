@@ -17,6 +17,7 @@
         <generate-application.properties>process-resources</generate-application.properties>
     </properties>
     <build>
+        <finalName>webservice</finalName>
         <plugins>
             <plugin>
                 <groupId>org.basepom.maven</groupId>
