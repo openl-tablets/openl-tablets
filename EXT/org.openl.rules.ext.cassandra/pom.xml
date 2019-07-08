@@ -13,6 +13,10 @@
     <name>OpenL - EXT - Cassandra</name>
     <description>OpenL - Cassandra Support</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>

@@ -13,6 +13,10 @@
     <name>OpenL - DEV - Commons</name>
     <description>Common reusable components</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <build>
         <resources>
             <resource>

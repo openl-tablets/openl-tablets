@@ -10,6 +10,11 @@
     <version>\${version}</version>
     <packaging>openl</packaging>
     <name>OpenL Simple Project</name>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.source.version>${java.source.version}</java.source.version>

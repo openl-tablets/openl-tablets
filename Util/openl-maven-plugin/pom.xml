@@ -10,6 +10,11 @@
     <artifactId>openl-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>OpenL Maven Plugin</name>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>

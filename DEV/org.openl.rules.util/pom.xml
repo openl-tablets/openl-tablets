@@ -13,4 +13,8 @@
     <name>OpenL Rules : Util</name>
     <description>Utils method which are called from OpenL rules only</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
 </project>

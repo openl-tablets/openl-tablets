@@ -12,6 +12,10 @@
     <name>OpenL - EXT - Activiti</name>
     <description>Classes and utilities to integrate OpenL Rules Project with Activiti</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <build>
         <plugins>
             <plugin>

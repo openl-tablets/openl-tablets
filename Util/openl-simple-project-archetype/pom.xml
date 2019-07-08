@@ -7,12 +7,14 @@
         <version>5.22.4-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
-    <groupId>org.openl.rules</groupId>
     <artifactId>openl-simple-project-archetype</artifactId>
     <packaging>maven-archetype</packaging>
-
-    <name>OpenL - Util - OpenL Simple Project archetype</name>
-
+    <name>OpenL Simple Project archetype</name>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>

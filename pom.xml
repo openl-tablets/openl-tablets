@@ -108,7 +108,7 @@
         <module>STUDIO</module>
         <module>WSFrontend</module>
         <module>EXT</module>
-        <module>DEMO</module>
+        <module>DEMO/org.openl.rules.demo</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
     </modules>

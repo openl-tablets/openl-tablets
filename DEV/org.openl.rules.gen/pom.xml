@@ -11,7 +11,6 @@
     <packaging>jar</packaging>
     <name>OpenL - DEV - Rules - Generator</name>
     <description>OpenL Code generation project</description>
-    <url>https://openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>

@@ -13,6 +13,10 @@
     <name>OpenL - DEV - J</name>
     <description>Implementation of Java language for OpenL</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <dependencies>
         <dependency>
             <groupId>org.openl</groupId>

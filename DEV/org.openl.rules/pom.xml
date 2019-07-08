@@ -9,9 +9,13 @@
     </parent>
     <artifactId>org.openl.rules</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - DEV - Rules</name>
+    <name>OpenL - DEV - Engine</name>
     <description>The heart of OpenL</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <build>
         <plugins>
             <plugin>

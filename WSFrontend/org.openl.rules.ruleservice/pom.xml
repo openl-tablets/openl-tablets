@@ -12,6 +12,10 @@
     <name>OpenL - RuleService - Core</name>
     <description>Common OpenL Rules service</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <build>
         <plugins>
             <plugin>

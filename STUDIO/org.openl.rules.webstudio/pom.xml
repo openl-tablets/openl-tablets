@@ -12,6 +12,10 @@
     <name>OpenL WebStudio</name>
     <description>OpenL WebStudio</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <properties>
         <war.name>openl-tablets-webstudio-${project.version}</war.name>
         <generate-application.properties>process-resources</generate-application.properties>

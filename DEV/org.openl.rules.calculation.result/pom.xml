@@ -10,8 +10,12 @@
     <artifactId>org.openl.rules.calculation.result</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - DEV - Rules - Calculation Result</name>
-    <description>The heart of OpenL</description>
+    <description>Components for externalization of SpreadsheetResult in OpenL WebServices</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
     <properties>
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>

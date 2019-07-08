@@ -10,6 +10,13 @@
     <groupId>org.openl</groupId>
     <artifactId>org.openl.spring</artifactId>
     <packaging>jar</packaging>
+    <name>OpenL - DEV - Spring</name>
+    <description>Common components for Spring integration</description>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
 
     <dependencies>
         <dependency>

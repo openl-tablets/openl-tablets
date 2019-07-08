@@ -13,6 +13,10 @@
     <name>OpenL - DEV - Grammar</name>
     <description>OpenL parsing Grammars</description>
     <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
 
     <profiles>
         <profile>
