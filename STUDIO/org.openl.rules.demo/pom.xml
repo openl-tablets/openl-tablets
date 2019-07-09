@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.demo</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL Tablets - STUDIO - Demo</name>
+    <name>OpenL - STUDIO - Demo</name>
     <description>OpenL Tablets Demo Projects</description>
     <url>http://openl-tablets.org</url>
 </project>

@@ -10,7 +10,7 @@
     <groupId>org.openl</groupId>
     <artifactId>org.openl.rules.util</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL Rules : Util</name>
+    <name>OpenL - DEV - Util</name>
     <description>Utils method which are called from OpenL rules only</description>
     <url>http://openl-tablets.org</url>
 </project>

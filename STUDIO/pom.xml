@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL - STUDIO</name>
+    <name>OpenL - STUDIO - POM</name>
     <description>OpenL WebStudio Pom Project</description>
     <modules>
         <module>org.openl.rules.tableeditor</module>

@@ -4,7 +4,7 @@
     <groupId>org.openl.rules.demo</groupId>
     <artifactId>org.openl.rules.demo-pom</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL Tablets - DEMO - POM</name>
+    <name>OpenL - DEMO - POM</name>
     <description>OpenL Tablets Demo (zip) Base POM</description>
     <parent>
         <groupId>org.openl.rules</groupId>
