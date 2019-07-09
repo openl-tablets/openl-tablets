@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.variation</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - Variation</name>
+    <name>OpenL - Variations</name>
     <description>Classes and utilities to work with OpenL Rules Variations</description>
     <url>https://openl-tablets.org</url>
     <properties>

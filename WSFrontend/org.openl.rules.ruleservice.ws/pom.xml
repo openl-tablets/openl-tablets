@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
-    <name>OpenL WebServices</name>
+    <name>OpenL - Ruleservice - Web Services WAR</name>
     <description>OpenL Rules Webservice(war)</description>
     <url>https://openl-tablets.org</url>
     <organization>

@@ -10,7 +10,7 @@
     <groupId>org.openl.rules.demo</groupId>
     <artifactId>openl-demo-app</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL Tablets DEMO</name>
+    <name>OpenL - DEMO</name>
     <description>OpenL Tablets Demo Application (zip)</description>
     <url>https://openl-tablets.org</url>
     <organization>

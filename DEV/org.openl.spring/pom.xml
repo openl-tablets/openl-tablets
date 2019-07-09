@@ -9,6 +9,7 @@
 
     <groupId>org.openl</groupId>
     <artifactId>org.openl.spring</artifactId>
+    <name>OpenL - DEV - Spring</name>
     <packaging>jar</packaging>
     <name>OpenL - DEV - Spring</name>
     <description>Common components for Spring integration</description>
