@@ -66,7 +66,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ..\..\WSFrontend\org.openl.rules.ruleservice.ws\target\org.openl.rules.ruleservice.ws-${project.version}
+                                ..\..\WSFrontend\org.openl.rules.ruleservice.ws\target\webservice
                             </webservice-webapp>
                         </systemPropertyVariables>
                     </configuration>
