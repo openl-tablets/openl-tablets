@@ -102,7 +102,7 @@ public class OpenLErrorMessage extends OpenLMessage {
             return StringUtils.equals(location, otherLocation);
         }
 
-        return true;
+        return !(error instanceof OpenLCompilationException || other.error instanceof OpenLCompilationException);
     }
 
     private static String getOpenLExceptionMessage(OpenLException ex) {
