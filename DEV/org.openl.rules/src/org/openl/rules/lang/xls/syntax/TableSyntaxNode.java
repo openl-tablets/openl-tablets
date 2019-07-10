@@ -7,10 +7,9 @@
 package org.openl.rules.lang.xls.syntax;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
@@ -49,7 +48,10 @@ public class TableSyntaxNode extends NaryNode {
 
     private Map<String, ILogicalTable> subTables = new HashMap<>();
 
-    private ArrayList<SyntaxNodeException> errors;
+    /**
+     * Map with errors in the order in which they were inserted
+     */
+    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors;
 
     private Object validationResult;
 
@@ -72,16 +74,15 @@ public class TableSyntaxNode extends NaryNode {
 
     public void addError(SyntaxNodeException error) {
         if (errors == null) {
-            errors = new ArrayList<>();
+            errors = new LinkedHashMap<>();
         }
-        for (SyntaxNodeException exception : errors) {
-            if (Objects.equals(exception.getMessage(), error.getMessage()) && error.getSourceLocation()
-                .equals(exception.getSourceLocation())) {
-                log.warn("Skip duplicated message: " + error.getMessage(), error);
-                return;
-            }
+        ErrorKey key = new ErrorKey(error);
+        if (errors.get(key) != null) {
+            String message = error.getMessage();
+            log.warn("Skip duplicated message: " + message, error);
+            return;
         }
-        errors.add(error);
+        errors.put(key, error);
     }
 
     public void addError(CompositeSyntaxNodeException error) {
@@ -100,7 +101,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public SyntaxNodeException[] getErrors() {
-        return errors == null ? null : errors.toArray(new SyntaxNodeException[0]);
+        return errors == null ? null : errors.values().toArray(new SyntaxNodeException[0]);
     }
 
     public boolean hasErrors() {
