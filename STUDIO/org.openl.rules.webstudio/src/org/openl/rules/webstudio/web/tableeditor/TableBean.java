@@ -4,6 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 @RequestScoped
 public class TableBean {
     private static final String REQUEST_ID_PREFIX = "project-";
+    private static final int MAX_PROBLEMS = 100;
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
     private IOpenMethod method;
@@ -164,6 +166,14 @@ public class TableBean {
     private void initErrors() {
         Collection<OpenLMessage> messages = table.getMessages();
         errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+
+        if (errors.size() > MAX_PROBLEMS) {
+            ArrayList<OpenLMessage> problems = errors.stream()
+                .limit(MAX_PROBLEMS)
+                .collect(Collectors.toCollection(ArrayList::new));
+            problems.add(OpenLMessagesUtils.newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+            errors = problems;
+        }
     }
 
     private void initWarnings() {
@@ -206,6 +216,14 @@ public class TableBean {
                     }
                 }
             }
+        }
+
+        if (warnings.size() > MAX_PROBLEMS) {
+            ArrayList<OpenLMessage> problems = warnings.stream()
+                .limit(MAX_PROBLEMS)
+                .collect(Collectors.toCollection(ArrayList::new));
+            problems.add(OpenLMessagesUtils.newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+            warnings = problems;
         }
     }
 
@@ -309,7 +327,6 @@ public class TableBean {
     }
 
     /**
-     *
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
