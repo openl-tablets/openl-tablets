@@ -2,6 +2,7 @@ package org.openl.message;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
@@ -66,6 +67,10 @@ public class OpenLErrorMessage extends OpenLMessage {
         result = prime * result + ((error == null) ? 0
                                                    : ((error.getMessage() == null) ? 0
                                                                                    : error.getMessage().hashCode()));
+        if (error instanceof OpenLCompilationException) {
+            String location = ((OpenLCompilationException) error).getSourceLocation();
+            result = prime * result + Objects.hashCode(location);
+        }
         return result;
     }
 
