@@ -1,0 +1,51 @@
+<ui:composition
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+  <rich:popupPanel id="modalCompareTextFiles" resizeable="true">
+    <f:facet name="header">
+      <h:outputText value="Compare text files" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close" onclick="closeCompareTextFilesDialog();" />
+    </f:facet>
+
+    <div class="scrollable">
+      <h:form id="compareTextFilesForm">
+        <div style="width: 100%;" class="source-code scrollable">
+          <h:outputText value="#{conflictedFileDiffController.textDiff}"/>
+        </div>
+
+        <a4j:jsFunction name="refreshCompareTextFilesDialog" render="@form" oncomplete="showCompareTextFilesDialog();">
+          <a4j:param name="conflict" assignTo="#{conflictedFileDiffController.conflictedFile}"/>
+        </a4j:jsFunction>
+        <a4j:jsFunction name="closeCompareTextFilesDialog" action="#{conflictedFileDiffController.close}"
+                        oncomplete="RichFaces.$('modalCompareTextFiles').hide();"/>
+      </h:form>
+    </div>
+
+  </rich:popupPanel>
+
+  <script>
+      //<![CDATA[
+      function openCompareTextFilesDialog(conflict) {
+        refreshCompareTextFilesDialog(conflict);
+      }
+
+      function showCompareTextFilesDialog() {
+        var opts = {
+          width: $j(window).width() * 0.5,
+          height: $j(window).height() * 0.5
+        };
+        RichFaces.$("modalCompareTextFiles").show(null, opts);
+      }
+      //]]>
+  </script>
+</ui:composition>

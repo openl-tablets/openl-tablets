@@ -202,12 +202,14 @@ public class MergeConflictBean {
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
                 String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
 
-                StringBuilder messageBuilder = new StringBuilder("Merge with commit " + exception.getTheirCommit() + "\nConflicts:\n");
-                for (String file : exception.getConflictedFiles()) {
+                StringBuilder messageBuilder = new StringBuilder("Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
+                ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
+                Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
+                for (String file : conflicts) {
                     if (file.startsWith(rulesLocation)) {
                         file = file.substring(rulesLocation.length());
                     }
-                    messageBuilder.append('\t').append(file);
+                    messageBuilder.append("\n\t").append(file);
                 }
                 mergeMessage = messageBuilder.toString();
             } else {
@@ -242,7 +244,7 @@ public class MergeConflictBean {
         mergeMessage = null;
     }
 
-    public boolean canCompare(String file) {
+    public boolean isExcelFile(String file) {
         file = file.toLowerCase();
         return file.endsWith(".xls") || file.endsWith(".xlsx");
     }

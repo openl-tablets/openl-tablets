@@ -50,9 +50,15 @@
               <f:facet name="header">
                 <h:outputText value="Compare"/>
               </f:facet>
-              <h:panelGroup rendered="#{mergeConflictBean.canCompare(conflict)}">
+              <h:panelGroup rendered="#{mergeConflictBean.isExcelFile(conflict)}">
                 <div>
                   <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
+                     title="Compare">Compare</a>
+                </div>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{not mergeConflictBean.isExcelFile(conflict)}">
+                <div>
+                  <a href="javascript:void(0)" onclick="openCompareTextFilesDialog('#{conflict}')"
                      title="Compare">Compare</a>
                 </div>
               </h:panelGroup>

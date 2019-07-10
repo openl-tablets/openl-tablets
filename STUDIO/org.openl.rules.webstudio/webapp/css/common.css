@@ -1467,3 +1467,8 @@ form .formfields {
 .scrollable {
     overflow: auto;
 }
+
+.source-code {
+    white-space: pre-wrap;
+    font-size: 14px;
+}
