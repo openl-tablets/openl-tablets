@@ -16,6 +16,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private Throwable insideCause;
     private ILocation location;
     private IOpenSourceCodeModule source;
+    private String sourceLocation;
 
     public OpenLCompilationException(String message,
             Throwable insideCause,
@@ -76,7 +77,10 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     }
 
     public String getSourceLocation() {
-        return SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule());
+        if (sourceLocation == null) {
+            sourceLocation = SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule());
+        }
+        return sourceLocation;
     }
 
     @Override
