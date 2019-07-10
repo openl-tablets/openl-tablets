@@ -16,9 +16,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -29,7 +31,10 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.openl.rules.repository.RRepositoryFactory;
@@ -801,7 +806,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull() throws GitAPIException, MergeConflictException {
+    private void pull() throws GitAPIException, IOException {
         FetchResult fetchResult;
         try {
             remoteRepoLock.lock();
@@ -828,35 +833,92 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         if (!mergeResult.getMergeStatus().isSuccessful()) {
             validateMergeConflict(mergeResult, true);
-            throw new IllegalStateException("Can't merge: " + mergeResult.toString());
+            throw new IOException("Can't merge: " + mergeResult.toString());
         }
     }
 
-    private void validateMergeConflict(MergeResult mergeResult, boolean theirToOur) throws GitAPIException, MergeConflictException {
+    private void validateMergeConflict(MergeResult mergeResult, boolean theirToOur) throws GitAPIException,
+                                                                                           IOException {
         if (mergeResult != null && mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
             ObjectId[] mergedCommits = mergeResult.getMergedCommits();
             Repository repository = git.getRepository();
             List<Ref> tags = git.tagList().call();
 
             String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
-            String commit1 = mergedCommits.length > 0 ? getVersionName(repository, tags, mergedCommits[0]) : null;
-            String commit2 = mergedCommits.length > 1 ? getVersionName(repository, tags, mergedCommits[1]) : null;
 
-            String ourCommit;
-            String theirCommit;
+            String ourCommit = null;
+            String theirCommit = null;
+            ObjectId ourId = null;
+            ObjectId theirId = null;
 
-            if (theirToOur) {
-                ourCommit = commit1;
-                theirCommit = commit2;
-            } else {
-                ourCommit = commit2;
-                theirCommit = commit1;
+            if (mergedCommits.length > 0) {
+                String commit = getVersionName(repository, tags, mergedCommits[0]);
+                if (theirToOur) {
+                    ourId = mergedCommits[0];
+                    ourCommit = commit;
+                } else {
+                    theirId = mergedCommits[0];
+                    theirCommit = commit;
+                }
+            }
+            if (mergedCommits.length > 1) {
+                String commit = getVersionName(repository, tags, mergedCommits[1]);
+                if (theirToOur) {
+                    theirId = mergedCommits[1];
+                    theirCommit = commit;
+                } else {
+                    ourId = mergedCommits[1];
+                    ourCommit = commit;
+                }
             }
 
-            throw new MergeConflictException(mergeResult.getConflicts().keySet(),
+            Set<String> conflictedFiles = mergeResult.getConflicts().keySet();
+            Map<String, String> diffs = new HashMap<>();
+
+            if (ourId != null && theirId != null) {
+                AbstractTreeIterator ourTreeParser = prepareTreeParser(repository, ourId);
+                AbstractTreeIterator theirTreeParser = prepareTreeParser(repository, theirId);
+
+                List<DiffEntry> diff = git.diff()
+                    .setOldTree(theirTreeParser)
+                    .setNewTree(ourTreeParser)
+                    .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
+                    .call();
+
+                for (DiffEntry entry : diff) {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
+                        formatter.setRepository(repository);
+                        formatter.setOldPrefix("Their: ");
+                        formatter.setNewPrefix("Our: ");
+                        formatter.format(entry);
+                        diffs.put(entry.getNewPath(), outputStream.toString(StandardCharsets.UTF_8.name()));
+                    }
+                }
+            }
+
+            throw new MergeConflictException(diffs,
                     baseCommit,
                     ourCommit,
                     theirCommit);
+        }
+    }
+
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId) throws IOException {
+        // from the commit we can build the tree which allows us to construct the TreeParser
+        //noinspection Duplicates
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit(objectId);
+            RevTree tree = walk.parseTree(commit.getTree().getId());
+
+            CanonicalTreeParser treeParser = new CanonicalTreeParser();
+            try (ObjectReader reader = repository.newObjectReader()) {
+                treeParser.reset(reader, tree.getId());
+            }
+
+            walk.dispose();
+
+            return treeParser;
         }
     }
 
@@ -1078,7 +1140,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private void addTagToCommit(RevCommit commit) throws GitAPIException, MergeConflictException {
+    private void addTagToCommit(RevCommit commit) throws GitAPIException, IOException {
         pull();
 
         if (!tagPrefix.isEmpty()) {

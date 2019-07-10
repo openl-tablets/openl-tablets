@@ -112,7 +112,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         try {
             return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
         } catch (MergeConflictException e) {
-            throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+            throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                     e.getBaseCommit(),
                     e.getOurCommit(),
                     e.getTheirCommit());
@@ -275,7 +275,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             } catch (MergeConflictException e) {
                 refreshMapping();
                 Map<String, String> mapping = getMappingForRead();
-                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                         e.getBaseCommit(),
                         e.getOurCommit(),
                         e.getTheirCommit());
@@ -291,7 +291,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                         changesetType));
             } catch (MergeConflictException e) {
                 Map<String, String> mapping = getMappingForRead();
-                throw new MergeConflictException(toExternal(mapping, e.getConflictedFiles()),
+                throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                         e.getBaseCommit(),
                         e.getOurCommit(),
                         e.getTheirCommit());
@@ -467,11 +467,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return data;
     }
 
-    private List<String> toExternal(Map<String, String> externalToInternal, Collection<String> internal) {
-        List<String> external = new ArrayList<>(internal.size());
+    private Map<String, String> toExternalKeys(Map<String, String> externalToInternal, Map<String, String> internal) {
+        Map<String, String> external = new HashMap<>(internal.size());
 
-        for (String path : internal) {
-            external.add(toExternal(externalToInternal, path));
+        for (Map.Entry<String, String> entry : internal.entrySet()) {
+            external.put(toExternal(externalToInternal, entry.getKey()), entry.getValue());
         }
 
         return external;

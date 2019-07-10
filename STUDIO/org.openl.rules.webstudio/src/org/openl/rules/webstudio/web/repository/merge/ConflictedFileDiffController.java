@@ -32,14 +32,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class ConflictedFileDiffController extends ExcelDiffController {
     private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
-    @ManagedProperty(value = "#{workspaceManager}") private MultiUserWorkspaceManager workspaceManager;
+    @ManagedProperty(value = "#{workspaceManager}")
+    private MultiUserWorkspaceManager workspaceManager;
+    private String conflictedFile;
 
     public void setConflictedFile(String conflictedFile) {
         try {
             deleteTempFiles();
             setDiffTree(null);
+            this.conflictedFile = conflictedFile;
 
             if (StringUtils.isBlank(conflictedFile)) {
+                return;
+            }
+
+            if (!isExcelFile(conflictedFile)) {
                 return;
             }
 
@@ -98,7 +105,25 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         this.workspaceManager = workspaceManager;
     }
 
+    public String getTextDiff() {
+        if (StringUtils.isBlank(conflictedFile) || isExcelFile(conflictedFile)) {
+            return null;
+        }
+
+        MergeConflictInfo mergeConflict = getMergeConflict();
+        if (mergeConflict != null) {
+            MergeConflictException exception = mergeConflict.getException();
+            return exception.getDiffs().get(conflictedFile);
+        }
+
+        return null;
+    }
+
     private MergeConflictInfo getMergeConflict() {
         return (MergeConflictInfo) FacesUtils.getSessionMap().get(Constants.SESSION_PARAM_MERGE_CONFLICT);
+    }
+
+    private boolean isExcelFile(String conflictedFile) {
+        return conflictedFile.endsWith(".xls") || conflictedFile.endsWith(".xlsx");
     }
 }
