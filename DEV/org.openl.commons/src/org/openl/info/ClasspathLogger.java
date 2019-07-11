@@ -36,7 +36,7 @@ final class ClasspathLogger extends OpenLLogger {
         try {
             Class<?> cls = clazz.getMethod("toString").getDeclaringClass();
             if (!cls.equals(Object.class)) {
-                name = classLoader.toString() + "  Class: " + name;
+                name = classLoader.toString() + "  Class: " + name + " #" + System.identityHashCode(classLoader);
             }
         } catch (NoSuchMethodException e) {
             // Ignore
