@@ -20,6 +20,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class SheetHandler extends DefaultHandler {
+    private static final int MAX_ESTIMATED_CELLS_COUNT = 10_000 * 256;
+
     private final Logger log = LoggerFactory.getLogger(SheetHandler.class);
 
     private final SharedStringsTable sharedStringsTable;
@@ -30,7 +32,9 @@ public class SheetHandler extends DefaultHandler {
     private final LruCache<Integer, String> lruCache = new LruCache<>(50);
     private Object[][] cells = new Object[0][];
 
-    private CellAddress start = new CellAddress(0, 0);
+    private CellAddress start = CellAddress.A1;
+    private CellAddress effectiveStart = null;
+    private CellAddress effectiveEnd = null;
     private CellAddress current;
 
     // Set when V start element is seen
@@ -231,24 +235,47 @@ public class SheetHandler extends DefaultHandler {
 
         // According to specification "dimension" is optional and is not required. We must expand array if it's too
         // small
-        int maxRows = Math.max(row + 1, cells.length + rowShift);
+        int rowCount = cells.length;
+        int maxRows = Math.max(row + 1, rowCount + rowShift);
 
-        int columnCount = cells.length == 0 ? 0 : cells[0].length;
+        int columnCount = rowCount == 0 ? 0 : cells[0].length;
         int maxCols = Math.max(col + 1, columnCount + colShift);
 
         if (rowShift > 0 || colShift > 0) {
             start = new CellAddress(start.getRow() - rowShift, start.getColumn() - colShift);
         }
 
-        if (maxRows > cells.length || maxCols > columnCount) {
-            // Should not occur in theory.
-            log.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
-            Object[][] copy = new Object[maxRows][maxCols];
+        if (maxRows > rowCount || maxCols > columnCount) {
+            // Increase the size in advance (1.5 times) to reduce too many array copy operations during parsing.
+            // In endDocument() the size will be reduced to effective size.
+            int newRows = maxRows > rowCount ? Math.max(maxRows, rowCount + rowCount >> 1) : maxRows;
+            int newCols = maxCols > columnCount ? Math.max(maxCols, columnCount + columnCount >> 1) : columnCount;
+            log.debug("Extend cells array. Current: {}:{}, new: {}:{}", rowCount, columnCount, newRows, newCols);
+            Object[][] copy = new Object[newRows][newCols];
             arrayCopy(cells, copy, rowShift, colShift);
             cells = copy;
         }
 
         cells[row][col] = parsedValue;
+
+        int curRow = row + start.getRow();
+        int curCol = col + start.getColumn();
+
+        if (effectiveStart == null) {
+            effectiveStart = new CellAddress(curRow, curCol);
+            effectiveEnd = effectiveStart;
+        } else {
+            if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
+                int minRow = Math.min(curRow, effectiveStart.getRow());
+                int minCol = Math.min(curCol, effectiveStart.getColumn());
+                effectiveStart = new CellAddress(minRow, minCol);
+            }
+            if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
+                int maxRow = Math.max(curRow, effectiveEnd.getRow());
+                int maxCol = Math.max(curCol, effectiveEnd.getColumn());
+                effectiveEnd = new CellAddress(maxRow, maxCol);
+            }
+        }
     }
 
     private boolean isTextTag(String name) {
@@ -259,6 +286,31 @@ public class SheetHandler extends DefaultHandler {
     public void characters(char[] ch, int start, int length) {
         if (vIsOpen) {
             value.append(ch, start, length);
+        }
+    }
+
+    @Override
+    public void endDocument() {
+        int rowCount = cells.length;
+        if (rowCount == 0 || cells[0].length == 0 || effectiveStart == null || effectiveEnd == null) {
+            // No need to optimize cells[][] size
+            return;
+        }
+
+        int rows = effectiveEnd.getRow() - effectiveStart.getRow() + 1;
+        int cols = effectiveEnd.getColumn() - effectiveStart.getColumn() + 1;
+
+        int columnCount = cells[0].length;
+        if (rows < rowCount || cols < columnCount) {
+            log.debug("Optimize cells array. Current: {}:{}, new: {}:{}", rowCount, columnCount, rows, cols);
+            int fromRow = effectiveStart.getRow() - start.getRow();
+            int fromCol = effectiveStart.getColumn() - start.getColumn();
+            Object[][] copy = new Object[rows][cols];
+            for (int i = 0; i < copy.length; i++) {
+                System.arraycopy(cells[fromRow + i], fromCol, copy[i], 0, cols);
+            }
+            cells = copy;
+            start = effectiveStart;
         }
     }
 
@@ -278,6 +330,10 @@ public class SheetHandler extends DefaultHandler {
 
             int rows = endRow - startRow + 1;
             int cols = endColumn - startColumn + 1;
+            if (rows * cols > MAX_ESTIMATED_CELLS_COUNT) {
+                // Can consume too much memory. Restrict initial size and increment it on demand.
+                rows = Math.max(1, MAX_ESTIMATED_CELLS_COUNT / cols);
+            }
             log.debug("Array size: {}:{}", rows, cols);
             cells = new Object[rows][cols];
         }
