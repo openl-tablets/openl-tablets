@@ -11,6 +11,7 @@
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
   <url>someURL</url>
+  <rmiName>rmiName</rmiName>
   <version>v1</version>
   <groups>group1,group2</groups>
   <lazy-modules-for-compilation>

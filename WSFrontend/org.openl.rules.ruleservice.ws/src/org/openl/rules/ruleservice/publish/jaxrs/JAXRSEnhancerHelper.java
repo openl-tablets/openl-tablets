@@ -15,7 +15,7 @@ import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.publish.common.MethodUtil;
+import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -98,7 +98,7 @@ public final class JAXRSEnhancerHelper {
         }
 
         private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
-            String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+            String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
             String requestParameterName = getRequestParameterName(originalMethod);
             String beanName = "org.openl.jaxrs." + requestParameterName;
 
@@ -118,7 +118,7 @@ public final class JAXRSEnhancerHelper {
         String getRequestParameterName(Method method) {
             if (methodRequests == null) {
                 methodRequests = new HashMap<>();
-                List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
+                List<Method> methods = MethodUtils.sort(Arrays.asList(originalClass.getMethods()));
 
                 Set<String> requestEntitiesCache = initRequestEntitiesCache(methods);
                 for (Method m : methods) {
@@ -173,7 +173,7 @@ public final class JAXRSEnhancerHelper {
                     }
                 }
 
-                methods = MethodUtil.sort(methods);
+                methods = MethodUtils.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -218,7 +218,7 @@ public final class JAXRSEnhancerHelper {
             if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod
                 .getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
                 final String[] withPathParamValues = getPathParamValuesFromMethodParameters(originalMethod);
 
                 processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -358,9 +358,7 @@ public final class JAXRSEnhancerHelper {
 
     public static Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
-        if (serviceClass == null) {
-            throw new IllegalStateException("Service class is null!");
-        }
+        Objects.requireNonNull(serviceClass, "Service class is null!");
         if (!serviceClass.isInterface()) {
             throw new IllegalStateException("Service class must be an interface!");
         }

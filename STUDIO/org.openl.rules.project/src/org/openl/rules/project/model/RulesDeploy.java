@@ -7,7 +7,8 @@ public class RulesDeploy {
     public enum PublisherType {
         WEBSERVICE,
         RESTFUL,
-        RMI
+        RMI,
+        KAFKA
     }
 
     public static class WildcardPattern {
@@ -35,6 +36,7 @@ public class RulesDeploy {
     private String serviceClass;
     private String rmiServiceClass;
     private String url;
+    private String rmiName;
     private String version;
     private String groups;
     private Map<String, Object> configuration;
@@ -143,6 +145,14 @@ public class RulesDeploy {
 
     public void setGroups(String groups) {
         this.groups = groups;
+    }
+    
+    public String getRmiName() {
+        return rmiName;
+    }
+    
+    public void setRmiName(String rmiName) {
+        this.rmiName = rmiName;
     }
 
 }

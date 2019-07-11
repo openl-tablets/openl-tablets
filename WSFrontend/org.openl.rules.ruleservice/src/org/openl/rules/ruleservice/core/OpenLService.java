@@ -21,6 +21,7 @@ public final class OpenLService {
     private String url;
     private String serviceClassName;
     private String rmiServiceClassName;
+    private String rmiName;
     private Class<?> serviceClass;
     private Class<?> rmiServiceClass;
     private Object serviceBean;
@@ -56,15 +57,14 @@ public final class OpenLService {
             String url,
             String serviceClassName,
             String rmiServiceClassName,
+            String rmiName,
             boolean provideRuntimeContext,
             boolean provideVariations,
             Set<String> publishers,
             Collection<Module> modules,
             ClassLoader classLoader,
             Class<?> serviceClass) {
-        if (name == null) {
-            throw new IllegalArgumentException("name arg must not be null.");
-        }
+        Objects.requireNonNull(name, "name arg must not be null.");
         this.name = name;
         this.url = url;
         if (modules != null) {
@@ -74,6 +74,7 @@ public final class OpenLService {
         }
         this.serviceClassName = serviceClassName;
         this.rmiServiceClassName = rmiServiceClassName;
+        this.rmiName = rmiName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.provideVariations = provideVariations;
         if (publishers != null) {
@@ -90,6 +91,7 @@ public final class OpenLService {
             builder.url,
             builder.serviceClassName,
             builder.rmiServiceClassName,
+            builder.rmiName,
             builder.provideRuntimeContext,
             builder.provideVariations,
             builder.publishers,
@@ -170,6 +172,15 @@ public final class OpenLService {
     public String getRmiServiceClassName() throws RuleServiceInstantiationException {
         ensureInitialization();
         return rmiServiceClassName;
+    }
+
+    /**
+     * Returns a rmi name for service.
+     *
+     * @return
+     */
+    public String getRmiName() {
+        return rmiName;
     }
 
     void setRmiServiceClassName(String rmiServiceClassName) {
@@ -299,6 +310,7 @@ public final class OpenLService {
         private String url;
         private String serviceClassName;
         private String rmiServiceClassName;
+        private String rmiName;
         private Class<?> serviceClass;
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
@@ -347,9 +359,7 @@ public final class OpenLService {
          * @return
          */
         public OpenLServiceBuilder setName(String name) {
-            if (name == null) {
-                throw new IllegalArgumentException("name arg must not be null.");
-            }
+            Objects.requireNonNull(name, "name arg must not be null.");
             this.name = name;
             return this;
         }
@@ -373,6 +383,17 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {
             this.rmiServiceClassName = rmiServiceClassName;
+            return this;
+        }
+
+        /**
+         * Sets RMI name to the builder.
+         *
+         * @param rmiName
+         * @return
+         */
+        public OpenLServiceBuilder setRmiName(String rmiName) {
+            this.rmiName = rmiName;
             return this;
         }
 

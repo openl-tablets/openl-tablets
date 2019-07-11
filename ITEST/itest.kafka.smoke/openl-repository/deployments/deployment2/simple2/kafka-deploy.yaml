@@ -1,0 +1,7 @@
+ 
+service.configs:
+    in.topic.name: hello-in-topic-2
+    out.topic.name: hello-out-topic-2
+    dlt.topic.name: hello-dlt-topic-2
+    consumer.configs:
+        auto.offset.reset: earliest

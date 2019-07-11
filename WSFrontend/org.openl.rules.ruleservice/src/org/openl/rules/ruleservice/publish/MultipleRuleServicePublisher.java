@@ -61,6 +61,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     protected void deployService(OpenLService service) throws RuleServiceDeployException {
+        Objects.requireNonNull(service, "service argument must not be null!");
         Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceDeployException e1 = null;
         for (RuleServicePublisher publisher : publishers) {
@@ -94,6 +95,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         return services.get(serviceName);
     }
 
@@ -104,7 +106,12 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public void undeployService(String serviceName) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = services.get(serviceName);
+        if (service == null) {
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service with name '%s'", serviceName));
+        }
         Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : publishers) {
@@ -129,10 +136,4 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
             throw new BeanInitializationException("You must define at least one default publisher!");
         }
     }
-
-    @Override
-    public boolean isServiceDeployed(String name) {
-        return getServiceByName(name) != null;
-    }
-
 }

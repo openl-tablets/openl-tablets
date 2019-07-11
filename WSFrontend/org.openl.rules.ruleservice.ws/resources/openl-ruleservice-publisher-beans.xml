@@ -1,51 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <import resource="classpath:openl-ruleservice-cxf-configuration.xml"/>
-	<import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml" />
-	<import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml" />
-	<import resource="classpath:openl-ruleservice-rmi-publisher-beans.xml" />
-	<import resource="classpath:openl-ruleservice-deployer-beans.xml"/>
+    <import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml" />
+    <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml" />
+    <import resource="classpath:openl-ruleservice-rmi-publisher-beans.xml" />
+    <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml" />
+    <import resource="classpath:openl-ruleservice-deployer-beans.xml"/>
 
-	<!-- Bean helps to read configuration and apply it to override types -->
-	<bean id="rootClassNamesBindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
-		<property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}" />
-	</bean>
+    <!-- Bean helps to read configuration and apply it to override types -->
+    <bean id="rootClassNamesBindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+        <property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}" />
+    </bean>
 
-	<bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
-		scope="prototype" >
-		<property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
-	</bean>
+    <bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+        scope="prototype" >
+        <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
+    </bean>
 
-	<bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationSupportVariationsFactoryBean"
-		scope="prototype" >
-		<property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
-	</bean>
+    <bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionSupportVariationsFactoryBean"
+        scope="prototype" >
+    </bean>
 
-	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
-		<property name="defaultRuleServicePublishers">
-			<list>
-				<ref bean="webServiceRuleServicePublisher"/>
-				<ref bean="JAXRSServicesRuleServicePublisher"/> 
-			</list>
-		</property>
-		<property name="supportedPublishers">
-			<map>
-				<entry key="WEBSERVICE" value-ref="webServiceRuleServicePublisher"/>
-				<entry key="RESTFUL" value-ref="JAXRSServicesRuleServicePublisher"/>
-				<entry key="RMI" value-ref="RMIServicesRuleServicePublisher"/>
-			</map>
-		</property>
-		<property name="listeners">
-			<bean class="org.openl.rules.ruleservice.conf.BeanCollectionFactoryBean">
-				<property name="beanType" value="org.openl.rules.ruleservice.publish.RuleServicePublisherListener" />
-			</bean>
-		</property>
-	</bean>
+    <bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
+        <property name="defaultRuleServicePublishers">
+            <list>
+                <ref bean="webServiceRuleServicePublisher"/>
+                <ref bean="JAXRSServicesRuleServicePublisher"/> 
+            </list>
+        </property>
+        <property name="supportedPublishers">
+            <map>
+                <entry key="WEBSERVICE" value-ref="webServiceRuleServicePublisher"/>
+                <entry key="RESTFUL" value-ref="JAXRSServicesRuleServicePublisher"/>
+                <entry key="RMI" value-ref="RMIServicesRuleServicePublisher"/>
+                <entry key="KAFKA" value-ref="KafkaServicesRuleServicePublisher"/>
+            </map>
+        </property>
+        <property name="listeners">
+            <bean class="org.openl.rules.ruleservice.conf.BeanCollectionFactoryBean">
+                <property name="beanType" value="org.openl.rules.ruleservice.publish.RuleServicePublisherListener" />
+            </bean>
+        </property>
+    </bean>
 </beans>

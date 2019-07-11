@@ -15,6 +15,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.ResourceLoader;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.util.StringUtils;
@@ -69,7 +70,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             hasRulesDeployXML = true;
                             String version = null;
                             if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                                version = rulesDeploy.getVersion();
+                                version = rulesDeploy.getVersion(); 
                             }
 
                             if (internalMap.containsKey(version)) {
@@ -150,7 +151,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
-
+                    ResourceLoader resourceLoader = new ResourceLoaderImpl(project);
+                    serviceDescriptionBuilder.setResourceLoader(resourceLoader);
                     if (!modulesOfProject.isEmpty()) {
                         InputStream content = null;
                         RulesDeploy rulesDeploy = null;
@@ -191,6 +193,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                     .isEmpty()) {
                                     serviceDescriptionBuilder.setAnnotationTemplateClassName(
                                         rulesDeploy.getInterceptingTemplateClassName().trim());
+                                }
+                                if (rulesDeploy.getRmiName() != null && !rulesDeploy.getRmiName().trim().isEmpty()) {
+                                    serviceDescriptionBuilder.setRmiName(rulesDeploy.getRmiName());
                                 }
                                 if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
                                     .getAnnotationTemplateClassName()

@@ -73,11 +73,13 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
 
     @Override
     protected void deployService(OpenLService service) throws RuleServiceDeployException {
+        Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             Registry registry = getRegistry();
-            String url = URLHelper.processURL(service.getUrl());
+            String rmiName = service.getRmiName() != null ? service.getRmiName()
+                                                          : URLHelper.processURL(service.getUrl());
 
             Remote rmiHandler = null;
             if (service.getRmiServiceClass() == null) {
@@ -86,12 +88,12 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
                 rmiHandler = enhanceServiceBeanWithStaticRmiHandler(service);
             }
             Remote stub = UnicastRemoteObject.exportObject(rmiHandler, 0);
-            registry.bind(url, stub);
+            registry.bind(rmiName, stub);
 
-            ServiceServer serviceServer = new ServiceServer(url, rmiHandler);
+            ServiceServer serviceServer = new ServiceServer(rmiName, rmiHandler);
             runningServices.put(service, serviceServer);
             availableServices.add(createServiceInfo(service));
-            log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
+            log.info("Service '{}' has been exposed with RMI name '{}'.", service.getName(), rmiName);
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
@@ -105,9 +107,10 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     @Override
-    public OpenLService getServiceByName(String name) {
+    public OpenLService getServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(name)) {
+            if (service.getName().equals(serviceName)) {
                 return service;
             }
         }
@@ -116,6 +119,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
 
     @Override
     protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -126,6 +130,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
             UnicastRemoteObject.unexportObject(runningServices.get(service).getRmiHandler(), true);
             runningServices.remove(service);
             removeServiceInfo(serviceName);
+            log.info("Service '{}' has been succesfully undeployed.", serviceName);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
@@ -163,15 +168,11 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
         private String name;
         private Remote rmiHandler;
 
-        public ServiceServer(String name, Remote rmihandler) {
-            if (name == null) {
-                throw new IllegalArgumentException("name arg must not be null!");
-            }
-            if (rmihandler == null) {
-                throw new IllegalArgumentException("name rmihandler must not be null!");
-            }
+        public ServiceServer(String name, Remote rmiHandler) {
+            Objects.requireNonNull(name, "name arg must not be null!");
+            Objects.requireNonNull(rmiHandler, "rmiHandler must not be null!");
             this.name = name;
-            this.rmiHandler = rmihandler;
+            this.rmiHandler = rmiHandler;
         }
 
         public String getName() {
@@ -181,10 +182,5 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
         public Remote getRmiHandler() {
             return rmiHandler;
         }
-    }
-
-    @Override
-    public boolean isServiceDeployed(String name) {
-        return getServiceByName(name) != null;
     }
 }

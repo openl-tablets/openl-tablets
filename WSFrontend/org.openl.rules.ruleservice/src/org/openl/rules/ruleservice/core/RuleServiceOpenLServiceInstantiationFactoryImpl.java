@@ -115,9 +115,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
                     .getInterfaceForInstantiationStrategy(instantiationStrategy, serviceClass);
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
-            } catch (ClassNotFoundException e) {
-                log.error("Failed to load service class '{}'.", serviceClassName, e);
-            } catch (NoClassDefFoundError e) {
+            } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 log.error("Failed to load service class '{}'.", serviceClassName, e);
             }
         }
@@ -127,7 +125,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
             serviceClass = processGeneratedServiceClass(instantiationStrategy,
                 serviceDescription,
-                service,
                 instanceClass,
                 serviceClassLoader);
             service.setServiceClassName(null); // Generated class is used.
@@ -159,7 +156,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Class<?> processGeneratedServiceClass(RulesInstantiationStrategy instantiationStrategy,
             ServiceDescription serviceDescription,
-            OpenLService service,
             Class<?> serviceClass,
             ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(serviceDescription,
@@ -224,6 +220,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             .setUrl(serviceDescription.getUrl())
             .setServiceClassName(serviceDescription.getServiceClassName())
             .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
+            .setRmiName(serviceDescription.getRmiName())
             .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
             .setProvideVariations(serviceDescription.isProvideVariations())
             .addModules(modules);

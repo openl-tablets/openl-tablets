@@ -1,16 +1,8 @@
 package org.openl.rules.ruleservice.databinding;
 
-import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
-public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractFactoryBean<Boolean> {
-    private final Logger log = LoggerFactory.getLogger(ServiceDescriptionConfigurationBooleanFactoryBean.class);
-
-    private boolean defaultValue;
+public class ServiceDescriptionConfigurationBooleanFactoryBean extends ServiceDescriptionConfigurationFactoryBean<Boolean> {
 
     private String propertyName;
 
@@ -20,17 +12,9 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
 
     public void setPropertyName(String propertyName) {
         if (propertyName == null) {
-            throw new IllegalArgumentException("protpertyName can't be null!");
+            throw new IllegalArgumentException("property name can't be null!");
         }
         this.propertyName = propertyName;
-    }
-
-    public void setDefaultValue(boolean defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public boolean getDefaultValue() {
-        return defaultValue;
     }
 
     @Override
@@ -40,45 +24,31 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
 
     @Override
     protected Boolean createInstance() throws Exception {
-        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
-        if (serviceDescription != null && serviceDescription.getConfiguration() != null) {
-            boolean ret = getDefaultValue();
-            if (serviceDescription.getConfiguration() != null) {
-                Object value = serviceDescription.getConfiguration().get(getPropertyName().trim());
-                if (value instanceof Boolean) {
-                    return (Boolean) value;
-                }
-                if (value instanceof String) {
-                    if ("true".equalsIgnoreCase(((String) value).trim())) {
-                        log.info("Service \"{}\" uses " + getPropertyName().trim() + "=TRUE.",
-                            serviceDescription.getName());
-                        return Boolean.TRUE;
-                    }
-                    if ("false".equalsIgnoreCase(((String) value).trim())) {
-                        log.info("Service \"{}\" uses " + getPropertyName().trim() + "=FALSE.",
-                            serviceDescription.getName());
-                        return Boolean.FALSE;
-                    }
-                    if (log.isErrorEnabled()) {
-                        log.error(
-                            "Error in service '{}'. Supports only true/false values for " + getPropertyName()
-                                .trim() + " configuration!",
-                            serviceDescription.getName());
-                    }
-                    return getDefaultValue();
-                } else {
-                    if (value != null && log.isErrorEnabled()) {
-                        log.error(
-                            "Error in service '{}'. Supports only true/false values for " + getPropertyName()
-                                .trim() + " configuration! Used default value!",
-                            serviceDescription.getName());
-                    }
-                }
-            }
-            return ret;
+        boolean ret = getDefaultValue();
+        Object value = getValue(getPropertyName().trim());
+        if (value instanceof Boolean) {
+            return (Boolean) value;
         }
-
-        return getDefaultValue();
+        if (value instanceof String) {
+            if ("true".equalsIgnoreCase(((String) value).trim())) {
+                return Boolean.TRUE;
+            }
+            if ("false".equalsIgnoreCase(((String) value).trim())) {
+                return Boolean.FALSE;
+            }
+            throw new ServiceDescriptionConfigurationException(
+                String.format("Expected true/false value for '%s' in the configuration for service '%s'!",
+                    getPropertyName().trim(),
+                    getServiceDescription().getName()));
+        } else {
+            if (value != null) {
+                throw new ServiceDescriptionConfigurationException(
+                    String.format("Expected true/false value for '%s' in the configuration for service '%s'!",
+                        getPropertyName().trim(),
+                        getServiceDescription().getName()));
+            }
+        }
+        return ret;
     }
 
     @Override

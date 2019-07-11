@@ -1,0 +1,695 @@
+package org.openl.rules.ruleservice.kafka.publish;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.Serializer;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
+import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.ruleservice.kafka.conf.*;
+import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
+import org.openl.rules.ruleservice.kafka.ser.Message;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
+import org.openl.rules.ruleservice.publish.AbstractRuleServicePublisher;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rits.cloning.Cloner;
+
+public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter, ResourceLoaderAware {
+
+    private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
+
+    private static final String CLIENT_ID_GENERATOR = "client.id.generator";
+    private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+    private static final String GROUP_ID = "group.id";
+    private static final String CLIENT_ID = "client.id";
+
+    private static final String[] CLEAN_UP_PROPERTIES = { "jacksondatabinding.defaultTypingMode",
+            "rootClassNamesBinding",
+            "jacksondatabinding.enableDefaultTyping",
+            CLIENT_ID_GENERATOR };
+
+    private List<ServiceInfo> availableServices = new ArrayList<>();
+    private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
+
+    private ResourceLoader resourceLoader;
+
+    private ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanFactory;
+    private ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanFactory;
+
+    private KafkaDeploy defaultKafkaDeploy;
+    private KafkaDeploy immutableKafkaDeploy;
+
+    private String defaultBootstrapServers;
+    private String defaultGroupId;
+
+    private Cloner cloner = new Cloner();
+
+    private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
+        if (defaultKafkaDeploy == null) {
+            Resource resource = resourceLoader.getResource("classpath:default-kafka-deploy.yaml");
+            if (!resource.exists()) {
+                throw new FileNotFoundException("File 'default-kafka-deploy.yaml' is not found.");
+            }
+            ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
+            defaultKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
+        }
+        return defaultKafkaDeploy;
+    }
+
+    private KafkaDeploy getImmutableKafkaDeploy() throws IOException {
+        if (immutableKafkaDeploy == null) {
+            Resource resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yaml");
+            if (!resource.exists()) {
+                throw new FileNotFoundException("File 'immutable-kafka-deploy.yaml' is not found.");
+            }
+            ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
+            immutableKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
+        }
+        return immutableKafkaDeploy;
+    }
+
+    private void setBootstrapServers(OpenLService service,
+            BaseKafkaConfig kafkaConfig,
+            String logPrefix,
+            Properties configs) {
+        if (configs.containsKey(BOOTSTRAP_SERVERS)) {
+            if (kafkaConfig instanceof KafkaMethodConfig) {
+                KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) kafkaConfig;
+                log.warn("{} '{}' property is overriden in '{}' service for method '{}'.",
+                    logPrefix,
+                    BOOTSTRAP_SERVERS,
+                    service.getName(),
+                    kafkaMethodConfig.getMethodName());
+            } else {
+                log.warn("{} '{}' property is overriden in '{}' service.",
+                    logPrefix,
+                    BOOTSTRAP_SERVERS,
+                    service.getName());
+            }
+        } else {
+            configs.setProperty(BOOTSTRAP_SERVERS, getDefaultBootstrapServers());
+        }
+    }
+
+    private Properties getProducerConfigs(OpenLService service,
+            BaseKafkaConfig baseKafkaDeploy,
+            KafkaDeploy kafkaDeploy) throws IOException {
+        Properties configs = new Properties();
+        if (getDefaultKafkaDeploy().getProducerConfigs() != null) {
+            configs.putAll(getDefaultKafkaDeploy().getProducerConfigs());
+        }
+        if (kafkaDeploy.getProducerConfigs() != null) {
+            configs.putAll(kafkaDeploy.getProducerConfigs());
+        }
+        if (baseKafkaDeploy.getProducerConfigs() != null) {
+            configs.putAll(baseKafkaDeploy.getProducerConfigs());
+        }
+        if (getImmutableKafkaDeploy().getProducerConfigs() != null) {
+            configs.putAll(getImmutableKafkaDeploy().getProducerConfigs());
+        }
+        useClientIdGeneratorIfPropertyIsNotSet(configs, service, baseKafkaDeploy);
+        setBootstrapServers(service, baseKafkaDeploy, "Producer", configs);
+        return configs;
+    }
+
+    private Properties getDltProducerConfigs(OpenLService service,
+            BaseKafkaConfig kafkaConfig,
+            KafkaDeploy kafkaDeploy) throws IOException {
+        Properties configs = new Properties();
+        if (getDefaultKafkaDeploy().getDltProducerConfigs() != null) {
+            configs.putAll(getDefaultKafkaDeploy().getDltProducerConfigs());
+        }
+        if (kafkaDeploy.getDltProducerConfigs() != null) {
+            configs.putAll(kafkaDeploy.getDltProducerConfigs());
+        }
+        if (kafkaConfig.getDltProducerConfigs() != null) {
+            configs.putAll(kafkaConfig.getDltProducerConfigs());
+        }
+        if (getImmutableKafkaDeploy().getDltProducerConfigs() != null) {
+            configs.putAll(getImmutableKafkaDeploy().getDltProducerConfigs());
+        }
+        useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
+        setBootstrapServers(service, kafkaConfig, "DLT producer", configs);
+        return configs;
+    }
+
+    private Properties getConsumerConfigs(OpenLService service,
+            BaseKafkaConfig kafkaConfig,
+            KafkaDeploy kafkaDeploy) throws IOException {
+        Properties configs = new Properties();
+        if (getDefaultKafkaDeploy().getConsumerConfigs() != null) {
+            configs.putAll(getDefaultKafkaDeploy().getConsumerConfigs());
+        }
+        if (kafkaDeploy.getConsumerConfigs() != null) {
+            configs.putAll(kafkaDeploy.getConsumerConfigs());
+        }
+        if (kafkaConfig.getConsumerConfigs() != null) {
+            configs.putAll(kafkaConfig.getConsumerConfigs());
+        }
+        if (getImmutableKafkaDeploy().getConsumerConfigs() != null) {
+            configs.putAll(getImmutableKafkaDeploy().getConsumerConfigs());
+        }
+        useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
+        setBootstrapServers(service, kafkaConfig, "Consumer", configs);
+        if (!configs.containsKey(GROUP_ID)) {
+            configs.setProperty(GROUP_ID, getDefaultGroupId());
+        }
+        return configs;
+    }
+
+    private void useClientIdGeneratorIfPropertyIsNotSet(Properties configs,
+            OpenLService service,
+            BaseKafkaConfig kafkaConfig) {
+        if (configs.getProperty(CLIENT_ID) == null && configs.getProperty(CLIENT_ID_GENERATOR) != null) {
+            String clientIDGeneratorClassName = configs.getProperty(CLIENT_ID_GENERATOR);
+            try {
+                Class<?> clientIDGeneratorClass = Thread.currentThread()
+                    .getContextClassLoader()
+                    .loadClass(clientIDGeneratorClassName);
+                ClientIDGenerator clientIDGenerator = (ClientIDGenerator) clientIDGeneratorClass.newInstance();
+                configs.put(CLIENT_ID, clientIDGenerator.generate(service, kafkaConfig));
+            } catch (Exception e) {
+                log.error("Failed to generate 'client.id' property for kafka consumer/producer.", e);
+            }
+        }
+    }
+
+    private boolean requiredFieldIsMissed(Object value) {
+        if (value instanceof String) {
+            String v = (String) value;
+            return StringUtils.isEmpty(v.trim());
+        }
+        return value == null;
+    }
+
+    private void validate(Object config) throws IllegalAccessException, KafkaServiceConfigurationException {
+        List<String> missedRequiredFields = new ArrayList<>();
+        for (Field field : config.getClass().getFields()) {
+            JsonProperty jsonPropertyAnnotation = field.getAnnotation(JsonProperty.class);
+            if (jsonPropertyAnnotation != null && jsonPropertyAnnotation.required() && requiredFieldIsMissed(
+                field.get(config))) {
+                missedRequiredFields.add(jsonPropertyAnnotation.value());
+            }
+        }
+        if (!missedRequiredFields.isEmpty()) {
+            String missedRequiredFieldsString = missedRequiredFields.stream()
+                .collect(Collectors.joining(",", "[", "]"));
+            if (config instanceof KafkaMethodConfig) {
+                KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) config;
+                throw new KafkaServiceConfigurationException(
+                    String.format("Missed mandatory configs %s in '%s' method configuration.",
+                        missedRequiredFieldsString,
+                        kafkaMethodConfig.getMethodName()));
+            } else {
+                throw new KafkaServiceConfigurationException(String
+                    .format("Missed mandatory config %s in the service configuration.", missedRequiredFieldsString));
+            }
+        }
+    }
+
+    private <T extends BaseKafkaConfig> T makeMergedKafkaConfig(OpenLService service,
+            T kafkaConfig,
+            KafkaDeploy kafkaDeploy) throws IOException {
+        T config = cloner.deepClone(kafkaConfig);
+        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig, kafkaDeploy));
+        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig, kafkaDeploy));
+        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig, kafkaDeploy));
+        return config;
+    }
+
+    protected Properties cleanupConfigs(Properties config) {
+        Properties props = new Properties();
+        props.putAll(config);
+        for (String propertyName : CLEAN_UP_PROPERTIES) {
+            props.remove(propertyName);
+        }
+        return props;
+    }
+
+    private <T> T getConfiguredValueDeserializer(OpenLService service,
+            ObjectMapper objectMapper,
+            Method method,
+            String className) throws RuleServiceInstantiationException,
+                              ClassNotFoundException,
+                              IllegalAccessException,
+                              InstantiationException,
+                              InvocationTargetException {
+        if (className == null) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        try {
+            Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class, Method.class);
+            return constructor.newInstance(service, objectMapper, method);
+        } catch (NoSuchMethodException e) {
+            return clazz.newInstance();
+        }
+    }
+
+    private <T> T getConfiguredValueSerializer(OpenLService service,
+            ObjectMapper objectMapper,
+            String className) throws RuleServiceInstantiationException,
+                              ClassNotFoundException,
+                              IllegalAccessException,
+                              InstantiationException,
+                              InvocationTargetException {
+        if (className == null) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        try {
+            Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class);
+            return constructor.newInstance(service, objectMapper);
+        } catch (NoSuchMethodException e) {
+            return clazz.newInstance();
+        }
+    }
+
+    private <T> T getConfiguredKeySerializerOrDeserializer(OpenLService service,
+            String className) throws RuleServiceInstantiationException,
+                              ClassNotFoundException,
+                              IllegalAccessException,
+                              InstantiationException {
+        if (className == null) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        return clazz.newInstance();
+    }
+
+    private KafkaProducer<String, Object> buildProducer(OpenLService service,
+            ObjectMapper objectMapper,
+            Properties configs) throws KafkaServiceConfigurationException {
+        Serializer<String> keySerializer;
+        Serializer<Object> valueSerializer;
+        try {
+            keySerializer = getConfiguredKeySerializerOrDeserializer(service, configs.getProperty("key.serializer"));
+            valueSerializer = getConfiguredValueSerializer(service,
+                objectMapper,
+                configs.getProperty("value.serializer"));
+        } catch (Exception e) {
+            throw new KafkaServiceConfigurationException("Failed to constuct key/value deserializer for producer.", e);
+        }
+        return new KafkaProducer<>(configs, keySerializer, valueSerializer);
+    }
+
+    private KafkaProducer<String, byte[]> buildDltProducer(Properties configs) {
+        return new KafkaProducer<>(configs);
+    }
+
+    private KafkaConsumer<String, Message> buildConsumer(OpenLService service,
+            ObjectMapper objectMapper,
+            Method method,
+            Properties configs) throws KafkaServiceConfigurationException {
+        Deserializer<String> keyDeserializer;
+        Deserializer<Message> valueDeserializer;
+        try {
+            keyDeserializer = getConfiguredKeySerializerOrDeserializer(service,
+                configs.getProperty("key.deserializer"));
+            valueDeserializer = getConfiguredValueDeserializer(service,
+                objectMapper,
+                method,
+                configs.getProperty("value.deserializer"));
+        } catch (Exception e) {
+            throw new KafkaServiceConfigurationException("Failed to constuct key/value deserializer for consumer.", e);
+        }
+        return new KafkaConsumer<>(configs, keyDeserializer, valueDeserializer);
+    }
+
+    private <T extends BaseKafkaConfig> void createKafkaService(OpenLService service,
+            Collection<KafkaService> kafkaServices,
+            Collection<KafkaConsumer<?, ?>> kafkaConsumers,
+            Collection<KafkaProducer<?, ?>> kafkaProducers,
+            ServiceDeployContext context,
+            T mergedKafkaConfig,
+            T config,
+            Method method) throws KafkaServiceException {
+        final JacksonObjectMapperFactoryBean consumerJacksonObjectMapperFactoryBean = createConsumerJacksonObjectMapperFactoryBeanFactory(
+            mergedKafkaConfig);
+        final JacksonObjectMapperFactoryBean producerJacksonObjectMapperFactoryBean = createProducerJacksonObjectMapperFactoryBeanFactory(
+            mergedKafkaConfig);
+
+        // Build Method Kafka Consumer
+        final KafkaConsumer<String, Message> consumer = buildConsumer(service,
+            consumerJacksonObjectMapperFactoryBean.createJacksonObjectMapper(),
+            method,
+            cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));
+        kafkaConsumers.add(consumer);
+
+        // Build Method Kafka Producer or reuse shared
+        boolean possibleToReuseShared = config.getProducerConfigs() == null || config.getProducerConfigs().isEmpty();
+        KafkaProducer<String, Object> producer = null;
+        if (possibleToReuseShared) {
+            producer = context.getProducer();
+        }
+        if (producer == null) {
+            producer = buildProducer(service,
+                producerJacksonObjectMapperFactoryBean.createJacksonObjectMapper(),
+                cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
+            if (possibleToReuseShared) {
+                context.setProducer(producer);
+            }
+            kafkaProducers.add(producer);
+        }
+        // Build Method DLT Kafka Producer or reuse service shared
+        KafkaProducer<String, byte[]> dltProducer = null;
+        possibleToReuseShared = config.getDltProducerConfigs() == null || config.getDltProducerConfigs().isEmpty();
+        if (possibleToReuseShared) {
+            dltProducer = context.getDltProducer();
+
+        }
+        if (dltProducer == null) {
+            dltProducer = buildDltProducer(cleanupConfigs(mergedKafkaConfig.getDltProducerConfigs()));
+            if (possibleToReuseShared) {
+                context.setDltProducer(dltProducer);
+            }
+            kafkaProducers.add(dltProducer);
+        }
+
+        final KafkaService kafkaService = KafkaService.createService(service,
+            mergedKafkaConfig.getInTopic(),
+            mergedKafkaConfig.getOutTopic(),
+            mergedKafkaConfig.getDltTopic(),
+            consumer,
+            producer,
+            dltProducer);
+        kafkaServices.add(kafkaService);
+
+        kafkaService.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void deployService(OpenLService service) throws RuleServiceDeployException {
+        Objects.requireNonNull(service, "service argument must not be null!");
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(service.getClassLoader());
+            KafkaDeploy kafkaDeploy = KafkaDeployUtils
+                .getKafkaDeploy(ServiceDescriptionHolder.getInstance().getServiceDescription());
+            List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
+                .emptyList() : kafkaDeploy.getMethodConfigs();
+            Collection<KafkaService> kafkaServices = new HashSet<>();
+            Collection<KafkaProducer<?, ?>> kafkaProducers = new HashSet<>();
+            Collection<KafkaConsumer<?, ?>> kafkaConsumers = new HashSet<>();
+            if (kafkaDeploy.getServiceConfig() != null) {
+                validate(kafkaDeploy.getServiceConfig());
+            }
+            validateConfiguration(service, kafkaMethodConfigs);
+
+            Map<KafkaMethodConfig, KafkaMethodConfig> kafkaMethodConfigsMap = new HashMap<>();
+            Map<KafkaMethodConfig, Method> methodsMap = new HashMap<>();
+            for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
+                KafkaMethodConfig kafkaMethodConfig = makeMergedKafkaConfig(service, kmc, kafkaDeploy);
+                validate(kafkaMethodConfig);
+                kafkaMethodConfigsMap.put(kmc, kafkaMethodConfig);
+                final Method method = KafkaHelpers.findMethodInService(service,
+                    kafkaMethodConfig.getMethodName(),
+                    kafkaMethodConfig.getMethodParameters());
+                methodsMap.put(kmc, method);
+            }
+
+            try {
+                ServiceDeployContext sharedProducersContext = new ServiceDeployContext();
+                if (kafkaDeploy.getServiceConfig() != null) {
+                    KafkaServiceConfig kafkaServiceConfig = makeMergedKafkaConfig(service,
+                        kafkaDeploy.getServiceConfig(),
+                        kafkaDeploy);
+                    createKafkaService(service,
+                        kafkaServices,
+                        kafkaConsumers,
+                        kafkaProducers,
+                        sharedProducersContext,
+                        kafkaServiceConfig,
+                        kafkaDeploy.getServiceConfig(),
+                        null);
+                }
+                for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
+                    final Method method = methodsMap.get(kmc);
+                    final KafkaMethodConfig kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
+                    createKafkaService(service,
+                        kafkaServices,
+                        kafkaConsumers,
+                        kafkaProducers,
+                        sharedProducersContext,
+                        kafkaMethodConfig,
+                        kmc,
+                        method);
+                }
+            } catch (Exception e) {
+                stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
+                throw e;
+            }
+
+            if (!kafkaServices.isEmpty()) {
+                runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
+                availableServices.add(createServiceInfo(service));
+                log.info("Service '{}' has been successfully deployed.", service.getName());
+            } else {
+                throw new KafkaServiceConfigurationException(String.format(
+                    "Failed to deploy '%s' service. Kafka method configs are not found in the configuration.",
+                    service.getName()));
+            }
+        } catch (Exception t) {
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+    }
+
+    private JacksonObjectMapperFactoryBean createConsumerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
+        try {
+            KafkaConfigHolder.getInstance().setKafkaConfig(config);
+            return getConsumerJacksonObjectMapperFactoryBeanFactory().getObject();
+        } finally {
+            KafkaConfigHolder.getInstance().remove();
+        }
+    }
+
+    private JacksonObjectMapperFactoryBean createProducerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
+        try {
+            KafkaConfigHolder.getInstance().setKafkaConfig(config);
+            return getProducerJacksonObjectMapperFactoryBeanFactory().getObject();
+        } finally {
+            KafkaConfigHolder.getInstance().remove();
+        }
+    }
+
+    private boolean stopAndClose(
+            Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> t) {
+        boolean ret = true;
+        for (KafkaService kafkaService : t.getLeft()) {
+            try {
+                kafkaService.stop();
+            } catch (Exception e1) {
+                ret = false;
+                log.error("Failed to stop kafka service.", e1);
+            }
+        }
+        for (KafkaProducer<?, ?> kafkaProducer : t.getMiddle()) {
+            try {
+                kafkaProducer.close();
+            } catch (Exception e1) {
+                ret = false;
+                log.error("Failed to close kafka producer.", e1);
+            }
+        }
+        for (KafkaConsumer<?, ?> kafkaConsumer : t.getRight()) {
+            try {
+                kafkaConsumer.close();
+            } catch (Exception e1) {
+                ret = false;
+                log.error("Failed to close kafka consumer.", e1);
+            }
+        }
+        return ret;
+    }
+
+    private void validateConfiguration(OpenLService service, List<KafkaMethodConfig> kafkaMethodConfigs) {
+        Map<Pair<String, String>, Integer> w = new HashMap<>();
+        Map<Pair<String, String>, List<String>> w1 = new HashMap<>();
+        for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
+            if (kmc.getInTopic() != null && kmc.getMethodName() != null) {
+                Pair<String, String> p = Pair.of(kmc.getInTopic(), kmc.getConsumerConfigs().getProperty(GROUP_ID));
+                Integer t = w.get(p);
+                w1.computeIfAbsent(p, e -> new ArrayList<>()).add(kmc.getMethodName());
+                if (t == null) {
+                    w.put(p, 1);
+                } else {
+                    if (t == 1 && log.isWarnEnabled()) {
+                        log.warn(
+                            "Service '{}' uses the input topic name '{}' and group id '{}' for different methods {}.",
+                            service.getName(),
+                            p.getLeft(),
+                            p.getRight(),
+                            w1.get(p).stream().collect(Collectors.joining(",", "[", "]")));
+                    }
+                    w.put(p, t + 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        OpenLService service = getServiceByName(serviceName);
+        if (service == null) {
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service with name '%s'", serviceName));
+        }
+        try {
+            if (stopAndClose(runningServices.get(service))) {
+                log.info("Service '{}' has been successfully undeployed.", serviceName);
+            } else {
+                log.info("Service '{}' has been undeployed with errors.", serviceName);
+            }
+            runningServices.remove(service);
+            removeServiceInfo(serviceName);
+        } catch (Exception t) {
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OpenLService> getServices() {
+        return new ArrayList<>(runningServices.keySet());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OpenLService getServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        for (OpenLService service : runningServices.keySet()) {
+            if (service.getName().equals(serviceName)) {
+                return service;
+            }
+        }
+        return null;
+    }
+
+    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
+        List<String> methodNames = new ArrayList<>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
+
+        return new ServiceInfo(new Date(), service.getName(), methodNames, "", "Kafka");
+    }
+
+    @Override
+    public List<ServiceInfo> getAvailableServices() {
+        List<ServiceInfo> services = new ArrayList<>(availableServices);
+        Collections.sort(services, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        return services;
+    }
+
+    private void removeServiceInfo(String serviceName) {
+        for (Iterator<ServiceInfo> iterator = availableServices.iterator(); iterator.hasNext();) {
+            ServiceInfo serviceInfo = iterator.next();
+            if (serviceInfo.getName().equals(serviceName)) {
+                iterator.remove();
+                break;
+            }
+        }
+    }
+
+    public ObjectFactory<JacksonObjectMapperFactoryBean> getConsumerJacksonObjectMapperFactoryBeanFactory() {
+        return consumerJacksonObjectMapperFactoryBeanFactory;
+    }
+
+    public void setConsumerJacksonObjectMapperFactoryBeanFactory(
+            ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanFactory) {
+        this.consumerJacksonObjectMapperFactoryBeanFactory = consumerJacksonObjectMapperFactoryBeanFactory;
+    }
+
+    public ObjectFactory<JacksonObjectMapperFactoryBean> getProducerJacksonObjectMapperFactoryBeanFactory() {
+        return producerJacksonObjectMapperFactoryBeanFactory;
+    }
+
+    public void setProducerJacksonObjectMapperFactoryBeanFactory(
+            ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanFactory) {
+        this.producerJacksonObjectMapperFactoryBeanFactory = producerJacksonObjectMapperFactoryBeanFactory;
+    }
+
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    public String getDefaultGroupId() {
+        return defaultGroupId;
+    }
+
+    public void setDefaultGroupId(String defaultGroupId) {
+        this.defaultGroupId = defaultGroupId;
+    }
+
+    public String getDefaultBootstrapServers() {
+        return defaultBootstrapServers;
+    }
+
+    public void setDefaultBootstrapServers(String defaultBootstrapServers) {
+        this.defaultBootstrapServers = defaultBootstrapServers;
+    }
+
+    private static final class ServiceDeployContext {
+        private KafkaProducer<String, Object> producer;
+        private KafkaProducer<String, byte[]> dltProducer;
+
+        public KafkaProducer<String, byte[]> getDltProducer() {
+            return dltProducer;
+        }
+
+        public void setDltProducer(KafkaProducer<String, byte[]> dltProducer) {
+            this.dltProducer = dltProducer;
+        }
+
+        public KafkaProducer<String, Object> getProducer() {
+            return producer;
+        }
+
+        public void setProducer(KafkaProducer<String, Object> producer) {
+            this.producer = producer;
+        }
+    }
+}

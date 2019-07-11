@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="kafkaProducerDefaultTypingModeFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean"
+        scope="prototype">
+        <property name="defaultValue" value="SMART" />
+        <property name="type" value="PRODUCER" />
+    </bean>
+
+    <bean id="kafkaConsumerDefaultTypingModeFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean"
+        scope="prototype">
+        <property name="defaultValue" value="SMART" />
+        <property name="type" value="CONSUMER" />
+    </bean>
+
+    <bean id="kafkaProducerDefaultDateFormatFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultDateFormatFactoryBean"
+        scope="prototype">
+        <property name="type" value="PRODUCER" />
+    </bean>
+
+    <bean id="kafkaConsumerDefaultDateFormatFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultDateFormatFactoryBean"
+        scope="prototype">
+        <property name="type" value="CONSUMER" />
+    </bean>
+
+    <bean id="kafkaProducerRootClassNamesBindingFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationRootClassNamesBindingFactoryBean"
+        scope="prototype">
+        <property name="type" value="PRODUCER" />
+        <property name="defaultAdditionalRootClassNames"
+            ref="rootClassNamesBindingFactoryBean" />
+    </bean>
+
+    <bean id="kafkaConsumerRootClassNamesBindingFactoryBean"
+        class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationRootClassNamesBindingFactoryBean"
+        scope="prototype">
+        <property name="type" value="CONSUMER" />
+        <property name="defaultAdditionalRootClassNames"
+            ref="rootClassNamesBindingFactoryBean" />
+    </bean>
+
+    <bean id="kafkaProducerJacksonDatabindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+        scope="prototype">
+        <property name="defaultTypingMode"
+            ref="kafkaProducerDefaultTypingModeFactoryBean" />
+        <property name="overrideTypes"
+            ref="kafkaProducerRootClassNamesBindingFactoryBean" />
+        <property name="supportVariations"
+            ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+        <property name="defaultDateFormat"
+            ref="kafkaProducerDefaultDateFormatFactoryBean" />
+    </bean>
+
+    <bean id="kafkaConsumerJacksonDatabindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+        scope="prototype">
+        <property name="defaultTypingMode"
+            ref="kafkaConsumerDefaultTypingModeFactoryBean" />
+        <property name="overrideTypes"
+            ref="kafkaConsumerRootClassNamesBindingFactoryBean" />
+        <property name="supportVariations"
+            ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+        <property name="defaultDateFormat"
+            ref="kafkaConsumerDefaultDateFormatFactoryBean" />
+    </bean>
+
+    <bean id="kafkaProducerJacksonDatabindingFactoryBeanFactory"
+        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName">
+            <idref
+                bean="kafkaProducerJacksonDatabindingFactoryBean" />
+        </property>
+    </bean>
+
+    <bean id="kafkaConsumerJacksonDatabindingFactoryBeanFactory"
+        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName">
+            <idref
+                bean="kafkaConsumerJacksonDatabindingFactoryBean" />
+        </property>
+    </bean>
+
+    <!-- Initializes OpenL Engine instances according to web services configuration 
+        description and calls RuleServicePublisher to expose corresponding web service -->
+    <!-- Exposes Kafka Services. -->
+    <bean id="KafkaServicesRuleServicePublisher"
+        class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher">
+        <property name="publisherType" value="KAFKA" />
+        <property
+            name="producerJacksonObjectMapperFactoryBeanFactory"
+            ref="kafkaProducerJacksonDatabindingFactoryBeanFactory" />
+        <property
+            name="consumerJacksonObjectMapperFactoryBeanFactory"
+            ref="kafkaConsumerJacksonDatabindingFactoryBeanFactory" />
+        <property name="defaultBootstrapServers" value="${ruleservice.kafka.bootstrap.servers}"/>
+        <property name="defaultGroupId" value="${ruleservice.kafka.group.id}"/>
+    </bean>
+</beans>

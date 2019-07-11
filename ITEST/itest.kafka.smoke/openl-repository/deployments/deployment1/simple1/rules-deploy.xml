@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>simple1</serviceName>
+    <publishers>
+        <publisher>kafka</publisher>
+    </publishers>
+</rules-deploy>

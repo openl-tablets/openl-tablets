@@ -17,6 +17,7 @@ public final class ServiceDescription {
     private String url;
     private String serviceClassName;
     private String rmiServiceClassName;
+    private String rmiName;
     private String annotationTemplateClassName;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
@@ -24,6 +25,7 @@ public final class ServiceDescription {
     private Collection<Module> modules;
     private DeploymentDescription deployment;
     private String[] publishers;
+    private ResourceLoader resourceLoader;
 
     /**
      * Main constructor.
@@ -39,18 +41,23 @@ public final class ServiceDescription {
             String url,
             String serviceClassName,
             String rmiServiceClassName,
+            String rmiName,
             String annotationTemplateClassName,
             boolean provideRuntimeContext,
             boolean provideVariations,
             Collection<Module> modules,
             DeploymentDescription deployment,
             Map<String, Object> configuration,
-            String[] publishers) {
+            String[] publishers,
+            ResourceLoader resourceLoader) {
+        Objects.requireNonNull(name, "name arg must not be null.");
+        Objects.requireNonNull(resourceLoader, "resourceLoader arg must not be null.");
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
+        this.rmiName = rmiName;
         this.provideVariations = provideVariations;
         this.annotationTemplateClassName = annotationTemplateClassName;
         if (configuration == null) {
@@ -66,6 +73,7 @@ public final class ServiceDescription {
 
         this.publishers = publishers;
         this.deployment = deployment;
+        this.resourceLoader = resourceLoader;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
@@ -73,13 +81,15 @@ public final class ServiceDescription {
             builder.url,
             builder.serviceClassName,
             builder.rmiServiceClassName,
+            builder.rmiName,
             builder.annotationTemplateClassName,
             builder.provideRuntimeContext,
             builder.provideVariations,
             builder.modules,
             builder.deployment,
             builder.configuration,
-            builder.publishers.toArray(new String[] {}));
+            builder.publishers.toArray(new String[] {}),
+            builder.resourceLoader);
     }
 
     /**
@@ -128,6 +138,15 @@ public final class ServiceDescription {
     }
 
     /**
+     * Returns RMI name.
+     *
+     * @return RMI name
+     */
+    public String getRmiName() {
+        return rmiName;
+    }
+
+    /**
      * Returns provideRuntimeContext value. This value is define that service methods first argument is
      * IRulesRuntimeContext.
      *
@@ -153,6 +172,15 @@ public final class ServiceDescription {
      */
     public Collection<Module> getModules() {
         return modules;
+    }
+    
+    /**
+     * Returns resourceLoader for the deployment.
+     *
+     * @return resourceLoader
+     */
+    public ResourceLoader getResourceLoader() {
+        return resourceLoader;
     }
 
     /**
@@ -215,6 +243,7 @@ public final class ServiceDescription {
         private String url;
         private String serviceClassName;
         private String rmiServiceClassName;
+        private String rmiName;
         private String annotationTemplateClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
@@ -222,20 +251,26 @@ public final class ServiceDescription {
         private Collection<Module> modules;
         private DeploymentDescription deployment;
         private Set<String> publishers = new HashSet<>();
+        private ResourceLoader resourceLoader;
 
-        public void setPublishers(String[] publishers) {
+        public ServiceDescriptionBuilder setPublishers(String[] publishers) {
             this.publishers = new HashSet<>();
             if (publishers != null) {
                 for (String publisher : publishers) {
                     this.publishers.add(publisher);
                 }
             }
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
+            Objects.requireNonNull(resourceLoader, "resourceLoader argument must not be null.");
+            this.resourceLoader = resourceLoader;
+            return this;
         }
 
         public void addPublisher(String key) {
-            if (key == null) {
-                throw new IllegalArgumentException("key argument must not be null.");
-            }
+            Objects.requireNonNull(key, "key argument must not be null.");
             if (this.publishers == null) {
                 this.publishers = new HashSet<>();
             }
@@ -259,10 +294,20 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder setName(String name) {
-            if (name == null) {
-                throw new IllegalArgumentException("name arg must not be null.");
-            }
+            Objects.requireNonNull(name, "name arg must not be null.");
             this.name = name;
+            return this;
+        }
+
+        /**
+         * Sets rmi name to the builder.
+         *
+         * @param name
+         * @return
+         */
+        public ServiceDescriptionBuilder setRmiName(String rmiName) {
+            Objects.requireNonNull(rmiName, "rmiName arg must not be null.");
+            this.rmiName = rmiName;
             return this;
         }
 
@@ -394,6 +439,9 @@ public final class ServiceDescription {
             if (this.name == null) {
                 throw new IllegalStateException("Field 'name' is required for building ServiceDescription");
             }
+            if (this.resourceLoader == null) {
+                throw new IllegalStateException("Field 'resourceLoader' is required for building ServiceDescription");
+            }
             if (this.modules == null) {
                 throw new IllegalStateException("Field 'modules' is required for building ServiceDescription");
             }
@@ -402,5 +450,6 @@ public final class ServiceDescription {
             }
             return new ServiceDescription(this);
         }
+
     }
 }

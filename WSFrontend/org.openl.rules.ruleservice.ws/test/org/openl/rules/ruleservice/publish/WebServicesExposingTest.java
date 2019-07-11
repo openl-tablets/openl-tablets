@@ -3,9 +3,17 @@ package org.openl.rules.ruleservice.publish;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.Resource;
+import org.openl.rules.ruleservice.core.ResourceLoader;
+import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.springframework.beans.BeansException;
@@ -34,14 +42,31 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         serviceManager.start();
         JAXWSRuleServicePublisher webServicesRuleServicePublisher = applicationContext
             .getBean(JAXWSRuleServicePublisher.class);
-        ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
-        ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
-        assertTrue(firstServer != secondServer);
+        assertNotNull(webServicesRuleServicePublisher);
+        try {
+            ServiceDescriptionHolder.getInstance()
+                .setServiceDescription(new ServiceDescription.ServiceDescriptionBuilder().setName("mock")
+                    .setResourceLoader(new ResourceLoader() {
+                        @Override
+                        public Resource getResource(String location) {
+                            return null;
+                        }
+                    })
+                    .setModules(new ArrayList<>())
+                    .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl(1)))
+                    .build());
+            ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
+            ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
+            assertTrue(firstServer != secondServer);
+        } finally {
+            ServiceDescriptionHolder.getInstance().remove();
+        }
     }
 
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-            "classpath:openl-ruleservice-beans.xml");
+            "classpath:openl-ruleservice-beans.xml",
+            "classpath:openl-ruleservice-logging-beans.xml");
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         serviceManager.start();
         System.out.print("Press enter for server stop:");

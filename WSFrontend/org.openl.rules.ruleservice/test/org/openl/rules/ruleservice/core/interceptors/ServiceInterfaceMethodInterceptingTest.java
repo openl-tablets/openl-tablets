@@ -109,6 +109,12 @@ public class ServiceInterfaceMethodInterceptingTest {
             .setProvideVariations(false)
             .setDeployment(deploymentDescription)
             .setModules(modules)
+            .setResourceLoader(new ResourceLoader() {
+                @Override
+                public Resource getResource(String location) {
+                    return null;
+                }
+            })
             .build();
 
         ruleServiceLoader = mock(RuleServiceLoader.class);

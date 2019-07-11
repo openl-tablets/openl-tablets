@@ -76,17 +76,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     /* internal for test */JAXRSServerFactoryBean getServerFactoryBean() {
-        if (serverFactory != null) {
-            return serverFactory.getObject();
-        }
-        throw new IllegalArgumentException("serverFactory doesn't defined.");
+        Objects.requireNonNull(serverFactory, "serverFactory doesn't defined.");
+        return serverFactory.getObject();
     }
 
     /* internal for test */Feature getStoreLoggingFeatureBean() {
-        if (storeLoggingFeatureFactoryBean != null) {
-            return storeLoggingFeatureFactoryBean.getObject();
-        }
-        throw new IllegalArgumentException("loggingInfoStoringService doesn't defined.");
+        Objects.requireNonNull(storeLoggingFeatureFactoryBean, "loggingInfoStoringService doesn't defined.");
+        return storeLoggingFeatureFactoryBean.getObject();
     }
 
     public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
@@ -99,6 +95,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     @Override
     protected void deployService(final OpenLService service) throws RuleServiceDeployException {
+        Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -182,9 +179,10 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    public OpenLService getServiceByName(String name) {
+    public OpenLService getServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(name)) {
+            if (service.getName().equals(serviceName)) {
                 return service;
             }
         }
@@ -193,6 +191,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     @Override
     protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -201,10 +200,9 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         try {
             SwaggerStaticFieldsWorkaround.reset();
             runningServices.get(service).destroy();
-            log.info("Service '{}' has been undeployed succesfully.", serviceName, baseAddress, service.getUrl());
             runningServices.remove(service);
             removeServiceInfo(serviceName);
-            service.destroy();
+            log.info("Service '{}' has been succesfully undeployed.", serviceName);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
@@ -230,11 +228,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         }
 
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "REST");
-    }
-
-    @Override
-    public boolean isServiceDeployed(String name) {
-        return getServiceByName(name) != null;
     }
 
     private void removeServiceInfo(String serviceName) {

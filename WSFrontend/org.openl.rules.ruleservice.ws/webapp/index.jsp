@@ -182,6 +182,8 @@
                 html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
+            } else if (name == "Kafka") {
+            	html += name;
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }

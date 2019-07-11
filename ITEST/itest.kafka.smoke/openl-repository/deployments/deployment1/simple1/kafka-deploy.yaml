@@ -1,0 +1,8 @@
+ 
+method.configs:
+  - method.name: Hello
+    in.topic.name: hello-in-topic
+    out.topic.name: hello-out-topic
+    dlt.topic.name: hello-dlt-topic
+    consumer.configs:
+        auto.offset.reset: earliest

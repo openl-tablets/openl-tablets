@@ -13,7 +13,7 @@ import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.publish.common.MethodUtil;
+import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -107,7 +107,7 @@ public final class JAXWSEnhancerHelper {
                     // for
                     // generated
                     // interfaces
-                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                    String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
                     int i = 0;
                     for (String paramName : parameterNames) {
                         Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
@@ -145,7 +145,7 @@ public final class JAXWSEnhancerHelper {
                     }
                 }
 
-                methods = MethodUtil.sort(methods);
+                methods = MethodUtils.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();

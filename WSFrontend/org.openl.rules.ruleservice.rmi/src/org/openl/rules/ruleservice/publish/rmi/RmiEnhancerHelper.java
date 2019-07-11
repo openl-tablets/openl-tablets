@@ -14,12 +14,15 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
 /**
- * Utility class for generate JAXRS annotations for service interface.
+ * Utility class for generate RMI annotations for service interface.
  *
  * @author Marat Kamalov
  *
  */
 public class RmiEnhancerHelper {
+
+    private RmiEnhancerHelper() {
+    }
 
     private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException {
         ClassLoader classLoader = null;
@@ -61,20 +64,19 @@ public class RmiEnhancerHelper {
         for (Method m : service.getRmiServiceClass().getMethods()) {
             boolean found = false;
             for (Method method : serviceClass.getMethods()) {
-                if (m.getName().equals(method.getName())) {
-                    if (m.getParameterTypes().length == method.getParameterTypes().length) {
-                        boolean f = true;
-                        for (int i = 0; i < method.getParameterTypes().length; i++) {
-                            if (!m.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
-                                f = false;
-                                break;
-                            }
-                        }
-                        if (f) {
-                            methodMap.put(m, method);
-                            found = true;
+                if (m.getName()
+                    .equals(method.getName()) && m.getParameterTypes().length == method.getParameterTypes().length) {
+                    boolean f = true;
+                    for (int i = 0; i < method.getParameterTypes().length; i++) {
+                        if (!m.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
+                            f = false;
                             break;
                         }
+                    }
+                    if (f) {
+                        methodMap.put(m, method);
+                        found = true;
+                        break;
                     }
                 }
             }

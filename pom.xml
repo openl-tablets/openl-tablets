@@ -85,7 +85,8 @@
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>7.1</asm.version>
         <cglib.version>3.2.12</cglib.version>
-
+        <kafka.version>2.1.1</kafka.version>
+	<kafka-junit.version>2.1.1</kafka-junit.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.2</org.apache.cxf.version>
         <org.slf4j.version>1.7.26</org.slf4j.version>
@@ -1326,6 +1327,11 @@
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
@@ -1353,6 +1359,24 @@
                 <version>5.18.0</version>
             </dependency>
             <!--//Activity -->
+            <!-- Kafka -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.mguenther.kafka</groupId>
+                <artifactId>kafka-junit</artifactId>
+                <version>${kafka-junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-log4j-appender</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <!-- Kafka -->
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>

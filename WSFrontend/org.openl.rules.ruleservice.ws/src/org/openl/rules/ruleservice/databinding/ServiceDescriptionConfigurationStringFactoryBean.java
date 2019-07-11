@@ -1,16 +1,8 @@
 package org.openl.rules.ruleservice.databinding;
 
-import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
-public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFactoryBean<String> {
-    private final Logger log = LoggerFactory.getLogger(ServiceDescriptionConfigurationBooleanFactoryBean.class);
-
-    private String defaultValue;
+public class ServiceDescriptionConfigurationStringFactoryBean extends ServiceDescriptionConfigurationFactoryBean<String> {
 
     private String propertyName;
 
@@ -20,44 +12,26 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFa
 
     public void setPropertyName(String propertyName) {
         if (propertyName == null) {
-            throw new IllegalArgumentException("protpertyName must not be null!");
+            throw new IllegalArgumentException("protperty name must not be null!");
         }
         this.propertyName = propertyName;
     }
 
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return false;
-    }
-
     @Override
     protected String createInstance() throws Exception {
-        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
-        if (serviceDescription != null && serviceDescription.getConfiguration() != null) {
-            String ret = getDefaultValue();
-            if (serviceDescription.getConfiguration() != null) {
-                Object value = serviceDescription.getConfiguration().get(getPropertyName().trim());
-                if (value instanceof String) {
-                    return (String) value;
-                } else {
-                    if (value != null && log.isErrorEnabled()) {
-                        log.error("Error in service '{}'. Supports only string values for " + getPropertyName()
-                            .trim() + " configuration! Default value has been used!");
-                    }
-                }
+        String ret = getDefaultValue();
+        Object value = getValue(getPropertyName().trim());
+        if (value instanceof String) {
+            return (String) value;
+        } else {
+            if (value != null) {
+                throw new ServiceDescriptionConfigurationException(
+                    String.format("Expected string for '%s' in the configuration for service '%s'.",
+                        getPropertyName(),
+                        getServiceDescription().getName()));
             }
-            return ret;
         }
-
-        return getDefaultValue();
+        return ret;
     }
 
     @Override

@@ -12,28 +12,36 @@ import org.openl.util.generation.GenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MethodUtil {
-    private MethodUtil() {
+public final class MethodUtils {
+    private MethodUtils() {
+    }
+
+    private static final Comparator<Method> METHOD_COMPARATOR = (o1, o2) -> {
+        if (o1.getName().equals(o2.getName())) {
+            if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
+                int i = 0;
+                while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i]
+                    .equals(o2.getParameterTypes()[i])) {
+                    i++;
+                }
+                return o1.getParameterTypes()[i].getName().compareTo(o2.getParameterTypes()[i].getName());
+            } else {
+                return o1.getParameterTypes().length - o2.getParameterTypes().length;
+            }
+        } else {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+
+    public static Method[] sort(Method[] m) {
+        Method[] methods = m.clone();
+        Arrays.sort(methods, METHOD_COMPARATOR);
+        return methods;
     }
 
     public static List<Method> sort(Collection<Method> m) {
         List<Method> methods = new ArrayList<>(m);
-        Collections.sort(methods, (o1, o2) -> {
-            if (o1.getName().equals(o2.getName())) {
-                if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
-                    int i = 0;
-                    while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i]
-                        .equals(o2.getParameterTypes()[i])) {
-                        i++;
-                    }
-                    return o1.getParameterTypes()[i].getName().compareTo(o2.getParameterTypes()[i].getName());
-                } else {
-                    return o1.getParameterTypes().length - o2.getParameterTypes().length;
-                }
-            } else {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(methods, METHOD_COMPARATOR);
         return methods;
     }
 
@@ -74,7 +82,7 @@ public final class MethodUtil {
                             if (!name.value().isEmpty()) {
                                 parameterNames[i] = name.value();
                             } else {
-                                Logger log = LoggerFactory.getLogger(MethodUtil.class);
+                                Logger log = LoggerFactory.getLogger(MethodUtils.class);
                                 if (log.isWarnEnabled()) {
                                     log.warn(
                                         "Invalid parameter name '" + name.value() + "'. Parameter name for '" + method

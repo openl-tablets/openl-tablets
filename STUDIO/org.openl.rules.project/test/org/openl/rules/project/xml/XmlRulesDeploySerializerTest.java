@@ -38,6 +38,7 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("some2*", rulesDeploy.getLazyModulesForCompilationPatterns()[1].getValue());
         assertEquals("v1", rulesDeploy.getVersion());
         assertEquals("group1,group2", rulesDeploy.getGroups());
+        assertEquals("rmiName", rulesDeploy.getRmiName());
     }
 
     @Test
@@ -56,12 +57,13 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setVersion("v1");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { PublisherType.WEBSERVICE });
         rulesDeploy.setGroups("group1,group2");
+        rulesDeploy.setRmiName("rmiName");
         Map<String, Object> configuration = new HashMap<>();
         configuration.put("key", "value");
         rulesDeploy.setConfiguration(configuration);
         XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
         String value = serializer.serialize(rulesDeploy);
-        String expectedValue = "<rules-deploy>" + "\n" + "  <isProvideRuntimeContext>false</isProvideRuntimeContext>" + "\n" + "  <isProvideVariations>true</isProvideVariations>" + "\n" + "  <serviceName>rulesDeployName</serviceName>" + "\n" + "  <publishers>" + "\n" + "    <publisher>WEBSERVICE</publisher>" + "\n" + "  </publishers>" + "\n" + "  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>" + "\n" + "  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>" + "\n" + "  <serviceClass>java.lang.String</serviceClass>" + "\n" + "  <url>someURL</url>" + "\n" + "  <version>v1</version>" + "\n" + "  <groups>group1,group2</groups>" + "\n" + "  <configuration>" + "\n" + "    <entry>" + "\n" + "      <string>key</string>" + "\n" + "      <string>value</string>" + "\n" + "    </entry>" + "\n" + "  </configuration>" + "\n" + "  <lazy-modules-for-compilation>" + "\n" + "    <module name=\"some1*\"/>" + "\n" + "    <module name=\"some2*\"/>" + "\n" + "  </lazy-modules-for-compilation>" + "\n" + "</rules-deploy>";
+        String expectedValue = "<rules-deploy>" + "\n" + "  <isProvideRuntimeContext>false</isProvideRuntimeContext>" + "\n" + "  <isProvideVariations>true</isProvideVariations>" + "\n" + "  <serviceName>rulesDeployName</serviceName>" + "\n" + "  <publishers>" + "\n" + "    <publisher>WEBSERVICE</publisher>" + "\n" + "  </publishers>" + "\n" + "  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>" + "\n" + "  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>" + "\n" + "  <serviceClass>java.lang.String</serviceClass>" + "\n" + "  <url>someURL</url>" + "\n" + "  <rmiName>rmiName</rmiName>" + "\n" + "  <version>v1</version>" + "\n" + "  <groups>group1,group2</groups>" + "\n" + "  <configuration>" + "\n" + "    <entry>" + "\n" + "      <string>key</string>" + "\n" + "      <string>value</string>" + "\n" + "    </entry>" + "\n" + "  </configuration>" + "\n" + "  <lazy-modules-for-compilation>" + "\n" + "    <module name=\"some1*\"/>" + "\n" + "    <module name=\"some2*\"/>" + "\n" + "  </lazy-modules-for-compilation>" + "\n" + "</rules-deploy>";
         assertEquals(expectedValue, value);
     }
 }
