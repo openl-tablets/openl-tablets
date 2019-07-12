@@ -715,17 +715,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         FetchResult fetchResult;
 
         Lock readLock = repositoryLock.readLock();
-        boolean remoteLocked = remoteRepoLock.tryLock();
-        if (!remoteLocked) {
-            // Skip because is already fetching by other thread.
-            return null;
-        }
         try {
             readLock.lock();
 
-            fetchResult = fetchAll();
+            boolean remoteLocked = remoteRepoLock.tryLock();
+            if (!remoteLocked) {
+                // Skip because is already fetching by other thread.
+                return null;
+            }
+            try {
+                fetchResult = fetchAll();
+            } finally {
+                remoteRepoLock.unlock();
+            }
         } finally {
-            remoteRepoLock.unlock();
             readLock.unlock();
         }
 
