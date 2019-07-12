@@ -52,7 +52,7 @@ public abstract class BaseReaderTest {
     @Test
     public void getMainSheet() {
         Object[][] cells = reader.getCells(reader.getSheets().get(0));
-        assertEquals(14, cells.length);
+        assertEquals(15, cells.length);
         assertEquals(1, cells[0].length);
 
         //// Different type assertions
@@ -139,18 +139,16 @@ public abstract class BaseReaderTest {
         assertNull(cells[5][0]);
         assertNull(cells[5][1]);
 
-        assertNull(cells[6][0]);
-        assertEquals("Vertical Merge", cells[6][1]);
-        assertNull(cells[7][0]);
-        assertEquals(MergedCell.MERGE_WITH_UP, cells[7][1]);
+        assertEquals("Vertical Merge", cells[6][0]);
+        assertNull(cells[6][1]);
+        assertEquals(MergedCell.MERGE_WITH_UP, cells[7][0]);
+        assertEquals("Meaningful data", cells[7][1]);
     }
 
     @Test
     public void getSheet3() {
         Object[][] cells = reader.getCells(reader.getSheets().get(2));
-        assertEquals(1, cells.length);
-        assertEquals(1, cells[0].length);
-        assertNull(cells[0][0]);
+        assertEquals(0, cells.length);
     }
 
     @Test

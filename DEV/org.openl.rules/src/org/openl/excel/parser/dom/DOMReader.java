@@ -70,6 +70,7 @@ public class DOMReader implements ExcelReader {
             int firstRow = sh.getFirstRowNum();
             int lastRow = sh.getLastRowNum();
 
+            boolean hasRows = false;
             // Find column dimensions
             int firstColumn = Integer.MAX_VALUE;
             int lastColumn = 0;
@@ -77,6 +78,8 @@ public class DOMReader implements ExcelReader {
                 Row row = sh.getRow(i);
                 if (row == null) {
                     continue;
+                } else {
+                    hasRows = true;
                 }
 
                 int firstCellNum = row.getFirstCellNum();
@@ -88,6 +91,10 @@ public class DOMReader implements ExcelReader {
                 if (lastCellNum > lastColumn) {
                     lastColumn = lastCellNum;
                 }
+            }
+
+            if (!hasRows) {
+                return new Object[0][];
             }
 
             if (firstColumn == Integer.MAX_VALUE) {
@@ -195,7 +202,6 @@ public class DOMReader implements ExcelReader {
                     return new XlsCellComment(getCell(row, column).getCellComment());
                 }
 
-                @SuppressWarnings("deprecation")
                 @Override
                 public String getFormula(int row, int column) {
                     Cell cell = getCell(row, column);
@@ -234,7 +240,6 @@ public class DOMReader implements ExcelReader {
     }
 
     // See OpenL Tablets implementation
-    @SuppressWarnings("deprecation")
     private Object extractCellValue(Cell cell) {
         if (cell != null) {
             CellType type = cell.getCellType();

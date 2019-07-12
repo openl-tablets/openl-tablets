@@ -83,12 +83,6 @@ public class WorkbookListener implements HSSFListener {
 
                 int rowsCount = dr.getLastRow() - dr.getFirstRow();
                 int colsCount = dr.getLastCol() - dr.getFirstCol();
-                if (rowsCount == 0) {
-                    // To make it consistent with SAX and DOM (both xls and
-                    // xlsx) parsers.
-                    rowsCount = 1;
-                    colsCount = 1;
-                }
                 log.debug("Array size: {}:{}", rowsCount, colsCount);
                 Object[][] cells = new Object[rowsCount][colsCount];
                 cellsMap.put(getSheet().getName(), cells);

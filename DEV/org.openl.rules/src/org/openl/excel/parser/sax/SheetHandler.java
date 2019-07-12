@@ -258,22 +258,24 @@ public class SheetHandler extends DefaultHandler {
 
         cells[row][col] = parsedValue;
 
-        int curRow = row + start.getRow();
-        int curCol = col + start.getColumn();
+        if (parsedValue != null && !(parsedValue instanceof MergedCell)) {
+            int curRow = row + start.getRow();
+            int curCol = col + start.getColumn();
 
-        if (effectiveStart == null) {
-            effectiveStart = new CellAddress(curRow, curCol);
-            effectiveEnd = effectiveStart;
-        } else {
-            if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
-                int minRow = Math.min(curRow, effectiveStart.getRow());
-                int minCol = Math.min(curCol, effectiveStart.getColumn());
-                effectiveStart = new CellAddress(minRow, minCol);
-            }
-            if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
-                int maxRow = Math.max(curRow, effectiveEnd.getRow());
-                int maxCol = Math.max(curCol, effectiveEnd.getColumn());
-                effectiveEnd = new CellAddress(maxRow, maxCol);
+            if (effectiveStart == null) {
+                effectiveStart = new CellAddress(curRow, curCol);
+                effectiveEnd = effectiveStart;
+            } else {
+                if (curRow < effectiveStart.getRow() || curCol < effectiveStart.getColumn()) {
+                    int minRow = Math.min(curRow, effectiveStart.getRow());
+                    int minCol = Math.min(curCol, effectiveStart.getColumn());
+                    effectiveStart = new CellAddress(minRow, minCol);
+                }
+                if (curRow > effectiveEnd.getRow() || curCol > effectiveEnd.getColumn()) {
+                    int maxRow = Math.max(curRow, effectiveEnd.getRow());
+                    int maxCol = Math.max(curCol, effectiveEnd.getColumn());
+                    effectiveEnd = new CellAddress(maxRow, maxCol);
+                }
             }
         }
     }
@@ -292,8 +294,13 @@ public class SheetHandler extends DefaultHandler {
     @Override
     public void endDocument() {
         int rowCount = cells.length;
-        if (rowCount == 0 || cells[0].length == 0 || effectiveStart == null || effectiveEnd == null) {
+        if (rowCount == 0 || cells[0].length == 0) {
             // No need to optimize cells[][] size
+            return;
+        }
+
+        if (effectiveStart == null || effectiveEnd == null) {
+            cells = new Object[0][];
             return;
         }
 
