@@ -1,6 +1,7 @@
 package org.openl.excel.parser.sax;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -33,13 +34,20 @@ public class SheetOptimizationTest {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
             .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
-        assertEquals(2, sheets.size());
+        assertEquals(3, sheets.size());
 
-        Object[][] firstSheet = reader.getCells(sheets.get(0));
-        assertEquals(18, firstSheet.length);
-        assertEquals(6, firstSheet[0].length);
+        Object[][] sheet1 = reader.getCells(sheets.get(0));
+        assertEquals(18, sheet1.length);
+        assertEquals(6, sheet1[0].length);
 
-        Object[][] secondSheet = reader.getCells(sheets.get(1));
-        assertEquals(0, secondSheet.length);
+        Object[][] sheet2 = reader.getCells(sheets.get(1));
+        assertEquals(0, sheet2.length);
+
+        Object[][] sheet3 = reader.getCells(sheets.get(2));
+        assertEquals(10, sheet3.length);
+        assertEquals(20, sheet3[0].length);
+        assertEquals("S3", sheet3[5][17]);
+        assertEquals(MergedCell.MERGE_WITH_LEFT, sheet3[5][19]);
+        assertNull(sheet3[9][19]);
     }
 }

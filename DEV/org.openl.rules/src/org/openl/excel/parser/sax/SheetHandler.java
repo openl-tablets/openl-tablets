@@ -2,11 +2,14 @@ package org.openl.excel.parser.sax;
 
 import static org.apache.poi.xssf.usermodel.XSSFRelation.NS_SPREADSHEETML;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
@@ -54,6 +57,8 @@ public class SheetHandler extends DefaultHandler {
 
     // Cell indent
     private Short indent;
+
+    private List<CellRangeAddress> mergedCells = new ArrayList<>();
 
     SheetHandler(SharedStringsTable sharedStringsTable,
             boolean use1904Windowing,
@@ -119,9 +124,11 @@ public class SheetHandler extends DefaultHandler {
                 }
             }
         } else if ("mergeCell".equals(localName)) {
-            String[] cellsRefs = attributes.getValue("ref").split(":");
+            String ref = attributes.getValue("ref");
+            String[] cellsRefs = ref.split(":");
             // No need to mark the cell as merged if it's merged with itself.
             if (cellsRefs.length > 1) {
+                mergedCells.add(CellRangeAddress.valueOf(ref));
                 CellAddress from = new CellAddress(cellsRefs[0]);
                 CellAddress to = new CellAddress(cellsRefs[1]);
 
@@ -302,6 +309,18 @@ public class SheetHandler extends DefaultHandler {
         if (effectiveStart == null || effectiveEnd == null) {
             cells = new Object[0][];
             return;
+        }
+
+        for (CellRangeAddress mergedCell : mergedCells) {
+            int r = mergedCell.getFirstRow() - start.getRow();
+            int c = mergedCell.getFirstColumn() - start.getColumn();
+            if (r >= 0 && c >= 0 && cells[r][c] != null) {
+                if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd.getColumn()) {
+                    int maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
+                    int maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
+                    effectiveEnd = new CellAddress(maxRow, maxCol);
+                }
+            }
         }
 
         int rows = effectiveEnd.getRow() - effectiveStart.getRow() + 1;
