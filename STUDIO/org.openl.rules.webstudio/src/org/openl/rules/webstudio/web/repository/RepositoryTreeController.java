@@ -1883,7 +1883,7 @@ public class RepositoryTreeController {
         BranchRepository repository = (BranchRepository) selectedProject.getDesignRepository();
         try {
             boolean exists = !repository.forBranch(branch)
-                .listHistory(((RulesProject) selectedProject).getDesignFolderName())
+                .list(((RulesProject) selectedProject).getDesignFolderName())
                 .isEmpty();
             FacesUtils.validate(exists, "Current project does not exist in this branch!");
         } catch (IOException e) {
