@@ -5,15 +5,21 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 
 public class ArgumentCachingStorage {
 
     private List<CalculationStep> originalCalculationSteps;
     private Iterator<CalculationStep> step;
+    private SimpleRulesRuntimeEnv simpleRulesRuntimeEnv;
 
     public void resetMethodArgumentsCache() {
         storage.clear();
+    }
+
+    public ArgumentCachingStorage(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+        Objects.requireNonNull(simpleRulesRuntimeEnv, "simpleRulesRuntimeEnv can't be null!");
+        this.simpleRulesRuntimeEnv = simpleRulesRuntimeEnv;
     }
 
     private Storage storage = new Storage();
@@ -25,8 +31,6 @@ public class ArgumentCachingStorage {
         }
         throw new ResultNotFoundException();
     }
-
-    private final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     public void putToCache(Object member, Object[] params, Object result) {
         Data data = storage.get(member);
@@ -40,7 +44,8 @@ public class ArgumentCachingStorage {
             Object[] clonedParams = new Object[params.length];
             for (int i = 0; i < params.length; i++) {
                 if (params[i] != null) {
-                    clonedParams[i] = cloner.deepClone(params[i]);
+                    clonedParams[i] = ((XlsModuleOpenClass) simpleRulesRuntimeEnv.getTopClass()).getCloner()
+                        .deepClone(params[i]);
                 }
             }
             data.add(new InvocationData(clonedParams, result));

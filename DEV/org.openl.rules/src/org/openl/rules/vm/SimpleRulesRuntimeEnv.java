@@ -16,7 +16,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     private volatile CacheMode cacheMode = CacheMode.READ_ONLY;
     private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
-    private ArgumentCachingStorage argumentCachingStorage = new ArgumentCachingStorage();
+    private ArgumentCachingStorage argumentCachingStorage;
 
     public SimpleRulesRuntimeEnv() {
         super();
@@ -24,7 +24,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     private SimpleRulesRuntimeEnv(SimpleRulesRuntimeEnv env) {
         super(env);
-        this.argumentCachingStorage = env.argumentCachingStorage;
+        this.argumentCachingStorage = env.getArgumentCachingStorage();
         this.methodArgumentsCacheEnable = env.methodArgumentsCacheEnable;
         this.cacheMode = env.cacheMode;
         this.ignoreRecalculate = env.ignoreRecalculate;
@@ -78,6 +78,9 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     }
 
     public ArgumentCachingStorage getArgumentCachingStorage() {
+        if (argumentCachingStorage == null) {
+            argumentCachingStorage = new ArgumentCachingStorage(this);
+        }
         return argumentCachingStorage;
     }
 

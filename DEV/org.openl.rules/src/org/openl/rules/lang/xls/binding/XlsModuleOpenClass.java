@@ -26,6 +26,7 @@ import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -45,6 +46,8 @@ import org.openl.types.*;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
+
+import com.rits.cloning.Cloner;
 
 /**
  * @author snshor
@@ -510,6 +513,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
         }
+    }
+
+    private volatile OpenLArgumentsCloner cloner = null;
+
+    public Cloner getCloner() {
+        if (cloner == null) {
+            synchronized (this) {
+                if (cloner == null) {
+                    cloner = new OpenLArgumentsCloner();
+                }
+            }
+        }
+        return cloner;
     }
 
 }
