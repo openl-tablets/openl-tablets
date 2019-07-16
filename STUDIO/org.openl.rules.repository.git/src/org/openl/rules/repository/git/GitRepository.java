@@ -1683,6 +1683,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void saveBranches() throws IOException {
+        if (StringUtils.isBlank(gitSettingsPath)) {
+            return;
+        }
         File parent = new File(gitSettingsPath);
         if (!parent.mkdirs() && !parent.exists()) {
             throw new FileNotFoundException("Can't create folder " + gitSettingsPath);
