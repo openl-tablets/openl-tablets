@@ -6,7 +6,6 @@
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
         <version>5.22.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>itest.EPBDS-7654</artifactId>

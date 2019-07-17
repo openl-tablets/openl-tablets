@@ -5,7 +5,6 @@
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ext-pom</artifactId>
         <version>5.22.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.openl.rules.ext</groupId>
     <artifactId>org.openl.rules.ext.cassandra</artifactId>

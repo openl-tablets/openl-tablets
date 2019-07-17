@@ -5,7 +5,6 @@
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
         <version>5.22.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules</artifactId>
     <packaging>jar</packaging>
