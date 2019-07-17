@@ -255,8 +255,8 @@ public class SheetHandler extends DefaultHandler {
         if (maxRows > rowCount || maxCols > columnCount) {
             // Increase the size in advance (1.5 times) to reduce too many array copy operations during parsing.
             // In endDocument() the size will be reduced to effective size.
-            int newRows = maxRows > rowCount ? Math.max(maxRows, rowCount + rowCount >> 1) : maxRows;
-            int newCols = maxCols > columnCount ? Math.max(maxCols, columnCount + columnCount >> 1) : columnCount;
+            int newRows = maxRows > rowCount ? Math.max(maxRows, rowCount + (rowCount >> 1)) : maxRows;
+            int newCols = maxCols > columnCount ? Math.max(maxCols, columnCount + (columnCount >> 1)) : columnCount;
             log.debug("Extend cells array. Current: {}:{}, new: {}:{}", rowCount, columnCount, newRows, newCols);
             Object[][] copy = new Object[newRows][newCols];
             arrayCopy(cells, copy, rowShift, colShift);
