@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.22.4</version>
+        <version>5.22.5-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.repository.git</artifactId>
     <packaging>jar</packaging>

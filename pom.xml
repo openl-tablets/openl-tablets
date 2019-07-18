@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.22.4</version>
+    <version>5.22.5-SNAPSHOT</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
