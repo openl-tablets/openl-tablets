@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+        <version>5.22.5-SNAPSHOT</version>
+    </parent>
+    <artifactId>org.openl.rules.ruleservice.ws.full</artifactId>
+    <packaging>war</packaging>
+    <name>OpenL - Ruleservice - Web Services Full WAR</name>
+    <description>OpenL Rules Webservice(full war)</description>
+    <url>https://openl-tablets.org</url>
+    <organization>
+        <name>OpenL Tablets</name>
+        <url>https://openl-tablets.org</url>
+    </organization>
+    <build>
+        <finalName>webservice-full</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.openl.rules</groupId>
+                            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                        </overlay>
+                    </overlays>
+                    <attachClasses>false</attachClasses>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <type>war</type>
+        </dependency>
+        <!-- Cassandra Dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

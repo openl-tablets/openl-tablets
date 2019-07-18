@@ -16,7 +16,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <war.name>openl-tablets-ws</war.name>
         <generate-application.properties>process-resources</generate-application.properties>
     </properties>
     <build>
