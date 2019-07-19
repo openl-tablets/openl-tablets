@@ -37,15 +37,6 @@
     </build>
 
     <dependencies>
-        <!-- CXF -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        </dependency>
         <!-- RulesService -->
         <dependency>
             <groupId>org.openl.rules</groupId>
