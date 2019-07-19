@@ -95,6 +95,10 @@ public final class KafkaService implements Runnable {
         if (header != null) {
             return new String(header.value(), UTF8);
         }
+        header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
+        if (header != null) {
+            return new String(header.value(), UTF8);
+        }
         if (dltTopic == null) {
             throw new DltTopicIsNotDefinedException("DLT topic is not defined.");
         }
