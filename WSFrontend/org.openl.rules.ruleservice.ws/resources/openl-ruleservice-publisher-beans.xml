@@ -7,7 +7,7 @@
     <import resource="classpath:openl-ruleservice-cxf-configuration.xml"/>
     <import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml" />
     <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml" />
-    <import resource="classpath:openl-ruleservice-rmi-publisher-beans.xml" />
+    <import resource="classpath:META-INF/spring/openl-ruleservice-rmi-publisher-beans.xml" />
     <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml" />
     <import resource="classpath:openl-ruleservice-deployer-beans.xml"/>
 
