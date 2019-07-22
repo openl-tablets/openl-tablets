@@ -1,6 +1,8 @@
 package org.openl.rules.repository.api;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Yury Molchan
@@ -20,6 +22,7 @@ public class FileData {
     private boolean deleted;
     private String branch;
     private String uniqueId;
+    private Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
 
     /**
      * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder
@@ -140,5 +143,20 @@ public class FileData {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public void addAdditionalData(AdditionalData data) {
+        if (data != null) {
+            additionalData.put(data.getClass(), data);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AdditionalData> T getAdditionalData(Class<T> key) {
+        return (T) additionalData.get(key);
+    }
+
+    public Map<Class<? extends AdditionalData>, AdditionalData> getAdditionalData() {
+        return additionalData;
     }
 }
