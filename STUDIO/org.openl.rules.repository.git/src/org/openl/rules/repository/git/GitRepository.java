@@ -155,17 +155,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String commitId = null;
         try {
             git.checkout().setName(branch).call();
-            commitId = createCommit(data, stream);
-            push();
         } catch (Exception e) {
             reset(commitId);
             throw new IOException(e.getMessage(), e);
         }
     }
-
     private String createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
         String commitId = null;
         try {
+
             String fileInRepository = data.getName();
             File file = new File(localRepositoryPath, fileInRepository);
             createParent(file);
@@ -646,7 +644,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String ct = commentTemplate.replaceAll("\\{commit-type\\}", "{0}")
             .replaceAll("\\{user-message\\}", "{1}")
             .replaceAll("\\{username\\}", "{2}");
-        this.escapedCommentTemplate = escapeCurlyBrackets(ct);
+        this.escapedCommentTemplate = escapeCurlyBrackets(ct); 
     }
 
     public void setGitSettingsPath(String gitSettingsPath) {
@@ -1076,19 +1074,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         String commitId = null;
         try {
             git.checkout().setName(branch).call();
-            commitId = createCommit(folderData, files, changesetType);
-            push();
         } catch (Exception e) {
             reset(commitId);
             throw new IOException(e.getMessage(), e);
         }
     }
-
     private String createCommit(FileData folderData,
                                 Iterable<FileChange> files,
                                 ChangesetType changesetType) throws IOException, GitAPIException {
         String commitId = null;
         try {
+
             String relativeFolder = folderData.getName();
 
             List<String> changedFiles = new ArrayList<>();
@@ -1123,9 +1119,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             CommitCommand commitCommand = git.commit()
-                    .setMessage(formatComment(CommitType.SAVE, folderData))
-                    .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
-                            userEmail != null ? userEmail : "");
+                .setMessage(formatComment(CommitType.SAVE, folderData))
+                .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
+                    userEmail != null ? userEmail : "");
 
             RevCommit commit;
 
@@ -1145,13 +1141,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 commit = commitCommand.call();
             }
             commitId = commit.getId().getName();
+        return commitId;
 
             addTagToCommit(commit);
-        } catch (IOException | GitAPIException e) {
+
+            push();
+        } catch (Exception e) {
             reset(commitId);
-            throw e;
+            throw new IOException(e.getMessage(), e);
         }
-        return commitId;
     }
 
     @Override
