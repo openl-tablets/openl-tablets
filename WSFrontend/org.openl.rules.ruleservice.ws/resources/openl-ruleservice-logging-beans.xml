@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<import resource="classpath*:openl-ruleservice-logging-info-service-*.xml" />
+	<import resource="classpath*:META-INF/spring/openl-ruleservice-logging-info-service-*.xml" />
 
 	<!-- Bean for configure storages type via openl-ruleservice.properties file. -->
 	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean" lazy-init="false">
