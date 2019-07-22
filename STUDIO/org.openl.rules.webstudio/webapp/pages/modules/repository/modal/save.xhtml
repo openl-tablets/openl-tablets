@@ -39,9 +39,12 @@
 
       <footer>
         <a4j:commandButton value="Save" action="#{repositoryTreeController.saveProject}" render="projectTree nodeView @form" styleClass="button-primary"
-                           oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalSave').hide();}" />
+                           data="#{studio.mergeConflict}"
+                           oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
+
+      <a4j:jsFunction name="refreshRepositoryAfterSave" render="projectTree nodeView"/>
     </h:form>
 
   </rich:popupPanel>
@@ -51,5 +54,15 @@
       RichFaces.$("modalSave").show();
       focusElement('saveForm:projectVersion');
     }
+
+    function onSaveComplete(mergeConflict, successful) {
+      if (mergeConflict) {
+        RichFaces.$('modalSave').hide();
+        openResolveConflictDialog(refreshRepositoryAfterSave);
+      } else if (successful) {
+        RichFaces.$('modalSave').hide();
+      }
+    }
+
   </script>
 </ui:composition>

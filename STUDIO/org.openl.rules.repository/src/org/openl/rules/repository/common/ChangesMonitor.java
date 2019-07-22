@@ -100,11 +100,17 @@ public class ChangesMonitor implements Runnable {
         getter = null;
         if (scheduledPool != null) {
             scheduledPool.shutdownNow();
-            scheduledPool = null;
         }
         if (scheduled != null) {
             scheduled.cancel(true);
             scheduled = null;
+        }
+        if (scheduledPool != null) {
+            try {
+                scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
+            } catch (InterruptedException ignored) {
+            }
+            scheduledPool = null;
         }
     }
 
@@ -112,7 +118,7 @@ public class ChangesMonitor implements Runnable {
         try {
             return getter.getRevision();
         } catch (Throwable th) {
-            log.warn("An exception has occurred durrng retrieving the last change set from the repository", th);
+            log.warn("An exception has occurred during retrieving the last change set from the repository", th);
             return null;
         }
     }

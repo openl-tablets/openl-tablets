@@ -16,7 +16,7 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
+class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileChangesToDeploy.class);
     private final Repository designRepo;
     private final List<ProjectDescriptor> descriptors;
@@ -36,10 +36,10 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
     }
 
     @Override
-    public Iterator<FileChange> iterator() {
-        return new Iterator<FileChange>() {
+    public Iterator<FileItem> iterator() {
+        return new Iterator<FileItem>() {
             private int descriptorIndex = 0;
-            private Iterator<FileChange> projectIterator;
+            private Iterator<FileItem> projectIterator;
 
             @Override
             public boolean hasNext() {
@@ -58,7 +58,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
                 }
             }
 
-            private Iterator<FileChange> getProjectIterator(String projectName, String version) {
+            private Iterator<FileItem> getProjectIterator(String projectName, String version) {
                 try {
                     if (designRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
@@ -89,7 +89,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
             }
 
             @Override
-            public FileChange next() {
+            public FileItem next() {
                 return projectIterator.next();
             }
 
@@ -106,7 +106,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
         openedStream = null;
     }
 
-    private class FolderIterator implements Iterator<FileChange> {
+    private class FolderIterator implements Iterator<FileItem> {
         private final List<FileData> files;
         private int fileIndex = 0;
 
@@ -120,7 +120,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
         }
 
         @Override
-        public FileChange next() {
+        public FileItem next() {
             FileData file = files.get(fileIndex++);
             String srcFileName = file.getName();
             String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
@@ -129,7 +129,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
                 fileItem = designRepo.readHistory(file.getName(), file.getVersion());
                 IOUtils.closeQuietly(openedStream);
                 openedStream = fileItem.getStream();
-                return new FileChange(fileTo, openedStream);
+                return new FileItem(fileTo, openedStream);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 return null;
