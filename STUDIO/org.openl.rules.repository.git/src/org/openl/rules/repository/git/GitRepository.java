@@ -130,7 +130,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.checkout().setName(branch).call();
                 int i = 0;
                 for (FileItem fileItem : fileItems) {
-                    commitIds[i++] = createCommit(fileItem.getData(), fileItem.getStream());
+                    commitIds[i++] = createCommit(fileItem.getData(), fileItem.getStream(), false);
                 }
                 push();
             } catch (IOException e) {
@@ -162,7 +162,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void saveSingleFile(FileData data, InputStream stream) throws IOException {
         String commitId = null;
         try {
-            commitId = createCommit(data, stream);
+            String parentVersion = data.getVersion();
+            boolean checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+            commitId = createCommit(data, stream, checkoutOldVersion);
             push();
         } catch (IOException e) {
             reset(commitId);
@@ -173,12 +176,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private String createCommit(FileData data, InputStream stream) throws GitAPIException, IOException {
+    private String createCommit(FileData data, InputStream stream, boolean checkoutOldVersion) throws GitAPIException, IOException {
         String fileInRepository = data.getName();
-
-        String parentVersion = data.getVersion();
-        boolean checkoutOldVersion = isCheckoutOldVersion(fileInRepository, parentVersion);
-        git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
 
         File file = new File(localRepositoryPath, fileInRepository);
         createParent(file);
@@ -1137,7 +1136,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.checkout().setName(branch).call();
                 int i = 0;
                 for (FolderItem folderItem : folderItems) {
-                    commitIds[i++] = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
+                    commitIds[i++] = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType, false);
                 }
                 push();
             } catch (IOException e) {
@@ -1172,7 +1171,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         String commitId = null;
         try {
-            commitId = createCommit(folderData, files, changesetType);
+            String parentVersion = folderData.getVersion();
+            boolean checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
+            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+
+            commitId = createCommit(folderData, files, changesetType, checkoutOldVersion);
             push();
         } catch (IOException e) {
             reset(commitId);
@@ -1185,12 +1188,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private String createCommit(FileData folderData,
                                 Iterable<FileChange> files,
-                                ChangesetType changesetType) throws IOException, GitAPIException {
+                                ChangesetType changesetType,
+                                boolean checkoutOldVersion) throws IOException, GitAPIException {
         String relativeFolder = folderData.getName();
-
-        String parentVersion = folderData.getVersion();
-        boolean checkoutOldVersion = isCheckoutOldVersion(relativeFolder, parentVersion);
-        git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
 
         List<String> changedFiles = new ArrayList<>();
 
