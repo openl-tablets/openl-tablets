@@ -59,7 +59,7 @@
       function onSaveComplete(mergeConflict, successful) {
         if (mergeConflict) {
           RichFaces.$('modalSave').hide();
-          openResolveConflictDialog();
+          openResolveConflictDialog(goToNewProject);
         } else if (successful) {
           RichFaces.$('modalSave').hide();
           goToNewProject();
