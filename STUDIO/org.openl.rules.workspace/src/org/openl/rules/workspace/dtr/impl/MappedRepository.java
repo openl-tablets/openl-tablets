@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -123,14 +122,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         Map<String, String> mapping = getMappingForRead();
-        List<FileItem> fileItemsInternal = fileItems.stream()
-                .map(fi -> new FileItem(toInternal(mapping, fi.getData()), fi.getStream()))
-                .collect(Collectors.toList());
+        List<FileItem> fileItemsInternal = new ArrayList<>(fileItems.size());
+        for (FileItem fi : fileItems) {
+            fileItemsInternal.add(new FileItem(toInternal(mapping, fi.getData()), fi.getStream()));
+        }
         List<FileData> result = delegate.save(fileItemsInternal);
 
-        return result.stream()
-                .map(dt -> toExternal(mapping, dt))
-                .collect(Collectors.toList());
+        return toExternal(mapping, result);
     }
     @Override
     public boolean delete(FileData data) {
@@ -313,14 +311,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
         Map<String, String> mapping = getMappingForRead();
 
-        List<FolderItem> folderItemsInternal = folderItems.stream()
-                .map(fi -> new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, fi.getFiles())))
-                .collect(Collectors.toList());
+        List<FolderItem> folderItemsInternal = new ArrayList<>(folderItems.size());
+        for (FolderItem fi : folderItems) {
+            folderItemsInternal.add(new FolderItem(toInternal(mapping, fi.getData()),
+                toInternal(mapping, fi.getFiles())));
+        }
         List<FileData> result = delegate.save(folderItemsInternal, changesetType);
 
-        return result.stream()
-                .map(dt -> toExternal(mapping, dt))
-                .collect(Collectors.toList());
+        return toExternal(mapping, result);
     }
 
     @Override
