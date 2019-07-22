@@ -416,18 +416,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             File src = new File(localRepositoryPath, srcName);
             if (src.isDirectory()) {
-                List<FileChange> files = new ArrayList<>();
+                List<FileItem> files = new ArrayList<>();
                 try {
                     List<FileData> fileData = listFiles(srcName + "/", version);
                     for (FileData data : fileData) {
                         String fileFrom = data.getName();
                         FileItem fileItem = readHistory(fileFrom, data.getVersion());
                         String fileTo = destData.getName() + fileFrom.substring(srcName.length());
-                        files.add(new FileChange(fileTo, fileItem.getStream()));
+                        files.add(new FileItem(fileTo, fileItem.getStream()));
                     }
                     saveMultipleFiles(destData, files, ChangesetType.FULL);
                 } finally {
-                    for (FileChange file : files) {
+                    for (FileItem file : files) {
                         IOUtils.closeQuietly(file.getStream());
                     }
                 }
@@ -1094,7 +1094,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public FileData save(FileData folderData,
-            Iterable<FileChange> files,
+            Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
@@ -1157,7 +1157,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void saveMultipleFiles(FileData folderData,
-                                   Iterable<FileChange> files,
+                                   Iterable<FileItem> files,
                                    ChangesetType changesetType) throws IOException {
 
         String commitId = null;
@@ -1182,14 +1182,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private RevCommit createCommit(FileData folderData, Iterable<FileChange> files, ChangesetType changesetType) throws IOException, GitAPIException {
+    private RevCommit createCommit(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException, GitAPIException {
         String relativeFolder = folderData.getName();
 
         List<String> changedFiles = new ArrayList<>();
 
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
-        for (FileChange change : files) {
+        for (FileItem change : files) {
             File file = new File(localRepositoryPath, change.getData().getName());
             savedFiles.add(file);
             applyChangeInWorkspace(change, changedFiles);
@@ -1210,7 +1210,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return commitChangedFiles(commitCommand, changedFiles);
     }
 
-    private void applyChangeInWorkspace(FileChange change, Collection<String> changedFiles) throws IOException, GitAPIException {
+    private void applyChangeInWorkspace(FileItem change, Collection<String> changedFiles) throws IOException, GitAPIException {
         File file = new File(localRepositoryPath, change.getData().getName());
         createParent(file);
 
@@ -1294,7 +1294,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         Status status = git.status().call();
 
         Set<String> changedFiles = new HashSet<>();
-        for (FileChange change : conflictResolveData.getResolvedFiles()) {
+        for (FileItem change : conflictResolveData.getResolvedFiles()) {
             applyChangeInWorkspace(change, changedFiles);
         }
 
