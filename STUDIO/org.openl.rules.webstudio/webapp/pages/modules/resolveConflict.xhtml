@@ -49,6 +49,12 @@
             <f:facet name="header">
               <h:outputText value="Compare"/>
             </f:facet>
+            <h:panelGroup rendered="#{mergeConflictBean.canCompare(conflict)}">
+              <div>
+                <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
+                   title="Compare">Compare</a>
+              </div>
+            </h:panelGroup>
             <div>
               <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
                  title="Download our version">Download Our</a>

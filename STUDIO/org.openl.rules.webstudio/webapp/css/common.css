@@ -1464,3 +1464,7 @@ form .formfields {
 .stacktrace-showed:hover{
     opacity: 0.4;
 }
+
+.scrollable {
+    overflow: auto;
+}
