@@ -86,7 +86,7 @@
         <asm.version>7.1</asm.version>
         <cglib.version>3.2.12</cglib.version>
         <kafka.version>2.1.1</kafka.version>
-	<kafka-junit.version>2.1.1</kafka-junit.version>
+        <kafka-junit.version>2.1.1</kafka-junit.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.2</org.apache.cxf.version>
         <org.slf4j.version>1.7.26</org.slf4j.version>
@@ -573,6 +573,13 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>jcl-over-slf4j</artifactId>
+                                <version>${org.slf4j.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
