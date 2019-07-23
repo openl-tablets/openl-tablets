@@ -29,6 +29,7 @@ public class Table implements ITable {
     private TableSyntaxNode tableSyntaxNode;
 
     private Object dataArray;
+    private List<DatatypeArrayMultiRowElementContext> dataContextCache;
 
     private BiMap<Integer, Object> rowIndexMap;
     private BiMap<Integer, String> primaryIndexMap;
@@ -246,7 +247,9 @@ public class Table implements ITable {
 
         int dataArrayLength = Array.getLength(dataArray);
         for (int i = 0; i < dataArrayLength; i++) {
+            IRuntimeEnv env = bindingContext.getOpenL().getVm().getRuntimeEnv();
             Object target = Array.get(dataArray, i);
+            env.pushThis(target);
 
             int rowNum = dataIdxToTableRowNum.get(i);
             //calculate height
@@ -257,8 +260,12 @@ public class Table implements ITable {
                 height = rows - rowNum;
             }
 
+            DatatypeArrayMultiRowElementContext context = getCachedContext(i);
+            if (context == null) {
+                context = new DatatypeArrayMultiRowElementContext();
+            }
+            env.pushLocalFrame(new Object[]{ context });
             for (int j = 0; j < columns; j++) {
-
                 ColumnDescriptor descriptor = dataModel.getDescriptor(j);
 
                 if (descriptor instanceof ForeignKeyColumnDescriptor) {
@@ -268,21 +275,22 @@ public class Table implements ITable {
                         try {
                             if (descriptor.isConstructor()) {
                                 target = fkDescriptor.getLiteralByForeignKey(dataModel.getType(),
-                                    logicalTable.getSubtable(j, rowNum, 1, height),
-                                    dataBase,
-                                    bindingContext);
+                                        logicalTable.getSubtable(j, rowNum, 1, height),
+                                        dataBase,
+                                        bindingContext);
                             } else {
                                 fkDescriptor.populateLiteralByForeignKey(target,
-                                    logicalTable.getSubtable(j, rowNum, 1, height),
-                                    dataBase,
-                                    bindingContext);
+                                        logicalTable.getSubtable(j, rowNum, 1, height),
+                                        dataBase,
+                                        bindingContext,
+                                        env);
                             }
                         } catch (SyntaxNodeException e) {
                             boolean found = false;
                             for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions) {
                                 if (syntaxNodeException.getMessage()
-                                    .equals(
-                                        e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()) {
+                                        .equals(
+                                                e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()) {
                                     found = true;
                                 }
                             }
@@ -293,10 +301,14 @@ public class Table implements ITable {
                     }
                 }
             }
+            env.popLocalFrame();
+            env.popThis();
         }
+        //clear cache
+        dataContextCache = null;
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
+                    errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
         }
     }
 
@@ -308,13 +320,15 @@ public class Table implements ITable {
         if (tableSyntaxNode.getNodeType() == XlsNodeTypes.XLS_DATA && isSupportMultirow()) {
             //process not merged rows as merged if they have the same value in first column
             List<Object> resultContainer = new ArrayList<>();
+            List<DatatypeArrayMultiRowElementContext> dataContexts = new ArrayList<>();
 
-            processMultirowDataTable(resultContainer, openlAdapter, startRow, rows);
+            processMultirowDataTable(resultContainer, openlAdapter, dataContexts, startRow, rows);
 
             dataArray = Array.newInstance(dataModel.getInstanceClass(), resultContainer.size());
             for (int i = 0; i < resultContainer.size(); i++) {
                 Array.set(dataArray, i, resultContainer.get(i));
             }
+            this.dataContextCache = Collections.unmodifiableList(dataContexts);
         } else {
             dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
             for (int rowNum = startRow; rowNum < rows; rowNum++) {
@@ -336,6 +350,7 @@ public class Table implements ITable {
 
     private void processMultirowDataTable(List<Object> resultContainer,
                                           OpenlToolAdaptor openlAdapter,
+                                          List<DatatypeArrayMultiRowElementContext> dataContexts,
                                           int startRow, int rows) throws OpenLCompilationException {
 
         //group descriptors by KEY
@@ -349,7 +364,7 @@ public class Table implements ITable {
         }
 
         try {
-            parseRowsAndPopulateRootLiteral(resultContainer, new ArrayList<>(descriptorGroups.values()), openlAdapter, startRow, rows);
+            parseRowsAndPopulateRootLiteral(resultContainer, dataContexts, new ArrayList<>(descriptorGroups.values()), openlAdapter, startRow, rows);
         } catch (SyntaxNodeException e) {
             tableSyntaxNode.addError(e);
             openlAdapter.getBindingContext().addError(e);
@@ -357,9 +372,10 @@ public class Table implements ITable {
     }
 
     private void parseRowsAndPopulateRootLiteral(List<Object> resultContainer,
-                                    List<List<ColumnDescriptor>> allDescriptors,
-                                    OpenlToolAdaptor openlAdapter,
-                                    int startRow, int rows) throws OpenLCompilationException {
+                                                 List<DatatypeArrayMultiRowElementContext> dataContexts,
+                                                 List<List<ColumnDescriptor>> allDescriptors,
+                                                 OpenlToolAdaptor openlAdapter,
+                                                 int startRow, int rows) throws OpenLCompilationException {
 
         List<ColumnDescriptor> descriptors = allDescriptors.get(0);
 
@@ -411,7 +427,8 @@ public class Table implements ITable {
                 }
             }
 
-            env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
+            DatatypeArrayMultiRowElementContext context = new DatatypeArrayMultiRowElementContext();
+            env.pushLocalFrame(new Object[] { context });
             env.pushThis(literal);
             try {
                 for (List<ColumnDescriptor> allDescriptor : allDescriptors) {
@@ -419,6 +436,7 @@ public class Table implements ITable {
                 }
                 bindDataIndexWithTableRowNum(resultContainer.size(), rowNum + startRow);
                 resultContainer.add(literal);
+                dataContexts.add(context);
             } finally {
                 env.popThis();
                 env.popLocalFrame();
@@ -637,4 +655,11 @@ public class Table implements ITable {
         return false;
     }
 
+
+    private DatatypeArrayMultiRowElementContext getCachedContext(int i) {
+        if (dataContextCache == null || dataContextCache.isEmpty()) {
+            return null;
+        }
+        return dataContextCache.get(i);
+    }
 }
