@@ -267,6 +267,7 @@ public class WebStudio {
                 userWorkspace.refresh();
             }
             project.save();
+            model.resetSourceModified();
         } catch (WorkspaceException e) {
             throw new ProjectException(e.getMessage(), e);
         }
