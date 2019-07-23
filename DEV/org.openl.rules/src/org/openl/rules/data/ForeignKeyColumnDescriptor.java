@@ -27,6 +27,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from other tables.
@@ -300,10 +301,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
      * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
+    @SuppressWarnings("unchecked")
     public void populateLiteralByForeignKey(Object target,
-            ILogicalTable valuesTable,
-            IDataBase db,
-            IBindingContext cxt) throws Exception {
+                                            ILogicalTable valuesTable,
+                                            IDataBase db,
+                                            IBindingContext cxt,
+                                            IRuntimeEnv env) throws Exception {
         if (getField() != null) {
 
             if (foreignKeyTable != null) {
@@ -327,7 +330,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 IOpenClass fieldType = getField().getType();
 
-                boolean valueAnArray = isValuesAnArray(fieldType);
                 IOpenClass resType = foreignTable.getDataModel().getType();
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
@@ -364,6 +366,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     f = fieldType.isAssignableFrom(resType);
                 }
 
+                if (isSupportMultirows()) {
+                    populateLiteralByForeignKeyWithMultirowSupport(target,
+                            valuesTable,
+                            cxt,
+                            foreignTable,
+                            foreignKeyIndex,
+                            !f,
+                            resType,
+                            env);
+                    return;
+                }
+
                 if (f) {
                     if (!StringUtils.isEmpty(s)) {
                         Object res = getValueByForeignKeyIndex(cxt,
@@ -381,7 +395,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                                 resType);
                             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                         }
-                        getField().set(target, cast.convert(res), getRuntimeEnv());
+                        getField().set(target, cast.convert(res), env);
                     }
                 } else {
                     // processing array or list values.
@@ -400,13 +414,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
 
                     int size = values.size();
-                    IOpenClass componentType;
-
-                    if (valueAnArray) {
-                        componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
-                    } else {
-                        componentType = JavaOpenClass.OBJECT;
-                    }
+                    IOpenClass componentType = getComponentType(fieldType);
 
                     Object v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
 
@@ -424,7 +432,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             Array.set(v, i, value);
                         }
                     }
-                    getField().set(target, v, getRuntimeEnv());
+                    getField().set(target, v, env);
                 }
             }
         } else {
@@ -437,6 +445,93 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              */
         }
     }
+
+    private IOpenClass getComponentType(IOpenClass fieldType) {
+        return isValuesAnArray() ?
+                fieldType.getAggregateInfo().getComponentType(fieldType)
+                : JavaOpenClass.OBJECT;
+    }
+
+
+    private void populateLiteralByForeignKeyWithMultirowSupport(Object target,
+                                                                ILogicalTable valuesTable,
+                                                                IBindingContext cxt,
+                                                                ITable foreignTable,
+                                                                int foreignKeyIndex,
+                                                                boolean isCollection,
+                                                                IOpenClass resType,
+                                                                IRuntimeEnv env) throws Exception {
+        DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env
+                .getLocalFrame()[0];
+        IOpenClass fieldType = getField().getType();
+        for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+            context.setRow(i);
+            ILogicalTable logicalTable = LogicalTableHelper
+                    .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                    .getSubtable(0, 0, 1, 1);
+            if (isCollection) {
+                List<Object> cellValues = getArrayValuesByForeignKey(logicalTable,
+                        cxt,
+                        foreignTable,
+                        foreignKeyIndex,
+                        foreignKeyTableAccessorChainTokens);
+                List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
+                IOpenClass componentType = getComponentType(fieldType);
+                Object currentValue = getField().get(target, env);
+                boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isSet = Set.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isArray = !isList && !isSet;
+                int shift = 0;
+                Object v;
+                if (currentValue == null) {
+                    int size = isArray ? values.size() : 0;
+                    v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+                } else {
+                    if (isArray) {
+                        shift = Array.getLength(currentValue);
+                        int size = values.size() + shift;
+                        v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+                        System.arraycopy(currentValue, 0, v, 0, shift);
+                    } else {
+                        v = currentValue;
+                    }
+                }
+                for (int j = 0; j < values.size(); j++) {
+                    Object value = values.get(j);
+                    if (isList) {
+                        ((List<Object>) v).add(value);
+                    } else if (isSet) {
+                        ((Set<Object>) v).add(value);
+                    } else {
+                        Array.set(v, j + shift, value);
+                    }
+                }
+                getField().set(target, v, env);
+            } else {
+                String s = getCellStringValue(logicalTable);
+                if (StringUtils.isEmpty(s)) {
+                    continue;
+                }
+                Object res = getValueByForeignKeyIndex(cxt,
+                        foreignTable,
+                        foreignKeyIndex,
+                        foreignKeyTableAccessorChainTokens,
+                        logicalTable,
+                        s);
+                IOpenCast cast = cxt.getCast(resType, fieldType);
+                if (cast == null || !cast.isImplicit()) {
+                    String message = String.format(
+                            "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                            getField().getName(),
+                            fieldType,
+                            resType);
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                }
+                getField().set(target, cast.convert(res), env);
+            }
+        }
+    }
+
 
     private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
         if (foreignTable == null) {
