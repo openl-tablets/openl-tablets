@@ -9,6 +9,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -23,6 +24,8 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
+import org.richfaces.component.UITree;
+import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +43,8 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         try {
             deleteTempFiles();
             setDiffTree(null);
+            clearTreeSelection();
+
             this.conflictedFile = conflictedFile;
 
             if (StringUtils.isBlank(conflictedFile)) {
@@ -77,6 +82,13 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         }
     }
 
+    private void clearTreeSelection() {
+        UIComponent treeComponent = RichFunction.findComponent("newTree");
+        if (treeComponent instanceof UITree) {
+            ((UITree) treeComponent).setSelection(Collections.emptyList());
+        }
+    }
+
     private File createTempFile(FileItem item, String fullName) throws FileNotFoundException {
         if (item == null) {
             throw new FileNotFoundException("File " + fullName + " is not found");
@@ -96,7 +108,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     }
 
     public void close() {
-        setFilesToCompare(Collections.<File>emptyList());
+        setFilesToCompare(Collections.emptyList());
         deleteTempFiles();
         setDiffTree(null);
     }
