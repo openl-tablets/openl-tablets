@@ -7,6 +7,9 @@
             <module name="org.slf4j" />
             <module name="org.slf4j.impl" />
         </exclusions>
+        <exclude-subsystems>  
+            <subsystem name="jaxrs" />  
+        </exclude-subsystems>
         <dependencies>
             <module name="javax.jws.api" export="true" /><!-- Support JBoss EAP 7.1 -->
             <module name="javax.xml.ws.api" export="true" />
