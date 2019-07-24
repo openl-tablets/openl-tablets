@@ -718,4 +718,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public boolean branchExists(String branch) throws IOException {
         return delegate instanceof BranchRepository && ((BranchRepository) delegate).branchExists(branch);
     }
+
+    public String getRealPath(String externalPath) {
+        Map<String, String> mapping = getMappingForRead();
+        return toInternal(mapping, externalPath);
+    }
 }

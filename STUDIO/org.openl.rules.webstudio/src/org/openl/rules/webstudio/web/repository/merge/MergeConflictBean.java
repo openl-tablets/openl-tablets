@@ -25,6 +25,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.richfaces.event.FileUploadEvent;
@@ -52,6 +53,20 @@ public class MergeConflictBean {
         List<String> conflicts = new ArrayList<>(mergeConflict.getException().getConflictedFiles());
         Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
         return conflicts;
+    }
+
+    public String getRealPath(String path) {
+        MergeConflictInfo mergeConflict = getMergeConflict();
+        if (mergeConflict == null) {
+            return path;
+        }
+
+        Repository repository = mergeConflict.getProject().getDesignRepository();
+        if (repository.supports().mappedFolders()) {
+            return ((MappedRepository) repository).getRealPath(path);
+        }
+
+        return path;
     }
 
     public String getOurCommit() {

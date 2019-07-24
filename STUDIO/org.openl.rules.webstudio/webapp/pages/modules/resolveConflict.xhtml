@@ -44,7 +44,8 @@
               <f:facet name="header">
                 <h:outputText value="File"/>
               </f:facet>
-              <h:outputText value="#{conflict}" title="#{conflict}"/>
+              <ui:param name="realPath" value="#{mergeConflictBean.getRealPath(conflict)}"/>
+              <h:outputText value="#{realPath}" title="#{realPath}"/>
             </rich:column>
             <rich:column style="min-width: 80px">
               <f:facet name="header">
