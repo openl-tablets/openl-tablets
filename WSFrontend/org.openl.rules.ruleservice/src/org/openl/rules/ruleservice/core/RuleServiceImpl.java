@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
@@ -30,7 +31,7 @@ public class RuleServiceImpl implements RuleService {
      */
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
 
-    private Map<String, ServiceDescription> mapping = new HashMap<>();
+    private Map<String, ServiceDescription> serviceDescriptionMap = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -44,7 +45,7 @@ public class RuleServiceImpl implements RuleService {
                 String.format("There is no running service with name '%s'.", serviceDescription.getName()));
         }
         try {
-            ServiceDescription sd = mapping.get(serviceDescription.getName());
+            ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
             if (sd == null) {
                 throw new IllegalStateException("Invalid state!!!");
             }
@@ -77,21 +78,34 @@ public class RuleServiceImpl implements RuleService {
             throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
         }
 
-        ServiceDescription serviceDescription = mapping.get(serviceName);
+        ServiceDescription serviceDescription = serviceDescriptionMap.get(serviceName);
         if (serviceDescription == null) {
             throw new IllegalStateException("Illegal State!!!");
         }
+        try {
+            ruleServicePublisher.undeploy(serviceName);
+            serviceDescriptionMap.remove(serviceDescription.getName());
+        } finally {
+            cleanDeploymentResources(serviceDescription);
+            service.destroy();
+        }
+        log.info("Service '{}' was undeployed succesfully.", service.getName());
+    }
 
-        ruleServicePublisher.undeploy(serviceName);
-        mapping.remove(serviceDescription.getName());
-        if (ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { // NEED
+    private void cleanDeploymentResources(ServiceDescription serviceDescription) {
+        boolean foundServiceWithThisDeployment = false;
+        for (ServiceDescription sd : serviceDescriptionMap.values()) {
+            if (sd.getDeployment().equals(serviceDescription.getDeployment())) {
+                foundServiceWithThisDeployment = true;
+                break;
+            }
+        }
+        if (!foundServiceWithThisDeployment && ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { // NEED
             // SOME
             // FIX.
             ((RuleServiceOpenLServiceInstantiationFactoryImpl) ruleServiceInstantiationFactory)
                 .clear(serviceDescription.getDeployment());
         }
-        service.destroy();
-        log.info("Service '{}' was undeployed succesfully.", service.getName());
     }
 
     /**
@@ -126,17 +140,19 @@ public class RuleServiceImpl implements RuleService {
             deploy(serviceDescription, newService);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
+        } finally {
+            cleanDeploymentResources(serviceDescription);
         }
     }
 
     private void deploy(ServiceDescription serviceDescription,
             OpenLService newService) throws RuleServiceDeployException {
-        ServiceDescription sd = mapping.get(serviceDescription.getName());
+        ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
         if (sd != null) {
             throw new IllegalStateException("Illegal State!!");
         }
         ruleServicePublisher.deploy(newService);
-        mapping.put(serviceDescription.getName(), serviceDescription);
+        serviceDescriptionMap.put(serviceDescription.getName(), serviceDescription);
         log.info("Service '{}' was deployed succesfully.", serviceDescription.getName());
     }
 
