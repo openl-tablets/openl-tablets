@@ -892,7 +892,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         formatter.setOldPrefix("Their: ");
                         formatter.setNewPrefix("Our: ");
                         formatter.format(entry);
-                        diffs.put(entry.getNewPath(), outputStream.toString(StandardCharsets.UTF_8.name()));
+                        String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ?
+                                      entry.getOldPath() :
+                                      entry.getNewPath();
+                        diffs.put(path, outputStream.toString(StandardCharsets.UTF_8.name()));
                     }
                 }
             }
