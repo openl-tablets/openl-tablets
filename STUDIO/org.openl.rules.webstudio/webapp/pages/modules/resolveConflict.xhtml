@@ -51,30 +51,39 @@
               <f:facet name="header">
                 <h:outputText value="Compare"/>
               </f:facet>
-              <h:panelGroup rendered="#{mergeConflictBean.isExcelFile(conflict)}">
+              <ui:param name="canCompare" value="#{mergeConflictBean.canCompare(conflict, mergeConflictBean.theirCommit)}"/>
+              <h:panelGroup rendered="#{canCompare and mergeConflictBean.isExcelFile(conflict)}">
                 <div>
                   <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
                      title="Compare">Compare</a>
                 </div>
               </h:panelGroup>
-              <h:panelGroup rendered="#{not mergeConflictBean.isExcelFile(conflict)}">
+              <h:panelGroup rendered="#{canCompare and not mergeConflictBean.isExcelFile(conflict)}">
                 <div>
                   <a href="javascript:void(0)" onclick="openCompareTextFilesDialog('#{conflict}')"
                      title="Compare">Compare</a>
                 </div>
               </h:panelGroup>
-              <div>
-                <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
-                   title="Download our version">Download Our</a>
-              </div>
-              <div>
-                <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
-                   title="Download their version">Download Their</a>
-              </div>
-              <div>
-                <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
-                   title="Download base version">Download Base</a>
-              </div>
+
+              <h:panelGroup rendered="#{mergeConflictBean.hasLocalFile(conflict)}">
+                <div>
+                  <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
+                     title="Download our version">Download Our</a>
+                </div>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.theirCommit)}">
+                <div>
+                  <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                     title="Download their version">Download Their</a>
+                </div>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.baseCommit)}">
+                <div>
+                  <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                     title="Download base version">Download Base</a>
+                </div>
+              </h:panelGroup>
+
             </rich:column>
             <rich:column style="min-width: 160px">
               <f:facet name="header">
