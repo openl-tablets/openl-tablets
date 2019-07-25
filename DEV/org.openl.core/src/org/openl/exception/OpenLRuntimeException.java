@@ -7,7 +7,6 @@ import java.util.LinkedList;
 
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
 
@@ -22,8 +21,10 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private static final long serialVersionUID = -8422089115244904493L;
 
-    private IBoundNode node;
     private LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
+    private ILocation location;
+    private String sourceLocation;
+    private String sourceCode;
 
     public OpenLRuntimeException() {
         super();
@@ -43,12 +44,35 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     public OpenLRuntimeException(Throwable cause, IBoundNode node) {
         super(cause);
-        this.node = node;
+        if (node != null) {
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
+            if (syntaxNode != null) {
+                this.sourceCode = syntaxNode.getModule().getCode();
+                this.location = syntaxNode.getSourceLocation();
+                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+            }
+        }
     }
 
     public OpenLRuntimeException(String message, IBoundNode node) {
         super(message);
-        this.node = node;
+        if (node != null) {
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
+            if (syntaxNode != null) {
+                this.sourceCode = syntaxNode.getModule().getCode();
+                this.location = syntaxNode.getSourceLocation();
+                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+            }
+        }
+    }
+
+    protected OpenLRuntimeException(String message, ISyntaxNode syntaxNode) {
+        super(message);
+        if (syntaxNode != null) {
+            this.sourceCode = syntaxNode.getModule().getCode();
+            this.location = syntaxNode.getSourceLocation();
+            this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+        }
     }
 
     public String getOriginalMessage() {
@@ -59,10 +83,10 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     public String getMessage() {
         StringWriter messageWriter = new StringWriter();
         PrintWriter pw = new PrintWriter(messageWriter);
-        if (node != null) {
+        if (location != null) {
             pw.println(super.getMessage());
-            SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
-            SourceCodeURLTool.printSourceLocation(getLocation(), getSourceModule(), pw);
+            SourceCodeURLTool.printCodeAndError(getLocation(), getSourceCode(), pw);
+            SourceCodeURLTool.printSourceLocation(getSourceLocation(), pw);
         } else {
             pw.print(super.getMessage());
         }
@@ -71,28 +95,17 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     @Override
     public ILocation getLocation() {
-        if (node != null) {
-            ISyntaxNode syntaxNode = node.getSyntaxNode();
-            if (syntaxNode != null) {
-                return syntaxNode.getSourceLocation();
-            }
-        }
-        return null;
+        return location;
     }
 
     @Override
-    public IOpenSourceCodeModule getSourceModule() {
-        if (node != null) {
-            ISyntaxNode syntaxNode = node.getSyntaxNode();
-            if (syntaxNode != null) {
-                return syntaxNode.getModule();
-            }
-        }
-        return null;
+    public String getSourceCode() {
+        return sourceCode;
     }
 
-    public IBoundNode getNode() {
-        return node;
+    @Override
+    public String getSourceLocation() {
+        return sourceLocation;
     }
 
     public void pushMethodNode(IBoundNode node) {
@@ -121,12 +134,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
         writer.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());
 
-        if (getNode() != null) {
-            ISyntaxNode syntaxNode = getNode().getSyntaxNode();
-            if (syntaxNode != null) {
-                SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
-                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
-            }
+        if (getLocation() != null) {
+            SourceCodeURLTool.printCodeAndError(getLocation(), getSourceCode(), writer);
+            SourceCodeURLTool.printSourceLocation(getSourceLocation(), writer);
         }
 
         LinkedList<IBoundNode> nodes = openlCallStack;
@@ -134,7 +144,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         for (IBoundNode node : nodes) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
-                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+                String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+                SourceCodeURLTool.printSourceLocation(sourceLocation, writer);
             }
         }
 
