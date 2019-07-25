@@ -280,9 +280,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         this.externalParameters = externalParameters;
     }
 
-    public void clear(DeploymentDescription deploymentDescription) {
-        dependencyManagerMap.remove(deploymentDescription);
-        CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
+    public void clean(ServiceDescription serviceDescription) {
+        dependencyManagerMap.remove(serviceDescription.getDeployment());
+        CompiledOpenClassCache.getInstance().removeAll(serviceDescription.getDeployment());
     }
 
     private RuleServiceDeploymentRelatedDependencyManager getDependencyManager(ServiceDescription serviceDescription) {

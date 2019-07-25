@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
@@ -100,11 +99,8 @@ public class RuleServiceImpl implements RuleService {
                 break;
             }
         }
-        if (!foundServiceWithThisDeployment && ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { // NEED
-            // SOME
-            // FIX.
-            ((RuleServiceOpenLServiceInstantiationFactoryImpl) ruleServiceInstantiationFactory)
-                .clear(serviceDescription.getDeployment());
+        if (!foundServiceWithThisDeployment) {
+            ruleServiceInstantiationFactory.clean(serviceDescription);
         }
     }
 

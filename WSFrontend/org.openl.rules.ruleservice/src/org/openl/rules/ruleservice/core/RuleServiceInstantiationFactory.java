@@ -17,4 +17,6 @@ public interface RuleServiceInstantiationFactory {
      * @throws RuleServiceInstantiationException
      */
     OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException;
+    
+    void clean(ServiceDescription serviceDescription);
 }
