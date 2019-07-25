@@ -68,19 +68,19 @@ public class MessagesBean {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
 
         ILocation location = null;
-        IOpenSourceCodeModule module = null;
+        String sourceCode = null;
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
             OpenLException error = errorMessage.getError();
             location = error.getLocation();
-            module = error.getSourceModule();
+            sourceCode = error.getSourceCode();
         } else if (message instanceof OpenLWarnMessage) {
             OpenLWarnMessage warnMessage = (OpenLWarnMessage) message;
             ISyntaxNode source = warnMessage.getSource();
             location = source.getSourceLocation();
-            module = source.getModule();
+            sourceCode = source.getModule() == null ? null : source.getModule().getCode();
         }
-        return getErrorCode(location, module);
+        return getErrorCode(location, sourceCode);
     }
 
     public boolean isHasLinkToCell() {
@@ -90,7 +90,7 @@ public class MessagesBean {
         String code = null;
         if (message instanceof OpenLErrorMessage) {
             OpenLException error = ((OpenLErrorMessage) message).getError();
-            module = error.getSourceModule();
+            code = error.getSourceCode();
         } else if (message instanceof OpenLWarnMessage) {
             ISyntaxNode source = ((OpenLWarnMessage) message).getSource();
             module = source.getModule();
@@ -139,14 +139,8 @@ public class MessagesBean {
         return errorUri;
     }
 
-    private String[] getErrorCode(ILocation location, IOpenSourceCodeModule sourceModule) {
-        String code = StringUtils.EMPTY;
-        if (sourceModule != null) {
-            code = sourceModule.getCode();
-            if (StringUtils.isBlank(code)) {
-                code = StringUtils.EMPTY;
-            }
-        }
+    private String[] getErrorCode(ILocation location, String sourceCode) {
+        String code = StringUtils.isBlank(sourceCode) ? StringUtils.EMPTY : sourceCode;
 
         int pstart = 0;
         int pend = code.length();
@@ -160,7 +154,7 @@ public class MessagesBean {
         if (pend != 0) {
             return new String[] { code.substring(0, pstart),
                     code.substring(pstart, pend),
-                    code.substring(pend, code.length()) };
+                    code.substring(pend) };
         }
 
         return new String[0];

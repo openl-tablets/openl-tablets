@@ -15,8 +15,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
     private Throwable insideCause;
     private ILocation location;
-    private IOpenSourceCodeModule source;
     private String sourceLocation;
+    private String sourceUri;
+    private String sourceCode;
 
     public OpenLCompilationException(String message,
             Throwable insideCause,
@@ -25,7 +26,11 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         super(message);
         this.insideCause = insideCause;
         this.location = location;
-        this.source = source;
+        if (source != null) {
+            this.sourceUri = source.getUri();
+            this.sourceCode = source.getCode();
+        }
+        this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, source);
     }
 
     public OpenLCompilationException(String message, Throwable cause, ILocation location) {
@@ -61,25 +66,20 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         return location;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.exception.OpenLException#getSourceModule()
-     */
-    @Override
-    public IOpenSourceCodeModule getSourceModule() {
-        return source;
-    }
-
     @Override
     public Throwable getCause() {
         return getOriginalCause();
     }
 
+    public String getSourceUri() {
+        return sourceUri;
+    }
+
+    public String getSourceCode() {
+        return sourceCode;
+    }
+
     public String getSourceLocation() {
-        if (sourceLocation == null) {
-            sourceLocation = SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule());
-        }
         return sourceLocation;
     }
 
@@ -90,7 +90,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
         printError(this, printWriter);
-        SourceCodeURLTool.printSourceLocation(getLocation(), getSourceModule(), printWriter);
+        SourceCodeURLTool.printSourceLocation(getSourceLocation(), printWriter);
         printWriter.close();
 
         return stringWriter.toString();
@@ -118,11 +118,12 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         writer.println("Error: " + message);
 
-        SourceCodeURLTool.printCodeAndError(error.getLocation(), error.getSourceModule(), writer);
-        SourceCodeURLTool.printSourceLocation(error.getLocation(), error.getSourceModule(), writer);
+        SourceCodeURLTool.printCodeAndError(error.getLocation(), error.getSourceCode(), writer);
+        SourceCodeURLTool.printSourceLocation(error.getSourceLocation(), writer);
 
         if (error.getCause() != null) {
             error.getCause().printStackTrace(writer);
         }
     }
+
 }

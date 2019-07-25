@@ -93,7 +93,22 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
         return moduleUri;
     }
 
-    static public void printCodeAndError(ILocation location, IOpenSourceCodeModule module, PrintWriter pw) {
+    /**
+     * Prints source code fragment and underlines a fragment where an error had been occurred
+     *
+     * <p>
+     * Openl Code Fragment:<br>
+     * =======================<br>
+     *  Double getRAWPremium(Policy p)<br>
+     *                       ^^^^^^<br>
+     * =======================<br>
+     * </p>
+     *
+     * @param location source location
+     * @param src source code
+     * @param pw writer
+     */
+    static public void printCodeAndError(ILocation location, String src, PrintWriter pw) {
 
         if (location == null) {
             return;
@@ -103,7 +118,6 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
             return;
         }
 
-        String src = module.getCode();
         TextInfo info = new TextInfo(src);
         String[] lines = NEW_LINE.split(src);
 
@@ -139,12 +153,9 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
 
     }
 
-    static public void printSourceLocation(ILocation location, IOpenSourceCodeModule module, PrintWriter pw) {
-
-        String url = SourceCodeURLTool.makeSourceLocationURL(location, module);
-
-        if (!StringUtils.isEmpty(url)) {
-            pw.println(SourceCodeURLConstants.AT_PREFIX + url);
+    static public void printSourceLocation(String sourceLocation, PrintWriter pw) {
+        if (!StringUtils.isEmpty(sourceLocation)) {
+            pw.println(SourceCodeURLConstants.AT_PREFIX + sourceLocation);
         }
     }
 
