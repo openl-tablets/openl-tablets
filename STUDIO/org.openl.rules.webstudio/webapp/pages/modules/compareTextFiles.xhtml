@@ -8,6 +8,11 @@
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+  <style>
+    #diff-table td:first-child, #diff-table td:nth-child(2) {
+      padding-right: 3px;
+    }
+  </style>
   <rich:popupPanel id="modalCompareTextFiles" resizeable="true">
     <f:facet name="header">
       <h:outputText value="Compare text files" />
@@ -19,8 +24,28 @@
 
     <div class="scrollable">
       <h:form id="compareTextFilesForm">
-        <div style="width: 100%;" class="source-code scrollable">
-          <h:outputText value="#{conflictedFileDiffController.textDiff}"/>
+        <div style="width: 100%;" class="scrollable">
+          <ui:repeat value="#{conflictedFileDiffController.diffSets}" var="diffSet">
+            <h2>Lines #{diffSet.fromLine} - #{diffSet.toLine}</h2>
+            <table id="diff-table">
+              <ui:repeat value="#{diffSet.lines}" var="line">
+                <tr>
+                  <td>
+                    <div class="line-number" title="Their line #">#{line.type == 'OUR' ? ' ' : line.theirLine}</div>
+                  </td>
+                  <td>
+                    <div class="line-number" title="Our line #">#{line.type == 'THEIR' ? ' ' : line.ourLine}</div>
+                  </td>
+                  <td>
+                    <h:panelGroup layout="block"
+                                  styleClass="source-code line-type-#{line.type.name().toLowerCase()} #{line.noEndOfFile ? 'line-type-no-eof' : ''}">
+                      <h:outputText value="#{line.text}"/>
+                    </h:panelGroup>
+                  </td>
+                </tr>
+              </ui:repeat>
+            </table>
+          </ui:repeat>
         </div>
 
         <a4j:jsFunction name="refreshCompareTextFilesDialog" render="@form" oncomplete="showCompareTextFilesDialog();">
