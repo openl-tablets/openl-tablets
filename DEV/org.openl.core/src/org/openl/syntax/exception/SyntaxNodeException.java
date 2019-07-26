@@ -9,8 +9,6 @@ public class SyntaxNodeException extends OpenLCompilationException {
 
     private static final long serialVersionUID = 4448924727461016950L;
 
-    private ISyntaxNode syntaxNode;
-
     public SyntaxNodeException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule source) {
         super(message, cause, location, source);
     }
@@ -20,25 +18,5 @@ public class SyntaxNodeException extends OpenLCompilationException {
             cause,
             syntaxNode == null ? null : syntaxNode.getSourceLocation(),
             syntaxNode == null ? null : syntaxNode.getModule());
-
-        this.syntaxNode = syntaxNode;
-    }
-
-    @Override
-    public IOpenSourceCodeModule getSourceModule() {
-
-        IOpenSourceCodeModule source = super.getSourceModule();
-
-        if (source != null) {
-            return source;
-        } else if (syntaxNode != null) {
-            return syntaxNode.getModule();
-        }
-
-        return null;
-    }
-
-    public ISyntaxNode getSyntaxNode() {
-        return syntaxNode;
     }
 }

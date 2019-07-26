@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.validation.ValidationException;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -23,8 +25,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.richfaces.event.FileUploadEvent;
@@ -52,6 +56,20 @@ public class MergeConflictBean {
         List<String> conflicts = new ArrayList<>(mergeConflict.getException().getConflictedFiles());
         Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
         return conflicts;
+    }
+
+    public String getRealPath(String path) {
+        MergeConflictInfo mergeConflict = getMergeConflict();
+        if (mergeConflict == null) {
+            return path;
+        }
+
+        Repository repository = mergeConflict.getProject().getDesignRepository();
+        if (repository.supports().mappedFolders()) {
+            return ((MappedRepository) repository).getRealPath(path);
+        }
+
+        return path;
     }
 
     public String getOurCommit() {
@@ -133,10 +151,7 @@ public class MergeConflictBean {
         List<FileItem> resolvedFiles = new ArrayList<>();
         try {
             RulesProject project = mergeConflict.getProject();
-            WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName());
-            UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
+            UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
 
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
@@ -195,10 +210,7 @@ public class MergeConflictBean {
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
 
-                WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext()
-                    .getAuthentication()
-                    .getName());
-                UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
+                UserWorkspace userWorkspace = getUserWorkspace();
                 String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
 
                 StringBuilder messageBuilder = new StringBuilder("Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
@@ -226,11 +238,18 @@ public class MergeConflictBean {
 
     @PreDestroy
     public void destroy() {
-        clearMergeStatus();
+        try {
+            clearMergeStatus();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public void clearMergeStatus() {
-        FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        FacesContext facesContext = FacesUtils.getFacesContext();
+        if (facesContext != null) {
+            facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        }
         conflictResolutions.clear();
         conflictedFile = null;
         mergeMessage = null;
@@ -239,6 +258,36 @@ public class MergeConflictBean {
     public boolean isExcelFile(String file) {
         file = file.toLowerCase();
         return file.endsWith(".xls") || file.endsWith(".xlsx");
+    }
+
+    public boolean canCompare(String name, String version) {
+        return hasLocalFile(name) && hasRepositoryFile(name, version);
+    }
+
+    public boolean hasLocalFile(String name) {
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+            String localName = name.substring(rulesLocation.length());
+            return userWorkspace.getLocalWorkspace().getRepository().check(localName) != null;
+        } catch (WorkspaceException | IOException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean hasRepositoryFile(String name, String version) {
+        try {
+            return getUserWorkspace().getDesignTimeRepository().getRepository().checkHistory(name, version) != null;
+        } catch (WorkspaceException | IOException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private UserWorkspace getUserWorkspace() throws WorkspaceException {
+        WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext().getAuthentication().getName());
+        return workspaceManager.getUserWorkspace(user);
     }
 
     private MergeConflictInfo getMergeConflict() {

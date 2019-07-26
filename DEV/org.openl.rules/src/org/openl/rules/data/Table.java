@@ -288,9 +288,9 @@ public class Table implements ITable {
                         } catch (SyntaxNodeException e) {
                             boolean found = false;
                             for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions) {
-                                if (syntaxNodeException.getMessage()
-                                        .equals(
-                                                e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()) {
+                                if (syntaxNodeException.getMessage().equals(e.getMessage())
+                                        && syntaxNodeException.getSourceUri() != null
+                                        && syntaxNodeException.getSourceUri().equals(e.getSourceUri())) {
                                     found = true;
                                 }
                             }

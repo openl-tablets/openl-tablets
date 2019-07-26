@@ -240,7 +240,7 @@
 
     <profiles>
         <profile>
-            <id>java11</id>
+            <id>java11</id> <!-- Additional libs for java 11 if it is compiled from java 8 -->
             <activation>
                 <jdk>[1.8,9)</jdk>
             </activation>

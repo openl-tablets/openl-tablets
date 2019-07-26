@@ -79,7 +79,6 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
             throw new DuplicatedTableException(tableSyntaxNode.getDisplayName(),
-                bindingContext.getTableSyntaxNode(key),
                 tableSyntaxNode);
         }
     }

@@ -42,7 +42,7 @@ public class DataBase implements IDataBase {
                 String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
                 String newUri = tsn.getTable().getSource().getUri();
                 if (!uri.equals(newUri)) {
-                    throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
+                    throw new DuplicatedTableException(tableName, tsn);
                 } else {
                     return table;
                 }
@@ -86,7 +86,6 @@ public class DataBase implements IDataBase {
                 String newUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
                 if (!uri.equals(newUri)) {
                     throw new DuplicatedTableException(newTable.getName(),
-                        table.getTableSyntaxNode(),
                         newTable.getTableSyntaxNode());
                 }
             }

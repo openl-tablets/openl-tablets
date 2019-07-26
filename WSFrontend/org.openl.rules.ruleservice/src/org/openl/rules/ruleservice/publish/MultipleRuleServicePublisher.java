@@ -64,19 +64,22 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         Objects.requireNonNull(service, "service argument must not be null!");
         Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceDeployException e1 = null;
+        List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
         for (RuleServicePublisher publisher : publishers) {
             if (!publisher.isServiceDeployed(service.getName())) {
                 try {
                     publisher.deploy(service);
+                    deployedPublishers.add(publisher);
                 } catch (RuleServiceDeployException e) {
                     e1 = e;
+                    break;
                 }
             }
         }
         if (e1 == null) {
             services.put(service.getName(), service);
         } else {
-            for (RuleServicePublisher publisher : publishers) {
+            for (RuleServicePublisher publisher : deployedPublishers) {
                 if (publisher.isServiceDeployed(service.getName())) {
                     try {
                         publisher.undeploy(service.getName());

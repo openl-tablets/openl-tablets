@@ -39,8 +39,7 @@ public class OpenLErrorMessage extends OpenLMessage {
         printWriter.println(super.toString());
 
         if (getError() != null) {
-            String url = SourceCodeURLTool.makeSourceLocationURL(getError().getLocation(),
-                getError().getSourceModule());
+            String url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
                 printWriter.println(SourceCodeURLConstants.AT_PREFIX + url);
@@ -57,7 +56,7 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     @Override
     public String getSourceLocation() {
-        return SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule());
+        return error.getSourceLocation();
     }
 
     @Override
@@ -68,7 +67,7 @@ public class OpenLErrorMessage extends OpenLMessage {
                                                    : ((error.getMessage() == null) ? 0
                                                                                    : error.getMessage().hashCode()));
         if (error instanceof OpenLCompilationException) {
-            String location = ((OpenLCompilationException) error).getSourceLocation();
+            String location = error.getSourceLocation();
             result = prime * result + Objects.hashCode(location);
         }
         return result;
@@ -97,8 +96,8 @@ public class OpenLErrorMessage extends OpenLMessage {
         }
 
         if (error instanceof OpenLCompilationException && other.error instanceof OpenLCompilationException) {
-            String location = ((OpenLCompilationException) error).getSourceLocation();
-            String otherLocation = ((OpenLCompilationException) other.error).getSourceLocation();
+            String location = error.getSourceLocation();
+            String otherLocation = other.error.getSourceLocation();
             return StringUtils.equals(location, otherLocation);
         }
 

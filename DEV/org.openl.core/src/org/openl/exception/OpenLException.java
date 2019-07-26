@@ -21,6 +21,12 @@ public interface OpenLException {
      *
      * @return source code module
      */
-    IOpenSourceCodeModule getSourceModule();
+    String getSourceCode();
+
+    /**
+     * Gets error source location URI
+     * @return source location URI
+     */
+    String getSourceLocation();
 
 }
