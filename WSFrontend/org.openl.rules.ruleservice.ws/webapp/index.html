@@ -1,20 +1,8 @@
-<%
-    WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-    RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
-    String services = new ObjectMapper().writeValueAsString(PublisherUtils.getServicesInfo(ruleServicePublisher));
-%>
-<%@ page import="org.openl.rules.ruleservice.servlet.PublisherUtils" %>
-<%@ page import="org.springframework.web.context.WebApplicationContext" %>
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
-<%@ page import="org.openl.rules.ruleservice.publish.RuleServicePublisher" %>
-<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8"/>
     <title>OpenL Tablets Web Services</title>
-    <base href="${pageContext.request.contextPath}/"/>
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <style>
         body {
@@ -128,34 +116,50 @@
 <div id="main"></div>
 <div id="footer">&#169; 2019 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
+
     // Get JSON of available services
-    var services = <%= services %>;
+    var xmlhttp = new XMLHttpRequest();
+    var url = window.location.href + "admin/services";
 
-    // The block for rendering of the available services
-    var mainBlock = document.getElementById("main");
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState != 4) {
+            return;
+        }
+        if (this.status == 200) {
+            var services = JSON.parse(this.responseText);
+            renderJson(services);
+        }
+    };
 
-    if (Array.isArray(services) && services.length > 0) {
-        mainBlock.innerHTML = "<h2>Available services:</h2>";
-        services.forEach(function (service) {
-            var html = createServiceHtml(service);
-            var el = document.createElement("DIV");
-            el.innerHTML = html;
-            mainBlock.appendChild(el);
-        });
-        mainBlock.addEventListener('click', function (event) {
-            var button = event.target || event.srcElement;
-            if (button.className == "expand-button") {
-                // Expand the node
-                button.className = "collapse-button";
-            } else if (button.className == "collapse-button") {
-                // Collapse the node
-                button.className = "expand-button";
-            }
-        })
-    } else {
-        mainBlock.innerHTML = "<h2>There are no available services</h2>";
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+    function renderJson(services) {
+        // The block for rendering of the available services
+        var mainBlock = document.getElementById("main");
+
+        if (Array.isArray(services) && services.length > 0) {
+            mainBlock.innerHTML = "<h2>Available services:</h2>";
+            services.forEach(function (service) {
+                var html = createServiceHtml(service);
+                var el = document.createElement("DIV");
+                el.innerHTML = html;
+                mainBlock.appendChild(el);
+            });
+            mainBlock.addEventListener('click', function (event) {
+                var button = event.target || event.srcElement;
+                if (button.className == "expand-button") {
+                    // Expand the node
+                    button.className = "collapse-button";
+                } else if (button.className == "collapse-button") {
+                    // Collapse the node
+                    button.className = "expand-button";
+                }
+            })
+        } else {
+            mainBlock.innerHTML = "<h2>There are no available services</h2>";
+        }
     }
-
     // Creating innerHTML of one service
     function createServiceHtml(service) {
         var html = "";
@@ -183,7 +187,7 @@
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
             } else if (name == "Kafka") {
-            	html += name;
+                html += name;
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }

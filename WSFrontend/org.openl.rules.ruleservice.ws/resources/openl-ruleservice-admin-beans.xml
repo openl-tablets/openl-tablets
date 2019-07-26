@@ -7,9 +7,19 @@
         <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
     </bean>
 
-    <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestServiceInitializingBean">
+    <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestControllerInitializingBean">
         <property name="enabled" value="${ruleservice.deployer.enable}"/>
+        <property name="baseAddress" value="/rules"/>
         <lookup-method name="getRulesDeployerRestController" bean="rulesDeployerRestController"/>
+    </bean>
+
+    <bean id="adminRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.AdminRestControllerInitializingBean">
+        <constructor-arg>
+            <bean class="org.openl.rules.ruleservice.rest.admin.AdminRestController">
+                <constructor-arg ref="ruleServicePublisher"/>
+            </bean>
+        </constructor-arg>
+        <property name="baseAddress" value="/admin"/>
     </bean>
 
 </beans>

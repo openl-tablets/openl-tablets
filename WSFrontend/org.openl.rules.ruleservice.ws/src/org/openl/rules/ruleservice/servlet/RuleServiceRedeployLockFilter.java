@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.servlet;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 
 import javax.servlet.*;
@@ -15,7 +16,9 @@ public class RuleServiceRedeployLockFilter implements javax.servlet.Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         String ignorePrefixesParameter = filterConfig.getInitParameter("ignorePrefixes");
         if (ignorePrefixesParameter != null) {
-            ignorePrefixes = ignorePrefixesParameter.split(",");
+            ignorePrefixes = Arrays.stream(ignorePrefixesParameter.split(","))
+                .map(String::trim)
+                .toArray(size -> new String[size]);
         } else {
             ignorePrefixes = new String[] {};
         }

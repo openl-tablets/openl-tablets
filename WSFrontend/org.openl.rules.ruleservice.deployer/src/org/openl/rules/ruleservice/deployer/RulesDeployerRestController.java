@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response.Status;
  *
  * @author Vladyslav Pikus
  */
-@Path("/rules")
 @Produces("application/json")
 public class RulesDeployerRestController {
 

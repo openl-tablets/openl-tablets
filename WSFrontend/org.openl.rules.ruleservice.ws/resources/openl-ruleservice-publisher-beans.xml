@@ -9,7 +9,6 @@
     <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml" />
     <import resource="classpath:META-INF/spring/openl-ruleservice-rmi-publisher-beans.xml" />
     <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml" />
-    <import resource="classpath:openl-ruleservice-deployer-beans.xml"/>
 
     <!-- Bean helps to read configuration and apply it to override types -->
     <bean id="rootClassNamesBindingFactoryBean"

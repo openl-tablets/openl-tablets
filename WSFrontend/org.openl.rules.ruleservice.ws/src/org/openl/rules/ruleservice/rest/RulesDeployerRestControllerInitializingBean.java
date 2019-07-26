@@ -13,9 +13,10 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
  *
  * @author Vladyslav Pikus
  */
-public abstract class RulesDeployerRestServiceInitializingBean implements InitializingBean {
+public abstract class RulesDeployerRestControllerInitializingBean implements InitializingBean {
 
     private boolean isEnabled;
+    private String baseAddress;
 
     public void setEnabled(boolean enabled) {
         this.isEnabled = enabled;
@@ -23,11 +24,20 @@ public abstract class RulesDeployerRestServiceInitializingBean implements Initia
 
     public abstract RulesDeployerRestController getRulesDeployerRestController();
 
+    public String getBaseAddress() {
+        return baseAddress;
+    }
+    
+    public void setBaseAddress(String baseAddress) {
+        this.baseAddress = baseAddress;
+    }
+    
     @Override
     public void afterPropertiesSet() {
         if (isEnabled) {
             JAXRSServerFactoryBean serverFactory = getJAXRSServerFactory();
             serverFactory.setServiceBean(getRulesDeployerRestController());
+            serverFactory.setAddress(getBaseAddress());
             serverFactory.init();
         }
     }
