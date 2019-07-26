@@ -895,7 +895,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ?
                                       entry.getOldPath() :
                                       entry.getNewPath();
-                        diffs.put(path, outputStream.toString(StandardCharsets.UTF_8.name()));
+                        String comparison = outputStream.toString(StandardCharsets.UTF_8.name());
+                        int conflictIndex = comparison.indexOf("@@");
+                        diffs.put(path, conflictIndex < 0 ? comparison : comparison.substring(conflictIndex));
                     }
                 }
             }

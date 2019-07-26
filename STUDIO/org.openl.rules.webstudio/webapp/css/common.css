@@ -1471,5 +1471,31 @@ form .formfields {
 
 .source-code {
     white-space: pre-wrap;
-    font-size: 14px;
+}
+
+.line-number {
+    user-select: none;
+    color: lightgray;
+}
+
+.line-number:hover {
+    color: gray;
+}
+
+.source-code, .line-number {
+    vertical-align: top;
+    font-size: 120%;
+    font-family: monospace;
+}
+
+.line-type-their {
+    color: red;
+}
+
+.line-type-our {
+    color: green;
+}
+
+.line-type-no-eof {
+    background-color: lightgray;
 }

@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class XSSFOptimizer {
+    private static Logger LOG = LoggerFactory.getLogger(XSSFOptimizer.class);
     public static void removeUnusedStyles(XSSFWorkbook workbook) {
+        LOG.info("Starting style optimization...");
         try {
             StylesTable stylesSource = workbook.getStylesSource();
             @SuppressWarnings("unchecked")
@@ -26,6 +28,8 @@ public final class XSSFOptimizer {
             if (cellStyles == null) {
                 cellStyles = CTCellStyles.Factory.newInstance();
             }
+            List<CTCellStyle> cellStyleArray = new ArrayList<>(cellStyles.getCellStyleList());
+            LOG.info("Exists : xfs={}, styleXfs={}, styles={}", xfs.size(), styleXfs.size(), cellStyleArray.size());
 
             List<CTXf> newStyleXfs = new ArrayList<>();
             List<CTCellStyle> newCellStyles = new ArrayList<>();
@@ -39,7 +43,6 @@ public final class XSSFOptimizer {
             }
 
             // Change XfId references to the new ones
-            List<CTCellStyle> cellStyleArray = new ArrayList<>(cellStyles.getCellStyleList());
             long newXfId = 0;
             for (Integer usedStyleXf : usedStyleXfs) {
                 CTXf styleXf = styleXfs.get(usedStyleXf);
@@ -64,6 +67,7 @@ public final class XSSFOptimizer {
 
                 newXfId++;
             }
+            LOG.info("Used : styleXfs={}, styles={}", newStyleXfs.size(), newCellStyles.size());
 
             // Remove unused styles.
             styleXfs.clear();
@@ -71,10 +75,10 @@ public final class XSSFOptimizer {
 
             cellStyles.setCount(newCellStyles.size());
             cellStyles.setCellStyleArray(newCellStyles.toArray(new CTCellStyle[0]));
+            LOG.info("Style optimization has been finished.");
         } catch (IllegalAccessException e) {
             // Something is changed in POI implementation. Don't modify workbook, just quit.
-            Logger log = LoggerFactory.getLogger(XSSFOptimizer.class);
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
