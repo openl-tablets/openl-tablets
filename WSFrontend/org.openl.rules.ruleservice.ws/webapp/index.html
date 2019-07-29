@@ -78,7 +78,7 @@
             border: 0;
         }
 
-        .expand-button, .collapse-button {
+        .expand-button {
             margin: 0;
             cursor: pointer;
             width: 16px;
@@ -89,10 +89,6 @@
 
         .expand-button {
             background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
-        }
-
-        .collapse-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
         }
 
         .methods {
@@ -116,10 +112,17 @@
 <div id="main"></div>
 <div id="footer">&#169; 2019 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
-
+    function fixUrl(s) {
+        if (window.location.href.endsWith("/")) {
+            return s;
+        } else {
+            return window.location.href + "/" + s;
+        }
+    }
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
-    var url = window.location.href + "admin/services";
+    var url = fixUrl("admin/services");
+
 
     xmlhttp.onreadystatechange = function () {
         if (this.readyState != 4) {
@@ -178,7 +181,7 @@
         // URLs
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
-            var url = urls[name];
+            var url = fixUrl(urls[name]);
             if (name == "SOAP") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
             } else if (name == "REST") {

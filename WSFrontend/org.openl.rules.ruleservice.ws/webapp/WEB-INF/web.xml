@@ -21,14 +21,7 @@
             <param-value>/rules/deploy,/admin</param-value>
         </init-param>
     </filter>
-    <filter>
-        <filter-name>RedirectFilter</filter-name>
-        <filter-class>org.openl.rules.ruleservice.servlet.RedirectFilter</filter-class>
-        <init-param>
-            <param-name>redirectTo</param-name>
-            <param-value></param-value>
-        </init-param>
-    </filter>
+
     <!-- Filters Mapping -->
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -38,10 +31,7 @@
         <filter-name>RuleServiceRedeployLockFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <filter-mapping>
-        <filter-name>RedirectFilter</filter-name>
-        <url-pattern></url-pattern>
-    </filter-mapping>
+
     <!-- Servlets -->
     <servlet>
         <servlet-name>WSServlet</servlet-name>
