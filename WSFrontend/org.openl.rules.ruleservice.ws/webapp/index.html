@@ -185,7 +185,7 @@
         // URLs
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
-            var url = fixUrl(urls[name]);
+            var url = urls[name];
             if (name == "SOAP") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
             } else if (name == "REST") {
@@ -194,7 +194,7 @@
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
             } else if (name == "Kafka") {
-                html += name;
+                html += "<span>" + name + "</span>";
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }
