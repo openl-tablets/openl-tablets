@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8"/>
     <title>OpenL Tablets Web Services</title>
+    <script type="text/javascript">
+        if (!location.pathname.endsWith('/')) {
+            document.write("<base href='" + location.pathname + "/' />");
+            history.replaceState(null, null, location.pathname + '/');
+        }
+    </script>
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <style>
         body {
@@ -116,16 +122,10 @@
 <div id="main"></div>
 <div id="footer">&#169; 2019 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
-    function fixUrl(s) {
-        if (window.location.href.endsWith("/")) {
-            return s;
-        } else {
-            return window.location.href + "/" + s;
-        }
-    }
+
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
-    var url = fixUrl("admin/services");
+    var url = "admin/services";
 
     xmlhttp.onreadystatechange = function () {
         if (this.readyState != 4) {
