@@ -4,9 +4,10 @@
     <meta charset="UTF-8"/>
     <title>OpenL Tablets Web Services</title>
     <script type="text/javascript">
-        if (!location.pathname.endsWith('/')) {
-            document.write("<base href='" + location.pathname + "/' />");
-            history.replaceState(null, null, location.pathname + '/');
+        var path = location.pathname;
+        if (path.lastIndexOf('/') !== (path.length - 1)) { /* endWith does not work under IE 10 */
+            document.write("<base href='" + path + "/' />");
+            history.replaceState(null, null, path + '/');
         }
     </script>
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
