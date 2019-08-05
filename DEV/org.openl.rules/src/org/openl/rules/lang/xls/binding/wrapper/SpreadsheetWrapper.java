@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.SpreadsheetInvoker;
 import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -141,7 +142,7 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public ATableBoundNode getBoundNode() {
+    public SpreadsheetBoundNode getBoundNode() {
         return delegate.getBoundNode();
     }
 

@@ -9,8 +9,10 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
+import org.openl.types.IOpenClass;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -37,6 +39,11 @@ public class SpreadsheetResult implements Serializable {
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     private transient ILogicalTable logicalTable;
+
+    /**
+     * Spreadsheet open class. This filed is used for output bean generation.
+     */
+    private transient CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
     public SpreadsheetResult() {
     }
@@ -281,5 +288,71 @@ public class SpreadsheetResult implements Serializable {
 
         StringUtils.print(value, builder);
         return builder.toString();
+    }
+
+    @XmlTransient
+    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass() {
+        return customSpreadsheetResultOpenClass;
+    }
+
+    public void setCustomSpreadsheetResultOpenClass(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+        this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
+    }
+
+    public Object toPlain() throws InstantiationException, IllegalAccessException {
+        if (getCustomSpreadsheetResultOpenClass() != null) {
+            return toPlain(getCustomSpreadsheetResultOpenClass().getModule());
+        } else {
+            return toMap();
+        }
+    }
+
+    public Object toPlain(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
+        if (getCustomSpreadsheetResultOpenClass() != null) {
+            IOpenClass openClass = module.findType(getCustomSpreadsheetResultOpenClass().getName());
+            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                return ((CustomSpreadsheetResultOpenClass) openClass).createBean(this);
+            } else {
+                throw new IllegalStateException(
+                    String.format("Custom spreadsheet type with name '%s' is not found in the module.",
+                        getCustomSpreadsheetResultOpenClass().getName()));
+            }
+        } else {
+            return toMap();
+        }
+    }
+
+    private Map<String, Object> toMap() throws InstantiationException, IllegalAccessException {
+        Map<String, Object> values = new HashMap<>();
+        if (columnNames != null && rowNames != null) {
+            long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
+            long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
+            for (int i = 0; i < rowNames.length; i++) {
+                for (int j = 0; j < columnNames.length; j++) {
+                    if (columnNames[j] != null && rowNames[i] != null) {
+                        if (nonNullsColumnsCount == 1 || nonNullsRowsCount == 1) {
+                            if (nonNullsRowsCount == 1) {
+                                values.put(columnNames[j], ifSpreadsheerResultThenConvert(getValue(i, j)));
+                            }
+                            if (nonNullsColumnsCount == 1) {
+                                values.put(rowNames[i], ifSpreadsheerResultThenConvert(getValue(i, j)));
+                            }
+                        } else {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append(columnNames[j]).append("_").append(rowNames[i]);
+                            values.put(sb.toString(), ifSpreadsheerResultThenConvert(getValue(i, j)));
+                        }
+                    }
+                }
+            }
+        }
+        return values;
+    }
+
+    private Object ifSpreadsheerResultThenConvert(Object v) throws InstantiationException, IllegalAccessException {
+        if (v instanceof SpreadsheetResult) {
+            return ((SpreadsheetResult) v).toPlain();
+        }
+        return v;
     }
 }

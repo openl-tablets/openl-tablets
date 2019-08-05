@@ -5,11 +5,11 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -36,9 +36,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             IOpenMethodHeader header,
-            ModuleOpenClass module) {
+            XlsModuleOpenClass module) {
 
         super(tableSyntaxNode, openl, header, module);
+    }
+
+    @Override
+    public XlsModuleOpenClass getModule() {
+        return (XlsModuleOpenClass) super.getModule();
     }
 
     @Override
@@ -65,6 +70,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         //
         spreadsheet.setRowNames(componentsBuilder.getRowNames());
         spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
+
+        spreadsheet.setRowNamesMarkedWithStar(componentsBuilder.getRowNamesMarkedWithStar());
+        spreadsheet.setColumnNamesMarkedWithStar(componentsBuilder.getColumnNamesMarkedWithStar());
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());

@@ -1,8 +1,5 @@
 package org.openl.rules.calc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.types.IOpenClass;
 
 public class SpreadsheetHeaderDefinition {
@@ -11,9 +8,10 @@ public class SpreadsheetHeaderDefinition {
     private int column;
 
     private IOpenClass type;
-    private List<SymbolicTypeDefinition> vars = new ArrayList<>();
+    private SymbolicTypeDefinition definition;
 
-    public SpreadsheetHeaderDefinition(int row, int column) {
+    public SpreadsheetHeaderDefinition(SymbolicTypeDefinition definition, int row, int column) {
+        this.definition = definition;
         this.row = row;
         this.column = column;
     }
@@ -30,37 +28,25 @@ public class SpreadsheetHeaderDefinition {
         return type;
     }
 
-    public List<SymbolicTypeDefinition> getVars() {
-        return vars;
-    }
-
     public void setType(IOpenClass type) {
         this.type = type;
     }
 
-    public void addVarHeader(SymbolicTypeDefinition parsed) {
-        vars.add(parsed);
+    public SymbolicTypeDefinition getDefinition() {
+        return definition;
     }
 
-    public SymbolicTypeDefinition findVarDef(String name) {
-
-        for (SymbolicTypeDefinition sdef : vars) {
-            if (sdef.getName().getIdentifier().equals(name)) {
-                return sdef;
-            }
+    public SymbolicTypeDefinition findDefinition(String name) {
+        if (definition != null && definition.getName() != null && definition.getName().getIdentifier().equals(name)) {
+            return definition;
         }
-
         return null;
     }
 
-    public String getFirstname() {
-
-        for (SymbolicTypeDefinition definition : vars) {
-            if (definition != null && definition.getName() != null) {
-                return definition.getName().getIdentifier();
-            }
+    public String getDefinitionName() {
+        if (definition != null && definition.getName() != null) {
+            return definition.getName().getIdentifier();
         }
-
         return null;
     }
 

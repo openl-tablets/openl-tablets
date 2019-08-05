@@ -124,7 +124,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public void reset() {
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void forcedReset() {
         reset();

@@ -6,13 +6,21 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
@@ -42,7 +50,11 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IModuleInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
@@ -67,6 +79,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private Collection<String> imports = new HashSet<>();
 
     private ClassLoader classLoader;
+
+    private OpenLBundleClassLoader customSpreadsheetResultsClassLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
 
@@ -98,6 +112,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
         this.dispatchingValidationEnabled = dispatchingValidationEnabled;
         this.classLoader = classLoader;
+
+        this.customSpreadsheetResultsClassLoader = new OpenLBundleClassLoader(null);
+        this.customSpreadsheetResultsClassLoader.addClassLoader(classLoader);
+
         if (usingModules != null) {
             setDependencies(usingModules);
             initDependencies();
@@ -111,6 +129,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public ClassLoader getCustomSpreadsheetResultsClassLoader() {
+        return customSpreadsheetResultsClassLoader;
     }
 
     private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {

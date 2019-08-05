@@ -1,2 +1,2 @@
-ERROR: Field "$Value$Step2" is not found in SpreadsheetResult
-ERROR: Field "$Value$RETURN1" is not found in SpreadsheetResult
+ERROR: Field "$Value$Step2" is not found in IfNodeSpreadsheetResultminiSpr1AndSpreadsheetResultminiSpr2
+ERROR: Field "$Value$RETURN1" is not found in IfNodeSpreadsheetResultminiSpr1AndSpreadsheetResultminiSpr2

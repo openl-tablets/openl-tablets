@@ -37,6 +37,10 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private String[] columnNames;
 
+    private String[] rowNamesMarkedWithStar;
+
+    private String[] columnNamesMarkedWithStar;
+
     private String[] rowTitles;
 
     private String[] columnTitles;
@@ -85,8 +89,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
-        if (spreadsheetCustomType == null) {
+    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+        if (spreadsheetCustomType == null && isCustomSpreadsheetType()) {
             synchronized (this) {
                 if (spreadsheetCustomType == null) {
                     CustomSpreadsheetResultOpenClass type = initCustomSpreadsheetResultType();
@@ -97,16 +101,26 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return spreadsheetCustomType;
     }
 
+    @Override
+    public SpreadsheetBoundNode getBoundNode() {
+        return (SpreadsheetBoundNode) super.getBoundNode();
+    }
+
     private CustomSpreadsheetResultOpenClass initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
+
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
             typeName,
             getRowNames(),
             getColumnNames(),
+            getRowNamesMarkedWithStar(),
+            getColumnNamesMarkedWithStar(),
             getRowTitles(),
-            getColumnTitles());
+            getColumnTitles(),
+            getBoundNode().getModule());
+
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
@@ -166,6 +180,22 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public void setRowTitles(String[] rowTitles) {
         this.rowTitles = rowTitles;
+    }
+
+    public String[] getRowNamesMarkedWithStar() {
+        return rowNamesMarkedWithStar;
+    }
+
+    public void setRowNamesMarkedWithStar(String[] rowNamesMarkedWithStar) {
+        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+    }
+
+    public String[] getColumnNamesMarkedWithStar() {
+        return columnNamesMarkedWithStar;
+    }
+
+    public void setColumnNamesMarkedWithStar(String[] columnNamesMarkedWithStar) {
+        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
     }
 
     public String[] getRowTitles() {

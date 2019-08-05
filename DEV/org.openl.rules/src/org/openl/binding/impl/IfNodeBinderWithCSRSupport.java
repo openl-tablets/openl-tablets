@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -15,32 +16,36 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
     private static CustomSpreadsheetResultOpenClass merge(CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
-        List<String> rowNames = new ArrayList<>();
-        for (String rowName : type1.getRowNames()) {
-            rowNames.add(rowName);
-        }
-        for (String rowName : type2.getRowNames()) {
-            if (!rowNames.contains(rowName)) {
-                rowNames.add(rowName);
-            }
-        }
+        Set<String> rowNames = new HashSet<>();
+        rowNames.addAll(Arrays.stream(type1.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
+        rowNames.addAll(Arrays.stream(type2.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
 
-        List<String> columnNames = new ArrayList<>();
-        for (String colName : type1.getColumnNames()) {
-            columnNames.add(colName);
-        }
-        for (String colName : type2.getColumnNames()) {
-            if (!columnNames.contains(colName)) {
-                columnNames.add(colName);
-            }
-        }
+        Set<String> columnNames = new HashSet<>();
+        columnNames.addAll(Arrays.stream(type1.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
+        columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
+
+        Set<String> rowNamesMarkedWithStar = new HashSet<>();
+        rowNamesMarkedWithStar
+            .addAll(Arrays.stream(type1.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesMarkedWithStar
+            .addAll(Arrays.stream(type2.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
+
+        Set<String> columnNamesMarkedWithStar = new HashSet<>();
+        columnNamesMarkedWithStar
+            .addAll(Arrays.stream(type1.getColumnNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesMarkedWithStar
+            .addAll(Arrays.stream(type2.getColumnNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
 
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-            "SpreadsheetResult",
+            "IfNode" + type1.getName() + "And" + type2.getName(),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
+            rowNamesMarkedWithStar.toArray(new String[] {}),
+            columnNamesMarkedWithStar.toArray(new String[] {}),
             rowNames.toArray(new String[] {}),
-            columnNames.toArray(new String[] {}));
+            columnNames.toArray(new String[] {}),
+            type1.getModule());
+
         Map<String, IOpenField> fields1 = type1.getFields();
         Map<String, IOpenField> fields2 = type2.getFields();
         Set<String> fieldNames = new HashSet<>();

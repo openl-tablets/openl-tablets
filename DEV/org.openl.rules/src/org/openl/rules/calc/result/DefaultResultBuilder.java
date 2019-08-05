@@ -30,6 +30,10 @@ public class DefaultResultBuilder implements IResultBuilder {
             columnNames,
             fieldsCoordinates);
 
+        if (spreadsheet.getCustomSpreadsheetResultType() != null) {
+            spreadsheetBean.setCustomSpreadsheetResultOpenClass(spreadsheet.getCustomSpreadsheetResultType());
+        }
+
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
 
         if (tsn != null) {

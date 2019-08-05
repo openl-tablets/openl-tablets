@@ -46,7 +46,7 @@ public class POJOByteCodeGenerator {
 
         this.writers = new ArrayList<>();
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, beanFields));
-        if (additionalConstructor && allFields.size() < 256) {
+        if (additionalConstructor && allFields.size() < 256 && allFields.size() > 0) {
             // Generate constructor with parameters only in case where there are
             // less than 256 arguments.
             // 255 arguments to the method is a Java limitation

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -39,6 +40,8 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.JavaKeywordUtils;
+import org.openl.util.text.*;
 
 /**
  *
@@ -83,19 +86,35 @@ public class SpreadsheetComponentsBuilder {
         return columnHeaders;
     }
 
+    public String[] getRowNamesMarkedWithStar() {
+        return buildArrayForHeaders(rowHeaders,
+            cellsHeaderExtractor.getHeight(),
+            e -> cellsHeaderExtractor.getHeight() == 1 || e.getDefinition().isMarkedWithStar());
+    }
+
+    public String[] getColumnNamesMarkedWithStar() {
+        return buildArrayForHeaders(columnHeaders,
+            cellsHeaderExtractor.getWidth(),
+            e -> cellsHeaderExtractor.getWidth() == 1 || e.getDefinition().isMarkedWithStar());
+    }
+
     public String[] getRowNames() {
-        return buildArrayForHeaders(rowHeaders, cellsHeaderExtractor.getHeight());
+        return buildArrayForHeaders(rowHeaders, cellsHeaderExtractor.getHeight(), e -> true);
     }
 
     public String[] getColumnNames() {
-        return buildArrayForHeaders(columnHeaders, cellsHeaderExtractor.getWidth());
+        return buildArrayForHeaders(columnHeaders, cellsHeaderExtractor.getWidth(), e -> true);
     }
 
-    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers, int size) {
+    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers,
+            int size,
+            Predicate<SpreadsheetHeaderDefinition> predicate) {
         String[] ret = new String[size];
         for (Entry<Integer, SpreadsheetHeaderDefinition> x : headers.entrySet()) {
             int k = x.getKey();
-            ret[k] = x.getValue().getFirstname();
+            if (predicate.test(x.getValue())) {
+                ret[k] = x.getValue().getDefinitionName();
+            }
         }
         return ret;
     }
@@ -112,12 +131,7 @@ public class SpreadsheetComponentsBuilder {
         addRowHeaders();
         addColumnHeaders();
         buildHeaderDefinitionsTypes();
-
-        try {
-            buildReturnCells(spreadsheetHeaderType);
-        } catch (SyntaxNodeException e) {
-            addError(e);
-        }
+        buildReturnCells(spreadsheetHeaderType);
     }
 
     void addError(SyntaxNodeException e) {
@@ -152,10 +166,7 @@ public class SpreadsheetComponentsBuilder {
                     .getColumn(0)
                     .getSource();
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(rowNameForHeader, bindingContext);
-                int j = i;
-                SpreadsheetHeaderDefinition header = rowHeaders.computeIfAbsent(i,
-                    e -> new SpreadsheetHeaderDefinition(j, -1));
-                parseHeader(header, source);
+                parseHeader(source, i, true);
             }
         }
     }
@@ -169,23 +180,18 @@ public class SpreadsheetComponentsBuilder {
                     .getRow(0)
                     .getSource();
                 GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
-                int j = i;
-                SpreadsheetHeaderDefinition header = columnHeaders.computeIfAbsent(i,
-                    e -> new SpreadsheetHeaderDefinition(-1, j));
-                parseHeader(header, source);
+                parseHeader(source, i, false);
             }
         }
     }
 
-    private void parseHeader(SpreadsheetHeaderDefinition header, IOpenSourceCodeModule source) {
-        SymbolicTypeDefinition parsed = null;
+    private void parseHeader(IOpenSourceCodeModule source, int index, boolean row) {
         try {
-            parsed = parseHeaderElement(source);
+            SymbolicTypeDefinition parsed = parseHeaderElement(source);
             IdentifierNode name = parsed.getName();
             String headerName = name.getIdentifier();
 
             SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
-
             if (h1 != null) {
                 SyntaxNodeException error;
                 error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated", name);
@@ -193,11 +199,51 @@ public class SpreadsheetComponentsBuilder {
                 addError(error);
                 throw new DuplicatedVarException(null, headerName);
             } else {
+                SpreadsheetHeaderDefinition header;
+                if (row) {
+                    header = rowHeaders.computeIfAbsent(index, e -> new SpreadsheetHeaderDefinition(parsed, index, -1));
+                } else {
+                    header = columnHeaders.computeIfAbsent(index,
+                        e -> new SpreadsheetHeaderDefinition(parsed, -1, index));
+                }
                 headerDefinitions.put(headerName, header);
             }
-            header.addVarHeader(parsed);
         } catch (SyntaxNodeException error) {
             addError(error);
+        }
+    }
+
+    private IdentifierNode removeLeadingStar(IdentifierNode identifierNode) {
+        int d = identifierNode.getIdentifier().indexOf(SpreadsheetSymbols.STAR.toString());
+        if (d < 0) {
+            throw new IllegalStateException("Star is not found!");
+        }
+        String v = org.openl.util.StringUtils.trimStart(identifierNode.getIdentifier().substring(d + 1));
+        int delta = identifierNode.getIdentifier().length() - v.length();
+
+        IPosition start = new AbsolutePosition(delta + identifierNode.getLocation()
+            .getStart()
+            .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier())));
+        ILocation location = new TextInterval(start, identifierNode.getLocation().getEnd());
+        return new IdentifierNode(identifierNode.getType(), location, v, identifierNode.getModule());
+    }
+
+    private void validateHeaderName(IdentifierNode headerNameNode) throws SyntaxNodeException {
+        if (JavaKeywordUtils.isJavaKeyword(headerNameNode.getIdentifier())) {
+            throw SyntaxNodeExceptionUtils.createError("Invalid header: Java keywords are not allowed.",
+                headerNameNode);
+        }
+        if (!Character.isJavaIdentifierStart(headerNameNode.getIdentifier().charAt(0))) {
+            throw SyntaxNodeExceptionUtils.createError(
+                "Invalid header: All headers with star must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
+                headerNameNode);
+        }
+        for (int i = 1; i < headerNameNode.getIdentifier().length(); i++) {
+            if (!Character.isJavaIdentifierPart(headerNameNode.getIdentifier().charAt(i))) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Invalid header: All headers with star must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
+                    headerNameNode);
+            }
         }
     }
 
@@ -210,11 +256,19 @@ public class SpreadsheetComponentsBuilder {
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header", source);
         }
 
+        IdentifierNode headerNameNode = nodes[0];
+        boolean startsWithStar = false;
+        if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
+            .startsWith(SpreadsheetSymbols.STAR.toString())) {
+            headerNameNode = removeLeadingStar(nodes[0]);
+            startsWithStar = true;
+            validateHeaderName(headerNameNode);
+        }
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDefinition(nodes[0], null);
+                return new SymbolicTypeDefinition(headerNameNode, null, startsWithStar);
             case 2:
-                return new SymbolicTypeDefinition(nodes[0], nodes[1]);
+                return new SymbolicTypeDefinition(headerNameNode, nodes[1], startsWithStar);
             default:
                 String message = String.format("Valid header format: name [%s type]",
                     SpreadsheetSymbols.TYPE_DELIMETER.toString());
@@ -232,23 +286,15 @@ public class SpreadsheetComponentsBuilder {
             IOpenClass headerType = null;
             IdentifierNode typeIdentifierNode = null;
 
-            for (SymbolicTypeDefinition symbolicTypeDefinition : headerDefinition.getVars()) {
-
-                typeIdentifierNode = symbolicTypeDefinition.getType();
-                if (typeIdentifierNode != null) {
-                    String typeIdentifier = typeIdentifierNode.getText();
-                    try {
-                        IOpenClass type = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
-                        if (headerType == null) {
-                            // initialize header type
-                            //
-                            headerType = type;
-                        } else if (headerType != type) {
-                            addError(SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode));
-                        }
-                    } catch (SyntaxNodeException e) {
-                        addError(e);
-                    }
+            SymbolicTypeDefinition symbolicTypeDefinition = headerDefinition.getDefinition();
+            typeIdentifierNode = symbolicTypeDefinition.getType();
+            if (typeIdentifierNode != null) {
+                String typeIdentifier = typeIdentifierNode.getText();
+                try {
+                    IOpenClass type = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
+                    headerType = type;
+                } catch (SyntaxNodeException e) {
+                    addError(e);
                 }
             }
 
@@ -310,7 +356,7 @@ public class SpreadsheetComponentsBuilder {
         return null;
     }
 
-    private void buildReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
+    private void buildReturnCells(IOpenClass spreadsheetHeaderType) {
         SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
 
         if (spreadsheetHeaderType
@@ -393,7 +439,7 @@ public class SpreadsheetComponentsBuilder {
 
         if (isExistsReturnHeader()) {
             String key = headerDefinitions.getKey(returnHeaderDefinition);
-            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(key);
+            symbolicTypeDefinition = returnHeaderDefinition.findDefinition(key);
         }
 
         if (!isExistsReturnHeader() && spreadsheet.getHeader()

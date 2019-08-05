@@ -11,7 +11,7 @@ public class ReturnSpreadsheetHeaderDefinition extends SpreadsheetHeaderDefiniti
     private boolean byColumn;
 
     public ReturnSpreadsheetHeaderDefinition(SpreadsheetHeaderDefinition source) {
-        super(source.getRow(), source.getColumn());
+        super(source.getDefinition(), source.getRow(), source.getColumn());
     }
 
     public void setReturnCells(boolean byColumn, SpreadsheetCell... cells) {

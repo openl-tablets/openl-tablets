@@ -10,12 +10,13 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
-import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.*;
 import org.openl.types.impl.CastingMethodCaller;
@@ -46,7 +47,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private PreBinderMethods preBinderMethods = new PreBinderMethods();
 
-    public RulesModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
+    public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
         super(delegate, module);
         internalMethods = new ArrayList<>();
         internalMethods.add(new CurrentRuntimeContextMethod());
@@ -132,16 +133,21 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
+    public XlsModuleOpenClass getModule() {
+        return (XlsModuleOpenClass) super.getModule();
+    }
+
+    @Override
     protected synchronized void add(String namespace, String typeName, IOpenClass type) {
-        if (type instanceof CustomDynamicOpenClass) {
-            CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
-                IOpenClass copyOfCustomType = customDynamicOpenClass.copy();
+                IOpenClass copyOfCustomType = customSpreadsheetResultOpenClass.makeCopyForModule(getModule());
                 getModule().addType(copyOfCustomType);
                 super.add(namespace, typeName, copyOfCustomType);
             } else {
-                customDynamicOpenClass.updateOpenClass(openClass);
+                customSpreadsheetResultOpenClass.extendWith(openClass);
             }
         } else {
             super.add(namespace, typeName, type);

@@ -4,7 +4,8 @@ public enum SpreadsheetSymbols {
 
     /** cell name indicating return statement */
     RETURN_NAME("RETURN"),
-    TYPE_DELIMETER(":");
+    TYPE_DELIMETER(":"),
+    STAR("*");
 
     private String symbols;
 
