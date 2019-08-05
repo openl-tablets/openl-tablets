@@ -65,6 +65,16 @@ public class SpreadsheetResult implements Serializable {
                         .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
                         .append(rowNames[i]);
                     fieldsCoordinates.put(sb.toString(), new Point(j, i));
+                    if (rowNames.length == 1) {
+                        StringBuilder sb1 = new StringBuilder();
+                        sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(columnNames[j]);
+                        fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                    }
+                    if (columnNames.length == 1) {
+                        StringBuilder sb1 = new StringBuilder();
+                        sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(rowNames[i]);
+                        fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                    }
                 }
             }
         }

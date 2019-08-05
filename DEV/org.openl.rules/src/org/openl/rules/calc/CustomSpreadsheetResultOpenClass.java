@@ -69,7 +69,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         }
         return superClasses;
     }
-
+    
     public void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
             String[] rowTitles,
@@ -144,8 +144,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                     addField(field);
                 }
             }
+
             this.fieldsCoordinates = Collections
                 .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
+        }
+
+        // Add simplified fields if they are not existed
+        for (IOpenField field : fields) {
+            if (getField(field.getName()) == null) {
+                addField(field);
+            }
         }
     }
 
@@ -182,9 +190,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     }
 
     private void validate(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            Collection<IOpenField> values) {
+            Collection<IOpenField> fields) {
         List<String> errorMessages = new ArrayList<>();
-        for (IOpenField field : values) {
+        for (IOpenField field : fields) {
             IOpenField existedField = customSpreadsheetResultOpenClass.getField(field.getName());
             if (!existedField.getType().isAssignableFrom(field.getType())) {
                 errorMessages.add(getName() + "." + field.getName() + "(expected: " + existedField.getType()

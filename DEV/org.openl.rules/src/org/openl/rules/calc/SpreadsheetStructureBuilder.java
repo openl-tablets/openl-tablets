@@ -278,6 +278,9 @@ public class SpreadsheetStructureBuilder {
             return;
         }
 
+        boolean oneColumnSpreadsheet = componentsBuilder.getColumnHeaders().size() == 1;
+        boolean oneRowSpreadsheet = componentsBuilder.getRowHeaders().size() == 1;
+
         for (SymbolicTypeDefinition columnDefinition : columnHeaders.getVars()) {
             for (SymbolicTypeDefinition rowDefinition : rowHeaders.getVars()) {
                 // get column name from the column definition
@@ -294,8 +297,33 @@ public class SpreadsheetStructureBuilder {
 
                 // add spreadsheet cell field to its open class
                 spreadsheetType.addField(field);
+                
+                if (oneColumnSpreadsheet) {
+                    // add simplified field name 
+                    String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(rowName);
+                    if (spreadsheetType.getField(simplifiedFieldName) == null) {
+                        SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
+                            spreadsheetCell,
+                            simplifiedFieldName);
+                        spreadsheetType.addField(simplifiedField);
+                    }
+                }
+                if (oneRowSpreadsheet) {
+                    // add simplified field name                    
+                    String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
+                    if (spreadsheetType.getField(simplifiedFieldName) == null) {
+                        SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
+                            spreadsheetCell,
+                            simplifiedFieldName);
+                        spreadsheetType.addField(simplifiedField);
+                    }
+                }
             }
         }
+    }
+
+    private String getSpreadsheetCellSimplifiedFieldName(String rowName) {
+        return (DOLLAR_SIGN + rowName).intern();
     }
 
     /**
@@ -325,7 +353,7 @@ public class SpreadsheetStructureBuilder {
 
         SpreadsheetCellType spreadsheetCellType;
         if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
-                .get(rowIndex) == null) {
+            .get(rowIndex) == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
         } else if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
             spreadsheetCellType = SpreadsheetCellType.METHOD;
