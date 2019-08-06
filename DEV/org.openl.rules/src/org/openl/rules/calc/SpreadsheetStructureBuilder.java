@@ -293,28 +293,36 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
                 // create spreadsheet cell field
-                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType, spreadsheetCell, fieldname);
+                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType,
+                    spreadsheetCell,
+                    fieldname,
+                    SpreadsheetCellRefType.ROW_AND_COLUMN);
 
                 // add spreadsheet cell field to its open class
                 spreadsheetType.addField(field);
-                
+
                 if (oneColumnSpreadsheet) {
-                    // add simplified field name 
+                    // add simplified field name
                     String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(rowName);
-                    if (spreadsheetType.getField(simplifiedFieldName) == null) {
+                    IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
+                    if (field1 == null) {
                         SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
                             spreadsheetCell,
-                            simplifiedFieldName);
+                            simplifiedFieldName,
+                            SpreadsheetCellRefType.SINGLE_COLUMN);
                         spreadsheetType.addField(simplifiedField);
                     }
                 }
                 if (oneRowSpreadsheet) {
-                    // add simplified field name                    
+                    // add simplified field name
                     String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
-                    if (spreadsheetType.getField(simplifiedFieldName) == null) {
+                    IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
+                    if (field1 == null || (field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
+                        .isLastColumnRef())) {
                         SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
                             spreadsheetCell,
-                            simplifiedFieldName);
+                            simplifiedFieldName,
+                            SpreadsheetCellRefType.SINGLE_ROW);
                         spreadsheetType.addField(simplifiedField);
                     }
                 }
@@ -489,7 +497,10 @@ public class SpreadsheetStructureBuilder {
 
         for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
             String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-            SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass, cell, fieldName);
+            SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass,
+                cell,
+                fieldName,
+                SpreadsheetCellRefType.LOCAL);
 
             rowOpenClass.addField(field);
         }
@@ -497,10 +508,15 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
             SpreadsheetCell cell,
-            String fieldName) {
+            String fieldName,
+            SpreadsheetCellRefType spreadsheetCellRefType) {
         SpreadsheetStructureBuilderHolder structureBuilderContainer = getSpreadsheetStructureBuilderHolder();
         if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
-            return new SpreadsheetCellField(structureBuilderContainer, rowOpenClass, fieldName, cell);
+            return new SpreadsheetCellField(structureBuilderContainer,
+                rowOpenClass,
+                fieldName,
+                cell,
+                spreadsheetCellRefType);
         } else {
             return new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
                 rowOpenClass,

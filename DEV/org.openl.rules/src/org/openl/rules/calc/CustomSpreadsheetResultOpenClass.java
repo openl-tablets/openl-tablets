@@ -69,7 +69,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         }
         return superClasses;
     }
-    
+
     public void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
             String[] rowTitles,
@@ -149,7 +149,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                 .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
 
-        // Add simplified fields if they are not existed
         for (IOpenField field : fields) {
             if (getField(field.getName()) == null) {
                 addField(field);
@@ -233,8 +232,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), fieldsCoordinates);
+        // Only used for tests
+        return new StubSpreadSheetResult();
     }
 
 }

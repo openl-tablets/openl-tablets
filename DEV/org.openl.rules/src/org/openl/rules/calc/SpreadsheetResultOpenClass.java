@@ -21,10 +21,7 @@ public class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        if (SpreadsheetResult.class.equals(getInstanceClass())) {
-            return new StubSpreadSheetResult();
-        } else {
-            return super.newInstance(env);
-        }
+        // Only used for tests
+        return new StubSpreadSheetResult();
     }
 }

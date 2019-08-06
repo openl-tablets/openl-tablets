@@ -1,8 +1,10 @@
 package org.openl.rules.calc;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -57,23 +59,27 @@ public class SpreadsheetResult implements Serializable {
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
         Map<String, Point> fieldsCoordinates = new HashMap<>();
         if (columnNames != null && rowNames != null) {
+            long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
+            long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
             for (int i = 0; i < rowNames.length; i++) {
                 for (int j = 0; j < columnNames.length; j++) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(columnNames[j])
-                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(rowNames[i]);
-                    fieldsCoordinates.put(sb.toString(), new Point(j, i));
-                    if (rowNames.length == 1) {
-                        StringBuilder sb1 = new StringBuilder();
-                        sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(columnNames[j]);
-                        fieldsCoordinates.put(sb1.toString(), new Point(j, i));
-                    }
-                    if (columnNames.length == 1) {
-                        StringBuilder sb1 = new StringBuilder();
-                        sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(rowNames[i]);
-                        fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                    if (columnNames[j] != null && rowNames[i] != null) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                            .append(columnNames[j])
+                            .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                            .append(rowNames[i]);
+                        fieldsCoordinates.put(sb.toString(), new Point(j, i));
+                        if (nonNullsRowsCount == 1) {
+                            StringBuilder sb1 = new StringBuilder();
+                            sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(columnNames[j]);
+                            fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                        }
+                        if (nonNullsColumnsCount == 1) {
+                            StringBuilder sb1 = new StringBuilder();
+                            sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(rowNames[i]);
+                            fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                        }
                     }
                 }
             }
