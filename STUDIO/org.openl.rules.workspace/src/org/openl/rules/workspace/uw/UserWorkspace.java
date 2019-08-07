@@ -20,8 +20,6 @@ public interface UserWorkspace extends ProjectsContainer {
 
     ADeploymentProject createDDProject(String name) throws RepositoryException;
 
-    RulesProject createProject(String name) throws ProjectException;
-
     ADeploymentProject getDDProject(String name) throws ProjectException;
 
     ADeploymentProject getLatestDeploymentConfiguration(String name);

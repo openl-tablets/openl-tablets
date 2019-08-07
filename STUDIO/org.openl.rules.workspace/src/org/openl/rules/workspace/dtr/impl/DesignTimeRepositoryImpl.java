@@ -131,11 +131,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public AProject createProject(String name) {
-        return new AProject(getRepository(), rulesLocation + name);
-    }
-
-    @Override
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         AProject ralProject = getProject(projectName);

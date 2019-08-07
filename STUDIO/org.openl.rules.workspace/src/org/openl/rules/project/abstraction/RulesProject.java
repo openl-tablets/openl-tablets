@@ -46,7 +46,7 @@ public class RulesProject extends UserWorkspaceProject {
         FileData fullLocalFileData;
         if (localFileData != null && designFileData != null) {
             String localVersion = localFileData.getVersion();
-            if (localVersion == null || designFileData.getVersion().equals(localVersion)) {
+            if (localVersion == null || localVersion.equals(designFileData.getVersion())) {
                 // Set the path for local repository, other properties are equal to design repository properties
                 fullLocalFileData = new FileData();
                 fullLocalFileData.setName(localFileData.getName());
@@ -56,6 +56,9 @@ public class RulesProject extends UserWorkspaceProject {
                 fullLocalFileData.setModifiedAt(designFileData.getModifiedAt());
                 fullLocalFileData.setComment(designFileData.getComment());
                 fullLocalFileData.setDeleted(designFileData.isDeleted());
+                for (AdditionalData data : designFileData.getAdditionalData().values()) {
+                    fullLocalFileData.addAdditionalData(data);
+                }
                 setFileData(fullLocalFileData);
             } else {
                 if (localFileData.getAuthor() == null || localFileData.getModifiedAt() == null) {
@@ -83,17 +86,23 @@ public class RulesProject extends UserWorkspaceProject {
 
     private void save(CommonUser user, AdditionalData additionalData) throws ProjectException {
         String oldVersion = getHistoryVersion();
-        AProject designProject = new AProject(designRepository, designFolderName, oldVersion);
-        AProject localProject = new AProject(localRepository, localFolderName);
+        FileData designData = new FileData();
+        designData.setName(designFolderName);
+        designData.setVersion(oldVersion);
 
         FileData fileData = getFileData();
         for (AdditionalData value : fileData.getAdditionalData().values()) {
-            designProject.getFileData().addAdditionalData(value);
+            designData.addAdditionalData(value);
         }
 
-        designProject.getFileData().addAdditionalData(additionalData);
-        designProject.getFileData().setComment(fileData.getComment());
+        designData.addAdditionalData(additionalData);
+        designData.setComment(fileData.getComment());
+
+        AProject designProject = new AProject(designRepository, designData);
+        AProject localProject = new AProject(localRepository, localFolderName);
         designProject.update(localProject, user);
+
+        // Process saved data
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
