@@ -96,24 +96,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public RulesProject createProject(String name) throws ProjectException {
-        FileData localData = new FileData();
-        localData.setName(name);
-
-        AProject designProject = designTimeRepository.createProject(name);
-        FileData designData = designProject.getFileData();
-
-        return new RulesProject(
-                this,
-                localWorkspace.getRepository(),
-                localData,
-                designProject.getRepository(),
-                designData,
-                projectsLockEngine
-        );
-    }
-
-    @Override
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         AProject uwp = getProject(projectName);
@@ -434,7 +416,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException {
         try {
-            AProject createdProject = designTimeRepository.createProject(name);
+            String designPath = designTimeRepository.getRulesLocation() + name;
+            FileData designData = new FileData();
+            designData.setName(designPath);
+
+            AProject createdProject = new AProject(designTimeRepository.getRepository(), designData);
             AProject project = localWorkspace.getProject(name);
             project.refresh();
             if (designTimeRepository.getRepository().supports().mappedFolders()) {

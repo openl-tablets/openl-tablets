@@ -23,16 +23,6 @@ public class ExcelReaderFactoryTest {
         compareDifferentImplementations(FOLDER + "small.xls");
     }
 
-    @Test
-    @Ignore("Comparing big xlsx is a long running test. Temporarily ignored.")
-    public void compareBigXlsx() {
-        // If want test some file, give it the name "big.xlsx", put it in the folder FOLDER and remove @Ignore.
-        String fileName = FOLDER + "big.xlsx";
-        assumeTrue(new File(fileName).exists());
-
-        compareDifferentImplementations(fileName);
-    }
-
     private void compareDifferentImplementations(String fileName) {
         ExcelReaderFactory sequentialFactory = ExcelReaderFactory.sequentialFactory();
         ExcelReaderFactory fullReadFactory = ExcelReaderFactory.fullReadFactory();

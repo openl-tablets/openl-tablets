@@ -21,14 +21,6 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
 public interface DesignTimeRepository extends ProjectsContainer {
 
     /**
-     * Creates new rules project in the Design Time Repository.
-     *
-     * @param name name of new rules project, must be unique
-     * @throws RepositoryException if failed
-     */
-    AProject createProject(String name) throws RepositoryException;
-
-    /**
      * Gets deployment project from the DTR.
      *
      * @param name name of deployment project

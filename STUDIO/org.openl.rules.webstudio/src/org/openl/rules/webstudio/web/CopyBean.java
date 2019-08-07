@@ -170,7 +170,9 @@ public class CopyBean {
                 ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository();
-                String designPath = designTimeRepository.createProject(newProjectName).getFolderPath();
+                String designPath = designTimeRepository.getRulesLocation() + newProjectName;
+                FileData designData = new FileData();
+                designData.setName(designPath);
 
                 FileMappingData mappingData = new FileMappingData(projectFolder + newProjectName);
 
@@ -191,12 +193,12 @@ public class CopyBean {
                     }
                 }
 
-                AProject designProject = new AProject(designRepository, designPath);
+                AProject designProject = new AProject(designRepository, designData);
                 AProject localProject = new AProject(project.getRepository(), project.getFolderPath());
                 if (designRepository.supports().mappedFolders()) {
-                    designProject.getFileData().addAdditionalData(mappingData);
+                    designData.addAdditionalData(mappingData);
                 }
-                designProject.getFileData().setComment(comment);
+                designData.setComment(comment);
                 designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
                 designProject.update(localProject, userWorkspace.getUser());
                 designProject.setResourceTransformer(null);

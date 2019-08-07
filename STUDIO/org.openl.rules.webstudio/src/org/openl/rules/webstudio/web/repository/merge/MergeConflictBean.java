@@ -24,6 +24,7 @@ import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -187,6 +188,7 @@ public class MergeConflictBean {
             }
 
             project.save(new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
+            WebStudioUtils.getWebStudio().reset();
             clearMergeStatus();
         } catch (ValidationException e) {
             throw e;

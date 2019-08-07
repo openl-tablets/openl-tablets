@@ -50,7 +50,10 @@ grant {
 
         permission java.io.FilePermission "${catalina.base}", "read";
         permission java.io.FilePermission "${catalina.base}/-", "read";
-        permission java.io.FilePermission "${catalina.base}/logs/-", ",write";
+
+        //EPBDS-8834 - "delete" permission has been added as workaround due to impossible to isolate call stack for separate library(log4j)
+        permission java.io.FilePermission "${catalina.base}/logs/-", "write,delete";
+
         permission java.io.FilePermission "${catalina.base}/conf/Catalina", "write";
         permission java.io.FilePermission "${catalina.base}/conf/Catalina/-", "write";
         permission java.io.FilePermission "${catalina.base}/work", "write,delete";

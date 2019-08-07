@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository.project;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -27,7 +26,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     }
 
     @Override
-    protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
+    protected RulesProjectBuilder getProjectBuilder() {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
                 getProjectName(),
                 getProjectFolder(),

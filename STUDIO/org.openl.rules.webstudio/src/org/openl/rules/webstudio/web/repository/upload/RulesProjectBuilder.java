@@ -5,6 +5,7 @@ import java.io.InputStream;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.*;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -17,15 +18,34 @@ public class RulesProjectBuilder {
     private final Logger log = LoggerFactory.getLogger(RulesProjectBuilder.class);
     private final RulesProject project;
     private final UserWorkspace workspace;
-    private final String internalPath;
     private final String comment;
 
-    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder, String comment) throws ProjectException {
+    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder, String comment) {
         this.workspace = workspace;
         this.comment = comment;
-        internalPath = projectFolder + projectName;
+        String internalPath = projectFolder + projectName;
         synchronized (this.workspace) {
-            project = workspace.createProject(projectName);
+            FileData localData = new FileData();
+            localData.setName(projectName);
+
+            FileData designData = new FileData();
+            designData.setName(workspace.getDesignTimeRepository().getRulesLocation() + projectName);
+
+            Repository designRepository = workspace.getDesignTimeRepository().getRepository();
+            if (designRepository.supports().mappedFolders()) {
+                FileMappingData mappingData = new FileMappingData(internalPath);
+                designData.addAdditionalData(mappingData);
+                localData.addAdditionalData(mappingData);
+            }
+
+            project = new RulesProject(
+                workspace,
+                workspace.getLocalWorkspace().getRepository(),
+                localData,
+                designRepository,
+                designData,
+                workspace.getProjectsLockEngine()
+            );
         }
     }
 
@@ -79,10 +99,6 @@ public class RulesProjectBuilder {
 
     public void save() throws ProjectException {
         WorkspaceUser user = workspace.getUser();
-        Repository designRepository = project.getDesignRepository();
-        if (designRepository.supports().mappedFolders()) {
-            project.getFileData().addAdditionalData(new FileMappingData(internalPath));
-        }
 
         // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
         // unerasable history for example in Git).
