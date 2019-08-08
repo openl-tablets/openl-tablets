@@ -1,0 +1,1 @@
+ERROR: Field '$A$D' is not found inside 'SpreadsheetResultInner' type
