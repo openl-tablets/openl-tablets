@@ -755,12 +755,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
-                for (Iterator<String> it = projectBranches.iterator(); it.hasNext();) {
-                    String branch = it.next();
-                    if (!availableBranches.contains(branch)) {
-                        it.remove();
-                    }
-                }
+                projectBranches.removeIf(branch -> !availableBranches.contains(branch));
             }
             saveBranches();
 
@@ -932,10 +927,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (StringUtils.isNotBlank(login)) {
             fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
         }
-        // For some reason "+refs/head/*:refs/remotes/origin/*" doesn't work when fetch remote branches
-        // not existing locally but "refs/head/*:refs/head/*" works (for jgit v 4.5.4.201711221230-r).
-        // Need to check if in a newer version it should be changed.
-        fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*", Constants.R_HEADS + "*"));
+        fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*", Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/*"));
         fetchCommand.setRemoveDeletedRefs(true);
         fetchCommand.setTimeout(connectionTimeout);
         return fetchCommand.call();
@@ -1118,16 +1110,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return String.valueOf(maxId + 1);
     }
 
-    static String getVersionName(Repository repository, List<Ref> tags, ObjectId commitId) {
+    static String getVersionName(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
         Ref tagRef = getTagRefForCommit(repository, tags, commitId);
 
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
-    private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) {
+    private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) throws IOException {
         Ref tagRefForCommit = null;
         for (Ref tagRef : tags) {
-            ObjectId objectId = repository.peel(tagRef).getPeeledObjectId();
+            ObjectId objectId = repository.getRefDatabase().peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
                 objectId = tagRef.getObjectId();
             }
@@ -1395,7 +1387,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         // Version is a tag.
-        ObjectId objectId = git.getRepository().peel(ref).getPeeledObjectId();
+        ObjectId objectId = git.getRepository().getRefDatabase().peel(ref).getPeeledObjectId();
         // Not annotated tags return null for getPeeledObjectId().
         return objectId == null ? ref.getObjectId() : objectId;
     }
@@ -1528,7 +1520,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     result = new ArrayList<>(Collections.singletonList(branch));
                 } else {
                     result = new ArrayList<>(projectBranches);
-                    Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+                    result.sort(String.CASE_INSENSITIVE_ORDER);
                 }
                 return result;
             }
@@ -1837,7 +1829,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private class ListCommand implements WalkCommand<List<FileData>> {
         private final ObjectId start;
 
-        public ListCommand(ObjectId start) {
+        private ListCommand(ObjectId start) {
             this.start = start;
         }
 

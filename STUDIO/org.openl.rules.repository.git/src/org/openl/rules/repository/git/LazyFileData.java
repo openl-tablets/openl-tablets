@@ -198,6 +198,8 @@ class LazyFileData extends FileData {
                 version = GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
             } catch (GitAPIException e) {
                 throw new IllegalStateException("Can't get tags list: " + e.getMessage(), e);
+            } catch (IOException e) {
+                throw new IllegalStateException("Can't get version name: " + e.getMessage(), e);
             }
             super.setVersion(version);
 

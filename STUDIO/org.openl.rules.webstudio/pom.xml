@@ -88,6 +88,10 @@
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
                         <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
                     </ignoredResourcePatterns>
+                    <ignoredClassPatterns>
+                        <!-- See https://github.com/basepom/duplicate-finder-maven-plugin/issues/33 -->
+                        <ignoredClassPattern>META-INF\.versions\.\d+\.module-info</ignoredClassPattern>
+                    </ignoredClassPatterns>
                 </configuration>
             </plugin>
             <plugin>

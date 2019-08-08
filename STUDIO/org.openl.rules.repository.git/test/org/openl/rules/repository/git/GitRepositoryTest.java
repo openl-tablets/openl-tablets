@@ -854,9 +854,15 @@ public class GitRepositoryTest {
         // Will use this path instead of uri. Git accepts that.
         String remote = new File(root, "remote").getAbsolutePath();
 
-        assertNotNull(createRepository(remote, local, BRANCH));
-        assertNotNull(createRepository(remote + "/", local, BRANCH));
-        assertNotNull(createRepository(new File(remote).toURI().toString(), local, BRANCH));
+        try (GitRepository repository = createRepository(remote, local, BRANCH)) {
+            assertNotNull(repository);
+        }
+        try (GitRepository repository = createRepository(remote + "/", local, BRANCH)) {
+            assertNotNull(repository);
+        }
+        try (GitRepository repository = createRepository(new File(remote).toURI().toString(), local, BRANCH)) {
+            assertNotNull(repository);
+        }
     }
 
     @Test
