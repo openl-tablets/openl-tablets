@@ -1,7 +1,6 @@
 package org.openl.core;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.contains;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -128,9 +127,6 @@ public final class OpenLTest {
         // files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
 
         for (File file : files) {
-            if (!file.getName().startsWith("EPBDS-7806_SmartLookup_Horisontal_Conditions")) {
-                continue;
-            }
             final long startTime = System.nanoTime();
             int errors = 0;
             String sourceFile = file.getName();
