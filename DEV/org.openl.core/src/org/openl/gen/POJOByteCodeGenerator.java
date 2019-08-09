@@ -31,7 +31,7 @@ public class POJOByteCodeGenerator {
      * @param parentClass parent class
      * @param additionalConstructor true if required to generate constructor with parameter
      */
-    protected POJOByteCodeGenerator(String beanName,
+    public POJOByteCodeGenerator(String beanName,
             Map<String, FieldDescription> beanFields,
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields,

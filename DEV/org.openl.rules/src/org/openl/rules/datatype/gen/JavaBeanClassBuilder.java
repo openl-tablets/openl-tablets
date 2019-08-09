@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.gen.FieldDescription;
+import org.openl.gen.POJOByteCodeGenerator;
 
 /**
  * Generates Java byte code to create JavaBean classes with JAXB annotations.
@@ -14,7 +15,6 @@ public class JavaBeanClassBuilder {
     private Class<?> parentClass = Object.class;
     private LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
     private LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
-    private String methodName;
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');
@@ -48,14 +48,26 @@ public class JavaBeanClassBuilder {
         }
     }
 
-    public void setMethod(String methodName) {
-        this.methodName = methodName;
+    protected String getBeanName() {
+        return beanName;
+    }
+
+    protected LinkedHashMap<String, FieldDescription> getFields() {
+        return fields;
+    }
+
+    protected Class<?> getParentClass() {
+        return parentClass;
+    }
+
+    protected LinkedHashMap<String, FieldDescription> getParentFields() {
+        return parentFields;
     }
 
     /**
      * Creates JavaBean byte code for given fields.
      */
     public byte[] byteCode() {
-        return new SimpleBeanByteCodeGenerator(beanName, fields, parentClass, parentFields, methodName).byteCode();
+        return new POJOByteCodeGenerator(beanName, fields, parentClass, parentFields, true).byteCode();
     }
 }

@@ -70,7 +70,6 @@ public class MessageDeserializer implements Deserializer<Message> {
 
         int i = 0;
         JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
-        beanClassBuilder.setMethod(m.getName());
         for (Class<?> type : m.getParameterTypes()) {
             beanClassBuilder.addField(parameterNames[i], type.getName());
             i++;

@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.*;
 import org.openl.rules.datatype.gen.ASMUtils;
-import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
@@ -103,8 +102,7 @@ public final class JAXRSEnhancerHelper {
             String beanName = "org.openl.jaxrs." + requestParameterName;
 
             int i = 0;
-            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
-            beanClassBuilder.setMethod(originalMethod.getName());
+            WrapperBeanClassBuilder beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
             for (Class<?> type : originalMethod.getParameterTypes()) {
                 beanClassBuilder.addField(parameterNames[i], type.getName());
                 i++;

@@ -1,7 +1,8 @@
-package org.openl.rules.datatype.gen;
+package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -11,16 +12,17 @@ import org.objectweb.asm.commons.Method;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
 
-class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
+class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
     private final String methodName;
 
-    SimpleBeanByteCodeGenerator(String beanName,
+    WrapperBeanClassGenerator(String beanName,
             LinkedHashMap<String, FieldDescription> beanFields,
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields,
             String methodName) {
         super(beanName, beanFields, parentClass, parentFields, true);
+        Objects.requireNonNull(methodName);
         this.methodName = methodName;
     }
 
@@ -92,10 +94,14 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
 
     @Override
     protected void visitExtraByteCodeGeneration(ClassWriter classWriter) {
-        if (methodName != null) {
-            addArgs(classWriter, getBeanFields());
-            addTypes(classWriter, getBeanFields());
-            addMethod(classWriter, methodName);
-        }
+        /*
+         * This bytecode generator is used for wrapping all arguments of the method to the bean, e.g. when it is
+         * required to build REST service, then it needs to store the order of the arguments and its types. This
+         * solution improves performance and reduces memory usage for back converting to the argument list, when
+         * reflection is used to call the wrapped method.
+         */
+        addArgs(classWriter, getBeanFields());
+        addTypes(classWriter, getBeanFields());
+        addMethod(classWriter, methodName);
     }
 }
