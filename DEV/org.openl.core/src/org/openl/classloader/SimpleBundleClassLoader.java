@@ -39,14 +39,6 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
         return super.loadClass(name);
     }
 
-    /**
-     * Searches for class in bundle classLoaders.
-     */
-    protected Class<?> findClassInBundles(String name) {
-        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<ClassLoader, Boolean>());
-        return findClassInBundles(name, c);
-    }
-
     protected Class<?> findClassInBundles(String name, Set<ClassLoader> c) {
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
@@ -61,7 +53,7 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
                 Class<?> clazz = null;
                 if (bundleClassLoader instanceof SimpleBundleClassLoader && bundleClassLoader.getParent() == this) {
                     SimpleBundleClassLoader sbc = ((SimpleBundleClassLoader) bundleClassLoader);
-                    clazz = sbc.findLoadedClassInBundle(name);
+                    clazz = sbc.findLoadedClass(name);
                     if (clazz == null) {
                         clazz = sbc.findClassInBundles(name, c);
                     }
@@ -130,10 +122,6 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
             return inputStream;
         }
         return super.getResourceAsStream(name);
-    }
-
-    protected Class<?> findLoadedClassInBundle(String name) {
-        return findLoadedClass(name);
     }
 
 }

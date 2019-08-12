@@ -7,7 +7,7 @@ import java.util.Set;
 
 public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
-    protected Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
+    Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
     OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
@@ -29,10 +29,6 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
         }
 
         bundleClassLoaders.add(classLoader);
-    }
-
-    protected Set<ClassLoader> getBundleClassLoaders() {
-        return Collections.unmodifiableSet(bundleClassLoaders);
     }
 
     public boolean containsClassLoader(ClassLoader classLoader) {
