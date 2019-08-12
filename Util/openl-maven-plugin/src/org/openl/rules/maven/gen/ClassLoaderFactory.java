@@ -1,4 +1,4 @@
-package org.openl.conf;
+package org.openl.rules.maven.gen;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.openl.util.StringUtils;
 
+@Deprecated
 public class ClassLoaderFactory {
 
     public static ClassLoader createClassLoader(String classpath,

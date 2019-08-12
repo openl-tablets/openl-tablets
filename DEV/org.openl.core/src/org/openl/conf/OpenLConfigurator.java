@@ -1,9 +1,3 @@
-/*
- * Created on May 30, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.conf;
 
 import java.io.File;
@@ -30,9 +24,6 @@ public class OpenLConfigurator extends Configurator {
 
     public static final String DEFAULT_BUILDER_CLASS_PROPERTY = "org.openl.builderclass";
     public static final String BUILDER_CLASS = ".builderclass";
-
-    public static final String DEFAULT_BUILDER_CLASS_PATH_PROPERTY = "org.openl.builder.classpath";
-    public static final String BUILDER_CLASS_PATH = ".builder.classpath";
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
@@ -73,10 +64,6 @@ public class OpenLConfigurator extends Configurator {
     private IOpenLBuilder makeBuilder(String openl,
             IConfigurableResourceContext cxt,
             IUserContext ucxt) throws Exception {
-        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
-        if (builderClassPath == null) {
-            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
-        }
         ClassLoader ucl = ucxt.getUserClassLoader();
         ClassLoader cl = OpenL.class.getClassLoader();
         try {
@@ -86,9 +73,6 @@ public class OpenLConfigurator extends Configurator {
             }
         } catch (Exception ignored) {
             // Ignore
-        }
-        if (builderClassPath != null) {
-            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt.getUserHome());
         }
 
         String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
