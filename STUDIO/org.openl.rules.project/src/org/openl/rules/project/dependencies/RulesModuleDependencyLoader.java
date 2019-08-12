@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
@@ -26,7 +25,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
 
     @Override
     public CompiledDependency load(String dependencyName,
-            IDependencyManager dependencyManager) throws OpenLCompilationException {
+            IDependencyManager dependencyManager) {
 
         Module dependencyModule = findDependencyModule(dependencyName);
 
@@ -38,8 +37,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 // create classloader for the dependency. With the parent for current module.
                 //
                 ProjectDescriptor project = dependencyModule.getProject();
-                SimpleBundleClassLoader moduleClassLoader = new SimpleBundleClassLoader(project.getClassPathUrls(),
-                    oldClassLoader);
+                ClassLoader moduleClassLoader = new OpenLBundleClassLoader(project.getClassPathUrls(), oldClassLoader);
 
                 SingleModuleInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(
                     dependencyModule,

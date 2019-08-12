@@ -7,7 +7,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -78,7 +78,7 @@ public class TreeBean {
         } else {
             ClassLoader classLoader = null;
             try {
-                classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
                 utilityTablePredicate = ExtensionDescriptorFactory
                     .getExtensionDescriptor(module.getExtension(), classLoader)
                     .getUtilityTablePredicate(studio.getModel().getXlsModuleNode());

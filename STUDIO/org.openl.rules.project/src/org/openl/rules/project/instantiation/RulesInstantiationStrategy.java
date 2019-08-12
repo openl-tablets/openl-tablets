@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.project.model.Module;
 
 /**
@@ -35,7 +34,7 @@ public interface RulesInstantiationStrategy {
     /**
      * Returns ClassLoader for the current module inside the project. If classLoader was set during the construction of
      * the strategy - returns it.<br>
-     * If no, creates {@link SimpleBundleClassLoader} with project classLoader of current module as parent.
+     * If no, creates {@link org.openl.classloader.OpenLBundleClassLoader} with project classLoader of current module as parent.
      *
      * @return {@link ClassLoader} that will be used for openl compilation.
      *

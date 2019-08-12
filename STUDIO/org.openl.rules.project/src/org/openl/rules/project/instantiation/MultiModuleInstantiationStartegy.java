@@ -3,7 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.util.*;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
@@ -67,8 +67,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
 
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(
-            Thread.currentThread().getContextClassLoader());
+        OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
         for (Module module : modules) {
             try {
                 CompiledDependency compiledDependency = getDependencyManager().loadDependency(

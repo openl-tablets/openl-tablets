@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.gen.FieldDescription;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -159,8 +159,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     }
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
-        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(
-            Thread.currentThread().getContextClassLoader());
+        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

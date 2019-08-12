@@ -16,7 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.engine.OpenLSystemProperties;
@@ -1059,7 +1059,7 @@ public class WebStudio {
                     } else {
                         ClassLoader classLoader = null;
                         try {
-                            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                            classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
                             moduleURI = ExtensionDescriptorFactory
                                 .getExtensionDescriptor(module.getExtension(), classLoader)
                                 .getUrlForModule(module);

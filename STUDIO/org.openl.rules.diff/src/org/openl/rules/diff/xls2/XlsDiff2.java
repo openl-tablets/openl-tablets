@@ -6,7 +6,7 @@ import java.util.*;
 
 import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.conf.UserContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
@@ -52,9 +52,9 @@ public class XlsDiff2 {
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
         final ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        SimpleBundleClassLoader bundleCl = null;
+        ClassLoader bundleCl = null;
         try {
-            bundleCl = new SimpleBundleClassLoader(oldCl);
+            bundleCl = new OpenLBundleClassLoader(oldCl);
             Thread.currentThread().setContextClassLoader(bundleCl);
             UserContext ucxt = new UserContext(bundleCl, ".");
 

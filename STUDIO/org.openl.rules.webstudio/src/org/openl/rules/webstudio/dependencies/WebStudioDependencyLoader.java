@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -28,7 +28,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
     @Override
     protected ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
         ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
-        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(null);
+        OpenLBundleClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(null);
         simpleBundleClassLoader.addClassLoader(projectClassLoader);
         return simpleBundleClassLoader;
     }

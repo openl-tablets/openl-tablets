@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -74,8 +74,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
         if (classLoader == null) {
-            SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(
-                Thread.currentThread().getContextClassLoader());
+            ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

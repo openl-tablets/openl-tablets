@@ -4,7 +4,6 @@ import java.net.URL;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
@@ -81,7 +80,7 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
             // for parent bundle
             //
             if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
-                ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+                ClassLoader newClassLoader = new OpenLBundleClassLoader(oldClassLoader);
                 Thread.currentThread().setContextClassLoader(newClassLoader);
             }
 

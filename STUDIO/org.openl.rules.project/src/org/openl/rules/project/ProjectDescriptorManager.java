@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.extension.instantiation.IExtensionDescriptor;
 import org.openl.rules.project.model.MethodFilter;
@@ -196,7 +196,7 @@ public class ProjectDescriptorManager {
         // Process extension modules
         for (Module module : modulesWasRead) {
             if (module.getExtension() != null) {
-                ClassLoader classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                ClassLoader classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
                 IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
                     .getExtensionDescriptor(module.getExtension(), classLoader);
                 module.setProject(descriptor);

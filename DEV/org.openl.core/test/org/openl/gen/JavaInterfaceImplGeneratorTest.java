@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Date;
 
 import org.junit.Test;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.util.ClassUtils;
 
 public class JavaInterfaceImplGeneratorTest {
@@ -68,8 +68,7 @@ public class JavaInterfaceImplGeneratorTest {
     }
 
     private Class<?> getBeanClass(Class<?> clazzInterface) {
-        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(
-            Thread.currentThread().getContextClassLoader());
+        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

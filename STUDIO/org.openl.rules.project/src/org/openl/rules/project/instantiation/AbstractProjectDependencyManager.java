@@ -3,7 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.util.*;
 
 import org.openl.OpenClassUtil;
-import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -142,8 +142,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             return classLoaders.get(project.getName());
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(),
-            parentClassLoader);
+        OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 if (getProjectDescriptors() != null) {
