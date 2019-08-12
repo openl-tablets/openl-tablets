@@ -784,8 +784,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 case FAST_FORWARD:
                     git.checkout().setName(refUpdate.getRemoteName()).call();
 
-                        // It's assumed that we don't have unpushed commits at this point so there must be no additional
-                        // merge
+                    // It's assumed that we don't have unpushed commits at this point so there must be no additional
+                    // merge
                     // while checking last revision. Accept only fast forwards.
                     git.merge()
                         .include(refUpdate.getNewObjectId())
@@ -793,8 +793,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         .call();
                     break;
                 case REJECTED_CURRENT_BRANCH:
-                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be
-                                                                   // deleted
+                    git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be deleted
                     break;
                 case FORCED:
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
