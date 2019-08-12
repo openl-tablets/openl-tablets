@@ -753,13 +753,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(): lock");
             writeLock.lock();
 
+            doFastForward(fetchResult);
+
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
                 projectBranches.removeIf(branch -> !availableBranches.contains(branch));
             }
             saveBranches();
-
-            doFastForward(fetchResult);
 
             reset();
         } finally {
@@ -777,7 +777,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void doFastForward(FetchResult fetchResult) throws GitAPIException {
+    private void doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
@@ -796,9 +796,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be
                                                                    // deleted
                     break;
+                case FORCED:
+                    if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
+                        // Delete the branch
+                        String branchToDelete = Repository.shortenRefName(refUpdate.getRemoteName());
+                        String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
+                        if (branchToDelete.equals(currentBranch)) {
+                            String branchToCheckout = baseBranch;
+                            if (branchToCheckout.equals(branchToDelete)) {
+                                branchToCheckout = Constants.MASTER;
+                            }
+                            if (getAvailableBranches().contains(branchToCheckout)) {
+                                git.checkout().setName(branchToCheckout).call();
+                            } else {
+                                git.checkout()
+                                    .setName(branchToCheckout)
+                                    .setCreateBranch(true)
+                                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                    .call();
+                            }
+                        }
+                        git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                    }
+                    break;
                 case NEW:
                 case NO_CHANGE:
-                case FORCED:
                     // Do nothing
                     break;
                 default:
@@ -1623,7 +1645,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return repo;
     }
 
-    private TreeSet<String> getAvailableBranches() throws GitAPIException {
+    TreeSet<String> getAvailableBranches() throws GitAPIException {
         TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         List<Ref> refs = git.branchList().call();

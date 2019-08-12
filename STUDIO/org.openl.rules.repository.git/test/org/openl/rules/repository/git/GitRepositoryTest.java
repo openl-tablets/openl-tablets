@@ -909,6 +909,21 @@ public class GitRepositoryTest {
             file2History = repo2.listHistory("rules/project1/file2");
             assertEquals(3, file2History.size());
         }
+
+        // Delete a branch on remote repository
+        try (Git git = Git.open(remote)) {
+            git.checkout().setName(Constants.MASTER).call();
+            git.branchDelete().setBranchNames(BRANCH).setForce(true).call();
+        }
+
+        // Force fetching
+        repo.getLastRevision();
+        assertFalse("Branch " + BRANCH + " must be deleted", repo.getAvailableBranches().contains(BRANCH));
+
+        // Check that after repo initialization the branch is deleted on local repository.
+        try (GitRepository repo2 = createRepository(new File(root, "remote"), local2, "master")) {
+            assertFalse("Branch " + BRANCH + " must be deleted", repo2.getAvailableBranches().contains(BRANCH));
+        }
     }
 
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
