@@ -20,7 +20,7 @@ import org.openl.types.IOpenClass;
 
 /**
  * Compile and validate OpenL project
- * 
+ *
  * @author Yury Molchan
  */
 @Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -45,7 +45,7 @@ public final class CompileMojo extends BaseOpenLMojo {
             long memStart = memUsed();
             long start = System.nanoTime();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }

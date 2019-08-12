@@ -42,6 +42,7 @@ public class CompositeFileChanges implements Iterable<FileItem> {
                 return firstIterator != null ? firstIterator.next() : secondIterator.next();
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("Remove is not supported");
             }

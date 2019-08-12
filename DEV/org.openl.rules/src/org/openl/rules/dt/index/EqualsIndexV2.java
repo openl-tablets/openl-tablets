@@ -26,9 +26,7 @@ public class EqualsIndexV2 implements IRuleIndex {
     private DecisionTableRuleNode nextNode;
     private int rulesTotalSize;
 
-    public EqualsIndexV2(DecisionTableRuleNode nextNode,
-                         Map<Object, int[]> index,
-                         int[] emptyRules) {
+    public EqualsIndexV2(DecisionTableRuleNode nextNode, Map<Object, int[]> index, int[] emptyRules) {
         this.index = Collections.unmodifiableMap(index);
         this.emptyRules = emptyRules;
         this.nextNode = nextNode;
@@ -81,7 +79,7 @@ public class EqualsIndexV2 implements IRuleIndex {
                 result[k++] = ruleN;
             }
         }
-        for(int ruleN : emptyRules) {
+        for (int ruleN : emptyRules) {
             result[k++] = ruleN;
         }
         Arrays.sort(result);
@@ -94,8 +92,7 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     /**
-     * Combine two sorted arrays into one.
-     * Time Complexity: O(a.length + b.length)
+     * Combine two sorted arrays into one. Time Complexity: O(a.length + b.length)
      *
      * @param a first array.
      * @param b second array.
@@ -123,8 +120,7 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     /**
-     * Find an intersection between two sorted arrays.
-     * Time Complexity: O(a.length + b.length)
+     * Find an intersection between two sorted arrays. Time Complexity: O(a.length + b.length)
      *
      * @param a first array
      * @param b second array
@@ -187,8 +183,7 @@ public class EqualsIndexV2 implements IRuleIndex {
                 }
             }
 
-            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
-                    e -> new DecisionTableRuleNodeBuilder());
+            DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value, e -> new DecisionTableRuleNodeBuilder());
 
             builder.addRule(ruleN);
         }

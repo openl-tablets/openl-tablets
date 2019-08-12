@@ -24,8 +24,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public CompiledDependency load(String dependencyName,
-            IDependencyManager dependencyManager) {
+    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
 
         Module dependencyModule = findDependencyModule(dependencyName);
 

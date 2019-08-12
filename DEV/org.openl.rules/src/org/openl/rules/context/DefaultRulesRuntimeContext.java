@@ -148,57 +148,56 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     public void setValue(String name, Object value) {
         if ("currentDate".equals(name)) {
-            setCurrentDate((java.util.Date) value);
+            setCurrentDate((java.util.Date)value);
             return;
         }
         if ("requestDate".equals(name)) {
-            setRequestDate((java.util.Date) value);
+            setRequestDate((java.util.Date)value);
             return;
         }
         if ("lob".equals(name)) {
-            setLob((java.lang.String) value);
+            setLob((java.lang.String)value);
             return;
         }
         if ("nature".equals(name)) {
-            setNature((java.lang.String) value);
+            setNature((java.lang.String)value);
             return;
         }
         if ("usState".equals(name)) {
-            setUsState((org.openl.rules.enumeration.UsStatesEnum) value);
+            setUsState((org.openl.rules.enumeration.UsStatesEnum)value);
             return;
         }
         if ("country".equals(name)) {
-            setCountry((org.openl.rules.enumeration.CountriesEnum) value);
+            setCountry((org.openl.rules.enumeration.CountriesEnum)value);
             return;
         }
         if ("usRegion".equals(name)) {
-            setUsRegion((org.openl.rules.enumeration.UsRegionsEnum) value);
+            setUsRegion((org.openl.rules.enumeration.UsRegionsEnum)value);
             return;
         }
         if ("currency".equals(name)) {
-            setCurrency((org.openl.rules.enumeration.CurrenciesEnum) value);
+            setCurrency((org.openl.rules.enumeration.CurrenciesEnum)value);
             return;
         }
         if ("lang".equals(name)) {
-            setLang((org.openl.rules.enumeration.LanguagesEnum) value);
+            setLang((org.openl.rules.enumeration.LanguagesEnum)value);
             return;
         }
         if ("region".equals(name)) {
-            setRegion((org.openl.rules.enumeration.RegionsEnum) value);
+            setRegion((org.openl.rules.enumeration.RegionsEnum)value);
             return;
         }
         if ("caProvince".equals(name)) {
-            setCaProvince((org.openl.rules.enumeration.CaProvincesEnum) value);
+            setCaProvince((org.openl.rules.enumeration.CaProvincesEnum)value);
             return;
         }
         if ("caRegion".equals(name)) {
-            setCaRegion((org.openl.rules.enumeration.CaRegionsEnum) value);
+            setCaRegion((org.openl.rules.enumeration.CaRegionsEnum)value);
             return;
         }
     }
 
     private java.util.Date currentDate = null;
-
     public java.util.Date getCurrentDate() {
         return currentDate;
     }
@@ -210,7 +209,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.util.Date requestDate = null;
-
     public java.util.Date getRequestDate() {
         return requestDate;
     }
@@ -222,7 +220,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String lob = null;
-
     public java.lang.String getLob() {
         return lob;
     }
@@ -234,7 +231,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String nature = null;
-
     public java.lang.String getNature() {
         return nature;
     }
@@ -246,7 +242,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsStatesEnum usState = null;
-
     public org.openl.rules.enumeration.UsStatesEnum getUsState() {
         return usState;
     }
@@ -258,7 +253,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CountriesEnum country = null;
-
     public org.openl.rules.enumeration.CountriesEnum getCountry() {
         return country;
     }
@@ -270,7 +264,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsRegionsEnum usRegion = null;
-
     public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
         return usRegion;
     }
@@ -282,7 +275,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CurrenciesEnum currency = null;
-
     public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
         return currency;
     }
@@ -294,7 +286,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.LanguagesEnum lang = null;
-
     public org.openl.rules.enumeration.LanguagesEnum getLang() {
         return lang;
     }
@@ -306,7 +297,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.RegionsEnum region = null;
-
     public org.openl.rules.enumeration.RegionsEnum getRegion() {
         return region;
     }
@@ -318,7 +308,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaProvincesEnum caProvince = null;
-
     public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
         return caProvince;
     }
@@ -330,7 +319,6 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaRegionsEnum caRegion = null;
-
     public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
         return caRegion;
     }
@@ -341,5 +329,5 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         cache = null;
     }
 
-    // <<< END INSERT >>>
+// <<< END INSERT >>>
 }

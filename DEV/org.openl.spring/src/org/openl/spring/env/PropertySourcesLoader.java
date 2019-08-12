@@ -230,7 +230,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             return null;
         }
         if (CollectionUtils.isEmpty(resources)) {
-            log.debug("- Not found: [{}]",  location);
+            log.debug("- Not found: [{}]", location);
             return null;
         }
         Arrays.sort(resources,

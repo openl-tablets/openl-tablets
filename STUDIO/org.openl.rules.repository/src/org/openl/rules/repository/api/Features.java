@@ -31,10 +31,9 @@ public class Features {
     }
 
     /**
-     * If true: Repository where each project is mapped to its own Folder.
-     * It means that each external folder has it's own internal folder.
-     * This repository can manage this mapping.
-     * If false: Repository has flat structure. Every project is located inside a single folder.
+     * If true: Repository where each project is mapped to its own Folder. It means that each external folder has it's
+     * own internal folder. This repository can manage this mapping. If false: Repository has flat structure. Every
+     * project is located inside a single folder.
      */
     public boolean mappedFolders() {
         return mappedFolders;

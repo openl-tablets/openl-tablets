@@ -23,7 +23,7 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
     boolean isDependentOnAnyParams();
 
     int getNumberOfEmptyRules(int paramIndex);
-    
+
     IOpenSourceCodeModule getUserDefinedExpressionSource();
 
 }

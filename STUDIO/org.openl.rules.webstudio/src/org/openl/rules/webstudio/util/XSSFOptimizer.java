@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public final class XSSFOptimizer {
     private static Logger LOG = LoggerFactory.getLogger(XSSFOptimizer.class);
+
     public static void removeUnusedStyles(XSSFWorkbook workbook) {
         LOG.info("Starting style optimization...");
         try {

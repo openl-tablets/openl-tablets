@@ -315,7 +315,8 @@ public class SheetHandler extends DefaultHandler {
             int r = mergedCell.getFirstRow() - start.getRow();
             int c = mergedCell.getFirstColumn() - start.getColumn();
             if (r >= 0 && c >= 0 && cells[r][c] != null) {
-                if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd.getColumn()) {
+                if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
+                    .getColumn()) {
                     int maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
                     int maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
                     effectiveEnd = new CellAddress(maxRow, maxCol);

@@ -301,7 +301,8 @@ public class RepositoryService {
                     return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
                 }
                 if (getRepository().supports().mappedFolders()) {
-                    throw new UnsupportedOperationException("Can't create a project for repository with non-flat folder structure");
+                    throw new UnsupportedOperationException(
+                        "Can't create a project for repository with non-flat folder structure");
                 }
             }
 
@@ -327,8 +328,8 @@ public class RepositoryService {
             FileData save;
             if (repository.supports().folders()) {
                 try (ZipInputStream stream = new ZipInputStream(zipFile)) {
-                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName),
-                            ChangesetType.FULL);
+                    save = ((FolderRepository) repository)
+                        .save(data, new FileChangesFromZip(stream, fileName), ChangesetType.FULL);
                 }
             } else {
                 data.setSize(zipSize);

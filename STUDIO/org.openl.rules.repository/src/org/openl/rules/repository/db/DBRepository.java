@@ -486,8 +486,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
-    private PreparedStatement createInsertFileStatement(Connection connection, FileData data, InputStream stream)
-            throws SQLException {
+    private PreparedStatement createInsertFileStatement(Connection connection,
+            FileData data,
+            InputStream stream) throws SQLException {
 
         PreparedStatement statement = connection.prepareStatement(settings.insertFile);
         statement.setString(1, data.getName());

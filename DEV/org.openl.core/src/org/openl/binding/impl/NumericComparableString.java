@@ -54,8 +54,9 @@ public class NumericComparableString implements Comparable<NumericComparableStri
             if (cmp == 0) {
                 cmp = splits[i].compareTo(v.splits[i]);
             }
-            if (cmp != 0)
+            if (cmp != 0) {
                 return cmp;
+            }
         }
         return splits.length - v.splits.length;
     }
@@ -66,18 +67,23 @@ public class NumericComparableString implements Comparable<NumericComparableStri
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         NumericComparableString other = (NumericComparableString) obj;
         if (value == null) {
-            if (other.value != null)
+            if (other.value != null) {
                 return false;
-        } else if (this.compareTo(other) != 0)
+            }
+        } else if (this.compareTo(other) != 0) {
             return false;
+        }
         return true;
     }
 

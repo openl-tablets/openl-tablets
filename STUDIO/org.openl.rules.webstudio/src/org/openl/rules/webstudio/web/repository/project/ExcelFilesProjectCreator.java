@@ -28,9 +28,9 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
-                getProjectName(),
-                getProjectFolder(),
-                comment);
+            getProjectName(),
+            getProjectFolder(),
+            comment);
 
         if (files != null) {
             for (ProjectFile file : files) {

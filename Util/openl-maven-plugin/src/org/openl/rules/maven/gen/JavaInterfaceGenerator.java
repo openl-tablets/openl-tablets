@@ -65,8 +65,11 @@ public class JavaInterfaceGenerator {
 
     private void addMethods(StringBuilder buf) {
         for (IOpenMethod method : moduleOpenClass.getMethods()) {
-            if (!shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(),
-                    ignoreNonJavaTypes, ignoreTestMethods)) {
+            if (!shouldBeGenerated(method,
+                methodsToGenerate,
+                moduleOpenClass.getName(),
+                ignoreNonJavaTypes,
+                ignoreTestMethods)) {
                 continue;
             }
             buf.append("  ");
@@ -79,8 +82,9 @@ public class JavaInterfaceGenerator {
                     buf.append(", ");
                 }
                 String parameterName = method.getSignature().getParameterName(i);
-                buf.append(getClassName(ptypes[i].getInstanceClass())).append(' ')
-                        .append(parameterName == null ? "arg" + i : parameterName);
+                buf.append(getClassName(ptypes[i].getInstanceClass()))
+                    .append(' ')
+                    .append(parameterName == null ? "arg" + i : parameterName);
             }
             buf.append(')');
             buf.append(";\n\n");
@@ -170,13 +174,17 @@ public class JavaInterfaceGenerator {
         }
 
     }
-    private boolean shouldBeGenerated(IOpenField field, String[] fieldToGenerate, boolean ignoreNonJavaTypes,
+
+    private boolean shouldBeGenerated(IOpenField field,
+            String[] fieldToGenerate,
+            boolean ignoreNonJavaTypes,
             boolean ignoreTestMethods) {
         if (ignoreTestMethods && field instanceof DataOpenField) {
             ITable table = ((DataOpenField) field).getTable();
             if (table != null) {
                 String type = table.getTableSyntaxNode().getType();
-                if (type.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || type.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+                if (type.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || type
+                    .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                     return false;
                 }
             }
@@ -197,8 +205,11 @@ public class JavaInterfaceGenerator {
         return true;
     }
 
-    private boolean shouldBeGenerated(IOpenMethod method, String[] methodsToGenerate, String nameOfTheModule,
-            boolean ignoreNonJavaTypes, boolean ignoreTestMethods) {
+    private boolean shouldBeGenerated(IOpenMethod method,
+            String[] methodsToGenerate,
+            String nameOfTheModule,
+            boolean ignoreNonJavaTypes,
+            boolean ignoreTestMethods) {
         if (ignoreTestMethods && method instanceof TestSuiteMethod) {
             return false;
         }
@@ -243,9 +254,8 @@ public class JavaInterfaceGenerator {
 
         String result;
         /**
-         * Filter Custom Spreadsheet results. These classes are dinamically
-         * generated on runtime and are children of SpreadsheetResult. For the
-         * wrapper use its parent.
+         * Filter Custom Spreadsheet results. These classes are dinamically generated on runtime and are children of
+         * SpreadsheetResult. For the wrapper use its parent.
          */
         if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class)) {
             result = SpreadsheetResult.class.getName();

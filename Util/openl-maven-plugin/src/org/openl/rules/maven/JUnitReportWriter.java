@@ -26,9 +26,9 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.impl.ThisField;
 
 /**
- * Creates a xml report files compatible with surefire and JUnit formats.
- * See http://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd
- * See https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd
+ * Creates a xml report files compatible with surefire and JUnit formats. See
+ * http://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd See
+ * https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd
  *
  * Not thread-safe.
  */

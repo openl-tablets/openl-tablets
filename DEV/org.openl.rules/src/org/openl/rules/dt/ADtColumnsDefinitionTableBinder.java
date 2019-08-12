@@ -39,7 +39,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
         }
 
         aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
-        
+
         tsn.setMetaInfoReader(new DtColumnsDefinitionMetaInfoReader(aDtColumnsDefinitionTableBoundNode));
 
         return aDtColumnsDefinitionTableBoundNode;

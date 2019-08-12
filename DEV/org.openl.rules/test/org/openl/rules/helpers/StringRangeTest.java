@@ -95,7 +95,7 @@ public class StringRangeTest {
             new StringRange(">= AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING),
             new StringRange("<= AA"));
-        
+
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING),
             new StringRange(">=AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING),

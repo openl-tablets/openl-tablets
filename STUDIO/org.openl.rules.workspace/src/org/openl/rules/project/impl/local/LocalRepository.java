@@ -71,7 +71,9 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     @Override
-    public FileData save(FileData folderData, final Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData,
+            final Iterable<FileItem> files,
+            ChangesetType changesetType) throws IOException {
         FileData fileData = super.save(folderData, files, changesetType);
         notifyModified(folderData.getName());
         return fileData;
@@ -119,12 +121,10 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     /**
-     * The file is modified if any of these is true:
-     * a) it's marked as modified in properties file
-     * b) size is changed
-     * c) last modified time is changed
+     * The file is modified if any of these is true: a) it's marked as modified in properties file b) size is changed c)
+     * last modified time is changed
      *
-     * @param fileData   file data for checking file
+     * @param fileData file data for checking file
      * @param properties properties of original file
      * @return true if file is modified
      */

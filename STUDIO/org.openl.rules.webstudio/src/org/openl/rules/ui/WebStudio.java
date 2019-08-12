@@ -472,10 +472,10 @@ public class WebStudio {
                 FacesUtils.getFacesContext().responseComplete();
                 return;
             }
-            //switch current project branch to the selected
+            // switch current project branch to the selected
             if (branchName != null && project != null) {
                 setProjectBranch(project, branchName);
-                //reload project descriptor. Because it might be changed
+                // reload project descriptor. Because it might be changed
                 project = getProjectByName(projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
                     // Not empty project name is requested but it's not found
@@ -1133,9 +1133,11 @@ public class WebStudio {
                     project.setBranch(branch);
 
                     if (project.getVersion() == null) {
-                        //move back to previous branch! Because the project is not present in new branch
+                        // move back to previous branch! Because the project is not present in new branch
                         project.setBranch(previousBranch);
-                        log.warn("Current project does not exists in '{}' branch! Project branch was switched to the previous one", branch);
+                        log.warn(
+                            "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
+                            branch);
                     }
                     // Update files
                     project.open();

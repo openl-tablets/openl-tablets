@@ -152,9 +152,7 @@ public class MessagesBean {
         }
 
         if (pend != 0) {
-            return new String[] { code.substring(0, pstart),
-                    code.substring(pstart, pend),
-                    code.substring(pend) };
+            return new String[] { code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend) };
         }
 
         return new String[0];

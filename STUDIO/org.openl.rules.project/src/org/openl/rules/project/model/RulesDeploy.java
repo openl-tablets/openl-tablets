@@ -146,11 +146,11 @@ public class RulesDeploy {
     public void setGroups(String groups) {
         this.groups = groups;
     }
-    
+
     public String getRmiName() {
         return rmiName;
     }
-    
+
     public void setRmiName(String rmiName) {
         this.rmiName = rmiName;
     }

@@ -21,13 +21,13 @@ import java.util.Properties;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class DeployMojo extends BaseOpenLMojo {
 
-    @Parameter (property = "openl.deployServer", required = true)
+    @Parameter(property = "openl.deployServer", required = true)
     private String deployServer;
 
-    @Parameter (property = "openl.deployUrl", required = true)
+    @Parameter(property = "openl.deployUrl", required = true)
     private String deployUrl;
 
-    @Parameter (property = "openl.deployType", required = true)
+    @Parameter(property = "openl.deployType", required = true)
     private String deployType;
 
     @Parameter(defaultValue = "${project.build.finalName}", readonly = true)
@@ -73,7 +73,7 @@ public class DeployMojo extends BaseOpenLMojo {
     }
 
     private File findZipFile() {
-       File[] zipZiles = outputDirectory.listFiles(new FilenameFilter() {
+        File[] zipZiles = outputDirectory.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.contains(finalName) && name.endsWith(".zip");

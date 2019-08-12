@@ -2,12 +2,8 @@ package org.openl.excel.parser;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
-
-import java.io.File;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ExcelReaderFactoryTest {

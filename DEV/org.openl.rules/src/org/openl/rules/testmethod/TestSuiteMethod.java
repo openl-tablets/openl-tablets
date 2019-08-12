@@ -345,8 +345,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         // Try process field as SpreadsheetResult
                         if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
                             .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
-                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass
-                                .getOpenClass(SpreadsheetResult.class);
+                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
                             arrayField = spreadsheetResultOpenClass
                                 .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                         }
@@ -372,8 +371,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         fieldSequence[i] = currentType.getField(identifier);
                         if (fieldSequence[i] == null) {
                             // Try process field as SpreadsheetResult
-                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass
-                                .getOpenClass(SpreadsheetResult.class);
+                            IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
                             IOpenField openField = spreadsheetResultOpenClass.getField(identifier);
                             if (openField != null) {
                                 fieldSequence[i] = openField;
@@ -399,7 +397,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             }
                             continue;
                         } else {
-                            fieldSequence = new IOpenField[]{new ThisField(resultType)};
+                            fieldSequence = new IOpenField[] { new ThisField(resultType) };
                         }
                     }
                     if (fieldPrecision != null) {
@@ -429,8 +427,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     private static boolean isCollectionType(String identifier) {
-        return StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier)
-                || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
+        return StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier) || StringUtils
+            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
     }
 
     private static CollectionType getCollectionType(IOpenClass type) {

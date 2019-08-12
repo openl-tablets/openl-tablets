@@ -176,14 +176,14 @@ public class AProjectFolder extends AProjectArtefact {
                     changesetType = ChangesetType.DIFF;
 
                     String fromFilePath = from.getFolderPath() + "/";
-                    List<FileData> fromList = from.isHistoric() ?
-                                              fromRepository.listFiles(fromFilePath, from.getHistoryVersion()) :
-                                              fromRepository.list(fromFilePath);
+                    List<FileData> fromList = from.isHistoric()
+                                                                ? fromRepository.listFiles(fromFilePath,
+                                                                    from.getHistoryVersion())
+                                                                : fromRepository.list(fromFilePath);
 
                     String toFilePath = getFolderPath() + "/";
-                    List<FileData> toList = isHistoric() ?
-                                            toRepository.listFiles(toFilePath, getHistoryVersion()) :
-                                            toRepository.list(toFilePath);
+                    List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
+                                                         : toRepository.list(toFilePath);
 
                     ResourceTransformer transformer = getResourceTransformer();
 
@@ -195,9 +195,10 @@ public class AProjectFolder extends AProjectArtefact {
                         String fromUniqueId = fromData.getUniqueId();
                         if (fromUniqueId == null) {
                             // The file was modified or added
-                            FileItem read = fromRepository.supports().versions() ?
-                                            fromRepository.readHistory(nameFrom, fromData.getVersion()) :
-                                            fromRepository.read(nameFrom);
+                            FileItem read = fromRepository.supports().versions()
+                                                                                 ? fromRepository.readHistory(nameFrom,
+                                                                                     fromData.getVersion())
+                                                                                 : fromRepository.read(nameFrom);
                             changes.add(new FileItem(nameTo, read.getStream()));
                         } else {
                             FileData toData = find(toList, nameTo);
@@ -207,16 +208,13 @@ public class AProjectFolder extends AProjectArtefact {
                                 FileData data = copyAndChangeName(fromData, nameTo);
                                 InputStream content;
                                 if (transformer != null) {
-                                    FileData fileData = fromRepository.supports().versions() ?
-                                                    fromRepository.checkHistory(nameFrom, fromData.getVersion()) :
-                                                    fromRepository.check(nameFrom);
-                                    content = transformer.transform(new AProjectResource(from.getProject(),
-                                        fromRepository,
-                                        fileData));
+                                    FileData fileData = fromRepository.supports().versions() ? fromRepository
+                                        .checkHistory(nameFrom, fromData.getVersion()) : fromRepository.check(nameFrom);
+                                    content = transformer
+                                        .transform(new AProjectResource(from.getProject(), fromRepository, fileData));
                                 } else {
-                                    FileItem read = fromRepository.supports().versions() ?
-                                                    fromRepository.readHistory(nameFrom, fromData.getVersion()) :
-                                                    fromRepository.read(nameFrom);
+                                    FileItem read = fromRepository.supports().versions() ? fromRepository
+                                        .readHistory(nameFrom, fromData.getVersion()) : fromRepository.read(nameFrom);
                                     content = read.getStream();
                                 }
                                 changes.add(new FileItem(data, content));

@@ -155,8 +155,8 @@ public class StringRange {
         }
         return sb.toString();
     }
-    
-    //AUTOCASTS
+
+    // AUTOCASTS
     public static StringRange autocast(String x, StringRange y) {
         return new StringRange(x);
     }

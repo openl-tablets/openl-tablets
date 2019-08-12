@@ -37,7 +37,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @ManagedBean
 @SessionScoped
 public class ConflictedFileDiffController extends ExcelDiffController {
-    private static final Pattern LINES_RANGE_PATTERN = Pattern.compile("@@\\s*-(\\d+)(,\\d+)?\\s+\\+(\\d+)(,(\\d+))?\\s*@@");
+    private static final Pattern LINES_RANGE_PATTERN = Pattern
+        .compile("@@\\s*-(\\d+)(,\\d+)?\\s+\\+(\\d+)(,(\\d+))?\\s*@@");
     private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
     @ManagedProperty(value = "#{workspaceManager}")
@@ -64,9 +65,8 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
 
-                WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext()
-                    .getAuthentication()
-                    .getName());
+                WorkspaceUser user = new WorkspaceUserImpl(
+                    SecurityContextHolder.getContext().getAuthentication().getName());
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
                 FileItem their = userWorkspace.getDesignTimeRepository()
@@ -188,7 +188,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                             break;
                         default:
                             log.warn("Line \"{}\" starts with unsupported character '{}'", line, c);
-                            type =  DiffType.COMMON;
+                            type = DiffType.COMMON;
                             break;
                     }
                     diffLines.add(new DiffLine(line.substring(1), theirLine, ourLine, type, noEndOfFile));

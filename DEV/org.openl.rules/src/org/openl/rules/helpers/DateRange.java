@@ -130,9 +130,7 @@ public class DateRange {
         if (this.upperBoundType == BoundType.EXCLUDING) {
             time += 1;
         }
-        return Instant.ofEpochMilli(time)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        return Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     private LocalDateTime getDateLowerBound() {
@@ -140,9 +138,7 @@ public class DateRange {
         if (this.lowerBoundType == BoundType.EXCLUDING) {
             time -= 1;
         }
-        return Instant.ofEpochMilli(time)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        return Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     // AUTOCAST METHODS
@@ -157,11 +153,12 @@ public class DateRange {
     public static DateRange autocast(long x, DateRange y) {
         return new DateRange(new Date(x));
     }
+
     // END
     // CAST METHODS
     public static DateRange cast(LongValue x, DateRange y) {
         return new DateRange(new Date(x.longValue()));
     }
-    //END
+    // END
 
 }

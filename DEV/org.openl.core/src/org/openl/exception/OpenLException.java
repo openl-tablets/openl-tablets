@@ -1,6 +1,5 @@
 package org.openl.exception;
 
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.ILocation;
 
 public interface OpenLException {
@@ -25,6 +24,7 @@ public interface OpenLException {
 
     /**
      * Gets error source location URI
+     *
      * @return source location URI
      */
     String getSourceLocation();

@@ -38,14 +38,12 @@ public class RulesProjectBuilder {
                 localData.addAdditionalData(mappingData);
             }
 
-            project = new RulesProject(
-                workspace,
+            project = new RulesProject(workspace,
                 workspace.getLocalWorkspace().getRepository(),
                 localData,
                 designRepository,
                 designData,
-                workspace.getProjectsLockEngine()
-            );
+                workspace.getProjectsLockEngine());
         }
     }
 
@@ -100,7 +98,8 @@ public class RulesProjectBuilder {
     public void save() throws ProjectException {
         WorkspaceUser user = workspace.getUser();
 
-        // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
+        // Override comment to avoid reusing of comment from previous version (we create a new project but it can
+        // contain
         // unerasable history for example in Git).
         project.getFileData().setComment(comment);
         project.save(user);

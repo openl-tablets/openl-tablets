@@ -75,10 +75,12 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         return sourceUri;
     }
 
+    @Override
     public String getSourceCode() {
         return sourceCode;
     }
 
+    @Override
     public String getSourceLocation() {
         return sourceLocation;
     }

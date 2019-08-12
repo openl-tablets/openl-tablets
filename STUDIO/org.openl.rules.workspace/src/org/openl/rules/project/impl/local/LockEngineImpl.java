@@ -101,10 +101,10 @@ public class LockEngineImpl implements LockEngine {
     }
 
     /**
-     * If branch null, return the folder ".locks/no-branch".
-     * If branch isn't null, return the folder .locks/branches/<project-name>/<branch-name>/
+     * If branch null, return the folder ".locks/no-branch". If branch isn't null, return the folder
+     * .locks/branches/<project-name>/<branch-name>/
      *
-     * @param branch      branch name. Can be null
+     * @param branch branch name. Can be null
      * @param projectName project name
      * @return the folder where lock file is stored
      */
@@ -113,18 +113,18 @@ public class LockEngineImpl implements LockEngine {
             return new File(locksRoot, "no-branch");
         } else {
             // To avoid conflict between branch and project names, branch folder will be:
-            //   .locks/branches/<project-name>/<branch-name>/
+            // .locks/branches/<project-name>/<branch-name>/
             // and inside that folder a file with the name <project-name> will be stored.
             // So full path for a file will be: .locks/branches/<project-name>/<branch-name>/<project-name>
             // Note: branch name can contain '/' symbol
             // Example:
-            //   project1 name: "test", branch1: "WebStudio/test/user1"
-            //   project2 name: "user1", branch2: "WebStudio/test"
+            // project1 name: "test", branch1: "WebStudio/test/user1"
+            // project2 name: "user1", branch2: "WebStudio/test"
             // Then full paths for both lock files will be:
-            //   .locks/branches/test/WebStudio/test/user1/test
-            //   .locks/branches/user1/WebStudio/test/user1
+            // .locks/branches/test/WebStudio/test/user1/test
+            // .locks/branches/user1/WebStudio/test/user1
             // If we don't include project name before branch name, there will be conflict:
-            //   locks/branches/WebStudio/test/user1 will be treated both as a folder and a file. So we must include it.
+            // locks/branches/WebStudio/test/user1 will be treated both as a folder and a file. So we must include it.
             //
             // In this method we return only folder without locks filename.
 

@@ -452,7 +452,7 @@ public final class RuleRowHelper {
         if (metaInfoReader instanceof BaseMetaInfoReader) {
             String[] tokens = StringTool.splitAndEscape(theValueCell.getStringValue(), ARRAY_ELEMENTS_SEPARATOR, null);
             String cellValue = theValueCell.getStringValue();
-            int startFrom = 0; 
+            int startFrom = 0;
             for (String token : tokens) {
                 int start = cellValue.indexOf(token, startFrom);
                 startFrom = start + token.length() - 1;

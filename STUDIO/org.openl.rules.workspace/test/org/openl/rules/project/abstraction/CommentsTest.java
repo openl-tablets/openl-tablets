@@ -15,13 +15,20 @@ public class CommentsTest {
     @Before
     public void setUp() {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("a.comment-template.user-message.default.save", "Project {username} {{project-name}} is saved. {foo}");
-        parameters.put("a.comment-template.user-message.default.create", "Project {username} {project-name} is created. {foo}");
-        parameters.put("a.comment-template.user-message.default.archive", "Project {username} {{project-name} is archived. {foo}");
-        parameters.put("a.comment-template.user-message.default.restore", "Project {username} '{'{project-name} is restored. {foo}");
-        parameters.put("a.comment-template.user-message.default.erase", "Project {username} {project-name} is erased. {foo}");
-        parameters.put("a.comment-template.user-message.default.copied-from", "Project {username} {{project-name}} is copied-from. {foo}");
-        parameters.put("a.comment-template.user-message.default.restored-from", "Project {username} {revision} is restored-from. {foo}");
+        parameters.put("a.comment-template.user-message.default.save",
+            "Project {username} {{project-name}} is saved. {foo}");
+        parameters.put("a.comment-template.user-message.default.create",
+            "Project {username} {project-name} is created. {foo}");
+        parameters.put("a.comment-template.user-message.default.archive",
+            "Project {username} {{project-name} is archived. {foo}");
+        parameters.put("a.comment-template.user-message.default.restore",
+            "Project {username} '{'{project-name} is restored. {foo}");
+        parameters.put("a.comment-template.user-message.default.erase",
+            "Project {username} {project-name} is erased. {foo}");
+        parameters.put("a.comment-template.user-message.default.copied-from",
+            "Project {username} {{project-name}} is copied-from. {foo}");
+        parameters.put("a.comment-template.user-message.default.restored-from",
+            "Project {username} {revision} is restored-from. {foo}");
 
         comments = new Comments(parameters, "a.");
     }

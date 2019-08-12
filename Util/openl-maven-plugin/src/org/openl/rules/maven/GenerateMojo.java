@@ -73,16 +73,16 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private File outputDirectory;
 
     /**
-     * Comma-separated list of interfaces which are used for extending of the
-     * generated interface.
+     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     *
      * @since 5.19.1
      */
     @Parameter
     private String superInterface;
 
     /**
-     * A generated Java interface from an OpenL project. If it is empty then
-     * generation will be skipped.
+     * A generated Java interface from an OpenL project. If it is empty then generation will be skipped.
+     *
      * @since 5.19.1
      */
     @Parameter
@@ -90,6 +90,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     /**
      * Add IRulesRuntimeContext arguments to the generated interface.
+     *
      * @since 5.19.1
      */
     @Parameter
@@ -97,6 +98,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     /**
      * Add additional methods to the generated interface to support variations.
+     *
      * @since 5.19.1
      */
     @Parameter
@@ -123,69 +125,64 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * <td>srcFile</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the Excel file for which an interface class must be
-     * generated.</td>
+     * <td>*Reference to the Excel file for which an interface class must be generated.</td>
      * </tr>
      * <tr>
      * <td>targetClass</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Full name of the interface class to be generated. Optional; if
-     * missed interface not generated. OpenL Tablets WebStudio recognizes
-     * modules in projects by interface classes and uses their names in the user
-     * interface. If there are multiple wrappers with identical names, only one
-     * of them is recognized as a module in OpenL Tablets WebStudio.</td>
+     * <td>*Full name of the interface class to be generated. Optional; if missed interface not generated. OpenL Tablets
+     * WebStudio recognizes modules in projects by interface classes and uses their names in the user interface. If
+     * there are multiple wrappers with identical names, only one of them is recognized as a module in OpenL Tablets
+     * WebStudio.</td>
      * </tr>
      * <tr>
      * <td>isUsedRuleXmlForGenerate</td>
      * <td>boolean (true/false)</td>
      * <td>false</td>
-     * <td>*Should system generate class and datatypes from rules.xml. If yes
-     * srcFile ignored; targetClass is required.</td>
+     * <td>*Should system generate class and datatypes from rules.xml. If yes srcFile ignored; targetClass is
+     * required.</td>
      * </tr>
      * <tr>
      * <td>displayName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*End user oriented title of the file that appears in OpenL Tablets
-     * WebStudio. Default value is Excel file name without extension.</td>
+     * <td>*End user oriented title of the file that appears in OpenL Tablets WebStudio. Default value is Excel file
+     * name without extension.</td>
      * </tr>
      * <tr>
      * <td>targetSrcDir</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Folder where the generated interface class must be placed. For
-     * example: "src/main/java". Default value is:
+     * <td>*Folder where the generated interface class must be placed. For example: "src/main/java". Default value is:
      * "${project.build.sourceDirectory}"</td>
      * </tr>
      * <tr>
      * <td>openlName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*OpenL configuration to be used. For OpenL Tablets, the following
-     * value must always be used: org.openl.xls. Default value is:
-     * "org.openl.xls"</td>
+     * <td>*OpenL configuration to be used. For OpenL Tablets, the following value must always be used: org.openl.xls.
+     * Default value is: "org.openl.xls"</td>
      * </tr>
      * <tr>
      * <td>userHome</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Location of user-defined resources relative to the current OpenL
-     * Tablets project. Default value is: "."</td>
+     * <td>*Location of user-defined resources relative to the current OpenL Tablets project. Default value is: "."</td>
      * </tr>
      * <tr>
      * <td>userClassPath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the folder with additional compiled classes imported by
-     * the module when the interface is generated. Default value is: null.</td>
+     * <td>*Reference to the folder with additional compiled classes imported by the module when the interface is
+     * generated. Default value is: null.</td>
      * </tr>
      * <tr>
      * <td>ignoreTestMethods</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>*If true, test methods will not be added to interface class. Used
-     * only in GenerateInterface. Default value is: true.</td>
+     * <td>*If true, test methods will not be added to interface class. Used only in GenerateInterface. Default value
+     * is: true.</td>
      * </tr>
      * <tr>
      * <td>generateDataType</td>
@@ -196,16 +193,15 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * </table>
      * <p>
      *
-     * @deprecated Obsolete. Replaced with the smart generator. Use
-     *             interfaceClass instead.
+     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
      */
     @Parameter
     @Deprecated
     private GenerateInterface[] generateInterfaces;
 
     /**
-     * If true, rules.xml will be generated if it doesn't exist. If false,
-     * rules.xml will not be generated. Default value is "true".
+     * If true, rules.xml will be generated if it doesn't exist. If false, rules.xml will not be generated. Default
+     * value is "true".
      *
      * @see #overwriteProjectDescriptor
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
@@ -215,9 +211,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean createProjectDescriptor;
 
     /**
-     * If true, rules.xml will be overwritten on each run. If false, rules.xml
-     * generation will be skipped if it exists. Makes sense only if
-     * {@link #createProjectDescriptor} == true. Default value is "true".
+     * If true, rules.xml will be overwritten on each run. If false, rules.xml generation will be skipped if it exists.
+     * Makes sense only if {@link #createProjectDescriptor} == true. Default value is "true".
      *
      * @see #createProjectDescriptor
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
@@ -227,9 +222,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean overwriteProjectDescriptor;
 
     /**
-     * Default project name in rules.xml. If omitted, the name of the first
-     * module in the project is used. Used only if createProjectDescriptor ==
-     * true.
+     * Default project name in rules.xml. If omitted, the name of the first module in the project is used. Used only if
+     * createProjectDescriptor == true.
      *
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
@@ -238,8 +232,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String projectName;
 
     /**
-     * Default classpath entries in rules.xml. Default value is {"."} Used only
-     * if createProjectDescriptor == true.
+     * Default classpath entries in rules.xml. Default value is {"."} Used only if createProjectDescriptor == true.
      *
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
@@ -267,7 +260,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         try {
             classLoader = composeClassLoader();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -483,7 +476,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             Class<?> returnType = method.getReturnType();
             debug("   method: ", returnType, "   ", name, "()");
             JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
-            String[] argNames = GenUtils.getParameterNames(method, openClass, isProvideRuntimeContext, isProvideVariations);
+            String[] argNames = GenUtils
+                .getParameterNames(method, openClass, isProvideRuntimeContext, isProvideVariations);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];
@@ -511,9 +505,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     }
 
     /**
-     * A utility class to convert Java classes in CodeModel class descriptors.
-     * It is required for managing generated beans because of they have not a
-     * classloader.
+     * A utility class to convert Java classes in CodeModel class descriptors. It is required for managing generated
+     * beans because of they have not a classloader.
      */
     private class CodeHelper {
         JCodeModel model = new JCodeModel();

@@ -136,8 +136,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
                 FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
                     new ByteArrayInputStream(out.toByteArray()));
-                setFileData(((FolderRepository) getRepository()).save(fileData, Collections.singletonList(change),
-                        ChangesetType.FULL));
+                setFileData(((FolderRepository) getRepository())
+                    .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             }

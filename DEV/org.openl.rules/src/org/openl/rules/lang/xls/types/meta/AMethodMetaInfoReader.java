@@ -59,8 +59,8 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
             nodeUsages.add(new SimpleNodeUsage(start,
                 end,
-                metaInfo.getDisplayName(INamedThing.SHORT) + (StringUtils
-                    .isEmpty(getAdditionalMetaInfoForTableReturnType()) ? "" : "\n" + getAdditionalMetaInfoForTableReturnType()),
+                metaInfo.getDisplayName(INamedThing.SHORT) + (StringUtils.isEmpty(
+                    getAdditionalMetaInfoForTableReturnType()) ? "" : "\n" + getAdditionalMetaInfoForTableReturnType()),
                 metaInfo.getSourceUrl(),
                 NodeType.DATATYPE));
         }

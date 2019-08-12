@@ -119,7 +119,7 @@ public class GenerateInterface {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName(defaultProjectName != null ? defaultProjectName : getDisplayName());
 
-        List<PathEntry> classpath = new ArrayList<PathEntry>();
+        List<PathEntry> classpath = new ArrayList<>();
         for (String path : defaultClasspaths) {
             classpath.add(new PathEntry(path));
         }
@@ -143,7 +143,7 @@ public class GenerateInterface {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
 
         ProjectDescriptor projectToWrite;
-        List<Module> modulesToWrite = new ArrayList<Module>();
+        List<Module> modulesToWrite = new ArrayList<>();
         long timeSinceModification = System.currentTimeMillis() - rulesDescriptor.lastModified();
 
         // FIXME: This is tricky to rely on the time since modification.
@@ -200,7 +200,7 @@ public class GenerateInterface {
 
     /**
      * Copy the module without {@link Module#getProject()}, as it prevents to Circular dependency.
-     * 
+     *
      * @param module income module
      * @return copy of income module without project field
      */
@@ -494,7 +494,7 @@ public class GenerateInterface {
         CompiledOpenClass compiledOpenClass = null;
 
         if (usedRuleXmlForGenerate) {
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
                 .setExecutionMode(false)
                 .setProvideRuntimeContext(false)
@@ -611,7 +611,8 @@ public class GenerateInterface {
                 //
                 if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
-                    decompiler.decompile(datatypeClass.getName(), ((DatatypeOpenClass) datatypeOpenClass).getBytecode());
+                    decompiler.decompile(datatypeClass.getName(),
+                        ((DatatypeOpenClass) datatypeOpenClass).getBytecode());
                 }
             }
         }

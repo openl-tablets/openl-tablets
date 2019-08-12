@@ -30,7 +30,8 @@ public class StartupListener implements ServletContextListener {
     }
 
     private void initSystemProperties() {
-        ConfigurationManager cm = new ConfigurationManager(System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+        ConfigurationManager cm = new ConfigurationManager(
+            System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         Map<String, Object> properties = cm.getProperties(true);
 
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -54,7 +55,8 @@ public class StartupListener implements ServletContextListener {
         // globally
         // later when configuration will be finished.
         if (configured) {
-            ConfigurationManager systemConfig = new ConfigurationManager(System.getProperty("webstudio.home") + "/system-settings/system.properties",
+            ConfigurationManager systemConfig = new ConfigurationManager(
+                System.getProperty("webstudio.home") + "/system-settings/system.properties",
                 System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
             String userMode = systemConfig.getStringProperty("user.mode");
             System.setProperty("user.mode", userMode);

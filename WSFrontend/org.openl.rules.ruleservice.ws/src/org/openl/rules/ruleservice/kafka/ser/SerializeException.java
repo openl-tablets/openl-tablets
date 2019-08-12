@@ -7,10 +7,7 @@ public class SerializeException extends RuntimeException {
         super();
     }
 
-    public SerializeException(String message,
-            Throwable cause,
-            boolean enableSuppression,
-            boolean writableStackTrace) {
+    public SerializeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

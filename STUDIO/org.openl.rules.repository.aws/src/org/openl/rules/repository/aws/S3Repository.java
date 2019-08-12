@@ -233,7 +233,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        try{
+        try {
             for (FileItem fileItem : fileItems) {
                 FileData data = fileItem.getData();
                 ObjectMetadata metaData = createInsertFileMetadata(data);

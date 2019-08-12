@@ -7,7 +7,6 @@ import java.util.Objects;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.main.SourceCodeURLConstants;
-import org.openl.main.SourceCodeURLTool;
 import org.openl.util.StringUtils;
 
 /**

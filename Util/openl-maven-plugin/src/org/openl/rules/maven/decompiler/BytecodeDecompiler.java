@@ -39,6 +39,7 @@ public class BytecodeDecompiler {
 
     private IBytecodeProvider wrapBytecode(byte[] bytecode) {
         return new IBytecodeProvider() {
+            @Override
             public byte[] getBytecode(String externalPath, String internalPath) {
                 return bytecode;
             }

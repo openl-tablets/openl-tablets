@@ -74,7 +74,8 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
         if (classLoader == null) {
-            ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
+            ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
+                Thread.currentThread().getContextClassLoader());
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

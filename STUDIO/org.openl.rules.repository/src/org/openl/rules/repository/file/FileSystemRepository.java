@@ -286,7 +286,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData,
+            Iterable<FileItem> files,
+            ChangesetType changesetType) throws IOException {
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
         for (FileItem change : files) {

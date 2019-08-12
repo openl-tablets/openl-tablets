@@ -26,6 +26,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @ManagedBean(name = "localUpload")
 @RequestScoped
 public class LocalUploadController {
@@ -66,8 +67,9 @@ public class LocalUploadController {
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
 
-    private void createProject(File baseFolder, RulesUserSession rulesUserSession, String comment) throws ProjectException,
-                                                                                                          WorkspaceException, FileNotFoundException {
+    private void createProject(File baseFolder,
+            RulesUserSession rulesUserSession,
+            String comment) throws ProjectException, WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
@@ -125,11 +127,12 @@ public class LocalUploadController {
     }
 
     /**
-     * EPBDS-8384: JSF beans discovery doesn't work if the bean contains static field with lambda expression. Possibly need
-     * to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
+     * EPBDS-8384: JSF beans discovery doesn't work if the bean contains static field with lambda expression. Possibly
+     * need to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
      */
     private static Comparator<File> fileNameComparator = new Comparator<File>() {
-        @Override public int compare(File f1, File f2) {
+        @Override
+        public int compare(File f1, File f2) {
             String name1 = f1.getName();
             String name2 = f2.getName();
             return name1.compareToIgnoreCase(name2);
@@ -152,11 +155,11 @@ public class LocalUploadController {
             for (UploadBean bean : beans) {
                 if (bean.isSelected()) {
                     try {
-                        String comment = designRepoComments.createProject(createProjectCommentTemplate, bean.getProjectName());
+                        String comment = designRepoComments.createProject(createProjectCommentTemplate,
+                            bean.getProjectName());
 
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment);
-                        FacesUtils.addInfoMessage("Project " + bean.getProjectName()
-                                + " was created successfully");
+                        FacesUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {

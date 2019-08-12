@@ -256,11 +256,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             expressionTable,
                             cxt);
-                        throw SyntaxNodeExceptionUtils.createError(
-                            String.format("Failed to parse the cell '%s'", eGridCellSourceCodeModule.getCode()),
-                            e,
-                            null,
-                            eGridCellSourceCodeModule);
+                        throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'",
+                            eGridCellSourceCodeModule.getCode()), e, null, eGridCellSourceCodeModule);
                     }
                     int j = 0;
                     int j1 = 0;

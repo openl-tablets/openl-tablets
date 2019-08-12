@@ -115,7 +115,7 @@ public class RulesDeployerServiceTest {
     }
 
     private void assertMultipleDeployment() throws IOException {
-        Class<List<FileItem>> listClass = (Class<List<FileItem>>)(Class)List.class;
+        Class<List<FileItem>> listClass = (Class) List.class;
         ArgumentCaptor<List<FileItem>> captor = ArgumentCaptor.forClass(listClass);
 
         verify(mockedDeployRepo, times(1)).save(captor.capture());

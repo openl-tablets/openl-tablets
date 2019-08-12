@@ -71,8 +71,7 @@ public interface Repository {
     FileData save(FileData data, InputStream stream) throws IOException;
 
     /**
-     * Save multiple projects in one transaction.
-     * Used only in deployment services
+     * Save multiple projects in one transaction. Used only in deployment services
      *
      * @param fileItems list of file descriptor and stream pairs
      * @throws IOException if not possible to save the file.

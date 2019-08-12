@@ -11,7 +11,7 @@ import org.openl.types.IOpenMethod;
 public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
 
     private static final long serialVersionUID = -2172865302513540686L;
-    
+
     private IRulesRuntimeContext delegate;
 
     public RulesRuntimeContextDelegator(IRulesRuntimeContext delegate) {

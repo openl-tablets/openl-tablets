@@ -66,14 +66,22 @@ public class ProjectUploader {
                 String fileName = file.getName();
                 if (FileTypeHelper.isZipFile(fileName)) {
                     // Create project creator for the single zip file
-                projectCreator = new ZipFileProjectCreator(fileName, file.getInput(), projectName,
+                    projectCreator = new ZipFileProjectCreator(fileName,
+                        file.getInput(),
+                        projectName,
                         projectFolder,
-                        userWorkspace, comment, zipFilter, zipCharsetDetector);
-            } else {
-                projectCreator = new ExcelFilesProjectCreator(projectName,
+                        userWorkspace,
+                        comment,
+                        zipFilter,
+                        zipCharsetDetector);
+                } else {
+                    projectCreator = new ExcelFilesProjectCreator(projectName,
                         projectFolder,
-                        userWorkspace, comment, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
-                        uploadedFiles.toArray(new ProjectFile[0]);
+                        userWorkspace,
+                        comment,
+                        zipFilter,
+                        uploadedFiles.toArray(new ProjectFile[0]));
+                    uploadedFiles.toArray(new ProjectFile[0]);
                 }
                 errorMessage = projectCreator.createRulesProject();
             } catch (IOException e) {

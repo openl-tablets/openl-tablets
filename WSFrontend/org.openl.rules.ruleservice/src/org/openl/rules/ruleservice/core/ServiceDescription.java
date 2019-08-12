@@ -173,7 +173,7 @@ public final class ServiceDescription {
     public Collection<Module> getModules() {
         return modules;
     }
-    
+
     /**
      * Returns resourceLoader for the deployment.
      *

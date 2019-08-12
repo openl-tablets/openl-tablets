@@ -41,7 +41,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private ServiceCallInterceptorGroup[] serviceCallInterceptorGroups = new ServiceCallInterceptorGroup[] {};
 
     private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<>();
-    
+
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager,
             OpenLService service) throws RuleServiceInstantiationException,
@@ -280,6 +280,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         this.externalParameters = externalParameters;
     }
 
+    @Override
     public void clean(ServiceDescription serviceDescription) {
         dependencyManagerMap.remove(serviceDescription.getDeployment());
         CompiledOpenClassCache.getInstance().removeAll(serviceDescription.getDeployment());

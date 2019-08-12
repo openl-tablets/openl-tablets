@@ -52,11 +52,11 @@ public class IntRange implements INumberRange {
     public boolean contains(long value) {
         return min <= value && value <= max;
     }
-    
+
     public long getMax() {
         return max;
     }
-    
+
     public long getMin() {
         return min;
     }
@@ -103,15 +103,15 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange autocast(byte x, IntRange y) {
-        return new IntRange((long) x);
+        return new IntRange(x);
     }
 
     public static IntRange autocast(short x, IntRange y) {
-        return new IntRange((long) x);
+        return new IntRange(x);
     }
 
     public static IntRange autocast(int x, IntRange y) {
-        return new IntRange((long) x);
+        return new IntRange(x);
     }
 
     public static IntRange autocast(long x, IntRange y) {
@@ -176,7 +176,7 @@ public class IntRange implements INumberRange {
 
         return "[" + min + ".." + max + "]";
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -188,17 +188,22 @@ public class IntRange implements INumberRange {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         IntRange other = (IntRange) obj;
-        if (max != other.max)
+        if (max != other.max) {
             return false;
-        if (min != other.min)
+        }
+        if (min != other.min) {
             return false;
+        }
         return true;
     }
 }

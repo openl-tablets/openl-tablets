@@ -24,7 +24,7 @@ public class CommentValidator {
             FacesUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
         }
         FacesUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
-                "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
+            "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
     public static CommentValidator forDesignRepo(Map<String, Object> config) {

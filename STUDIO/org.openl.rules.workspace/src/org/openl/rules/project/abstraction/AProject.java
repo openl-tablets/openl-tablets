@@ -426,8 +426,8 @@ public class AProject extends AProjectFolder {
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserName());
-            return ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo),
-                    ChangesetType.FULL);
+            return ((FolderRepository) repositoryTo)
+                .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {

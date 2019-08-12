@@ -159,7 +159,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     }
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
-        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
+        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
+            Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

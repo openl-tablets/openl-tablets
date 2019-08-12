@@ -74,7 +74,11 @@ class JavaFileSaver implements IResultSaver {
     }
 
     @Override
-    public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+    public void saveClassEntry(String path,
+            String archiveName,
+            String qualifiedName,
+            String entryName,
+            String content) {
     }
 
     @Override

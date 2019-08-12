@@ -52,15 +52,15 @@ public class ColumnDescriptor {
     private final IdentifierNode[] fieldChainTokens;
     private ColumnGroupKey groupKey;
     private final int columnIdx;
-    private final boolean primaryKey; //true if current descriptor is PK
+    private final boolean primaryKey; // true if current descriptor is PK
 
     public ColumnDescriptor(IOpenField field,
-                            StringValue displayValue,
-                            OpenL openl,
-                            boolean constructor,
-                            IdentifierNode[] fieldChainTokens,
-                            int columnIdx,
-                            boolean primaryKey) {
+            StringValue displayValue,
+            OpenL openl,
+            boolean constructor,
+            IdentifierNode[] fieldChainTokens,
+            int columnIdx,
+            boolean primaryKey) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
@@ -109,7 +109,8 @@ public class ColumnDescriptor {
     public ColumnGroupKey buildGroupKey() {
         if (field instanceof FieldChain) {
             int fields = ((FieldChain) field).getFields().length;
-            if (isPrimaryKey() && ((FieldChain) field).getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
+            if (isPrimaryKey() && ((FieldChain) field)
+                .getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
                 fields += 1;
             } else if (valuesAnArray) {
                 return new ColumnGroupKey(fields, field.getName(), true);
@@ -148,11 +149,11 @@ public class ColumnDescriptor {
             paramType = aggregateType.getAggregateInfo().getComponentType(paramType);
             if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
                 return RuleRowHelper.loadCommaSeparatedParam(aggregateType,
-                        paramType,
-                        field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
-                        null,
-                        valuesTable,
-                        ota);
+                    paramType,
+                    field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                    null,
+                    valuesTable,
+                    ota);
             } else {
                 return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
             }
@@ -214,12 +215,7 @@ public class ColumnDescriptor {
 
         env.pushThis(literal);
         if (supportMultirows) {
-            processWithMultiRowsSupport(literal,
-                valuesTable,
-                toolAdapter,
-                env,
-                aggregateType,
-                paramType);
+            processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType);
         } else {
             Object res;
             if (valuesAnArray) {
@@ -265,8 +261,8 @@ public class ColumnDescriptor {
             datatypeArrayMultiRowElementContext.setRow(i);
             Object res;
             ILogicalTable logicalTable = LogicalTableHelper
-                    .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
-                    .getSubtable(0, 0, 1, 1);
+                .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                .getSubtable(0, 0, 1, 1);
             boolean isSame = false;
             if (valuesAnArray) {
                 res = getArrayValues(logicalTable, toolAdapter, aggregateType, paramType);
@@ -293,8 +289,7 @@ public class ColumnDescriptor {
         }
     }
 
-    Object parseCellValue(ILogicalTable valuesTable,
-                                 OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
+    Object parseCellValue(ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
         IOpenClass aggregateType = field.getType();
         IOpenClass paramType = aggregateType;
 
@@ -303,7 +298,7 @@ public class ColumnDescriptor {
         }
 
         return valuesAnArray ? getArrayValues(valuesTable, toolAdapter, aggregateType, paramType)
-                : getSingleValue(valuesTable, toolAdapter, paramType);
+                             : getSingleValue(valuesTable, toolAdapter, paramType);
     }
 
     boolean isSameValue(Object res, Object prevRes) {
@@ -313,15 +308,13 @@ public class ColumnDescriptor {
     private static boolean isSameArrayValue(Object res, Object prevRes) {
         boolean resIsEmpty = Array.getLength(res) == 0;
 
-        return (resIsEmpty && Array.getLength(prevRes) == 0)
-                || (Arrays.deepEquals((Object[]) prevRes, (Object[]) res))
-                || (prevRes != PREV_RES_EMPTY && resIsEmpty);
+        return (resIsEmpty && Array.getLength(prevRes) == 0) || (Arrays.deepEquals((Object[]) prevRes,
+            (Object[]) res)) || (prevRes != PREV_RES_EMPTY && resIsEmpty);
     }
 
     private boolean isSameSingleValue(Object res, Object prevRes) {
-        return (prevRes == null && res == null)
-                || (prevRes != null && prevRes.equals(res))
-                || (prevRes != PREV_RES_EMPTY && res == null);
+        return (prevRes == null && res == null) || (prevRes != null && prevRes
+            .equals(res)) || (prevRes != PREV_RES_EMPTY && res == null);
     }
 
     public boolean isReference() {
@@ -342,7 +335,9 @@ public class ColumnDescriptor {
         return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
     }
 
-    private Object getSingleValue(ILogicalTable logicalTable, OpenlToolAdaptor toolAdapter, IOpenClass paramType) throws SyntaxNodeException {
+    private Object getSingleValue(ILogicalTable logicalTable,
+            OpenlToolAdaptor toolAdapter,
+            IOpenClass paramType) throws SyntaxNodeException {
         String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();
         return RuleRowHelper.loadSingleParam(paramType, fieldName, null, logicalTable, toolAdapter);
     }
@@ -477,8 +472,7 @@ public class ColumnDescriptor {
                 return false;
             }
             ColumnGroupKey key = (ColumnGroupKey) o;
-            return level == key.level &&
-                    Objects.equals(path, key.path);
+            return level == key.level && Objects.equals(path, key.path);
         }
 
         @Override

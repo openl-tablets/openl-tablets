@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ResultSerializer implements Serializer<Object> {
     private ObjectMapper objectMapper;
     private String encoding = "UTF8";
-    
+
     // Do not remove first argument. It is used by reflection.
     public ResultSerializer(OpenLService service, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -26,7 +26,7 @@ public class ResultSerializer implements Serializer<Object> {
             encoding = (String) encodingValue;
         }
     }
-    
+
     @Override
     public byte[] serialize(String topic, Object data) {
         try {

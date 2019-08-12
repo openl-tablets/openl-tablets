@@ -24,9 +24,8 @@ public class SyntaxNodeExceptionCollector {
 
     public void addSyntaxNodeException(SyntaxNodeException e) {
         for (SyntaxNodeException sne : syntaxNodeExceptions) {
-            if (StringUtils.equals(sne.getMessage(), e.getMessage())
-                    && sne.getSourceUri() != null
-                    && StringUtils.equals(sne.getSourceUri(), e.getSourceUri())) {
+            if (StringUtils.equals(sne.getMessage(), e.getMessage()) && sne.getSourceUri() != null && StringUtils
+                .equals(sne.getSourceUri(), e.getSourceUri())) {
                 return;
             }
         }

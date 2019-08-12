@@ -195,20 +195,18 @@ public abstract class RepositorySettings {
     }
 
     protected void revert(ConfigurationManager configurationManager) {
-        configurationManager.removeProperties(
-                VERSION_IN_DEPLOYMENT_NAME,
-                USE_CUSTOM_COMMENTS,
-                COMMENT_VALIDATION_PATTERN,
-                INVALID_COMMENT_MESSAGE,
-                COMMENT_TEMPLATE,
-                DEFAULT_COMMENT_SAVE,
-                DEFAULT_COMMENT_CREATE,
-                DEFAULT_COMMENT_ARCHIVE,
-                DEFAULT_COMMENT_RESTORE,
-                DEFAULT_COMMENT_ERASE,
-                DEFAULT_COMMENT_COPIED_FROM,
-                DEFAULT_COMMENT_RESTORED_FROM
-        );
+        configurationManager.removeProperties(VERSION_IN_DEPLOYMENT_NAME,
+            USE_CUSTOM_COMMENTS,
+            COMMENT_VALIDATION_PATTERN,
+            INVALID_COMMENT_MESSAGE,
+            COMMENT_TEMPLATE,
+            DEFAULT_COMMENT_SAVE,
+            DEFAULT_COMMENT_CREATE,
+            DEFAULT_COMMENT_ARCHIVE,
+            DEFAULT_COMMENT_RESTORE,
+            DEFAULT_COMMENT_ERASE,
+            DEFAULT_COMMENT_COPIED_FROM,
+            DEFAULT_COMMENT_RESTORED_FROM);
         load(configurationManager);
     }
 

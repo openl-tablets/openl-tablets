@@ -171,7 +171,8 @@ public class TableBean {
             ArrayList<OpenLMessage> problems = errors.stream()
                 .limit(MAX_PROBLEMS)
                 .collect(Collectors.toCollection(ArrayList::new));
-            problems.add(OpenLMessagesUtils.newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+            problems.add(OpenLMessagesUtils
+                .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
             errors = problems;
         }
     }
@@ -222,7 +223,8 @@ public class TableBean {
             ArrayList<OpenLMessage> problems = warnings.stream()
                 .limit(MAX_PROBLEMS)
                 .collect(Collectors.toCollection(ArrayList::new));
-            problems.add(OpenLMessagesUtils.newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+            problems.add(OpenLMessagesUtils
+                .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
             warnings = problems;
         }
     }

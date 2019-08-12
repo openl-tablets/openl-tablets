@@ -68,7 +68,8 @@ public class JavaInterfaceImplGeneratorTest {
     }
 
     private Class<?> getBeanClass(Class<?> clazzInterface) {
-        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
+        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
+            Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);

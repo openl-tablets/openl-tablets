@@ -6,7 +6,7 @@ final class EnumToStringCast implements IOpenCast {
     private EnumToStringCast() {
         // Use EnumToStringCast.getInstance
     }
-    
+
     static EnumToStringCast getInstance() {
         return INSTANCE;
     }

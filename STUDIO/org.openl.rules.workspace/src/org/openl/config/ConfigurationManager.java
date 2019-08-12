@@ -41,16 +41,14 @@ public class ConfigurationManager implements PropertiesHolder {
         this(propsLocation, defaultPropsLocation, false);
     }
 
-    public ConfigurationManager(String propsLocation,
-                                String defaultPropsLocation,
-                                boolean autoSave) {
+    public ConfigurationManager(String propsLocation, String defaultPropsLocation, boolean autoSave) {
         this(propsLocation, null, defaultPropsLocation, autoSave);
     }
 
     public ConfigurationManager(String propsLocation,
-                                String propsInContextLocation,
-                                String defaultPropsLocation,
-                                boolean autoSave) {
+            String propsInContextLocation,
+            String defaultPropsLocation,
+            boolean autoSave) {
         this.propsLocation = propsLocation;
         this.propsInContextLocation = propsInContextLocation;
         this.defaultPropsLocation = defaultPropsLocation;

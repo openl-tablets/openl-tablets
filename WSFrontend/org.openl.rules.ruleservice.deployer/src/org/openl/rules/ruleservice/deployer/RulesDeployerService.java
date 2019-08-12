@@ -59,7 +59,7 @@ public class RulesDeployerService implements Closeable {
         params.put("branch", properties.getProperty("production-repository.branch"));
         params.put("tagPrefix", properties.getProperty("production-repository.tag-prefix"));
         params.put("commentTemplate", properties.getProperty("production-repository.comment-template"));
-        params.put("connection-timeout",properties.getProperty("production-repository.connection-timeout"));
+        params.put("connection-timeout", properties.getProperty("production-repository.connection-timeout"));
         // AWS S3 and Git specific
         params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
 
@@ -105,11 +105,11 @@ public class RulesDeployerService implements Closeable {
 
             if (deployRepo.supports().folders()) {
                 List<FolderItem> folderItems = fileItems.stream().map(fi -> {
-                        FileData data = fi.getData();
-                        FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
-                            data.getName());
-                        return new FolderItem(data, files);
-                    }).collect(Collectors.toList());
+                    FileData data = fi.getData();
+                    FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
+                        data.getName());
+                    return new FolderItem(data, files);
+                }).collect(Collectors.toList());
                 ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
             } else {
                 deployRepo.save(fileItems);

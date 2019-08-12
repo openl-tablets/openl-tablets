@@ -70,7 +70,7 @@ public class EqualsIndex extends ARuleIndex {
             }
 
             DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
-                    e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
+                e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
 
             builder.addRule(ruleN);
         }

@@ -40,7 +40,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     public void addConstant(ICell cell, NodeUsage nodeUsage) {
         int row = cell.getAbsoluteRow();
         int col = cell.getAbsoluteColumn();
-        List<NodeUsage> nodeUsages = constantsMap.computeIfAbsent(CellKey.CellKeyFactory.getCellKey(col, row), e -> new ArrayList<NodeUsage>());
+        List<NodeUsage> nodeUsages = constantsMap.computeIfAbsent(CellKey.CellKeyFactory.getCellKey(col, row),
+            e -> new ArrayList<>());
         nodeUsages.add(nodeUsage);
     }
 

@@ -41,7 +41,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
     }
 
     private static ColumnDescriptor[] initializeDescriptors(ColumnDescriptor[] descriptors) {
-        //group descriptors by KEY and put PK columns in first position of each group
+        // group descriptors by KEY and put PK columns in first position of each group
         int cntDescriptors = 0;
         Map<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> descriptorGroups = new TreeMap<>();
         for (ColumnDescriptor descriptor : descriptors) {
@@ -58,7 +58,7 @@ public class OpenlBasedDataTableModel implements ITableModel {
             }
         }
 
-        //transform map to flat array and keep order
+        // transform map to flat array and keep order
         ColumnDescriptor[] res = new ColumnDescriptor[cntDescriptors];
         int i = 0;
         for (Map.Entry<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>> e : descriptorGroups.entrySet()) {

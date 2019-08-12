@@ -68,7 +68,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
                 deploymentConfigurationLocation += "/";
             }
-            boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
+            boolean separateDeployConfigRepo = Boolean
+                .parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
             boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
             boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
 
@@ -82,9 +83,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = repository;
                 } else {
                     deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
-                    flatDeployConfig,
-                    DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
-                    deploymentConfigurationLocation);
+                        flatDeployConfig,
+                        DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
+                        deploymentConfigurationLocation);
                 }
 
                 addListener(new DesignTimeRepositoryListener() {

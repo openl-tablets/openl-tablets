@@ -42,7 +42,7 @@ public final class Comments {
         return createProjectTemplate.replaceAll(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
     }
 
-    //Only for creation from Workspace!
+    // Only for creation from Workspace!
     public String createProject(String template, String projectName) {
         if (StringUtils.isBlank(template)) {
             return createProject(projectName);

@@ -106,7 +106,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         return null;
     }
-    
+
     @Override
     public int getNumberOfParams() {
         return params.length;

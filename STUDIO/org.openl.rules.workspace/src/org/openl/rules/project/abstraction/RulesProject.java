@@ -108,9 +108,11 @@ public class RulesProject extends UserWorkspaceProject {
         setHistoryVersion(version);
 
         refresh();
-        // If there are additional commits (merge commits) we can't assume that their hash codes are same as for local files
+        // If there are additional commits (merge commits) we can't assume that their hash codes are same as for local
+        // files
         List<FileData> fileDatas = getHistoryFileDatas();
-        boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2).getVersion().equals(oldVersion);
+        boolean extraCommits = fileDatas
+            .size() > 1 && !fileDatas.get(fileDatas.size() - 2).getVersion().equals(oldVersion);
         if (extraCommits) {
             openVersion(version);
         } else {
@@ -349,9 +351,8 @@ public class RulesProject extends UserWorkspaceProject {
 
                     String fromFilePath = designFolderName + "/";
                     String historyVersion = getHistoryVersion();
-                    List<FileData> designFiles = historyVersion != null ?
-                                                 fromRepository.listFiles(fromFilePath, historyVersion) :
-                                                 fromRepository.list(fromFilePath);
+                    List<FileData> designFiles = historyVersion != null ? fromRepository.listFiles(fromFilePath,
+                        historyVersion) : fromRepository.list(fromFilePath);
 
                     for (FileData designData : designFiles) {
                         String designDataName = designData.getName();

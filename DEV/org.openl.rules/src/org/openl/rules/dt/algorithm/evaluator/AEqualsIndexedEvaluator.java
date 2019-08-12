@@ -25,7 +25,7 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
-                condSource.getUri());
+            condSource.getUri());
     }
 
     @Override

@@ -94,7 +94,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
             IBaseCondition[] conditionRows = decisionTable.getConditionRows();
             IBaseAction[] actionRows = decisionTable.getActionRows();
-            
+
             if ((!DecisionTableHelper.isSmart(decisionTable.getSyntaxNode()) && !DecisionTableHelper
                 .isSimple(decisionTable.getSyntaxNode()))) {
                 if (conditionRows != null) {

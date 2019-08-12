@@ -70,7 +70,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             hasRulesDeployXML = true;
                             String version = null;
                             if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                                version = rulesDeploy.getVersion(); 
+                                version = rulesDeploy.getVersion();
                             }
 
                             if (internalMap.containsKey(version)) {

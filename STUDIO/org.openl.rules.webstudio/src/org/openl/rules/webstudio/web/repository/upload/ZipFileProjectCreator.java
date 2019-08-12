@@ -35,7 +35,9 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     public ZipFileProjectCreator(String uploadedFileName,
             InputStream uploadedFileStream,
-            String projectName, String projectFolder, UserWorkspace userWorkspace,
+            String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector) throws IOException {
@@ -75,15 +77,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
         return false;
     }
 
-    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames,
-            PathFilter zipFilter) {
+    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
         RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
         return new ZipRulesProjectBuilder(getUserWorkspace(),
-                getProjectName(),
-                getProjectFolder(),
-                zipFilter,
-                folderExtractor,
-                comment);
+            getProjectName(),
+            getProjectFolder(),
+            zipFilter,
+            folderExtractor,
+            comment);
     }
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {

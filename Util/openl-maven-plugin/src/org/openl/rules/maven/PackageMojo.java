@@ -193,7 +193,10 @@ public final class PackageMojo extends BaseOpenLMojo {
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
             generateDeploymentFile(outputDeploymentDir);
 
-            File outputFile = getOutputFile(outputDirectory, deploymentName, DEPLOYMENT_CLASSIFIER, OPENL_ARTIFACT_TYPE);
+            File outputFile = getOutputFile(outputDirectory,
+                deploymentName,
+                DEPLOYMENT_CLASSIFIER,
+                OPENL_ARTIFACT_TYPE);
             Archiver arch = archiverManager.getArchiver(OPENL_ARTIFACT_TYPE);
             arch.setIncludeEmptyDirs(false);
             arch.addFileSet(fileSet(outputDeploymentDir).includeEmptyDirs(false));
@@ -264,9 +267,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     private boolean skipTransitiveDependency(List<String> dependencyTrail) {
         for (int i = 1; i < dependencyTrail.size() - 1; i++) {
             String dependency = dependencyTrail.get(i);
-            if (dependency.startsWith("org.openl.rules:")
-                    || dependency.startsWith("org.openl:")
-                    || dependency.startsWith("org.slf4j:")) {
+            if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
+                .startsWith("org.slf4j:")) {
                 return true;
             }
         }

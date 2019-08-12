@@ -11,7 +11,6 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 public abstract class AbstractRuleServicePublisher implements RuleServicePublisher {
     protected Collection<RuleServicePublisherListener> listeners = new ArrayList<>();
 
-    
     private PublisherType publisherType;
 
     public void setPublisherType(PublisherType publisherType) {
@@ -49,12 +48,12 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
     public Collection<RuleServicePublisherListener> getListeners() {
         return listeners;
     }
-    
+
     @Override
     public boolean isServiceDeployed(String name) {
         return getServiceByName(name) != null;
     }
-    
+
     @Override
     public void addListener(RuleServicePublisherListener listener) {
         if (listener != null) {

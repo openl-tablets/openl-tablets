@@ -138,7 +138,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     if (exception.getErrors() != null && exception.getErrors().length == 1) {
                         SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
                         throw SyntaxNodeExceptionUtils
-                        .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                            .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
                     }
                     throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                 } else {
@@ -165,7 +165,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 constantOpenFields.add(constantField);
             } catch (Exception t) {
                 throw SyntaxNodeExceptionUtils
-                .createError(t.getMessage(), t, null, DatatypeTableBoundNode.getCellSource(row, cxt, 1));
+                    .createError(t.getMessage(), t, null, DatatypeTableBoundNode.getCellSource(row, cxt, 1));
             }
 
             if (objectValue != null && !constantType.isArray()) {
@@ -175,7 +175,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     RuleRowHelper.validateValue(value, constantType);
                 } catch (Exception e) {
                     throw SyntaxNodeExceptionUtils
-                    .createError(e.getMessage(), e, null, DatatypeTableBoundNode.getCellSource(row, cxt, 2));
+                        .createError(e.getMessage(), e, null, DatatypeTableBoundNode.getCellSource(row, cxt, 2));
                 }
             }
         }

@@ -60,7 +60,7 @@ public class OpenLArgumentsCloner extends Cloner {
         @Override
         @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) {
-            return (T) objenesis.newInstance(c);
+            return objenesis.newInstance(c);
         }
 
         private static ObjenesisInstantiationStrategy instance = new ObjenesisInstantiationStrategy();

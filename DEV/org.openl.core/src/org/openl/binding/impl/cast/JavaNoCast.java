@@ -7,7 +7,7 @@ final class JavaNoCast implements IOpenCast {
     private JavaNoCast() {
         // Use JavaNoCast.getInstance().
     }
-    
+
     static JavaNoCast getInstance() {
         return INSTANCE;
     }

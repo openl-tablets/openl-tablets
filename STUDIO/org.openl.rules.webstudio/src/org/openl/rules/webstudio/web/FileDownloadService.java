@@ -56,9 +56,9 @@ public class FileDownloadService {
                 InputStream stream = null;
                 try {
                     FileItem file = workspaceManager.getUserWorkspace(getUser())
-                            .getDesignTimeRepository()
-                            .getRepository()
-                            .readHistory(name, version);
+                        .getDesignTimeRepository()
+                        .getRepository()
+                        .readHistory(name, version);
                     if (file == null) {
                         throw new FileNotFoundException("File '" + name + "' is not found");
                     }
@@ -120,17 +120,17 @@ public class FileDownloadService {
         try {
             String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
             return Response.ok(streamingOutput)
-                    .cookie(newCookie(cookieName, "success", request.getContextPath()))
-                    .header("Content-Disposition", "attachment;filename=" + fileName)
-                    .build();
+                .cookie(newCookie(cookieName, "success", request.getContextPath()))
+                .header("Content-Disposition", "attachment;filename=" + fileName)
+                .build();
         } catch (Exception e) {
             String message = "Failed to download file.";
             LOG.error(message, e);
 
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .cookie(newCookie(cookieName, message, request.getContextPath()))
-                    .build();
+                .entity(e.getMessage())
+                .cookie(newCookie(cookieName, message, request.getContextPath()))
+                .build();
         }
     }
 
@@ -138,17 +138,17 @@ public class FileDownloadService {
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/"; // //EPBDS-7613
         }
-        
+
         return new NewCookie(cookieName,
-                StringTool.encodeURL(value),
-                contextPath,
-                null,
-                1,
-                null,
-                -1,
-                null,
-                false,
-                false);
+            StringTool.encodeURL(value),
+            contextPath,
+            null,
+            1,
+            null,
+            -1,
+            null,
+            false,
+            false);
     }
 
     private WorkspaceUserImpl getUser() {

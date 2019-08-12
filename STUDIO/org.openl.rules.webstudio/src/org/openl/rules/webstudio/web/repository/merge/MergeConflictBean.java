@@ -143,7 +143,8 @@ public class MergeConflictBean {
                 throw new ValidationException("You must resolve conflict for the file '" + entry.getKey() + "'");
             }
 
-            if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution.getCustomResolutionFile() == null) {
+            if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution
+                .getCustomResolutionFile() == null) {
                 throw new ValidationException("You must upload your version of the file '" + entry.getKey() + "'");
             }
         }
@@ -183,11 +184,13 @@ public class MergeConflictBean {
                         resolvedFiles.add(new FileItem(name, conflictResolution.getCustomResolutionFile().getInput()));
                         break;
                     default:
-                        throw new ValidationException("Can't merge with resolution type " + conflictResolution.getResolutionType());
+                        throw new ValidationException(
+                            "Can't merge with resolution type " + conflictResolution.getResolutionType());
                 }
             }
 
-            project.save(new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
+            project.save(
+                new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
             WebStudioUtils.getWebStudio().reset();
             clearMergeStatus();
         } catch (ValidationException e) {
@@ -215,7 +218,8 @@ public class MergeConflictBean {
                 UserWorkspace userWorkspace = getUserWorkspace();
                 String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
 
-                StringBuilder messageBuilder = new StringBuilder("Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
+                StringBuilder messageBuilder = new StringBuilder(
+                    "Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
                 ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
                 Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
                 for (String file : conflicts) {
@@ -293,8 +297,7 @@ public class MergeConflictBean {
     }
 
     private MergeConflictInfo getMergeConflict() {
-        return (MergeConflictInfo) FacesUtils.getSessionMap()
-                .get(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        return (MergeConflictInfo) FacesUtils.getSessionMap().get(Constants.SESSION_PARAM_MERGE_CONFLICT);
     }
 
 }

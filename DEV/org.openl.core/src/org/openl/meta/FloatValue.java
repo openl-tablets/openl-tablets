@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.FloatValue.FloatValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;

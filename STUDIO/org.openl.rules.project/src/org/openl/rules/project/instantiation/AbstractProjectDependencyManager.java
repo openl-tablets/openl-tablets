@@ -178,8 +178,10 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
                 }
                 classLoaders.remove(projectDescriptor.getName());
                 for (Module module : projectDescriptor.getModules()) {
-                    reset(new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)), doNotDoTheSameResetTwice);
+                    reset(
+                        new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)),
+                        doNotDoTheSameResetTwice);
                 }
                 break;
             }
@@ -198,7 +200,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
 
         for (DependencyReference dependencyReference : dependenciesToReset) {
             reset(new Dependency(DependencyType.MODULE,
-                new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)), doNotDoTheSameResetTwice);
+                new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)),
+                doNotDoTheSameResetTwice);
         }
 
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
@@ -212,7 +215,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             }
         }
     }
-    
+
     @Override
     public synchronized void reset(IDependency dependency) {
         reset(dependency, new HashSet<>());

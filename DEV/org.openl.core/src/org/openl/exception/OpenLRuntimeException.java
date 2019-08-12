@@ -49,7 +49,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             if (syntaxNode != null) {
                 this.sourceCode = syntaxNode.getModule().getCode();
                 this.location = syntaxNode.getSourceLocation();
-                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
+                    syntaxNode.getModule());
             }
         }
     }
@@ -61,7 +62,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             if (syntaxNode != null) {
                 this.sourceCode = syntaxNode.getModule().getCode();
                 this.location = syntaxNode.getSourceLocation();
-                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
+                    syntaxNode.getModule());
             }
         }
     }
@@ -71,7 +73,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         if (syntaxNode != null) {
             this.sourceCode = syntaxNode.getModule().getCode();
             this.location = syntaxNode.getSourceLocation();
-            this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+            this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
+                syntaxNode.getModule());
         }
     }
 
@@ -144,7 +147,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         for (IBoundNode node : nodes) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
-                String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(), syntaxNode.getModule());
+                String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
+                    syntaxNode.getModule());
                 SourceCodeURLTool.printSourceLocation(sourceLocation, writer);
             }
         }

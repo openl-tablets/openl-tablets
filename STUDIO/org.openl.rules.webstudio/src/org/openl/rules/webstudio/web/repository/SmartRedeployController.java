@@ -74,8 +74,7 @@ public class SmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject
-                || (isSupportsBranches() && project.getVersion() == null)) {
+        if (project == null || project != currentProject || (isSupportsBranches() && project.getVersion() == null)) {
             reset();
             return null;
         }
@@ -348,7 +347,8 @@ public class SmartRedeployController {
                 if (!workspace.hasDDProject(deploymentName)) {
                     // create if absent
                     deployConfiguration = workspace.createDDProject(deploymentName);
-                    deployConfiguration.getFileData().setComment(deployConfigRepoComments.createProject(deploymentName));
+                    deployConfiguration.getFileData()
+                        .setComment(deployConfigRepoComments.createProject(deploymentName));
                 }
             }
 

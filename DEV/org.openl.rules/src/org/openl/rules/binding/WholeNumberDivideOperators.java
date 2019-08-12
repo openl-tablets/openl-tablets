@@ -10,7 +10,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.*;
 import org.openl.meta.number.Formulas;
 
-
 @Deprecated
 @OperatorsNamespace
 public class WholeNumberDivideOperators {
@@ -210,7 +209,10 @@ public class WholeNumberDivideOperators {
         }
 
         if (value1 == null && value2.doubleValue() != 0) {
-            return new org.openl.meta.FloatValue(value1, value2, Operators.divide(1.0f, value2.getValue()), Formulas.DIVIDE);
+            return new org.openl.meta.FloatValue(value1,
+                value2,
+                Operators.divide(1.0f, value2.getValue()),
+                Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -222,19 +224,22 @@ public class WholeNumberDivideOperators {
         }
 
         return new org.openl.meta.FloatValue(value1,
-                value2,
-                Operators.divide(value1.getValue(), value2.getValue()),
-                Formulas.DIVIDE);
+            value2,
+            Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
     }
 
     public static org.openl.meta.DoubleValue divide(org.openl.meta.DoubleValue value1,
-                                                    org.openl.meta.DoubleValue value2) {
+            org.openl.meta.DoubleValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null && value2.doubleValue() != 0) {
-            return new org.openl.meta.DoubleValue(value1, value2, Operators.divide(1.0, value2.getValue()), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(value1,
+                value2,
+                Operators.divide(1.0, value2.getValue()),
+                Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -242,19 +247,22 @@ public class WholeNumberDivideOperators {
         }
 
         return new org.openl.meta.DoubleValue(value1,
-                value2,
-                Operators.divide(value1.getValue(), value2.getValue()),
-                Formulas.DIVIDE);
+            value2,
+            Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
     }
 
     public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1,
-                                                        org.openl.meta.BigDecimalValue value2) {
+            org.openl.meta.BigDecimalValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null && value2.doubleValue() != 0) {
-            return new org.openl.meta.BigDecimalValue(value1, value2, Operators.divide(BigDecimal.ONE, value2.getValue()), Formulas.DIVIDE);
+            return new org.openl.meta.BigDecimalValue(value1,
+                value2,
+                Operators.divide(BigDecimal.ONE, value2.getValue()),
+                Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -266,9 +274,9 @@ public class WholeNumberDivideOperators {
         }
 
         return new org.openl.meta.BigDecimalValue(value1,
-                value2,
-                Operators.divide(value1.getValue(), value2.getValue()),
-                Formulas.DIVIDE);
+            value2,
+            Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
     }
 
 }

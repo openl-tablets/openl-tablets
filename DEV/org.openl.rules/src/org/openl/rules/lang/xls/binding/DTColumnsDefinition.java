@@ -9,7 +9,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
-public class DTColumnsDefinition implements IUriMember{
+public class DTColumnsDefinition implements IUriMember {
 
     private Map<String, List<IParameterDeclaration>> localParameters;
     private IOpenMethodHeader header;
@@ -77,7 +77,7 @@ public class DTColumnsDefinition implements IUriMember{
     public boolean isReturn() {
         return DTColumnsDefinitionType.RETURN.equals(type);
     }
-    
+
     @Override
     public String getUri() {
         return uri;

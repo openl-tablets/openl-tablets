@@ -85,8 +85,7 @@ public class DataBase implements IDataBase {
                 String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
                 String newUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
                 if (!uri.equals(newUri)) {
-                    throw new DuplicatedTableException(newTable.getName(),
-                        newTable.getTableSyntaxNode());
+                    throw new DuplicatedTableException(newTable.getName(), newTable.getTableSyntaxNode());
                 }
             }
 

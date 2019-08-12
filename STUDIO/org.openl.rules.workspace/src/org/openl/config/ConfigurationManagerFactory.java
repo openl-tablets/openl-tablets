@@ -7,14 +7,13 @@ public class ConfigurationManagerFactory {
     private String propertiesFolder;
     private String propertiesInContextFolder;
 
-    public ConfigurationManagerFactory(String defaultPropertiesLocation,
-                                       String propertiesFolder) {
+    public ConfigurationManagerFactory(String defaultPropertiesLocation, String propertiesFolder) {
         this(defaultPropertiesLocation, propertiesFolder, null);
     }
 
     public ConfigurationManagerFactory(String defaultPropertiesLocation,
-                                       String propertiesFolder,
-                                       String propertiesInContextFolder) {
+            String propertiesFolder,
+            String propertiesInContextFolder) {
         this.defaultPropertiesLocation = StringUtils.trimToNull(defaultPropertiesLocation);
 
         if (StringUtils
@@ -29,8 +28,7 @@ public class ConfigurationManagerFactory {
         String fullPath = propertiesFolder + propertiesName;
         String contextPath = propertiesInContextFolder == null ? null : propertiesInContextFolder + propertiesName;
         String defaultFile = defaultPropertiesLocation != null ? defaultPropertiesLocation : fullPath;
-        return new ConfigurationManager(
-                StringUtils.trimToNull(fullPath),
+        return new ConfigurationManager(StringUtils.trimToNull(fullPath),
             StringUtils.trimToNull(contextPath),
             StringUtils.trimToNull(defaultFile),
             false);

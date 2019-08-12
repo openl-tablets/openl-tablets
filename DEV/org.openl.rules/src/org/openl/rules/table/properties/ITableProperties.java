@@ -104,8 +104,7 @@ public interface ITableProperties {
      * @param propertyName Name of the property.
      *
      * @return level on which property is defined. <code>NULL</code> when there is no such property on all these levels.
-     *         Or it can be set by default. So check is it applied as default. @see
-     *         {@link #isPropertyAppliedByDefault(String)
+     * Or it can be set by default. So check is it applied as default. @see {@link #isPropertyAppliedByDefault(String)
      *
      */
     InheritanceLevel getPropertyLevelDefinedOn(String propertyName);

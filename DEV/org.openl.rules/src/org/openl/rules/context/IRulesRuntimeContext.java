@@ -20,7 +20,7 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 
     void setValue(String name, Object value);
 
-// <<< INSERT >>>
+    // <<< INSERT >>>
     java.util.Date getCurrentDate();
     
     void setCurrentDate(java.util.Date currentDate);

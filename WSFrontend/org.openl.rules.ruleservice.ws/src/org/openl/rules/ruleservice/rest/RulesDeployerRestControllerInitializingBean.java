@@ -27,11 +27,11 @@ public abstract class RulesDeployerRestControllerInitializingBean implements Ini
     public String getBaseAddress() {
         return baseAddress;
     }
-    
+
     public void setBaseAddress(String baseAddress) {
         this.baseAddress = baseAddress;
     }
-    
+
     @Override
     public void afterPropertiesSet() {
         if (isEnabled) {

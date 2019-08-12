@@ -62,9 +62,8 @@ public class RepositoryProjectRulesDeployConfig {
             return null;
         }
 
-        if (lastProject != project
-                || StringUtils.notEquals(lastBranch, project.getBranch())
-                || StringUtils.notEquals(version, project.getHistoryVersion())) {
+        if (lastProject != project || StringUtils.notEquals(lastBranch, project.getBranch()) || StringUtils
+            .notEquals(version, project.getHistoryVersion())) {
             rulesDeploy = null;
             lastProject = project;
             lastBranch = project.getBranch();

@@ -113,9 +113,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
         } catch (MergeConflictException e) {
             throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
-                    e.getBaseCommit(),
-                    e.getOurCommit(),
-                    e.getTheirCommit());
+                e.getBaseCommit(),
+                e.getOurCommit(),
+                e.getTheirCommit());
         }
     }
 
@@ -130,6 +130,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         return toExternal(mapping, result);
     }
+
     @Override
     public boolean delete(FileData data) {
         Map<String, String> mapping = getMappingForRead();
@@ -221,7 +222,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 delegate.save(configData, configStream);
 
                 Map<String, String> mapping = getMappingForRead();
-                return toExternal(mapping, delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+                return toExternal(mapping,
+                    delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
                 refreshMapping();
@@ -229,7 +231,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             }
         } else {
             Map<String, String> mapping = getMappingForRead();
-            return toExternal(mapping, delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+            return toExternal(mapping,
+                delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
         }
     }
 
@@ -261,7 +264,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData,
+            Iterable<FileItem> files,
+            ChangesetType changesetType) throws IOException {
         if (isUpdateConfigNeeded(folderData)) {
             try {
                 FileItem configChange = new FileItem(configFile, updateConfigFile(folderData));
@@ -269,16 +274,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
                 // Mapping was updated on previous step.
                 Map<String, String> mapping = getMappingForRead();
-                FileData result = delegate.save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping),
-                        changesetType);
+                FileData result = delegate
+                    .save(toInternal(mapping, folderData), toInternal(mapping, filesWithMapping), changesetType);
                 return toExternal(mapping, result);
             } catch (MergeConflictException e) {
                 refreshMapping();
                 Map<String, String> mapping = getMappingForRead();
                 throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
-                        e.getBaseCommit(),
-                        e.getOurCommit(),
-                        e.getTheirCommit());
+                    e.getBaseCommit(),
+                    e.getOurCommit(),
+                    e.getTheirCommit());
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
                 refreshMapping();
@@ -287,14 +292,14 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } else {
             try {
                 Map<String, String> mapping = getMappingForRead();
-                return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files),
-                        changesetType));
+                return toExternal(mapping,
+                    delegate.save(toInternal(mapping, folderData), toInternal(mapping, files), changesetType));
             } catch (MergeConflictException e) {
                 Map<String, String> mapping = getMappingForRead();
                 throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
-                        e.getBaseCommit(),
-                        e.getOurCommit(),
-                        e.getTheirCommit());
+                    e.getBaseCommit(),
+                    e.getOurCommit(),
+                    e.getTheirCommit());
 
             }
         }
@@ -313,8 +318,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         List<FolderItem> folderItemsInternal = new ArrayList<>(folderItems.size());
         for (FolderItem fi : folderItems) {
-            folderItemsInternal.add(new FolderItem(toInternal(mapping, fi.getData()),
-                toInternal(mapping, fi.getFiles())));
+            folderItemsInternal
+                .add(new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, fi.getFiles())));
         }
         List<FileData> result = delegate.save(folderItemsInternal, changesetType);
 
@@ -323,11 +328,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(delegate)
-                .setVersions(delegate.supports().versions())
-                .setMappedFolders(true)
-                .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
-                .build();
+        return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
+            .setMappedFolders(true)
+            .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+            .build();
     }
 
     @Override
@@ -502,10 +506,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     /**
      * Load mapping from properties file.
      *
-     * @param delegate       original repository
+     * @param delegate original repository
      * @param repositoryMode Repository mode: design or deploy config.
-     * @param configFile     properties file
-     * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @param configFile properties file
+     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
@@ -620,18 +624,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return externalToInternal;
     }
 
-
     private void refreshMapping() {
         try {
             Map<String, String> currentMapping = readExternalToInternalMap(delegate,
-                    repositoryMode,
-                    configFile,
-                    baseFolder);
+                repositoryMode,
+                configFile,
+                baseFolder);
 
             setExternalToInternal(currentMapping);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            setExternalToInternal(Collections.<String, String>emptyMap());
+            setExternalToInternal(Collections.<String, String> emptyMap());
         }
     }
 
@@ -657,9 +660,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private ByteArrayInputStream getStreamFromProperties(Map<String, String> newMap) throws IOException {
-        String parent = StringUtils.isBlank(baseFolder) ?
-                        "" :
-                        baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
+        String parent = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
 
         Properties prop = new Properties();
         int i = 1;
