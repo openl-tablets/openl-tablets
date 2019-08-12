@@ -551,7 +551,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             if (!shouldClone) {
                 try {
-                    fetchAll();
+                    doFastForward(fetchAll());
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 }
@@ -727,7 +727,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return fileId;
     }
 
-    private ObjectId getLastRevision() throws GitAPIException, IOException {
+    ObjectId getLastRevision() throws GitAPIException, IOException {
         FetchResult fetchResult;
 
         Lock readLock = repositoryLock.readLock();
@@ -759,34 +759,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             saveBranches();
 
-            for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
-                RefUpdate.Result result = refUpdate.getResult();
-                switch (result) {
-                    case FAST_FORWARD:
-                        git.checkout().setName(refUpdate.getRemoteName()).call();
+            doFastForward(fetchResult);
 
-                        // It's assumed that we don't have unpushed commits at this point so there must be no additional
-                        // merge
-                        // while checking last revision. Accept only fast forwards.
-                        git.merge()
-                            .include(refUpdate.getNewObjectId())
-                            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                            .call();
-                        break;
-                    case REJECTED_CURRENT_BRANCH:
-                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be
-                                                                   // deleted
-                        break;
-                    case NEW:
-                    case NO_CHANGE:
-                    case FORCED:
-                        // Do nothing
-                        break;
-                    default:
-                        log.warn("Unsupported type of fetch result type: {}", result);
-                        break;
-                }
-            }
             reset();
         } finally {
             writeLock.unlock();
@@ -800,6 +774,37 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } finally {
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
+        }
+    }
+
+    private void doFastForward(FetchResult fetchResult) throws GitAPIException {
+        for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
+            RefUpdate.Result result = refUpdate.getResult();
+            switch (result) {
+                case FAST_FORWARD:
+                    git.checkout().setName(refUpdate.getRemoteName()).call();
+
+                        // It's assumed that we don't have unpushed commits at this point so there must be no additional
+                        // merge
+                    // while checking last revision. Accept only fast forwards.
+                    git.merge()
+                        .include(refUpdate.getNewObjectId())
+                        .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                        .call();
+                    break;
+                case REJECTED_CURRENT_BRANCH:
+                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be
+                                                                   // deleted
+                    break;
+                case NEW:
+                case NO_CHANGE:
+                case FORCED:
+                    // Do nothing
+                    break;
+                default:
+                    log.warn("Unsupported type of fetch result type: {}", result);
+                    break;
+            }
         }
     }
 
