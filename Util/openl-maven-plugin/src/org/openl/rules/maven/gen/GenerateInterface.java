@@ -13,7 +13,6 @@ import java.util.Properties;
 import org.apache.maven.plugin.logging.Log;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
@@ -507,9 +506,8 @@ public class GenerateInterface {
         } else {
             ClassLoader applicationClassLoader = getApplicationClassLoader();
 
-            SimpleBundleClassLoader bundleClassLoader = new SimpleBundleClassLoader(applicationClassLoader);
-            UserContext ucxt = new UserContext(bundleClassLoader, userHome);
-            Thread.currentThread().setContextClassLoader(bundleClassLoader);
+            UserContext ucxt = new UserContext(applicationClassLoader, userHome);
+            Thread.currentThread().setContextClassLoader(applicationClassLoader);
 
             long start = System.currentTimeMillis();
             try {
