@@ -50,16 +50,6 @@ public class OpenLProjectPropertiesLoader {
         return true;
     }
 
-    public static void main(String[] args) throws IOException {
-        String[] x = makeClasspath(".",
-            System.getProperty("java.class.path"),
-            ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*");
-        Arrays.sort(x);
-        for (int i = 0; i < x.length; i++) {
-            System.out.println(x[i]);
-        }
-    }
-
     public static String[] makeClasspath(String phome, String longPath, String excludeFilter) throws IOException {
         List<String> v = new ArrayList<>();
         String[] ecps = StringTool.tokenize(longPath, File.pathSeparator);

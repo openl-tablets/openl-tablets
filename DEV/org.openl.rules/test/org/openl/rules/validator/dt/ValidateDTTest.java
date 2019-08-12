@@ -23,8 +23,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         Object vv = resultTsn.getValidationResult();
 
-        System.out.println("Hello1:" + vv);
-
         Assert.assertEquals(8, ((DecisionTableValidationResult) vv).getOverlappings().length);
         Assert.assertEquals(0, ((DecisionTableValidationResult) vv).getUncovered().length);
         Assert.assertEquals(0, ((DecisionTableValidationResult) vv).getOverlappingBlocks().size());
@@ -40,8 +38,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         Object vv = resultTsn.getValidationResult();
 
-        System.out.println("Hello2:" + vv);
-
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getOverlappingBlocks().size());
         Assert.assertEquals(2, ((DecisionTableValidationResult) vv).getOverlappingOverrides().size());
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getUncovered().length);
@@ -56,15 +52,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
 
         Object vv = resultTsn.getValidationResult();
 
-        System.out.println("Hello3:" + vv);
-
-        SyntaxNodeException[] err = resultTsn.getErrors();
-
-        if (err != null) {
-            for (int i = 0; i < err.length; i++) {
-                System.out.println(err[i]);
-            }
-        }
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getOverlappings().length);
         Assert.assertEquals(1, ((DecisionTableValidationResult) vv).getUncovered().length);
 
@@ -77,16 +64,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
         Assert.assertNotNull(resultTsn);
 
         Object vv = resultTsn.getValidationResult();
-
-        System.out.println("------- Hello4:" + vv);
-
-        SyntaxNodeException[] err = resultTsn.getErrors();
-
-        if (err != null) {
-            for (int i = 0; i < err.length; i++) {
-                System.out.println(err[i]);
-            }
-        }
 
         Assert.assertNull(vv);
     }

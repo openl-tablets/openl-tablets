@@ -165,8 +165,6 @@ public class DispatchingTest {
             instance.getPriority();
         }
         long t2 = System.currentTimeMillis();
-
-        System.out.println(t2 - t1);
     }
 
     private void invokeAndCheckForAmbiguous(Method method) throws IllegalAccessException {

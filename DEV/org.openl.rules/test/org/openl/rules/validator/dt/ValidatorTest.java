@@ -1,6 +1,10 @@
 package org.openl.rules.validator.dt;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -109,7 +113,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
                     // System.out.println("NO PROBLEMS IN TABLE!!!!\n");
                 }
             } catch (Exception t) {
-                System.out.println("Exception " + t.getMessage());
+                fail();
             }
         } else {
             fail();

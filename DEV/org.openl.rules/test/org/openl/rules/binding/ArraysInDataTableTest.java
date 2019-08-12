@@ -101,7 +101,6 @@ public class ArraysInDataTableTest {
                         assertNull(beansB[k]);
                     }
                 }
-                System.out.println();
             }
         }
     }

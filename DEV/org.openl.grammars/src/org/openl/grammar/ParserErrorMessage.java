@@ -34,14 +34,8 @@ public class ParserErrorMessage {
         return String.format(MISMATCHED_BRACKET, addEscapes(first), addEscapes(second));
     }
 
-    public static void main(String[] args) {
-        System.out.println(printUnexpectedSymbolAfter("\"aaaz", '\n'));
-        System.out.println(printUnexpectedSymbolAfter("\"aaaz", (char) 1234));
-        System.out.println(printUnexpectedSymbolAfter("\"aaaz", '~'));
-    }
-
     public static final String addEscapes(String str) {
-        StringBuffer retval = new StringBuffer();
+        StringBuilder retval = new StringBuilder();
         char ch;
         for (int i = 0; i < str.length(); i++) {
             switch (str.charAt(i)) {
