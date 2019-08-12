@@ -763,7 +763,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 RefUpdate.Result result = refUpdate.getResult();
                 switch (result) {
                     case FAST_FORWARD:
-                        git.checkout().setName(refUpdate.getLocalName()).call();
+                        git.checkout().setName(refUpdate.getRemoteName()).call();
 
                         // It's assumed that we don't have unpushed commits at this point so there must be no additional
                         // merge
