@@ -549,6 +549,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             config.save();
 
+            // Track all remote branches as local branches
+            List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+            TreeSet<String> localBranches = getAvailableBranches();
+            String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
+            for (Ref remoteBranch : remoteBranches) {
+                if (!remoteBranch.getName().startsWith(remotePrefix)) {
+                    log.warn("The branch {} will not be tracked", remoteBranch.getName());
+                    continue;
+                }
+                String branchName = remoteBranch.getName().substring(remotePrefix.length());
+                if (!localBranches.contains(branchName)) {
+                    createRemoteTrackingBranch(branchName);
+                }
+            }
+
             if (!shouldClone) {
                 try {
                     doFastForward(fetchAll());

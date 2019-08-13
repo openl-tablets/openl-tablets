@@ -920,6 +920,11 @@ public class GitRepositoryTest {
             assertTrue("Branch " + newBranch + " must be created", repo2.getAvailableBranches().contains(newBranch));
         }
 
+        // Check that all branches are available when repository is cloned.
+        try (GitRepository repo3 = createRepository(new File(root, "remote"), new File(root, "local3"))) {
+            assertTrue("Branch " + newBranch + " must be created", repo3.getAvailableBranches().contains(newBranch));
+        }
+
         // Delete a branch on remote repository
         try (Git git = Git.open(remote)) {
             git.checkout().setName(Constants.MASTER).call();
