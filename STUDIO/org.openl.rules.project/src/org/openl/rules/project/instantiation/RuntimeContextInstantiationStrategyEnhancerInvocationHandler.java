@@ -16,13 +16,18 @@ import org.slf4j.LoggerFactory;
  * The implementation of {@link InvocationHandler} which used by {@link RuntimeContextInstantiationStrategyEnhancer}
  * class to construct proxy of service class.
  */
-class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler {
+class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
     private final Logger log = LoggerFactory
         .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
+    
+    @Override
+    public Method getTargetMember(Method key) {
+        return methodsMap.get(key);
+    }
 
     public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
             Object serviceClassInstance) {

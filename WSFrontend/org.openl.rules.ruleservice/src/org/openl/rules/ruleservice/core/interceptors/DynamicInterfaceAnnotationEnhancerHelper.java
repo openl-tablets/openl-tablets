@@ -115,7 +115,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
     private static void processServiceExtraMethods(ClassVisitor classVisitor, Class<?> templateClass) {
         for (Method method : templateClass.getMethods()) {
             if (method.isAnnotationPresent(ServiceExtraMethod.class)) {
-                MethodVisitor mv = classVisitor.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                classVisitor.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
                     method.getName(),
                     Type.getMethodDescriptor(method),
                     null,

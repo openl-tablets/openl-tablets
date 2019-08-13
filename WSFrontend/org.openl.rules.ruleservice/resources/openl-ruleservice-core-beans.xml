@@ -27,7 +27,6 @@
 				<prop key="dispatching.validation">${dispatching.validation}</prop>
 			</props>
 		</property>
-		<property name="serviceCallInterceptorGroups" value="RULESERVICES,WEBSERVICES"/>
 	</bean>
 
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->

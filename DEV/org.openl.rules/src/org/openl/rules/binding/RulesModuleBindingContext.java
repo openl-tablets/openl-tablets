@@ -18,7 +18,11 @@ import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -138,7 +142,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    protected synchronized void add(String namespace, String typeName, IOpenClass type) {
+    protected void add(String namespace, String typeName, IOpenClass type) {
         if (type instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);

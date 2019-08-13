@@ -36,5 +36,4 @@ public interface ServiceMethodAfterAdvice<T> {
      * @throws Exception
      */
     T afterThrowing(Method interfaceMethod, Exception t, Object... args) throws Exception;
-
 }

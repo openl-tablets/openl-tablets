@@ -2,8 +2,17 @@ package org.openl.rules.calc;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -239,7 +248,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnNamesMarkedWithStar;
     }
 
-    public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass xlsModuleOpenClass) {
+    public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             getRowNames(),
             getColumnNames(),
@@ -247,7 +256,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             getColumnNamesMarkedWithStar(),
             getRowTitles(),
             getColumnTitles(),
-            xlsModuleOpenClass);
+            module);
         for (IOpenField field : getFields().values()) {
             type.addField(field);
         }
@@ -274,7 +283,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return target;
     }
 
-    private Class<?> getBeanClass() {
+    public Class<?> getBeanClass() {
         if (beanClass == null) {
             synchronized (this) {
                 if (beanClass == null) {
@@ -309,8 +318,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         types);
                     byte[] byteCode = beanClassBuilder.byteCode();
                     try {
-                        beanClass = ClassUtils
-                            .defineClass(beanClassName, byteCode, module.getCustomSpreadsheetResultsClassLoader());
+                        beanClass = ClassUtils.defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
                         List<SpreadsheetResultValueSetter> srValueSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
                             Point point = beanFieldsCoords.get(field.getName());
@@ -408,10 +416,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private static synchronized String getBeanClassName(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         final String beanName = CustomSpreadsheetResultOpenClass.class.getPackage()
-            .getName() + ".customspreasheets." + customSpreadsheetResultOpenClass.getName()
-                .substring("SpreadsheetResult".length());
+            .getName() + ".csr." + customSpreadsheetResultOpenClass.getName().substring("SpreadsheetResult".length());
         try {
-            customSpreadsheetResultOpenClass.getModule().getCustomSpreadsheetResultsClassLoader().loadClass(beanName);
+            customSpreadsheetResultOpenClass.getModule().getClassGenerationClassLoader().loadClass(beanName);
             throw new IllegalStateException("This shouldn't happen.");
         } catch (ClassNotFoundException e) {
             return beanName;

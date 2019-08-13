@@ -17,5 +17,6 @@ public interface ServiceMethodAroundAdvice<T> {
      * @param args method arguments
      * @throws Throwable
      */
-    T around(Method interfaceMethod, Method proxyMethod, Object proxy, Object... args) throws Throwable;
+    T around(Method interfaceMethod, Method serviceTargetMethod, Object serviceTarget, Object... args) throws Throwable;
+
 }

@@ -207,11 +207,15 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return Collections.unmodifiableSet(usingModules);
     }
 
+    protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
+        return type;
+    }
+
     protected void addDependencyTypes(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenClass type : compiledOpenClass.getTypes()) {
             try {
-                addType(type);
+                addType(processDependencyTypeBeforeAdding(type));
             } catch (OpenlNotCheckedException e) {
                 addError(e);
             }

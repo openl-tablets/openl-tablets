@@ -12,8 +12,8 @@ public interface MyTemplateClass {
     MyClass method2(IRulesRuntimeContext context, @AnyType(".*MyType") Object obj);
 
     @ServiceCallBeforeInterceptor(value = { MyBeforeAdvice.class })
-    MyClass method3(@AnyType Object obj, @AnyType Object obj1); 
-    
+    MyClass method3(@AnyType Object obj, @AnyType Object obj1);
+
     @ServiceExtraMethod(ServiceExtraMethodHandler.class)
     String helloWorld();
 }

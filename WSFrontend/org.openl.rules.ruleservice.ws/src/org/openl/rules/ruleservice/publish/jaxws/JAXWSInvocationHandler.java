@@ -8,9 +8,14 @@ import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.runtime.IOpenLInvocationHandler;
 import org.w3c.dom.Element;
 
-public class JAXWSInvocationHandler implements IOpenLInvocationHandler {
+public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
     private Object target;
+
+    @Override
+    public Method getTargetMember(Method method) {
+        return method;
+    }
 
     public JAXWSInvocationHandler(Object target) {
         if (target == null) {

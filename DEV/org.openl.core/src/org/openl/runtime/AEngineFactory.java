@@ -18,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String INCORRECT_RET_TYPE_MSG = "Return type of method \"%s\" should be %s";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of '%s' method, but found '%s' type.";
 
     /**
      * This method deprecated. Use newInstance method.
@@ -135,8 +135,10 @@ public abstract class AEngineFactory {
                             // equal to method return type) then throw runtime
                             // exception.
                             //
-                            String message = String
-                                .format(INCORRECT_RET_TYPE_MSG, interfaceMethodName, rulesField.getType());
+                            String message = String.format(INCORRECT_RET_TYPE_MSG,
+                                interfaceMethodName,
+                                rulesField.getType(),
+                                methodReturnType.getName());
 
                             throw new RuntimeException(message);
                         }
@@ -157,13 +159,15 @@ public abstract class AEngineFactory {
     }
 
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
-        Class<?> returnType = interfaceMethod.getReturnType();
+        Class<?> interfaceReturnType = interfaceMethod.getReturnType();
         Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
-        boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, returnType);
+        boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
-            String message = String
-                .format(INCORRECT_RET_TYPE_MSG, interfaceMethod.getName(), openClassReturnType.getName());
-            throw new RuntimeException(message);
+            String message = String.format(INCORRECT_RET_TYPE_MSG,
+                interfaceMethod.getName(),
+                openClassReturnType.getName(),
+                interfaceReturnType.getName());
+            throw new ClassCastException(message);
         }
     }
 

@@ -8,9 +8,10 @@ import org.openl.rules.ruleservice.logging.ObjectSerializer;
 import org.openl.rules.ruleservice.logging.RuleServiceLogging;
 import org.openl.rules.ruleservice.logging.RuleServiceLoggingHolder;
 
-public abstract class AbstractPopulateCustomDataAfterInterceptor implements ServiceMethodAfterAdvice<Object> {
+public abstract class AbstractPopulateCustomDataAfterInterceptor<T> implements ServiceMethodAfterAdvice<T> {
+    @SuppressWarnings("unchecked")
     @Override
-    public final Object afterReturning(Method method, Object result, Object... args) throws Exception {
+    public final T afterReturning(Method method, Object result, Object... args) throws Exception {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         LoggingCustomData loggingCustomData = ruleServiceLogging.getLoggingCustomData();
         LoggingCustomData customData;
@@ -20,11 +21,11 @@ public abstract class AbstractPopulateCustomDataAfterInterceptor implements Serv
             customData = populateCustomData(loggingCustomData, args, result, null);
         }
         ruleServiceLogging.setLoggingCustomData(customData);
-        return result;
+        return (T) result;
     }
 
     @Override
-    public final Object afterThrowing(Method method, Exception t, Object... args) throws Exception {
+    public final T afterThrowing(Method method, Exception t, Object... args) throws Exception {
         RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
         LoggingCustomData loggingCustomData = ruleServiceLogging.getLoggingCustomData();
         LoggingCustomData customData;

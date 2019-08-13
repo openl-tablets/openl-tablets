@@ -26,8 +26,8 @@ public abstract class ServiceDescriptionConfigurationFactoryBean<T> extends Abst
 
     public final ServiceDescription getServiceDescription() throws Exception {
         if (serviceDescription == null) {
-            serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
-            Objects.requireNonNull(serviceDescription, "Failed to locate service description.");
+            serviceDescription = ServiceDescriptionHolder.getInstance().get();
+            Objects.requireNonNull(serviceDescription, "Failed to locate a service description.");
         }
         return serviceDescription;
     }

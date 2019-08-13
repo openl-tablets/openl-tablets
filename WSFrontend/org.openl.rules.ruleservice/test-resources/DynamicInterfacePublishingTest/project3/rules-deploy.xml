@@ -2,6 +2,6 @@
 	<isProvideRuntimeContext>true</isProvideRuntimeContext>
 	<isProvideVariations>false</isProvideVariations>
 	<serviceName>dynamic-interface-test3</serviceName>
-	<interceptingTemplateClassName>org.openl.ruleservice.dynamicinterface.test.MyTemplateClass</interceptingTemplateClassName>
+	<annotationTemplateClassName>org.openl.ruleservice.dynamicinterface.test.MyTemplateClass</annotationTemplateClassName>
 	<url></url>
 </rules-deploy>

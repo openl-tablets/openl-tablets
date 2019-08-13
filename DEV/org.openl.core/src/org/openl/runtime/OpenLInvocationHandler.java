@@ -10,7 +10,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineWrapper {
+public class OpenLInvocationHandler implements IOpenLInvocationHandler<Method, IOpenMember>, IEngineWrapper {
 
     private Object openlInstance;
     private Map<Method, IOpenMember> methodMap;
@@ -23,6 +23,11 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineW
     public OpenLInvocationHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
         this(openlInstance, methodMap);
         setRuntimeEnv(openlEnv);
+    }
+
+    @Override
+    public IOpenMember getTargetMember(Method key) {
+        return methodMap.get(key);
     }
 
     private ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);

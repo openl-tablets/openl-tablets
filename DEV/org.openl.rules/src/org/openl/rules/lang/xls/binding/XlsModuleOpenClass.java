@@ -25,6 +25,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
@@ -80,7 +81,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private ClassLoader classLoader;
 
-    private OpenLBundleClassLoader customSpreadsheetResultsClassLoader;
+    private OpenLBundleClassLoader classGenerationClassLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
 
@@ -113,8 +114,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.dispatchingValidationEnabled = dispatchingValidationEnabled;
         this.classLoader = classLoader;
 
-        this.customSpreadsheetResultsClassLoader = new OpenLBundleClassLoader(null);
-        this.customSpreadsheetResultsClassLoader.addClassLoader(classLoader);
+        this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
+        this.classGenerationClassLoader.addClassLoader(classLoader);
 
         if (usingModules != null) {
             setDependencies(usingModules);
@@ -131,8 +132,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return classLoader;
     }
 
-    public ClassLoader getCustomSpreadsheetResultsClassLoader() {
-        return customSpreadsheetResultsClassLoader;
+    public ClassLoader getClassGenerationClassLoader() {
+        return classGenerationClassLoader;
     }
 
     private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {
@@ -154,6 +155,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public XlsDefinitions getXlsDefinitions() {
         return xlsDefinitions;
+    }
+
+    @Override
+    protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+            return customSpreadsheetResultOpenClass.makeCopyForModule(this);
+        }
+        return super.processDependencyTypeBeforeAdding(type);
     }
 
     /**

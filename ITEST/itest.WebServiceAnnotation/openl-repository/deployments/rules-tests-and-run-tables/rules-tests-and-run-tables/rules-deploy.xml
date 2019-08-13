@@ -2,6 +2,7 @@
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
     <serviceName>rules-tests-and-run-tables</serviceName>
+    <annotationTemplateClassName>org.openl.itest.serviceclass.RunTestServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
         <publisher>RESTFUL</publisher>
         <publisher>WEBSERVICE</publisher>

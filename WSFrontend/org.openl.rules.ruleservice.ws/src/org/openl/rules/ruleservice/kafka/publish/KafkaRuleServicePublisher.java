@@ -416,7 +416,7 @@ public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher impl
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             KafkaDeploy kafkaDeploy = KafkaDeployUtils
-                .getKafkaDeploy(ServiceDescriptionHolder.getInstance().getServiceDescription());
+                .getKafkaDeploy(ServiceDescriptionHolder.getInstance().get());
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
                 .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();

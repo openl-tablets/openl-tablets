@@ -63,7 +63,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
         if (RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
             return true;
         } else {
-            throw new ValidationServiceClassException("Runtime context parameter required in each method!");
+            throw new ValidationServiceClassException("Runtime context parameter is required in each method!");
         }
     }
 

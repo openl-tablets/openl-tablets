@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  *
  * @param <T>
  */
-public abstract class AbstractServiceMethodAfterReturningAdvice<T> implements ServiceMethodAfterAdvice<Object> {
+public abstract class AbstractServiceMethodAfterReturningAdvice<T> implements ServiceMethodAfterAdvice<T> {
 
     /** {@inheritDoc} */
     @Override

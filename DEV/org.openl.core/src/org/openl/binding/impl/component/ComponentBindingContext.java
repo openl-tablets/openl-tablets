@@ -55,11 +55,11 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public synchronized void addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+    public void addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
         add(namespace, type.getName(), type);
     }
 
-    protected synchronized void add(String namespace, String typeName, IOpenClass type) throws DuplicatedTypeException {
+    protected void add(String namespace, String typeName, IOpenClass type) throws DuplicatedTypeException {
         if (internalTypes == null) {
             internalTypes = new HashMap<>();
         }

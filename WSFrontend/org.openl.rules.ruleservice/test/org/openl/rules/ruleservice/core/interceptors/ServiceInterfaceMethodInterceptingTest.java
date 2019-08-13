@@ -13,49 +13,62 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
+import org.openl.meta.IntValue;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.*;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.Resource;
+import org.openl.rules.ruleservice.core.ResourceLoader;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) throws Exception {
+            return ((IntValue) result).doubleValue();
+        }
+    }
+
+    public static class ResultConvertor1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
+        @Override
+        public Double afterReturning(Method method, Object result, Object... args) throws Exception {
             return ((DoubleValue) result).doubleValue();
         }
     }
 
-    public static class AroundInterceptor implements ServiceMethodAroundAdvice<DoubleValue> {
+    public static class AroundInterceptor implements ServiceMethodAroundAdvice<IntValue> {
         @Override
-        public DoubleValue around(Method interfacemethod,
+        public IntValue around(Method interfacemethod,
                 Method beanMethod,
                 Object proxy,
                 Object... args) throws Exception {
-            return new DoubleValue(-1);
+            return new IntValue(-1);
         }
 
     }
 
     public interface OverloadInterface {
-        @ServiceCallAfterInterceptor(value = ResultConvertor.class, group = ServiceCallInterceptorGroup.GROUP1)
+        @ServiceCallAfterInterceptor(value = ResultConvertor1.class)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
-        @ServiceCallAfterInterceptors({
-                @ServiceCallAfterInterceptor(value = ResultConvertor.class, group = ServiceCallInterceptorGroup.ALL) })
+        @ServiceCallAfterInterceptors({ @ServiceCallAfterInterceptor(value = ResultConvertor.class) })
         @ServiceCallAroundInterceptor(value = AroundInterceptor.class)
         Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
@@ -85,21 +98,22 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     ServiceDescription serviceDescription;
     RuleServiceLoader ruleServiceLoader;
-    List<Module> modules = new ArrayList<>();
 
     @Before
     public void before() {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         DeploymentDescription deploymentDescription = new DeploymentDescription("someDeploymentName", version);
-
+        
         Module module = new Module();
         module.setName("Overload");
+        List<Module> modules = new ArrayList<>();
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
         projectDescriptor.setName("service");
+        modules.add(module);
         projectDescriptor.setModules(modules);
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
-        modules.add(module);
+        
 
         serviceDescription = new ServiceDescription.ServiceDescriptionBuilder()
             .setServiceClassName(OverloadInterface.class.getName())
@@ -141,8 +155,6 @@ public class ServiceInterfaceMethodInterceptingTest {
     @Test
     public void testResultConvertorInterceptor() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
-        instantiationFactory
-            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP1 });
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
@@ -157,8 +169,6 @@ public class ServiceInterfaceMethodInterceptingTest {
     @Test
     public void testNonExistedInRulesMethod() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
-        instantiationFactory
-            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP1 });
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
@@ -173,8 +183,6 @@ public class ServiceInterfaceMethodInterceptingTest {
     @Test
     public void testInterceptorClassloader() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
-        instantiationFactory
-            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP1 });
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
@@ -186,27 +194,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         Assert.assertNotNull(instance.loadClassMethod());
     }
 
-    @Test(expected = ClassCastException.class)
-    public void testGroupInterceptor1() throws Exception {
-        RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
-        instantiationFactory
-            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP2 });
-        instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
-        OpenLService service = instantiationFactory.createService(serviceDescription);
-        assertTrue(service.getServiceBean() instanceof OverloadInterface);
-        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
-        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
-        runtimeContext.setCurrentDate(calendar.getTime());
-        instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver");
-    }
-
     @Test
     public void testGroupAndAroundInterceptor2() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
-        instantiationFactory
-            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP2 });
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
@@ -223,10 +213,10 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void testServiceClassUndecorating() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
+            .getStrategy(serviceDescription, null);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-            .getInterfaceForInstantiationStrategy(
-                instantiationFactory.getInstantiationStrategyFactory().getStrategy(serviceDescription, null),
-                OverloadInterface.class);
+            .getInterfaceForInstantiationStrategy(OverloadInterface.class, rulesInstantiationStrategy.getClassLoader());
         for (Method method : OverloadInterface.class.getMethods()) {
             if (!method.isAnnotationPresent(ServiceExtraMethod.class)) {
                 Method methodGenerated = interfaceForInstantiationStrategy.getMethod(method.getName(),

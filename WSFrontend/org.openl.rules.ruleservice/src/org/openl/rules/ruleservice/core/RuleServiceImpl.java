@@ -76,19 +76,23 @@ public class RuleServiceImpl implements RuleService {
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
         }
-
-        ServiceDescription serviceDescription = serviceDescriptionMap.get(serviceName);
-        if (serviceDescription == null) {
-            throw new IllegalStateException("Illegal State!!!");
-        }
         try {
-            ruleServicePublisher.undeploy(serviceName);
-            serviceDescriptionMap.remove(serviceDescription.getName());
+            OpenLServiceHolder.getInstance().setOpenLService(service);
+            ServiceDescription serviceDescription = serviceDescriptionMap.get(serviceName);
+            if (serviceDescription == null) {
+                throw new IllegalStateException("Illegal State!!!");
+            }
+            try {
+                ruleServicePublisher.undeploy(serviceName);
+                serviceDescriptionMap.remove(serviceDescription.getName());
+            } finally {
+                cleanDeploymentResources(serviceDescription);
+                service.destroy();
+            }
+            log.info("Service '{}' was undeployed succesfully.", service.getName());
         } finally {
-            cleanDeploymentResources(serviceDescription);
-            service.destroy();
+            OpenLServiceHolder.getInstance().remove();
         }
-        log.info("Service '{}' was undeployed succesfully.", service.getName());
     }
 
     private void cleanDeploymentResources(ServiceDescription serviceDescription) {
@@ -133,11 +137,13 @@ public class RuleServiceImpl implements RuleService {
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
+            OpenLServiceHolder.getInstance().setOpenLService(newService);
             deploy(serviceDescription, newService);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {
             cleanDeploymentResources(serviceDescription);
+            OpenLServiceHolder.getInstance().remove();
         }
     }
 

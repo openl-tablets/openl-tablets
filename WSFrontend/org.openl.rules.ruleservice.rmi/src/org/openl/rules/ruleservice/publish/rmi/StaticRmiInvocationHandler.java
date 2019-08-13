@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.openl.runtime.IOpenLInvocationHandler;
 
-class StaticRmiInvocationHandler implements IOpenLInvocationHandler {
+class StaticRmiInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;
@@ -13,6 +13,11 @@ class StaticRmiInvocationHandler implements IOpenLInvocationHandler {
     @Override
     public Object getTarget() {
         return target;
+    }
+
+    @Override
+    public Method getTargetMember(Method key) {
+        return methodMap.get(key);
     }
 
     public StaticRmiInvocationHandler(Object target, Map<Method, Method> methodMap) {

@@ -18,6 +18,6 @@ public interface ServiceMethodBeforeAdvice {
      * @param args method arguments
      * @throws Throwable
      */
-    void before(Method interfaceMethod, Object proxy, Object... args) throws Throwable;
+    void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable;
 
 }

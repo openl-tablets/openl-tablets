@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.management;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 
 public final class ServiceDescriptionHolder {
-    private static final ServiceDescriptionHolder INSTANCE = new ServiceDescriptionHolder();
+    private static final class ServiceDescriptionHolderHolder {
+        private static final ServiceDescriptionHolder INSTANCE = new ServiceDescriptionHolder();
+    }
 
     private ThreadLocal<ServiceDescription> serviceDescriptionHolder = new ThreadLocal<>();
 
@@ -11,10 +13,10 @@ public final class ServiceDescriptionHolder {
     }
 
     public static ServiceDescriptionHolder getInstance() {
-        return INSTANCE;
+        return ServiceDescriptionHolderHolder.INSTANCE;
     }
 
-    public ServiceDescription getServiceDescription() {
+    public ServiceDescription get() {
         return serviceDescriptionHolder.get();
     }
 

@@ -7,10 +7,15 @@ import javax.ws.rs.core.Response;
 
 import org.openl.runtime.IOpenLInvocationHandler;
 
-public class JAXRSInvocationHandler implements IOpenLInvocationHandler {
+public class JAXRSInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
     private Object target;
     private Map<Method, Method> methodMap;
+
+    @Override
+    public Method getTargetMember(Method key) {
+        return methodMap.get(key);
+    }
 
     public JAXRSInvocationHandler(Object target, Map<Method, Method> methodMap) {
         if (target == null) {

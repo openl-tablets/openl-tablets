@@ -15,7 +15,7 @@ public class ServiceDescriptionSupportVariationsFactoryBean extends AbstractFact
 
     @Override
     protected Boolean createInstance() throws Exception {
-        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
+        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().get();
         Objects.requireNonNull(serviceDescription, "Failed to locate service description.");
         return serviceDescription.isProvideVariations();
     }

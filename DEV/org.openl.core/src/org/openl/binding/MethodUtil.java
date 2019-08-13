@@ -21,9 +21,13 @@ import org.openl.util.print.DefaultFormat;
  * @author snshor
  *
  */
-public class MethodUtil {
+public final class MethodUtil {
 
     private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = (e) -> printType(e);
+
+    private MethodUtil() {
+        // Hidden constructor
+    }
 
     public static String printType(IOpenClass type) {
         return type.getDisplayName(INamedThing.SHORT);

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler {
+class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler<Method, Method> {
 
     private SafeCloner cloner = new SafeCloner();
 
@@ -49,6 +49,11 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
     @Override
     public Object getTarget() {
         return serviceClassInstance;
+    }
+
+    @Override
+    public Method getTargetMember(Method key) {
+        return methodsMap.get(key);
     }
 
     @Override
