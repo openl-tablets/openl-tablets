@@ -558,11 +558,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
                 if (branchAbsents) {
-                    git.branchCreate()
-                        .setName(branch)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
-                        .call();
+                    createRemoteTrackingBranch(branch);
                 }
             }
 
@@ -797,28 +793,40 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     break;
                 case FORCED:
                     if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
-                        // Delete the branch
-                        String branchToDelete = Repository.shortenRefName(refUpdate.getRemoteName());
-                        String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
-                        if (branchToDelete.equals(currentBranch)) {
-                            String branchToCheckout = baseBranch;
-                            if (branchToCheckout.equals(branchToDelete)) {
-                                branchToCheckout = Constants.MASTER;
+                        String remoteName = refUpdate.getRemoteName();
+
+                        if (remoteName.startsWith(Constants.R_HEADS)) {
+                            // Delete the branch
+                            String branchToDelete = Repository.shortenRefName(remoteName);
+                            String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
+                            if (branchToDelete.equals(currentBranch)) {
+                                String branchToCheckout = baseBranch;
+                                if (branchToCheckout.equals(branchToDelete)) {
+                                    branchToCheckout = Constants.MASTER;
+                                }
+                                if (getAvailableBranches().contains(branchToCheckout)) {
+                                    git.checkout().setName(branchToCheckout).call();
+                                } else {
+                                    git.checkout()
+                                        .setName(branchToCheckout)
+                                        .setCreateBranch(true)
+                                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                        .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branchToCheckout)
+                                        .call();
+                                }
                             }
-                            if (getAvailableBranches().contains(branchToCheckout)) {
-                                git.checkout().setName(branchToCheckout).call();
-                            } else {
-                                git.checkout()
-                                    .setName(branchToCheckout)
-                                    .setCreateBranch(true)
-                                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                                    .call();
-                            }
+                            git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
                         }
-                        git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
                     }
                     break;
                 case NEW:
+                    if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
+                        String remoteName = refUpdate.getRemoteName();
+                        if (remoteName.startsWith(Constants.R_HEADS)) {
+                            createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                        }
+                    }
+                    break;
                 case NO_CHANGE:
                     // Do nothing
                     break;
@@ -1612,11 +1620,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
         if (git.getRepository().findRef(branch) == null) {
-            git.branchCreate()
-                .setName(branch)
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
-                .call();
+            createRemoteTrackingBranch(branch);
         }
 
         GitRepository repo = new GitRepository();
@@ -1642,6 +1646,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.branches = branches; // Can be shared between instances
         repo.monitor = monitor;
         return repo;
+    }
+
+    private void createRemoteTrackingBranch(String branch) throws GitAPIException {
+        git.branchCreate()
+            .setName(branch)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+            .call();
     }
 
     TreeSet<String> getAvailableBranches() throws GitAPIException {

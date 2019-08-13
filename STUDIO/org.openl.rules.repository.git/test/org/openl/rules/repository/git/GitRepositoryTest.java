@@ -877,6 +877,7 @@ public class GitRepositoryTest {
     @Test
     public void testFetchChanges() throws IOException, GitAPIException, RRepositoryException {
         ObjectId before = repo.getLastRevision();
+        String newBranch = "new-branch";
 
         // Make a copy before any modifications
         File local2 = new File(root, "local2");
@@ -886,6 +887,7 @@ public class GitRepositoryTest {
         File remote = new File(root, "remote");
         try (Git git = Git.open(remote)) {
             git.checkout().setName(BRANCH).call();
+            git.branchCreate().setName(newBranch).call();
 
             Repository repository = git.getRepository();
 
@@ -893,12 +895,19 @@ public class GitRepositoryTest {
             File file2 = new File(rulesFolder, "file2");
             writeText(file2, "Modify on remote server");
             git.add().addFilepattern(".").call();
-            git.commit().setAll(true).setMessage("Second modification").setCommitter("user2", "user2@gmail.to").call();
+            RevCommit commit = git.commit()
+                .setAll(true)
+                .setMessage("Second modification")
+                .setCommitter("user2", "user2@gmail.to")
+                .call();
+            // Fetch must not fail if some tag is added.
+            addTag(git, commit, 42);
         }
 
         // Force fetching
         ObjectId after = repo.getLastRevision();
         assertNotEquals("Last revision should be changed because of a new commit on a server", before, after);
+        assertTrue("Branch " + newBranch + " must be created", repo.getAvailableBranches().contains(newBranch));
 
         // Check that changes are fetched and fast forwarded after getLastRevision()
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
@@ -908,6 +917,7 @@ public class GitRepositoryTest {
         try (GitRepository repo2 = createRepository(new File(root, "remote"), local2)) {
             file2History = repo2.listHistory("rules/project1/file2");
             assertEquals(3, file2History.size());
+            assertTrue("Branch " + newBranch + " must be created", repo2.getAvailableBranches().contains(newBranch));
         }
 
         // Delete a branch on remote repository
