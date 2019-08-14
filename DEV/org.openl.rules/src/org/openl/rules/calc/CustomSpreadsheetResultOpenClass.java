@@ -232,8 +232,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        // Only used for tests
-        return new StubSpreadSheetResult();
+        Object[][] result = new Object[rowNames.length][columnNames.length];
+        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), fieldsCoordinates);
     }
 
 }

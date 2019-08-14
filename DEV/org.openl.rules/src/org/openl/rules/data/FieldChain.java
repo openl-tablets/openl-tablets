@@ -12,20 +12,34 @@ import org.openl.vm.IRuntimeEnv;
 public class FieldChain extends AOpenField {
 
     private IOpenField[] fields;
+    private NewInstanceBuilder[] newInstanceBuilders;
 
     public FieldChain(IOpenClass type, IOpenField[] fields) {
-        super(makeNames(fields), type);
+        this(type, fields, null);
+    }
 
+    public FieldChain(IOpenClass type, IOpenField[] fields, NewInstanceBuilder[] newInstanceBuilders) {
+        super(makeNames(fields), type);
         this.fields = fields;
+        if (newInstanceBuilders != null && fields.length != newInstanceBuilders.length) {
+            throw new IllegalArgumentException(
+                "Fields array length must be equal to newInstanceBuilders array length.");
+        }
+        this.newInstanceBuilders = newInstanceBuilders;
     }
 
     public FieldChain(IOpenClass type,
             IOpenField[] fields,
             IdentifierNode[] fieldAccessorChainTokens,
-            boolean hasAccessByArrayId) {
+            boolean hasAccessByArrayId,
+            NewInstanceBuilder[] newInstanceBuilders) {
         super(getFieldName(fields, fieldAccessorChainTokens, hasAccessByArrayId), type);
-
         this.fields = fields;
+        if (newInstanceBuilders != null && fields.length != newInstanceBuilders.length) {
+            throw new IllegalArgumentException(
+                "Fields array length must be equal to newInstanceBuilders array length.");
+        }
+        this.newInstanceBuilders = newInstanceBuilders;
     }
 
     private static String getFieldName(IOpenField[] fields,
@@ -87,7 +101,11 @@ public class FieldChain extends AOpenField {
             Object newTarget = fields[i].get(target, env);
 
             if (newTarget == null) {
-                newTarget = fields[i].getType().newInstance(env);
+                if (newInstanceBuilders != null && newInstanceBuilders[i] != null) {
+                    newTarget = newInstanceBuilders[i].newInstance(env);
+                } else {
+                    newTarget = fields[i].getType().newInstance(env);
+                }
                 fields[i].set(target, newTarget, env);
             }
 
