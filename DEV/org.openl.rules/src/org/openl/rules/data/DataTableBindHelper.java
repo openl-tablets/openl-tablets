@@ -14,6 +14,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultField;
+import org.openl.rules.calc.StubSpreadSheetResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -37,6 +38,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
+import org.openl.vm.IRuntimeEnv;
 
 public class DataTableBindHelper {
 
@@ -724,7 +726,6 @@ public class DataTableBindHelper {
 
         boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && fieldAccessorChainTokens[0]
             .getIdentifier()
-            .trim()
             .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
@@ -839,10 +840,26 @@ public class DataTableBindHelper {
             partPathFromRoot.append(fieldInChain.getName());
         }
         if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
+            NewInstanceBuilder[] newInstanceBuilders = null;
+            if (fieldAccessorChainTokens[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                newInstanceBuilders = new NewInstanceBuilder[fieldAccessorChain.length];
+                int j = 0;
+                for (IOpenField field : fieldAccessorChain) {
+                    if (field.getType().getInstanceClass() != null && SpreadsheetResult.class
+                        .isAssignableFrom(field.getType().getInstanceClass())) {
+                        newInstanceBuilders[j++] = STUB_SPR_NEW_INSTANCE_BUILDER;
+                    }
+                }
+            }
+
             // loading of all
             // fields in
             // fieldAccessorChain.
-            chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
+            chainField = new FieldChain(type,
+                fieldAccessorChain,
+                fieldAccessorChainTokens,
+                hasAccessByArrayId,
+                newInstanceBuilders);
         }
         return chainField;
     }
@@ -1100,5 +1117,14 @@ public class DataTableBindHelper {
         }
 
         return true;
+    }
+
+    private static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
+
+    private static final class StubSpreadsheetResultNewInstanceBuilder implements NewInstanceBuilder {
+        @Override
+        public Object newInstance(IRuntimeEnv env) {
+            return new StubSpreadSheetResult();
+        }
     }
 }

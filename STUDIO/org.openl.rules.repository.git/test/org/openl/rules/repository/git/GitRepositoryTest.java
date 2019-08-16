@@ -19,6 +19,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
@@ -871,6 +872,73 @@ public class GitRepositoryTest {
     public void testIsValidBranchName() {
         assertTrue(repo.isValidBranchName("123"));
         assertFalse(repo.isValidBranchName("COM1/NUL"));
+    }
+
+    @Test
+    public void testFetchChanges() throws IOException, GitAPIException, RRepositoryException {
+        ObjectId before = repo.getLastRevision();
+        String newBranch = "new-branch";
+
+        // Make a copy before any modifications
+        File local2 = new File(root, "local2");
+        FileUtils.copy(new File(root, "local"), local2);
+
+        // Modify on remote
+        File remote = new File(root, "remote");
+        try (Git git = Git.open(remote)) {
+            git.checkout().setName(BRANCH).call();
+            git.branchCreate().setName(newBranch).call();
+
+            Repository repository = git.getRepository();
+
+            File rulesFolder = new File(repository.getDirectory().getParentFile(), FOLDER_IN_REPOSITORY);
+            File file2 = new File(rulesFolder, "file2");
+            writeText(file2, "Modify on remote server");
+            git.add().addFilepattern(".").call();
+            RevCommit commit = git.commit()
+                .setAll(true)
+                .setMessage("Second modification")
+                .setCommitter("user2", "user2@gmail.to")
+                .call();
+            // Fetch must not fail if some tag is added.
+            addTag(git, commit, 42);
+        }
+
+        // Force fetching
+        ObjectId after = repo.getLastRevision();
+        assertNotEquals("Last revision should be changed because of a new commit on a server", before, after);
+        assertTrue("Branch " + newBranch + " must be created", repo.getAvailableBranches().contains(newBranch));
+
+        // Check that changes are fetched and fast forwarded after getLastRevision()
+        List<FileData> file2History = repo.listHistory("rules/project1/file2");
+        assertEquals(3, file2History.size());
+
+        // Check that after repo initialization all changes are fetched and fast forwarded
+        try (GitRepository repo2 = createRepository(new File(root, "remote"), local2)) {
+            file2History = repo2.listHistory("rules/project1/file2");
+            assertEquals(3, file2History.size());
+            assertTrue("Branch " + newBranch + " must be created", repo2.getAvailableBranches().contains(newBranch));
+        }
+
+        // Check that all branches are available when repository is cloned.
+        try (GitRepository repo3 = createRepository(new File(root, "remote"), new File(root, "local3"))) {
+            assertTrue("Branch " + newBranch + " must be created", repo3.getAvailableBranches().contains(newBranch));
+        }
+
+        // Delete a branch on remote repository
+        try (Git git = Git.open(remote)) {
+            git.checkout().setName(Constants.MASTER).call();
+            git.branchDelete().setBranchNames(BRANCH).setForce(true).call();
+        }
+
+        // Force fetching
+        repo.getLastRevision();
+        assertFalse("Branch " + BRANCH + " must be deleted", repo.getAvailableBranches().contains(BRANCH));
+
+        // Check that after repo initialization the branch is deleted on local repository.
+        try (GitRepository repo2 = createRepository(new File(root, "remote"), local2, "master")) {
+            assertFalse("Branch " + BRANCH + " must be deleted", repo2.getAvailableBranches().contains(BRANCH));
+        }
     }
 
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {

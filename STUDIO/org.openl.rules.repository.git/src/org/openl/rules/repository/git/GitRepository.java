@@ -549,20 +549,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             config.save();
 
+            // Track all remote branches as local branches
+            List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+            TreeSet<String> localBranches = getAvailableBranches();
+            String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
+            for (Ref remoteBranch : remoteBranches) {
+                if (!remoteBranch.getName().startsWith(remotePrefix)) {
+                    log.warn("The branch {} will not be tracked", remoteBranch.getName());
+                    continue;
+                }
+                String branchName = remoteBranch.getName().substring(remotePrefix.length());
+                if (!localBranches.contains(branchName)) {
+                    createRemoteTrackingBranch(branchName);
+                }
+            }
+
             if (!shouldClone) {
                 try {
-                    fetchAll();
+                    doFastForward(fetchAll());
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 }
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
                 if (branchAbsents) {
-                    git.branchCreate()
-                        .setName(branch)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
-                        .call();
+                    createRemoteTrackingBranch(branch);
                 }
             }
 
@@ -727,7 +738,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return fileId;
     }
 
-    private ObjectId getLastRevision() throws GitAPIException, IOException {
+    ObjectId getLastRevision() throws GitAPIException, IOException {
         FetchResult fetchResult;
 
         Lock readLock = repositoryLock.readLock();
@@ -753,40 +764,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(): lock");
             writeLock.lock();
 
+            doFastForward(fetchResult);
+
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
                 projectBranches.removeIf(branch -> !availableBranches.contains(branch));
             }
             saveBranches();
 
-            for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
-                RefUpdate.Result result = refUpdate.getResult();
-                switch (result) {
-                    case FAST_FORWARD:
-                        git.checkout().setName(refUpdate.getLocalName()).call();
-
-                        // It's assumed that we don't have unpushed commits at this point so there must be no additional
-                        // merge
-                        // while checking last revision. Accept only fast forwards.
-                        git.merge()
-                            .include(refUpdate.getNewObjectId())
-                            .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
-                            .call();
-                        break;
-                    case REJECTED_CURRENT_BRANCH:
-                        git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be
-                                                                   // deleted
-                        break;
-                    case NEW:
-                    case NO_CHANGE:
-                    case FORCED:
-                        // Do nothing
-                        break;
-                    default:
-                        log.warn("Unsupported type of fetch result type: {}", result);
-                        break;
-                }
-            }
             reset();
         } finally {
             writeLock.unlock();
@@ -800,6 +785,70 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } finally {
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
+        }
+    }
+
+    private void doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+        for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
+            RefUpdate.Result result = refUpdate.getResult();
+            switch (result) {
+                case FAST_FORWARD:
+                    git.checkout().setName(refUpdate.getRemoteName()).call();
+
+                    // It's assumed that we don't have unpushed commits at this point so there must be no additional
+                    // merge
+                    // while checking last revision. Accept only fast forwards.
+                    git.merge()
+                        .include(refUpdate.getNewObjectId())
+                        .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
+                        .call();
+                    break;
+                case REJECTED_CURRENT_BRANCH:
+                    git.checkout().setName(baseBranch).call(); // On the next fetch the branch probably will be deleted
+                    break;
+                case FORCED:
+                    if (ObjectId.zeroId().equals(refUpdate.getNewObjectId())) {
+                        String remoteName = refUpdate.getRemoteName();
+
+                        if (remoteName.startsWith(Constants.R_HEADS)) {
+                            // Delete the branch
+                            String branchToDelete = Repository.shortenRefName(remoteName);
+                            String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
+                            if (branchToDelete.equals(currentBranch)) {
+                                String branchToCheckout = baseBranch;
+                                if (branchToCheckout.equals(branchToDelete)) {
+                                    branchToCheckout = Constants.MASTER;
+                                }
+                                if (getAvailableBranches().contains(branchToCheckout)) {
+                                    git.checkout().setName(branchToCheckout).call();
+                                } else {
+                                    git.checkout()
+                                        .setName(branchToCheckout)
+                                        .setCreateBranch(true)
+                                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                        .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branchToCheckout)
+                                        .call();
+                                }
+                            }
+                            git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                        }
+                    }
+                    break;
+                case NEW:
+                    if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
+                        String remoteName = refUpdate.getRemoteName();
+                        if (remoteName.startsWith(Constants.R_HEADS)) {
+                            createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                        }
+                    }
+                    break;
+                case NO_CHANGE:
+                    // Do nothing
+                    break;
+                default:
+                    log.warn("Unsupported type of fetch result type: {}", result);
+                    break;
+            }
         }
     }
 
@@ -1586,11 +1635,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
         if (git.getRepository().findRef(branch) == null) {
-            git.branchCreate()
-                .setName(branch)
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
-                .call();
+            createRemoteTrackingBranch(branch);
         }
 
         GitRepository repo = new GitRepository();
@@ -1618,7 +1663,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return repo;
     }
 
-    private TreeSet<String> getAvailableBranches() throws GitAPIException {
+    private void createRemoteTrackingBranch(String branch) throws GitAPIException {
+        git.branchCreate()
+            .setName(branch)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+            .call();
+    }
+
+    TreeSet<String> getAvailableBranches() throws GitAPIException {
         TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         List<Ref> refs = git.branchList().call();
