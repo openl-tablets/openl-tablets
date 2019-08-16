@@ -523,6 +523,27 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return copy;
     }
 
+    private void validateType(IOpenClass type) {
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            for (IOpenClass t : getTypes()) {
+                if (t instanceof CustomSpreadsheetResultOpenClass) {
+                    CustomSpreadsheetResultOpenClass csrType = (CustomSpreadsheetResultOpenClass) t;
+                    if (csrType.isBeanClassInitialized()) {
+                        throw new IllegalStateException(String.format(
+                            "This module doesn't support adding a custom spreadsheet result types. Bean classes have already been initialized in '%s' that belongs to this module.",
+                            csrType.getName()));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addType(IOpenClass type) {
+        validateType(type);
+        super.addType(type);
+    }
+
     protected void addTestSuiteMethodsFromDependencies() {
         for (CompiledDependency dependency : this.getDependencies()) {
             for (IOpenMethod depMethod : dependency.getCompiledOpenClass().getOpenClassWithErrors().getMethods()) {

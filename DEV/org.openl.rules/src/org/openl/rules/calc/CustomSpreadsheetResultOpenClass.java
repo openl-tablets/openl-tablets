@@ -202,6 +202,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     public void extendWith(IOpenClass openClass) {
+        if (beanClass != null) {
+            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
+        }
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
         customSpreadsheetResultOpenClass.extendSpreadsheetResult(getRowNames(),
             getColumnNames(),
@@ -283,6 +286,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return target;
     }
 
+    public boolean isBeanClassInitialized() {
+        return beanClass != null;
+    }
+
     public Class<?> getBeanClass() {
         if (beanClass == null) {
             synchronized (this) {
@@ -318,7 +325,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         types);
                     byte[] byteCode = beanClassBuilder.byteCode();
                     try {
-                        beanClass = ClassUtils.defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
+                        beanClass = ClassUtils
+                            .defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
                         List<SpreadsheetResultValueSetter> srValueSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
                             Point point = beanFieldsCoords.get(field.getName());
@@ -415,8 +423,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private static synchronized String getBeanClassName(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+        String name = customSpreadsheetResultOpenClass.getName()
+            .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+        String firstLetterUppercasedName = Character
+            .toUpperCase(name.charAt(0)) + (name.length() > 1 ? name.substring(1) : "");
+        if (customSpreadsheetResultOpenClass.getModule()
+            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercasedName) == null) {
+            name = firstLetterUppercasedName;
+        }
+
+        String csrPackage = "csr";
         final String beanName = CustomSpreadsheetResultOpenClass.class.getPackage()
-            .getName() + ".csr." + customSpreadsheetResultOpenClass.getName().substring("SpreadsheetResult".length());
+            .getName() + "." + csrPackage + "." + name;
         try {
             customSpreadsheetResultOpenClass.getModule().getClassGenerationClassLoader().loadClass(beanName);
             throw new IllegalStateException("This shouldn't happen.");

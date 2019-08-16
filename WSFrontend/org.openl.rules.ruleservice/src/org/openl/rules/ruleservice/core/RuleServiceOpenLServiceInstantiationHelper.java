@@ -18,8 +18,8 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
         Object t = serviceTarget;
         Object key = method;
         while (Proxy.isProxyClass(t.getClass())) {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(serviceTarget);
-            if (invocationHandler instanceof OpenLInvocationHandler) {
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(t);
+            if (invocationHandler instanceof IOpenLInvocationHandler) {
                 @SuppressWarnings("unchecked")
                 IOpenLInvocationHandler<Object, Object> openLInvocationHandler = (IOpenLInvocationHandler<Object, Object>) invocationHandler;
                 t = openLInvocationHandler.getTarget();
