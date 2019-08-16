@@ -10,26 +10,26 @@
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
     </bean>
 
-    <bean id="JAXRSserviceDescriptionConfigurationDefaultTypingModeFactoryBean" 
-        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultTypingModeFactoryBean"
+    <bean id="JAXRSserviceConfigurationDefaultTypingModeFactoryBean" 
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean"
         scope="prototype">
         <property name="defaultValue" value="SMART"/>
     </bean>
     
-    <bean id="JAXRSserviceDescriptionConfigurationDefaultDateFormatFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultDateFormatFactoryBean"
+    <bean id="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean"
           scope="prototype"/>
     
 	<bean id="JAXRSJacksonDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
 		scope="prototype">
 		<property name="defaultTypingMode"
-			ref="JAXRSserviceDescriptionConfigurationDefaultTypingModeFactoryBean" />
+			ref="JAXRSserviceConfigurationDefaultTypingModeFactoryBean" />
 		<property name="overrideTypes"
-			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
+			ref="serviceConfigurationRootClassNamesBindingFactoryBean" />
 		<property name="supportVariations"
-			ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
-        <property name="defaultDateFormat" ref="JAXRSserviceDescriptionConfigurationDefaultDateFormatFactoryBean"/>
+			ref="serviceConfigurationSupportVariationsFactoryBean" />
+        <property name="defaultDateFormat" ref="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"/>
 	</bean>
 
 	<bean id="JAXRSJacksonObjectMapper"

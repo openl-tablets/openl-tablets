@@ -16,14 +16,14 @@
         <property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}" />
     </bean>
 
-    <bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+    <bean id="serviceConfigurationRootClassNamesBindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationRootClassNamesBindingFactoryBean"
         scope="prototype" >
         <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
     </bean>
 
-    <bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionSupportVariationsFactoryBean"
+    <bean id="serviceConfigurationSupportVariationsFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceSupportVariationsFactoryBean"
         scope="prototype" >
     </bean>
 

@@ -2,13 +2,13 @@ package org.openl.rules.ruleservice.kafka.databinding;
 
 import java.io.IOException;
 
-import org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationException;
-import org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean;
+import org.openl.rules.ruleservice.databinding.ServiceConfigurationException;
+import org.openl.rules.ruleservice.databinding.ServiceConfigurationRootClassNamesBindingFactoryBean;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 
-public class KafkaDeployConfigurationRootClassNamesBindingFactoryBean extends ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean {
+public class KafkaDeployConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationRootClassNamesBindingFactoryBean {
     private Type type;
     private KafkaDeploy kafkaDeploy;
     private BaseKafkaConfig kafkaConfig;
@@ -26,7 +26,7 @@ public class KafkaDeployConfigurationRootClassNamesBindingFactoryBean extends Se
             try {
                 kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescription());
             } catch (IOException e) {
-                throw new ServiceDescriptionConfigurationException("Failed to load kafka configuration.", e);
+                throw new ServiceConfigurationException("Failed to load kafka configuration.", e);
             }
         }
         return kafkaDeploy;
@@ -36,7 +36,7 @@ public class KafkaDeployConfigurationRootClassNamesBindingFactoryBean extends Se
         if (kafkaConfig == null) {
             kafkaConfig = KafkaConfigHolder.getInstance().getKafkaConfig();
             if (kafkaConfig == null) {
-                throw new ServiceDescriptionConfigurationException("Failed to locate KafkaMethodConfig.");
+                throw new ServiceConfigurationException("Failed to locate KafkaMethodConfig.");
             }
         }
         return kafkaConfig;

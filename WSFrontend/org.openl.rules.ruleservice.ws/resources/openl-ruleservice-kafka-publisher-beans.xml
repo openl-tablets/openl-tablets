@@ -55,7 +55,7 @@
         <property name="overrideTypes"
             ref="kafkaProducerRootClassNamesBindingFactoryBean" />
         <property name="supportVariations"
-            ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+            ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat"
             ref="kafkaProducerDefaultDateFormatFactoryBean" />
     </bean>
@@ -68,7 +68,7 @@
         <property name="overrideTypes"
             ref="kafkaConsumerRootClassNamesBindingFactoryBean" />
         <property name="supportVariations"
-            ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+            ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat"
             ref="kafkaConsumerDefaultDateFormatFactoryBean" />
     </bean>

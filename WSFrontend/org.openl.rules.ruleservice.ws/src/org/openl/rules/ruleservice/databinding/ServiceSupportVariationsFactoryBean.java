@@ -6,7 +6,7 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-public class ServiceDescriptionSupportVariationsFactoryBean extends AbstractFactoryBean<Boolean> {
+public class ServiceSupportVariationsFactoryBean extends AbstractFactoryBean<Boolean> {
 
     @Override
     public Class<?> getObjectType() {

@@ -6,15 +6,15 @@
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 
 	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
-	<bean id="serviceDescriptionConfigurationReadXsiTypesFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+	<bean id="serviceConfigurationReadXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean"
 		scope="prototype" >
 		<property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
 		<property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
 	</bean>
 
-	<bean id="serviceDescriptionConfigurationWriteXsiTypesFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+	<bean id="serviceConfigurationWriteXsiTypesFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean"
 		scope="prototype">
 		<property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
 		<property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
@@ -23,10 +23,10 @@
 	<bean id="aegisDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
 		scope="prototype">
-		<property name="readXsiTypes" ref="serviceDescriptionConfigurationReadXsiTypesFactoryBean" />
-		<property name="writeXsiTypes" ref="serviceDescriptionConfigurationWriteXsiTypesFactoryBean" />
-		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
-		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+		<property name="readXsiTypes" ref="serviceConfigurationReadXsiTypesFactoryBean" />
+		<property name="writeXsiTypes" ref="serviceConfigurationWriteXsiTypesFactoryBean" />
+		<property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
+		<property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
 	</bean>
 	
 	<bean id="webServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">

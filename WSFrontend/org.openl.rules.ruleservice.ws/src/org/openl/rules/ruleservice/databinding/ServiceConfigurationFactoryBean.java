@@ -1,12 +1,12 @@
 package org.openl.rules.ruleservice.databinding;
 
-import java.util.Objects;
-
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-public abstract class ServiceDescriptionConfigurationFactoryBean<T> extends AbstractFactoryBean<T> {
+public abstract class ServiceConfigurationFactoryBean<T> extends AbstractFactoryBean<T> {
     private T defaultValue;
 
     @Override
@@ -23,13 +23,26 @@ public abstract class ServiceDescriptionConfigurationFactoryBean<T> extends Abst
     }
 
     private ServiceDescription serviceDescription;
+    private OpenLService openLService;
 
-    public final ServiceDescription getServiceDescription() throws Exception {
+    public final ServiceDescription getServiceDescription() throws ServiceConfigurationException {
         if (serviceDescription == null) {
             serviceDescription = ServiceDescriptionHolder.getInstance().get();
-            Objects.requireNonNull(serviceDescription, "Failed to locate a service description.");
+            if (serviceDescription == null) {
+                throw new ServiceConfigurationException("Failed to locate a service description.");
+            }
         }
         return serviceDescription;
+    }
+
+    public final OpenLService getOpenLService() throws ServiceConfigurationException {
+        if (openLService == null) {
+            openLService = OpenLServiceHolder.getInstance().get();
+            if (openLService == null) {
+                throw new ServiceConfigurationException("Failed to locate a service.");
+            }
+        }
+        return openLService;
     }
 
     protected Object getValue(String property) throws Exception {

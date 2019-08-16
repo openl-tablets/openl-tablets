@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.publish;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -10,12 +12,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.OpenLServiceHolder;
+import org.openl.rules.ruleservice.core.OpenLServiceInitializer;
 import org.openl.rules.ruleservice.core.Resource;
 import org.openl.rules.ruleservice.core.ResourceLoader;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.OpenLService.OpenLServiceBuilder;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.types.java.JavaOpenClass;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -35,7 +43,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
     }
 
     @Test
-    public void testServerPrototypes() {
+    public void testServerPrototypes() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
@@ -55,11 +63,23 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                     .setModules(new ArrayList<>())
                     .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl(1)))
                     .build());
+
+            OpenLServiceBuilder openLServiceBuilder = new OpenLService.OpenLServiceBuilder();
+            openLServiceBuilder.setName("mock");
+            OpenLService openLService = openLServiceBuilder.build(new OpenLServiceInitializer() {
+                @Override
+                public void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException {
+                }
+            });
+
+            OpenLServiceHolder.getInstance().setOpenLService(openLService);
+
             ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
             ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
             assertTrue(firstServer != secondServer);
         } finally {
             ServiceDescriptionHolder.getInstance().remove();
+            OpenLServiceHolder.getInstance().remove();
         }
     }
 

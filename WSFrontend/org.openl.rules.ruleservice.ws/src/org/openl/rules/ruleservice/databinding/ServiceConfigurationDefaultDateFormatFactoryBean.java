@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.databinding;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class ServiceDescriptionConfigurationDefaultDateFormatFactoryBean extends ServiceDescriptionConfigurationFactoryBean<DateFormat> {
+public class ServiceConfigurationDefaultDateFormatFactoryBean extends ServiceConfigurationFactoryBean<DateFormat> {
     private static final String DEFAULT_DATE_FORMAT = "jacksondatabinding.defaultDateFormat";
 
     @Override
@@ -15,7 +15,7 @@ public class ServiceDescriptionConfigurationDefaultDateFormatFactoryBean extends
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(v.trim());
                 return simpleDateFormat;
             } catch (Exception e) {
-                throw new ServiceDescriptionConfigurationException(
+                throw new ServiceConfigurationException(
                     String.format("Invalid date format is used for '%s' in the configuration for service '%s'.",
                         DEFAULT_DATE_FORMAT,
                         getServiceDescription().getName()),
@@ -23,7 +23,7 @@ public class ServiceDescriptionConfigurationDefaultDateFormatFactoryBean extends
             }
         } else {
             if (value != null) {
-                throw new ServiceDescriptionConfigurationException(
+                throw new ServiceConfigurationException(
                     String.format("Expected string value for '%s' in the configuration for service '%s'.",
                         DEFAULT_DATE_FORMAT,
                         getServiceDescription().getName()));

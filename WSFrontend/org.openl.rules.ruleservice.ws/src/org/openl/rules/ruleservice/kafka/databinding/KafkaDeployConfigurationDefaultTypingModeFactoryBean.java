@@ -2,13 +2,13 @@ package org.openl.rules.ruleservice.kafka.databinding;
 
 import java.io.IOException;
 
-import org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultTypingModeFactoryBean;
-import org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationException;
+import org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean;
+import org.openl.rules.ruleservice.databinding.ServiceConfigurationException;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 
-public class KafkaDeployConfigurationDefaultTypingModeFactoryBean extends ServiceDescriptionConfigurationDefaultTypingModeFactoryBean {
+public class KafkaDeployConfigurationDefaultTypingModeFactoryBean extends ServiceConfigurationDefaultTypingModeFactoryBean {
 
     private Type type;
     private KafkaDeploy kafkaDeploy;
@@ -27,7 +27,7 @@ public class KafkaDeployConfigurationDefaultTypingModeFactoryBean extends Servic
             try {
                 kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescription());
             } catch (IOException e) {
-                throw new ServiceDescriptionConfigurationException("Failed to load kafka configuration.", e);
+                throw new ServiceConfigurationException("Failed to load kafka configuration.", e);
             }
         }
         return kafkaDeploy;
@@ -37,7 +37,7 @@ public class KafkaDeployConfigurationDefaultTypingModeFactoryBean extends Servic
         if (kafkaConfig == null) {
             kafkaConfig = KafkaConfigHolder.getInstance().getKafkaConfig();
             if (kafkaConfig == null) {
-                throw new ServiceDescriptionConfigurationException("Failed to locate kafka сonfig.");
+                throw new ServiceConfigurationException("Failed to locate kafka сonfig.");
             }
         }
         return kafkaConfig;

@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.databinding;
 
 import org.springframework.util.Assert;
 
-public class ServiceDescriptionConfigurationStringFactoryBean extends ServiceDescriptionConfigurationFactoryBean<String> {
+public class ServiceConfigurationStringFactoryBean extends ServiceConfigurationFactoryBean<String> {
 
     private String propertyName;
 
@@ -25,7 +25,7 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends ServiceDes
             return (String) value;
         } else {
             if (value != null) {
-                throw new ServiceDescriptionConfigurationException(
+                throw new ServiceConfigurationException(
                     String.format("Expected string for '%s' in the configuration for service '%s'.",
                         getPropertyName(),
                         getServiceDescription().getName()));

@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.databinding;
 
 import org.openl.rules.serialization.DefaultTypingMode;
 
-public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends ServiceDescriptionConfigurationFactoryBean<DefaultTypingMode> {
+public class ServiceConfigurationDefaultTypingModeFactoryBean extends ServiceConfigurationFactoryBean<DefaultTypingMode> {
 
     public static final String ENABLE_DEFAULT_TYPING = "jacksondatabinding.enableDefaultTyping";
     public static final String DEFAULT_TYPING_TYPE = "jacksondatabinding.defaultTypingMode";
@@ -21,7 +21,7 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
             if (DefaultTypingMode.DISABLE.name().equalsIgnoreCase(v.trim())) {
                 return DefaultTypingMode.DISABLE;
             }
-            throw new ServiceDescriptionConfigurationException(
+            throw new ServiceConfigurationException(
                 String.format("Expected SMART/ENABLE/DISABLE value for '%s' in the configuration for service '%s'.",
                     DEFAULT_TYPING_TYPE,
                     getServiceDescription().getName()));
@@ -30,7 +30,7 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
             return (DefaultTypingMode) value;
         }
         if (value != null) {
-            throw new ServiceDescriptionConfigurationException(
+            throw new ServiceConfigurationException(
                 String.format("Expected SMART/ENABLE/DISABLE value for '%s' in the configuration for service '%s'.",
                     DEFAULT_TYPING_TYPE,
                     getServiceDescription().getName()));
@@ -45,7 +45,7 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
             }
         }
         if (value != null) {
-            throw new ServiceDescriptionConfigurationException(
+            throw new ServiceConfigurationException(
                 String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
                     ENABLE_DEFAULT_TYPING,
                     getServiceDescription().getName()));

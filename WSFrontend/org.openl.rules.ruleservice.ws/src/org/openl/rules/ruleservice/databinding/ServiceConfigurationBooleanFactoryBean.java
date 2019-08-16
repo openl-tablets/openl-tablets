@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.databinding;
 
 import org.springframework.util.Assert;
 
-public class ServiceDescriptionConfigurationBooleanFactoryBean extends ServiceDescriptionConfigurationFactoryBean<Boolean> {
+public class ServiceConfigurationBooleanFactoryBean extends ServiceConfigurationFactoryBean<Boolean> {
 
     private String propertyName;
 
@@ -36,13 +36,13 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends ServiceDe
             if ("false".equalsIgnoreCase(((String) value).trim())) {
                 return Boolean.FALSE;
             }
-            throw new ServiceDescriptionConfigurationException(
+            throw new ServiceConfigurationException(
                 String.format("Expected true/false value for '%s' in the configuration for service '%s'!",
                     getPropertyName().trim(),
                     getServiceDescription().getName()));
         } else {
             if (value != null) {
-                throw new ServiceDescriptionConfigurationException(
+                throw new ServiceConfigurationException(
                     String.format("Expected true/false value for '%s' in the configuration for service '%s'!",
                         getPropertyName().trim(),
                         getServiceDescription().getName()));
