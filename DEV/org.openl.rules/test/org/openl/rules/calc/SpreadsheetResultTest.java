@@ -14,4 +14,10 @@ public class SpreadsheetResultTest {
         String text = sr.toString();
         Assert.assertEquals("-X- | A      | B         \nC   | 1      | Text      \nD   | [2, 4] | [3.3, 4.7]\n", text);
     }
+
+    @Test
+    public void testComparable() {
+        // toPlain in SPR doesn't work with SortedSets
+        Assert.assertFalse(Comparable.class.isAssignableFrom(SpreadsheetResult.class));
+    }
 }

@@ -121,7 +121,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             Class<? extends ServiceMethodAroundAdvice<?>> interceptorClass = ((ServiceCallAroundInterceptor) annotation)
                 .value();
             try {
-                ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.getConstructor().newInstance();
+                ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.newInstance();
                 processAwareInterfaces(aroundInterceptor, method);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
@@ -143,7 +143,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
 
                 try {
-                    ServiceMethodBeforeAdvice preInterceptor = interceptorClass.getConstructor().newInstance();
+                    ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
                     processAwareInterfaces(preInterceptor, method);
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
@@ -169,8 +169,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation)
                 .value();
             try {
-                ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.getConstructor()
-                    .newInstance();
+                ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.newInstance();
                 processAwareInterfaces(serviceExtraMethodHandler, method);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
@@ -191,7 +190,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 e -> new ArrayList<>());
             for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
                 try {
-                    ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.getConstructor().newInstance();
+                    ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.newInstance();
                     processAwareInterfaces(postInterceptor, method);
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {

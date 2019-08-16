@@ -2,8 +2,10 @@ package org.openl.rules.calc;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -303,7 +305,7 @@ public class SpreadsheetResult implements Serializable {
         if (getCustomSpreadsheetResultOpenClass() != null) {
             return toPlain(getCustomSpreadsheetResultOpenClass().getModule());
         } else {
-            return toMap();
+            return toMap(null);
         }
     }
 
@@ -318,11 +320,11 @@ public class SpreadsheetResult implements Serializable {
                         getCustomSpreadsheetResultOpenClass().getName()));
             }
         } else {
-            return toMap();
+            return toMap(module);
         }
     }
 
-    private Map<String, Object> toMap() throws InstantiationException, IllegalAccessException {
+    private Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
@@ -332,15 +334,15 @@ public class SpreadsheetResult implements Serializable {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         if (nonNullsColumnsCount == 1 || nonNullsRowsCount == 1) {
                             if (nonNullsRowsCount == 1) {
-                                values.put(columnNames[j], ifSpreadsheerResultThenConvert(getValue(i, j)));
+                                values.put(columnNames[j], ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                             }
                             if (nonNullsColumnsCount == 1) {
-                                values.put(rowNames[i], ifSpreadsheerResultThenConvert(getValue(i, j)));
+                                values.put(rowNames[i], ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                             }
                         } else {
                             StringBuilder sb = new StringBuilder();
                             sb.append(columnNames[j]).append("_").append(rowNames[i]);
-                            values.put(sb.toString(), ifSpreadsheerResultThenConvert(getValue(i, j)));
+                            values.put(sb.toString(), ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         }
                     }
                 }
@@ -349,9 +351,39 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    private Object ifSpreadsheerResultThenConvert(Object v) throws InstantiationException, IllegalAccessException {
+    private Object ifSpreadsheerResultThenConvert(XlsModuleOpenClass module, Object v) throws InstantiationException,
+                                                                                       IllegalAccessException {
+        if (v instanceof Collection) {
+            @SuppressWarnings("unchecked")
+            Collection<Object> collection = (Collection<Object>) v;
+            for (Object o : collection) {
+                if (o instanceof SpreadsheetResult) {
+                    @SuppressWarnings("unchecked")
+                    Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
+                    for (Object o1 : collection) {
+                        newCollection.add(ifSpreadsheerResultThenConvert(module, o1));
+                    }
+                    return newCollection;
+                }
+            }
+        }
+        if (v instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> map = (Map<Object, Object>) v;
+            for (Entry<Object, Object> e : map.entrySet()) {
+                if (e.getKey() instanceof SpreadsheetResult || e.getValue() instanceof SpreadsheetResult) {
+                    @SuppressWarnings("unchecked")
+                    Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
+                    for (Entry<Object, Object> e1 : map.entrySet()) {
+                        newMap.put(ifSpreadsheerResultThenConvert(module, e1.getKey()),
+                            ifSpreadsheerResultThenConvert(module, e1.getValue()));
+                    }
+                    return newMap;
+                }
+            }
+        }
         if (v instanceof SpreadsheetResult) {
-            return ((SpreadsheetResult) v).toPlain();
+            return ((SpreadsheetResult) v).toPlain(module);
         }
         return v;
     }
