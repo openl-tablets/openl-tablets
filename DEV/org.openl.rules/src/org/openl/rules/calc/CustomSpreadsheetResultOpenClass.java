@@ -117,6 +117,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         List<String> nColumnTitles = new ArrayList<>(Arrays.asList(this.columnTitles));
 
         boolean fieldCoordinatesRequresUpdate = false;
+        boolean rowColumnsWithStartRequiresUpdate = false;
 
         for (int i = 0; i < rowNames.length; i++) {
             if (!existedRowNamesSet.contains(rowNames[i])) {
@@ -124,9 +125,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 nRowNamesMarkedWithStar.add(rowNamesMarkedWithStar[i]);
                 nRowTitles.add(rowTitles[i]);
                 fieldCoordinatesRequresUpdate = true;
+                rowColumnsWithStartRequiresUpdate = true;
             } else if (rowNamesMarkedWithStar[i] != null) {
                 int k = nRowNames.indexOf(rowNames[i]);
                 nRowNamesMarkedWithStar.set(k, rowNamesMarkedWithStar[i]);
+                rowColumnsWithStartRequiresUpdate = true;
             }
         }
 
@@ -136,9 +139,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 nColumnNamesMarkedWithStar.add(columnNamesMarkedWithStar[i]);
                 nColumnTitles.add(columnTitles[i]);
                 fieldCoordinatesRequresUpdate = true;
+                rowColumnsWithStartRequiresUpdate = true;
             } else if (columnNamesMarkedWithStar[i] != null) {
                 int k = nColumnNames.indexOf(columnNames[i]);
                 nColumnNamesMarkedWithStar.set(k, columnNamesMarkedWithStar[i]);
+                rowColumnsWithStartRequiresUpdate = true;
             }
         }
 
@@ -177,12 +182,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 }
             }
             this.rowNames = nRowNames.toArray(new String[] {});
-            this.rowNamesMarkedWithStar = nRowNamesMarkedWithStar.toArray(new String[] {});
             this.rowTitles = nRowTitles.toArray(new String[] {});
 
             this.columnNames = nColumnNames.toArray(new String[] {});
-            this.columnNamesMarkedWithStar = nColumnNamesMarkedWithStar.toArray(new String[] {});
             this.columnTitles = nColumnTitles.toArray(new String[] {});
+
             for (IOpenField field : fields) {
                 if (newFieldNames.contains(field.getName())) {
                     addField(field);
@@ -191,6 +195,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
             this.fieldsCoordinates = Collections
                 .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
+        }
+
+        if (rowColumnsWithStartRequiresUpdate) {
+            this.rowNamesMarkedWithStar = nRowNamesMarkedWithStar.toArray(new String[] {});
+            this.columnNamesMarkedWithStar = nColumnNamesMarkedWithStar.toArray(new String[] {});
         }
 
         for (IOpenField field : fields) {
