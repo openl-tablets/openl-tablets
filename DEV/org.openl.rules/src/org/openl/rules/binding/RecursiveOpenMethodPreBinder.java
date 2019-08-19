@@ -7,10 +7,10 @@ public interface RecursiveOpenMethodPreBinder extends IOpenMethod {
 
     OpenMethodHeader getHeader();
 
-    void addRecursiveOpenMethodPreBinderMethod(RecursiveOpenMethodPreBinder method);
-
     void preBind();
 
     boolean isPreBinding();
+    
+    boolean isCompleted();
 
 }

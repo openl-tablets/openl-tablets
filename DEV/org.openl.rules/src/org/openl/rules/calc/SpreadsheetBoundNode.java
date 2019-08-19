@@ -1,11 +1,14 @@
 package org.openl.rules.calc;
 
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.meta.TableMetaInfo;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -18,6 +21,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -44,6 +48,36 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     @Override
     public XlsModuleOpenClass getModule() {
         return (XlsModuleOpenClass) super.getModule();
+    }
+
+    private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
+        if (spreadsheet.isCustomSpreadsheetType()) {
+            Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
+            spreadsheetOpenClassFields.remove("this");
+            String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
+
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                typeName,
+                spreadsheet.getRowNames(),
+                spreadsheet.getColumnNames(),
+                spreadsheet.getRowNamesMarkedWithStar(),
+                spreadsheet.getColumnNamesMarkedWithStar(),
+                spreadsheet.getRowTitles(),
+                spreadsheet.getColumnTitles(),
+                getModule());
+
+            customSpreadsheetResultOpenClass
+                .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
+            for (IOpenField field : spreadsheetOpenClassFields.values()) {
+                CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
+                    customSpreadsheetResultOpenClass,
+                    field.getName(),
+                    field.getType());
+                customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
+            }
+            return customSpreadsheetResultOpenClass;
+        }
+        return null;
     }
 
     @Override
@@ -78,17 +112,21 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
         if (spreadsheet.isCustomSpreadsheetType()) {
-
             IOpenClass type = null;
             try {
-                type = spreadsheet.getType(); // Can throw RuntimeException
+                type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
                 bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
+                IOpenClass bindingContextType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                    type.getName());
+                spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = String.format("Can't define type %s",
-                    type != null ? type.getName() : spreadsheet.getName());
+                String message = String.format("Can't define type %s", spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);
                 bindingContext.addError(exception);
+                spreadsheet.setCustomSpreadsheetResultType(
+                    (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                        Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName()));
             }
         }
 

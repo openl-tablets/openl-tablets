@@ -16,21 +16,21 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
     private static CustomSpreadsheetResultOpenClass merge(CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
-        Set<String> rowNames = new HashSet<>();
+        Set<String> rowNames = new LinkedHashSet<>();
         rowNames.addAll(Arrays.stream(type1.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
         rowNames.addAll(Arrays.stream(type2.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> columnNames = new HashSet<>();
+        Set<String> columnNames = new LinkedHashSet<>();
         columnNames.addAll(Arrays.stream(type1.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
         columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> rowNamesMarkedWithStar = new HashSet<>();
+        Set<String> rowNamesMarkedWithStar = new LinkedHashSet<>();
         rowNamesMarkedWithStar
             .addAll(Arrays.stream(type1.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
         rowNamesMarkedWithStar
             .addAll(Arrays.stream(type2.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> columnNamesMarkedWithStar = new HashSet<>();
+        Set<String> columnNamesMarkedWithStar = new LinkedHashSet<>();
         columnNamesMarkedWithStar
             .addAll(Arrays.stream(type1.getColumnNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
         columnNamesMarkedWithStar

@@ -160,8 +160,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     protected IOpenClass processDependencyTypeBeforeAdding(IOpenClass type) {
         if (type instanceof CustomSpreadsheetResultOpenClass) {
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-            return customSpreadsheetResultOpenClass.makeCopyForModule(this);
+            IOpenClass existingType = findType(type.getName());
+            if (existingType instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass existingCustomSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) existingType;
+                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type);
+                return existingCustomSpreadsheetResultOpenClass;
+            } else {
+                return ((CustomSpreadsheetResultOpenClass) type).makeCopyForModule(this);
+            }
         }
         return super.processDependencyTypeBeforeAdding(type);
     }

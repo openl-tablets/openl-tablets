@@ -4,13 +4,30 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.*;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedTypeFactory;
+import org.openl.binding.INameSpacedVarFactory;
+import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
@@ -837,9 +854,9 @@ public class XlsBinder implements IOpenBinder {
         IMemberBoundNode[] childrens;
         int index;
         OpenMethodHeader openMethodHeader;
-        boolean preBindeding = false;
-        List<RecursiveOpenMethodPreBinder> recursiveOpenMethodPreBinderMethods = null;
+        boolean preBinding = false;
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
+        boolean completed = false;
 
         public XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                 OpenL openl,
@@ -857,14 +874,6 @@ public class XlsBinder implements IOpenBinder {
             this.index = index;
             this.openMethodHeader = openMethodHeader;
             this.syntaxNodeExceptionHolder = syntaxNodeExceptionHolder;
-        }
-
-        @Override
-        public void addRecursiveOpenMethodPreBinderMethod(RecursiveOpenMethodPreBinder method) {
-            if (recursiveOpenMethodPreBinderMethods == null) {
-                recursiveOpenMethodPreBinderMethods = new ArrayList<>();
-            }
-            recursiveOpenMethodPreBinderMethods.add(method);
         }
 
         @Override
@@ -925,39 +934,42 @@ public class XlsBinder implements IOpenBinder {
         @Override
         public void preBind() {
             try {
-                preBindeding = true;
-                try {
-                    moduleContext.pushErrors();
-                    IMemberBoundNode memberBoundNode = XlsBinder.this
-                        .beginBind(tableSyntaxNode, module, openl, moduleContext);
-                    childrens[index] = memberBoundNode;
-                    if (memberBoundNode != null) {
-                        try {
-                            memberBoundNode.addTo(module);
-                        } catch (Exception | LinkageError e) {
-                            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
-                            processError(error, tableSyntaxNode, moduleContext);
+                if (!completed) {
+                    preBinding = true;
+                    try {
+                        moduleContext.pushErrors();
+                        IMemberBoundNode memberBoundNode = XlsBinder.this
+                            .beginBind(tableSyntaxNode, module, openl, moduleContext);
+                        childrens[index] = memberBoundNode;
+                        if (memberBoundNode != null) {
+                            try {
+                                memberBoundNode.addTo(module);
+                            } catch (Exception | LinkageError e) {
+                                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
+                                processError(error, tableSyntaxNode, moduleContext);
+                            }
                         }
-                    }
-                } finally {
-                    List<SyntaxNodeException> syntaxNodeExceptions = moduleContext.popErrors();
-                    for (SyntaxNodeException e : syntaxNodeExceptions) {
-                        syntaxNodeExceptionHolder.addModuleContextError(e);
-                    }
-                }
-                if (recursiveOpenMethodPreBinderMethods != null) {
-                    for (RecursiveOpenMethodPreBinder recursiveOpenMethodPreBinderMethod : recursiveOpenMethodPreBinderMethods) {
-                        recursiveOpenMethodPreBinderMethod.preBind();
+                    } finally {
+                        List<SyntaxNodeException> syntaxNodeExceptions = moduleContext.popErrors();
+                        for (SyntaxNodeException e : syntaxNodeExceptions) {
+                            syntaxNodeExceptionHolder.addModuleContextError(e);
+                        }
                     }
                 }
             } finally {
-                preBindeding = false;
+                preBinding = false;
+                completed = true;
             }
         }
 
         @Override
         public boolean isPreBinding() {
-            return preBindeding;
+            return preBinding;
+        }
+        
+        @Override
+        public boolean isCompleted() {
+            return completed;
         }
     }
 

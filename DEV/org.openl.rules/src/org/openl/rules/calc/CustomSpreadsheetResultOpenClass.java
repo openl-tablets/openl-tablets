@@ -60,8 +60,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.columnNames = columnNames.clone();
         this.rowNamesMarkedWithStar = rowNamesMarkedWithStar.clone();
         this.columnNamesMarkedWithStar = columnNamesMarkedWithStar.clone();
-        this.columnTitles = columnTitles.clone();
         this.rowTitles = rowTitles.clone();
+        this.columnTitles = columnTitles.clone();
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
     }
@@ -96,6 +96,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     public void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
+            String[] rowNamesMarkedWithStar,
+            String[] columnNamesMarkedWithStar,
             String[] rowTitles,
             String[] columnTitles,
             Collection<IOpenField> fields) {
@@ -105,8 +107,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         List<String> nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
+        List<String> nRowNamesMarkedWithStar = new ArrayList<>(Arrays.asList(this.rowNamesMarkedWithStar));
         Set<String> existedRowNamesSet = new HashSet<>(Arrays.asList(this.rowNames));
         List<String> nColumnNames = new ArrayList<>(Arrays.asList(this.columnNames));
+        List<String> nColumnNamesMarkedWithStar = new ArrayList<>(Arrays.asList(this.columnNamesMarkedWithStar));
         Set<String> existedColumnNamesSet = new HashSet<>(Arrays.asList(this.columnNames));
 
         List<String> nRowTitles = new ArrayList<>(Arrays.asList(this.rowTitles));
@@ -117,16 +121,24 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         for (int i = 0; i < rowNames.length; i++) {
             if (!existedRowNamesSet.contains(rowNames[i])) {
                 nRowNames.add(rowNames[i]);
+                nRowNamesMarkedWithStar.add(rowNamesMarkedWithStar[i]);
                 nRowTitles.add(rowTitles[i]);
                 fieldCoordinatesRequresUpdate = true;
+            } else if (rowNamesMarkedWithStar[i] != null) {
+                int k = nRowNames.indexOf(rowNames[i]);
+                nRowNamesMarkedWithStar.set(k, rowNamesMarkedWithStar[i]);
             }
         }
 
         for (int i = 0; i < columnNames.length; i++) {
             if (!existedColumnNamesSet.contains(columnNames[i])) {
                 nColumnNames.add(columnNames[i]);
+                nColumnNamesMarkedWithStar.add(columnNamesMarkedWithStar[i]);
                 nColumnTitles.add(columnTitles[i]);
                 fieldCoordinatesRequresUpdate = true;
+            } else if (columnNamesMarkedWithStar[i] != null) {
+                int k = nColumnNames.indexOf(columnNames[i]);
+                nColumnNamesMarkedWithStar.set(k, columnNamesMarkedWithStar[i]);
             }
         }
 
@@ -165,8 +177,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 }
             }
             this.rowNames = nRowNames.toArray(new String[] {});
-            this.columnNames = nColumnNames.toArray(new String[] {});
+            this.rowNamesMarkedWithStar = nRowNamesMarkedWithStar.toArray(new String[] {});
             this.rowTitles = nRowTitles.toArray(new String[] {});
+
+            this.columnNames = nColumnNames.toArray(new String[] {});
+            this.columnNamesMarkedWithStar = nColumnNamesMarkedWithStar.toArray(new String[] {});
             this.columnTitles = nColumnTitles.toArray(new String[] {});
             for (IOpenField field : fields) {
                 if (newFieldNames.contains(field.getName())) {
@@ -201,17 +216,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnTitles;
     }
 
-    public void extendWith(IOpenClass openClass) {
+    public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (beanClass != null) {
             throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
         }
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
-        customSpreadsheetResultOpenClass.extendSpreadsheetResult(getRowNames(),
-            getColumnNames(),
-            getRowTitles(),
-            getColumnTitles(),
-            getFields().values());
-        validate(customSpreadsheetResultOpenClass, getFields().values());
+        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.getRowNames(),
+            customSpreadsheetResultOpenClass.getColumnNames(),
+            customSpreadsheetResultOpenClass.getRowNamesMarkedWithStar(),
+            customSpreadsheetResultOpenClass.getColumnNamesMarkedWithStar(),
+            customSpreadsheetResultOpenClass.getRowTitles(),
+            customSpreadsheetResultOpenClass.getColumnTitles(),
+            customSpreadsheetResultOpenClass.getFields().values());
+        validate(this, customSpreadsheetResultOpenClass.getFields().values());
     }
 
     private void validate(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,

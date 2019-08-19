@@ -2,6 +2,7 @@ package org.openl.rules.calc.result;
 
 import java.util.Map;
 
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
@@ -30,8 +31,8 @@ public class DefaultResultBuilder implements IResultBuilder {
             columnNames,
             fieldsCoordinates);
 
-        if (spreadsheet.getCustomSpreadsheetResultType() != null) {
-            spreadsheetBean.setCustomSpreadsheetResultOpenClass(spreadsheet.getCustomSpreadsheetResultType());
+        if (spreadsheet.isCustomSpreadsheetType()) {
+            spreadsheetBean.setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());
         }
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();

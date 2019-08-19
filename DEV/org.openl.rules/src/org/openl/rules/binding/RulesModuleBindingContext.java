@@ -1,6 +1,7 @@
 package org.openl.rules.binding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public TableSyntaxNode getTableSyntaxNode(String key) {
-        return bindedTables.get(key);
+        return this.bindedTables.get(key);
     }
 
     @Override
@@ -151,7 +152,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 getModule().addType(copyOfCustomType);
                 super.add(namespace, typeName, copyOfCustomType);
             } else {
-                customSpreadsheetResultOpenClass.extendWith(openClass);
+                CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
+                csroc.extendWith((CustomSpreadsheetResultOpenClass) type);
             }
         } else {
             super.add(namespace, typeName, type);
@@ -164,19 +166,21 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
             String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-            IOpenMethod method = preBinderMethods.get(sprMethodName);
-            if (method != null) {
+            Collection<IOpenMethod> methods = preBinderMethods.get(sprMethodName);
+            for (IOpenMethod method : methods) {
                 RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-                if (openMethodBinder.isPreBinding()) {
-                    IOpenClass type = super.findType(namespace, typeName);
-                    if (type != null) {
-                        return type;
-                    } else {
-                        throw new RecursiveMethodPreBindingException();
-                    }
+                if (openMethodBinder.isCompleted()) {
+                    preBinderMethods.remove(openMethodBinder.getHeader());
+                } else if (!openMethodBinder.isPreBinding()) {
+                    openMethodBinder.preBind();
+                    preBinderMethods.remove(openMethodBinder.getHeader());
                 }
-                openMethodBinder.preBind();
-                preBinderMethods.remove(openMethodBinder.getHeader());
+            }
+            IOpenClass type = super.findType(namespace, typeName);
+            if (type != null) {
+                return type;
+            } else {
+                throw new RecursiveMethodPreBindingException();
             }
         }
         return super.findType(namespace, typeName);

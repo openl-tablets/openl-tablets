@@ -1,18 +1,25 @@
 package org.openl.rules.binding;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 class PreBinderMethods {
     private Map<IOpenMethodHeader, IOpenMethod> binderMethods = new HashMap<>();
-    private Map<String, IOpenMethod> binderMethodsByName = new HashMap<>();
 
-    public IOpenMethod get(String name) {
-        return binderMethodsByName.get(name);
+    public Collection<IOpenMethod> get(String methodName) {
+        Collection<IOpenMethod> ret = new ArrayList<>();
+        for (IOpenMethod method : binderMethods.values()) {
+            if (Objects.equals(method.getName(), methodName)) {
+                ret.add(method);
+            }
+        }
+        return ret;
     }
 
     public IOpenMethod get(IOpenMethodHeader header) {
@@ -20,19 +27,11 @@ class PreBinderMethods {
     }
 
     public void put(IOpenMethodHeader header, RecursiveOpenMethodPreBinder method) {
-        if (binderMethods.containsKey(header)) {
-            IOpenMethod m = binderMethods.get(header);
-            RecursiveOpenMethodPreBinder recursiveOpenMethodPreBinder = (RecursiveOpenMethodPreBinder) m;
-            recursiveOpenMethodPreBinder.addRecursiveOpenMethodPreBinderMethod(method);
-        } else {
-            binderMethods.put(header, method);
-            binderMethodsByName.put(header.getName(), method);
-        }
+        binderMethods.put(header, method);
     }
 
     public void remove(IOpenMethodHeader header) {
         binderMethods.remove(header);
-        binderMethodsByName.remove(header.getName());
     }
 
     public Collection<IOpenMethod> values() {
