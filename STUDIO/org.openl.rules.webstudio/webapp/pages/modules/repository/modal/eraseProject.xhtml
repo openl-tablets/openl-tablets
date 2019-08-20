@@ -16,20 +16,28 @@
 
     <h:form id="eraseProjectForm">
       <h:panelGroup id="eraseProjectData">
-        <h:outputText value="Are you sure you want to erase the project?" />
+        <ui:param name="deleteBranch" value="#{repositoryTreeController.isDeleteBranch(repositoryTreeState.selectedProject)}"/>
 
-        <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
-        <ui:param name="useCustomComment"
-                  value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}"/>
-        <h:panelGroup rendered="#{useCustomComment}">
-          <p>
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-              <h:outputText value="Comment:"/>
-              <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
-                               size="35"
-                               readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
-            </h:panelGrid>
-          </p>
+        <h:panelGroup rendered="#{deleteBranch}">
+          <h:outputText value="Are you sure you want to delete the branch '#{repositoryTreeState.selectedProject.branch}'?" />
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{not deleteBranch}">
+          <h:outputText value="Are you sure you want to erase the project?" />
+
+          <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+          <ui:param name="useCustomComment"
+                    value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}"/>
+          <h:panelGroup rendered="#{useCustomComment}">
+            <p>
+              <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                <h:outputText value="Comment:"/>
+                <h:inputTextarea id="comment" value="#{repositoryTreeController.eraseProjectComment}" type="text"
+                                 size="35"
+                                 readonly="false" title="#{repositoryTreeController.eraseProjectComment}"/>
+              </h:panelGrid>
+            </p>
+          </h:panelGroup>
         </h:panelGroup>
       </h:panelGroup>
 
