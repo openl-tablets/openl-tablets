@@ -41,6 +41,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private volatile Class<?> beanClass;
     private volatile SpreadsheetResultValueSetter[] spreadsheetResultValueSetters;
     private Set<String> beanFields = new HashSet<>();
+    private long columnsWithStarCount;
+    private long rowsWithStarCount;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -62,6 +64,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.columnNames = columnNames.clone();
         this.rowNamesMarkedWithStar = rowNamesMarkedWithStar.clone();
         this.columnNamesMarkedWithStar = columnNamesMarkedWithStar.clone();
+
+        calculateColumnsRowsWithStarCount();
+
         this.rowTitles = rowTitles.clone();
         this.columnTitles = columnTitles.clone();
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
@@ -89,16 +94,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         for (int i = 0; i < columnNamesMarkedWithStar.length; i++) {
             for (int j = 0; j < rowNamesMarkedWithStar.length; j++) {
                 if (columnNamesMarkedWithStar[i] != null && rowNamesMarkedWithStar[j] != null) {
-                    if (columnNamesMarkedWithStar.length == 1) {
+                    boolean found = false;
+                    if (columnsWithStarCount == 1) {
                         String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNamesMarkedWithStar[j];
                         if (Objects.equals(field.getName(), fieldName)) {
                             beanFields.add(field.getName());
+                            found = true;
                         }
                     }
-                    if (rowNamesMarkedWithStar.length == 1) {
+                    if (rowsWithStarCount == 1) {
                         String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNamesMarkedWithStar[i];
                         if (Objects.equals(field.getName(), fieldName)) {
                             beanFields.add(field.getName());
+                            found = true;
                         }
                     }
                     StringBuilder sb = new StringBuilder();
@@ -108,6 +116,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     sb.append(rowNamesMarkedWithStar[j]);
                     if (Objects.equals(field.getName(), sb.toString())) {
                         beanFields.add(field.getName());
+                        found = true;
+                    }
+                    if (found) {
+                        return;
                     }
                 }
             }
@@ -199,6 +211,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         if (rowColumnsWithStartRequiresUpdate) {
             this.rowNamesMarkedWithStar = nRowNamesMarkedWithStar.toArray(new String[] {});
             this.columnNamesMarkedWithStar = nColumnNamesMarkedWithStar.toArray(new String[] {});
+            calculateColumnsRowsWithStarCount();
         }
 
         for (IOpenField field : fields) {
@@ -206,8 +219,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 super.addField(field);
             }
         }
-        
+
         this.beanFields.addAll(beanFields);
+    }
+
+    private void calculateColumnsRowsWithStarCount() {
+        this.columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
+        this.rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
     }
 
     public String[] getRowNames() {
@@ -225,7 +243,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     public String[] getColumnTitles() {
         return columnTitles;
     }
-    
+
     private Set<String> getBeanFields() {
         return beanFields;
     }
@@ -327,10 +345,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 if (beanClass == null) {
                     final String beanClassName = getBeanClassName(this);
                     JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName);
-                    long columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar)
-                        .filter(Objects::nonNull)
-                        .count();
-                    long rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
                     Set<String> usedFields = new HashSet<>();
                     boolean[][] used = new boolean[rowNames.length][columnNames.length];
                     for (int i = 0; i < used.length; i++) {
