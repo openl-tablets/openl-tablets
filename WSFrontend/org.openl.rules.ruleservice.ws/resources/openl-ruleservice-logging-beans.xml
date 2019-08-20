@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<import resource="classpath*:META-INF/spring/openl-ruleservice-logging-info-service-*.xml" />
+    <import resource="classpath*:META-INF/spring/openl-ruleservice-logging-info-service-*.xml" />
 
-	<!-- Bean for configure storages type via openl-ruleservice.properties file. -->
-	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean" lazy-init="false">
-		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
-	</bean> 
-	
-	<bean id="storeLoggingFeature" class="org.openl.rules.ruleservice.logging.StoreLoggingInfoFeature" scope="prototype">
-		<property name="loggingEnabled" value="${ruleservice.logging.store.enabled}" />
-		<property name="loggingInfoStoringService" ref="loggingInfoStoringService"/>
-	</bean> 
-	
-	<!-- Should be wrapped via org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean for using service rateled setting. For example unique databinding setting for each service. -->
-	<bean id="storeLoggingFeaturePrototypeFactory"
-		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-		<property name="targetBeanName">
-			<idref bean="storeLoggingFeature" />
-		</property>
-	</bean>
+    <!-- Bean for configure storages type via openl-ruleservice.properties file. -->
+    <bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean" lazy-init="false">
+        <property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
+    </bean> 
+    
+    <bean id="storeLoggingFeature" class="org.openl.rules.ruleservice.logging.StoreLoggingInfoFeature" scope="prototype">
+        <property name="loggingEnabled" value="${ruleservice.logging.store.enabled}" />
+        <property name="loggingInfoStoringService" ref="loggingInfoStoringService"/>
+    </bean> 
+    
+    <!-- Should be wrapped via org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean for using service rateled setting. For example unique databinding setting for each service. -->
+    <bean id="storeLoggingFeaturePrototypeFactory"
+        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName">
+            <idref bean="storeLoggingFeature" />
+        </property>
+    </bean>
 </beans>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
 
@@ -20,96 +20,104 @@
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean"
           scope="prototype"/>
     
-	<bean id="JAXRSJacksonDatabindingFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
-		scope="prototype">
-		<property name="defaultTypingMode"
-			ref="JAXRSserviceConfigurationDefaultTypingModeFactoryBean" />
-		<property name="overrideTypes"
-			ref="serviceConfigurationRootClassNamesBindingFactoryBean" />
-		<property name="supportVariations"
-			ref="serviceConfigurationSupportVariationsFactoryBean" />
+    <bean id="JAXRSJacksonDatabindingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+        scope="prototype">
+        <property name="defaultTypingMode"
+            ref="JAXRSserviceConfigurationDefaultTypingModeFactoryBean" />
+        <property name="overrideTypes"
+            ref="serviceConfigurationRootClassNamesBindingFactoryBean" />
+        <property name="supportVariations"
+            ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"/>
-	</bean>
+    </bean>
 
-	<bean id="JAXRSJacksonObjectMapper"
-		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
-		scope="prototype">
-		<property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean" />
-		<property name="targetMethod" value="createJacksonObjectMapper" />
-		<property name="singleton" value="false" />
-	</bean>
+    <bean id="JAXRSJacksonObjectMapper"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+        scope="prototype">
+        <property name="targetObject" ref="JAXRSJacksonDatabindingFactoryBean" />
+        <property name="targetMethod" value="createJacksonObjectMapper" />
+        <property name="singleton" value="false" />
+    </bean>
 
-	<bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"
-		scope="prototype">
-		<constructor-arg ref="JAXRSJacksonObjectMapper" />
-	</bean>
+    <bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"
+        scope="prototype">
+        <constructor-arg ref="JAXRSJacksonObjectMapper" />
+    </bean>
 
-	<bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
-		<property name="addMessageToResponse" value="true" />
-	</bean>
+    <bean id="JAXRSWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
+        <property name="addMessageToResponse" value="true" />
+    </bean>
 
-	<bean id="JAXRS200StatusOutInterceptor"
-		class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
-		<property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}" />
-	</bean>
+    <bean id="JAXRS200StatusOutInterceptor"
+        class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
+        <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}" />
+    </bean>
 
-	<bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
-		<property name="linkJsonToXmlSchema" value="true" />
-		<property name="linkAnyMediaTypeToXmlSchema" value="true" />
-		<property name="supportCollections" value="false" />
-	</bean>
+    <bean id="wadlGenerator" class="org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator" scope="prototype">
+        <property name="linkJsonToXmlSchema" value="true" />
+        <property name="linkAnyMediaTypeToXmlSchema" value="true" />
+        <property name="supportCollections" value="false" />
+        <property name="rootClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
+    </bean>
     
-	<bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
-	
-	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
-		scope="prototype">
-		<property name="features">
-			<list>
-				<ref bean="JAXRSServicesLoggingFeature" />
-			</list>
-		</property>
-		<property name="outFaultInterceptors">
-			<list>
-				<ref bean="JAXRS200StatusOutInterceptor" />
-			</list>
-		</property>
-		<property name="outInterceptors">
-			<list>
-				<ref bean="JAXRS200StatusOutInterceptor" />
-			</list>
-		</property>
-		<property name="providers">
-			<list>
-				<ref bean="JAXRSExceptionMapper"/>
-				<ref bean="wadlGenerator" />
-				<ref bean="JAXRSJSONProvider" />
-				<ref bean="JAXRSWebApplicationExceptionMapper" />
-			</list>
-		</property>
-	</bean>
+    <bean id="wadlGeneratorPrototypeFactory"
+        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName">
+            <idref bean="wadlGenerator" />
+        </property>
+    </bean>
+    
+    <bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
+    
+    <bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
+        scope="prototype">
+        <property name="features">
+            <list>
+                <ref bean="JAXRSServicesLoggingFeature" />
+            </list>
+        </property>
+        <property name="outFaultInterceptors">
+            <list>
+                <ref bean="JAXRS200StatusOutInterceptor" />
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="JAXRS200StatusOutInterceptor" />
+            </list>
+        </property>
+        <property name="providers">
+            <list>
+                <ref bean="JAXRSExceptionMapper"/>
+                <ref bean="JAXRSJSONProvider" />
+                <ref bean="JAXRSWebApplicationExceptionMapper" />
+            </list>
+        </property>
+    </bean>
 
-	<!-- Prototypes factory. It will create new server prototype for each new 
-		WebService. -->
-	<bean id="JAXRSServicesServerPrototypeFactory"
-		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-		<property name="targetBeanName">
-			<idref bean="JAXRSServicesServerPrototype" />
-		</property>
-	</bean>
+    <!-- Prototypes factory. It will create new server prototype for each new 
+        WebService. -->
+    <bean id="JAXRSServicesServerPrototypeFactory"
+        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName">
+            <idref bean="JAXRSServicesServerPrototype" />
+        </property>
+    </bean>
 
     <bean id="swaggerInitializationBean" class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
 
-	<!-- Initializes OpenL Engine instances according to web services configuration 
-		description and calls RuleServicePublisher to expose corresponding web service -->
-	<!-- Exposes web services. -->
-	<bean id="JAXRSServicesRuleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="swaggerInitializationBean">
-		<property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
-		<property name="baseAddress" value="${ruleservice.baseAddress}" />
-		<property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
-		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}" />
-		<property name="publisherType" value="RESTFUL"/>
-		<property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
-	</bean>
+    <!-- Initializes OpenL Engine instances according to web services configuration 
+        description and calls RuleServicePublisher to expose corresponding web service -->
+    <!-- Exposes web services. -->
+    <bean id="JAXRSServicesRuleServicePublisher"
+        class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="swaggerInitializationBean">
+        <property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
+        <property name="wadlGeneratorFactory" ref="wadlGeneratorPrototypeFactory" />
+        <property name="baseAddress" value="${ruleservice.baseAddress}" />
+        <property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
+        <property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}" />
+        <property name="publisherType" value="RESTFUL"/>
+        <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
+    </bean>
 </beans>

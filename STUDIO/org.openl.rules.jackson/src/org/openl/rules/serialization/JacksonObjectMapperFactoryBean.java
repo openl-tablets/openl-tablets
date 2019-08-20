@@ -15,6 +15,12 @@ import java.util.*;
 
 import org.openl.rules.serialization.jackson.Mixin;
 import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +82,7 @@ public class JacksonObjectMapperFactoryBean {
                             Class<?> c = innerItr.next();
                             if (!clazz.equals(c)) {
                                 if (clazz.isAssignableFrom(c)) {
-                                    mapper.addMixInAnnotations(clazz, Mixin.class);
+                                    mapper.addMixIn(clazz, Mixin.class);
                                     break;
                                 }
                             }
@@ -90,30 +96,13 @@ public class JacksonObjectMapperFactoryBean {
         }
 
         if (isSupportVariations()) {
-            addMixInAnnotations(mapper, "org.openl.rules.variation.Variation", VariationType.class);
-            addMixInAnnotations(mapper,
-                "org.openl.rules.variation.ArgumentReplacementVariation",
-                ArgumentReplacementVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.ComplexVariation", ComplexVariationType.class);
-            addMixInAnnotations(mapper,
-                "org.openl.rules.variation.DeepCloningVariation",
-                DeepCloningVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.JXPathVariation", JXPathVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.VariationsResult", VariationsResultType.class);
+            mapper.addMixIn(Variation.class, VariationType.class);
+            mapper.addMixIn(ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
+            mapper.addMixIn(ComplexVariation.class, ComplexVariationType.class);
+            mapper.addMixIn(DeepCloningVariation.class, DeepCloningVariationType.class);
+            mapper.addMixIn(JXPathVariation.class, JXPathVariationType.class);
+            mapper.addMixIn(VariationsResult.class, VariationsResultType.class);
         }
-
-        /*
-         * mapper.addMixInAnnotations(SpreadsheetResult.class, SpreadSheetResultType.class);
-         * mapper.addMixInAnnotations(Point.class, PointType.class); mapper.addMixInAnnotations(DoubleRange.class,
-         * DoubleRangeType.class); mapper.addMixInAnnotations(IntRange.class, IntRangeType.class);
-         */
-
-        /*
-         * mapper.addMixInAnnotations(IRulesRuntimeContext.class, IRulesRuntimeContextType.class);
-         * mapper.addMixInAnnotations(org.openl.rules.ruleservice.context. IRulesRuntimeContext.class,
-         * org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.
-         * ruleservice.context.IRulesRuntimeContextType.class);
-         */
 
         if (getDefaultDateFormat() == null) {
             mapper.setDateFormat(getISO8601Format());
@@ -144,14 +133,6 @@ public class JacksonObjectMapperFactoryBean {
         StdDateFormat iso8601Format = new StdDateFormat();
         iso8601Format.setTimeZone(TimeZone.getDefault());
         return iso8601Format;
-    }
-
-    private void addMixInAnnotations(ObjectMapper mapper, String className, Class<?> annotationClass) {
-        try {
-            mapper.addMixInAnnotations(loadClass(className), annotationClass);
-        } catch (ClassNotFoundException e) {
-            log.warn("Class '{}' hasn't been found!", className, e);
-        }
     }
 
     private static Class<?> loadClass(String className) throws ClassNotFoundException {
