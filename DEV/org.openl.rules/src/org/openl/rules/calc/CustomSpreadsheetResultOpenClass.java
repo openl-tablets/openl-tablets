@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -39,6 +40,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
     private volatile SpreadsheetResultValueSetter[] spreadsheetResultValueSetters;
+    private Set<String> beanFields = new HashSet<>();
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -78,6 +80,41 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     @Override
+    public void addField(IOpenField field) throws DuplicatedFieldException {
+        super.addField(field);
+        beanFieldsCalculate(field);
+    }
+
+    private void beanFieldsCalculate(IOpenField field) {
+        for (int i = 0; i < columnNamesMarkedWithStar.length; i++) {
+            for (int j = 0; j < rowNamesMarkedWithStar.length; j++) {
+                if (columnNamesMarkedWithStar[i] != null && rowNamesMarkedWithStar[j] != null) {
+                    if (columnNamesMarkedWithStar.length == 1) {
+                        String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNamesMarkedWithStar[j];
+                        if (Objects.equals(field.getName(), fieldName)) {
+                            beanFields.add(field.getName());
+                        }
+                    }
+                    if (rowNamesMarkedWithStar.length == 1) {
+                        String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNamesMarkedWithStar[i];
+                        if (Objects.equals(field.getName(), fieldName)) {
+                            beanFields.add(field.getName());
+                        }
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+                    sb.append(columnNamesMarkedWithStar[i]);
+                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+                    sb.append(rowNamesMarkedWithStar[j]);
+                    if (Objects.equals(field.getName(), sb.toString())) {
+                        beanFields.add(field.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
@@ -100,7 +137,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             String[] columnNamesMarkedWithStar,
             String[] rowTitles,
             String[] columnTitles,
-            Collection<IOpenField> fields) {
+            Collection<IOpenField> fields,
+            Set<String> beanFields) {
         if (beanClass != null) {
             throw new IllegalStateException(
                 "Bean class for custom spreadsheet result has already been generated. Spreasheet result can't be extended.");
@@ -148,50 +186,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         if (fieldCoordinatesRequresUpdate) {
-            Set<String> newFieldNames = new HashSet<>();
-            for (int i = 0; i < nRowNames.size(); i++) {
-                for (int j = this.columnNames.length; j < nColumnNames.size(); j++) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nColumnNames.get(j))
-                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nRowNames.get(i));
-                    newFieldNames.add(sb.toString());
-                }
-            }
-
-            for (int i = this.rowNames.length; i < nRowNames.size(); i++) {
-                for (int j = 0; j < nColumnNames.size(); j++) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nColumnNames.get(j))
-                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nRowNames.get(i));
-                    newFieldNames.add(sb.toString());
-                }
-            }
-
-            for (int i = this.rowNames.length; i < nRowNames.size(); i++) {
-                for (int j = this.columnNames.length; j < nColumnNames.size(); j++) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nColumnNames.get(j))
-                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                        .append(nRowNames.get(i));
-                    newFieldNames.add(sb.toString());
-                }
-            }
             this.rowNames = nRowNames.toArray(new String[] {});
             this.rowTitles = nRowTitles.toArray(new String[] {});
 
             this.columnNames = nColumnNames.toArray(new String[] {});
             this.columnTitles = nColumnTitles.toArray(new String[] {});
-
-            for (IOpenField field : fields) {
-                if (newFieldNames.contains(field.getName())) {
-                    addField(field);
-                }
-            }
 
             this.fieldsCoordinates = Collections
                 .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
@@ -204,9 +203,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         for (IOpenField field : fields) {
             if (getField(field.getName()) == null) {
-                addField(field);
+                super.addField(field);
             }
         }
+        
+        this.beanFields.addAll(beanFields);
     }
 
     public String[] getRowNames() {
@@ -224,6 +225,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     public String[] getColumnTitles() {
         return columnTitles;
     }
+    
+    private Set<String> getBeanFields() {
+        return beanFields;
+    }
 
     public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (beanClass != null) {
@@ -235,7 +240,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.getColumnNamesMarkedWithStar(),
             customSpreadsheetResultOpenClass.getRowTitles(),
             customSpreadsheetResultOpenClass.getColumnTitles(),
-            customSpreadsheetResultOpenClass.getFields().values());
+            customSpreadsheetResultOpenClass.getFields().values(),
+            customSpreadsheetResultOpenClass.getBeanFields());
         validate(this, customSpreadsheetResultOpenClass.getFields().values());
     }
 
@@ -389,13 +395,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             if (point != null && rowNamesMarkedWithStar[point.getRow()] != null && columnNamesMarkedWithStar[point
                 .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
                 String fieldName;
+                StringBuilder sb = new StringBuilder();
+                sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
                 if (columnsWithStarCount == 1) {
                     fieldName = rowNamesMarkedWithStar[point.getRow()];
+                    sb.append(rowNamesMarkedWithStar[point.getRow()]);
                 } else if (rowsWithStarCount == 1) {
                     fieldName = columnNamesMarkedWithStar[point.getColumn()];
+                    sb.append(columnNamesMarkedWithStar[point.getColumn()]);
                 } else {
                     fieldName = columnNamesMarkedWithStar[point.getColumn()] + "_" + rowNamesMarkedWithStar[point
                         .getRow()];
+                    sb.append(columnNamesMarkedWithStar[point.getColumn()]);
+                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+                    sb.append(rowNamesMarkedWithStar[point.getRow()]);
+                }
+                if (!beanFields.contains(sb.toString())) {
+                    continue;
                 }
                 Class<?> type;
                 IOpenClass t = entry.getValue().getType();
