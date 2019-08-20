@@ -1786,6 +1786,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private URI getUri(String uriOrPath) {
+        if (uriOrPath == null) {
+            return null;
+        }
         try {
             return new URI(uriOrPath);
         } catch (URISyntaxException e) {
