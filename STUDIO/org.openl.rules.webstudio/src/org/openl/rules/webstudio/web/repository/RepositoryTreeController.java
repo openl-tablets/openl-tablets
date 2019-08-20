@@ -933,8 +933,7 @@ public class RepositoryTreeController {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
                 Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
-                if (project instanceof RulesProject && mainRepo.supports()
-                    .branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
+                if (project instanceof RulesProject && isDeleteBranch(project)) {
                     // Delete secondary branch
                     ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
                 } else {
@@ -967,6 +966,15 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage(msg);
         }
         return null;
+    }
+
+    public boolean isDeleteBranch(UserWorkspaceProject project) {
+        if (project == null) {
+            return false;
+        }
+
+        Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
+        return mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch());
     }
 
     public void deleteProjectHistory(String projectName) {
