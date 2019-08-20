@@ -146,6 +146,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     }
                 }
             }
+            
             selected.removeAll(notPriorMethods);
             if (selected.size() > 1) {
                 notPriorMethods.clear();
@@ -158,7 +159,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                     } else {
                         ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                        if (mostPriority.size() == 1) {
+                        if (mostPriority.size() == 1 && !notNullPropertyNames.isEmpty()) {
                             propsLoop: for (String propName : notNullPropertyNames) {
                                 switch (intersectionMatcher
                                     .match(propName, candidateProperties, mostPriorityProperties)) {
@@ -185,28 +186,34 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                                 mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                             } else if (contains && !nested && mostPriority.size() == 1) {
                                 notPriorMethods.add(candidate);
+                                
                             } else {
                                 mostPriority.add(candidate);
                             }
                         } else {
-                            boolean moreConcreteMethod = true;
-                            for (IOpenMethod m : mostPriority) {
-                                ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
-                                propsLoop: for (String propName : notNullPropertyNames) {
-                                    switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
-                                        case NESTED:
-                                            break;
-                                        case CONTAINS:
-                                            moreConcreteMethod = false;
-                                            break propsLoop;
-                                        case EQUALS:
-                                            break;
-                                        case NO_INTERSECTION:
-                                        case PARTLY_INTERSECTS:
-                                            moreConcreteMethod = false;
-                                            break propsLoop;
+                            boolean moreConcreteMethod;
+                            if (!notNullPropertyNames.isEmpty()) {
+                                moreConcreteMethod = true;
+                                for (IOpenMethod m : mostPriority) {
+                                    ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
+                                    propsLoop: for (String propName : notNullPropertyNames) {
+                                        switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
+                                            case NESTED:
+                                                break;
+                                            case CONTAINS:
+                                                moreConcreteMethod = false;
+                                                break propsLoop;
+                                            case EQUALS:
+                                                break;
+                                            case NO_INTERSECTION:
+                                            case PARTLY_INTERSECTS:
+                                                moreConcreteMethod = false;
+                                                break propsLoop;
+                                        }
                                     }
                                 }
+                            } else {
+                                moreConcreteMethod = false;
                             }
                             if (moreConcreteMethod) {
                                 notPriorMethods.addAll(mostPriority);
@@ -357,5 +364,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }
