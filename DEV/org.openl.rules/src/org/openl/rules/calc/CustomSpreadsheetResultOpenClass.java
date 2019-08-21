@@ -62,23 +62,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         Objects.requireNonNull(rowTitles);
         Objects.requireNonNull(columnTitles);
         Objects.requireNonNull(module);
-        this.rowNames = rowNames.clone();
-        this.columnNames = columnNames.clone();
-        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar.clone();
-        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar.clone();
+        this.rowNames = rowNames;
+        this.columnNames = columnNames;
+        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
 
         this.columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
         this.rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
 
-        this.simpleRefBeanByRow = columnsWithStarCount == 1 && rowsWithStarCount > 1;
-        this.simpleRefBeanByColumn = rowsWithStarCount == 1 && columnsWithStarCount > 1;
+        this.simpleRefBeanByRow = columnsWithStarCount == 1;
+        this.simpleRefBeanByColumn = rowsWithStarCount == 1;
 
         this.rowAndColumnNamesMarkedWithStarHistory = new ArrayList<>();
         this.rowAndColumnNamesMarkedWithStarHistory
             .add(Pair.of(this.columnNamesMarkedWithStar, this.rowNamesMarkedWithStar));
 
-        this.rowTitles = rowTitles.clone();
-        this.columnTitles = columnTitles.clone();
+        this.rowTitles = rowTitles;
+        this.columnTitles = columnTitles;
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
     }
@@ -214,23 +214,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     public String[] getRowTitles() {
-        return rowTitles;
+        return rowTitles.clone();
     }
 
     public String[] getColumnTitles() {
-        return columnTitles;
+        return columnTitles.clone();
     }
 
     public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (beanClass != null) {
             throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
         }
-        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.getRowNames(),
-            customSpreadsheetResultOpenClass.getColumnNames(),
-            customSpreadsheetResultOpenClass.getRowNamesMarkedWithStar(),
-            customSpreadsheetResultOpenClass.getColumnNamesMarkedWithStar(),
-            customSpreadsheetResultOpenClass.getRowTitles(),
-            customSpreadsheetResultOpenClass.getColumnTitles(),
+        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
+            customSpreadsheetResultOpenClass.columnNames,
+            customSpreadsheetResultOpenClass.rowNamesMarkedWithStar,
+            customSpreadsheetResultOpenClass.columnNamesMarkedWithStar,
+            customSpreadsheetResultOpenClass.rowTitles,
+            customSpreadsheetResultOpenClass.columnTitles,
             customSpreadsheetResultOpenClass.getFields().values());
         validate(this, customSpreadsheetResultOpenClass.getFields().values());
     }
@@ -260,26 +260,22 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
     }
 
-    public Map<String, Point> getFieldsCoordinates() {
-        return fieldsCoordinates;
-    }
-
     public String[] getRowNamesMarkedWithStar() {
-        return rowNamesMarkedWithStar;
+        return rowNamesMarkedWithStar.clone();
     }
 
     public String[] getColumnNamesMarkedWithStar() {
-        return columnNamesMarkedWithStar;
+        return columnNamesMarkedWithStar.clone();
     }
 
     public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
-            getRowNames(),
-            getColumnNames(),
-            getRowNamesMarkedWithStar(),
-            getColumnNamesMarkedWithStar(),
-            getRowTitles(),
-            getColumnTitles(),
+            rowNames,
+            columnNames,
+            rowNamesMarkedWithStar,
+            columnNamesMarkedWithStar,
+            rowTitles,
+            columnTitles,
             module);
         for (IOpenField field : getFields().values()) {
             type.addField(field);
@@ -291,7 +287,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     @Override
     public Object newInstance(IRuntimeEnv env) {
         Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), fieldsCoordinates);
+        return new SpreadsheetResult(result,
+            rowNames,
+            columnNames,
+            rowNamesMarkedWithStar,
+            columnNamesMarkedWithStar,
+            fieldsCoordinates);
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) throws IllegalAccessException,
@@ -323,23 +324,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         Arrays.fill(used[i], false);
                     }
                     Map<String, IOpenField> beanFieldsMap = new HashMap<>();
-                    Map<String, IOpenClass> types = new HashMap<>();
-                    addFieldsToJavaClassBuilder(beanClassBuilder,
-                        columnsWithStarCount,
-                        rowsWithStarCount,
-                        used,
-                        usedFields,
-                        true,
-                        beanFieldsMap,
-                        types);
-                    addFieldsToJavaClassBuilder(beanClassBuilder,
-                        columnsWithStarCount,
-                        rowsWithStarCount,
-                        used,
-                        usedFields,
-                        false,
-                        beanFieldsMap,
-                        types);
+                    addFieldsToJavaClassBuilder(beanClassBuilder, used, usedFields, true, beanFieldsMap);
+                    addFieldsToJavaClassBuilder(beanClassBuilder, used, usedFields, false, beanFieldsMap);
                     byte[] byteCode = beanClassBuilder.byteCode();
                     try {
                         beanClass = ClassUtils
@@ -350,8 +336,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
                                 module,
                                 field,
-                                openField,
-                                types.get(field.getName()));
+                                openField);
                             srValueSetters.add(spreadsheetResultValueSetter);
                         }
                         this.spreadsheetResultValueSetters = srValueSetters
@@ -366,22 +351,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
-            long columnsWithStarCount,
-            long rowsWithStarCount,
             boolean[][] used,
             Set<String> usedFields,
             boolean addFieldNameWithCollisions,
-            Map<String, IOpenField> beanFieldsMap,
-            Map<String, IOpenClass> types) {
+            Map<String, IOpenField> beanFieldsMap) {
         for (Entry<String, IOpenField> entry : getFields().entrySet()) {
-            Point point = getFieldsCoordinates().get(entry.getKey());
+            Point point = fieldsCoordinates.get(entry.getKey());
             if (point != null && rowNamesMarkedWithStar[point.getRow()] != null && columnNamesMarkedWithStar[point
                 .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
                 String fieldName;
 
-                if (simpleRefBeanByRow && !simpleRefBeanByColumn) {
+                if (simpleRefBeanByRow) {
                     fieldName = rowNamesMarkedWithStar[point.getRow()];
-                } else if (simpleRefBeanByColumn && !simpleRefBeanByRow) {
+                } else if (simpleRefBeanByColumn) {
                     fieldName = columnNamesMarkedWithStar[point.getColumn()];
                 } else {
                     boolean found = false;
@@ -434,7 +416,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     fillUsed(used, point);
                     beanClassBuilder.addField(fieldName, type.getName());
                     beanFieldsMap.put(fieldName, entry.getValue());
-                    types.put(fieldName, t);
                 } else {
                     if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
@@ -447,7 +428,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         fillUsed(used, point);
                         beanClassBuilder.addField(newFieldName, type.getName());
                         beanFieldsMap.put(newFieldName, entry.getValue());
-                        types.put(fieldName, t);
                     }
                 }
             }
@@ -455,11 +435,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     public void fillUsed(boolean[][] used, Point point) {
-        if (simpleRefBeanByRow && !simpleRefBeanByColumn) {
+        if (simpleRefBeanByRow) {
             for (int w = 0; w < used[point.getRow()].length; w++) {
                 used[point.getRow()][w] = true;
             }
-        } else if (simpleRefBeanByColumn && !simpleRefBeanByRow) {
+        } else if (simpleRefBeanByColumn) {
             for (int w = 0; w < used.length; w++) {
                 used[w][point.getColumn()] = true;
             }
@@ -493,16 +473,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private static class SpreadsheetResultValueSetter {
         private Field field;
         private IOpenField openField;
-        private IOpenClass type;
         private XlsModuleOpenClass module;
 
-        private SpreadsheetResultValueSetter(XlsModuleOpenClass module,
-                Field field,
-                IOpenField openField,
-                IOpenClass type) {
+        private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
             this.field = field;
             this.openField = openField;
-            this.type = type;
             this.module = module;
             this.field.setAccessible(true);
         }
@@ -527,6 +502,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
+            if (!spreadsheetResult.isMarkedWithStarField(openField.getName())) {
+                return;
+            }
+
             Object v = openField.get(spreadsheetResult, null);
 
             if (v == null) {

@@ -35,7 +35,9 @@ public class SpreadsheetResult implements Serializable {
     private Object[][] results;
     private String[] columnNames;
     private String[] rowNames;
-    private transient Map<String, Point> fieldsCoordinates = null;
+    private transient String[] rowNamesMarkedWithStar;
+    private transient String[] columnNamesMarkedWithStar;
+    private transient Map<String, Point> fieldsCoordinates;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
@@ -51,18 +53,46 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames) {
-        this(results, rowNames, columnNames, null);
+        this(results, rowNames, columnNames, new String[rowNames.length], new String[columnNames.length], null);
         initFieldsCoordinates();
     }
 
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
             String[] columnNames,
+            String[] rowNamesMarkedWithStar,
+            String[] columnNamesMarkedWithStar,
             Map<String, Point> fieldsCoordinates) {
-        this.columnNames = columnNames.clone();
-        this.rowNames = rowNames.clone();
+        Objects.requireNonNull(rowNames);
+        Objects.requireNonNull(columnNames);
+        Objects.requireNonNull(rowNamesMarkedWithStar);
+        Objects.requireNonNull(columnNamesMarkedWithStar);
+        if (rowNames.length != rowNamesMarkedWithStar.length) {
+            throw new IllegalArgumentException(
+                "The length of rowNames is not equal to the lenght of rowNamesMarkedWithStar.");
+        }
+        if (columnNames.length != columnNamesMarkedWithStar.length) {
+            throw new IllegalArgumentException(
+                "The length of columnNames is not equal to the lenght of columnNamesMarkedWithStar.");
+        }
         this.results = results;
+
+        this.columnNames = columnNames;
+        this.rowNames = rowNames;
+
+        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
+        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+
         this.fieldsCoordinates = fieldsCoordinates;
+    }
+
+    public boolean isMarkedWithStarField(String fieldName) {
+        Point point = fieldsCoordinates.get(fieldName);
+        if (point != null) {
+            return columnNamesMarkedWithStar[point.getColumn()] != null && rowNamesMarkedWithStar[point
+                .getRow()] != null;
+        }
+        return false;
     }
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
@@ -106,7 +136,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object[][] getResults() {
-        return results.clone();
+        return results;
     }
 
     public void setResults(Object[][] results) {
@@ -119,19 +149,37 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public String[] getColumnNames() {
-        return columnNames;
+        return columnNames.clone();
     }
 
     public void setColumnNames(String[] columnNames) {
-        this.columnNames = columnNames.clone();
+        this.columnNames = columnNames;
     }
 
     public String[] getRowNames() {
-        return rowNames;
+        return rowNames.clone();
     }
 
     public void setRowNames(String[] rowNames) {
-        this.rowNames = rowNames.clone();
+        this.rowNames = rowNames;
+    }
+
+    @XmlTransient
+    public String[] getRowNamesMarkedWithStar() {
+        return rowNamesMarkedWithStar.clone();
+    }
+
+    public void setRowNamesMarkedWithStar(String[] rowNamesMarkedWithStar) {
+        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+    }
+
+    @XmlTransient
+    public String[] getColumnNamesMarkedWithStar() {
+        return columnNamesMarkedWithStar.clone();
+    }
+
+    public void setColumnNamesMarkedWithStar(String[] columnNamesMarkedWithStar) {
+        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
     }
 
     public Object getValue(int row, int column) {

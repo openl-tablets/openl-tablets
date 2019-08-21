@@ -6,5 +6,7 @@
     <property name="columnTitles" ignore="true"/>
     <property name="rowTitles" ignore="true"/>
     <property name="fieldsCoordinates" ignore="true"/>
+    <property name="rowNamesMarkedWithStar" ignore="true"/>
+    <property name="columnNamesMarkedWithStar" ignore="true"/>
  </mapping>
 </mappings>

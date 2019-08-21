@@ -1,13 +1,10 @@
 package org.openl.rules.calc.result;
 
-import java.util.Map;
-
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.Point;
 
 /**
  * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}.
@@ -20,19 +17,18 @@ public class DefaultResultBuilder implements IResultBuilder {
 
         Object[][] resultArray = result.getValues();
 
-        Spreadsheet spreadsheet = result.getSpreadsheet();
-
-        String[] rowNames = spreadsheet.getRowNames();
-        String[] columnNames = spreadsheet.getColumnNames();
-        Map<String, Point> fieldsCoordinates = spreadsheet.getFieldsCoordinates();
+        final Spreadsheet spreadsheet = result.getSpreadsheet();
 
         SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray,
-            rowNames,
-            columnNames,
-            fieldsCoordinates);
+            spreadsheet.getRowNames(),
+            spreadsheet.getColumnNames(),
+            spreadsheet.getRowNamesMarkedWithStar(),
+            spreadsheet.getColumnNamesMarkedWithStar(),
+            spreadsheet.getFieldsCoordinates());
 
         if (spreadsheet.isCustomSpreadsheetType()) {
-            spreadsheetBean.setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());
+            spreadsheetBean
+                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());
         }
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();

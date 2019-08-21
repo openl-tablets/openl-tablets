@@ -24,7 +24,7 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
         super(HEADER_TYPE, module);
         this.headerToken = headerToken;
         this.isCollect = isCollect;
-        this.collectParameters = collectParameters.clone();
+        this.collectParameters = collectParameters;
     }
 
     public IdentifierNode getHeaderToken() {
@@ -36,7 +36,7 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
     }
 
     public String[] getCollectParameters() {
-        return collectParameters.clone();
+        return collectParameters;
     }
 
 }

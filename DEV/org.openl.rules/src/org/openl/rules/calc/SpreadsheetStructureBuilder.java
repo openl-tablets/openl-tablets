@@ -68,7 +68,7 @@ public class SpreadsheetStructureBuilder {
      */
     public SpreadsheetCell[][] getCells() {
         extractCellValues();
-        return cells.clone();
+        return cells;
     }
 
     /**
