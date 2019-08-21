@@ -358,7 +358,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                     CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                         .findType(customSpreadsheetResultOpenClass.getName());
-                    ret.put(method, Pair.of(csrt.getBeanClass(), Boolean.FALSE));
+                    if (!csrt.isEmptyBean()) {
+                        ret.put(method, Pair.of(csrt.getBeanClass(), Boolean.FALSE));
+                    }
                 }
             }
         }

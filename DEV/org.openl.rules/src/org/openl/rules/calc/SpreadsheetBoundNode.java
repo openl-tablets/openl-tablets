@@ -1,6 +1,8 @@
 package org.openl.rules.calc;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
@@ -8,6 +10,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.TableMetaInfo;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -111,6 +114,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
+        validateRowsColumnsWithStars(spreadsheet);
+
         if (spreadsheet.isCustomSpreadsheetType()) {
             IOpenClass type = null;
             try {
@@ -131,6 +136,25 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         }
 
         return spreadsheet;
+    }
+
+    public void validateRowsColumnsWithStars(Spreadsheet spreadsheet) {
+        long columnsWithStarCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithStar())
+            .filter(Objects::nonNull)
+            .count();
+        long rowsWithStarCount = Arrays.stream(spreadsheet.getRowNamesMarkedWithStar())
+            .filter(Objects::nonNull)
+            .count();
+        if (columnsWithStarCount > 0 && rowsWithStarCount == 0) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                "If columns are marked with stars, then at least one row must be marked with star also, otherwise marked columns are ignored.",
+                getTableSyntaxNode()));
+        }
+        if (rowsWithStarCount > 0 && columnsWithStarCount == 0) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                "If rows are marked with stars, then at least one column must be marked with star also, otherwise marked rows are ignored.",
+                getTableSyntaxNode()));
+        }
     }
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {

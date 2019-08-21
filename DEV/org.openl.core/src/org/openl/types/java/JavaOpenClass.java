@@ -37,6 +37,7 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, true);
     public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, false);
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, true);
+    public static final JavaOpenClass CLS_VOID = new JavaOpenClass(Void.class, true);
 
     protected Class<?> instanceClass;
 

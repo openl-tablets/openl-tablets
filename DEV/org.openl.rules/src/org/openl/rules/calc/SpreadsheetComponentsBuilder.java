@@ -87,15 +87,27 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getRowNamesMarkedWithStar() {
+        final long columnsMarkedWithStar = columnHeaders.entrySet()
+            .stream()
+            .filter(e -> e.getValue().getDefinition().isMarkedWithStar())
+            .count();
+
         return buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
-            e -> cellsHeaderExtractor.getHeight() == 1 || e.getDefinition().isMarkedWithStar());
+            e -> cellsHeaderExtractor.getHeight() == 1 && columnsMarkedWithStar > 0 || e.getDefinition()
+                .isMarkedWithStar());
     }
 
     public String[] getColumnNamesMarkedWithStar() {
+        final long rowsMarkedWithStar = rowHeaders.entrySet()
+            .stream()
+            .filter(e -> e.getValue().getDefinition().isMarkedWithStar())
+            .count();
+
         return buildArrayForHeaders(columnHeaders,
             cellsHeaderExtractor.getWidth(),
-            e -> cellsHeaderExtractor.getWidth() == 1 || e.getDefinition().isMarkedWithStar());
+            e -> cellsHeaderExtractor.getWidth() == 1 && rowsMarkedWithStar > 0 || e.getDefinition()
+                .isMarkedWithStar());
     }
 
     public String[] getRowNames() {

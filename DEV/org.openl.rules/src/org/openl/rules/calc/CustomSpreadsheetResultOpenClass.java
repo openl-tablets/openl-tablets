@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import org.openl.binding.exception.DuplicatedFieldException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -34,13 +34,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private String[] columnNames;
     private String[] rowNamesMarkedWithStar;
     private String[] columnNamesMarkedWithStar;
+    private List<Pair<String[], String[]>> rowAndColumnNamesMarkedWithStarHistory;
     private String[] rowTitles;
     private String[] columnTitles;
     private Map<String, Point> fieldsCoordinates;
     private XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
     private volatile SpreadsheetResultValueSetter[] spreadsheetResultValueSetters;
-    private Set<String> beanFields = new HashSet<>();
+    private boolean simpleRefBeanByRow;
+    private boolean simpleRefBeanByColumn;
     private long columnsWithStarCount;
     private long rowsWithStarCount;
 
@@ -65,7 +67,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.rowNamesMarkedWithStar = rowNamesMarkedWithStar.clone();
         this.columnNamesMarkedWithStar = columnNamesMarkedWithStar.clone();
 
-        calculateColumnsRowsWithStarCount();
+        this.columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
+        this.rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
+
+        this.simpleRefBeanByRow = columnsWithStarCount == 1 && rowsWithStarCount > 1;
+        this.simpleRefBeanByColumn = rowsWithStarCount == 1 && columnsWithStarCount > 1;
+
+        this.rowAndColumnNamesMarkedWithStarHistory = new ArrayList<>();
+        this.rowAndColumnNamesMarkedWithStarHistory
+            .add(Pair.of(this.columnNamesMarkedWithStar, this.rowNamesMarkedWithStar));
 
         this.rowTitles = rowTitles.clone();
         this.columnTitles = columnTitles.clone();
@@ -84,46 +94,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
-    @Override
-    public void addField(IOpenField field) throws DuplicatedFieldException {
-        super.addField(field);
-        beanFieldsCalculate(field);
-    }
-
-    private void beanFieldsCalculate(IOpenField field) {
-        for (int i = 0; i < columnNamesMarkedWithStar.length; i++) {
-            for (int j = 0; j < rowNamesMarkedWithStar.length; j++) {
-                if (columnNamesMarkedWithStar[i] != null && rowNamesMarkedWithStar[j] != null) {
-                    boolean found = false;
-                    if (columnsWithStarCount == 1) {
-                        String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNamesMarkedWithStar[j];
-                        if (Objects.equals(field.getName(), fieldName)) {
-                            beanFields.add(field.getName());
-                            found = true;
-                        }
-                    }
-                    if (rowsWithStarCount == 1) {
-                        String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNamesMarkedWithStar[i];
-                        if (Objects.equals(field.getName(), fieldName)) {
-                            beanFields.add(field.getName());
-                            found = true;
-                        }
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                    sb.append(columnNamesMarkedWithStar[i]);
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                    sb.append(rowNamesMarkedWithStar[j]);
-                    if (Objects.equals(field.getName(), sb.toString())) {
-                        beanFields.add(field.getName());
-                        found = true;
-                    }
-                    if (found) {
-                        return;
-                    }
-                }
-            }
-        }
+    public boolean isEmptyBean() {
+        return getBeanClass().getDeclaredFields().length == 0;
     }
 
     @Override
@@ -149,8 +121,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             String[] columnNamesMarkedWithStar,
             String[] rowTitles,
             String[] columnTitles,
-            Collection<IOpenField> fields,
-            Set<String> beanFields) {
+            Collection<IOpenField> fields) {
         if (beanClass != null) {
             throw new IllegalStateException(
                 "Bean class for custom spreadsheet result has already been generated. Spreasheet result can't be extended.");
@@ -209,9 +180,22 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         if (rowColumnsWithStartRequiresUpdate) {
+            long cols = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
+            long rows = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
+
+            if (this.simpleRefBeanByColumn) {
+                this.simpleRefBeanByColumn = rows == 1 && this.rowsWithStarCount == 1;
+            }
+            if (this.simpleRefBeanByRow) {
+                this.simpleRefBeanByRow = cols == 1 && this.columnsWithStarCount == 1;
+            }
+
+            this.rowAndColumnNamesMarkedWithStarHistory.add(Pair.of(columnNamesMarkedWithStar, rowNamesMarkedWithStar));
+
             this.rowNamesMarkedWithStar = nRowNamesMarkedWithStar.toArray(new String[] {});
             this.columnNamesMarkedWithStar = nColumnNamesMarkedWithStar.toArray(new String[] {});
-            calculateColumnsRowsWithStarCount();
+            this.columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
+            this.rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
         }
 
         for (IOpenField field : fields) {
@@ -219,13 +203,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 super.addField(field);
             }
         }
-
-        this.beanFields.addAll(beanFields);
-    }
-
-    private void calculateColumnsRowsWithStarCount() {
-        this.columnsWithStarCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
-        this.rowsWithStarCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
     }
 
     public String[] getRowNames() {
@@ -244,10 +221,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnTitles;
     }
 
-    private Set<String> getBeanFields() {
-        return beanFields;
-    }
-
     public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (beanClass != null) {
             throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
@@ -258,8 +231,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.getColumnNamesMarkedWithStar(),
             customSpreadsheetResultOpenClass.getRowTitles(),
             customSpreadsheetResultOpenClass.getColumnTitles(),
-            customSpreadsheetResultOpenClass.getFields().values(),
-            customSpreadsheetResultOpenClass.getBeanFields());
+            customSpreadsheetResultOpenClass.getFields().values());
         validate(this, customSpreadsheetResultOpenClass.getFields().values());
     }
 
@@ -406,23 +378,28 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             if (point != null && rowNamesMarkedWithStar[point.getRow()] != null && columnNamesMarkedWithStar[point
                 .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
                 String fieldName;
-                StringBuilder sb = new StringBuilder();
-                sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                if (columnsWithStarCount == 1) {
+
+                if (simpleRefBeanByRow && !simpleRefBeanByColumn) {
                     fieldName = rowNamesMarkedWithStar[point.getRow()];
-                    sb.append(rowNamesMarkedWithStar[point.getRow()]);
-                } else if (rowsWithStarCount == 1) {
+                } else if (simpleRefBeanByColumn && !simpleRefBeanByRow) {
                     fieldName = columnNamesMarkedWithStar[point.getColumn()];
-                    sb.append(columnNamesMarkedWithStar[point.getColumn()]);
                 } else {
+                    boolean found = false;
+                    for (Pair<String[], String[]> p : rowAndColumnNamesMarkedWithStarHistory) {
+                        for (String col : p.getLeft()) {
+                            for (String row : p.getRight()) {
+                                if (!found && Objects.equals(columnNamesMarkedWithStar[point.getColumn()],
+                                    col) && Objects.equals(rowNamesMarkedWithStar[point.getRow()], row)) {
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                    if (!found) {
+                        continue;
+                    }
                     fieldName = columnNamesMarkedWithStar[point.getColumn()] + "_" + rowNamesMarkedWithStar[point
                         .getRow()];
-                    sb.append(columnNamesMarkedWithStar[point.getColumn()]);
-                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                    sb.append(rowNamesMarkedWithStar[point.getRow()]);
-                }
-                if (!beanFields.contains(sb.toString())) {
-                    continue;
                 }
                 Class<?> type;
                 IOpenClass t = entry.getValue().getType();
@@ -441,18 +418,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     } else {
                         type = beanType;
                     }
-                } else if (t instanceof SpreadsheetResult) {
+                } else if (t instanceof SpreadsheetResultOpenClass) {
                     if (dim > 0) {
                         type = Array.newInstance(Map.class, new int[dim]).getClass();
                     } else {
                         type = Map.class;
                     }
+                } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
+                    continue; // IGNORE VOID FIELDS
                 } else {
                     type = entry.getValue().getType().getInstanceClass();
                 }
                 if (!usedFields.contains(fieldName)) {
                     usedFields.add(fieldName);
-                    used[point.getRow()][point.getColumn()] = true;
+                    fillUsed(used, point);
                     beanClassBuilder.addField(fieldName, type.getName());
                     beanFieldsMap.put(fieldName, entry.getValue());
                     types.put(fieldName, t);
@@ -465,13 +444,27 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             i++;
                         }
                         usedFields.add(newFieldName);
-                        used[point.getRow()][point.getColumn()] = true;
+                        fillUsed(used, point);
                         beanClassBuilder.addField(newFieldName, type.getName());
                         beanFieldsMap.put(newFieldName, entry.getValue());
                         types.put(fieldName, t);
                     }
                 }
             }
+        }
+    }
+
+    public void fillUsed(boolean[][] used, Point point) {
+        if (simpleRefBeanByRow && !simpleRefBeanByColumn) {
+            for (int w = 0; w < used[point.getRow()].length; w++) {
+                used[point.getRow()][w] = true;
+            }
+        } else if (simpleRefBeanByColumn && !simpleRefBeanByRow) {
+            for (int w = 0; w < used.length; w++) {
+                used[w][point.getColumn()] = true;
+            }
+        } else {
+            used[point.getRow()][point.getColumn()] = true;
         }
     }
 
