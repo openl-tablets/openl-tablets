@@ -45,7 +45,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         }
 
         SpreadsheetCell spreadsheetCell = findCell(cells, row, col);
-        if (spreadsheetCell == null) {
+        if (spreadsheetCell == null || spreadsheetCell.isEmpty()) {
             return null;
         }
 
