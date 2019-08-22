@@ -124,7 +124,7 @@
         <h:outputText value=""/>
 
         <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentNameShowInfo"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:outputText value=""/>
         
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
