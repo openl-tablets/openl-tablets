@@ -44,15 +44,17 @@
         </h:outputText>
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}">
-        <ui:param name="projectReference" value="#{repositoryTreeController.getProjectReference(artefact, version)}"/>
-        <h:outputText value="#{version.versionComment}" rendered="#{empty projectReference}" />
-        <h:outputText value="Copied from: " rendered="#{not empty projectReference}" />
-        <h:commandLink value="#{projectReference}"
-                       rendered="#{not empty projectReference}"
+        <ui:param name="commentParts" value="#{repositoryTreeController.getCommentParts(artefact, version)}"/>
+        <ui:param name="hasProjectReference" value="#{commentParts.size() == 3}"/>
+        <h:outputText value="#{version.versionComment}" rendered="#{not hasProjectReference}" />
+        <h:outputText value="#{commentParts[0]}" rendered="#{hasProjectReference}" />
+        <h:commandLink value="#{commentParts[1]}"
+                       rendered="#{hasProjectReference}"
                        action="#{repositoryTreeController.selectRulesProject}"
                        immediate="true">
-          <f:param name="projectName" value="#{projectReference}" />
+          <f:param name="projectName" value="#{commentParts[1]}" />
         </h:commandLink>
+        <h:outputText value="#{commentParts[2]}" rendered="#{hasProjectReference}" />
       </rich:column>
       <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}" style="text-align: center;">
         <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"
