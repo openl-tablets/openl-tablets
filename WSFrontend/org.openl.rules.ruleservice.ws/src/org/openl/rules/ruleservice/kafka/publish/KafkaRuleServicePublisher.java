@@ -606,14 +606,8 @@ public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher impl
         return null;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        List<String> methodNames = new ArrayList<>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
-
-        return new ServiceInfo(new Date(), service.getName(), methodNames, "", "Kafka");
+    private ServiceInfo createServiceInfo(OpenLService service) {
+        return new ServiceInfo(new Date(), service.getName(), "", "Kafka");
     }
 
     @Override

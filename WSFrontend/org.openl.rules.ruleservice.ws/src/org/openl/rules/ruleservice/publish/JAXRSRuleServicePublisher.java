@@ -259,18 +259,11 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        List<String> methodNames = new ArrayList<>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
         String url = processURL(service.getUrl());
-
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }
-
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "REST");
+        return new ServiceInfo(new Date(), service.getName(), url, "REST");
     }
 
     private void removeServiceInfo(String serviceName) {
