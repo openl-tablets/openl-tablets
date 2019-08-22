@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -115,7 +116,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        validateRowsColumnsWithAsterisks(spreadsheet);
+        validateWarnsRowsColumnsWithAsterisks(spreadsheet);
 
         if (spreadsheet.isCustomSpreadsheetType()) {
             IOpenClass type = null;
@@ -135,11 +136,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName()));
             }
         }
-
         return spreadsheet;
     }
 
-    public void validateRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
+    public void validateWarnsRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
         long columnsWithAsteriskCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithAsterisk())
             .filter(Objects::nonNull)
             .count();
@@ -158,6 +158,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 getTableSyntaxNode()));
         }
         StringBuilder sb = new StringBuilder();
+        Map<String, String> fNames = new HashMap<>();
         int warnCnt = 0;
         for (int i = 0; i < spreadsheet.getRowNamesMarkedWithAsterisk().length; i++) {
             for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithAsterisk().length; j++) {
@@ -182,31 +183,56 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
                         f = true; // IGNORE VOID TYPES
                     }
+
+                    String simpleRefName;
+                    if (columnsWithAsteriskCount == 1) {
+                        simpleRefName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
+                            .getRowNamesMarkedWithAsterisk()[i];
+                    } else if (rowsWithAsteriskCount == 1) {
+                        simpleRefName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
+                            .getColumnNamesMarkedWithAsterisk()[j];
+                    } else {
+                        simpleRefName = fieldName;
+                    }
+
                     if (f) {
                         if (warnCnt > 0) {
                             sb.append(", ");
                         }
-                        if (columnsWithAsteriskCount == 1) {
-                            sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
-                        } else if (rowsWithAsteriskCount == 1) {
-                            sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
-                        } else {
-                            sb.append(fieldName);
-                        }
+                        sb.append(simpleRefName);
                         warnCnt++;
+                    } else {
+                        StringBuilder sb1 = new StringBuilder();
+                        if (columnsWithAsteriskCount == 1) {
+                            sb1.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                        } else if (rowsWithAsteriskCount == 1) {
+                            sb1.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                        } else {
+                            sb1.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                            sb1.append("_");
+                            sb1.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                        }
+                        String fName = sb1.toString();
+                        String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
+                                                        : fName.toLowerCase();
+                        String v = fNames.put(key, simpleRefName);
+                        if (v != null) {
+                            getTableSyntaxNode().addError(SyntaxNodeExceptionUtils.createError(String.format(
+                                "Cells '%s' and '%s' conflicts with each other in the output model for this spreadsheet result.",
+                                v,
+                                simpleRefName), getTableSyntaxNode()));
+                        }
                     }
                 }
             }
         }
         if (warnCnt == 1) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cell '%s' is always empty. Using asterisk symbols on column/row for this field makes output result excess.",
+                "Spreadsheet cell '%s' is always empty. Using asterisk symbols on column/row for this cell makes output model excess.",
                 sb.toString()), getTableSyntaxNode()));
         } else if (warnCnt > 1) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cells [%s] are always empty. Using asterisk symbols on columns/rows for these fields makes output result excess.",
+                "Spreadsheet cells [%s] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.",
                 sb.toString()), getTableSyntaxNode()));
         }
     }
