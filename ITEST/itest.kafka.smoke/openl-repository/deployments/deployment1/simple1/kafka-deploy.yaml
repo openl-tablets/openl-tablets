@@ -1,5 +1,5 @@
  
-method.configs:
+methods:
   - method.name: Hello
     in.topic.name: hello-in-topic
     out.topic.name: hello-out-topic

@@ -15,10 +15,10 @@ public final class KafkaDeploy {
     @JsonProperty(value = "dlt.producer.configs")
     private Properties dltProducerConfigs = new Properties();
 
-    @JsonProperty(value = "service.configs")
+    @JsonProperty(value = "service")
     private KafkaServiceConfig serviceConfig;
 
-    @JsonProperty(value = "method.configs")
+    @JsonProperty(value = "methods")
     private List<KafkaMethodConfig> methodConfigs;
 
     public KafkaServiceConfig getServiceConfig() {

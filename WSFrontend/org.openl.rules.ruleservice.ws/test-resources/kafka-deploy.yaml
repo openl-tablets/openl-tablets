@@ -14,5 +14,5 @@ dlt.producer.configs:
   acks: all
   client.id.generator: org.openl.rules.ruleservice.publish.kafka.RandomClientIDGenerator
   
-method.configs:
+methods:
   - method.name: method1
