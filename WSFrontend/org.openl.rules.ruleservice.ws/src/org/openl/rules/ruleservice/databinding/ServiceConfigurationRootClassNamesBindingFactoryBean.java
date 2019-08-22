@@ -45,7 +45,9 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                         XlsModuleOpenClass module = (XlsModuleOpenClass) openLService.getOpenClass();
                         CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        ret.add(csrt.getBeanClass().getName());
+                        if (!csrt.isEmptyBeanClass()) {
+                            ret.add(csrt.getBeanClass().getName());
+                        }
                     }
                 }
             }

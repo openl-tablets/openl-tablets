@@ -94,7 +94,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
-    public boolean isEmptyBean() {
+    public boolean isEmptyBeanClass() {
         return getBeanClass().getDeclaredFields().length == 0;
     }
 
@@ -395,7 +395,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                         .findType(customSpreadsheetResultOpenClass.getName());
 
-                    if (csroc.isEmptyBean()) {
+                    if (csroc.isEmptyBeanClass()) {
                         continue; //IGNORE EMPTY CSRS TYPES
                     }
                     

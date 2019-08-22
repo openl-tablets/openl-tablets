@@ -177,7 +177,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
                         CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        if (csroc.isEmptyBean()) {
+                        if (csroc.isEmptyBeanClass()) {
                             f = true; // IGNORE EMPTY CSRS TYPES
                         }
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
