@@ -228,7 +228,7 @@ public class SpreadsheetComponentsBuilder {
     private IdentifierNode removeLeadingStar(IdentifierNode identifierNode) {
         int d = identifierNode.getIdentifier().indexOf(SpreadsheetSymbols.STAR.toString());
         if (d < 0) {
-            throw new IllegalStateException("Star is not found!");
+            throw new IllegalStateException("Asterisk symbols is not found!");
         }
         String v = org.openl.util.StringUtils.trimStart(identifierNode.getIdentifier().substring(d + 1));
         int delta = identifierNode.getIdentifier().length() - v.length();
@@ -245,15 +245,16 @@ public class SpreadsheetComponentsBuilder {
             throw SyntaxNodeExceptionUtils.createError("Invalid header: Java keywords are not allowed.",
                 headerNameNode);
         }
-        if (!Character.isJavaIdentifierStart(headerNameNode.getIdentifier().charAt(0))) {
+        if (StringUtils.isEmpty(headerNameNode.getIdentifier()) || !Character
+            .isJavaIdentifierStart(headerNameNode.getIdentifier().charAt(0))) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Invalid header: All headers with star must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
+                "Invalid header: All headers marked with asterisk symbol must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
                 headerNameNode);
         }
         for (int i = 1; i < headerNameNode.getIdentifier().length(); i++) {
             if (!Character.isJavaIdentifierPart(headerNameNode.getIdentifier().charAt(i))) {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid header: All headers with star must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
+                    "Invalid header: All headers marked with asterisk symbol must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
                     headerNameNode);
             }
         }
