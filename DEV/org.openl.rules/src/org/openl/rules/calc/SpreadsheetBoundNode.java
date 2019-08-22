@@ -63,8 +63,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 typeName,
                 spreadsheet.getRowNames(),
                 spreadsheet.getColumnNames(),
-                spreadsheet.getRowNamesMarkedWithStar(),
-                spreadsheet.getColumnNamesMarkedWithStar(),
+                spreadsheet.getRowNamesMarkedWithAsterisk(),
+                spreadsheet.getColumnNamesMarkedWithAsterisk(),
                 spreadsheet.getRowTitles(),
                 spreadsheet.getColumnTitles(),
                 getModule());
@@ -109,14 +109,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowNames(componentsBuilder.getRowNames());
         spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
 
-        spreadsheet.setRowNamesMarkedWithStar(componentsBuilder.getRowNamesMarkedWithStar());
-        spreadsheet.setColumnNamesMarkedWithStar(componentsBuilder.getColumnNamesMarkedWithStar());
+        spreadsheet.setRowNamesMarkedWithAsterisk(componentsBuilder.getRowNamesMarkedWithAsterisk());
+        spreadsheet.setColumnNamesMarkedWithAsterisk(componentsBuilder.getColumnNamesMarkedWithAsterisk());
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        validateRowsColumnsWithStars(spreadsheet);
-        
+        validateRowsColumnsWithAsterisks(spreadsheet);
+
         if (spreadsheet.isCustomSpreadsheetType()) {
             IOpenClass type = null;
             try {
@@ -139,32 +139,33 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return spreadsheet;
     }
 
-    public void validateRowsColumnsWithStars(Spreadsheet spreadsheet) {
-        long columnsWithStarCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithStar())
+    public void validateRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
+        long columnsWithAsteriskCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithAsterisk())
             .filter(Objects::nonNull)
             .count();
-        long rowsWithStarCount = Arrays.stream(spreadsheet.getRowNamesMarkedWithStar())
+        long rowsWithAsteriskCount = Arrays.stream(spreadsheet.getRowNamesMarkedWithAsterisk())
             .filter(Objects::nonNull)
             .count();
-        if (columnsWithStarCount > 0 && rowsWithStarCount == 0) {
+
+        if (columnsWithAsteriskCount > 0 && rowsWithAsteriskCount == 0) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                "If columns are marked with stars, then at least one row must be marked with star also, otherwise marked columns are ignored.",
+                "If columns are marked with asterisk symbols, then at least one row must be marked also, otherwise marked columns with asterisk symbols are ignored.",
                 getTableSyntaxNode()));
         }
-        if (rowsWithStarCount > 0 && columnsWithStarCount == 0) {
+        if (rowsWithAsteriskCount > 0 && columnsWithAsteriskCount == 0) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                "If rows are marked with stars, then at least one column must be marked with star also, otherwise marked rows are ignored.",
+                "If rows are marked with asterisk symbols, then at least one column must be marked also, otherwise marked rows with asterisk symbols are ignored.",
                 getTableSyntaxNode()));
         }
         StringBuilder sb = new StringBuilder();
         int warnCnt = 0;
-        for (int i = 0; i < spreadsheet.getRowNamesMarkedWithStar().length; i++) {
-            for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithStar().length; j++) {
-                if (spreadsheet.getColumnNamesMarkedWithStar()[j] != null && spreadsheet
-                    .getRowNamesMarkedWithStar()[i] != null) {
+        for (int i = 0; i < spreadsheet.getRowNamesMarkedWithAsterisk().length; i++) {
+            for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithAsterisk().length; j++) {
+                if (spreadsheet.getColumnNamesMarkedWithAsterisk()[j] != null && spreadsheet
+                    .getRowNamesMarkedWithAsterisk()[i] != null) {
                     String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                        .getColumnNamesMarkedWithStar()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                            .getRowNamesMarkedWithStar()[i];
+                        .getColumnNamesMarkedWithAsterisk()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
+                            .getRowNamesMarkedWithAsterisk()[i];
                     IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
                     IOpenClass t = field.getType();
                     while (t.isArray()) {
@@ -185,12 +186,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (warnCnt > 0) {
                             sb.append(", ");
                         }
-                        if (columnsWithStarCount == 1) {
+                        if (columnsWithAsteriskCount == 1) {
                             sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                            sb.append(spreadsheet.getRowNamesMarkedWithStar()[i]);
-                        } else if (rowsWithStarCount == 1) {
+                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                        } else if (rowsWithAsteriskCount == 1) {
                             sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
-                            sb.append(spreadsheet.getColumnNamesMarkedWithStar()[j]);
+                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
                         } else {
                             sb.append(fieldName);
                         }
@@ -201,11 +202,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         }
         if (warnCnt == 1) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cell '%s' is always empty. Using stars on column/row for this field makes output result excess.",
+                "Spreadsheet cell '%s' is always empty. Using asterisk symbols on column/row for this field makes output result excess.",
                 sb.toString()), getTableSyntaxNode()));
         } else if (warnCnt > 1) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cells [%s] are always empty. Using stars on columns/rows for these fields makes output result excess.",
+                "Spreadsheet cells [%s] are always empty. Using asterisk symbols on columns/rows for these fields makes output result excess.",
                 sb.toString()), getTableSyntaxNode()));
         }
     }

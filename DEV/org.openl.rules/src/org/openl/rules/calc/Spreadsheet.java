@@ -35,9 +35,9 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private String[] columnNames;
 
-    private String[] rowNamesMarkedWithStar;
+    private String[] rowNamesMarkedWithAsterisk;
 
-    private String[] columnNamesMarkedWithStar;
+    private String[] columnNamesMarkedWithAsterisk;
 
     private String[] rowTitles;
 
@@ -146,20 +146,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.rowTitles = rowTitles;
     }
 
-    public String[] getRowNamesMarkedWithStar() {
-        return rowNamesMarkedWithStar;
+    public String[] getRowNamesMarkedWithAsterisk() {
+        return rowNamesMarkedWithAsterisk;
     }
 
-    public void setRowNamesMarkedWithStar(String[] rowNamesMarkedWithStar) {
-        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+    public void setRowNamesMarkedWithAsterisk(String[] rowNamesMarkedWithAsterisk) {
+        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
     }
 
-    public String[] getColumnNamesMarkedWithStar() {
-        return columnNamesMarkedWithStar;
+    public String[] getColumnNamesMarkedWithAsterisk() {
+        return columnNamesMarkedWithAsterisk;
     }
 
-    public void setColumnNamesMarkedWithStar(String[] columnNamesMarkedWithStar) {
-        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
+    public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
+        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
     }
 
     public String[] getRowTitles() {

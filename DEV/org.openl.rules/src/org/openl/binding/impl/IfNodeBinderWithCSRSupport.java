@@ -24,24 +24,24 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         columnNames.addAll(Arrays.stream(type1.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
         columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> rowNamesMarkedWithStar = new LinkedHashSet<>();
-        rowNamesMarkedWithStar
-            .addAll(Arrays.stream(type1.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
-        rowNamesMarkedWithStar
-            .addAll(Arrays.stream(type2.getRowNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
+        Set<String> rowNamesMarkedWithAsterisk = new LinkedHashSet<>();
+        rowNamesMarkedWithAsterisk
+            .addAll(Arrays.stream(type1.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesMarkedWithAsterisk
+            .addAll(Arrays.stream(type2.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> columnNamesMarkedWithStar = new LinkedHashSet<>();
-        columnNamesMarkedWithStar
-            .addAll(Arrays.stream(type1.getColumnNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
-        columnNamesMarkedWithStar
-            .addAll(Arrays.stream(type2.getColumnNamesMarkedWithStar()).collect(Collectors.toCollection(HashSet::new)));
+        Set<String> columnNamesMarkedWithAsterisk = new LinkedHashSet<>();
+        columnNamesMarkedWithAsterisk
+            .addAll(Arrays.stream(type1.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesMarkedWithAsterisk
+            .addAll(Arrays.stream(type2.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
 
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
             "IfNode" + type1.getName() + "And" + type2.getName(),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
-            rowNamesMarkedWithStar.toArray(new String[] {}),
-            columnNamesMarkedWithStar.toArray(new String[] {}),
+            rowNamesMarkedWithAsterisk.toArray(new String[] {}),
+            columnNamesMarkedWithAsterisk.toArray(new String[] {}),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
             type1.getModule());

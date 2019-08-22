@@ -41,7 +41,14 @@ public class SpreadsheetResultType extends BeanType {
     public SpreadsheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
-            Arrays.asList("rowTitles", "columTitles", "height", "width", "logicalTable", "customSpreadsheetResultOpenClass", "rowNamesMarkedWithStar", "columnNamesMarkedWithStar")));
+            Arrays.asList("rowTitles",
+                "columTitles",
+                "height",
+                "width",
+                "logicalTable",
+                "customSpreadsheetResultOpenClass",
+                "rowNamesMarkedWithAsterisk",
+                "columnNamesMarkedWithAsterisk")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

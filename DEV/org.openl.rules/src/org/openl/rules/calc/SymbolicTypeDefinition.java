@@ -6,12 +6,12 @@ public class SymbolicTypeDefinition {
 
     private IdentifierNode name;
     private IdentifierNode type;
-    private boolean markedWithStar;
+    private boolean markedWithAsterisk;
 
-    public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean markedWithStar) {
+    public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean markedWithAsterisk) {
         this.name = name;
         this.type = type;
-        this.markedWithStar = markedWithStar;
+        this.markedWithAsterisk = markedWithAsterisk;
     }
 
     public IdentifierNode getName() {
@@ -22,8 +22,8 @@ public class SymbolicTypeDefinition {
         return type;
     }
 
-    public boolean isMarkedWithStar() {
-        return markedWithStar;
+    public boolean isMarkedWithAsterisk() {
+        return markedWithAsterisk;
     }
 
 }

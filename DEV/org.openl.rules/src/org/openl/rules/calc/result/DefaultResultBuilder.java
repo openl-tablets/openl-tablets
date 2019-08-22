@@ -22,8 +22,8 @@ public class DefaultResultBuilder implements IResultBuilder {
         SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray,
             spreadsheet.getRowNames(),
             spreadsheet.getColumnNames(),
-            spreadsheet.getRowNamesMarkedWithStar(),
-            spreadsheet.getColumnNamesMarkedWithStar(),
+            spreadsheet.getRowNamesMarkedWithAsterisk(),
+            spreadsheet.getColumnNamesMarkedWithAsterisk(),
             spreadsheet.getFieldsCoordinates());
 
         if (spreadsheet.isCustomSpreadsheetType()) {

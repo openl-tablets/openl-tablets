@@ -86,28 +86,28 @@ public class SpreadsheetComponentsBuilder {
         return columnHeaders;
     }
 
-    public String[] getRowNamesMarkedWithStar() {
-        final long columnsMarkedWithStar = columnHeaders.entrySet()
+    public String[] getRowNamesMarkedWithAsterisk() {
+        final long columnsMarkedWithAsterisk = columnHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isMarkedWithStar())
+            .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         return buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
-            e -> cellsHeaderExtractor.getHeight() == 1 && columnsMarkedWithStar > 0 || e.getDefinition()
-                .isMarkedWithStar());
+            e -> cellsHeaderExtractor.getHeight() == 1 && columnsMarkedWithAsterisk > 0 || e.getDefinition()
+                .isMarkedWithAsterisk());
     }
 
-    public String[] getColumnNamesMarkedWithStar() {
-        final long rowsMarkedWithStar = rowHeaders.entrySet()
+    public String[] getColumnNamesMarkedWithAsterisk() {
+        final long rowsMarkedWithAsterisk = rowHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isMarkedWithStar())
+            .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         return buildArrayForHeaders(columnHeaders,
             cellsHeaderExtractor.getWidth(),
-            e -> cellsHeaderExtractor.getWidth() == 1 && rowsMarkedWithStar > 0 || e.getDefinition()
-                .isMarkedWithStar());
+            e -> cellsHeaderExtractor.getWidth() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition()
+                .isMarkedWithAsterisk());
     }
 
     public String[] getRowNames() {
@@ -269,18 +269,18 @@ public class SpreadsheetComponentsBuilder {
         }
 
         IdentifierNode headerNameNode = nodes[0];
-        boolean startsWithStar = false;
+        boolean startsWithAsterisk = false;
         if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
             .startsWith(SpreadsheetSymbols.STAR.toString())) {
             headerNameNode = removeLeadingStar(nodes[0]);
-            startsWithStar = true;
+            startsWithAsterisk = true;
             validateHeaderName(headerNameNode);
         }
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDefinition(headerNameNode, null, startsWithStar);
+                return new SymbolicTypeDefinition(headerNameNode, null, startsWithAsterisk);
             case 2:
-                return new SymbolicTypeDefinition(headerNameNode, nodes[1], startsWithStar);
+                return new SymbolicTypeDefinition(headerNameNode, nodes[1], startsWithAsterisk);
             default:
                 String message = String.format("Valid header format: name [%s type]",
                     SpreadsheetSymbols.TYPE_DELIMETER.toString());

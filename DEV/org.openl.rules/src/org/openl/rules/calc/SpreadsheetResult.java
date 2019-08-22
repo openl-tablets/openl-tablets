@@ -35,8 +35,8 @@ public class SpreadsheetResult implements Serializable {
     private Object[][] results;
     private String[] columnNames;
     private String[] rowNames;
-    private transient String[] rowNamesMarkedWithStar;
-    private transient String[] columnNamesMarkedWithStar;
+    private transient String[] rowNamesMarkedWithAsterisk;
+    private transient String[] columnNamesMarkedWithAsterisk;
     private transient Map<String, Point> fieldsCoordinates;
 
     /**
@@ -60,36 +60,36 @@ public class SpreadsheetResult implements Serializable {
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
             String[] columnNames,
-            String[] rowNamesMarkedWithStar,
-            String[] columnNamesMarkedWithStar,
+            String[] rowNamesMarkedWithAsterisk,
+            String[] columnNamesMarkedWithAsterisk,
             Map<String, Point> fieldsCoordinates) {
         Objects.requireNonNull(rowNames);
         Objects.requireNonNull(columnNames);
-        Objects.requireNonNull(rowNamesMarkedWithStar);
-        Objects.requireNonNull(columnNamesMarkedWithStar);
-        if (rowNames.length != rowNamesMarkedWithStar.length) {
+        Objects.requireNonNull(rowNamesMarkedWithAsterisk);
+        Objects.requireNonNull(columnNamesMarkedWithAsterisk);
+        if (rowNames.length != rowNamesMarkedWithAsterisk.length) {
             throw new IllegalArgumentException(
-                "The length of rowNames is not equal to the lenght of rowNamesMarkedWithStar.");
+                "The length of rowNames is not equal to the lenght of rowNamesMarkedWithAsterisk.");
         }
-        if (columnNames.length != columnNamesMarkedWithStar.length) {
+        if (columnNames.length != columnNamesMarkedWithAsterisk.length) {
             throw new IllegalArgumentException(
-                "The length of columnNames is not equal to the lenght of columnNamesMarkedWithStar.");
+                "The length of columnNames is not equal to the lenght of columnNamesMarkedWithAsterisk.");
         }
         this.results = results;
 
         this.columnNames = columnNames;
         this.rowNames = rowNames;
 
-        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
-        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
+        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
 
         this.fieldsCoordinates = fieldsCoordinates;
     }
 
-    public boolean isMarkedWithStarField(String fieldName) {
+    public boolean isMarkedWithAsteriskField(String fieldName) {
         Point point = fieldsCoordinates.get(fieldName);
         if (point != null) {
-            return columnNamesMarkedWithStar[point.getColumn()] != null && rowNamesMarkedWithStar[point
+            return columnNamesMarkedWithAsterisk[point.getColumn()] != null && rowNamesMarkedWithAsterisk[point
                 .getRow()] != null;
         }
         return false;
@@ -165,21 +165,21 @@ public class SpreadsheetResult implements Serializable {
     }
 
     @XmlTransient
-    public String[] getRowNamesMarkedWithStar() {
-        return rowNamesMarkedWithStar.clone();
+    public String[] getRowNamesMarkedWithAsterisk() {
+        return rowNamesMarkedWithAsterisk.clone();
     }
 
-    public void setRowNamesMarkedWithStar(String[] rowNamesMarkedWithStar) {
-        this.rowNamesMarkedWithStar = rowNamesMarkedWithStar;
+    public void setRowNamesMarkedWithAsterisk(String[] rowNamesMarkedWithAsterisk) {
+        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
     }
 
     @XmlTransient
-    public String[] getColumnNamesMarkedWithStar() {
-        return columnNamesMarkedWithStar.clone();
+    public String[] getColumnNamesMarkedWithAsterisk() {
+        return columnNamesMarkedWithAsterisk.clone();
     }
 
-    public void setColumnNamesMarkedWithStar(String[] columnNamesMarkedWithStar) {
-        this.columnNamesMarkedWithStar = columnNamesMarkedWithStar;
+    public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
+        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
     }
 
     public Object getValue(int row, int column) {
@@ -382,20 +382,20 @@ public class SpreadsheetResult implements Serializable {
     private Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
-            long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
-            long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
-            for (int i = 0; i < rowNamesMarkedWithStar.length; i++) {
-                for (int j = 0; j < columnNamesMarkedWithStar.length; j++) {
-                    if (columnNamesMarkedWithStar[j] != null && rowNamesMarkedWithStar[i] != null) {
+            long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
+            long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
+            for (int i = 0; i < rowNamesMarkedWithAsterisk.length; i++) {
+                for (int j = 0; j < columnNamesMarkedWithAsterisk.length; j++) {
+                    if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
                         if (nonNullsColumnsCount == 1) {
-                            values.put(rowNamesMarkedWithStar[i],
+                            values.put(rowNamesMarkedWithAsterisk[i],
                                 ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         } else if (nonNullsRowsCount == 1) {
-                            values.put(columnNamesMarkedWithStar[j],
+                            values.put(columnNamesMarkedWithAsterisk[j],
                                 ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         } else {
                             StringBuilder sb = new StringBuilder();
-                            sb.append(columnNamesMarkedWithStar[j]).append("_").append(rowNamesMarkedWithStar[i]);
+                            sb.append(columnNamesMarkedWithAsterisk[j]).append("_").append(rowNamesMarkedWithAsterisk[i]);
                             values.put(sb.toString(), ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         }
                     }
