@@ -353,11 +353,18 @@ public class SpreadsheetResult implements Serializable {
         if (getCustomSpreadsheetResultOpenClass() != null) {
             return toPlain(getCustomSpreadsheetResultOpenClass().getModule());
         } else {
-            return toMap(null);
+            return toMap();
         }
     }
 
+    public Object toMap() throws InstantiationException, IllegalAccessException {
+        return toMap(null);
+    }
+
     public Object toPlain(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
+        if (module == null) {
+            return toMap(null);
+        }
         if (getCustomSpreadsheetResultOpenClass() != null) {
             IOpenClass openClass = module.findType(getCustomSpreadsheetResultOpenClass().getName());
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
@@ -375,21 +382,20 @@ public class SpreadsheetResult implements Serializable {
     private Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
-            long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
-            long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
-            for (int i = 0; i < rowNames.length; i++) {
-                for (int j = 0; j < columnNames.length; j++) {
-                    if (columnNames[j] != null && rowNames[i] != null) {
-                        if (nonNullsColumnsCount == 1 || nonNullsRowsCount == 1) {
-                            if (nonNullsRowsCount == 1) {
-                                values.put(columnNames[j], ifSpreadsheerResultThenConvert(module, getValue(i, j)));
-                            }
-                            if (nonNullsColumnsCount == 1) {
-                                values.put(rowNames[i], ifSpreadsheerResultThenConvert(module, getValue(i, j)));
-                            }
+            long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithStar).filter(Objects::nonNull).count();
+            long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithStar).filter(Objects::nonNull).count();
+            for (int i = 0; i < rowNamesMarkedWithStar.length; i++) {
+                for (int j = 0; j < columnNamesMarkedWithStar.length; j++) {
+                    if (columnNamesMarkedWithStar[j] != null && rowNamesMarkedWithStar[i] != null) {
+                        if (nonNullsColumnsCount == 1) {
+                            values.put(rowNamesMarkedWithStar[i],
+                                ifSpreadsheerResultThenConvert(module, getValue(i, j)));
+                        } else if (nonNullsRowsCount == 1) {
+                            values.put(columnNamesMarkedWithStar[j],
+                                ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         } else {
                             StringBuilder sb = new StringBuilder();
-                            sb.append(columnNames[j]).append("_").append(rowNames[i]);
+                            sb.append(columnNamesMarkedWithStar[j]).append("_").append(rowNamesMarkedWithStar[i]);
                             values.put(sb.toString(), ifSpreadsheerResultThenConvert(module, getValue(i, j)));
                         }
                     }

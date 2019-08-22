@@ -71,6 +71,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
             customSpreadsheetResultOpenClass
                 .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
+
             for (IOpenField field : spreadsheetOpenClassFields.values()) {
                 CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                     customSpreadsheetResultOpenClass,
@@ -115,7 +116,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
         validateRowsColumnsWithStars(spreadsheet);
-
+        
         if (spreadsheet.isCustomSpreadsheetType()) {
             IOpenClass type = null;
             try {
@@ -154,6 +155,58 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                 "If rows are marked with stars, then at least one column must be marked with star also, otherwise marked rows are ignored.",
                 getTableSyntaxNode()));
+        }
+        StringBuilder sb = new StringBuilder();
+        int warnCnt = 0;
+        for (int i = 0; i < spreadsheet.getRowNamesMarkedWithStar().length; i++) {
+            for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithStar().length; j++) {
+                if (spreadsheet.getColumnNamesMarkedWithStar()[j] != null && spreadsheet
+                    .getRowNamesMarkedWithStar()[i] != null) {
+                    String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
+                        .getColumnNamesMarkedWithStar()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
+                            .getRowNamesMarkedWithStar()[i];
+                    IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
+                    IOpenClass t = field.getType();
+                    while (t.isArray()) {
+                        t = t.getComponentClass();
+                    }
+                    boolean f = false;
+                    if (t instanceof CustomSpreadsheetResultOpenClass) {
+                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
+                        CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
+                            .findType(customSpreadsheetResultOpenClass.getName());
+                        if (csroc.isEmptyBean()) {
+                            f = true; // IGNORE EMPTY CSRS TYPES
+                        }
+                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
+                        f = true; // IGNORE VOID TYPES
+                    }
+                    if (f) {
+                        if (warnCnt > 0) {
+                            sb.append(", ");
+                        }
+                        if (columnsWithStarCount == 1) {
+                            sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+                            sb.append(spreadsheet.getRowNamesMarkedWithStar()[i]);
+                        } else if (rowsWithStarCount == 1) {
+                            sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
+                            sb.append(spreadsheet.getColumnNamesMarkedWithStar()[j]);
+                        } else {
+                            sb.append(fieldName);
+                        }
+                        warnCnt++;
+                    }
+                }
+            }
+        }
+        if (warnCnt == 1) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                "Spreadsheet cell '%s' is always empty. Using stars on column/row for this field makes output result excess.",
+                sb.toString()), getTableSyntaxNode()));
+        } else if (warnCnt > 1) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                "Spreadsheet cells [%s] are always empty. Using stars on columns/rows for these fields makes output result excess.",
+                sb.toString()), getTableSyntaxNode()));
         }
     }
 

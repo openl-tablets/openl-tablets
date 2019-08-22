@@ -394,6 +394,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
                     CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                         .findType(customSpreadsheetResultOpenClass.getName());
+
+                    if (csroc.isEmptyBean()) {
+                        continue; //IGNORE EMPTY CSRS TYPES
+                    }
+                    
                     Class<?> beanType = csroc.getBeanClass();
                     if (dim > 0) {
                         type = Array.newInstance(beanType, new int[dim]).getClass();
