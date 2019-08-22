@@ -172,14 +172,19 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
-
-            minNumber = matcher.group(1);
-            minMultiplier = matcher.group(2);
-            long min = parseIntWithMultiplier(minNumber, minMultiplier);
+            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            String group1 = matcher.group(1);
+            String group2 = matcher.group(2);
+            String group4 = matcher.group(4);
+            String group5 = matcher.group(5);
             String separator = matcher.group(3);
-            maxNumber = matcher.group(4);
-            maxMultiplier = matcher.group(5);
-            long max = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            minNumber = group1;
+            maxNumber = group4;
+            minMultiplier = group2;
+            maxMultiplier = group5;
+
+            long min = parseIntWithMultiplier(group1, group2);
+            long max = parseIntWithMultiplier(group4, group5);
 
             RangeWithBounds.BoundType boundType = "…".equals(separator) || "..."
                 .equals(separator) ? RangeWithBounds.BoundType.EXCLUDING : RangeWithBounds.BoundType.INCLUDING;
@@ -199,13 +204,18 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
+            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            String gruop2 = matcher.group(2);
+            String gruop5 = matcher.group(5);
+            String gruop3 = matcher.group(3);
+            String gruop6 = matcher.group(6);
+            minNumber = gruop2;
+            maxNumber = gruop5;
+            minMultiplier = gruop3;
+            maxMultiplier = gruop6;
 
-            minNumber = matcher.group(2);
-            minMultiplier = matcher.group(3);
-            long min = parseIntWithMultiplier(minNumber, minMultiplier);
-            maxNumber = matcher.group(5);
-            maxMultiplier = matcher.group(6);
-            long max = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long min = parseIntWithMultiplier(gruop2, gruop3);
+            long max = parseIntWithMultiplier(gruop5, gruop6);
 
             RangeWithBounds.BoundType minBound = "[".equals(matcher.group(1)) ? RangeWithBounds.BoundType.INCLUDING
                                                                               : RangeWithBounds.BoundType.EXCLUDING;
@@ -227,13 +237,18 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
+            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            String group2 = matcher.group(2);
+            String group5 = matcher.group(5);
+            String group3 = matcher.group(3);
+            String group6 = matcher.group(6);
+            minNumber = group2;
+            maxNumber = group5;
+            minMultiplier = group3;
+            maxMultiplier = group6;
 
-            minNumber = matcher.group(2);
-            minMultiplier = matcher.group(3);
-            long first = parseIntWithMultiplier(minNumber, minMultiplier);
-            maxNumber = matcher.group(5);
-            maxMultiplier = matcher.group(6);
-            long second = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long first = parseIntWithMultiplier(group2, group3);
+            long second = parseIntWithMultiplier(group5, group6);
 
             String firstBound = matcher.group(1);
             String secondBound = matcher.group(4);
@@ -254,13 +269,18 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
+            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            String group2 = matcher.group(2);
+            String group6 = matcher.group(6);
+            String group3 = matcher.group(3);
+            String group7 = matcher.group(7);
+            minNumber = group2;
+            maxNumber = group6;
+            minMultiplier = group3;
+            maxMultiplier = group7;
 
-            minNumber = matcher.group(2);
-            minMultiplier = matcher.group(3);
-            long first = parseIntWithMultiplier(minNumber, minMultiplier);
-            maxNumber = matcher.group(6);
-            maxMultiplier = matcher.group(7);
-            long second = parseIntWithMultiplier(maxNumber, maxMultiplier);
+            long first = parseIntWithMultiplier(group2, group3);
+            long second = parseIntWithMultiplier(group6, group7);
 
             String firstBound1 = matcher.group(1);
             String firstBound2 = matcher.group(4);
