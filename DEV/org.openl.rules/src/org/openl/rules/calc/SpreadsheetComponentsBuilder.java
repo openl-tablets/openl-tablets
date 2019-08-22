@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -240,23 +241,19 @@ public class SpreadsheetComponentsBuilder {
         return new IdentifierNode(identifierNode.getType(), location, v, identifierNode.getModule());
     }
 
+    private static final Pattern ASTERISK_MARKED_HEADER_NAME_PATTERN = Pattern.compile("[a-zA-Z_]+[0-9a-zA-Z_]*");
+
     private void validateHeaderName(IdentifierNode headerNameNode) throws SyntaxNodeException {
         if (JavaKeywordUtils.isJavaKeyword(headerNameNode.getIdentifier())) {
             throw SyntaxNodeExceptionUtils.createError("Invalid header: Java keywords are not allowed.",
                 headerNameNode);
         }
-        if (StringUtils.isEmpty(headerNameNode.getIdentifier()) || !Character
-            .isJavaIdentifierStart(headerNameNode.getIdentifier().charAt(0))) {
+        if (StringUtils.isEmpty(headerNameNode.getIdentifier()) || !ASTERISK_MARKED_HEADER_NAME_PATTERN
+            .matcher(headerNameNode.getIdentifier())
+            .matches()) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Invalid header: All headers marked with asterisk symbol must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
+                "Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.",
                 headerNameNode);
-        }
-        for (int i = 1; i < headerNameNode.getIdentifier().length(); i++) {
-            if (!Character.isJavaIdentifierPart(headerNameNode.getIdentifier().charAt(i))) {
-                throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid header: All headers marked with asterisk symbol must begin with a letter of the alphabet, an underscore and may contains digits after the first initial letter.",
-                    headerNameNode);
-            }
         }
     }
 
