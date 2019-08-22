@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
@@ -119,17 +120,17 @@ public class RunRestRulesDeploymentTest {
         ResponseEntity<String> serviceMethods1 = fetchServiceMethods(
             SERVICES_INFO_ENDPOINT + "/deployed-rules" + SERVICES_METHODS_ENDPOINT);
         assertEquals(
-            "[{\"methodName\":\"hello\",\"methodParams\":[\"IRulesRuntimeContext\",\"String\"],\"resultType\":\"String\"}]",
+            "[{\"name\":\"hello\",\"paramTypes\":[\"IRulesRuntimeContext\",\"String\"],\"returnType\":\"String\"}]",
             serviceMethods1.getBody());
         ResponseEntity<String> serviceMethods2 = fetchServiceMethods(
             SERVICES_INFO_ENDPOINT + "/project1" + SERVICES_METHODS_ENDPOINT);
         assertEquals(
-            "[{\"methodName\":\"getProject2Version\",\"methodParams\":[],\"resultType\":\"String\"},{\"methodName\":\"sayHello\",\"methodParams\":[\"String\"],\"resultType\":\"String\"}]",
+            "[{\"name\":\"getProject2Version\",\"paramTypes\":[],\"returnType\":\"String\"},{\"name\":\"sayHello\",\"paramTypes\":[\"String\"],\"returnType\":\"String\"}]",
             serviceMethods2.getBody());
         ResponseEntity<String> serviceMethods3 = fetchServiceMethods(
             SERVICES_INFO_ENDPOINT + "/yaml_project_project2" + SERVICES_METHODS_ENDPOINT);
         assertEquals(
-            "[{\"methodName\":\"getProject2Version\",\"methodParams\":[\"IRulesRuntimeContext\"],\"resultType\":\"String\"}]",
+            "[{\"name\":\"getProject2Version\",\"paramTypes\":[\"IRulesRuntimeContext\"],\"returnType\":\"String\"}]",
             serviceMethods3.getBody());
 
         String body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
@@ -155,8 +156,8 @@ public class RunRestRulesDeploymentTest {
     public void testMissingServiceMethods() {
         ResponseEntity<String> serviceMethods0 = fetchServiceMethods(
             SERVICES_INFO_ENDPOINT + "/missing-name" + SERVICES_METHODS_ENDPOINT);
-        assertEquals(HttpStatus.OK, serviceMethods0.getStatusCode());
-        assertEquals("[]", serviceMethods0.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, serviceMethods0.getStatusCode());
+        assertNull(serviceMethods0.getBody());
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,

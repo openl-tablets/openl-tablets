@@ -1938,17 +1938,20 @@ public class RepositoryTreeController {
         }
     }
 
-    public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
+    public List<String> getCommentParts(AProjectArtefact artefact, ProjectVersion version) {
+        String comment = version.getVersionComment();
         if (artefact instanceof RulesProject) {
-            String comment = version.getVersionComment();
-            String name = designRepoComments.parseSourceOfCopy(comment);
-            if (repositoryTreeState.getProjectNodeByPhysicalName(name) == null) {
-                return StringUtils.EMPTY;
+            List<String> commentParts = designRepoComments.getCommentParts(comment);
+            if (commentParts.size() == 3) {
+                String name = commentParts.get(1);
+                if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
+                    return commentParts;
+                }
             }
-            return name;
+
         }
 
-        return StringUtils.EMPTY;
+        return Collections.singletonList(comment);
     }
 
     /**

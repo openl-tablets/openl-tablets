@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -71,8 +72,11 @@ public class CommentsTest {
 
     @Test
     public void testParseSourceOfCopy() {
-        String actual = comments.parseSourceOfCopy("Project {username} {myProjectName} is copied-from. {foo}");
-        assertEquals("myProjectName", actual);
+        List<String> commentParts = comments.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
+        assertEquals(3, commentParts.size());
+        assertEquals("Project {username} {", commentParts.get(0));
+        assertEquals("myProjectName", commentParts.get(1));
+        assertEquals("} is copied-from. {foo}", commentParts.get(2));
     }
 
     @Test

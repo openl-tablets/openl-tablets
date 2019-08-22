@@ -1,15 +1,16 @@
 package org.openl.rules.project.abstraction;
 
-import java.text.MessageFormat;
-import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.util.StringUtils;
 
 public final class Comments {
 
-    private static final String PROJECT_NAME = "\\{project-name\\}";
-    private static final String REVISION = "\\{revision\\}";
+    private static final String PROJECT_NAME = "\\{project-name}";
+    private static final String REVISION = "\\{revision}";
 
     private final String saveProjectTemplate;
     private final String createProjectTemplate;
@@ -67,18 +68,15 @@ public final class Comments {
             sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
     }
 
-    public String parseSourceOfCopy(String comment) {
-        if (StringUtils.isBlank(comment)) {
-            return StringUtils.EMPTY;
-        }
-        try {
-            String template = copiedFromTemplate.replaceAll(PROJECT_NAME, "{0}")
-                .replaceAll("\\{(?!0\\})", "'{'")
-                .replaceAll("(?<!\\{0)\\}", "'}'");
-            Object[] parse = new MessageFormat(template).parse(comment);
-            return parse.length > 0 ? parse[0].toString() : StringUtils.EMPTY;
-        } catch (ParseException e) {
-            return StringUtils.EMPTY;
+    public List<String> getCommentParts(String comment) {
+        String paramName = "{project-name}";
+        int from = copiedFromTemplate.indexOf(paramName);
+        String prefix = copiedFromTemplate.substring(0, from);
+        String suffix = copiedFromTemplate.substring(from + paramName.length());
+        if (comment.startsWith(prefix) && comment.endsWith(suffix)) {
+            return Arrays.asList(prefix, comment.substring(from, comment.lastIndexOf(suffix)), suffix);
+        } else {
+            return Collections.singletonList(comment);
         }
     }
 
