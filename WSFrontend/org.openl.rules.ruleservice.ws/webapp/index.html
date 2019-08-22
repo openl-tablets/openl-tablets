@@ -157,16 +157,48 @@
                 var button = event.target || event.srcElement;
                 if (button.className == "expand-button") {
                     // Expand the node
+                    var childArray = Array.from(button.parentElement.children)
+                    var serviceNameBlock = childArray[1];
+                    var methodsBlock = childArray[2];
+                    var xmlhttpMethods = new XMLHttpRequest();
+                    xmlhttpMethods.onreadystatechange = fetchServiceMethods(methodsBlock);
+                    xmlhttpMethods.open("GET", url + "/" + serviceNameBlock.innerText + "/methods", true);
+                    xmlhttpMethods.send();
                     button.className = "collapse-button";
                 } else if (button.className == "collapse-button") {
                     // Collapse the node
                     button.className = "expand-button";
                 }
+
             })
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
         }
     }
+
+    function fetchServiceMethods(methodsBlock) {
+        return function () {
+            if (this.readyState != 4) {
+                return;
+            }
+            if (this.status == 200) {
+                var html = "";
+                JSON.parse(this.response).forEach(function (methodInfo) {
+                    var methodParamsInfo = "(";
+                    for (i = 0; i < methodInfo.methodParams.length; i++) {
+                        methodParamsInfo += methodInfo.methodParams[i];
+                        if (methodInfo.methodParams.length > i + 1) {
+                            methodParamsInfo += ", ";
+                        }
+                    }
+                    methodParamsInfo += ")";
+                    html += "<li>" + methodInfo.resultType + " <b>" + methodInfo.methodName + "</b> " + methodParamsInfo + "</li>";
+                });
+                methodsBlock.innerHTML = html;
+            }
+        };
+    }
+
     // Creating innerHTML of one service
     function createServiceHtml(service) {
         var html = "";
@@ -174,11 +206,7 @@
         html += "<span class='expand-button'></span><h3>" + service.name + "</h3>";
 
         // Methods
-        html += "<ul class='methods'>";
-        service.methodNames.forEach(function (methodName) {
-            html += "<li>" + methodName + "</li>";
-        })
-        html += "</ul>";
+        html += "<ul class='methods'></ul>";
 
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";

@@ -187,14 +187,9 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return services;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        List<String> methodNames = new ArrayList<>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
+    private ServiceInfo createServiceInfo(OpenLService service) {
         String url = processURL(service.getUrl());
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "SOAP");
+        return new ServiceInfo(new Date(), service.getName(), url, "SOAP");
     }
 
     private void removeServiceInfo(String serviceName) {

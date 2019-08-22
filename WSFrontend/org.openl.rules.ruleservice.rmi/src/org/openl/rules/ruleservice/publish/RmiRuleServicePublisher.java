@@ -144,14 +144,8 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        List<String> methodNames = new ArrayList<>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
         String address = "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
-
-        return new ServiceInfo(new Date(), service.getName(), methodNames, address, "RMI");
+        return new ServiceInfo(new Date(), service.getName(), address, "RMI");
     }
 
     private void removeServiceInfo(String serviceName) {
