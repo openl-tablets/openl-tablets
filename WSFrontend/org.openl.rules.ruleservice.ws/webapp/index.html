@@ -184,15 +184,14 @@
             if (this.status == 200) {
                 var html = "";
                 JSON.parse(this.response).forEach(function (methodInfo) {
-                    var methodParamsInfo = "(";
+                    html += "<li>" + methodInfo.returnType + " <b>" + methodInfo.name + "</b> (";
                     for (i = 0; i < methodInfo.methodParams.length; i++) {
-                        methodParamsInfo += methodInfo.methodParams[i];
+                        html += methodInfo.methodParams[i];
                         if (methodInfo.methodParams.length > i + 1) {
-                            methodParamsInfo += ", ";
+                            html += ", ";
                         }
                     }
-                    methodParamsInfo += ")";
-                    html += "<li>" + methodInfo.resultType + " <b>" + methodInfo.methodName + "</b> " + methodParamsInfo + "</li>";
+                    html += ")</li>";
                 });
                 methodsBlock.innerHTML = html;
             }
