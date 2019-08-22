@@ -88,14 +88,14 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getRowNamesMarkedWithAsterisk() {
-        final long columnsMarkedWithAsterisk = columnHeaders.entrySet()
+        final long columnsMarkedWithAsteriskCount = columnHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         return buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
-            e -> cellsHeaderExtractor.getHeight() == 1 && columnsMarkedWithAsterisk > 0 || e.getDefinition()
+            e -> rowHeaders.size() == 1 && columnsMarkedWithAsteriskCount > 0 || e.getDefinition()
                 .isMarkedWithAsterisk());
     }
 
@@ -107,8 +107,7 @@ public class SpreadsheetComponentsBuilder {
 
         return buildArrayForHeaders(columnHeaders,
             cellsHeaderExtractor.getWidth(),
-            e -> cellsHeaderExtractor.getWidth() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition()
-                .isMarkedWithAsterisk());
+            e -> columnHeaders.size() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition().isMarkedWithAsterisk());
     }
 
     public String[] getRowNames() {
