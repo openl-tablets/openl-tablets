@@ -352,7 +352,11 @@ public final class RuleServiceInstantiationFactoryHelper {
                 .isAssignableFrom(method.getReturnType())) {
                 IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method,
                     serviceTarget);
-                if (openMember.getType() instanceof CustomSpreadsheetResultOpenClass) {
+                IOpenClass type = openMember.getType();
+                while (type.isArray()) {
+                    type = type.getComponentClass();
+                }
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openMember
                         .getType();
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;

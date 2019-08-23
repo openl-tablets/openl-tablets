@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -389,14 +390,16 @@ public class SpreadsheetResult implements Serializable {
                     if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
                         if (nonNullsColumnsCount == 1) {
                             values.put(rowNamesMarkedWithAsterisk[i],
-                                ifSpreadsheerResultThenConvert(module, getValue(i, j)));
+                                ifSpreadsheetResultThenConvert(module, getValue(i, j)));
                         } else if (nonNullsRowsCount == 1) {
                             values.put(columnNamesMarkedWithAsterisk[j],
-                                ifSpreadsheerResultThenConvert(module, getValue(i, j)));
+                                ifSpreadsheetResultThenConvert(module, getValue(i, j)));
                         } else {
                             StringBuilder sb = new StringBuilder();
-                            sb.append(columnNamesMarkedWithAsterisk[j]).append("_").append(rowNamesMarkedWithAsterisk[i]);
-                            values.put(sb.toString(), ifSpreadsheerResultThenConvert(module, getValue(i, j)));
+                            sb.append(columnNamesMarkedWithAsterisk[j])
+                                .append("_")
+                                .append(rowNamesMarkedWithAsterisk[i]);
+                            values.put(sb.toString(), ifSpreadsheetResultThenConvert(module, getValue(i, j)));
                         }
                     }
                 }
@@ -405,35 +408,42 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    private Object ifSpreadsheerResultThenConvert(XlsModuleOpenClass module, Object v) throws InstantiationException,
+    public static Object ifSpreadsheetResultThenConvert(XlsModuleOpenClass module, Object v) throws InstantiationException,
                                                                                        IllegalAccessException {
+        if (v == null) {
+            return null;
+        }
         if (v instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<Object> collection = (Collection<Object>) v;
+            @SuppressWarnings("unchecked")
+            Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
             for (Object o : collection) {
-                if (o instanceof SpreadsheetResult) {
-                    @SuppressWarnings("unchecked")
-                    Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
-                    for (Object o1 : collection) {
-                        newCollection.add(ifSpreadsheerResultThenConvert(module, o1));
-                    }
-                    return newCollection;
-                }
+                newCollection.add(ifSpreadsheetResultThenConvert(module, o));
             }
+            return newCollection;
         }
         if (v instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<Object, Object> map = (Map<Object, Object>) v;
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
             for (Entry<Object, Object> e : map.entrySet()) {
-                if (e.getKey() instanceof SpreadsheetResult || e.getValue() instanceof SpreadsheetResult) {
-                    @SuppressWarnings("unchecked")
-                    Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
-                    for (Entry<Object, Object> e1 : map.entrySet()) {
-                        newMap.put(ifSpreadsheerResultThenConvert(module, e1.getKey()),
-                            ifSpreadsheerResultThenConvert(module, e1.getValue()));
-                    }
-                    return newMap;
+                newMap.put(ifSpreadsheetResultThenConvert(module, e.getKey()),
+                    ifSpreadsheetResultThenConvert(module, e.getValue()));
+            }
+            return newMap;
+        }
+        if (v.getClass().isArray()) {
+            Class<?> componentType = v.getClass().getComponentType();
+            if (componentType.isArray() || SpreadsheetResult.class.isAssignableFrom(componentType) || Map.class
+                .isAssignableFrom(componentType) || Collection.class.isAssignableFrom(componentType)) {
+                int len = Array.getLength(v);
+                Object newArray = Array.newInstance(componentType, len);
+                for (int i = 0; i < len; i++) {
+                    Array.set(newArray, i, ifSpreadsheetResultThenConvert(module, Array.get(v, i)));
                 }
+                return newArray;
             }
         }
         if (v instanceof SpreadsheetResult) {

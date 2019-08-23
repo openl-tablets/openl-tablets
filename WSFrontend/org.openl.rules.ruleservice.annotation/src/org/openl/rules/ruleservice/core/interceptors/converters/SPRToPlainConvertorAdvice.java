@@ -22,10 +22,6 @@ public class SPRToPlainConvertorAdvice extends AbstractServiceMethodAfterReturni
 
     @Override
     public Object afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-        if (result instanceof SpreadsheetResult) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) result;
-            return spreadsheetResult.toPlain(module);
-        }
-        throw new IllegalStateException("SpreadsheetResult type is expected for a result.");
+        return SpreadsheetResult.ifSpreadsheetResultThenConvert(module, result);
     }
 }
