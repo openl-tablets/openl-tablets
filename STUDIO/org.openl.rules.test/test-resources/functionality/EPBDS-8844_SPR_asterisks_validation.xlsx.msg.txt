@@ -1,0 +1,17 @@
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+WARN: Spreadsheet cells [$Step1, $Step2, $Step3, $Step4, $Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
+WARN: Spreadsheet cells [$Step1, $Step2, $Step3, $Step4, $Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
+WARN: If columns are marked with asterisk symbols, then at least one row must be marked also, otherwise marked columns with asterisk symbols are ignored.
+WARN: If rows are marked with asterisk symbols, then at least one column must be marked also, otherwise marked rows with asterisk symbols are ignored.
+WARN: Spreadsheet cells [$Result$Step1, $Result$Step2, $Result$Step3, $Result$Step4, $Result$Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
+ERROR: Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.
