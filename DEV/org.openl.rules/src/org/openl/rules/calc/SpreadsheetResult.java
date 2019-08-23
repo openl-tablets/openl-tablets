@@ -358,7 +358,7 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
-    public Object toMap() throws InstantiationException, IllegalAccessException {
+    public Map<String, Object> toMap() throws InstantiationException, IllegalAccessException {
         return toMap(null);
     }
 
