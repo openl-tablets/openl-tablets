@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceImpl;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher implements InitializingBean {
 
-    private final Logger log = LoggerFactory.getLogger(RuleServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(MultipleRuleServicePublisher.class);
 
     private Map<String, RuleServicePublisher> supportedPublishers = new TreeMap<>(
         (o1, o2) -> o1.toUpperCase().compareTo(o2.toUpperCase()));
