@@ -1,6 +1,8 @@
 package org.openl.itest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.springframework.http.HttpMethod;
@@ -132,13 +135,14 @@ public class RunITest {
 
     @Test
     public void testWadlSchemaForBean() throws XPathExpressionException {
-        String result = getWadl();
+        String wadlBody = ITestUtils.getWadlBody(baseURI + "/upcs?_wadl");
+        assertNotNull(wadlBody);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result));
+        InputSource inputSource = new InputSource(new StringReader(wadlBody));
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
 
-        String pathToType = "/application/grammars/*[local-name()='schema']/*[local-name()='complexType' and @name='Bean']";
+        String pathToType = "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='Bean']";
         final Node nodeForType = (Node) xpath.evaluate(pathToType, root, XPathConstants.NODE);
         assertEquals("Bean", nodeForType.getAttributes().getNamedItem("name").getTextContent());
 
@@ -159,13 +163,14 @@ public class RunITest {
 
     @Test
     public void testWadlSchemaForBeanB() throws XPathExpressionException {
-        String result = getWadl();
+        String wadlBody = ITestUtils.getWadlBody(baseURI + "/upcs?_wadl");
+        assertNotNull(wadlBody);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result));
+        InputSource inputSource = new InputSource(new StringReader(wadlBody));
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
 
-        String pathToType = "/application/grammars/*[local-name()='schema']/*[local-name()='complexType' and @name='BeanB']";
+        String pathToType = "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='BeanB']";
         final Node nodeForType = (Node) xpath.evaluate(pathToType, root, XPathConstants.NODE);
         assertEquals("BeanB", nodeForType.getAttributes().getNamedItem("name").getTextContent());
 
@@ -185,13 +190,14 @@ public class RunITest {
 
     @Test
     public void testWadlSchemaForMixedCase() throws XPathExpressionException {
-        String result = getWadl();
+        String wadlBody = ITestUtils.getWadlBody(baseURI + "/upcs?_wadl");
+        assertNotNull(wadlBody);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result));
+        InputSource inputSource = new InputSource(new StringReader(wadlBody));
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
 
-        String pathToType = "/application/grammars/*[local-name()='schema']/*[local-name()='complexType' and @name='MixedCaseRequest']";
+        String pathToType = "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='MixedCaseRequest']";
         final Node nodeForType = (Node) xpath.evaluate(pathToType, root, XPathConstants.NODE);
         assertEquals("MixedCaseRequest", nodeForType.getAttributes().getNamedItem("name").getTextContent());
 
@@ -208,23 +214,30 @@ public class RunITest {
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
-        String pathToMethod = "/application/resources/resource/resource[@path='MixedCase']";
+        String pathToMethod = "/*[local-name()='application']/*[local-name()='resources']/*[local-name()='resource']/*[local-name()='resource' and @path='MixedCase']";
         Node nodeForMethod = (Node) xpath.evaluate(pathToMethod, root, XPathConstants.NODE);
         assertNotNull(nodeForMethod);
-        String content = pathToMethod + "/method/request/representation[@element='MixedCaseRequest']";
+        String content = pathToMethod + "/*[local-name()='method']/*[local-name()='request']/*[local-name()='representation']";
         Node nodeForMethodBody = (Node) xpath.evaluate(content, root, XPathConstants.NODE);
+        String elementValue = nodeForMethodBody.getAttributes().getNamedItem("element").getTextContent();
+        if (elementValue.indexOf(":") > 0) {
+            assertEquals("MixedCaseRequest", elementValue.substring(elementValue.indexOf(":") + 1));
+        } else {
+            assertEquals("MixedCaseRequest", elementValue);
+        }
         assertNotNull(nodeForMethodBody);
     }
 
     @Test
     public void testWadlSchemaForEDGECase() throws XPathExpressionException {
-        String result = getWadl();
+        String wadlBody = ITestUtils.getWadlBody(baseURI + "/upcs?_wadl");
+        assertNotNull(wadlBody);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result));
+        InputSource inputSource = new InputSource(new StringReader(wadlBody));
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
 
-        String pathToType = "/application/grammars/*[local-name()='schema']/*[local-name()='complexType' and @name='EDGECaseRequest']";
+        String pathToType = "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='EDGECaseRequest']";
         final Node nodeForType = (Node) xpath.evaluate(pathToType, root, XPathConstants.NODE);
         assertEquals("EDGECaseRequest", nodeForType.getAttributes().getNamedItem("name").getTextContent());
 
@@ -241,11 +254,17 @@ public class RunITest {
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
-        String pathToMethod = "/application/resources/resource/resource[@path='eDGECase']";
+        String pathToMethod = "/*[local-name()='application']/*[local-name()='resources']/*[local-name()='resource']/*[local-name()='resource' and @path='eDGECase']";
         Node nodeForMethod = (Node) xpath.evaluate(pathToMethod, root, XPathConstants.NODE);
         assertNotNull(nodeForMethod);
-        String content = pathToMethod + "/method/request/representation[@element='EDGECaseRequest']";
+        String content = pathToMethod + "/*[local-name()='method']/*[local-name()='request']/*[local-name()='representation']";
         Node nodeForMethodBody = (Node) xpath.evaluate(content, root, XPathConstants.NODE);
+        String elementValue = nodeForMethodBody.getAttributes().getNamedItem("element").getTextContent();
+        if (elementValue.indexOf(":") > 0) {
+            assertEquals("EDGECaseRequest", elementValue.substring(elementValue.indexOf(":") + 1));
+        } else {
+            assertEquals("EDGECaseRequest", elementValue);
+        }
         assertNotNull(nodeForMethodBody);
     }
 
@@ -254,25 +273,13 @@ public class RunITest {
     }
 
     private void assertReturnsTrue(Map<String, Object> requestBody, String url, HttpMethod httpMethod) {
-        ResponseEntity<Boolean> response = rest.exchange(url,
-                httpMethod,
-                RestClientFactory.request(requestBody),
-                Boolean.class);
+        ResponseEntity<Boolean> response = rest
+            .exchange(url, httpMethod, RestClientFactory.request(requestBody), Boolean.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         Boolean result = response.getBody();
         assertNotNull(result);
         assertTrue(result);
-    }
-
-    private String getWadl() {
-        ResponseEntity<String> response = rest.getForEntity("/upcs?_wadl", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        String result = response.getBody();
-        assertNotNull(result);
-        // Cleanup
-        return ITestUtil.cleanupXml(result);
     }
 
 }

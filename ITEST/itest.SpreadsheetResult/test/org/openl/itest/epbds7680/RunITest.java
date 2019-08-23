@@ -1,8 +1,11 @@
 package org.openl.itest.epbds7680;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +18,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.itest.ITestUtil;
+import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
+import org.openl.itest.core.XmlMimeInterceptor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -63,36 +67,37 @@ public class RunITest {
         requestBody.put("j", "foo");
 
         ResponseEntity<String> response = rest.exchange("/REST/wadl-and-spreadsheetresult/tiktak",
-                HttpMethod.POST, RestClientFactory.request(requestBody), String.class);
+            HttpMethod.POST,
+            RestClientFactory.request(requestBody),
+            String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        DocumentContext documentContext = JsonPath.using(Configuration.defaultConfiguration()).parse(response.getBody());
+        DocumentContext documentContext = JsonPath.using(Configuration.defaultConfiguration())
+            .parse(response.getBody());
 
         assertEquals((Integer) 2, documentContext.read("$.results.length()"));
-        assertEquals((Integer)1, documentContext.read("$.results[0].length()"));
-        assertEquals((Integer)1, documentContext.read("$.results[1].length()"));
-        assertEquals((Integer)100, documentContext.read("$.results[0][0]"));
+        assertEquals((Integer) 1, documentContext.read("$.results[0].length()"));
+        assertEquals((Integer) 1, documentContext.read("$.results[1].length()"));
+        assertEquals((Integer) 100, documentContext.read("$.results[0][0]"));
         assertEquals("foo", documentContext.read("$.results[1][0]"));
-        assertEquals((Integer)1, documentContext.read("$.columnNames.length()"));
+        assertEquals((Integer) 1, documentContext.read("$.columnNames.length()"));
         assertEquals("calc", documentContext.read("$.columnNames[0]"));
-        assertEquals((Integer)2, documentContext.read("$.rowNames.length()"));
+        assertEquals((Integer) 2, documentContext.read("$.rowNames.length()"));
         assertEquals("INT", documentContext.read("$.rowNames[0]"));
         assertEquals("String", documentContext.read("$.rowNames[1]"));
 
-        assertEquals((Integer)3, documentContext.read("$.length()"));
+        assertEquals((Integer) 3, documentContext.read("$.length()"));
     }
 
     @Test
     public void test_validate_SpreadsheetResultTypeInWsdlSchema() throws XPathExpressionException {
-        ResponseEntity<String> response = rest.getForEntity("/wadl-and-spreadsheetresult?wsdl", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        final String result = response.getBody();
-        assertNotNull(result);
+        
+        String wsdlBody = ITestUtils.getWsdlBody(baseURI + "/wadl-and-spreadsheetresult?wsdl");
+        assertNotNull(wsdlBody);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
+        InputSource inputSource = new InputSource(new StringReader(wsdlBody));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
         final String spreadsheetResultTypePath = "/*[local-name()='definitions']/*[local-name()='types']/*/*[local-name()='complexType'][@name='SpreadsheetResult']";
@@ -121,29 +126,39 @@ public class RunITest {
 
     @Test
     public void test_soapResponse_spreadsheetResult() throws XPathExpressionException {
-        ResponseEntity<String> response = rest.exchange("/wadl-and-spreadsheetresult", HttpMethod.POST, new HttpEntity<>(SOAP_REQUEST), String.class);
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new XmlMimeInterceptor()));
+        final ResponseEntity<String> response = restTemplate.exchange(baseURI + "/wadl-and-spreadsheetresult",
+            HttpMethod.POST,
+            new HttpEntity<>(SOAP_REQUEST),
+            String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        final String result = response.getBody();
+        String result = response.getBody();
         assertNotNull(result);
 
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
+        InputSource inputSource = new InputSource(new StringReader(result));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
         final String spreadsheetResultTypePath = "/*[local-name()='Envelope']/*[local-name()='Body']/*[local-name()='tiktakResponse']/*[local-name()='return']";
         Node spreadsheetResultTypeNode = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
         assertNotNull(spreadsheetResultTypeNode);
 
-        assertEndsWith(":SpreadsheetResult",  spreadsheetResultTypeNode.getAttributes().getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type").getTextContent());
+        assertEndsWith(":SpreadsheetResult",
+            spreadsheetResultTypeNode.getAttributes()
+                .getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
+                .getTextContent());
 
-        Node element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='columnNames']", root, XPathConstants.NODE);
+        Node element = (Node) xpath
+            .evaluate(spreadsheetResultTypePath + "/*[local-name()='columnNames']", root, XPathConstants.NODE);
         assertNotNull(element);
 
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='results']", root, XPathConstants.NODE);
+        element = (Node) xpath
+            .evaluate(spreadsheetResultTypePath + "/*[local-name()='results']", root, XPathConstants.NODE);
         assertNotNull(element);
 
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowNames']", root, XPathConstants.NODE);
+        element = (Node) xpath
+            .evaluate(spreadsheetResultTypePath + "/*[local-name()='rowNames']", root, XPathConstants.NODE);
         assertNotNull(element);
 
         NodeList elements = (NodeList) xpath.evaluate(spreadsheetResultTypePath + "/*", root, XPathConstants.NODESET);

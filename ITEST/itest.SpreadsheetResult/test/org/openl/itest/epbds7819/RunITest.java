@@ -14,15 +14,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.jxpath.NodeSet;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.MainService;
+import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
-import org.openl.itest.ITestUtil;
 import org.openl.itest.core.SoapClientFactory;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.springframework.http.HttpMethod;
@@ -60,27 +59,28 @@ public class RunITest {
 
     @Test
     public void testSpreadsheetResultWadlSchema() throws XPathExpressionException {
-        ResponseEntity<String> response = rest.getForEntity("?_wadl", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        final String result = response.getBody();
-        assertNotNull(result);
+        String wadlBody = ITestUtils.getWadlBody(baseURI + "/REST/wadl-and-spreadsheetresult?_wadl");
+        assertNotNull(wadlBody);
 
         XPathFactory xPathFactory = XPathFactory.newInstance();
         XPath xpath = xPathFactory.newXPath();
-        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
+        InputSource inputSource = new InputSource(new StringReader(wadlBody));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
-        String pathToSpreadsheetResultSchema = "/application/grammars/*[local-name()='schema']";
+        String pathToSpreadsheetResultSchema = "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']";
         int i = findSpreadsheetResultSchemaPosition(root, xpath, pathToSpreadsheetResultSchema);
         pathToSpreadsheetResultSchema += "[" + (i + 1) + "]";
 
-        final Node spreadsheetResultSchemaNode = (Node) xpath.evaluate(pathToSpreadsheetResultSchema + "/*[local-name()='element']", root, XPathConstants.NODE);
-        assertEquals("spreadsheetResult", spreadsheetResultSchemaNode.getAttributes().getNamedItem("name").getTextContent());
+        final Node spreadsheetResultSchemaNode = (Node) xpath
+            .evaluate(pathToSpreadsheetResultSchema + "/*[local-name()='element']", root, XPathConstants.NODE);
+        assertEquals("spreadsheetResult",
+            spreadsheetResultSchemaNode.getAttributes().getNamedItem("name").getTextContent());
 
         final String pathToComplexType = pathToSpreadsheetResultSchema + "/*[local-name()='complexType']";
-        final Node spreadsheetResultComplexTypeNode = (Node) xpath.evaluate(pathToComplexType, root, XPathConstants.NODE);
-        assertEquals("spreadsheetResult", spreadsheetResultComplexTypeNode.getAttributes().getNamedItem("name").getTextContent());
+        final Node spreadsheetResultComplexTypeNode = (Node) xpath
+            .evaluate(pathToComplexType, root, XPathConstants.NODE);
+        assertEquals("spreadsheetResult",
+            spreadsheetResultComplexTypeNode.getAttributes().getNamedItem("name").getTextContent());
 
         final String pathToSequence = pathToComplexType + "/*[local-name()='sequence']";
 
@@ -124,10 +124,8 @@ public class RunITest {
         requestBody.put("i", 100);
         requestBody.put("j", "foo");
 
-        ResponseEntity<SpreadsheetResult> response = rest.exchange("/tiktak",
-                HttpMethod.POST,
-                RestClientFactory.request(requestBody),
-                SpreadsheetResult.class);
+        ResponseEntity<SpreadsheetResult> response = rest
+            .exchange("/tiktak", HttpMethod.POST, RestClientFactory.request(requestBody), SpreadsheetResult.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         SpreadsheetResult result = response.getBody();
@@ -145,7 +143,9 @@ public class RunITest {
         assertEquals("foo", result.getFieldValue("$calc$String"));
     }
 
-    private int findSpreadsheetResultSchemaPosition(Node root, XPath xpath, String path) throws XPathExpressionException {
+    private int findSpreadsheetResultSchemaPosition(Node root,
+            XPath xpath,
+            String path) throws XPathExpressionException {
         NodeList nodeList = (NodeList) xpath.evaluate(path, root, XPathConstants.NODESET);
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node schema = nodeList.item(i);

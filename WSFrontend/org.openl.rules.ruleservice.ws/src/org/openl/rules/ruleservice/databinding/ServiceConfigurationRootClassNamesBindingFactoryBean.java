@@ -4,10 +4,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
@@ -31,7 +40,32 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
         Set<String> ret = new HashSet<>(getDefaultAdditionalRootClassNames());
         ret.addAll(fromServiceDescription());
         ret.addAll(fromOpenLService());
+        checkXmlSeeAlso(ret);
         return Collections.unmodifiableSet(ret);
+    }
+
+    private void checkXmlSeeAlso(Set<String> rootClassNames, Class<?> clazz) {
+        XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+        if (xmlSeeAlso != null) {
+            for (Class<?> cls : xmlSeeAlso.value()) {
+                rootClassNames.add(cls.getName());
+                checkXmlSeeAlso(rootClassNames, cls);
+            }
+        }
+    }
+
+    private void checkXmlSeeAlso(Set<String> rootClassNames) throws ServiceConfigurationException {
+        OpenLService openLService = getOpenLService();
+        Set<String> tmp = new HashSet<>(rootClassNames);
+        for (String className : tmp) {
+            try {
+                Class<?> cls = openLService.getClassLoader().loadClass(className);
+                checkXmlSeeAlso(rootClassNames, cls);
+            } catch (ClassNotFoundException e) {
+            } catch (RuleServiceInstantiationException e) {
+                throw new ServiceConfigurationException(e);
+            }
+        }
     }
 
     private Set<String> fromOpenLService() throws ServiceConfigurationException {
@@ -50,6 +84,15 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
                         }
                     }
                 }
+            }
+            if (openLService.isProvideVariations()) {
+                ret.add(Variation.class.getName());
+                ret.add(NoVariation.class.getName());
+                ret.add(ArgumentReplacementVariation.class.getName());
+                ret.add(ComplexVariation.class.getName());
+                ret.add(DeepCloningVariation.class.getName());
+                ret.add(JXPathVariation.class.getName());
+                ret.add(VariationsResult.class.getName());
             }
         } catch (RuleServiceInstantiationException e) {
             throw new ServiceConfigurationException(e);

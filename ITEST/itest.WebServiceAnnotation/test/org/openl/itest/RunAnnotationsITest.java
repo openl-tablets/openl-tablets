@@ -67,7 +67,7 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_parse_interfaceMethod_shouldBeCalledSuccessfully_OK() {
-        //parse method was bound to the "/parse1" endpoint
+        // parse method was bound to the "/parse1" endpoint
         ResponseEntity<Integer> response = annotationClassRest
             .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
 
@@ -78,7 +78,7 @@ public class RunAnnotationsITest {
     @Test
     public void call_parse_interfaceMethod_shouldReturn_UNPROCESSABLE_ENTITY() {
         ResponseEntity<ErrorResponse> response = annotationClassRest
-                .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("B"), ErrorResponse.class);
+            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("B"), ErrorResponse.class);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
         ErrorResponse body = response.getBody();
@@ -90,7 +90,7 @@ public class RunAnnotationsITest {
     @Test
     public void call_parse1_interfaceMethod_shouldReturn_NOT_FOUND() {
         ResponseEntity<String> response = annotationClassRest
-                .exchange("/parse11", HttpMethod.POST, RestClientFactory.request("B"), String.class);
+            .exchange("/parse11", HttpMethod.POST, RestClientFactory.request("B"), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -250,7 +250,7 @@ public class RunAnnotationsITest {
     @Test
     public void test_doSomething_REST() {
         ResponseEntity<Long> response = serviceClassRest
-                .exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), Long.class);
+            .exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), Long.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals((Long) 1001L, response.getBody());
@@ -263,8 +263,7 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_doArray_REST() {
-        ResponseEntity<long[]> response = serviceClassRest
-                .getForEntity("/doArray", long[].class);
+        ResponseEntity<long[]> response = serviceClassRest.getForEntity("/doArray", long[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(3, response.getBody().length);
@@ -289,7 +288,8 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_voidMethodWithAfterReturnInterceptor_REST() {
-        ResponseEntity<Response> response = serviceClassRest.getForEntity("/voidMethodWithAfterReturnInterceptor", Response.class);
+        ResponseEntity<Response> response = serviceClassRest.getForEntity("/voidMethodWithAfterReturnInterceptor",
+            Response.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Response body = response.getBody();
@@ -308,8 +308,10 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_longMethodWithAfterReturnInterceptor_REST() {
-        ResponseEntity<Response> response = serviceClassRest
-                .exchange("/longMethodWithAfterReturnInterceptor", HttpMethod.POST, RestClientFactory.request("1111"), Response.class);
+        ResponseEntity<Response> response = serviceClassRest.exchange("/longMethodWithAfterReturnInterceptor",
+            HttpMethod.POST,
+            RestClientFactory.request("1111"),
+            Response.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Response body = response.getBody();
@@ -329,7 +331,7 @@ public class RunAnnotationsITest {
     @Test
     public void test_longMethodWithUpcast_REST() {
         ResponseEntity<Long> response = serviceClassRest
-                .exchange("/longMethodWithUpcast", HttpMethod.POST, RestClientFactory.request("1111"), Long.class);
+            .exchange("/longMethodWithUpcast", HttpMethod.POST, RestClientFactory.request("1111"), Long.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals((Long) 1111L, response.getBody());
@@ -344,7 +346,7 @@ public class RunAnnotationsITest {
     @Test
     public void test_aroundLongMethod_REST() {
         ResponseEntity<Response> response = serviceClassRest
-                .exchange("/aroundLongMethod", HttpMethod.POST, RestClientFactory.request("1111"), Response.class);
+            .exchange("/aroundLongMethod", HttpMethod.POST, RestClientFactory.request("1111"), Response.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Response body = response.getBody();
@@ -382,15 +384,18 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_doSomething_negative_REST() {
-        ResponseEntity<String> response = serviceClassNegativeRest.exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
+        ResponseEntity<String> response = serviceClassNegativeRest
+            .exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     public void test_runTestTables_calculatePremium_REST() {
-        ResponseEntity<SpreadsheetResult> response = runTestServiceRest.exchange("/calculatePremium", HttpMethod.POST,
-                RestClientFactory.request("{\"covName\": \"Cov1\", \"amount\": 1000}"), SpreadsheetResult.class);
+        ResponseEntity<SpreadsheetResult> response = runTestServiceRest.exchange("/calculatePremium",
+            HttpMethod.POST,
+            RestClientFactory.request("{\"covName\": \"Cov1\", \"amount\": 1000}"),
+            SpreadsheetResult.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         SpreadsheetResult body = response.getBody();
@@ -401,18 +406,21 @@ public class RunAnnotationsITest {
         assertEquals((Double) 0., body.getFieldValue("$Formula$DiscountAmt"));
         assertEquals((Double) 100., body.getFieldValue("$Formula$FinalPremium"));
 
-
     }
 
     @Test
     public void test_runTestTables_calculatePremium_ValidationError_REST() {
-        ResponseEntity<ErrorResponse> response = runTestServiceRest.exchange("/calculatePremium", HttpMethod.POST,
-                RestClientFactory.request("{\"covName\": \"Cov100\", \"amount\": 1000}"), ErrorResponse.class);
+        ResponseEntity<ErrorResponse> response = runTestServiceRest.exchange("/calculatePremium",
+            HttpMethod.POST,
+            RestClientFactory.request("{\"covName\": \"Cov100\", \"amount\": 1000}"),
+            ErrorResponse.class);
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
 
         ErrorResponse body = response.getBody();
         assertNotNull(body);
-        assertEquals("Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]", body.getMessage());
+        assertEquals(
+            "Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]",
+            body.getMessage());
         assertEquals(ExceptionType.VALIDATION.name(), body.getType());
     }
 
@@ -424,15 +432,15 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_runTestTables_getFactor_REST() {
-        ResponseEntity<String> response = runTestServiceRest.exchange("/getFactor", HttpMethod.POST,
-                RestClientFactory.request("Cov1"), String.class);
+        ResponseEntity<String> response = runTestServiceRest
+            .exchange("/getFactor", HttpMethod.POST, RestClientFactory.request("Cov1"), String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     public void test_runTestTables_getDiscount_REST() {
-        ResponseEntity<String> response = runTestServiceRest.exchange("/getDiscount", HttpMethod.POST,
-                RestClientFactory.request("100"), String.class);
+        ResponseEntity<String> response = runTestServiceRest
+            .exchange("/getDiscount", HttpMethod.POST, RestClientFactory.request("100"), String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -444,7 +452,7 @@ public class RunAnnotationsITest {
 
     private void assertMyTypeEquals(MyType expected, String xml) throws XPathExpressionException {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(xml)));
+        InputSource inputSource = new InputSource(new StringReader(xml));
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
 
         Node statusNode = (Node) xpath.evaluate("/myType/status", root, XPathConstants.NODE);
