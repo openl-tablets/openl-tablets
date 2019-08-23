@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,19 @@ public class CommentsTest {
         assertEquals("Project {username} {", commentParts.get(0));
         assertEquals("myProjectName", commentParts.get(1));
         assertEquals("} is copied-from. {foo}", commentParts.get(2));
+
+        List<String> parts2 = comments.getCommentParts(null);
+        assertEquals(1, parts2.size());
+        assertNull(parts2.get(0));
+
+        List<String> parts3 = comments.getCommentParts("");
+        assertEquals(1, parts3.size());
+        assertEquals("", parts3.get(0));
+
+        // Not applied to pattern
+        List<String> parts4 = comments.getCommentParts("My comment");
+        assertEquals(1, parts4.size());
+        assertEquals("My comment", parts4.get(0));
     }
 
     @Test
