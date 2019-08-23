@@ -69,6 +69,9 @@ public final class Comments {
     }
 
     public List<String> getCommentParts(String comment) {
+        if (StringUtils.isBlank(comment)) {
+            return Collections.singletonList(comment);
+        }
         String paramName = "{project-name}";
         int from = copiedFromTemplate.indexOf(paramName);
         String prefix = copiedFromTemplate.substring(0, from);
