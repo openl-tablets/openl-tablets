@@ -408,15 +408,14 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
+    @SuppressWarnings("unchecked")
     public static Object ifSpreadsheetResultThenConvert(XlsModuleOpenClass module, Object v) throws InstantiationException,
                                                                                        IllegalAccessException {
         if (v == null) {
             return null;
         }
         if (v instanceof Collection) {
-            @SuppressWarnings("unchecked")
             Collection<Object> collection = (Collection<Object>) v;
-            @SuppressWarnings("unchecked")
             Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
             for (Object o : collection) {
                 newCollection.add(ifSpreadsheetResultThenConvert(module, o));
@@ -424,9 +423,7 @@ public class SpreadsheetResult implements Serializable {
             return newCollection;
         }
         if (v instanceof Map) {
-            @SuppressWarnings("unchecked")
             Map<Object, Object> map = (Map<Object, Object>) v;
-            @SuppressWarnings("unchecked")
             Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
             for (Entry<Object, Object> e : map.entrySet()) {
                 newMap.put(ifSpreadsheetResultThenConvert(module, e.getKey()),

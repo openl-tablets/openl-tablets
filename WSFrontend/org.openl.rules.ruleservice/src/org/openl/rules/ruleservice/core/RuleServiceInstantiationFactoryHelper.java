@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
@@ -27,15 +28,16 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
 import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
+import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConvertorAdvice;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
@@ -353,8 +355,10 @@ public final class RuleServiceInstantiationFactoryHelper {
                 IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method,
                     serviceTarget);
                 IOpenClass type = openMember.getType();
+                int dim = 0;
                 while (type.isArray()) {
                     type = type.getComponentClass();
+                    dim++;
                 }
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openMember
@@ -363,8 +367,21 @@ public final class RuleServiceInstantiationFactoryHelper {
                     CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                         .findType(customSpreadsheetResultOpenClass.getName());
                     if (!csrt.isEmptyBeanClass()) {
-                        ret.put(method, Pair.of(csrt.getBeanClass(), Boolean.FALSE));
+                        Class<?> t = csrt.getBeanClass();
+                        if (dim > 0) {
+                            t = Array.newInstance(t, new int[dim]).getClass();
+                        }
+                        ret.put(method, Pair.of(t, Boolean.FALSE));
                     }
+                } else if (type.getInstanceClass() != null && SpreadsheetResult.class
+                    .isAssignableFrom(type.getInstanceClass())) {
+                    Class<?> t = Object.class;
+                    if (dim > 0) {
+                        t = Array.newInstance(t, new int[dim]).getClass();
+                    }
+                    ret.put(method, Pair.of(t, Boolean.FALSE));
+                } else if (JavaOpenClass.OBJECT.equals(type)) {
+                    ret.put(method, Pair.of(openMember.getType().getInstanceClass(), Boolean.FALSE));
                 }
             }
         }
