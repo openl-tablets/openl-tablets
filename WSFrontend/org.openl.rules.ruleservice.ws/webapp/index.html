@@ -123,25 +123,21 @@
 <div id="main"></div>
 <div id="footer">&#169; 2019 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
+    "use strict";
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
     var url = "admin/services";
 
-    xmlhttp.onreadystatechange = function () {
-        if (this.readyState != 4) {
-            return;
-        }
-        if (this.status == 200) {
-            var services = JSON.parse(this.responseText);
-            renderJson(services);
-        }
+    xmlhttp.onload = function () {
+        var services = JSON.parse(this.response);
+        renderServices(services);
     };
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 
-    function renderJson(services) {
+    function renderServices(services) {
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
 
@@ -155,17 +151,20 @@
             });
             mainBlock.addEventListener('click', function (event) {
                 var button = event.target || event.srcElement;
-                if (button.className == "expand-button") {
+                if (button.className === "expand-button") {
                     // Expand the node
-                    var childArray = Array.from(button.parentElement.children)
-                    var serviceNameBlock = childArray[1];
-                    var methodsBlock = childArray[2];
+                    var childArray = button.parentElement.childNodes
+                    var serviceName = childArray[1].innerText;
+                    var target = childArray[2];
                     var xmlhttpMethods = new XMLHttpRequest();
-                    xmlhttpMethods.onreadystatechange = fetchServiceMethods(methodsBlock);
-                    xmlhttpMethods.open("GET", url + "/" + serviceNameBlock.innerText + "/methods", true);
+                    xmlhttpMethods.onload = function () {
+                        var methods = JSON.parse(this.response);
+                        renderMethods(target, methods);
+                    };
+                    xmlhttpMethods.open("GET", url + "/" + serviceName + "/methods", true);
                     xmlhttpMethods.send();
                     button.className = "collapse-button";
-                } else if (button.className == "collapse-button") {
+                } else if (button.className === "collapse-button") {
                     // Collapse the node
                     button.className = "expand-button";
                 }
@@ -176,26 +175,10 @@
         }
     }
 
-    function fetchServiceMethods(methodsBlock) {
-        return function () {
-            if (this.readyState != 4) {
-                return;
-            }
-            if (this.status == 200) {
-                var html = "";
-                JSON.parse(this.response).forEach(function (methodInfo) {
-                    html += "<li>" + methodInfo.returnType + " <b>" + methodInfo.name + "</b> (";
-                    for (i = 0; i < methodInfo.methodParams.length; i++) {
-                        html += methodInfo.methodParams[i];
-                        if (methodInfo.methodParams.length > i + 1) {
-                            html += ", ";
-                        }
-                    }
-                    html += ")</li>";
-                });
-                methodsBlock.innerHTML = html;
-            }
-        };
+    function renderMethods(methodsBlock, methods) {
+        methodsBlock.innerHTML = methods.map(function (m) {
+            return "<li>" + m.returnType + " <b>" + m.name + "</b> (" + m.paramTypes.join(", ") + ")</li>"
+        }).join("");
     }
 
     // Creating innerHTML of one service
@@ -213,14 +196,14 @@
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (name == "SOAP") {
+            if (name === "SOAP") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
-            } else if (name == "REST") {
+            } else if (name === "REST") {
                 html += "<a href='" + url + "?_wadl'\>WADL</a>";
                 html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
-            } else if (name == "Kafka") {
+            } else if (name === "Kafka") {
                 html += "<span>" + name + "</span>";
             } else {
                 html += "<a href='" + url + "'\>" + name + "</a>";
