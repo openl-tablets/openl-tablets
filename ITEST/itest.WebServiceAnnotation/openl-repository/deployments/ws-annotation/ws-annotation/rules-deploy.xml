@@ -4,6 +4,7 @@
     <serviceName>String Parser</serviceName>
     <publishers>
         <publisher>RESTFUL</publisher>
+        <publisher>WEBSERVICE</publisher>
     </publishers>
     <annotationTemplateClassName>org.openl.itest.service.MyService</annotationTemplateClassName>
     <url>string/toNumber</url>

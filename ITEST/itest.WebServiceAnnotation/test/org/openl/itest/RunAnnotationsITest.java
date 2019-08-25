@@ -18,6 +18,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.core.SoapClientFactory;
@@ -58,7 +59,7 @@ public class RunAnnotationsITest {
 
     @Before
     public void before() {
-        annotationClassRest = new RestClientFactory(baseURI + "/v1/string/toNumber").create();
+        annotationClassRest = new RestClientFactory(baseURI + "/REST/v1/string/toNumber").create();
         serviceClassRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-positive").create();
         serviceClassNegativeRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-negative").create();
         soapClient = new SoapClientFactory<>(baseURI + "/ws-serviceclass-positive", MyService.class).createProxy();
@@ -462,6 +463,35 @@ public class RunAnnotationsITest {
         Node codeNode = (Node) xpath.evaluate("/myType/code", root, XPathConstants.NODE);
         assertNotNull(statusNode);
         assertEquals(String.valueOf(expected.getCode()), codeNode.getTextContent());
+    }
+
+    private void assertEqualsIgnorePrefix(String expected, String actual) {
+        if (actual.indexOf(":") > 0) {
+            assertEquals(expected, actual.substring(actual.indexOf(":") + 1));
+        } else {
+            assertEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void typeChangingToGenericTypeTest() throws XPathExpressionException {
+        String wsdlBody = ITestUtils.getWsdlBody(baseURI + "/v1/string/toNumber?wsdl");
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource inputSource = new InputSource(new StringReader(wsdlBody));
+        final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
+
+        final Node node1 = (Node) xpath.evaluate(
+            "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='parse5Response']/*[local-name()='sequence']/*[local-name()='element']",
+            root,
+            XPathConstants.NODE);
+        assertEqualsIgnorePrefix("double", node1.getAttributes().getNamedItem("type").getTextContent());
+
+        final Node node2 = (Node) xpath.evaluate(
+            "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='parse6Response']/*[local-name()='sequence']/*[local-name()='element']",
+            root,
+            XPathConstants.NODE);
+        assertEqualsIgnorePrefix("int", node2.getAttributes().getNamedItem("type").getTextContent());
     }
 
     private void assertContains(String text, String expected) {

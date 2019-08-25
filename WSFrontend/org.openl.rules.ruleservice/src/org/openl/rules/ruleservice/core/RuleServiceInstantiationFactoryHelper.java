@@ -238,7 +238,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     Class<?> t = extractOpenMethodReturnType(method,
                         serviceTarget,
                         lastServiceMethodAfterAdvice,
-                        method.getAnnotation(UseOpenMethodReturnType.class).value());
+                        lastServiceMethodAfterAdvice.getAnnotation(UseOpenMethodReturnType.class).value());
                     if (t != null) {
                         return t;
                     }
@@ -275,42 +275,39 @@ public final class RuleServiceInstantiationFactoryHelper {
             Object serviceTarget,
             Class<?> interceptorClass,
             TypeResolver typeResolver) {
-        Method m = null;
-        try {
-            m = serviceTarget.getClass().getMethod(method.getName(), method.getParameterTypes());
-        } catch (NoSuchMethodException e) {
+        IOpenMember openMember = extractOpenMember(method, serviceTarget);
+        if (openMember == null) {
             logWarn(method, interceptorClass);
             return null;
         }
-        if (m != null) {
-            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
-            if (openMember == null) {
-                logWarn(method, interceptorClass);
-            }
-            Class<?> retType = null;
-            IOpenClass returnType = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget)
-                .getType();
-            switch (typeResolver) {
-                case ORIGINAL:
-                    retType = returnType.getInstanceClass();
-                    break;
-                case IF_CSR_TO_PLAIN:
-                    if (returnType instanceof CustomSpreadsheetResultOpenClass) {
-                        retType = returnType.getInstanceClass();
-                    } else {
-                        retType = ((CustomSpreadsheetResultOpenClass) returnType).getBeanClass();
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
-
-            if (retType == null) {
-                throw new IllegalStateException("Wrong instance class.");
-            }
-            return retType;
+        IOpenClass returnType = openMember.getType();
+        switch (typeResolver) {
+            case ORIGINAL:
+                return returnType.getInstanceClass();
+            case IF_CSR_TO_PLAIN:
+                if (returnType instanceof CustomSpreadsheetResultOpenClass) {
+                    return returnType.getInstanceClass();
+                } else {
+                    return ((CustomSpreadsheetResultOpenClass) returnType).getBeanClass();
+                }
+            default:
+                throw new IllegalStateException();
         }
-        return null;
+    }
+
+    private static IOpenMember extractOpenMember(Method method, Object serviceTarget) {
+        IOpenMember openMember = null;
+        for (Class<?> cls : serviceTarget.getClass().getInterfaces()) {
+            try {
+                Method m = cls.getMethod(method.getName(), method.getParameterTypes());
+                openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+                if (openMember != null) {
+                    break;
+                }
+            } catch (NoSuchMethodException e) {
+            }
+        }
+        return openMember;
     }
 
     private static void logWarn(Method method, Class<?> interceptorClass) {
@@ -352,17 +349,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
-                IOpenMember openMember = null;
-                for (Class<?> cls : serviceTarget.getClass().getInterfaces()) {
-                    try {
-                        Method m = cls.getMethod(method.getName(), method.getParameterTypes());
-                        openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
-                        if (openClass != null) {
-                            break;
-                        }
-                    } catch (NoSuchMethodException e) {
-                    }
-                }
+                IOpenMember openMember = extractOpenMember(method, serviceTarget);
                 if (openMember == null) {
                     throw new IllegalArgumentException("Open member is not found!");
                 }

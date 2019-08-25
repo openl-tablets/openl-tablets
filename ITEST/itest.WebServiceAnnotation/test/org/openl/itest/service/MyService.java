@@ -51,4 +51,10 @@ public interface MyService {
 
     MyType ping(MyType type);
 
+    @ServiceCallAfterInterceptor(value = { ToDoubleServiceMethodAfterAdvice.class,
+            NoConvertorServiceMethodAfterAdvice.class })
+    Double parse5(String num);
+
+    @ServiceCallAfterInterceptor(value = { OpenLTypeServiceMethodAfterAdvice.class })
+    Double parse6(String num);
 }
