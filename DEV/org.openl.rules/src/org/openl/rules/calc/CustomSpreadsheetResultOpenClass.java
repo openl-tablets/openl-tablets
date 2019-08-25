@@ -115,13 +115,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return module;
     }
 
-    public void extendSpreadsheetResult(String[] rowNames,
+    private void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
             String[] rowNamesMarkedWithAsterisk,
             String[] columnNamesMarkedWithAsterisk,
             String[] rowTitles,
             String[] columnTitles,
-            Collection<IOpenField> fields) {
+            Collection<IOpenField> fields,
+            boolean simpleRefBeanByRow,
+            boolean simpleRefBeanByColumn) {
         if (beanClass != null) {
             throw new IllegalStateException(
                 "Bean class for custom spreadsheet result has already been generated. Spreasheet result can't be extended.");
@@ -180,15 +182,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         if (rowColumnsWithAsterisktRequiresUpdate) {
-            long cols = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
-            long rows = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
-
-            if (this.simpleRefBeanByColumn) {
-                this.simpleRefBeanByColumn = rows == 1 && this.rowsWithAsteriskCount == 1;
-            }
-            if (this.simpleRefBeanByRow) {
-                this.simpleRefBeanByRow = cols == 1 && this.columnsWithAsteriskCount == 1;
-            }
+            this.simpleRefBeanByRow = simpleRefBeanByRow && this.simpleRefBeanByRow;
+            this.simpleRefBeanByColumn = simpleRefBeanByColumn && this.simpleRefBeanByColumn;
 
             this.rowAndColumnNamesMarkedWithAsteriskHistory.add(Pair.of(columnNamesMarkedWithAsterisk, rowNamesMarkedWithAsterisk));
 
@@ -231,7 +226,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.columnNamesMarkedWithAsterisk,
             customSpreadsheetResultOpenClass.rowTitles,
             customSpreadsheetResultOpenClass.columnTitles,
-            customSpreadsheetResultOpenClass.getFields().values());
+            customSpreadsheetResultOpenClass.getFields().values(),
+            customSpreadsheetResultOpenClass.simpleRefBeanByRow,
+            customSpreadsheetResultOpenClass.simpleRefBeanByColumn);
         validate(this, customSpreadsheetResultOpenClass.getFields().values());
     }
 

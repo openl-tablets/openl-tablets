@@ -1,0 +1,24 @@
+<project>
+	<name>simple2</name>
+	<modules>
+		<module>
+			<name>module1</name>
+			<rules-root path="module1.xlsx" />
+			<method-filter>
+				<includes>
+					<value>.+ calc\(.+\)</value>
+					<value>.+ dtRetSpr\(.+\)</value>
+					<value>.+ dtRetSpr2\(.+\)</value>
+					<value>.+ dtRetSpr3\(.+\)</value>
+				</includes>
+			</method-filter>
+		</module>
+		<module>
+			<name>module2</name>
+			<rules-root path="module2.xlsx" />
+		</module>
+	</modules>
+	<classpath>
+		<entry path="lib/*.jar" />
+	</classpath>
+</project>

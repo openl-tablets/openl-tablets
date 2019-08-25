@@ -350,10 +350,22 @@ public final class RuleServiceInstantiationFactoryHelper {
             Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(method, serviceTarget, toServiceClass);
             if (newReturnType != null) {
                 ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
-            } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && SpreadsheetResult.class
-                .isAssignableFrom(method.getReturnType())) {
-                IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method,
-                    serviceTarget);
+            } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
+                .isAnnotationPresent(ServiceExtraMethod.class)) {
+                IOpenMember openMember = null;
+                for (Class<?> cls : serviceTarget.getClass().getInterfaces()) {
+                    try {
+                        Method m = cls.getMethod(method.getName(), method.getParameterTypes());
+                        openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+                        if (openClass != null) {
+                            break;
+                        }
+                    } catch (NoSuchMethodException e) {
+                    }
+                }
+                if (openMember == null) {
+                    throw new IllegalArgumentException("Open member is not found!");
+                }
                 IOpenClass type = openMember.getType();
                 int dim = 0;
                 while (type.isArray()) {
@@ -361,8 +373,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     dim++;
                 }
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openMember
-                        .getType();
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                     CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                         .findType(customSpreadsheetResultOpenClass.getName());

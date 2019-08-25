@@ -177,7 +177,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Class<?> serviceClass,
             Object serviceTarget,
             ClassLoader serviceClassLoader) {
-        Class<?> annotatedClass = processInterceptingTemplateClassConfiguration(serviceDescription,
+        Class<?> annotatedClass = processInterceptingTemplateClass(serviceDescription,
             serviceClass,
             serviceClassLoader);
         if (annotatedClass == null) {
@@ -192,7 +192,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         return annotatedClass;
     }
 
-    private Class<?> processInterceptingTemplateClassConfiguration(ServiceDescription serviceDescription,
+    private Class<?> processInterceptingTemplateClass(ServiceDescription serviceDescription,
             Class<?> serviceClass,
             ClassLoader classLoader) {
         String clazzName = serviceDescription.getAnnotationTemplateClassName();

@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.openl.runtime.IOpenLInvocationHandler;
-import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IOpenMember;
 
 public final class RuleServiceOpenLServiceInstantiationHelper {
