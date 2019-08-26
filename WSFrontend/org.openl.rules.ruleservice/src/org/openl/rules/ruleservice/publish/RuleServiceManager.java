@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.publish;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,5 +42,5 @@ public interface RuleServiceManager {
      */
     OpenLService getServiceByName(String name);
 
-    Map<String, RuleServicePublisher> getSupportedPublishers();
+    Collection<ServiceInfo> getServicesInfo();
 }

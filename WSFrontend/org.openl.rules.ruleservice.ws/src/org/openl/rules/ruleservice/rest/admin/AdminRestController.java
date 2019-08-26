@@ -35,7 +35,7 @@ public class AdminRestController {
     @GET
     @Path("/services")
     public Response getServiceInfo() {
-        Collection<ServiceInfo> servicesInfo = PublisherUtils.getServicesInfo(ruleServiceManager);
+        Collection<ServiceInfo> servicesInfo = ruleServiceManager.getServicesInfo();
         return Response.ok(new GenericEntity<Collection<ServiceInfo>>(servicesInfo) {
         }).build();
     }

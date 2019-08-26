@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.publish;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +40,6 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         this.listeners = listeners;
     }
 
-    public Map<String, RuleServicePublisher> getSupportedPublishers() {
-        return supportedPublishers;
-    }
-
     public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
         this.supportedPublishers = new TreeMap<>(String::compareToIgnoreCase);
         this.supportedPublishers.putAll(supportedPublishers);
@@ -50,6 +49,42 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
+    @Override
+    public Collection<ServiceInfo> getServicesInfo() {
+        Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
+        // Wrapped into collection of publishers
+        for (RuleServicePublisher p : supportedPublishers.values()) {
+            collectServicesInfo(serviceInfos, p);
+        }
+        return serviceInfos.values();
+    }
+
+    private void collectServicesInfo(Map<String, ServiceInfo> servicesInfo, RuleServicePublisher publisher) {
+        if (publisher instanceof AvailableServicesPresenter) {
+            List<ServiceInfo> services = ((AvailableServicesPresenter) publisher).getAvailableServices();
+            for (ServiceInfo serviceInfo : services) {
+                String serviceName = serviceInfo.getName();
+                ServiceInfo current = servicesInfo.get(serviceName);
+                if (current == null) {
+                    servicesInfo.put(serviceName, serviceInfo);
+                } else {
+                    // Join urls
+                    Map<String, String> urls = new TreeMap<>(current.getUrls());
+                    urls.putAll(serviceInfo.getUrls());
+
+                    // Select the latest time
+                    Date startedTime = current.getStartedTime();
+                    Date newStartedTime = serviceInfo.getStartedTime();
+                    if (startedTime.before(newStartedTime)) {
+                        startedTime = newStartedTime;
+                    }
+
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, urls);
+                    servicesInfo.put(serviceName, newServiceInfo);
+                }
+            }
+        }
+    }
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
