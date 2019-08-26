@@ -81,5 +81,9 @@
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
+        <dependency>
+            <groupId>com.github.sps.junidecode</groupId>
+            <artifactId>junidecode</artifactId>
+        </dependency>
     </dependencies>
 </project>

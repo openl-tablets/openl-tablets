@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -165,8 +166,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 if (spreadsheet.getColumnNamesMarkedWithAsterisk()[j] != null && spreadsheet
                     .getRowNamesMarkedWithAsterisk()[i] != null) {
                     String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                        .getColumnNamesMarkedWithAsterisk()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                            .getRowNamesMarkedWithAsterisk()[i];
+                        .getColumnNames()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
                     IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
                     IOpenClass t = field.getType();
                     while (t.isArray()) {
@@ -184,22 +184,20 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         f = true; // IGNORE VOID TYPES
                     }
 
-                    String simpleRefName;
+                    String refName;
                     if (columnsWithAsteriskCount == 1) {
-                        simpleRefName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                            .getRowNamesMarkedWithAsterisk()[i];
+                        refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
                     } else if (rowsWithAsteriskCount == 1) {
-                        simpleRefName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                            .getColumnNamesMarkedWithAsterisk()[j];
+                        refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
                     } else {
-                        simpleRefName = fieldName;
+                        refName = fieldName;
                     }
 
                     if (f) {
                         if (warnCnt > 0) {
                             sb.append(", ");
                         }
-                        sb.append(simpleRefName);
+                        sb.append(refName);
                         warnCnt++;
                     } else {
                         StringBuilder sb1 = new StringBuilder();
@@ -215,12 +213,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         String fName = sb1.toString();
                         String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
                                                         : fName.toLowerCase();
-                        String v = fNames.put(key, simpleRefName);
+                        String v = fNames.put(key, refName);
                         if (v != null) {
                             getTableSyntaxNode().addError(SyntaxNodeExceptionUtils.createError(String.format(
                                 "Cells '%s' and '%s' conflicts with each other in the output model for this spreadsheet result.",
                                 v,
-                                simpleRefName), getTableSyntaxNode()));
+                                refName), getTableSyntaxNode()));
                         }
                     }
                 }

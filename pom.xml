@@ -1447,6 +1447,11 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- Kafka -->
+            <dependency>
+                <groupId>com.github.sps.junidecode</groupId>
+                <artifactId>junidecode</artifactId>
+                <version>0.3</version>
+            </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>

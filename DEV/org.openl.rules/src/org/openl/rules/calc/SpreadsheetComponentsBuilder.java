@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -42,7 +41,13 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
-import org.openl.util.text.*;
+import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.IPosition;
+import org.openl.util.text.TextInfo;
+import org.openl.util.text.TextInterval;
+
+import gcardone.junidecode.Junidecode;
 
 /**
  *
@@ -87,16 +92,32 @@ public class SpreadsheetComponentsBuilder {
         return columnHeaders;
     }
 
+    private static void handleWrongNames(String[] names) {
+        for (int i = 0; i < names.length; i++) {
+            if (names[i] != null && names[i].length() > 0) {
+                names[i] = Junidecode.unidecode(names[i]);
+                if (JavaKeywordUtils.isJavaKeyword(names[i]) || Character.isDigit(names[i].charAt(0))) {
+                    names[i] = "_" + names[i];
+                }
+                names[i] = names[i].replaceAll("\\s+", "_"); // Replace whitespaces
+                names[i] = names[i].replaceAll("[^0-9a-zA-Z_]+", "");
+            }
+        }
+    }
+
     public String[] getRowNamesMarkedWithAsterisk() {
         final long columnsMarkedWithAsteriskCount = columnHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
-        return buildArrayForHeaders(rowHeaders,
+        String[] ret = buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
             e -> rowHeaders.size() == 1 && columnsMarkedWithAsteriskCount > 0 || e.getDefinition()
                 .isMarkedWithAsterisk());
+
+        handleWrongNames(ret);
+        return ret;
     }
 
     public String[] getColumnNamesMarkedWithAsterisk() {
@@ -105,9 +126,12 @@ public class SpreadsheetComponentsBuilder {
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
-        return buildArrayForHeaders(columnHeaders,
+        String[] ret = buildArrayForHeaders(columnHeaders,
             cellsHeaderExtractor.getWidth(),
             e -> columnHeaders.size() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition().isMarkedWithAsterisk());
+
+        handleWrongNames(ret);
+        return ret;
     }
 
     public String[] getRowNames() {
@@ -240,22 +264,6 @@ public class SpreadsheetComponentsBuilder {
         return new IdentifierNode(identifierNode.getType(), location, v, identifierNode.getModule());
     }
 
-    private static final Pattern ASTERISK_MARKED_HEADER_NAME_PATTERN = Pattern.compile("[a-zA-Z_]+[0-9a-zA-Z_]*");
-
-    private void validateHeaderName(IdentifierNode headerNameNode) throws SyntaxNodeException {
-        if (JavaKeywordUtils.isJavaKeyword(headerNameNode.getIdentifier())) {
-            throw SyntaxNodeExceptionUtils.createError("Invalid header: Java keywords are not allowed.",
-                headerNameNode);
-        }
-        if (StringUtils.isEmpty(headerNameNode.getIdentifier()) || !ASTERISK_MARKED_HEADER_NAME_PATTERN
-            .matcher(headerNameNode.getIdentifier())
-            .matches()) {
-            throw SyntaxNodeExceptionUtils.createError(
-                "Invalid header: All headers marked with asterisk symbol must begin with a letter of the English alphabet, an underscore and may contains digits after the first initial letter.",
-                headerNameNode);
-        }
-    }
-
     private SymbolicTypeDefinition parseHeaderElement(IOpenSourceCodeModule source) throws SyntaxNodeException {
         IdentifierNode[] nodes;
 
@@ -271,7 +279,6 @@ public class SpreadsheetComponentsBuilder {
             .startsWith(SpreadsheetSymbols.STAR.toString())) {
             headerNameNode = removeLeadingStar(nodes[0]);
             startsWithAsterisk = true;
-            validateHeaderName(headerNameNode);
         }
         switch (nodes.length) {
             case 1:
