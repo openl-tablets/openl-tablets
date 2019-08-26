@@ -27,7 +27,7 @@
         scope="prototype" >
     </bean>
 
-    <bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
+    <bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
         <property name="defaultRuleServicePublishers">
             <list>
                 <value>WEBSERVICE</value>

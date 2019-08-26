@@ -32,7 +32,7 @@
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
 		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
-		<property name="ruleServicePublisher" ref="ruleServicePublisher"/>
+		<property name="ruleServiceManager" ref="ruleServiceManager"/>
 	</bean>
 
 	<!-- Controls all services currently exposed.

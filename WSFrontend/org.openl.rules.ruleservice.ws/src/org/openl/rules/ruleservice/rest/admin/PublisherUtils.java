@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
@@ -16,16 +16,11 @@ final class PublisherUtils {
     private PublisherUtils() {
     }
 
-    static Collection<ServiceInfo> getServicesInfo(RuleServicePublisher publisher) {
+    static Collection<ServiceInfo> getServicesInfo(RuleServiceManager manager) {
         Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
-        if (publisher instanceof MultipleRuleServicePublisher) {
-            // Wrapped into collection of publishers
-            for (RuleServicePublisher p : ((MultipleRuleServicePublisher) publisher).getSupportedPublishers().values()) {
-                collectServicesInfo(serviceInfos, p);
-            }
-        } else {
-            // Or single service publisher
-            collectServicesInfo(serviceInfos, publisher);
+        // Wrapped into collection of publishers
+        for (RuleServicePublisher p : manager.getSupportedPublishers().values()) {
+            collectServicesInfo(serviceInfos, p);
         }
         return serviceInfos.values();
     }

@@ -15,7 +15,7 @@
 		<property name="frontend" ref="frontend"/>
 	</bean>
 	
-	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
+	<bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
 		<property name="supportedPublishers">
 			<map>
 				<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>

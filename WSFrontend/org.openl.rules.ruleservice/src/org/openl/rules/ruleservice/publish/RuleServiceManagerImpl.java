@@ -20,9 +20,9 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MultipleRuleServicePublisher implements RuleServicePublisher, InitializingBean {
+public class RuleServiceManagerImpl implements RuleServiceManager, InitializingBean {
 
-    private final Logger log = LoggerFactory.getLogger(MultipleRuleServicePublisher.class);
+    private final Logger log = LoggerFactory.getLogger(RuleServiceManagerImpl.class);
 
     private Map<String, RuleServicePublisher> supportedPublishers;
 

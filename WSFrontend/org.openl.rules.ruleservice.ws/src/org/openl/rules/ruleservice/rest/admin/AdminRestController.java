@@ -17,16 +17,16 @@ import javax.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
-    private final RuleServicePublisher ruleServicePublisher;
+    private final RuleServiceManager ruleServiceManager;
 
-    public AdminRestController(RuleServicePublisher ruleServicePublisher) {
-        this.ruleServicePublisher = ruleServicePublisher;
+    public AdminRestController(RuleServiceManager ruleServiceManager) {
+        this.ruleServiceManager = ruleServiceManager;
     }
 
     /**
@@ -35,7 +35,7 @@ public class AdminRestController {
     @GET
     @Path("/services")
     public Response getServiceInfo() {
-        Collection<ServiceInfo> servicesInfo = PublisherUtils.getServicesInfo(ruleServicePublisher);
+        Collection<ServiceInfo> servicesInfo = PublisherUtils.getServicesInfo(ruleServiceManager);
         return Response.ok(new GenericEntity<Collection<ServiceInfo>>(servicesInfo) {
         }).build();
     }
@@ -47,7 +47,7 @@ public class AdminRestController {
     @Path("/services/{serviceName}/methods/")
     public Response getServiceMethodNames(
             @PathParam("serviceName") final String serviceName) throws RuleServiceInstantiationException {
-        OpenLService service = ruleServicePublisher.getServiceByName(serviceName);
+        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         if (service == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

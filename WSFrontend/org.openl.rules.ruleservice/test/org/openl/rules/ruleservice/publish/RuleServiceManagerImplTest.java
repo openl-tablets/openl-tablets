@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class MultipleRuleServicePublisherTest {
+public class RuleServiceManagerImplTest {
 
     @Test
     public void test() throws Exception {
