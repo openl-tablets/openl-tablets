@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,12 @@ import java.util.function.Predicate;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.StringUtils;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
@@ -25,6 +29,7 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
@@ -92,17 +97,20 @@ public class SpreadsheetComponentsBuilder {
         return columnHeaders;
     }
 
-    private static void handleWrongNames(String[] names) {
-        for (int i = 0; i < names.length; i++) {
-            if (names[i] != null && names[i].length() > 0) {
-                names[i] = Junidecode.unidecode(names[i]);
-                if (JavaKeywordUtils.isJavaKeyword(names[i]) || Character.isDigit(names[i].charAt(0))) {
-                    names[i] = "_" + names[i];
-                }
-                names[i] = names[i].replaceAll("\\s+", "_"); // Replace whitespaces
-                names[i] = names[i].replaceAll("[^0-9a-zA-Z_]+", "");
-            }
+    private static String handleWrongSymbols(String s) {
+        if (s == null) {
+            return null;
         }
+        s = s.trim();
+        if (s != null && s.length() > 0) {
+            s = Junidecode.unidecode(s);
+            if (JavaKeywordUtils.isJavaKeyword(s) || Character.isDigit(s.charAt(0))) {
+                s = "_" + s;
+            }
+            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
+            s = s.replaceAll("[^0-9a-zA-Z_]+", "");
+        }
+        return s;
     }
 
     public String[] getRowNamesMarkedWithAsterisk() {
@@ -116,7 +124,9 @@ public class SpreadsheetComponentsBuilder {
             e -> rowHeaders.size() == 1 && columnsMarkedWithAsteriskCount > 0 || e.getDefinition()
                 .isMarkedWithAsterisk());
 
-        handleWrongNames(ret);
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = handleWrongSymbols(ret[i]);
+        }
         return ret;
     }
 
@@ -130,7 +140,10 @@ public class SpreadsheetComponentsBuilder {
             cellsHeaderExtractor.getWidth(),
             e -> columnHeaders.size() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition().isMarkedWithAsterisk());
 
-        handleWrongNames(ret);
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = handleWrongSymbols(ret[i]);
+        }
+
         return ret;
     }
 
@@ -166,7 +179,7 @@ public class SpreadsheetComponentsBuilder {
     public void buildHeaders(IOpenClass spreadsheetHeaderType) {
         addRowHeaders();
         addColumnHeaders();
-        buildHeaderDefinitionsTypes();
+        buildHeaderDefinitions();
         buildReturnCells(spreadsheetHeaderType);
     }
 
@@ -296,7 +309,7 @@ public class SpreadsheetComponentsBuilder {
         }
     }
 
-    private void buildHeaderDefinitionsTypes() {
+    private void buildHeaderDefinitions() {
         for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
 
             IOpenClass headerType = null;
@@ -316,32 +329,51 @@ public class SpreadsheetComponentsBuilder {
 
             if (headerType != null) {
                 headerDefinition.setType(headerType);
-                if (!bindingContext.isExecutionMode() && typeIdentifierNode != null) {
-                    ILogicalTable cell;
-                    IOpenClass type = headerType;
-                    while (type.getMetaInfo() == null && type.isArray()) {
-                        type = type.getComponentClass();
+            }
+
+            if (!bindingContext.isExecutionMode() && getTableSyntaxNode()
+                .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader) {
+                SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) getTableSyntaxNode()
+                    .getMetaInfoReader();
+                List<NodeUsage> nodeUsages = new ArrayList<>();
+                if (headerDefinition.getDefinition().isMarkedWithAsterisk()) {
+                    String s = handleWrongSymbols(headerDefinition.getDefinitionName());
+                    if (StringUtils.isEmpty(s)) {
+                        s = "Empty string";
                     }
+                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, 1, s, null, NodeType.OTHER);
+                    nodeUsages.add(nodeUsage);
+                }
+
+                if (headerType != null && typeIdentifierNode != null) {
                     IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
-
                     if (identifier != null) {
-                        if (headerDefinition.getRow() >= 0) {
-                            cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
-                        } else {
-                            cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                        IOpenClass type = headerType;
+                        while (type.getMetaInfo() == null && type.isArray()) {
+                            type = type.getComponentClass();
                         }
-
-                        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
-                        if (metaInfoReader instanceof SpreadsheetMetaInfoReader) {
-                            IMetaInfo typeMeta = type.getMetaInfo();
-                            if (typeMeta != null) {
-                                ICell c = cell.getCell(0, 0);
-                                ((SpreadsheetMetaInfoReader) metaInfoReader).addHeaderMetaInfo(c.getAbsoluteRow(),
-                                    c.getAbsoluteColumn(),
-                                    RuleRowHelper.createCellMetaInfo(identifier, typeMeta, NodeType.DATATYPE));
-                            }
+                        IMetaInfo typeMeta = type.getMetaInfo();
+                        if (typeMeta != null) {
+                            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
+                                typeMeta.getDisplayName(INamedThing.SHORT),
+                                typeMeta.getSourceUrl(),
+                                NodeType.DATATYPE);
+                            nodeUsages.add(nodeUsage);
                         }
                     }
+                }
+
+                if (!nodeUsages.isEmpty()) {
+                    ILogicalTable cell;
+                    if (headerDefinition.getRow() >= 0) {
+                        cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                    } else {
+                        cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                    }
+
+                    CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                    ICell c = cell.getCell(0, 0);
+                    metaInfoReader.addHeaderMetaInfo(c.getAbsoluteRow(), c.getAbsoluteColumn(), cellMetaInfo);
                 }
             }
         }
