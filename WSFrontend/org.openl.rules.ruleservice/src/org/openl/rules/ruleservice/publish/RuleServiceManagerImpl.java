@@ -1,20 +1,15 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
+import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
@@ -85,6 +80,32 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
             }
         }
     }
+
+    @Override
+    public Collection<MethodDescriptor> getServiceMethods(String serviceName) {
+        OpenLService service = getServiceByName(serviceName);
+        if (service != null) {
+            try {
+                return Arrays.stream(service.getServiceClass().getMethods())
+                        .map(this::toDescriptor)
+                        .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
+                        .collect(Collectors.toList());
+            } catch (RuleServiceInstantiationException ignore) {
+                // Ignore
+            }
+        }
+        return null;
+    }
+
+    private MethodDescriptor toDescriptor(Method method) {
+        String name = method.getName();
+        String returnType = method.getReturnType().getSimpleName();
+        List<String> paramTypes = Arrays.stream(method.getParameterTypes())
+            .map(Class::getSimpleName)
+            .collect(Collectors.toList());
+        return new MethodDescriptor(name, returnType, paramTypes);
+    }
+
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");

@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.rest.admin;
+package org.openl.rules.ruleservice.servlet;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ public class MethodDescriptor {
     private final List<String> paramTypes;
     private final String returnType;
 
-    MethodDescriptor(String name, String returnType, List<String> paramTypes) {
+    public MethodDescriptor(String name, String returnType, List<String> paramTypes) {
         this.name = name;
         this.paramTypes = paramTypes;
         this.returnType = returnType;

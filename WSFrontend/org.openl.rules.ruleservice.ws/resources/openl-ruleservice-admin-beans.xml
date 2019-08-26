@@ -15,7 +15,7 @@
 
     <bean id="adminRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.AdminRestControllerInitializingBean">
         <constructor-arg>
-            <bean class="org.openl.rules.ruleservice.rest.admin.AdminRestController">
+            <bean class="org.openl.rules.ruleservice.rest.AdminRestController">
                 <constructor-arg ref="ruleServiceManager"/>
             </bean>
         </constructor-arg>
