@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.rest.admin;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -19,32 +18,16 @@ final class PublisherUtils {
 
     static Collection<ServiceInfo> getServicesInfo(RuleServicePublisher publisher) {
         Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
-        HashSet<RuleServicePublisher> publishers = getPublishers(publisher);
-        for (RuleServicePublisher p : publishers) {
-            collectServicesInfo(serviceInfos, p);
-        }
-        return serviceInfos.values();
-    }
-
-    private static HashSet<RuleServicePublisher> getPublishers(RuleServicePublisher publisher) {
         if (publisher instanceof MultipleRuleServicePublisher) {
             // Wrapped into collection of publishers
-            MultipleRuleServicePublisher multiplePublisher = (MultipleRuleServicePublisher) publisher;
-
-            Collection<RuleServicePublisher> defaultPublishers = multiplePublisher.getDefaultRuleServicePublishers();
-            HashSet<RuleServicePublisher> publishers = new HashSet<>(defaultPublishers);
-
-            Map<String, RuleServicePublisher> supportedPublishers = multiplePublisher.getSupportedPublishers();
-            if (supportedPublishers != null) {
-                publishers.addAll(supportedPublishers.values());
+            for (RuleServicePublisher p : ((MultipleRuleServicePublisher) publisher).getSupportedPublishers().values()) {
+                collectServicesInfo(serviceInfos, p);
             }
-            return publishers;
         } else {
             // Or single service publisher
-            HashSet<RuleServicePublisher> onePublisher = new HashSet<>();
-            onePublisher.add(publisher);
-            return onePublisher;
+            collectServicesInfo(serviceInfos, publisher);
         }
+        return serviceInfos.values();
     }
 
     private static void collectServicesInfo(Map<String, ServiceInfo> servicesInfo, RuleServicePublisher publisher) {

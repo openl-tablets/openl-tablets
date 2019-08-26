@@ -33,7 +33,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     protected Collection<RuleServicePublisher> dispatch(OpenLService service) {
         Collection<RuleServicePublisher> publishers = new ArrayList<>();
         if (service.getPublishers() == null || service.getPublishers().isEmpty()) {
-            publishers.addAll(getDefaultRuleServicePublishers());
+            publishers.addAll(defaultRuleServicePublishers);
             return publishers;
         }
         if (getSupportedPublishers() != null) {
@@ -44,14 +44,10 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
                 }
             }
             if (publishers.isEmpty()) {
-                publishers.addAll(getDefaultRuleServicePublishers());
+                publishers.addAll(defaultRuleServicePublishers);
             }
         }
         return publishers;
-    }
-
-    public Collection<RuleServicePublisher> getDefaultRuleServicePublishers() {
-        return defaultRuleServicePublishers;
     }
 
     public void setDefaultRuleServicePublishers(Collection<RuleServicePublisher> defaultRuleServicePublishers) {
@@ -134,7 +130,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (getDefaultRuleServicePublishers() == null || getDefaultRuleServicePublishers().isEmpty()) {
+        if (defaultRuleServicePublishers == null || defaultRuleServicePublishers.isEmpty()) {
             throw new BeanInitializationException("You must define at least one default publisher!");
         }
     }
