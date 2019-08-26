@@ -48,7 +48,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
+public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -122,7 +122,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    protected void deployService(final OpenLService service) throws RuleServiceDeployException {
+    public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -233,7 +233,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {

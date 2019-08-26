@@ -20,7 +20,7 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher implements InitializingBean {
+public class MultipleRuleServicePublisher implements RuleServicePublisher, InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(MultipleRuleServicePublisher.class);
 
@@ -51,7 +51,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     }
 
     @Override
-    protected void deployService(OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         final String serviceName = service.getName();
         Collection<String> sp = service.getPublishers();
@@ -67,7 +67,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         RuleServiceDeployException e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
         for (RuleServicePublisher publisher : publishers) {
-            if (!publisher.isServiceDeployed(serviceName)) {
+            if (publisher.getServiceByName(serviceName) == null) {
                 try {
                     publisher.deploy(service);
                     deployedPublishers.add(publisher);
@@ -81,7 +81,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
             services.put(serviceName, service);
         } else {
             for (RuleServicePublisher publisher : deployedPublishers) {
-                if (publisher.isServiceDeployed(serviceName)) {
+                if (publisher.getServiceByName(serviceName) != null) {
                     try {
                         publisher.undeploy(serviceName);
                     } catch (RuleServiceUndeployException e) {
@@ -112,11 +112,11 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     }
 
     @Override
-    public void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
-            if (publisher.isServiceDeployed(serviceName)) {
+            if (publisher.getServiceByName(serviceName) != null) {
                 try {
                     publisher.undeploy(serviceName);
                 } catch (RuleServiceUndeployException e) {

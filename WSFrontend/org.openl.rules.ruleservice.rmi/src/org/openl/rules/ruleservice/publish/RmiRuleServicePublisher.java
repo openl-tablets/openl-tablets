@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
+public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
 
     private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
 
@@ -72,7 +72,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     @Override
-    protected void deployService(OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -118,7 +118,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     @Override
-    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
