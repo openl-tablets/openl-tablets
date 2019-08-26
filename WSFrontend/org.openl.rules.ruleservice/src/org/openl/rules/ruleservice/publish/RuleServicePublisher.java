@@ -52,24 +52,4 @@ public interface RuleServicePublisher {
      * @return true if service with specified name was deployed otherwise false.
      */
     boolean isServiceDeployed(String name);
-
-    /**
-     * Add listener to a publisher
-     *
-     * @param listener Listener to add.
-     */
-    void addListener(RuleServicePublisherListener listener);
-
-    /**
-     * Remove listener to a publisher
-     *
-     * @param listener Listener to remove.
-     */
-    void removeListener(RuleServicePublisherListener listener);
-
-    /**
-     * Clear all listeners in publisher
-     */
-    void clearListeners();
-
 }

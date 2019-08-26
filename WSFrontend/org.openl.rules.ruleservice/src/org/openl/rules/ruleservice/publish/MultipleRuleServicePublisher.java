@@ -29,6 +29,12 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     private Map<String, OpenLService> services = new HashMap<>();
 
+    private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
+
+    public void setListeners(Collection<RuleServicePublisherListener> listeners) {
+        this.listeners = listeners;
+    }
+
     public Map<String, RuleServicePublisher> getSupportedPublishers() {
         return supportedPublishers;
     }
@@ -50,7 +56,9 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         if (CollectionUtils.isEmpty(sp)) {
             sp = defaultRuleServicePublishers;
         }
-        Collection<RuleServicePublisher> publishers = sp.stream().map(supportedPublishers::get).collect(Collectors.toList());
+        Collection<RuleServicePublisher> publishers = sp.stream()
+            .map(supportedPublishers::get)
+            .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(publishers)) {
             publishers = supportedPublishers.values();
         }
@@ -80,6 +88,13 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
                 }
             }
             throw new RuleServiceDeployException("Failed to deploy service!", e1);
+        }
+        fireDeployListeners(service);
+    }
+
+    private void fireDeployListeners(OpenLService service) {
+        for (RuleServicePublisherListener listener : listeners) {
+            listener.onDeploy(service);
         }
     }
 
@@ -111,6 +126,13 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
             services.remove(serviceName);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy service!", e1);
+        }
+        fireUndeployListeners(serviceName);
+    }
+
+    private void fireUndeployListeners(String serviceName) {
+        for (RuleServicePublisherListener listener : listeners) {
+            listener.onUndeploy(serviceName);
         }
     }
 
