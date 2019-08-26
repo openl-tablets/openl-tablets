@@ -16,10 +16,10 @@
 	</bean>
 	
 	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
-		<property name="defaultRuleServicePublishers">
-			<list>
-				<ref bean="javaClassRuleServicePublisher"/> 
-			</list>
+		<property name="supportedPublishers">
+			<map>
+				<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
+			</map>
 		</property>
 		<property name="listeners">
 			<bean class="org.openl.rules.ruleservice.conf.BeanCollectionFactoryBean">

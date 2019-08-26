@@ -30,8 +30,8 @@
     <bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
         <property name="defaultRuleServicePublishers">
             <list>
-                <ref bean="webServiceRuleServicePublisher"/>
-                <ref bean="JAXRSServicesRuleServicePublisher"/> 
+                <value>WEBSERVICE</value>
+                <value>RESTFUL</value>
             </list>
         </property>
         <property name="supportedPublishers">

@@ -1,10 +1,19 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -14,10 +23,9 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     private final Logger log = LoggerFactory.getLogger(MultipleRuleServicePublisher.class);
 
-    private Map<String, RuleServicePublisher> supportedPublishers = new TreeMap<>(
-        (o1, o2) -> o1.toUpperCase().compareTo(o2.toUpperCase()));
+    private Map<String, RuleServicePublisher> supportedPublishers;
 
-    private Collection<RuleServicePublisher> defaultRuleServicePublishers;
+    private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
 
     private Map<String, OpenLService> services = new HashMap<>();
 
@@ -26,31 +34,24 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     }
 
     public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = new TreeMap<>((o1, o2) -> o1.toUpperCase().compareTo(o2.toUpperCase()));
+        this.supportedPublishers = new TreeMap<>(String::compareToIgnoreCase);
         this.supportedPublishers.putAll(supportedPublishers);
     }
 
-    protected Collection<RuleServicePublisher> dispatch(OpenLService service) {
-        Collection<RuleServicePublisher> publishers = new ArrayList<>();
-        if (service.getPublishers() == null || service.getPublishers().isEmpty()) {
-            publishers.addAll(defaultRuleServicePublishers);
+    private Collection<RuleServicePublisher> dispatch(OpenLService service) {
+        Collection<String> sp = service.getPublishers();
+        if (CollectionUtils.isEmpty(sp)) {
+            sp = defaultRuleServicePublishers;
+        }
+        List<RuleServicePublisher> publishers = sp.stream().map(supportedPublishers::get).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(publishers)) {
+            return supportedPublishers.values();
+        } else {
             return publishers;
         }
-        if (getSupportedPublishers() != null) {
-            for (String key : service.getPublishers()) {
-                RuleServicePublisher publisher = supportedPublishers.get(key);
-                if (supportedPublishers.get(key) != null) {
-                    publishers.add(publisher);
-                }
-            }
-            if (publishers.isEmpty()) {
-                publishers.addAll(defaultRuleServicePublishers);
-            }
-        }
-        return publishers;
     }
 
-    public void setDefaultRuleServicePublishers(Collection<RuleServicePublisher> defaultRuleServicePublishers) {
+    public void setDefaultRuleServicePublishers(Collection<String> defaultRuleServicePublishers) {
         this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
 
@@ -129,9 +130,16 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        if (defaultRuleServicePublishers == null || defaultRuleServicePublishers.isEmpty()) {
-            throw new BeanInitializationException("You must define at least one default publisher!");
+    public void afterPropertiesSet() {
+        if (CollectionUtils.isEmpty(supportedPublishers)) {
+            throw new BeanInitializationException("You must define at least one supported publisher!");
+        }
+
+        for (String defPublisher : defaultRuleServicePublishers) {
+            if (!supportedPublishers.containsKey(defPublisher)) {
+                throw new BeanInitializationException(
+                    "Default publisher with id=" + defPublisher + " has not been found in the map of supported publishers");
+            }
         }
     }
 }

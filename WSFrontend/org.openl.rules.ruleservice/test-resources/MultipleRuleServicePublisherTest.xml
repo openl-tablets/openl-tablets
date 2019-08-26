@@ -27,12 +27,12 @@
 		class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
 		<property name="defaultRuleServicePublishers">
 			<list>
-				<ref bean="javaClassRuleServicePublisher"/> 
+				<value>JAVA</value>
 			</list>
 		</property>
-		
 		<property name="supportedPublishers">
 			<map>
+				<entry key="JAVA" value-ref="otherJavaClassRuleServicePublisher"/>
 				<entry key="OTHER" value-ref="otherJavaClassRuleServicePublisher"/>
 			</map>
 		</property>
