@@ -38,19 +38,6 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         this.supportedPublishers.putAll(supportedPublishers);
     }
 
-    private Collection<RuleServicePublisher> dispatch(OpenLService service) {
-        Collection<String> sp = service.getPublishers();
-        if (CollectionUtils.isEmpty(sp)) {
-            sp = defaultRuleServicePublishers;
-        }
-        List<RuleServicePublisher> publishers = sp.stream().map(supportedPublishers::get).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(publishers)) {
-            return supportedPublishers.values();
-        } else {
-            return publishers;
-        }
-    }
-
     public void setDefaultRuleServicePublishers(Collection<String> defaultRuleServicePublishers) {
         this.defaultRuleServicePublishers = defaultRuleServicePublishers;
     }
@@ -58,11 +45,19 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     @Override
     protected void deployService(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
-        Collection<RuleServicePublisher> publishers = dispatch(service);
+        final String serviceName = service.getName();
+        Collection<String> sp = service.getPublishers();
+        if (CollectionUtils.isEmpty(sp)) {
+            sp = defaultRuleServicePublishers;
+        }
+        Collection<RuleServicePublisher> publishers = sp.stream().map(supportedPublishers::get).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(publishers)) {
+            publishers = supportedPublishers.values();
+        }
         RuleServiceDeployException e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
         for (RuleServicePublisher publisher : publishers) {
-            if (!publisher.isServiceDeployed(service.getName())) {
+            if (!publisher.isServiceDeployed(serviceName)) {
                 try {
                     publisher.deploy(service);
                     deployedPublishers.add(publisher);
@@ -73,18 +68,14 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
             }
         }
         if (e1 == null) {
-            services.put(service.getName(), service);
+            services.put(serviceName, service);
         } else {
             for (RuleServicePublisher publisher : deployedPublishers) {
-                if (publisher.isServiceDeployed(service.getName())) {
+                if (publisher.isServiceDeployed(serviceName)) {
                     try {
-                        publisher.undeploy(service.getName());
+                        publisher.undeploy(serviceName);
                     } catch (RuleServiceUndeployException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Failed to undeploy service '{}' with URL '{}'!",
-                                service.getName(),
-                                service.getUrl());
-                        }
+                        log.error("Failed to undeploy service '{}'!", serviceName, e);
                     }
                 }
             }
@@ -106,14 +97,8 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
     @Override
     public void undeployService(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
-        OpenLService service = services.get(serviceName);
-        if (service == null) {
-            throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", serviceName));
-        }
-        Collection<RuleServicePublisher> publishers = dispatch(service);
         RuleServiceUndeployException e1 = null;
-        for (RuleServicePublisher publisher : publishers) {
+        for (RuleServicePublisher publisher : supportedPublishers.values()) {
             if (publisher.isServiceDeployed(serviceName)) {
                 try {
                     publisher.undeploy(serviceName);
