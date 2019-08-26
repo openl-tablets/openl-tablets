@@ -94,7 +94,6 @@
     <!-- Exposes Kafka Services. -->
     <bean id="KafkaServicesRuleServicePublisher"
         class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher">
-        <property name="publisherType" value="KAFKA" />
         <property
             name="producerJacksonObjectMapperFactoryBeanFactory"
             ref="kafkaProducerJacksonDatabindingFactoryBeanFactory" />

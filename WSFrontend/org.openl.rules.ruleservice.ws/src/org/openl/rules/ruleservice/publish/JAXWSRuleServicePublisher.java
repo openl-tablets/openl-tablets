@@ -8,6 +8,7 @@ import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
@@ -113,12 +114,12 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                    svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                    svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
                     svrFactory.getInFaultInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                    svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                    svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 }
                 Server wsServer = svrFactory.create();

@@ -20,6 +20,7 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.model.ProviderInfo;
 import org.apache.cxf.jaxrs.provider.ServerProviderFactory;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -139,12 +140,12 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 svrFactory.getInFaultInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                 svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 

@@ -1,20 +1,10 @@
 package org.openl.rules.ruleservice.publish;
 
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 
 public abstract class AbstractRuleServicePublisher implements RuleServicePublisher {
-    private PublisherType publisherType;
-
-    public void setPublisherType(PublisherType publisherType) {
-        this.publisherType = publisherType;
-    }
-
-    public PublisherType getPublisherType() {
-        return publisherType;
-    }
 
     @Override
     public boolean isServiceDeployed(String name) {
