@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
@@ -11,7 +10,6 @@ import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.*;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
@@ -97,7 +95,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                String serviceAddress = getBaseAddress() + processURL(service.getUrl());
+                String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
 
                 Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
@@ -188,7 +186,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
-        String url = processURL(service.getUrl());
+        String url = URLHelper.processURL(service.getUrl());
         return new ServiceInfo(new Date(), service.getName(), url, "SOAP");
     }
 

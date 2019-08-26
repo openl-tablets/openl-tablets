@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -128,7 +127,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            String url = processURL(service.getUrl());
+            String url = URLHelper.processURL(service.getUrl());
             if (service.getPublishers().size() != 1) {
                 url = getBaseAddress() + REST_PREFIX + url;
             } else {
@@ -259,7 +258,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        String url = processURL(service.getUrl());
+        String url = URLHelper.processURL(service.getUrl());
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }

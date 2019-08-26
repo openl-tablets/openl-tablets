@@ -13,7 +13,11 @@ public final class URLHelper {
     }
 
     public static String processURL(String url) {
-        String[] parts = url.split("/");
+        String ret = url;
+        while (ret.charAt(0) == '/') {
+            ret = ret.substring(1);
+        }
+        String[] parts = ret.split("/");
         StringBuilder sb = new StringBuilder();
         boolean f = false;
         for (String s : parts) {

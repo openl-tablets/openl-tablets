@@ -16,14 +16,6 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
         return publisherType;
     }
 
-    protected String processURL(String url) {
-        String ret = url;
-        while (ret.charAt(0) == '/') {
-            ret = ret.substring(1);
-        }
-        return URLHelper.processURL(ret);
-    }
-
     @Override
     public boolean isServiceDeployed(String name) {
         return getServiceByName(name) != null;
