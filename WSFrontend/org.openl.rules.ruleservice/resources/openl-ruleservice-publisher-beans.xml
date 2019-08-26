@@ -21,10 +21,5 @@
 				<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
 			</map>
 		</property>
-		<property name="listeners">
-			<bean class="org.openl.rules.ruleservice.conf.BeanCollectionFactoryBean">
-				<property name="beanType" value="org.openl.rules.ruleservice.publish.RuleServicePublisherListener" />
-			</bean>
-		</property>
 	</bean>
 </beans>

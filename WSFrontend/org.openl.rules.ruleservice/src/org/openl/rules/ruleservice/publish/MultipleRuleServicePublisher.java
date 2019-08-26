@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher implements InitializingBean {
 
@@ -31,6 +32,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
+    @Autowired(required = false)
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
         this.listeners = listeners;
     }
