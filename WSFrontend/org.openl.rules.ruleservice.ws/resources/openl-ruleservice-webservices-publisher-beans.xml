@@ -3,8 +3,6 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
-
     <!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
     <bean id="serviceConfigurationReadXsiTypesFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean"
@@ -62,6 +60,7 @@
                 <ref bean="webServicesLoggingFeature" />
             </list>
         </property>
+        <property name="bus" ref="cxf"/>
     </bean>
 
     <!-- Prototypes factory. It will create new server prototype for each new 

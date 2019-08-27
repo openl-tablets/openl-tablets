@@ -4,8 +4,6 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
-
     <bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
     </bean>
@@ -99,6 +97,7 @@
                 <ref bean="JAXRSWebApplicationExceptionMapper" />
             </list>
         </property>
+        <property name="bus" ref="cxf"/>
     </bean>
 
     <!-- Prototypes factory. It will create new server prototype for each new 

@@ -6,6 +6,9 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
 
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"
             ReceiveTimeout="${ruleservice.http.recieveTimeout}" />
