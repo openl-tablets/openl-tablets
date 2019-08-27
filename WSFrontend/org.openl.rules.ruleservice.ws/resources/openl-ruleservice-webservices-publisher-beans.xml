@@ -82,7 +82,5 @@
         <property name="baseAddress" value="${ruleservice.baseAddress}" />
         <property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
         <property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
-        <property name="publisherType" value="WEBSERVICE"/>
     </bean>
-
 </beans>

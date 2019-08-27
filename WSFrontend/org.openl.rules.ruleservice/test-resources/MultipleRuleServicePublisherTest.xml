@@ -19,20 +19,20 @@
 	<bean id="otherFrontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl" />
 
 	<bean id="otherJavaClassRuleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisherTest.OtherJavaClassRuleServicePublisher">
+		class="org.openl.rules.ruleservice.publish.RuleServiceManagerImplTest.OtherJavaClassRuleServicePublisher">
 		<property name="frontend" ref="otherFrontend" />
 	</bean>
 
-	<bean id="ruleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
+	<bean id="ruleServiceManager"
+		class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
 		<property name="defaultRuleServicePublishers">
 			<list>
-				<ref bean="javaClassRuleServicePublisher"/> 
+				<value>JAVA</value>
 			</list>
 		</property>
-		
 		<property name="supportedPublishers">
 			<map>
+				<entry key="JAVA" value-ref="otherJavaClassRuleServicePublisher"/>
 				<entry key="OTHER" value-ref="otherJavaClassRuleServicePublisher"/>
 			</map>
 		</property>

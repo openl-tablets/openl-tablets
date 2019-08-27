@@ -15,16 +15,11 @@
 		<property name="frontend" ref="frontend"/>
 	</bean>
 	
-	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
-		<property name="defaultRuleServicePublishers">
-			<list>
-				<ref bean="javaClassRuleServicePublisher"/> 
-			</list>
-		</property>
-		<property name="listeners">
-			<bean class="org.openl.rules.ruleservice.conf.BeanCollectionFactoryBean">
-				<property name="beanType" value="org.openl.rules.ruleservice.publish.RuleServicePublisherListener" />
-			</bean>
+	<bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
+		<property name="supportedPublishers">
+			<map>
+				<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
+			</map>
 		</property>
 	</bean>
 </beans>

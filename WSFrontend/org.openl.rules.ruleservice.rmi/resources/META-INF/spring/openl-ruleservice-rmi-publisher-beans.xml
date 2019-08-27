@@ -10,6 +10,5 @@
 		class="org.openl.rules.ruleservice.publish.RmiRuleServicePublisher">
 		<property name="rmiPort" value="${ruleservice.rmiPort}"/>
 		<property name="rmiHost" value="${ruleservice.rmiHost}"/>
-		<property name="publisherType" value="RMI"/>
 	</bean>
 </beans>

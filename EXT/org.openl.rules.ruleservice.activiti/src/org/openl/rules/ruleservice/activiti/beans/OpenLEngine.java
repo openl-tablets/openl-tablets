@@ -5,17 +5,15 @@ import org.openl.rules.activiti.spring.result.ResultValue;
 import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class OpenLEngine {
-    private RuleServicePublisher ruleServicePublisher;
+    private RuleServiceManager ruleServiceManager;
 
-    public void setRuleServicePublisher(RuleServicePublisher ruleServicePublisher) {
-        this.ruleServicePublisher = ruleServicePublisher;
-    }
-
-    public RuleServicePublisher getRuleServicePublisher() {
-        return ruleServicePublisher;
+    @Autowired
+    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
+        this.ruleServiceManager = ruleServiceManager;
     }
 
     public IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {
@@ -23,7 +21,7 @@ public class OpenLEngine {
     }
 
     public ResultValue execute(String serviceName, String methodName, Object... args) throws Exception {
-        OpenLService openLService = getRuleServicePublisher().getServiceByName(serviceName);
+        OpenLService openLService = ruleServiceManager.getServiceByName(serviceName);
         if (openLService == null) {
             throw new OpenLServiceNotFoundException(
                 String.format("OpenL service '%s' hasn't been found!", serviceName));

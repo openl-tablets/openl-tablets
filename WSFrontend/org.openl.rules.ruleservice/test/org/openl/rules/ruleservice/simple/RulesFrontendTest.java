@@ -10,7 +10,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -78,8 +78,8 @@ public class RulesFrontendTest implements ApplicationContextAware {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher",
-            RuleServicePublisher.class);
+        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
+            RuleServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);

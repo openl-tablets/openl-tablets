@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * Publisher.
      */
-    private RuleServicePublisher ruleServicePublisher;
+    private RuleServiceManager ruleServiceManager;
 
     /**
      * Instantiation factory.
@@ -38,7 +38,7 @@ public class RuleServiceImpl implements RuleService {
     @Override
     public void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException,
                                                                 RuleServiceUndeployException {
-        OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
+        OpenLService service = ruleServiceManager.getServiceByName(serviceDescription.getName());
         if (service == null) {
             throw new RuleServiceUndeployException(
                 String.format("There is no running service with name '%s'.", serviceDescription.getName()));
@@ -67,7 +67,7 @@ public class RuleServiceImpl implements RuleService {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg must not be null.");
         }
-        OpenLService service = ruleServicePublisher.getServiceByName(serviceName);
+        OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
         }
@@ -78,7 +78,7 @@ public class RuleServiceImpl implements RuleService {
                 throw new IllegalStateException("Illegal State!!!");
             }
             try {
-                ruleServicePublisher.undeploy(serviceName);
+                ruleServiceManager.undeploy(serviceName);
                 serviceDescriptionMap.remove(serviceDescription.getName());
             } finally {
                 cleanDeploymentResources(serviceDescription);
@@ -108,7 +108,7 @@ public class RuleServiceImpl implements RuleService {
      */
     @Override
     public Collection<OpenLService> getServices() {
-        Collection<OpenLService> services = ruleServicePublisher.getServices();
+        Collection<OpenLService> services = ruleServiceManager.getServices();
         return new ArrayList<>(services);
     }
 
@@ -117,7 +117,7 @@ public class RuleServiceImpl implements RuleService {
      */
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        return ruleServicePublisher.getServiceByName(serviceName);
+        return ruleServiceManager.getServiceByName(serviceName);
     }
 
     /**
@@ -125,7 +125,7 @@ public class RuleServiceImpl implements RuleService {
      */
     @Override
     public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
-        OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
+        OpenLService service = ruleServiceManager.getServiceByName(serviceDescription.getName());
         if (service != null) {
             throw new RuleServiceDeployException(
                 "The service with name '" + serviceDescription.getName() + "' has already been deployed!");
@@ -137,7 +137,7 @@ public class RuleServiceImpl implements RuleService {
             if (sd != null) {
                 throw new IllegalStateException("Illegal State!!");
             }
-            ruleServicePublisher.deploy(newService);
+            ruleServiceManager.deploy(newService);
             serviceDescriptionMap.put(serviceDescription.getName(), serviceDescription);
             log.info("Service '{}' was deployed succesfully.", serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
@@ -148,19 +148,11 @@ public class RuleServiceImpl implements RuleService {
         }
     }
 
-    public RuleServicePublisher getRuleServicePublisher() {
-        return ruleServicePublisher;
-    }
-
-    public void setRuleServicePublisher(RuleServicePublisher ruleServicePublisher) {
-        if (ruleServicePublisher == null) {
-            throw new IllegalArgumentException("ruleServicePublisher arg must not be null.");
+    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
+        if (ruleServiceManager == null) {
+            throw new IllegalArgumentException("ruleServiceManager arg must not be null.");
         }
-        this.ruleServicePublisher = ruleServicePublisher;
-    }
-
-    public RuleServiceInstantiationFactory getRuleServiceInstantiationFactory() {
-        return ruleServiceInstantiationFactory;
+        this.ruleServiceManager = ruleServiceManager;
     }
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
@@ -169,5 +161,4 @@ public class RuleServiceImpl implements RuleService {
         }
         this.ruleServiceInstantiationFactory = ruleServiceInstantiationFactory;
     }
-
 }

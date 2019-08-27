@@ -4,8 +4,5 @@
 
     <import resource="classpath:openl-ruleservice-beans.xml"/>
 
-    <bean id="openLEngine" class="org.openl.rules.ruleservice.activiti.beans.OpenLEngine">
-        <property name="ruleServicePublisher" ref="ruleServicePublisher"/>
-    </bean>
-
+    <bean id="openLEngine" class="org.openl.rules.ruleservice.activiti.beans.OpenLEngine"/>
 </beans>

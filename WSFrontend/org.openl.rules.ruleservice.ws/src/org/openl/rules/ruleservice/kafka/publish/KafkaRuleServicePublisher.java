@@ -25,7 +25,7 @@ import org.openl.rules.ruleservice.kafka.conf.*;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.kafka.ser.Message;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
-import org.openl.rules.ruleservice.publish.AbstractRuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rits.cloning.Cloner;
 
-public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter, ResourceLoaderAware {
+public class KafkaRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter, ResourceLoaderAware {
 
     private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
@@ -410,7 +410,7 @@ public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher impl
      * {@inheritDoc}
      */
     @Override
-    protected void deployService(OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -564,7 +564,7 @@ public class KafkaRuleServicePublisher extends AbstractRuleServicePublisher impl
      * {@inheritDoc}
      */
     @Override
-    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {

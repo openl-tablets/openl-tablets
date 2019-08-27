@@ -1,17 +1,15 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.Collection;
-
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.servlet.MethodDescriptor;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
-/**
- * Deployment admin controls the way how the services will be exposed.
- *
- * @author PUdalau
- */
-public interface RuleServicePublisher {
+import java.util.Collection;
+import java.util.Map;
+
+public interface RuleServiceManager {
 
     /**
      * Deploys the specified service.
@@ -44,4 +42,8 @@ public interface RuleServicePublisher {
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
     OpenLService getServiceByName(String name);
+
+    Collection<ServiceInfo> getServicesInfo();
+
+    Collection<MethodDescriptor> getServiceMethods(String serviceName);
 }

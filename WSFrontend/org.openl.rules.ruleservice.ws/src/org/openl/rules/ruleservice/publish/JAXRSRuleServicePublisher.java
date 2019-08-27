@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +20,7 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.model.ProviderInfo;
 import org.apache.cxf.jaxrs.provider.ServerProviderFactory;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -48,7 +48,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
+public class JAXRSRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -122,13 +122,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    protected void deployService(final OpenLService service) throws RuleServiceDeployException {
+    public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            String url = processURL(service.getUrl());
+            String url = URLHelper.processURL(service.getUrl());
             if (service.getPublishers().size() != 1) {
                 url = getBaseAddress() + REST_PREFIX + url;
             } else {
@@ -140,12 +140,12 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 svrFactory.getInFaultInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                 svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
@@ -233,7 +233,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    protected void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
@@ -259,7 +259,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        String url = processURL(service.getUrl());
+        String url = URLHelper.processURL(service.getUrl());
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }

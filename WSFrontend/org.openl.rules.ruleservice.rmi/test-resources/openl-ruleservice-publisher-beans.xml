@@ -5,5 +5,11 @@
 
 	<import resource="classpath:META-INF/spring/openl-ruleservice-rmi-publisher-beans.xml"/>
 
-	<alias name="RMIServicesRuleServicePublisher" alias="ruleServicePublisher"/>
+	<bean id="ruleServiceManager" class="org.openl.rules.ruleservice.publish.RuleServiceManagerImpl">
+		<property name="supportedPublishers">
+			<map>
+				<entry key="RMI" value-ref="RMIServicesRuleServicePublisher"/>
+			</map>
+		</property>
+	</bean>
 </beans>

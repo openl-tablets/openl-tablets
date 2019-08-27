@@ -5,7 +5,7 @@ import java.util.*;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.AbstractRuleServicePublisher;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marat Kamalov
  */
-public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher {
+public class JavaClassRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(JavaClassRuleServicePublisher.class);
 
@@ -49,7 +49,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      * {@inheritDoc}
      */
     @Override
-    public void deployService(OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service argument must not be null!");
         try {
             OpenLService registeredService = getServiceByName(service.getName());
@@ -70,7 +70,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      * {@inheritDoc}
      */
     @Override
-    public void undeployService(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
