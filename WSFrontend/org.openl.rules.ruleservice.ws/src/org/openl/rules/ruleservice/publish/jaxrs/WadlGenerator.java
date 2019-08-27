@@ -204,7 +204,7 @@ public class WadlGenerator implements ContainerRequestFilter {
     private ResourceIdGenerator idGenerator;
     private Map<String, Object> jaxbContextProperties;
     
-    private Set<String> rootClassNames;
+    private List<Class<?>> extraClasses;
 
     public WadlGenerator() {
     }
@@ -214,10 +214,12 @@ public class WadlGenerator implements ContainerRequestFilter {
         this.bus.setProperty("wadl.service.description.available", "true");
     }
     
-    public void setRootClassNames(Set<String> rootClassNames) {
-        this.rootClassNames = rootClassNames;
-    }
-
+    public void setExtraClasses(List<Class<?>> classes) {
+        if (classes != null) {
+            extraClasses = new ArrayList<>(classes);
+        }
+    }    
+    
     @Override
     public void filter(ContainerRequestContext context) {
         Message m = JAXRSUtils.getCurrentMessage();
@@ -332,7 +334,7 @@ public class WadlGenerator implements ContainerRequestFilter {
                                                                                useJaxbContextForQnames,
                                                                                jaxbWriter);
         checkXmlSeeAlso(resourceTypes);
-        addRootClassNames(resourceTypes);
+        addExtraClasses(resourceTypes);
         Set<Class<?>> allTypes = resourceTypes.getAllTypes().keySet();
 
         JAXBContext jaxbContext = null;
@@ -521,14 +523,11 @@ public class WadlGenerator implements ContainerRequestFilter {
         }
     }
     
-    private void addRootClassNames(ResourceTypes resourceTypes) {
-        for (String className : rootClassNames) {
-            try {
-                Class<?> cls = Thread.currentThread().getContextClassLoader().loadClass(className);
+    private void addExtraClasses(ResourceTypes resourceTypes) {
+        if (extraClasses != null) {
+            for (Class<?> cls : extraClasses) {
                 resourceTypes.getAllTypes().put(cls, cls);
                 resourceTypes.getXmlNameMap().put(cls, null);
-            }catch (ClassNotFoundException e) {
-                LOG.warning(String.format("Failed to load '%s' class.", className));
             }
         }
     }

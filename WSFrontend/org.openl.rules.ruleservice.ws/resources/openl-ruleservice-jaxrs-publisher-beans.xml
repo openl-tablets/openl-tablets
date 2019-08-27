@@ -53,12 +53,17 @@
         class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}" />
     </bean>
+    
+    <bean id="serviceConfigurationRootClasses"
+        class="org.openl.rules.ruleservice.databinding.SetToListOfClassesFactoryBean" scope="prototype">
+        <property name="setOfClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean" />
+    </bean>
 
     <bean id="wadlGenerator" class="org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator" scope="prototype">
         <property name="linkJsonToXmlSchema" value="true" />
         <property name="linkAnyMediaTypeToXmlSchema" value="true" />
         <property name="supportCollections" value="false" />
-        <property name="rootClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
+        <property name="extraClasses" ref="serviceConfigurationRootClasses"/>
     </bean>
     
     <bean id="wadlGeneratorPrototypeFactory"
