@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
 
-    <import resource="classpath:openl-ruleservice-property-placeholder.xml"/>
+    <import resource="classpath:openl-ruleservice-property-placeholder.xml" />
 
-    <import resource="classpath:openl-ruleservice-core-beans.xml"/>
-    <import resource="classpath:openl-ruleservice-loader-beans.xml"/>
-    <import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
-    <import resource="classpath:openl-ruleservice-datasource-beans.xml"/>
-    <import resource="classpath:openl-ruleservice-conf-beans.xml"/>
+    <import resource="classpath:openl-ruleservice-core-beans.xml" />
+    <import resource="classpath:openl-ruleservice-loader-beans.xml" />
+    <import resource="classpath:openl-ruleservice-publisher-beans.xml" />
+    <import resource="classpath:openl-ruleservice-datasource-beans.xml" />
+    <import resource="classpath:openl-ruleservice-conf-beans.xml" />
 </beans>
