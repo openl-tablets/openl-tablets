@@ -24,7 +24,6 @@ public class TestAutoType3 {
     @Test
     public void test1() {
         TestUtils.assertEx("test/rules/calc/autotype/autotype-3.xls",
-            "Cannot parse cell value: [=$Col4] to the necessary type",
-            "Spreadsheet Expression Loop:[R1C3, R1C1]");
+            "Spreadsheet Expression Loop: [R1C1, R1C3]");
     }
 }

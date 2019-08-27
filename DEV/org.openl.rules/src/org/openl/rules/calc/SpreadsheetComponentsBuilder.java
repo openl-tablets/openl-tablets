@@ -1,7 +1,6 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -114,15 +112,14 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getRowNamesMarkedWithAsterisk() {
-        final long columnsMarkedWithAsteriskCount = columnHeaders.entrySet()
+        final long rowsMarkedWithAsteriskCount = rowHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         String[] ret = buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
-            e -> rowHeaders.size() == 1 && columnsMarkedWithAsteriskCount > 0 || e.getDefinition()
-                .isMarkedWithAsterisk());
+            e -> rowsMarkedWithAsteriskCount == 0 || e.getDefinition().isMarkedWithAsterisk());
 
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
@@ -131,14 +128,14 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getColumnNamesMarkedWithAsterisk() {
-        final long rowsMarkedWithAsterisk = rowHeaders.entrySet()
+        final long columnsMarkedWithAsterisk = columnHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         String[] ret = buildArrayForHeaders(columnHeaders,
             cellsHeaderExtractor.getWidth(),
-            e -> columnHeaders.size() == 1 && rowsMarkedWithAsterisk > 0 || e.getDefinition().isMarkedWithAsterisk());
+            e -> columnsMarkedWithAsterisk == 0 || e.getDefinition().isMarkedWithAsterisk());
 
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
@@ -262,18 +259,19 @@ public class SpreadsheetComponentsBuilder {
         }
     }
 
-    private IdentifierNode removeLeadingStar(IdentifierNode identifierNode) {
-        int d = identifierNode.getIdentifier().indexOf(SpreadsheetSymbols.STAR.toString());
-        if (d < 0) {
+    private IdentifierNode removeAsteriskInTheEnd(IdentifierNode identifierNode) {
+        String s = StringUtils.stripEnd(identifierNode.getIdentifier(), null);
+        int d = s.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
+        if (d != s.length() - 1) {
             throw new IllegalStateException("Asterisk symbols is not found!");
         }
-        String v = org.openl.util.StringUtils.trimStart(identifierNode.getIdentifier().substring(d + 1));
+        String v = StringUtils.stripEnd(identifierNode.getIdentifier().substring(0, d), null);
         int delta = identifierNode.getIdentifier().length() - v.length();
 
-        IPosition start = new AbsolutePosition(delta + identifierNode.getLocation()
-            .getStart()
+        IPosition end = new AbsolutePosition(-delta + identifierNode.getLocation()
+            .getEnd()
             .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier())));
-        ILocation location = new TextInterval(start, identifierNode.getLocation().getEnd());
+        ILocation location = new TextInterval(identifierNode.getLocation().getStart(), end);
         return new IdentifierNode(identifierNode.getType(), location, v, identifierNode.getModule());
     }
 
@@ -287,17 +285,17 @@ public class SpreadsheetComponentsBuilder {
         }
 
         IdentifierNode headerNameNode = nodes[0];
-        boolean startsWithAsterisk = false;
+        boolean endsWithAsterisk = false;
         if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
-            .startsWith(SpreadsheetSymbols.STAR.toString())) {
-            headerNameNode = removeLeadingStar(nodes[0]);
-            startsWithAsterisk = true;
+            .endsWith(SpreadsheetSymbols.ASTERISK.toString())) {
+            headerNameNode = removeAsteriskInTheEnd(nodes[0]);
+            endsWithAsterisk = true;
         }
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDefinition(headerNameNode, null, startsWithAsterisk);
+                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk);
             case 2:
-                return new SymbolicTypeDefinition(headerNameNode, nodes[1], startsWithAsterisk);
+                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk);
             default:
                 String message = String.format("Valid header format: name [%s type]",
                     SpreadsheetSymbols.TYPE_DELIMETER.toString());
@@ -336,15 +334,6 @@ public class SpreadsheetComponentsBuilder {
                 SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) getTableSyntaxNode()
                     .getMetaInfoReader();
                 List<NodeUsage> nodeUsages = new ArrayList<>();
-                if (headerDefinition.getDefinition().isMarkedWithAsterisk()) {
-                    String s = handleWrongSymbols(headerDefinition.getDefinitionName());
-                    if (StringUtils.isEmpty(s)) {
-                        s = "Empty string";
-                    }
-                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, 1, s, null, NodeType.OTHER);
-                    nodeUsages.add(nodeUsage);
-                }
-
                 if (headerType != null && typeIdentifierNode != null) {
                     IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
                     if (identifier != null) {
@@ -362,15 +351,23 @@ public class SpreadsheetComponentsBuilder {
                         }
                     }
                 }
-
-                if (!nodeUsages.isEmpty()) {
-                    ILogicalTable cell;
-                    if (headerDefinition.getRow() >= 0) {
-                        cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
-                    } else {
-                        cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                ILogicalTable cell;
+                if (headerDefinition.getRow() >= 0) {
+                    cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                } else {
+                    cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                }
+                if (headerDefinition.getDefinition().isMarkedWithAsterisk()) {
+                    String s = handleWrongSymbols(headerDefinition.getDefinitionName());
+                    if (StringUtils.isEmpty(s)) {
+                        s = "Empty string";
                     }
-
+                    String stringValue = cell.getCell(0, 0).getStringValue();
+                    int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
+                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(d, d, s, null, NodeType.OTHER);
+                    nodeUsages.add(nodeUsage);
+                }
+                if (!nodeUsages.isEmpty()) {
                     CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                     ICell c = cell.getCell(0, 0);
                     metaInfoReader.addHeaderMetaInfo(c.getAbsoluteRow(), c.getAbsoluteColumn(), cellMetaInfo);

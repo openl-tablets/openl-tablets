@@ -1,21 +1,41 @@
 package org.openl.binding.impl;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultField;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
-    private static CustomSpreadsheetResultOpenClass merge(CustomSpreadsheetResultOpenClass type1,
+    private static String getIfCSRTypeName(CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
+        return "IfNode" + type1.getName() + "And" + type2.getName() + "_" + type1.getName()
+            .hashCode() + "_ " + type2.getName().hashCode();
+    }
+
+    private static CustomSpreadsheetResultOpenClass merge(IBindingContext bindingContext,
+            CustomSpreadsheetResultOpenClass type1,
+            CustomSpreadsheetResultOpenClass type2) {
+
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, getIfCSRTypeName(type1, type2));
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            return (CustomSpreadsheetResultOpenClass) type;
+        }
+
         Set<String> rowNames = new LinkedHashSet<>();
         rowNames.addAll(Arrays.stream(type1.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
         rowNames.addAll(Arrays.stream(type2.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
@@ -25,19 +45,23 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
 
         Set<String> rowNamesMarkedWithAsterisk = new LinkedHashSet<>();
-        rowNamesMarkedWithAsterisk
-            .addAll(Arrays.stream(type1.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
-        rowNamesMarkedWithAsterisk
-            .addAll(Arrays.stream(type2.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesMarkedWithAsterisk.addAll(
+            Arrays.stream(type1.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesMarkedWithAsterisk.addAll(
+            Arrays.stream(type2.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
 
         Set<String> columnNamesMarkedWithAsterisk = new LinkedHashSet<>();
-        columnNamesMarkedWithAsterisk
-            .addAll(Arrays.stream(type1.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
-        columnNamesMarkedWithAsterisk
-            .addAll(Arrays.stream(type2.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesMarkedWithAsterisk.addAll(
+            Arrays.stream(type1.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesMarkedWithAsterisk.addAll(
+            Arrays.stream(type2.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+
+        if (!type1.getModule().equals(type2.getModule())) {
+            throw new IllegalStateException("Both CSR types must be from the same module!");
+        }
 
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-            "IfNode" + type1.getName() + "And" + type2.getName(),
+            getIfCSRTypeName(type1, type2),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
             rowNamesMarkedWithAsterisk.toArray(new String[] {}),
@@ -76,8 +100,12 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
                 }
             }
         }
+        
+        bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, mergedCustomSpreadsheetResultOpenClass);
+
         return mergedCustomSpreadsheetResultOpenClass;
     }
+    
 
     @Override
     protected IBoundNode buildIfElseNode(ISyntaxNode node,
@@ -90,7 +118,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         if (type instanceof CustomSpreadsheetResultOpenClass && elseType instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass type1 = (CustomSpreadsheetResultOpenClass) type;
             CustomSpreadsheetResultOpenClass type2 = (CustomSpreadsheetResultOpenClass) elseType;
-            return new IfNode(node, conditionNode, thenNode, elseNode, merge(type1, type2));
+            return new IfNode(node, conditionNode, thenNode, elseNode, merge(bindingContext, type1, type2));
         } else {
             return super.buildIfElseNode(node, bindingContext, conditionNode, thenNode, type, elseNode, elseType);
         }

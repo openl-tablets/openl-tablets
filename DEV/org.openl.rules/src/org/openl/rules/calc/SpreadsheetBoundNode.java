@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -117,7 +116,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        validateWarnsRowsColumnsWithAsterisks(spreadsheet);
+        validateRowsColumnsWithAsterisks(spreadsheet);
 
         if (spreadsheet.isCustomSpreadsheetType()) {
             IOpenClass type = null;
@@ -129,9 +128,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
                 String message = String.format("Can't define type %s", spreadsheet.getName());
-                SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
-                getTableSyntaxNode().addError(exception);
-                bindingContext.addError(exception);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
+                getTableSyntaxNode().addError(error);
+                bindingContext.addError(error);
                 spreadsheet.setCustomSpreadsheetResultType(
                     (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName()));
@@ -140,7 +139,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return spreadsheet;
     }
 
-    public void validateWarnsRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
+    public void validateRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
         long columnsWithAsteriskCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithAsterisk())
             .filter(Objects::nonNull)
             .count();
@@ -148,23 +147,13 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             .filter(Objects::nonNull)
             .count();
 
-        if (columnsWithAsteriskCount > 0 && rowsWithAsteriskCount == 0) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                "If columns are marked with asterisk symbols, then at least one row must be marked also, otherwise marked columns with asterisk symbols are ignored.",
-                getTableSyntaxNode()));
-        }
-        if (rowsWithAsteriskCount > 0 && columnsWithAsteriskCount == 0) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                "If rows are marked with asterisk symbols, then at least one column must be marked also, otherwise marked rows with asterisk symbols are ignored.",
-                getTableSyntaxNode()));
-        }
-        StringBuilder sb = new StringBuilder();
         Map<String, String> fNames = new HashMap<>();
         int warnCnt = 0;
         for (int i = 0; i < spreadsheet.getRowNamesMarkedWithAsterisk().length; i++) {
             for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithAsterisk().length; j++) {
                 if (spreadsheet.getColumnNamesMarkedWithAsterisk()[j] != null && spreadsheet
-                    .getRowNamesMarkedWithAsterisk()[i] != null) {
+                    .getRowNamesMarkedWithAsterisk()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
+                                                                                   // messages
                     String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
                         .getColumnNames()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
                     IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
@@ -172,66 +161,52 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                     while (t.isArray()) {
                         t = t.getComponentClass();
                     }
-                    boolean f = false;
+                    boolean f = true;
                     if (t instanceof CustomSpreadsheetResultOpenClass) {
                         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
                         CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        if (csroc.isEmptyBeanClass()) {
-                            f = true; // IGNORE EMPTY CSRS TYPES
+                        if (csroc != null && csroc.isEmptyBeanClass()) { // If CSR returns null
+                            f = false; // IGNORE EMPTY CSRS TYPES
                         }
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
-                        f = true; // IGNORE VOID TYPES
-                    }
-
-                    String refName;
-                    if (columnsWithAsteriskCount == 1) {
-                        refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
-                    } else if (rowsWithAsteriskCount == 1) {
-                        refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
-                    } else {
-                        refName = fieldName;
+                        f = false; // IGNORE VOID TYPES
                     }
 
                     if (f) {
-                        if (warnCnt > 0) {
-                            sb.append(", ");
-                        }
-                        sb.append(refName);
-                        warnCnt++;
-                    } else {
-                        StringBuilder sb1 = new StringBuilder();
+                        String refName;
                         if (columnsWithAsteriskCount == 1) {
-                            sb1.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                            refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
                         } else if (rowsWithAsteriskCount == 1) {
-                            sb1.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                            refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
                         } else {
-                            sb1.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
-                            sb1.append("_");
-                            sb1.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                            refName = fieldName;
                         }
-                        String fName = sb1.toString();
+
+                        StringBuilder sb = new StringBuilder();
+                        if (columnsWithAsteriskCount == 1) {
+                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                        } else if (rowsWithAsteriskCount == 1) {
+                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                        } else {
+                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                            sb.append("_");
+                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                        }
+                        String fName = sb.toString();
                         String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
                                                         : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
-                            getTableSyntaxNode().addError(SyntaxNodeExceptionUtils.createError(String.format(
+                            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                                 "Cells '%s' and '%s' conflicts with each other in the output model for this spreadsheet result.",
                                 v,
                                 refName), getTableSyntaxNode()));
+                            warnCnt++;
                         }
                     }
                 }
             }
-        }
-        if (warnCnt == 1) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cell '%s' is always empty. Using asterisk symbols on column/row for this cell makes output model excess.",
-                sb.toString()), getTableSyntaxNode()));
-        } else if (warnCnt > 1) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "Spreadsheet cells [%s] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.",
-                sb.toString()), getTableSyntaxNode()));
         }
     }
 

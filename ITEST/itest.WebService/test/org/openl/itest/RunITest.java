@@ -3,7 +3,6 @@ package org.openl.itest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyInt;
 
 import java.io.StringReader;
 
@@ -21,7 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-public class RunITest1 {
+public class RunITest {
 
     private static JettyServer server;
     private static String baseURI;
@@ -91,7 +90,7 @@ public class RunITest1 {
         // Spreadsheet Result Return Type
         final String path = "/*[local-name()='application']/*[local-name()='resources']/*[local-name()='resource' and @path='/']/*[local-name()='resource' and @path='test']/*[local-name()='method']/*[local-name()='response']/*[local-name()='representation']";
         final Node node = (Node) xpath.evaluate(path, root, XPathConstants.NODE);
-        assertEqualsIgnorePrefix("spreadsheetResult", node.getAttributes().getNamedItem("element").getTextContent());
+        assertEqualsIgnorePrefix("Test", node.getAttributes().getNamedItem("element").getTextContent());
     }
 
     @Test
@@ -122,7 +121,7 @@ public class RunITest1 {
         // Spreadsheet Result Return Type
         final String path = "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='testResponse']/*[local-name()='sequence']/*[local-name()='element']";
         final Node node = (Node) xpath.evaluate(path, root, XPathConstants.NODE);
-        assertEqualsIgnorePrefix("SpreadsheetResult", node.getAttributes().getNamedItem("type").getTextContent());
+        assertEqualsIgnorePrefix("Test", node.getAttributes().getNamedItem("type").getTextContent());
     }
 
     @Test
@@ -257,9 +256,9 @@ public class RunITest1 {
         validateComplexTypeWadl(root, xpath, "SprOneColumn", true);
         validateComplexTypeWadl(root, xpath, "SprTwoTwo", true);
         validateComplexTypeWadl(root, xpath, "SprOneOne", true);
-        validateComplexTypeWadl(root, xpath, "SprOneOneNoAsterisk", false);
-        validateComplexTypeWadl(root, xpath, "SprTwoTwoIgnored1", false);
-        validateComplexTypeWadl(root, xpath, "SprTwoTwoIgnored2", false);
+        validateComplexTypeWadl(root, xpath, "SprOneOneNoAsterisk", true);
+        validateComplexTypeWadl(root, xpath, "SprTwoTwo1", true);
+        validateComplexTypeWadl(root, xpath, "SprTwoTwo2", true);
         validateComplexTypeWadl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWadl(root, xpath, "DtRetSpr2", false);
         validateComplexTypeWadl(root, xpath, "DtRetSpr3", false);
@@ -284,6 +283,15 @@ public class RunITest1 {
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo", "Values_Step1");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo", "Values_Step2");
 
+        validateCSRElementsCountWadl(root, xpath, "SprTwoTwo1", 1);
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo1", "Step1");
+
+        validateCSRElementsCountWadl(root, xpath, "SprTwoTwo2", 4);
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Formula_Step1");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Formula_Step2");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step1");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step2");
+        
         validateCSRElementsCountWadl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWadl(root, xpath, "SprOneOne", "Step1");
         // Validate CSR field
@@ -340,9 +348,9 @@ public class RunITest1 {
         validateComplexTypeWsdl(root, xpath, "SprOneColumn", true);
         validateComplexTypeWsdl(root, xpath, "SprTwoTwo", true);
         validateComplexTypeWsdl(root, xpath, "SprOneOne", true);
-        validateComplexTypeWsdl(root, xpath, "SprOneOneNoAsterisk", false);
-        validateComplexTypeWsdl(root, xpath, "SprTwoTwoIgnored1", false);
-        validateComplexTypeWsdl(root, xpath, "SprTwoTwoIgnored2", false);
+        validateComplexTypeWsdl(root, xpath, "SprOneOneNoAsterisk", true);
+        validateComplexTypeWsdl(root, xpath, "SprTwoTwo1", true);
+        validateComplexTypeWsdl(root, xpath, "SprTwoTwo2", true);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr2", false);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr3", false);

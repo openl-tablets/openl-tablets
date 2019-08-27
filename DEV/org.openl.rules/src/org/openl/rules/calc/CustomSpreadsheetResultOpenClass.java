@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.exception.OpenlNotCheckedException;
@@ -26,6 +28,7 @@ import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
@@ -133,7 +136,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         List<String> nRowNamesMarkedWithAsterisk = new ArrayList<>(Arrays.asList(this.rowNamesMarkedWithAsterisk));
         Set<String> existedRowNamesSet = new HashSet<>(Arrays.asList(this.rowNames));
         List<String> nColumnNames = new ArrayList<>(Arrays.asList(this.columnNames));
-        List<String> nColumnNamesMarkedWithAsterisk = new ArrayList<>(Arrays.asList(this.columnNamesMarkedWithAsterisk));
+        List<String> nColumnNamesMarkedWithAsterisk = new ArrayList<>(
+            Arrays.asList(this.columnNamesMarkedWithAsterisk));
         Set<String> existedColumnNamesSet = new HashSet<>(Arrays.asList(this.columnNames));
 
         List<String> nRowTitles = new ArrayList<>(Arrays.asList(this.rowTitles));
@@ -185,11 +189,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             this.simpleRefBeanByRow = simpleRefBeanByRow && this.simpleRefBeanByRow;
             this.simpleRefBeanByColumn = simpleRefBeanByColumn && this.simpleRefBeanByColumn;
 
-            this.rowAndColumnNamesMarkedWithAsteriskHistory.add(Pair.of(columnNamesMarkedWithAsterisk, rowNamesMarkedWithAsterisk));
+            this.rowAndColumnNamesMarkedWithAsteriskHistory
+                .add(Pair.of(columnNamesMarkedWithAsterisk, rowNamesMarkedWithAsterisk));
 
             this.rowNamesMarkedWithAsterisk = nRowNamesMarkedWithAsterisk.toArray(new String[] {});
             this.columnNamesMarkedWithAsterisk = nColumnNamesMarkedWithAsterisk.toArray(new String[] {});
-            this.columnsWithAsteriskCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
+            this.columnsWithAsteriskCount = Arrays.stream(columnNamesMarkedWithAsterisk)
+                .filter(Objects::nonNull)
+                .count();
             this.rowsWithAsteriskCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
         }
 
@@ -352,10 +359,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             Set<String> usedFields,
             boolean addFieldNameWithCollisions,
             Map<String, IOpenField> beanFieldsMap) {
-        for (Entry<String, IOpenField> entry : getFields().entrySet()) {
+        SortedMap<String, IOpenField> sortedFields = new TreeMap<>(getFields()); // Fields must be sorted to prevent
+                                                                                 // name changes after adding a new
+                                                                                 // field
+        for (Entry<String, IOpenField> entry : sortedFields.entrySet()) {
             Point point = fieldsCoordinates.get(entry.getKey());
-            if (point != null && rowNamesMarkedWithAsterisk[point.getRow()] != null && columnNamesMarkedWithAsterisk[point
-                .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
+            if (point != null && rowNamesMarkedWithAsterisk[point
+                .getRow()] != null && columnNamesMarkedWithAsterisk[point
+                    .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
                 String fieldName;
 
                 if (simpleRefBeanByRow) {
@@ -377,8 +388,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     if (!found) {
                         continue;
                     }
-                    fieldName = columnNamesMarkedWithAsterisk[point.getColumn()] + "_" + rowNamesMarkedWithAsterisk[point
-                        .getRow()];
+                    fieldName = columnNamesMarkedWithAsterisk[point
+                        .getColumn()] + "_" + rowNamesMarkedWithAsterisk[point.getRow()];
                 }
                 Class<?> type;
                 IOpenClass t = entry.getValue().getType();
@@ -391,16 +402,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
                     CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                         .findType(customSpreadsheetResultOpenClass.getName());
-
-                    if (csroc.isEmptyBeanClass()) {
-                        continue; //IGNORE EMPTY CSRS TYPES
-                    }
-                    
-                    Class<?> beanType = csroc.getBeanClass();
-                    if (dim > 0) {
-                        type = Array.newInstance(beanType, new int[dim]).getClass();
+                    Class<?> fieldCls;
+                    if (csroc != null) {
+                        if (csroc.isEmptyBeanClass()) {
+                            continue; // IGNORE EMPTY CSRS TYPES
+                        }
+                        fieldCls = csroc.getBeanClass();
                     } else {
-                        type = beanType;
+                        fieldCls = Object.class;
+                    }
+                    if (dim > 0) {
+                        type = Array.newInstance(fieldCls, new int[dim]).getClass();
+                    } else {
+                        type = fieldCls;
                     }
                 } else if (t instanceof SpreadsheetResultOpenClass) {
                     if (dim > 0) {
@@ -413,17 +427,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 } else {
                     type = entry.getValue().getType().getInstanceClass();
                 }
-                if (!usedFields.contains(fieldName)) {
+
+                if (!usedFields.contains(StringUtils.capitalize(fieldName)) && !usedFields
+                    .contains(StringUtils.uncapitalize(fieldName))) {
                     usedFields.add(fieldName);
                     fillUsed(used, point);
                     beanClassBuilder.addField(fieldName, type.getName());
                     beanFieldsMap.put(fieldName, entry.getValue());
                 } else {
                     if (addFieldNameWithCollisions) {
-                        String newFieldName = fieldName;
+                        String newFieldName = "_" + fieldName;
                         int i = 1;
                         while (usedFields.contains(newFieldName)) {
-                            newFieldName = fieldName + i;
+                            newFieldName = fieldName + "_" + i;
                             i++;
                         }
                         usedFields.add(newFieldName);

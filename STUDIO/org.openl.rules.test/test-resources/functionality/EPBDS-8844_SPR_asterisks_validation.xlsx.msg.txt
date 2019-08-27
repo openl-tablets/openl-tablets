@@ -1,6 +1,4 @@
-WARN: Spreadsheet cells [$Step1, $Step2, $Step3, $Step4, $Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
-WARN: Spreadsheet cells [$Step1, $Step2, $Step3, $Step4, $Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
-WARN: If columns are marked with asterisk symbols, then at least one row must be marked also, otherwise marked columns with asterisk symbols are ignored.
-WARN: If rows are marked with asterisk symbols, then at least one column must be marked also, otherwise marked rows with asterisk symbols are ignored.
-WARN: Spreadsheet cells [$Result$Step1, $Result$Step2, $Result$Step3, $Result$Step4, $Result$Step5] are always empty. Using asterisk symbols on columns/rows for these cells makes output model excess.
-WARN: If columns are marked with asterisk symbols, then at least one row must be marked also, otherwise marked columns with asterisk symbols are ignored.
+WARN: Cells '$Res$ult_Value' and '$Res_ult$Value' conflicts with each other in the output model for this spreadsheet result.
+WARN: Cells '$Step1*' and '$Step-1' conflicts with each other in the output model for this spreadsheet result.
+WARN: Cells '$Step-1' and '$Step.1' conflicts with each other in the output model for this spreadsheet result.
+WARN: Cells '$myValue' and '$MyValue' conflicts with each other in the output model for this spreadsheet result.

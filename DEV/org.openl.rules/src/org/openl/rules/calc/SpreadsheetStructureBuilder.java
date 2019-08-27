@@ -137,7 +137,8 @@ public class SpreadsheetStructureBuilder {
 
             IBindingContext rowContext = getRowContext(rowIndex);
             if (processingCells.contains(cell)) {
-                throw new OpenlNotCheckedException("Spreadsheet Expression Loop:" + processingCells.toString());
+                cell.setType(JavaOpenClass.OBJECT);
+                throw new OpenlNotCheckedException("Spreadsheet Expression Loop: " + processingCells.toString());
             }
             processingCells.add(cell);
 
