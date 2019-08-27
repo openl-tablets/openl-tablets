@@ -367,8 +367,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             if (point != null && rowNamesMarkedWithAsterisk[point
                 .getRow()] != null && columnNamesMarkedWithAsterisk[point
                     .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
-                String fieldName;
 
+                String fieldName;
                 if (simpleRefBeanByRow) {
                     fieldName = rowNamesMarkedWithAsterisk[point.getRow()];
                 } else if (simpleRefBeanByColumn) {
@@ -390,6 +390,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     }
                     fieldName = columnNamesMarkedWithAsterisk[point
                         .getColumn()] + "_" + rowNamesMarkedWithAsterisk[point.getRow()];
+                }
+                if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
+                    fieldName = "_";
                 }
                 Class<?> type;
                 IOpenClass t = entry.getValue().getType();
@@ -436,7 +439,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     beanFieldsMap.put(fieldName, entry.getValue());
                 } else {
                     if (addFieldNameWithCollisions) {
-                        String newFieldName = "_" + fieldName;
+                        String newFieldName = fieldName;
+                        if (!fieldName.startsWith("_")) {
+                            newFieldName = "_" + fieldName;
+                        }
                         int i = 1;
                         while (usedFields.contains(newFieldName)) {
                             newFieldName = fieldName + "_" + i;

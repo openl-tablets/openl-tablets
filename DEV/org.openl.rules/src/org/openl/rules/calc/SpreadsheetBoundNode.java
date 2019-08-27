@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -194,6 +195,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                             sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
                         }
                         String fName = sb.toString();
+                        if (StringUtils.isBlank(fName)) {
+                            fieldName = "_";
+                        }
                         String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
                                                         : fName.toLowerCase();
                         String v = fNames.put(key, refName);

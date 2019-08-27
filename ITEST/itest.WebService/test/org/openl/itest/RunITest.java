@@ -259,6 +259,9 @@ public class RunITest {
         validateComplexTypeWadl(root, xpath, "SprOneOneNoAsterisk", true);
         validateComplexTypeWadl(root, xpath, "SprTwoTwo1", true);
         validateComplexTypeWadl(root, xpath, "SprTwoTwo2", true);
+        validateComplexTypeWadl(root, xpath, "SprWithEmptyColumn", true);
+        validateComplexTypeWadl(root, xpath, "SprWithEmptyRow", true);
+
         validateComplexTypeWadl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWadl(root, xpath, "DtRetSpr2", false);
         validateComplexTypeWadl(root, xpath, "DtRetSpr3", false);
@@ -291,7 +294,14 @@ public class RunITest {
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Formula_Step2");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step1");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step2");
-        
+
+        validateCSRElementsCountWadl(root, xpath, "SprWithEmptyColumn", 2);
+        validateCSRElementNameWadl(root, xpath, "SprWithEmptyColumn", "_");
+        validateCSRElementNameWadl(root, xpath, "SprWithEmptyColumn", "Values");
+
+        validateCSRElementsCountWadl(root, xpath, "SprWithEmptyRow", 1);
+        validateCSRElementNameWadl(root, xpath, "SprWithEmptyRow", "_");
+
         validateCSRElementsCountWadl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWadl(root, xpath, "SprOneOne", "Step1");
         // Validate CSR field
@@ -351,6 +361,9 @@ public class RunITest {
         validateComplexTypeWsdl(root, xpath, "SprOneOneNoAsterisk", true);
         validateComplexTypeWsdl(root, xpath, "SprTwoTwo1", true);
         validateComplexTypeWsdl(root, xpath, "SprTwoTwo2", true);
+        validateComplexTypeWsdl(root, xpath, "SprWithEmptyColumn", true);
+        validateComplexTypeWsdl(root, xpath, "SprWithEmptyRow", true);
+
         validateComplexTypeWsdl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr2", false);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr3", false);
@@ -374,6 +387,13 @@ public class RunITest {
         validateCSRElementNameWsdl(root, xpath, "SprTwoTwo", "Values2_Step4");
         validateCSRElementNameWsdl(root, xpath, "SprTwoTwo", "Values_Step1");
         validateCSRElementNameWsdl(root, xpath, "SprTwoTwo", "Values_Step2");
+
+        validateCSRElementsCountWsdl(root, xpath, "SprWithEmptyColumn", 2);
+        validateCSRElementNameWsdl(root, xpath, "SprWithEmptyColumn", "_");
+        validateCSRElementNameWsdl(root, xpath, "SprWithEmptyColumn", "Values");
+
+        validateCSRElementsCountWsdl(root, xpath, "SprWithEmptyRow", 1);
+        validateCSRElementNameWsdl(root, xpath, "SprWithEmptyRow", "_");
 
         validateCSRElementsCountWsdl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWsdl(root, xpath, "SprOneOne", "Step1");
@@ -405,7 +425,7 @@ public class RunITest {
             root,
             XPathConstants.NODE);
         assertEqualsIgnorePrefix("ArrayOfAnyType", node4.getAttributes().getNamedItem("type").getTextContent());
-        
+
         // Spreadsheet Result Return Type for dtRetSpr3
         final Node node5 = (Node) xpath.evaluate(
             "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='dtRetSpr3Response']/*[local-name()='sequence']/*[local-name()='element']",
