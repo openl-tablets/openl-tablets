@@ -5,6 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -12,12 +17,15 @@ import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.response.ServiceInfoResponse;
+import org.openl.itest.response.UiInfoResponse;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 public class RunRestRulesDeploymentTest {
@@ -25,7 +33,10 @@ public class RunRestRulesDeploymentTest {
     private static final String SINGLE_DEPLOYMENT_ENDPOINT = "/REST/deployed-rules/hello";
     private static final String MULTIPLE_DEPLOYMENT_ENDPOINT = "/REST/project1/sayHello";
     private static final String SERVICES_INFO_ENDPOINT = "/admin/services";
+    private static final String UI_INFO_ENDPOINT = "/admin/ui/info";
     private static final String SERVICES_METHODS_ENDPOINT = "/methods";
+    private static final String SERVICES_DELETE_ENDPOINT = "/rules/delete/";
+    private static final String SERVICES_READ_ENDPOINT = "/rules/read/";
 
     private static JettyServer server;
     private static String baseURI;
@@ -49,7 +60,7 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
-    public void testDeployRules() {
+    public void testDeployRules() throws IOException {
         assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest(SINGLE_DEPLOYMENT_ENDPOINT).getStatusCode());
 
         ResponseEntity<ServiceInfoResponse[]> services = fetchServices(SERVICES_INFO_ENDPOINT);
@@ -60,7 +71,16 @@ public class RunRestRulesDeploymentTest {
         ResponseEntity<String> response = doDeploy("/rules-to-deploy.zip", HttpMethod.POST);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
+        ClassPathResource classPathResource = new ClassPathResource("/rules-to-deploy.zip");
+
+        File file = classPathResource.getFile();
+        byte[] fileContent = Files.readAllBytes(file.toPath());
+
         ServiceInfoResponse[] servicesInfo2 = fetchServices(SERVICES_INFO_ENDPOINT).getBody();
+        ResponseEntity<byte[]> responseEntity = readService(servicesInfo2[0].getName());
+        byte[] fileContent2 = responseEntity.getBody();
+        assertTrue(Arrays.equals(fileContent, fileContent2));
+
         assertEquals(1, servicesInfo2.length);
         checkServiceInfo(servicesInfo2[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
         long service2Time = servicesInfo2[0].getStartedTime().getTime();
@@ -92,8 +112,17 @@ public class RunRestRulesDeploymentTest {
         checkServiceInfo(servicesInfo4[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
         checkServiceTime(servicesInfo4[0].getStartedTime().getTime(), createServiceTime);
 
+        ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity = fetchServiceInfo();
+        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getBody().getServiceInfo();
+        assertEquals(1, serviceInfo.length);
+
         body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
         assertEquals("Hello, Mr. Vlad", body);
+        deleteService(serviceInfo[0].getName());
+        ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity2 = fetchServiceInfo();
+        ServiceInfoResponse[] serviceInfo2 = uiInfoResponseResponseEntity2.getBody().getServiceInfo();
+        assertEquals(0, serviceInfo2.length);
+
     }
 
     @Test
@@ -107,21 +136,15 @@ public class RunRestRulesDeploymentTest {
 
         ResponseEntity<ServiceInfoResponse[]> services = fetchServices(SERVICES_INFO_ENDPOINT);
         ServiceInfoResponse[] servicesInfo = services.getBody();
-        assertEquals(3, servicesInfo.length);
-        checkServiceInfo(servicesInfo[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
-        checkServiceInfo(servicesInfo[1], "project1", "project1", "REST/project1");
-        checkServiceTime(servicesInfo[1].getStartedTime().getTime(), createServiceTime);
-        checkServiceInfo(servicesInfo[2],
+        assertEquals(2, servicesInfo.length);
+        checkServiceInfo(servicesInfo[0], "project1", "project1", "REST/project1");
+        checkServiceTime(servicesInfo[0].getStartedTime().getTime(), createServiceTime);
+        checkServiceInfo(servicesInfo[1],
             "yaml_project_project2",
             "yaml_project/project2",
             "REST/yaml_project/project2");
-        checkServiceTime(servicesInfo[2].getStartedTime().getTime(), createServiceTime);
+        checkServiceTime(servicesInfo[1].getStartedTime().getTime(), createServiceTime);
 
-        ResponseEntity<String> serviceMethods1 = fetchServiceMethods(
-            SERVICES_INFO_ENDPOINT + "/deployed-rules" + SERVICES_METHODS_ENDPOINT);
-        assertEquals(
-            "[{\"name\":\"hello\",\"paramTypes\":[\"IRulesRuntimeContext\",\"String\"],\"returnType\":\"String\"}]",
-            serviceMethods1.getBody());
         ResponseEntity<String> serviceMethods2 = fetchServiceMethods(
             SERVICES_INFO_ENDPOINT + "/project1" + SERVICES_METHODS_ENDPOINT);
         assertEquals(
@@ -197,6 +220,30 @@ public class RunRestRulesDeploymentTest {
         HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
         ResponseEntity<ServiceInfoResponse[]> response = rest
             .exchange(endpoint, HttpMethod.GET, entity, ServiceInfoResponse[].class);
+        return response;
+    }
+
+    private ResponseEntity<UiInfoResponse> fetchServiceInfo() {
+        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
+        ResponseEntity<UiInfoResponse> response = rest
+            .exchange(UI_INFO_ENDPOINT, HttpMethod.GET, entity, UiInfoResponse.class);
+        return response;
+    }
+
+    private ResponseEntity<String> deleteService(String serviceName) {
+        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
+        ResponseEntity<String> response = rest
+            .exchange(SERVICES_DELETE_ENDPOINT + serviceName, HttpMethod.DELETE, entity, String.class);
+        return response;
+    }
+
+    private ResponseEntity<byte[]> readService(String serviceName) {
+        rest.getMessageConverters().add(new ByteArrayHttpMessageConverter());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.ALL));
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<byte[]> response = rest
+            .exchange(SERVICES_READ_ENDPOINT + serviceName, HttpMethod.GET, entity, byte[].class, "1");
         return response;
     }
 

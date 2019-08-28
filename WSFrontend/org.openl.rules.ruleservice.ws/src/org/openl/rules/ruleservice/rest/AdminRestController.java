@@ -36,7 +36,7 @@ public class AdminRestController {
      * @return a list of descriptions of published OpenL services with serverSettings.
      */
     @GET
-    @Path("/servicesAndSettings")
+    @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
         Collection<ServiceInfo> servicesInfo = ruleServiceManager.getServicesInfo();
         return Response.ok(new servicesInfoAndSettings(servicesInfo, configInfoBean)).build();
