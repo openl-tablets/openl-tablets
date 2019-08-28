@@ -263,7 +263,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;
         }
-        return new ServiceInfo(new Date(), service.getName(), url, "REST");
+        return new ServiceInfo(new Date(), service.getName(), url, "REST", service.getServicePath());
     }
 
     private void removeServiceInfo(String serviceName) {

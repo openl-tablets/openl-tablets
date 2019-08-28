@@ -15,6 +15,7 @@ import org.openl.rules.project.model.Module;
 public final class ServiceDescription {
     private String name;
     private String url;
+    private String servicePath;
     private String serviceClassName;
     private String rmiServiceClassName;
     private String rmiName;
@@ -39,6 +40,7 @@ public final class ServiceDescription {
      */
     ServiceDescription(String name,
             String url,
+            String servicePath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -54,6 +56,7 @@ public final class ServiceDescription {
         Objects.requireNonNull(resourceLoader, "resourceLoader arg must not be null.");
         this.name = name;
         this.url = url;
+        this.servicePath = servicePath;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
@@ -79,6 +82,7 @@ public final class ServiceDescription {
     private ServiceDescription(ServiceDescriptionBuilder builder) {
         this(builder.name,
             builder.url,
+            builder.servicePath,
             builder.serviceClassName,
             builder.rmiServiceClassName,
             builder.rmiName,
@@ -117,6 +121,15 @@ public final class ServiceDescription {
      */
     public String getUrl() {
         return url;
+    }
+
+    /**
+     * Returns service servicePath.
+     *
+     * @return
+     */
+    public String getServicePath() {
+        return servicePath;
     }
 
     /**
@@ -241,6 +254,7 @@ public final class ServiceDescription {
     public static class ServiceDescriptionBuilder {
         private String name;
         private String url;
+        private String servicePath;
         private String serviceClassName;
         private String rmiServiceClassName;
         private String rmiName;
@@ -319,6 +333,17 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setUrl(String url) {
             this.url = url;
+            return this;
+        }
+
+        /**
+         * Sets servicePath to the builder.
+         *
+         * @param servicePath
+         * @return
+         */
+        public ServiceDescriptionBuilder setServicePath(String servicePath) {
+            this.servicePath = servicePath;
             return this;
         }
 

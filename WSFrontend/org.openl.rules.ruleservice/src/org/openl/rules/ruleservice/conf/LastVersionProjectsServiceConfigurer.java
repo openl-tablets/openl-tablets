@@ -217,6 +217,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         }
                         serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                         serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
+                        serviceDescriptionBuilder.setServicePath(project.getFolderPath());
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
                         if (!serviceDescriptions.contains(serviceDescription) && !serviceURLs

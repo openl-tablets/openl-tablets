@@ -94,6 +94,23 @@
             vertical-align: bottom;
         }
 
+        .download-button {
+            float: right;
+        }
+
+        .delete-button {
+            float: right;
+            margin-left: 5px;
+        }
+
+        .deploy-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            margin: 0 auto;
+            display: block;
+        }
+
         .expand-button {
             background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
         }
@@ -127,52 +144,120 @@
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
-    var url = "admin/services";
+    var url = "admin/servicesAndSettings";
 
     xmlhttp.onload = function () {
-        var services = JSON.parse(this.response);
-        renderServices(services);
+        var servicesResponse = JSON.parse(this.response);
+        renderServices(servicesResponse);
     };
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
+    addMainBlockEventListener();
 
-    function renderServices(services) {
+    function addMainBlockEventListener() {
+        var mainBlock = document.getElementById("main");
+        mainBlock.addEventListener('click', function (event) {
+            var button = event.target || event.srcElement;
+            var serviceName = button.parentElement.dataset.serviceName;
+            if (button.className === "expand-button") {
+                // Expand the node
+                var childArray = button.parentElement.childNodes
+                var target = childArray[2];
+                var xmlhttpMethods = new XMLHttpRequest();
+                xmlhttpMethods.onload = function () {
+                    var methods = JSON.parse(this.response);
+                    renderMethods(target, methods);
+                };
+                xmlhttpMethods.open("GET", "admin/services" + "/" + serviceName + "/methods", true);
+                xmlhttpMethods.send();
+                button.className = "collapse-button";
+            } else if (button.className === "collapse-button") {
+                // Collapse the node
+                button.className = "expand-button";
+            } else if (button.className === "download-button") {
+                downloadProject(serviceName);
+            } else if (button.className === "delete-button") {
+                deleteProject(serviceName);
+            }
+        })
+    }
+
+    function renderServices(servicesResponse) {
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
-
+        var services = servicesResponse.serviceInfo;
+        var deployerEnabled = servicesResponse.config.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {
-                var html = createServiceHtml(service);
+                var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
+                el.dataset.serviceName = service.name;
+                el.dataset.servicePath = service.servicePath;
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
             });
-            mainBlock.addEventListener('click', function (event) {
-                var button = event.target || event.srcElement;
-                if (button.className === "expand-button") {
-                    // Expand the node
-                    var childArray = button.parentElement.childNodes
-                    var serviceName = childArray[1].innerText;
-                    var target = childArray[2];
-                    var xmlhttpMethods = new XMLHttpRequest();
-                    xmlhttpMethods.onload = function () {
-                        var methods = JSON.parse(this.response);
-                        renderMethods(target, methods);
-                    };
-                    xmlhttpMethods.open("GET", url + "/" + serviceName + "/methods", true);
-                    xmlhttpMethods.send();
-                    button.className = "collapse-button";
-                } else if (button.className === "collapse-button") {
-                    // Collapse the node
-                    button.className = "expand-button";
-                }
-
-            })
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
         }
+        if (deployerEnabled) {
+            var el = document.createElement("DIV");
+            var html = createServiceButtons();
+            el.innerHTML = html;
+            mainBlock.appendChild(el);
+        }
+    }
+
+    function deleteProject(serviceName) {
+        if (confirm("Are you sure you want to delete this project?")) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
+            xhr.open("GET", "rules/delete/" + serviceName, true);
+            xhr.send();
+        }
+    }
+
+    function uploadProject() {
+        document.getElementById('file-input').onchange = function () {
+            var fileToUpload = this.files[0];
+            var fileExtension = fileToUpload.name.split('.').pop();
+            if (fileExtension === "zip" || fileExtension === "jar") {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    document.getElementById("file-input").value = "";
+                    xmlhttp.open("GET", url, true);
+                    xmlhttp.send();
+                }
+                xhr.open("PUT", "rules/deploy/", true);
+                xhr.setRequestHeader("Content-type", "application/zip")
+                xhr.send(fileToUpload);
+            } else {
+                alert("only zip or jar files can be uploaded")
+            }
+        }
+        document.getElementById('file-input').click();
+    }
+
+    function downloadProject(serviceName) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            var blob = new Blob([xhr.response], {type: "octet/stream"});
+            var url = window.URL.createObjectURL(blob);
+            a.href = url;
+            a.download = serviceName + ".zip";
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+        xhr.responseType = 'arraybuffer';
+        xhr.open("GET", "rules/read/" + serviceName, true);
+        xhr.send();
     }
 
     function renderMethods(methodsBlock, methods) {
@@ -182,10 +267,10 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service) {
+    function createServiceHtml(service, deployerEnabled) {
         var html = "";
         // Name
-        html += "<span class='expand-button'></span><h3>" + service.name + "</h3>";
+        html += "<span class='expand-button' data-path=></span><h3>" + service.name + "</h3>";
 
         // Methods
         html += "<ul class='methods'></ul>";
@@ -209,6 +294,18 @@
                 html += "<a href='" + url + "'\>" + name + "</a>";
             }
         });
+        if (deployerEnabled) {
+            html += "<button type=\"button\" class='delete-button'>Delete</button>";
+            html += "<button type=\"button\" class='download-button'>Download</button>";
+        }
+
+        return html;
+    }
+
+    function createServiceButtons() {
+        var html = "";
+        html += "<input id=\"file-input\" type=\"file\" name=\"name\" style=\"display: none;\"/>";
+        html += "<button type=\"button\" onclick=\"uploadProject()\" class='deploy-button'>Deploy</button>";
         return html;
     }
 </script>

@@ -145,7 +145,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
         String address = "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
-        return new ServiceInfo(new Date(), service.getName(), address, "RMI");
+        return new ServiceInfo(new Date(), service.getName(), address, "RMI", service.getServicePath());
     }
 
     private void removeServiceInfo(String serviceName) {
