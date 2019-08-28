@@ -261,6 +261,7 @@ public class RunITest {
         validateComplexTypeWadl(root, xpath, "SprTwoTwo2", true);
         validateComplexTypeWadl(root, xpath, "SprWithEmptyColumn", true);
         validateComplexTypeWadl(root, xpath, "SprWithEmptyRow", true);
+        validateComplexTypeWadl(root, xpath, "SprIfNode", true);
 
         validateComplexTypeWadl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWadl(root, xpath, "DtRetSpr2", false);
@@ -304,6 +305,10 @@ public class RunITest {
 
         validateCSRElementsCountWadl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWadl(root, xpath, "SprOneOne", "Step1");
+        
+        validateCSRElementsCountWadl(root, xpath, "SprIfNode", 1);
+        validateCSRElementNameWadl(root, xpath, "SprIfNode", "Step1");
+
         // Validate CSR field
         final Node node1 = (Node) xpath.evaluate(
             "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='Calc']/*[local-name()='sequence']/*[local-name()='element']",
@@ -311,6 +316,13 @@ public class RunITest {
             XPathConstants.NODE);
         String v1 = node1.getAttributes().getNamedItem("type").getTextContent();
         assertEqualsIgnorePrefix("SprOneRow", v1);
+        
+        final Node node6 = (Node) xpath.evaluate(
+            "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='SprIfNode']/*[local-name()='sequence']/*[local-name()='element']",
+            root,
+            XPathConstants.NODE);
+        String v6 = node6.getAttributes().getNamedItem("type").getTextContent();
+        assertEqualsIgnorePrefix("anyType", v6);
 
         // Spreadsheet Result Return Type
         final Node node2 = (Node) xpath.evaluate(
@@ -363,6 +375,7 @@ public class RunITest {
         validateComplexTypeWsdl(root, xpath, "SprTwoTwo2", true);
         validateComplexTypeWsdl(root, xpath, "SprWithEmptyColumn", true);
         validateComplexTypeWsdl(root, xpath, "SprWithEmptyRow", true);
+        validateComplexTypeWsdl(root, xpath, "SprIfNode", true);
 
         validateComplexTypeWsdl(root, xpath, "DtRetSpr", false);
         validateComplexTypeWsdl(root, xpath, "DtRetSpr2", false);
@@ -397,6 +410,10 @@ public class RunITest {
 
         validateCSRElementsCountWsdl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWsdl(root, xpath, "SprOneOne", "Step1");
+        
+        validateCSRElementsCountWsdl(root, xpath, "SprIfNode", 1);
+        validateCSRElementNameWsdl(root, xpath, "SprIfNode", "Step1");
+
         // Validate CSR field
         final Node node1 = (Node) xpath.evaluate(
             "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='Calc']/*[local-name()='sequence']/*[local-name()='element']",
@@ -404,6 +421,13 @@ public class RunITest {
             XPathConstants.NODE);
         final String v1 = node1.getAttributes().getNamedItem("type").getTextContent();
         assertEqualsIgnorePrefix("SprOneRow", v1);
+        
+        final Node node6 = (Node) xpath.evaluate(
+            "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='SprIfNode']/*[local-name()='sequence']/*[local-name()='element']",
+            root,
+            XPathConstants.NODE);
+        final String v6 = node6.getAttributes().getNamedItem("type").getTextContent();
+        assertEqualsIgnorePrefix("anyType", v6);
 
         // Spreadsheet Result Return Type
         final Node node2 = (Node) xpath.evaluate(
