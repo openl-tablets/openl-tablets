@@ -1,7 +1,10 @@
 package org.openl.rules.ruleservice.rest;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -17,8 +20,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
 
-import java.io.IOException;
-
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
  *
@@ -30,7 +31,8 @@ public class RulesDeployerRestController {
     private final RulesDeployerService rulesDeployerService;
     private final RuleServiceManager ruleServiceManager;
 
-    public RulesDeployerRestController(RulesDeployerService rulesDeployerService, RuleServiceManager ruleServiceManager) {
+    public RulesDeployerRestController(RulesDeployerService rulesDeployerService,
+            RuleServiceManager ruleServiceManager) {
         this.rulesDeployerService = rulesDeployerService;
         this.ruleServiceManager = ruleServiceManager;
     }
@@ -69,7 +71,9 @@ public class RulesDeployerRestController {
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         FileItem fileItem = rulesDeployerService.read(service.getServicePath());
-        return Response.ok(fileItem.getStream()).header("Content-Disposition", "attachment;filename=\"" + serviceName + ".zip\"").build();
+        return Response.ok(fileItem.getStream())
+            .header("Content-Disposition", "attachment;filename=\"" + serviceName + ".zip\"")
+            .build();
     }
 
     /**
@@ -77,9 +81,8 @@ public class RulesDeployerRestController {
      *
      * @param serviceName the name of the service to delete.
      */
-    @GET
+    @DELETE
     @Path("/delete/{serviceName}")
-    @Produces("application/zip")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         boolean deleted = rulesDeployerService.delete(service.getServicePath());

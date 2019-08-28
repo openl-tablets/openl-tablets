@@ -1,12 +1,8 @@
 package org.openl.rules.ruleservice.servlet;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class ServiceInfo {
     private final Date startedTime;

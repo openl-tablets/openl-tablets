@@ -144,7 +144,7 @@
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
-    var url = "admin/servicesAndSettings";
+    var url = "admin/ui/info";
 
     xmlhttp.onload = function () {
         var servicesResponse = JSON.parse(this.response);
@@ -216,7 +216,7 @@
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("GET", "rules/delete/" + serviceName, true);
+            xhr.open("DELETE", "rules/delete/" + serviceName, true);
             xhr.send();
         }
     }
