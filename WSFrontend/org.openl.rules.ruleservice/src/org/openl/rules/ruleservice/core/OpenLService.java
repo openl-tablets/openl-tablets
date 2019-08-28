@@ -19,6 +19,7 @@ public final class OpenLService {
      */
     private String name;
     private String url;
+    private String servicePath;
     private String serviceClassName;
     private String rmiServiceClassName;
     private String rmiName;
@@ -55,6 +56,7 @@ public final class OpenLService {
      */
     OpenLService(String name,
             String url,
+            String servicePath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -67,6 +69,7 @@ public final class OpenLService {
         Objects.requireNonNull(name, "name arg must not be null.");
         this.name = name;
         this.url = url;
+        this.servicePath = servicePath;
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
@@ -89,6 +92,7 @@ public final class OpenLService {
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
         this(builder.name,
             builder.url,
+            builder.servicePath,
             builder.serviceClassName,
             builder.rmiServiceClassName,
             builder.rmiName,
@@ -120,6 +124,15 @@ public final class OpenLService {
      */
     public String getUrl() {
         return url;
+    }
+
+    /**
+     * Returns servicePath.
+     *
+     * @return servicePath
+     */
+    public String getServicePath() {
+        return servicePath;
     }
 
     /**
@@ -308,6 +321,7 @@ public final class OpenLService {
     public static class OpenLServiceBuilder {
         private String name;
         private String url;
+        private String servicePath;
         private String serviceClassName;
         private String rmiServiceClassName;
         private String rmiName;
@@ -461,6 +475,17 @@ public final class OpenLService {
             if (module != null) {
                 this.modules.add(module);
             }
+            return this;
+        }
+
+        /**
+         * Sets servicePath to the builder.
+         *
+         * @param servicePath
+         * @return
+         */
+        public OpenLServiceBuilder setServicePath(String servicePath) {
+            this.servicePath = servicePath;
             return this;
         }
 

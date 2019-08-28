@@ -1,26 +1,33 @@
 package org.openl.rules.ruleservice.servlet;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ServiceInfo {
     private final Date startedTime;
     private final String name;
+    private final String servicePath;
     private final Map<String, String> urls = new HashMap<>(1);
 
-    public ServiceInfo(Date startedTime, String name, String url, String urlName) {
+    public ServiceInfo(Date startedTime, String name, String url, String urlName, String servicePath) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
         this.startedTime = startedTime;
         this.name = name;
+        this.servicePath = servicePath;
         urls.put(urlName, url);
     }
 
-    public ServiceInfo(Date startedTime, String name, Map<String, String> urls) {
+    public ServiceInfo(Date startedTime, String name, Map<String, String> urls, String servicePath) {
         this.startedTime = startedTime;
         this.name = name;
+        this.servicePath = servicePath;
         this.urls.putAll(urls);
     }
 
@@ -34,5 +41,9 @@ public class ServiceInfo {
 
     public Map<String, String> getUrls() {
         return urls;
+    }
+
+    public String getServicePath() {
+        return servicePath;
     }
 }

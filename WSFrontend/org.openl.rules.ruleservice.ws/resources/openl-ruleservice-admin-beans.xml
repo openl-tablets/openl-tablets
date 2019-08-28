@@ -3,8 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="rulesDeployerRestController" class="org.openl.rules.ruleservice.deployer.RulesDeployerRestController" lazy-init="true">
+    <bean id="configInfoBean" class="org.openl.rules.ruleservice.rest.ConfigInfoBean">
+        <property name="deployerEnabled" value="${ruleservice.deployer.enable}"/>
+    </bean>
+
+    <bean id="rulesDeployerRestController" class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" lazy-init="true">
         <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
+        <constructor-arg name="ruleServiceManager" ref="ruleServiceManager"/>
     </bean>
 
     <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestControllerInitializingBean">
@@ -17,6 +22,7 @@
         <constructor-arg>
             <bean class="org.openl.rules.ruleservice.rest.AdminRestController">
                 <constructor-arg ref="ruleServiceManager"/>
+                <constructor-arg ref="configInfoBean"/>
             </bean>
         </constructor-arg>
         <property name="baseAddress" value="/admin"/>

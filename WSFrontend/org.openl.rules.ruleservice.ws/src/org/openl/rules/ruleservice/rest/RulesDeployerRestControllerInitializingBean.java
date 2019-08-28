@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.rest;
 
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
-import org.openl.rules.ruleservice.deployer.RulesDeployerRestController;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper;
 import org.springframework.beans.factory.InitializingBean;
 

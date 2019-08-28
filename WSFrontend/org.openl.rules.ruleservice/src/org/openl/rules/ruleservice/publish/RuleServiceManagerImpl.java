@@ -74,7 +74,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                         startedTime = newStartedTime;
                     }
 
-                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, urls);
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, urls, serviceInfo.getServicePath());
                     servicesInfo.put(serviceName, newServiceInfo);
                 }
             }

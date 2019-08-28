@@ -607,7 +607,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
-        return new ServiceInfo(new Date(), service.getName(), "", "Kafka");
+        return new ServiceInfo(new Date(), service.getName(), "", "Kafka", service.getServicePath());
     }
 
     @Override

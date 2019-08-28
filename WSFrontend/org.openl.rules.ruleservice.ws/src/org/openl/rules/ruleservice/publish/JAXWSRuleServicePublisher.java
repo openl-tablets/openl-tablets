@@ -188,7 +188,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     private ServiceInfo createServiceInfo(OpenLService service) {
         String url = URLHelper.processURL(service.getUrl());
-        return new ServiceInfo(new Date(), service.getName(), url, "SOAP");
+        return new ServiceInfo(new Date(), service.getName(), url, "SOAP", service.getServicePath());
     }
 
     private void removeServiceInfo(String serviceName) {

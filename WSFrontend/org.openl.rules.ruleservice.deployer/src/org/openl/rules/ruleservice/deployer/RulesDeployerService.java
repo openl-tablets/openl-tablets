@@ -83,6 +83,28 @@ public class RulesDeployerService implements Closeable {
         deployInternal(null, in, overridable);
     }
 
+    /**
+     * Read a file by the given path name.
+     *
+     * @param serviceName the path name of the file to read.
+     * @return the file descriptor or null if the file is absent.
+     * @throws IOException if not possible to read the file.
+     */
+    public FileItem read(String serviceName) throws IOException {
+        return deployRepo.read(serviceName);
+    }
+
+    /**
+     * Delete a file or mark it as deleted.
+     *
+     * @param serviceName the path name of the file to delete.
+     * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
+     */
+    public boolean delete(String serviceName) throws IOException {
+        FileData fileDate = deployRepo.check(serviceName);
+        return deployRepo.delete(fileDate);
+    }
+
     private void deployInternal(String originalName, InputStream in, boolean overridable) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copyAndClose(in, baos);
