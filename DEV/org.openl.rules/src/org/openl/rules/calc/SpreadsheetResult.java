@@ -5,9 +5,11 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -409,8 +411,8 @@ public class SpreadsheetResult implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object ifSpreadsheetResultThenConvert(XlsModuleOpenClass module, Object v) throws InstantiationException,
-                                                                                       IllegalAccessException {
+    public static Object ifSpreadsheetResultThenConvert(XlsModuleOpenClass module,
+            Object v) throws InstantiationException, IllegalAccessException {
         if (v == null) {
             return null;
         }
@@ -436,7 +438,42 @@ public class SpreadsheetResult implements Serializable {
             if (componentType.isArray() || SpreadsheetResult.class.isAssignableFrom(componentType) || Map.class
                 .isAssignableFrom(componentType) || Collection.class.isAssignableFrom(componentType)) {
                 int len = Array.getLength(v);
-                Object newArray = Array.newInstance(componentType, len);
+                Object newArray;
+                if (module != null && SpreadsheetResult.class.isAssignableFrom(componentType)) {
+                    Set<String> csrTypes = new HashSet<>();
+                    boolean nonCsrFound = false;
+                    boolean csrFound = false;
+                    for (int i = 0; i < len; i++) {
+                        Object arrValue = Array.get(v, i);
+                        if (arrValue != null) {
+                            SpreadsheetResult t = (SpreadsheetResult) arrValue;
+                            if (t.getCustomSpreadsheetResultOpenClass() == null) {
+                                nonCsrFound = true;
+                            } else {
+                                csrFound = true;
+                                csrTypes.add(t.getCustomSpreadsheetResultOpenClass().getName());
+                            }
+                        }
+                    }
+                    if (csrFound && !nonCsrFound && csrTypes.size() == 1) {
+                        IOpenClass t = module.findType(csrTypes.iterator().next());
+                        if (t instanceof CustomSpreadsheetResultOpenClass) {
+                            newArray = Array.newInstance(((CustomSpreadsheetResultOpenClass) t).getBeanClass(), len);
+                        } else {
+                            newArray = Array.newInstance(Object.class, len);
+                        }
+                    } else if (nonCsrFound && !csrFound) {
+                        newArray = Array.newInstance(Map.class, len);
+                    } else {
+                        newArray = Array.newInstance(Object.class, len);
+                    }
+                } else {
+                    if (SpreadsheetResult.class.isAssignableFrom(componentType)) {
+                        newArray = Array.newInstance(Map.class, len);
+                    } else {
+                        newArray = Array.newInstance(componentType, len);
+                    }
+                }
                 for (int i = 0; i < len; i++) {
                     Array.set(newArray, i, ifSpreadsheetResultThenConvert(module, Array.get(v, i)));
                 }
