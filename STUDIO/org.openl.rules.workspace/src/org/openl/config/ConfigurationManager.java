@@ -1,6 +1,7 @@
 package org.openl.config;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -101,9 +102,13 @@ public class ConfigurationManager implements PropertiesHolder {
                     try {
                         configuration = new PropertiesConfiguration();
                         configuration.setDelimiterParsingDisabled(true);
-                        configuration.setFileName(configLocation);
-                        configuration.load();
-                    } catch (ConfigurationException ignored) {
+                        URL resource = ConfigurationManager.class.getClassLoader().getResource(configLocation);
+                        if(resource == null){
+                            // Configuration isn't found. Skip it
+                            return null;
+                        }
+                        configuration.load(resource);
+                    } catch (Exception ignored) {
                         // Configuration isn't found. Skip it
                         return null;
                     }
