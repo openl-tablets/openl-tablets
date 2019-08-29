@@ -136,7 +136,7 @@ public class WebStudio {
         systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
 
         initWorkspace(session);
-        initUserSettings(session);
+        initUserSettings();
         updateSystemProperties = systemConfigManager
             .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
         projectResolver = ProjectResolver.instance();
@@ -156,12 +156,9 @@ public class WebStudio {
         workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
     }
 
-    private void initUserSettings(HttpSession session) {
-        String settingsLocation = systemConfigManager
-            .getStringProperty("user.settings.home") + File.separator + WebStudioUtils.getRulesUserSession(session)
-                .getUserName() + File.separator + USER_SETTINGS_FILENAME;
-        String defaultSettingsLocation = session.getServletContext()
-            .getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
+    private void initUserSettings() {
+        String settingsLocation = USER_SETTINGS_FILENAME;
+        String defaultSettingsLocation = USER_SETTINGS_FILENAME;
 
         userSettingsManager = new ConfigurationManager(settingsLocation, defaultSettingsLocation, true);
 
