@@ -1,16 +1,13 @@
 package org.openl.gen;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -98,7 +95,7 @@ public class POJOByteCodeGenerator {
         String namespace = getNamespace(beanNameWithPackage);
         String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
 
-        AnnotationVisitor av = classWriter.visitAnnotation(Type.getDescriptor(XmlRootElement.class), true);
+        AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         av.visitEnd();

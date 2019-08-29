@@ -1,15 +1,15 @@
 package org.openl.gen.writers;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
-
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.gen.FieldDescription;
-import org.openl.gen.TypeDescription;
 import org.openl.util.ClassUtils;
 
 /**
@@ -58,7 +58,7 @@ public class GettersWriter extends MethodWriter {
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
-        AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(XmlElement.class), true);
+        AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av.visit("name", fieldName);
 
         if (!field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
