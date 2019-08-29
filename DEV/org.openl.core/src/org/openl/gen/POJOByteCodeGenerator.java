@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.XmlType;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -25,8 +23,7 @@ import org.openl.util.ClassUtils;
 /**
  * Generates byte code for simple java bean.
  *
- * @author DLiauchuk
- *
+ * @author Yury Molchan, Marat Kamalov
  */
 public class POJOByteCodeGenerator {
 
@@ -100,14 +97,16 @@ public class POJOByteCodeGenerator {
         av.visit("name", name);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation(Type.getDescriptor(XmlType.class), true);
+        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         AnnotationVisitor av1 = av.visitArray("propOrder");
         for (Entry<String, FieldDescription> e : parentFields.entrySet()) {
+            // Jackson compares fields by uncapitalized name
             av1.visit(null, ClassUtils.decapitalize(e.getKey()));
         }
         for (Entry<String, FieldDescription> e : beanFields.entrySet()) {
+            // Jackson compares fields by uncapitalized name
             av1.visit(null, ClassUtils.decapitalize(e.getKey()));
         }
         av1.visitEnd();
