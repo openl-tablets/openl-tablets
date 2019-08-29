@@ -1,15 +1,29 @@
 package org.openl.gen;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.gen.writers.*;
+import org.openl.gen.writers.BeanByteCodeWriter;
+import org.openl.gen.writers.ConstructorWithParametersWriter;
+import org.openl.gen.writers.DefaultConstructorWriter;
+import org.openl.gen.writers.EqualsWriter;
+import org.openl.gen.writers.GettersWriter;
+import org.openl.gen.writers.HashCodeWriter;
+import org.openl.gen.writers.SettersWriter;
+import org.openl.gen.writers.ToStringWriter;
+import org.openl.util.ClassUtils;
 
 /**
  * Generates byte code for simple java bean.
@@ -22,6 +36,7 @@ public class POJOByteCodeGenerator {
     private final String beanNameWithPackage;
     private final Class<?> parentClass;
     private Map<String, FieldDescription> beanFields;
+    private Map<String, FieldDescription> parentFields;
     private List<BeanByteCodeWriter> writers;
 
     /**
@@ -37,15 +52,16 @@ public class POJOByteCodeGenerator {
             Map<String, FieldDescription> parentFields,
             boolean additionalConstructor) {
 
-        this.beanFields = beanFields;
+        this.beanFields = new LinkedHashMap<>(beanFields);
         this.parentClass = parentClass;
+        this.parentFields = new LinkedHashMap<>(parentFields);
         this.beanNameWithPackage = beanName.replace('.', '/');
-        LinkedHashMap<String, FieldDescription> allFields = new LinkedHashMap<>();
+        Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(parentFields);
         allFields.putAll(beanFields);
 
         this.writers = new ArrayList<>();
-        writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, beanFields));
+        writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, this.beanFields));
         if (additionalConstructor && allFields.size() < 256 && allFields.size() > 0) {
             // Generate constructor with parameters only in case where there are
             // less than 256 arguments.
@@ -53,12 +69,12 @@ public class POJOByteCodeGenerator {
             //
             writers.add(new ConstructorWithParametersWriter(beanNameWithPackage,
                 parentClass,
-                beanFields,
-                parentFields,
+                this.beanFields,
+                this.parentFields,
                 allFields));
         }
-        writers.add(new GettersWriter(beanNameWithPackage, beanFields));
-        writers.add(new SettersWriter(beanNameWithPackage, beanFields));
+        writers.add(new GettersWriter(beanNameWithPackage, this.beanFields));
+        writers.add(new SettersWriter(beanNameWithPackage, this.beanFields));
         writers.add(new ToStringWriter(beanNameWithPackage, allFields));
         writers.add(new EqualsWriter(beanNameWithPackage, allFields));
         writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
@@ -82,14 +98,22 @@ public class POJOByteCodeGenerator {
         String namespace = getNamespace(beanNameWithPackage);
         String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
 
-        AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
+        AnnotationVisitor av = classWriter.visitAnnotation(Type.getDescriptor(XmlRootElement.class), true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
+        av = classWriter.visitAnnotation(Type.getDescriptor(XmlType.class), true);
         av.visit("namespace", namespace);
         av.visit("name", name);
+        AnnotationVisitor av1 = av.visitArray("propOrder");
+        for (Entry<String, FieldDescription> e : parentFields.entrySet()) {
+            av1.visit(null, ClassUtils.decapitalize(e.getKey()));
+        }
+        for (Entry<String, FieldDescription> e : beanFields.entrySet()) {
+            av1.visit(null, ClassUtils.decapitalize(e.getKey()));
+        }
+        av1.visitEnd();
         av.visitEnd();
     }
 
