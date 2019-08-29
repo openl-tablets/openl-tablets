@@ -1,10 +1,15 @@
 package org.openl.gen.writers;
 
+import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import org.objectweb.asm.*;
 import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 import org.openl.util.ClassUtils;
 
 /**
@@ -53,7 +58,7 @@ public class GettersWriter extends MethodWriter {
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
-        AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
+        AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(XmlElement.class), true);
         av.visit("name", fieldName);
 
         if (!field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
@@ -69,6 +74,20 @@ public class GettersWriter extends MethodWriter {
                 defaultFieldValue = ISO8601DateFormater.format(date);
             }
             av.visit("defaultValue", defaultFieldValue);
+        }
+        try {
+            String componentJavaType = javaType.replaceAll("\\[", "");
+            String clsName = Type.getType(componentJavaType).getClassName();
+            Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(clsName);
+            if (type.isInterface()) {
+                int d = javaType.length() - componentJavaType.length();
+                Class<?> useType = Object.class;
+                if (d > 0) {
+                    useType = Array.newInstance(Object.class, new int[d]).getClass();
+                }
+                av.visit("type", Type.getType(useType));
+            }
+        } catch (Exception e) {
         }
         av.visitEnd();
 

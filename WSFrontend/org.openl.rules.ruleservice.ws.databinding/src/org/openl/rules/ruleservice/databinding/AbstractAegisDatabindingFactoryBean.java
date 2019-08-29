@@ -21,6 +21,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMSource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.aegis.AegisContext;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
@@ -47,19 +48,28 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     private boolean supportVariations = false;
 
     public AegisDatabinding createAegisDatabinding() {
-        AegisDatabinding aegisDatabinding = new AegisDatabinding();
+        AegisContext aegisContext = new OpenLAegisContext();
+        AegisDatabinding aegisDatabinding = new AegisDatabinding(aegisContext);
         if (getConfiguration() != null) {
             aegisDatabinding.setConfiguration(configuration);
+            aegisContext.setTypeCreationOptions(configuration);
         }
 
         if (getMtomUseXmime() != null) {
             aegisDatabinding.setMtomUseXmime(getMtomUseXmime().booleanValue());
+            aegisContext.setMtomUseXmime(getMtomUseXmime().booleanValue());
         }
 
         if (getMtomEnabled() != null) {
             aegisDatabinding.setMtomEnabled(getMtomEnabled().booleanValue());
+            aegisContext.setMtomEnabled(getMtomEnabled().booleanValue());
         }
 
+        Set<String> rootClassNames = getOverrideTypesWithDefaultOpenLTypes();
+        aegisDatabinding.setOverrideTypes(rootClassNames);
+        aegisContext.setRootClassNames(rootClassNames);
+        aegisContext.initialize();
+        
         if (getBus() != null) {
             aegisDatabinding.setBus(getBus());
         }
@@ -75,8 +85,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getSchemas() != null) {
             aegisDatabinding.setSchemas(getSchemas());
         }
-
-        aegisDatabinding.setOverrideTypes(getOverrideTypesWithDefaultOpenLTypes());
 
         if (getWriteXsiTypes() != null) {
             aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes().booleanValue());
@@ -107,7 +115,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         registerCustomJavaTypes(typeMapping);
 
         registerOpenLTypes(typeMapping);
-
+        
         return aegisDatabinding;
     }
 
