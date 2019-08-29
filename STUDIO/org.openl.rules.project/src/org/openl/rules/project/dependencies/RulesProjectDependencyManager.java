@@ -2,6 +2,7 @@ package org.openl.rules.project.dependencies;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.dependency.DependencyManager;
@@ -22,7 +23,7 @@ public class RulesProjectDependencyManager extends DependencyManager {
 
     @Override
     public Collection<String> getAllDependencies() {
-        return null;
+        return Collections.emptyList();
     }
 
 }

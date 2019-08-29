@@ -1,6 +1,15 @@
 package org.openl.engine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
@@ -80,24 +89,23 @@ public class OpenLSourceManager extends OpenLHolder {
     }
 
     private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies) {
-        Set<IDependency> result = new LinkedHashSet<>();
+        Set<IDependency> result = new HashSet<>();
         if (dependencyManager == null) {
-            result.addAll(Arrays.asList(dependencies));
-            return result;
+            return Arrays.asList(dependencies);
         }
-        Collection<String> dependencyNames;
+        Set<String> dependencyNames = new HashSet<>();
         try {
-            dependencyNames = dependencyManager.getAllDependencies();
-            if (dependencyNames == null) {
-                result.addAll(Arrays.asList(dependencies));
-                return result;
+            Collection<String> deps = dependencyManager.getAllDependencies();
+            if (deps.isEmpty()) {
+                return Arrays.asList(dependencies);
+            } else {
+                dependencyNames.addAll(deps);
             }
         } catch (Exception e) {
             Logger log = LoggerFactory.getLogger(OpenLSourceManager.class);
             log.warn(e.getMessage(), e);
             // It's expected that returned collection is modifiable.
-            result.addAll(Arrays.asList(dependencies));
-            return result;
+            return Arrays.asList(dependencies);
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();
@@ -122,6 +130,10 @@ public class OpenLSourceManager extends OpenLHolder {
         }
         return result;
     }
+
+    private static final Comparator<IDependency> COMP = (a, b) -> {
+        return a.getNode().getIdentifier().compareTo(b.getNode().getIdentifier());
+    };
 
     /**
      * Parses and binds source.
@@ -151,15 +163,16 @@ public class OpenLSourceManager extends OpenLHolder {
         // compile source dependencies
         if (SourceType.MODULE.equals(sourceType)) {
 
+            Collection<IDependency> dependencyManagerDependencies = getDependencies(dependencyManager,
+                parsedCode.getDependencies());
             Collection<IDependency> externalDependencies = getExternalDependencies(source);
 
-            Collection<IDependency> dependencies = getDependencies(dependencyManager, parsedCode.getDependencies());
-            if (CollectionUtils.isNotEmpty(externalDependencies)) {
-                dependencies.addAll(externalDependencies);
-            }
+            List<IDependency> dependencies = new ArrayList<>(dependencyManagerDependencies);
+            dependencies.addAll(externalDependencies);
+
+            Collections.sort(dependencies, COMP);
 
             Set<CompiledDependency> compiledDependencies = new LinkedHashSet<>();
-
             if (CollectionUtils.isNotEmpty(dependencies)) {
                 if (dependencyManager != null) {
                     for (IDependency dependency : dependencies) {
@@ -245,14 +258,14 @@ public class OpenLSourceManager extends OpenLHolder {
         return processedCode;
     }
 
-    private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
+    @SuppressWarnings("unchecked")
+    private Collection<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
         List<IDependency> dependencies = null;
         Map<String, Object> params = source.getParams();
-
         if (params != null) {
             dependencies = (List<IDependency>) params.get(EXTERNAL_DEPENDENCIES_KEY);
 
         }
-        return dependencies;
+        return dependencies == null ? Collections.emptyList() : dependencies;
     }
 }

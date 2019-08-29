@@ -497,20 +497,18 @@ public class RunITest {
 
         assertEquals("{\"Step1\":null,\"Step2\":null}", response.getBody());
 
-        /*
-         * response = simple3RestClient.exchange("/mySpr2", HttpMethod.POST,
-         * RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class); assertEquals(HttpStatus.OK,
-         * response.getStatusCode());
-         * 
-         * assertEquals(
-         * "{\"Value3_Step3\":1.0,\"Value4_Step3\":2.0,\"Value3_Step4\":3.0,\"Value4_Step4\":4.0,\"Value1_Step1\":null,\"Value2_Step1\":null,\"Value1_Step2\":null,\"Value2_Step2\":null}",
-         * response.getBody());
-         * 
-         * response = simple3RestClient.exchange("/mySpr2", HttpMethod.POST,
-         * RestClientFactory.request("{\"usState\": \"CA\"}"), String.class); assertEquals(HttpStatus.OK,
-         * response.getStatusCode()); System.out.println(response.getBody());
-         * assertEquals("{\"Step1\":null,\"Step2\":null}", response.getBody());
-         */
+        response = simple3RestClient
+            .exchange("/mySpr2", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals(
+            "{\"Value3_Step3\":1.0,\"Value4_Step3\":2.0,\"Value3_Step4\":3.0,\"Value4_Step4\":4.0,\"Value1_Step1\":null,\"Value2_Step1\":null,\"Value1_Step2\":null,\"Value2_Step2\":null}",
+            response.getBody());
+
+        response = simple3RestClient
+            .exchange("/mySpr2", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"CA\"}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"Value3_Step3\":null,\"Value4_Step3\":null,\"Value3_Step4\":null,\"Value4_Step4\":null,\"Value1_Step1\":1.0,\"Value2_Step1\":2.0,\"Value1_Step2\":3.0,\"Value2_Step2\":4.0}", response.getBody());
 
     }
 

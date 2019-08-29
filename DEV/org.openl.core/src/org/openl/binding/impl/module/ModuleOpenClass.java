@@ -6,7 +6,14 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
@@ -51,7 +58,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * ones in {@link CompiledOpenClass}. Check if there are errors: {@link CompiledOpenClass#hasErrors()}
      *
      */
-    private Set<CompiledDependency> usingModules = new HashSet<>();
+    private Set<CompiledDependency> usingModules = new LinkedHashSet<>();
 
     private List<Exception> errors = new ArrayList<>();
 
@@ -191,7 +198,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     public void setDependencies(Set<CompiledDependency> moduleDependencies) {
         if (moduleDependencies != null) {
-            this.usingModules = new HashSet<>(moduleDependencies);
+            this.usingModules = new LinkedHashSet<>(moduleDependencies);
         }
     }
 

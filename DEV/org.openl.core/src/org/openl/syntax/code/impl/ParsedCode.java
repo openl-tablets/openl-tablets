@@ -84,12 +84,12 @@ public class ParsedCode implements IParsedCode {
 
     @Override
     public Set<CompiledDependency> getCompiledDependencies() {
-        return new HashSet<>(compiledDependencies);
+        return Collections.unmodifiableSet(compiledDependencies);
     }
 
     @Override
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
-        this.compiledDependencies = new HashSet<>(compiledDependencies);
+        this.compiledDependencies = new LinkedHashSet<>(compiledDependencies);
     }
 
     @Override
