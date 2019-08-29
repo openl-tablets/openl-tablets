@@ -4,18 +4,28 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
 import java.io.StringReader;
+import java.util.Collections;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
+import org.openl.itest.core.RestClientFactory;
+import org.openl.itest.core.XmlMimeInterceptor;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -24,6 +34,8 @@ public class RunITest {
 
     private static JettyServer server;
     private static String baseURI;
+
+    private RestTemplate simple3RestClient;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -34,6 +46,11 @@ public class RunITest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
+    }
+
+    @Before
+    public void before() {
+        simple3RestClient = new RestClientFactory(baseURI + "/REST/deployment3/simple3").create();
     }
 
     private void validateComplexTypeWadl(final Node root,
@@ -305,7 +322,7 @@ public class RunITest {
 
         validateCSRElementsCountWadl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWadl(root, xpath, "SprOneOne", "Step1");
-        
+
         validateCSRElementsCountWadl(root, xpath, "SprIfNode", 1);
         validateCSRElementNameWadl(root, xpath, "SprIfNode", "Step1");
 
@@ -316,7 +333,7 @@ public class RunITest {
             XPathConstants.NODE);
         String v1 = node1.getAttributes().getNamedItem("type").getTextContent();
         assertEqualsIgnorePrefix("SprOneRow", v1);
-        
+
         final Node node6 = (Node) xpath.evaluate(
             "/*[local-name()='application']/*[local-name()='grammars']/*[local-name()='schema']/*[local-name()='complexType' and @name='SprIfNode']/*[local-name()='sequence']/*[local-name()='element']",
             root,
@@ -410,7 +427,7 @@ public class RunITest {
 
         validateCSRElementsCountWsdl(root, xpath, "SprOneOne", 1);
         validateCSRElementNameWsdl(root, xpath, "SprOneOne", "Step1");
-        
+
         validateCSRElementsCountWsdl(root, xpath, "SprIfNode", 1);
         validateCSRElementNameWsdl(root, xpath, "SprIfNode", "Step1");
 
@@ -421,7 +438,7 @@ public class RunITest {
             XPathConstants.NODE);
         final String v1 = node1.getAttributes().getNamedItem("type").getTextContent();
         assertEqualsIgnorePrefix("SprOneRow", v1);
-        
+
         final Node node6 = (Node) xpath.evaluate(
             "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='SprIfNode']/*[local-name()='sequence']/*[local-name()='element']",
             root,
@@ -456,6 +473,61 @@ public class RunITest {
             root,
             XPathConstants.NODE);
         assertEqualsIgnorePrefix("ArrayOfSprOneOne", node5.getAttributes().getNamedItem("type").getTextContent());
+    }
+
+    @Test
+    public void testSimple3_CSPR_Convert() throws Exception {
+        ResponseEntity<String> response = simple3RestClient
+            .exchange("/main", HttpMethod.POST, RestClientFactory.request("{}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        String expected = FileUtils.readFileToString(new File("./resources/simple3_main_response.json"), "UTF-8");
+        String result = response.getBody();
+        assertEquals(expected, result);
+
+        response = simple3RestClient
+            .exchange("/mySpr", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals("{\"Step1\":1.0,\"Step2\":3.0}", response.getBody());
+
+        response = simple3RestClient
+            .exchange("/mySpr", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"CA\"}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertEquals("{\"Step1\":null,\"Step2\":null}", response.getBody());
+
+        /*
+         * response = simple3RestClient.exchange("/mySpr2", HttpMethod.POST,
+         * RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class); assertEquals(HttpStatus.OK,
+         * response.getStatusCode());
+         * 
+         * assertEquals(
+         * "{\"Value3_Step3\":1.0,\"Value4_Step3\":2.0,\"Value3_Step4\":3.0,\"Value4_Step4\":4.0,\"Value1_Step1\":null,\"Value2_Step1\":null,\"Value1_Step2\":null,\"Value2_Step2\":null}",
+         * response.getBody());
+         * 
+         * response = simple3RestClient.exchange("/mySpr2", HttpMethod.POST,
+         * RestClientFactory.request("{\"usState\": \"CA\"}"), String.class); assertEquals(HttpStatus.OK,
+         * response.getStatusCode()); System.out.println(response.getBody());
+         * assertEquals("{\"Step1\":null,\"Step2\":null}", response.getBody());
+         */
+
+    }
+
+    @Test
+    public void testSimple3_CSPR_Convert_2() throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Collections.singletonList(new XmlMimeInterceptor()));
+        ResponseEntity<String> response = restTemplate.exchange(baseURI + "/deployment3/simple3",
+            HttpMethod.POST,
+            RestClientFactory.request(
+                "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:def=\"http://DefaultNamespace\" xmlns:con=\"http://context.rules.openl.org\">\r\n" + "   <soapenv:Header/>\r\n" + "   <soapenv:Body>\r\n" + "      <def:main>\r\n" + "         <def:runtimeContext>\r\n" + "        </def:runtimeContext>\r\n" + "      </def:main>\r\n" + "   </soapenv:Body>\r\n" + "</soapenv:Envelope>"),
+            String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        String expected = FileUtils.readFileToString(new File("./resources/simple3_main_response.xml"), "UTF-8");
+        String result = response.getBody();
+        assertEquals(expected, result);
     }
 
 }

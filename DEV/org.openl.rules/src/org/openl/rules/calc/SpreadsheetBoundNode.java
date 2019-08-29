@@ -28,6 +28,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 
@@ -170,7 +171,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (csroc != null && csroc.isEmptyBeanClass()) { // If CSR returns null
                             f = false; // IGNORE EMPTY CSRS TYPES
                         }
-                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
+                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the.equals(t)) {
                         f = false; // IGNORE VOID TYPES
                     }
 

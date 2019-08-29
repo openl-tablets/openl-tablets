@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +14,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -24,6 +25,7 @@ import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
@@ -328,8 +330,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         Arrays.fill(used[i], false);
                     }
                     Map<String, IOpenField> beanFieldsMap = new HashMap<>();
-                    addFieldsToJavaClassBuilder(beanClassBuilder, used, usedFields, true, beanFieldsMap);
-                    addFieldsToJavaClassBuilder(beanClassBuilder, used, usedFields, false, beanFieldsMap);
+                    Map<String, Boolean> useToMapConvertation = new HashMap<>();
+                    addFieldsToJavaClassBuilder(beanClassBuilder,
+                        used,
+                        usedFields,
+                        true,
+                        beanFieldsMap,
+                        useToMapConvertation);
+                    addFieldsToJavaClassBuilder(beanClassBuilder,
+                        used,
+                        usedFields,
+                        false,
+                        beanFieldsMap,
+                        useToMapConvertation);
                     byte[] byteCode = beanClassBuilder.byteCode();
                     try {
                         beanClass = ClassUtils
@@ -337,10 +350,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         List<SpreadsheetResultValueSetter> srValueSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
                             IOpenField openField = beanFieldsMap.get(field.getName());
+                            Boolean useToMap = useToMapConvertation.get(field.getName());
                             SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
                                 module,
                                 field,
-                                openField);
+                                openField,
+                                useToMap);
                             srValueSetters.add(spreadsheetResultValueSetter);
                         }
                         this.spreadsheetResultValueSetters = srValueSetters
@@ -354,16 +369,29 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return beanClass;
     }
 
+    private static final Comparator<Triple<String, Point, IOpenField>> COMP = (a, b) -> {
+        @SuppressWarnings("unchecked")
+        Comparator<Point> c = ComparatorUtils.chainedComparator(
+            Comparator.nullsLast(Comparator.comparingInt(Point::getRow)),
+            Comparator.nullsLast(Comparator.comparingInt(Point::getColumn)));
+        return c.compare(a.getMiddle(), b.getMiddle());
+    };
+
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
             boolean[][] used,
             Set<String> usedFields,
             boolean addFieldNameWithCollisions,
-            Map<String, IOpenField> beanFieldsMap) {
-        SortedMap<String, IOpenField> sortedFields = new TreeMap<>(getFields()); // Fields must be sorted to prevent
-                                                                                 // name changes after adding a new
-                                                                                 // field
-        for (Entry<String, IOpenField> entry : sortedFields.entrySet()) {
-            Point point = fieldsCoordinates.get(entry.getKey());
+            Map<String, IOpenField> beanFieldsMap,
+            Map<String, Boolean> useToMapConvertation) {
+        List<Triple<String, Point, IOpenField>> fields = new ArrayList<>();
+        for (Entry<String, IOpenField> entry : getFields().entrySet()) {
+            fields.add(Triple.of(entry.getKey(), fieldsCoordinates.get(entry.getKey()), entry.getValue()));
+        }
+
+        Collections.sort(fields, COMP);
+
+        for (Triple<String, Point, IOpenField> w : fields) {
+            Point point = w.getMiddle();
             if (point != null && rowNamesMarkedWithAsterisk[point
                 .getRow()] != null && columnNamesMarkedWithAsterisk[point
                     .getColumn()] != null && !used[point.getRow()][point.getColumn()]) {
@@ -395,7 +423,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     fieldName = "_";
                 }
                 Class<?> type;
-                IOpenClass t = entry.getValue().getType();
+                IOpenClass t = w.getRight().getType();
                 int dim = 0;
                 while (t.isArray()) {
                     dim++;
@@ -425,18 +453,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     } else {
                         type = Map.class;
                     }
-                } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t)) {
+                } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
+                    .equals(t)) {
                     continue; // IGNORE VOID FIELDS
                 } else {
-                    type = entry.getValue().getType().getInstanceClass();
+                    type = w.getRight().getType().getInstanceClass();
                 }
-
                 if (!usedFields.contains(StringUtils.capitalize(fieldName)) && !usedFields
                     .contains(StringUtils.uncapitalize(fieldName))) {
                     usedFields.add(fieldName);
                     fillUsed(used, point);
                     beanClassBuilder.addField(fieldName, type.getName());
-                    beanFieldsMap.put(fieldName, entry.getValue());
+                    beanFieldsMap.put(fieldName, w.getRight());
+                    useToMapConvertation.put(fieldName, t instanceof SpreadsheetResultOpenClass);
                 } else {
                     if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
@@ -451,7 +480,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         usedFields.add(newFieldName);
                         fillUsed(used, point);
                         beanClassBuilder.addField(newFieldName, type.getName());
-                        beanFieldsMap.put(newFieldName, entry.getValue());
+                        beanFieldsMap.put(newFieldName, w.getRight());
+                        useToMapConvertation.put(fieldName, t instanceof SpreadsheetResultOpenClass);
                     }
                 }
             }
@@ -498,30 +528,17 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private Field field;
         private IOpenField openField;
         private XlsModuleOpenClass module;
+        private boolean useToMap;
 
-        private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
+        private SpreadsheetResultValueSetter(XlsModuleOpenClass module,
+                Field field,
+                IOpenField openField,
+                boolean useToMap) {
             this.field = field;
             this.openField = openField;
             this.module = module;
             this.field.setAccessible(true);
-        }
-
-        private Object convert(Object value, Class<?> t) throws IllegalAccessException, InstantiationException {
-            if (value == null) {
-                return null;
-            }
-            if (value.getClass().isArray()) {
-                int len = Array.getLength(value);
-                Object target = Array.newInstance(t.getComponentType(), len);
-                for (int i = 0; i < len; i++) {
-                    Object v = convert(Array.get(value, i), t.getComponentType());
-                    Array.set(target, i, v);
-                }
-                return target;
-            } else {
-                SpreadsheetResult spr = ((SpreadsheetResult) value);
-                return spr.toPlain(module);
-            }
+            this.useToMap = useToMap;
         }
 
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
@@ -536,15 +553,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 field.set(target, null);
                 return;
             }
-            Class<?> t = v.getClass();
-            while (t.isArray()) {
-                t = t.getComponentType();
-            }
-            if (SpreadsheetResult.class.isAssignableFrom(t)) {
-                field.set(target, convert(v, field.getType()));
-            } else {
-                field.set(target, v);
-            }
+            Object cv = SpreadsheetResult.convertSpreadsheetResults(module, v, useToMap);
+            field.set(target, cv);
         }
     }
 }

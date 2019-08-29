@@ -5,11 +5,11 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -382,7 +382,7 @@ public class SpreadsheetResult implements Serializable {
         }
     }
 
-    private Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
+    public Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
@@ -392,16 +392,16 @@ public class SpreadsheetResult implements Serializable {
                     if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
                         if (nonNullsColumnsCount == 1) {
                             values.put(rowNamesMarkedWithAsterisk[i],
-                                ifSpreadsheetResultThenConvert(module, getValue(i, j)));
+                                convertSpreadsheetResults(module, getValue(i, j)));
                         } else if (nonNullsRowsCount == 1) {
                             values.put(columnNamesMarkedWithAsterisk[j],
-                                ifSpreadsheetResultThenConvert(module, getValue(i, j)));
+                                convertSpreadsheetResults(module, getValue(i, j)));
                         } else {
                             StringBuilder sb = new StringBuilder();
                             sb.append(columnNamesMarkedWithAsterisk[j])
                                 .append("_")
                                 .append(rowNamesMarkedWithAsterisk[i]);
-                            values.put(sb.toString(), ifSpreadsheetResultThenConvert(module, getValue(i, j)));
+                            values.put(sb.toString(), convertSpreadsheetResults(module, getValue(i, j)));
                         }
                     }
                 }
@@ -410,78 +410,87 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
+    public static Object convertSpreadsheetResults(XlsModuleOpenClass module, Object v) throws InstantiationException,
+                                                                                        IllegalAccessException {
+        return convertSpreadsheetResults(module, v, false);
+    }
+
     @SuppressWarnings("unchecked")
-    public static Object ifSpreadsheetResultThenConvert(XlsModuleOpenClass module,
-            Object v) throws InstantiationException, IllegalAccessException {
+    public static Object convertSpreadsheetResults(XlsModuleOpenClass module,
+            Object v,
+            boolean toMap) throws InstantiationException, IllegalAccessException {
         if (v == null) {
             return null;
         }
-        if (v instanceof Collection) {
+        if (v instanceof Collection && !(v instanceof SortedSet)) {
             Collection<Object> collection = (Collection<Object>) v;
             Collection<Object> newCollection = (Collection<Object>) v.getClass().newInstance();
             for (Object o : collection) {
-                newCollection.add(ifSpreadsheetResultThenConvert(module, o));
+                newCollection.add(convertSpreadsheetResults(module, o));
             }
             return newCollection;
         }
-        if (v instanceof Map) {
+        if (v instanceof Map && !(v instanceof SortedMap)) {
             Map<Object, Object> map = (Map<Object, Object>) v;
             Map<Object, Object> newMap = (Map<Object, Object>) v.getClass().newInstance();
             for (Entry<Object, Object> e : map.entrySet()) {
-                newMap.put(ifSpreadsheetResultThenConvert(module, e.getKey()),
-                    ifSpreadsheetResultThenConvert(module, e.getValue()));
+                newMap.put(convertSpreadsheetResults(module, e.getKey()),
+                    convertSpreadsheetResults(module, e.getValue()));
             }
             return newMap;
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
-            if (componentType.isArray() || SpreadsheetResult.class.isAssignableFrom(componentType) || Map.class
-                .isAssignableFrom(componentType) || Collection.class.isAssignableFrom(componentType)) {
-                int len = Array.getLength(v);
-                Object newArray;
-                if (module != null && SpreadsheetResult.class.isAssignableFrom(componentType)) {
-                    Set<String> csrTypes = new HashSet<>();
-                    boolean nonCsrFound = false;
-                    boolean csrFound = false;
-                    for (int i = 0; i < len; i++) {
-                        Object arrValue = Array.get(v, i);
-                        if (arrValue != null) {
-                            SpreadsheetResult t = (SpreadsheetResult) arrValue;
-                            if (t.getCustomSpreadsheetResultOpenClass() == null) {
-                                nonCsrFound = true;
-                            } else {
-                                csrFound = true;
-                                csrTypes.add(t.getCustomSpreadsheetResultOpenClass().getName());
+            Class<?> t = componentType;
+            while (t.isArray()) {
+                t = t.getComponentType();
+            }
+            int len = Array.getLength(v);
+            if (SpreadsheetResult.class.isAssignableFrom(t)) {
+                Object tmpArray = Array.newInstance(Object.class, len);
+                for (int i = 0; i < len; i++) {
+                    Array.set(tmpArray, i, convertSpreadsheetResults(module, Array.get(v, i), toMap));
+                }
+                Class<?> c = null;
+                boolean f = true;
+                for (int i = 0; i < len; i++) {
+                    Object v1 = Array.get(tmpArray, i);
+                    if (v1 != null) {
+                        if (c == null) {
+                            c = v1.getClass();
+                        } else {
+                            if (!c.equals(v1.getClass())) {
+                                f = false;
                             }
                         }
                     }
-                    if (csrFound && !nonCsrFound && csrTypes.size() == 1) {
-                        IOpenClass t = module.findType(csrTypes.iterator().next());
-                        if (t instanceof CustomSpreadsheetResultOpenClass) {
-                            newArray = Array.newInstance(((CustomSpreadsheetResultOpenClass) t).getBeanClass(), len);
-                        } else {
-                            newArray = Array.newInstance(Object.class, len);
-                        }
-                    } else if (nonCsrFound && !csrFound) {
-                        newArray = Array.newInstance(Map.class, len);
-                    } else {
-                        newArray = Array.newInstance(Object.class, len);
-                    }
-                } else {
-                    if (SpreadsheetResult.class.isAssignableFrom(componentType)) {
-                        newArray = Array.newInstance(Map.class, len);
-                    } else {
-                        newArray = Array.newInstance(componentType, len);
-                    }
                 }
+                if (f) {
+                    Object newArray = Array.newInstance(c, len);
+                    for (int i = 0; i < len; i++) {
+                        Array.set(newArray, i, Array.get(tmpArray, i));
+                    }
+                    return newArray;
+                }
+                return tmpArray;
+            } else if (Object.class
+                .equals(t) || Map.class.isAssignableFrom(t) && !SortedMap.class.isAssignableFrom(t) || Collection.class
+                    .isAssignableFrom(t) && !SortedSet.class.isAssignableFrom(t)) {
+                Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(newArray, i, ifSpreadsheetResultThenConvert(module, Array.get(v, i)));
+                    Array.set(newArray, i, convertSpreadsheetResults(module, Array.get(v, i)));
                 }
                 return newArray;
+            } else {
+                return v;
             }
         }
         if (v instanceof SpreadsheetResult) {
-            return ((SpreadsheetResult) v).toPlain(module);
+            if (toMap) {
+                return ((SpreadsheetResult) v).toMap(module);
+            } else {
+                return ((SpreadsheetResult) v).toPlain(module);
+            }
         }
         return v;
     }
