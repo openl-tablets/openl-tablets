@@ -1,5 +1,10 @@
 package org.openl.rules.webstudio.util;
 
+import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -18,6 +23,30 @@ public final class NameChecker {
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
     public static final String BAD_PROJECT_NAME_MSG = "Project name can not contain forbidden characters (" + NameChecker
         .getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
+    private static final Set<String> RESERVED_WORDS = Stream
+        .of("CON",
+            "PRN",
+            "AUX",
+            "NUL",
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "COM5",
+            "COM6",
+            "COM7",
+            "COM8",
+            "COM9",
+            "LPT1",
+            "LPT2",
+            "LPT3",
+            "LPT4",
+            "LPT5",
+            "LPT6",
+            "LPT7",
+            "LPT8",
+            "LPT9")
+        .collect(Collectors.toSet());
 
     private NameChecker() {
     }
@@ -63,6 +92,26 @@ public final class NameChecker {
 
         // seems OK
         return true;
+    }
+
+    /**
+     * Checks if the path is valid (cross-platform). Absolute paths aren't supported. Folders must be separated with
+     * '/'. Convert the path if you have Windows-specific path.
+     *
+     * @param path path where folder
+     * @throws IOException If path is invalid for any platform
+     */
+    public static void validatePath(String path) throws IOException {
+        String[] names = path.split("/");
+        for (String name : names) {
+            if (!checkName(name)) {
+                throw new IOException(BAD_NAME_MSG);
+            }
+
+            if (RESERVED_WORDS.contains(name)) {
+                throw new IOException("'" + name + "' is a reserved word.");
+            }
+        }
     }
 
     protected static boolean checkSpecialChars(String artefactName) {
