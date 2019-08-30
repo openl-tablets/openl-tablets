@@ -39,6 +39,9 @@ public class FolderStructureValidators {
         }
 
         try {
+            if (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
             // Git specifics and non-cross-platform check if we missed something before
             SystemReader.getInstance().checkPath(path);
         } catch (CorruptObjectException e) {

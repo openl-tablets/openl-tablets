@@ -16,6 +16,7 @@ public class FolderStructureValidatorsTest {
         validators.pathInRepository(null, null, null);
         validators.pathInRepository(null, null, "");
         validators.pathInRepository(null, null, "DESIGN/rules");
+        validators.pathInRepository(null, null, "DESIGN/rules/");
         assertInvalid("Path in repository can't start with '/'",
             () -> validators.pathInRepository(null, null, "/my-folder"));
 
