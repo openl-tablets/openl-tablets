@@ -186,8 +186,8 @@
     function renderServices(servicesResponse) {
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
-        var services = servicesResponse.serviceInfo;
-        var deployerEnabled = servicesResponse.config.deployerEnabled;
+        var services = servicesResponse.services;
+        var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {

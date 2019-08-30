@@ -113,14 +113,14 @@ public class RunRestRulesDeploymentTest {
         checkServiceTime(servicesInfo4[0].getStartedTime().getTime(), createServiceTime);
 
         ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity = fetchServiceInfo();
-        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getBody().getServiceInfo();
+        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getBody().getServices();
         assertEquals(1, serviceInfo.length);
 
         body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
         assertEquals("Hello, Mr. Vlad", body);
         deleteService(serviceInfo[0].getName());
         ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity2 = fetchServiceInfo();
-        ServiceInfoResponse[] serviceInfo2 = uiInfoResponseResponseEntity2.getBody().getServiceInfo();
+        ServiceInfoResponse[] serviceInfo2 = uiInfoResponseResponseEntity2.getBody().getServices();
         assertEquals(0, serviceInfo2.length);
 
     }

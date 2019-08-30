@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+            http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
-    <bean id="configInfoBean" class="org.openl.rules.ruleservice.rest.ConfigInfoBean">
-        <property name="deployerEnabled" value="${ruleservice.deployer.enable}"/>
-    </bean>
+    <util:map id="uiConfig" key-type="java.lang.String">
+        <entry key="deployerEnabled" value="${ruleservice.deployer.enable}" value-type="java.lang.Boolean"/>
+    </util:map>
 
-    <bean id="rulesDeployerRestController" class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" lazy-init="true">
-        <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
-        <constructor-arg name="ruleServiceManager" ref="ruleServiceManager"/>
-    </bean>
+    <bean class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" id="deployer" lazy-init="true"/>
+    <bean class="java.lang.Object" id="emptyEndPoint"/>
 
-    <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestControllerInitializingBean">
-        <property name="enabled" value="${ruleservice.deployer.enable}"/>
-        <property name="baseAddress" value="/rules"/>
-        <lookup-method name="getRulesDeployerRestController" bean="rulesDeployerRestController"/>
-    </bean>
-
-    <bean id="adminRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.AdminRestControllerInitializingBean">
-        <constructor-arg>
-            <bean class="org.openl.rules.ruleservice.rest.AdminRestController">
-                <constructor-arg ref="ruleServiceManager"/>
-                <constructor-arg ref="configInfoBean"/>
-            </bean>
-        </constructor-arg>
-        <property name="baseAddress" value="/admin"/>
-    </bean>
+    <jaxrs:server>
+        <jaxrs:serviceBeans>
+            <bean class="org.openl.rules.ruleservice.rest.AdminRestController"/>
+            <ref bean="#{ ${ruleservice.deployer.enable} ? 'deployer' : 'emptyEndPoint'}"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+        </jaxrs:providers>
+    </jaxrs:server>
 
 </beans>

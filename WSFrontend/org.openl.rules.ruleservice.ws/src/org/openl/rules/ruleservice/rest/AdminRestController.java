@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.rest;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -10,17 +12,22 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
 @Produces(MediaType.APPLICATION_JSON)
+@Path("/admin")
 public class AdminRestController {
 
-    private final RuleServiceManager ruleServiceManager;
-    private final ConfigInfoBean configInfoBean;
+    private RuleServiceManager ruleServiceManager;
+    private Map<String, Object> uiConfig;
 
-    public AdminRestController(RuleServiceManager ruleServiceManager, ConfigInfoBean configInfoBean) {
+    @Resource
+    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
         this.ruleServiceManager = ruleServiceManager;
-        this.configInfoBean = configInfoBean;
+    }
+
+    @Resource
+    public void setUiConfig(Map<String, Object> uiConfig) {
+        this.uiConfig = uiConfig;
     }
 
     /**
@@ -38,8 +45,9 @@ public class AdminRestController {
     @GET
     @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
-        Collection<ServiceInfo> servicesInfo = ruleServiceManager.getServicesInfo();
-        return Response.ok(new servicesInfoAndSettings(servicesInfo, configInfoBean)).build();
+        HashMap<String, Object> info = new HashMap<>(uiConfig);
+        info.put("services", ruleServiceManager.getServicesInfo());
+        return Response.ok(info).build();
     }
 
     /**

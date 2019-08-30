@@ -2,13 +2,13 @@ package org.openl.itest.response;
 
 public class UiInfoResponse {
 
-    private ServiceInfoResponse[] serviceInfo = new ServiceInfoResponse[0];
+    private ServiceInfoResponse[] services = new ServiceInfoResponse[0];
 
-    public ServiceInfoResponse[] getServiceInfo() {
-        return serviceInfo;
+    public ServiceInfoResponse[] getServices() {
+        return services;
     }
 
-    public void setServiceInfo(ServiceInfoResponse[] serviceInfo) {
-        this.serviceInfo = serviceInfo;
+    public void setServices(ServiceInfoResponse[] services) {
+        this.services = services;
     }
 }

@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -26,15 +27,20 @@ import org.openl.rules.ruleservice.publish.RuleServiceManager;
  * @author Vladyslav Pikus
  */
 @Produces("application/json")
+@Path("/rules")
 public class RulesDeployerRestController {
 
-    private final RulesDeployerService rulesDeployerService;
-    private final RuleServiceManager ruleServiceManager;
+    private RulesDeployerService rulesDeployerService;
+    private RuleServiceManager ruleServiceManager;
 
-    public RulesDeployerRestController(RulesDeployerService rulesDeployerService,
-            RuleServiceManager ruleServiceManager) {
-        this.rulesDeployerService = rulesDeployerService;
+    @Resource
+    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
         this.ruleServiceManager = ruleServiceManager;
+    }
+
+    @Resource
+    public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
+        this.rulesDeployerService = rulesDeployerService;
     }
 
     /**
