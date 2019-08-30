@@ -7,7 +7,6 @@ import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface RuleServiceManager {
 
