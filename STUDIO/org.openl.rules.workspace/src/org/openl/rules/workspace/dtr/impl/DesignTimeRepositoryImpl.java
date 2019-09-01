@@ -179,14 +179,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 throw new RepositoryException("Cannot find project ''{0}''!", null, name);
             }
 
-            AProject cached = projects.get(name);
+            AProject cached = projects.get(name.toLowerCase());
             if (cached != null) {
                 return cached;
             }
 
             // TODO: Seems we never reach here. Is the code below really needed?
             project = new AProject(getRepository(), rulesLocation + name);
-            projects.put(project.getName(), project);
+            projects.put(project.getName().toLowerCase(), project);
         }
         return project;
     }
@@ -270,7 +270,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         for (FileData fileData : fileDatas) {
             AProject project = new AProject(repository, fileData);
             // get from the repository
-            projects.put(project.getName(), project);
+            projects.put(project.getName().toLowerCase(), project);
         }
 
         projectsRefreshNeeded = false;
@@ -291,7 +291,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
-            return projects.containsKey(name);
+            return projects.containsKey(name.toLowerCase());
         }
     }
 
