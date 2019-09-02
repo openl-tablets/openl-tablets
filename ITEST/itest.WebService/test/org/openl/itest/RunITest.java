@@ -526,6 +526,7 @@ public class RunITest {
         String expected = FileUtils.readFileToString(new File("./resources/simple3_main_response.xml"), "UTF-8");
         String result = response.getBody();
         assertEquals(expected, result);
+        
     }
 
 }
