@@ -5,7 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +45,12 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.ui.tree.view.*;
+import org.openl.rules.ui.tree.view.CategoryDetailedView;
+import org.openl.rules.ui.tree.view.CategoryInversedView;
+import org.openl.rules.ui.tree.view.CategoryView;
+import org.openl.rules.ui.tree.view.FileView;
+import org.openl.rules.ui.tree.view.RulesTreeView;
+import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -49,7 +58,11 @@ import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
-import org.openl.rules.webstudio.web.repository.upload.zip.*;
+import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
+import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -58,7 +71,11 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.*;
+import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.IOUtils;
+import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,8 +177,7 @@ public class WebStudio {
         String settingsLocation = systemConfigManager
             .getStringProperty("user.settings.home") + File.separator + WebStudioUtils.getRulesUserSession(session)
                 .getUserName() + File.separator + USER_SETTINGS_FILENAME;
-        String defaultSettingsLocation = session.getServletContext()
-            .getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
+        String defaultSettingsLocation = USER_SETTINGS_FILENAME;
 
         userSettingsManager = new ConfigurationManager(settingsLocation, defaultSettingsLocation, true);
 

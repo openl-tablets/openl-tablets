@@ -1,12 +1,17 @@
 package org.openl.config;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.SystemConfiguration;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,9 +95,20 @@ public class ConfigurationManager implements PropertiesHolder {
         if (configLocation != null) {
             try {
                 if (createIfNotExist) {
+                    String webHome = System.getProperty("webstudio.home");
+                    File file;
+                    if (webHome != null && configLocation.contains(webHome)) {
+                        file = new File(configLocation);
+                    } else {
+                        URL resource = ConfigurationManager.class.getClassLoader().getResource(configLocation);
+                        if (resource == null) {
+                            // Configuration isn't found. Skip it
+                            return null;
+                        }
+                        file = new File(resource.getFile());
+                    }
                     configuration = new PropertiesConfiguration();
                     configuration.setDelimiterParsingDisabled(true);
-                    File file = new File(configLocation);
                     configuration.setFile(file);
                     if (file.exists()) {
                         configuration.load();
@@ -101,9 +117,13 @@ public class ConfigurationManager implements PropertiesHolder {
                     try {
                         configuration = new PropertiesConfiguration();
                         configuration.setDelimiterParsingDisabled(true);
-                        configuration.setFileName(configLocation);
-                        configuration.load();
-                    } catch (ConfigurationException ignored) {
+                        URL resource = ConfigurationManager.class.getClassLoader().getResource(configLocation);
+                        if (resource == null) {
+                            // Configuration isn't found. Skip it
+                            return null;
+                        }
+                        configuration.load(resource);
+                    } catch (Exception ignored) {
                         // Configuration isn't found. Skip it
                         return null;
                     }

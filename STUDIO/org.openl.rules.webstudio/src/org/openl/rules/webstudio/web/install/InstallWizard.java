@@ -115,7 +115,7 @@ public class InstallWizard {
     private String externalAdmins;
 
     public InstallWizard() {
-        appConfig = new ConfigurationManager(System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+        appConfig = new ConfigurationManager("config.properties");
         workingDir = appConfig.getStringProperty("webstudio.home");
     }
 
@@ -160,7 +160,7 @@ public class InstallWizard {
                 // Get defaults from 'system.properties'
                 if (workingDirChanged || systemConfig == null) {
                     systemConfig = new ConfigurationManager(workingDir + "/system-settings/system.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                        "system.properties");
                     String repoPassKey = StringUtils
                         .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
                     // Make it globally available. It will not be changed during application execution.
@@ -176,7 +176,7 @@ public class InstallWizard {
                     initProductionRepositoryEditor();
 
                     dbConfig = new ConfigurationManager(workingDir + "/system-settings/db.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+                        "db.properties");
 
                     userMode = systemConfig.getStringProperty("user.mode");
                 }
@@ -980,9 +980,9 @@ public class InstallWizard {
         destroyRepositoryObjects();
 
         final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
-            System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
+            "/rules-production.properties",
             workingDir + "/system-settings/",
-            System.getProperty("webapp.root") + "/WEB-INF/conf/");
+            "");
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
         productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
         productionRepositoryEditor = new ProductionRepositoryEditor(systemConfig,
