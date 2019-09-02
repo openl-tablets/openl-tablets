@@ -412,13 +412,13 @@ public class SpreadsheetResult implements Serializable {
 
     public static Object convertSpreadsheetResults(XlsModuleOpenClass module, Object v) throws InstantiationException,
                                                                                         IllegalAccessException {
-        return convertSpreadsheetResults(module, v, false);
+        return convertSpreadsheetResults(module, v, null);
     }
 
     @SuppressWarnings("unchecked")
     public static Object convertSpreadsheetResults(XlsModuleOpenClass module,
             Object v,
-            boolean toMap) throws InstantiationException, IllegalAccessException {
+            Class<?> type) throws InstantiationException, IllegalAccessException {
         if (v == null) {
             return null;
         }
@@ -441,15 +441,23 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
-            Class<?> t = componentType;
+            Class<?> t = v.getClass();
             while (t.isArray()) {
                 t = t.getComponentType();
             }
             int len = Array.getLength(v);
             if (SpreadsheetResult.class.isAssignableFrom(t)) {
-                Object tmpArray = Array.newInstance(Object.class, len);
+                Object tmpArray = Array
+                    .newInstance(type != null && type.isArray() ? type.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(tmpArray, i, convertSpreadsheetResults(module, Array.get(v, i), toMap));
+                    Array.set(tmpArray,
+                        i,
+                        convertSpreadsheetResults(module,
+                            Array.get(v, i),
+                            type != null && type.isArray() ? type.getComponentType() : null));
+                }
+                if (type != null && type.isArray() && !Object.class.equals(type.getComponentType())) {
+                    return tmpArray;
                 }
                 Class<?> c = null;
                 boolean f = true;
@@ -465,7 +473,7 @@ public class SpreadsheetResult implements Serializable {
                         }
                     }
                 }
-                if (f) {
+                if (f && c != null) {
                     Object newArray = Array.newInstance(c, len);
                     for (int i = 0; i < len; i++) {
                         Array.set(newArray, i, Array.get(tmpArray, i));
@@ -486,7 +494,7 @@ public class SpreadsheetResult implements Serializable {
             }
         }
         if (v instanceof SpreadsheetResult) {
-            if (toMap) {
+            if (Map.class.equals(type)) {
                 return ((SpreadsheetResult) v).toMap(module);
             } else {
                 return ((SpreadsheetResult) v).toPlain(module);
