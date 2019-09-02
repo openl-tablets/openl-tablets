@@ -114,7 +114,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         } catch (MergeConflictException e) {
             throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                 e.getBaseCommit(),
-                e.getOurCommit(),
+                e.getYourCommit(),
                 e.getTheirCommit());
         }
     }
@@ -282,7 +282,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 Map<String, String> mapping = getMappingForRead();
                 throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                     e.getBaseCommit(),
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     e.getTheirCommit());
             } catch (IOException | RuntimeException e) {
                 // Failed to update mapping. Restore current saved version.
@@ -298,7 +298,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 Map<String, String> mapping = getMappingForRead();
                 throw new MergeConflictException(toExternalKeys(mapping, e.getDiffs()),
                     e.getBaseCommit(),
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     e.getTheirCommit());
 
             }

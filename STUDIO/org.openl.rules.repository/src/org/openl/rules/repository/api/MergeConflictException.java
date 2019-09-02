@@ -6,13 +6,13 @@ import java.util.Map;
 
 public class MergeConflictException extends IOException {
     private final Map<String, String> diffs;
-    private final String ourCommit;
+    private final String yourCommit;
     private final String theirCommit;
     private final String baseCommit;
 
-    public MergeConflictException(Map<String, String> diffs, String baseCommit, String ourCommit, String theirCommit) {
+    public MergeConflictException(Map<String, String> diffs, String baseCommit, String yourCommit, String theirCommit) {
         this.baseCommit = baseCommit;
-        this.ourCommit = ourCommit;
+        this.yourCommit = yourCommit;
         this.theirCommit = theirCommit;
         this.diffs = diffs;
     }
@@ -21,8 +21,8 @@ public class MergeConflictException extends IOException {
         return diffs.keySet();
     }
 
-    public String getOurCommit() {
-        return ourCommit;
+    public String getYourCommit() {
+        return yourCommit;
     }
 
     public String getTheirCommit() {

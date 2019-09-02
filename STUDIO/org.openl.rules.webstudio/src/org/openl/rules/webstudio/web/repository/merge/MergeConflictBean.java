@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -31,7 +32,9 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +52,60 @@ public class MergeConflictBean {
     private String conflictedFile;
     private String mergeMessage;
 
-    public List<String> getConflictedFiles() {
+    public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = getMergeConflict();
         if (mergeConflict == null) {
             return Collections.emptyList();
         }
-        List<String> conflicts = new ArrayList<>(mergeConflict.getException().getConflictedFiles());
-        Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
-        return conflicts;
+        try {
+            String rulesLocation = getRulesLocation();
+            List<String> conflicts = new ArrayList<>(mergeConflict.getException().getConflictedFiles());
+            Map<String, ConflictGroup> groups = new TreeMap<>((p1, p2) -> {
+                if (p1.equals(p2)) {
+                    return 0;
+                } else {
+                    // Put empty project name to be latest.
+                    if (p1.isEmpty()) {
+                        return 1;
+                    }
+                    if (p2.isEmpty()) {
+                        return -1;
+                    }
+                    return p1.compareToIgnoreCase(p2);
+                }
+            });
+            for (String conflict : conflicts) {
+                String projectName;
+                String projectPath;
+                if (conflict.startsWith(rulesLocation)) {
+                    int from = rulesLocation.length();
+                    int to = conflict.indexOf('/', from);
+                    projectName = conflict.substring(from, to);
+                    projectPath = conflict.substring(0, to);
+                } else {
+                    projectName = "";
+                    projectPath = "";
+                }
+                ConflictGroup group = groups.get(projectName);
+                if (group == null) {
+                    group = new ConflictGroup(projectName, getRealPath(projectPath));
+                    groups.put(projectName, group);
+                }
+                group.addFile(conflict);
+            }
+
+            return new ArrayList<>(groups.values());
+        } catch (WorkspaceException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public String getFileName(String path) {
+        if (StringUtils.isBlank(path)) {
+            return null;
+        }
+
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     public String getRealPath(String path) {
@@ -73,9 +122,9 @@ public class MergeConflictBean {
         return path;
     }
 
-    public String getOurCommit() {
+    public String getYourCommit() {
         MergeConflictInfo mergeConflict = getMergeConflict();
-        return mergeConflict == null ? null : mergeConflict.getException().getOurCommit();
+        return mergeConflict == null ? null : mergeConflict.getException().getYourCommit();
     }
 
     public String getTheirCommit() {
@@ -154,7 +203,7 @@ public class MergeConflictBean {
         try {
             RulesProject project = mergeConflict.getProject();
             UserWorkspace userWorkspace = getUserWorkspace();
-            String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+            String rulesLocation = getRulesLocation();
 
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository();
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
@@ -165,7 +214,7 @@ public class MergeConflictBean {
 
                 FileItem file;
                 switch (conflictResolution.getResolutionType()) {
-                    case OURS:
+                    case YOURS:
                         String localName = name.substring(rulesLocation.length());
                         file = localRepository.read(localName);
                         if (file == null) {
@@ -215,13 +264,12 @@ public class MergeConflictBean {
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
 
-                UserWorkspace userWorkspace = getUserWorkspace();
-                String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+                String rulesLocation = getRulesLocation();
 
                 StringBuilder messageBuilder = new StringBuilder(
                     "Merge with commit " + exception.getTheirCommit() + "\nConflicts:");
                 ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
-                Collections.sort(conflicts, String.CASE_INSENSITIVE_ORDER);
+                conflicts.sort(String.CASE_INSENSITIVE_ORDER);
                 for (String file : conflicts) {
                     if (file.startsWith(rulesLocation)) {
                         file = file.substring(rulesLocation.length());
@@ -262,8 +310,7 @@ public class MergeConflictBean {
     }
 
     public boolean isExcelFile(String file) {
-        file = file.toLowerCase();
-        return file.endsWith(".xls") || file.endsWith(".xlsx");
+        return FileTypeHelper.isExcelFile(file);
     }
 
     public boolean canCompare(String name, String version) {
@@ -272,10 +319,9 @@ public class MergeConflictBean {
 
     public boolean hasLocalFile(String name) {
         try {
-            UserWorkspace userWorkspace = getUserWorkspace();
-            String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+            String rulesLocation = getRulesLocation();
             String localName = name.substring(rulesLocation.length());
-            return userWorkspace.getLocalWorkspace().getRepository().check(localName) != null;
+            return getUserWorkspace().getLocalWorkspace().getRepository().check(localName) != null;
         } catch (WorkspaceException | IOException e) {
             log.error(e.getMessage(), e);
             return false;
@@ -298,6 +344,11 @@ public class MergeConflictBean {
 
     private MergeConflictInfo getMergeConflict() {
         return (MergeConflictInfo) FacesUtils.getSessionMap().get(Constants.SESSION_PARAM_MERGE_CONFLICT);
+    }
+
+    private String getRulesLocation() throws WorkspaceException {
+        UserWorkspace userWorkspace = getUserWorkspace();
+        return userWorkspace.getDesignTimeRepository().getRulesLocation();
     }
 
 }

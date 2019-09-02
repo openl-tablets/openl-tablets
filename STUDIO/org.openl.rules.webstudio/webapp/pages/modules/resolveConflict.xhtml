@@ -20,84 +20,89 @@
     <div class="scrollable">
       <h:form id="resolveConflictsForm">
         <h:panelGroup id="modalResolveConflictsData">
-          <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <h:outputText value="Our version:"/>
-            <h:outputText value="#{mergeConflictBean.ourCommit}"/>
+          <p>
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+              <h:outputText value="Your version:"/>
+              <h:outputText value="#{mergeConflictBean.yourCommit}"/>
 
-            <h:outputText value="Their version:"/>
-            <h:outputText value="#{mergeConflictBean.theirCommit}"/>
+              <h:outputText value="Their version:"/>
+              <h:outputText value="#{mergeConflictBean.theirCommit}"/>
 
-            <h:outputText value="Base version:"/>
-            <h:outputText value="#{mergeConflictBean.baseCommit}"/>
+              <h:outputText value="Base version:"/>
+              <h:outputText value="#{mergeConflictBean.baseCommit}"/>
 
-            <h:outputText value="Comment:"/>
-            <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
-              <f:ajax execute="@this"/>
-            </h:inputTextarea>
-
-            <h:outputText value="Conflicts:"/>
-            <h:outputText value=""/>
-          </h:panelGrid>
-
-          <rich:dataTable value="#{mergeConflictBean.conflictedFiles}" var="conflict" rowKeyVar="row" styleClass="table">
-            <rich:column>
-              <f:facet name="header">
-                <h:outputText value="File"/>
-              </f:facet>
-              <ui:param name="realPath" value="#{mergeConflictBean.getRealPath(conflict)}"/>
-              <h:outputText value="#{realPath}" title="#{realPath}"/>
-            </rich:column>
-            <rich:column style="min-width: 80px">
-              <f:facet name="header">
-                <h:outputText value="Compare"/>
-              </f:facet>
-              <ui:param name="canCompare" value="#{mergeConflictBean.canCompare(conflict, mergeConflictBean.theirCommit)}"/>
-              <h:panelGroup rendered="#{canCompare and mergeConflictBean.isExcelFile(conflict)}">
-                <div>
-                  <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
-                     title="Compare">Compare</a>
-                </div>
-              </h:panelGroup>
-              <h:panelGroup rendered="#{canCompare and not mergeConflictBean.isExcelFile(conflict)}">
-                <div>
-                  <a href="javascript:void(0)" onclick="openCompareTextFilesDialog('#{conflict}')"
-                     title="Compare">Compare</a>
-                </div>
-              </h:panelGroup>
-
-              <h:panelGroup rendered="#{mergeConflictBean.hasLocalFile(conflict)}">
-                <div>
-                  <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
-                     title="Download our version">Download Our</a>
-                </div>
-              </h:panelGroup>
-              <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.theirCommit)}">
-                <div>
-                  <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
-                     title="Download their version">Download Their</a>
-                </div>
-              </h:panelGroup>
-              <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.baseCommit)}">
-                <div>
-                  <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
-                     title="Download base version">Download Base</a>
-                </div>
-              </h:panelGroup>
-
-            </rich:column>
-            <rich:column style="min-width: 160px">
-              <f:facet name="header">
-                <h:outputText value="Resolve"/>
-              </f:facet>
-              <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
-                                layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
-                <f:selectItem itemValue="OURS" itemLabel="Use our"/>
-                <f:selectItem itemValue="THEIRS" itemLabel="Use their"/>
-                <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
+              <h:outputText value="Comment:"/>
+              <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
                 <f:ajax execute="@this"/>
-              </h:selectOneRadio>
-            </rich:column>
-          </rich:dataTable>
+              </h:inputTextarea>
+            </h:panelGrid>
+            </p>
+          <ui:repeat value="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
+            <h:outputText value="Conflicts in project '#{conflictGroup.projectName}':"
+                          title="Project path in repository: #{conflictGroup.projectPath}" rendered="#{not empty conflictGroup.projectName}"
+                          styleClass="label"/>
+            <h:outputText value="Conflicts in non-OpenL files" rendered="#{empty conflictGroup.projectName}"/>
+            <rich:dataTable value="#{conflictGroup.files}" var="conflict" rowKeyVar="row" styleClass="table">
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="File"/>
+                </f:facet>
+                <ui:param name="fileName" value="#{mergeConflictBean.getFileName(conflict)}"/>
+                <ui:param name="realPath" value="#{mergeConflictBean.getRealPath(conflict)}"/>
+                <h:outputText value="#{fileName}" title="#{realPath}"/>
+              </rich:column>
+              <rich:column style="min-width: 80px">
+                <f:facet name="header">
+                  <h:outputText value="Compare"/>
+                </f:facet>
+                <ui:param name="canCompare" value="#{mergeConflictBean.canCompare(conflict, mergeConflictBean.theirCommit)}"/>
+                <h:panelGroup rendered="#{canCompare and mergeConflictBean.isExcelFile(conflict)}">
+                  <div>
+                    <a href="javascript:void(0)" onclick="openCompareRevisionsDialog('#{conflict}')"
+                       title="Compare">Compare</a>
+                  </div>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{canCompare and not mergeConflictBean.isExcelFile(conflict)}">
+                  <div>
+                    <a href="javascript:void(0)" onclick="openCompareTextFilesDialog('#{conflict}')"
+                       title="Compare">Compare</a>
+                  </div>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{mergeConflictBean.hasLocalFile(conflict)}">
+                  <div>
+                    <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
+                       title="Download your version">Download Yours</a>
+                  </div>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.theirCommit)}">
+                  <div>
+                    <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                       title="Download their version">Download Theirs</a>
+                  </div>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.baseCommit)}">
+                  <div>
+                    <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                       title="Download base version">Download Base</a>
+                  </div>
+                </h:panelGroup>
+
+              </rich:column>
+              <rich:column style="min-width: 160px">
+                <f:facet name="header">
+                  <h:outputText value="Resolve"/>
+                </f:facet>
+                <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
+                                  layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
+                  <f:selectItem itemValue="YOURS" itemLabel="Use yours"/>
+                  <f:selectItem itemValue="THEIRS" itemLabel="Use theirs"/>
+                  <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
+                  <f:ajax execute="@this"/>
+                </h:selectOneRadio>
+              </rich:column>
+            </rich:dataTable>
+          </ui:repeat>
 
         </h:panelGroup>
 
