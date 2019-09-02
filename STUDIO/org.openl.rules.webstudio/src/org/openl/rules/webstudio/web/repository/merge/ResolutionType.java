@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 public enum ResolutionType {
     UNRESOLVED,
-    OURS,
+    YOURS,
     THEIRS,
     CUSTOM
 }

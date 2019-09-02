@@ -588,11 +588,11 @@ public class GitRepositoryTest {
 
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
+            assertNotNull(e.getYourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals("Our conflicted commit must be reverted but it exists.",
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     repository2.check(filePath).getVersion());
 
                 String text2 = "foo\nbaz";
@@ -652,11 +652,11 @@ public class GitRepositoryTest {
 
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
+            assertNotNull(e.getYourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals("Our conflicted commit must be reverted but it exists.",
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     repository2.check(filePath).getVersion());
             }
         }
@@ -714,11 +714,11 @@ public class GitRepositoryTest {
 
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
+            assertNotNull(e.getYourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals("Our conflicted commit must be reverted but it exists.",
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     repository2.check(conflictedFile).getVersion());
 
                 String text2 = "foo\nbaz";
@@ -807,11 +807,11 @@ public class GitRepositoryTest {
 
             assertEquals(baseCommit, e.getBaseCommit());
             assertEquals(theirCommit, e.getTheirCommit());
-            assertNotNull(e.getOurCommit());
+            assertNotNull(e.getYourCommit());
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals("Our conflicted commit must be reverted but it exists.",
-                    e.getOurCommit(),
+                    e.getYourCommit(),
                     repository2.check(conflictedFile).getVersion());
             }
         }
