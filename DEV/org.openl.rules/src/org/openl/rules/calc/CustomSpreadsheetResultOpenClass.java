@@ -49,6 +49,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private boolean simpleRefBeanByColumn;
     private long columnsWithAsteriskCount;
     private long rowsWithAsteriskCount;
+    private byte[] beanClassByteCode;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -100,9 +101,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     public boolean isEmptyBeanClass() {
         return Arrays.stream(getBeanClass().getDeclaredFields()).filter(e -> !e.isSynthetic()).count() == 0; // SONAR
-                                                                                                            // adds
-                                                                                                            // synthetic
-                                                                                                            // fields
+                                                                                                             // adds
+                                                                                                             // synthetic
+                                                                                                             // fields
+    }
+
+    public byte[] getBeanClassByteCode() {
+        return beanClassByteCode.clone();
     }
 
     @Override
@@ -336,8 +341,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     addFieldsToJavaClassBuilder(beanClassBuilder, used, usedFields, false, beanFieldsMap);
                     byte[] byteCode = beanClassBuilder.byteCode();
                     try {
-                        beanClass = ClassUtils
-                            .defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
+                        this.beanClass = loadBeanClass(beanClassName, byteCode);
+                        this.beanClassByteCode = byteCode;
                         List<SpreadsheetResultValueSetter> srValueSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
                             if (!field.isSynthetic()) {// SONAR adds synthetic fields
@@ -358,6 +363,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             }
         }
         return beanClass;
+    }
+
+    private Class<?> loadBeanClass(final String beanClassName, byte[] byteCode) throws Exception {
+        try {
+            return getModule().getClassGenerationClassLoader().loadClass(beanClassName);
+        } catch (ClassNotFoundException e) {
+            return ClassUtils.defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
+        }
     }
 
     private static final Comparator<Triple<String, Point, IOpenField>> COMP = (a, b) -> {
@@ -506,15 +519,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             name = firstLetterUppercasedName;
         }
 
-        String csrPackage = "csr";
-        final String beanName = CustomSpreadsheetResultOpenClass.class.getPackage()
-            .getName() + "." + csrPackage + "." + name;
-        try {
-            customSpreadsheetResultOpenClass.getModule().getClassGenerationClassLoader().loadClass(beanName);
-            throw new IllegalStateException("This shouldn't happen.");
-        } catch (ClassNotFoundException e) {
-            return beanName;
-        }
+        return customSpreadsheetResultOpenClass.getModule().getCsrPackage() + "." + name;
     }
 
     private static class SpreadsheetResultValueSetter {

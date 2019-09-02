@@ -28,7 +28,8 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
-            boolean dispatchingValidationEnabled) {
+            boolean dispatchingValidationEnabled,
+            String csrPackage) {
         super(name,
             metaInfo,
             openl,
@@ -36,7 +37,8 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             usingModules,
             classLoader,
             useDescisionTableDispatcher,
-            dispatchingValidationEnabled);
+            dispatchingValidationEnabled,
+            csrPackage);
         this.prebindHandler = prebindHandler;
     }
 

@@ -32,7 +32,7 @@ public class BindingContext implements IBindingContext {
     private List<SyntaxNodeException> errors = new ArrayList<>();
     private LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
 
-    private Map<String, Object> externalParams;
+    private Map<String, Object> externalParams = new HashMap<>();
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
@@ -251,7 +251,9 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public void setExternalParams(Map<String, Object> externalParams) {
-        this.externalParams = externalParams;
+        if (externalParams != null) {
+            this.externalParams = new HashMap<>(externalParams);
+        }
     }
 
     @Override

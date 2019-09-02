@@ -9,6 +9,10 @@
 		</module>
 	</modules>
 
+    <properties-file-name-pattern>properties-file-name-pattern</properties-file-name-pattern>
+    <properties-file-name-processor>properties-file-name-processor</properties-file-name-processor>
+    <csr-package>csr-package</csr-package>
+
 	<properties>
 		<property>
 			<name>name1</name>

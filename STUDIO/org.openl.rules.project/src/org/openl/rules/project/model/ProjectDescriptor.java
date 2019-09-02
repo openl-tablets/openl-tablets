@@ -21,6 +21,7 @@ public class ProjectDescriptor {
     private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
+    private String csrPackage;
     private String propertiesFileNamePattern;
     private String propertiesFileNameProcessor;
 
@@ -31,7 +32,7 @@ public class ProjectDescriptor {
     public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
         this.propertiesFileNamePattern = propertiesFileNamePattern;
     }
-
+    
     public String getPropertiesFileNameProcessor() {
         return propertiesFileNameProcessor;
     }
@@ -54,6 +55,14 @@ public class ProjectDescriptor {
 
     public void setProjectFolder(File projectRoot) {
         this.projectFolder = projectRoot;
+    }
+    
+    public String getCsrPackage() {
+        return csrPackage;
+    }
+    
+    public void setCsrPackage(String csrPackage) {
+        this.csrPackage = csrPackage;
     }
 
     /**
