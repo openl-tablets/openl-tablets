@@ -13,6 +13,10 @@
     <name>ITEST - WebService</name>
     <url>https://openl-tablets.org</url>
 
+    <properties>
+        <surefire.argLine>-Xms8m -Xmx80m</surefire.argLine>
+    </properties>
+
     <dependencies>
         <!-- Itegration Tests-->
         <dependency>

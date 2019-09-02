@@ -99,7 +99,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     public boolean isEmptyBeanClass() {
-        return getBeanClass().getDeclaredFields().length == 0;
+        return Arrays.stream(getBeanClass().getDeclaredFields()).filter(e -> !e.isSynthetic()).count() == 0; // SONAR
+                                                                                                            // adds
+                                                                                                            // synthetic
+                                                                                                            // fields
     }
 
     @Override
@@ -337,12 +340,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             .defineClass(beanClassName, byteCode, module.getClassGenerationClassLoader());
                         List<SpreadsheetResultValueSetter> srValueSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
-                            IOpenField openField = beanFieldsMap.get(field.getName());
-                            SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
-                                module,
-                                field,
-                                openField);
-                            srValueSetters.add(spreadsheetResultValueSetter);
+                            if (!field.isSynthetic()) {// SONAR adds synthetic fields
+                                IOpenField openField = beanFieldsMap.get(field.getName());
+                                SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
+                                    module,
+                                    field,
+                                    openField);
+                                srValueSetters.add(spreadsheetResultValueSetter);
+                            }
                         }
                         this.spreadsheetResultValueSetters = srValueSetters
                             .toArray(new SpreadsheetResultValueSetter[] {});
@@ -518,6 +523,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private XlsModuleOpenClass module;
 
         private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
+            Objects.requireNonNull(module);
+            Objects.requireNonNull(field);
+            Objects.requireNonNull(openField);
             this.field = field;
             this.openField = openField;
             this.module = module;
