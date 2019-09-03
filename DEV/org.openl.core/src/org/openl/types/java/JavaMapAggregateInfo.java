@@ -63,12 +63,11 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
         if (!isAggregate(aggregateType)) {
             return null;
         }
-
         return new MapIndex();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator<Object> getIterator(Object aggregate) {
         return ((Map) aggregate).entrySet().iterator();
     }
@@ -83,6 +82,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
         return AAggregateInfo.getArrayType(componentType);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Object makeIndexedAggregate(IOpenClass componentType, int size) {
         return new HashMap(size);

@@ -6,12 +6,32 @@
 
 package org.openl.types.java;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
 import org.openl.gen.JavaInterfaceImplBuilder;
-import org.openl.types.*;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
@@ -191,8 +211,6 @@ public class JavaOpenClass extends AOpenClass {
                     aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
                 } else if (Map.class.isAssignableFrom(instanceClass)) {
                     aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
-                } else if (Collection.class.isAssignableFrom(instanceClass)) {
-                    aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
                 } else {
                     aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
                 }
