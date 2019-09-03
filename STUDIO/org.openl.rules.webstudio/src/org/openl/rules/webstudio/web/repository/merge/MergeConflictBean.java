@@ -49,6 +49,7 @@ public class MergeConflictBean {
     private MultiUserWorkspaceManager workspaceManager;
 
     private Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
+    private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
     private String conflictedFile;
     private String mergeMessage;
 
@@ -179,6 +180,22 @@ public class MergeConflictBean {
         conflictResolution.setCustomResolutionFile(null);
     }
 
+    public boolean isSaveDisabled() {
+        for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
+            ConflictResolution resolution = entry.getValue();
+            if (resolution.getResolutionType() == ResolutionType.UNRESOLVED) {
+                return true;
+            }
+
+            if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution
+                .getCustomResolutionFile() == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void saveAndResolve() {
         // Validate
         MergeConflictInfo mergeConflict = getMergeConflict();
@@ -305,6 +322,7 @@ public class MergeConflictBean {
             facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
         }
         conflictResolutions.clear();
+        existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
     }
@@ -330,7 +348,18 @@ public class MergeConflictBean {
 
     public boolean hasRepositoryFile(String name, String version) {
         try {
-            return getUserWorkspace().getDesignTimeRepository().getRepository().checkHistory(name, version) != null;
+            // ':' is forbidden character in name, so it can be used as a separator.
+            String key = name + ":" + version;
+            Boolean value = existInRepositoryCache.get(key);
+            if (value == null) {
+                // Exist status is cached to make UI smoother
+                value = getUserWorkspace().getDesignTimeRepository()
+                    .getRepository()
+                    .checkHistory(name, version) != null;
+                existInRepositoryCache.put(key, value);
+            }
+
+            return value;
         } catch (WorkspaceException | IOException e) {
             log.error(e.getMessage(), e);
             return false;
