@@ -12,11 +12,19 @@
     </util:map>
 
     <bean class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" id="deployer" lazy-init="true"/>
-    <bean class="java.lang.Object" id="emptyEndPoint"/>
+    <bean class="org.openl.rules.ruleservice.rest.EmptyEndPoint" id="emptyEndPoint" lazy-init="true"/>
 
-    <jaxrs:server>
+    <jaxrs:server address="/admin">
         <jaxrs:serviceBeans>
             <bean class="org.openl.rules.ruleservice.rest.AdminRestController"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+    <jaxrs:server address="/rules">
+        <jaxrs:serviceBeans>
             <ref bean="#{ ${ruleservice.deployer.enable} ? 'deployer' : 'emptyEndPoint'}"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>

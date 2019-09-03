@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
 
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/admin")
 public class AdminRestController {
 
     private RuleServiceManager ruleServiceManager;

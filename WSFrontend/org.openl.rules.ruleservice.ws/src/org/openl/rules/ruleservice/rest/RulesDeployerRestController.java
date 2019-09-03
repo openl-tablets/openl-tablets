@@ -27,7 +27,6 @@ import org.openl.rules.ruleservice.publish.RuleServiceManager;
  * @author Vladyslav Pikus
  */
 @Produces("application/json")
-@Path("/rules")
 public class RulesDeployerRestController {
 
     private RulesDeployerService rulesDeployerService;
