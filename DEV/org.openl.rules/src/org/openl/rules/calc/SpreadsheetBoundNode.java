@@ -123,7 +123,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         validateRowsColumnsWithAsterisks(spreadsheet);
 
         if (spreadsheet.isCustomSpreadsheetType()) {
-            IOpenClass type = null;
+            CustomSpreadsheetResultOpenClass type = null;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
                 bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);

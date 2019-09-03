@@ -347,11 +347,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         for (Field field : beanClass.getDeclaredFields()) {
                             if (!field.isSynthetic()) {// SONAR adds synthetic fields
                                 IOpenField openField = beanFieldsMap.get(field.getName());
-                                SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
-                                    module,
-                                    field,
-                                    openField);
-                                srValueSetters.add(spreadsheetResultValueSetter);
+                                if (openField != null) {
+                                    SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
+                                        module,
+                                        field,
+                                        openField);
+                                    srValueSetters.add(spreadsheetResultValueSetter);
+                                }
                             }
                         }
                         this.spreadsheetResultValueSetters = srValueSetters
