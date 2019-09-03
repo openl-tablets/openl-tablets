@@ -1499,3 +1499,8 @@ form .formfields {
 .line-type-no-eof {
     background-color: lightgray;
 }
+
+.compare-link {
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
