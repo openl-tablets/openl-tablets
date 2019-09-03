@@ -53,11 +53,26 @@ public class RunITest {
 
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
 
-        List<JsonNode> definitions = getDefinitions(jsonNode, "CalVehicleYearRequest", "CalVehicleYearRequest1", "DefaultRulesRuntimeContext");
+        List<JsonNode> definitions = getDefinitions(jsonNode,
+            "CalVehicleYearRequest",
+            "CalVehicleYearRequest1",
+            "DefaultRulesRuntimeContext");
         assertEquals(3, definitions.size());
         assertHasProperties(definitions.get(0), "modelYear", "vehEffectiveYear");
         assertHasProperties(definitions.get(1), "runtimeContext", "v");
-        assertHasProperties(definitions.get(2), "currentDate", "requestDate", "lob", "nature", "usState", "country", "usRegion", "currency", "lang", "region", "caProvince", "caRegion");
+        assertHasProperties(definitions.get(2),
+            "currentDate",
+            "requestDate",
+            "lob",
+            "nature",
+            "usState",
+            "country",
+            "usRegion",
+            "currency",
+            "lang",
+            "region",
+            "caProvince",
+            "caRegion");
 
         assertPropertyRef("#/definitions/DefaultRulesRuntimeContext", definitions.get(1), "runtimeContext");
         assertPropertyRef("#/definitions/CalVehicleYearRequest", definitions.get(1), "v");
@@ -66,15 +81,29 @@ public class RunITest {
     }
 
     @Test
+    public void testSwaggerSchemaWithSpacesInUrl() throws IOException {
+        ResponseEntity<String> response = rest.getForEntity("/service%20name%20with%20spaces/swagger.json",
+            String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotBlank(response.getBody());
+    }
+
+    @Test
     public void testSwaggerSchemaWithoutRuntimeContext() throws IOException {
-        ResponseEntity<String> response = rest.getForEntity("/rules-without-runtime-context/swagger.json", String.class);
+        ResponseEntity<String> response = rest.getForEntity("/rules-without-runtime-context/swagger.json",
+            String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotBlank(response.getBody());
 
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
 
-        List<JsonNode> definitions = getDefinitions(jsonNode, "CalVehicleYearRequest", "CalVehicleYearRequest1", "SumTwoDoublesRequest1", "SumTwoDoublesRequest");
+        List<JsonNode> definitions = getDefinitions(jsonNode,
+            "CalVehicleYearRequest",
+            "CalVehicleYearRequest1",
+            "SumTwoDoublesRequest1",
+            "SumTwoDoublesRequest");
         assertEquals(4, definitions.size());
         assertHasProperties(definitions.get(0), "modelYear", "vehEffectiveYear");
         assertHasProperties(definitions.get(1), "v", "a");
@@ -101,7 +130,15 @@ public class RunITest {
     }
 
     private static void assertPostSchemaRef(String expectedRef, JsonNode node, String path) {
-        assertEquals(expectedRef, node.get("paths").get(path).get("post").findValues("parameters").get(0).findValue("schema").get("$ref").asText());
+        assertEquals(expectedRef,
+            node.get("paths")
+                .get(path)
+                .get("post")
+                .findValues("parameters")
+                .get(0)
+                .findValue("schema")
+                .get("$ref")
+                .asText());
     }
 
     private static void assertPropertyRef(String expectedRef, JsonNode node, String propName) {

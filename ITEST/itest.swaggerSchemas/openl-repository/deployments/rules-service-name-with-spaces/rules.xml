@@ -1,0 +1,16 @@
+<project>
+  <name>project name with spaces</name>
+  <modules>
+    <module>
+      <name>rules-service-name-with-spaces-datatypes</name>
+      <rules-root path="datatype.xlsx"/>
+    </module>
+    <module>
+      <name>rules-service-name-with-spaces-rules</name>
+      <rules-root path="MAIN.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>

@@ -35,8 +35,8 @@ public class RunRestRulesDeploymentTest {
     private static final String SERVICES_INFO_ENDPOINT = "/admin/services";
     private static final String UI_INFO_ENDPOINT = "/admin/ui/info";
     private static final String SERVICES_METHODS_ENDPOINT = "/methods";
-    private static final String SERVICES_DELETE_ENDPOINT = "/rules/delete/";
-    private static final String SERVICES_READ_ENDPOINT = "/rules/read/";
+    private static final String SERVICES_DELETE_ENDPOINT = "/admin/delete/";
+    private static final String SERVICES_READ_ENDPOINT = "/admin/read/";
 
     private static JettyServer server;
     private static String baseURI;
@@ -213,7 +213,7 @@ public class RunRestRulesDeploymentTest {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/zip");
         return rest
-            .exchange("/rules/deploy", method, new HttpEntity<>(new ClassPathResource(rules), headers), String.class);
+            .exchange("/admin/deploy", method, new HttpEntity<>(new ClassPathResource(rules), headers), String.class);
     }
 
     private ResponseEntity<ServiceInfoResponse[]> fetchServices(String endpoint) {
