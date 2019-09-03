@@ -474,7 +474,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         newFieldName = "_" + fieldName;
                     }
                     int i = 1;
-                    while (isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName)) {
+                    while (isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, newFieldName)) {
                         newFieldName = fieldName + "_" + i;
                         i++;
                     }
