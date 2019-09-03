@@ -405,18 +405,18 @@ public class XlsBinder implements IOpenBinder {
             Thread.currentThread().getContextClassLoader(),
             OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
             OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()),
-            getCsrPackage(bindingContext));
+            getCsrBeansPackage(bindingContext));
     }
 
-    protected String getCsrPackage(IBindingContext bindingContext) {
-        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_PACKAGE) instanceof String) {
-            String csrPackage = (String) bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_PACKAGE);
-            if (ClassUtils.isValidPackageName(csrPackage)) {
-                return csrPackage;
+    protected String getCsrBeansPackage(IBindingContext bindingContext) {
+        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE) instanceof String) {
+            String csrBeansPackage = (String) bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE);
+            if (ClassUtils.isValidPackageName(csrBeansPackage)) {
+                return csrBeansPackage;
             } else if (log.isWarnEnabled()) {
                 log.warn(
-                    "Invalid package name '{}' is defined for CSR types. Default value 'org.openl.generated.csr' is used!",
-                    csrPackage);
+                    "Invalid package name '{}' is defined for CSR beans. Default value 'org.openl.generated.csr' is used!",
+                    csrBeansPackage);
             }
         }
         return "org.openl.generated.csr";

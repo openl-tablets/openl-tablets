@@ -6,7 +6,7 @@
             <rules-root path="rules/Main.xlsx"/>
         </module>
     </modules>
-    <csr-package>org.openl.generated.csrbeans</csr-package>
+    <csr-beans-package>org.openl.generated.csrbeans</csr-beans-package>
     <classpath>
         <entry path="lib/*.jar"/>
     </classpath>

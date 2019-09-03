@@ -72,6 +72,6 @@ public class XlsPreBinder extends XlsBinder {
             Thread.currentThread().getContextClassLoader(),
             OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
             OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())),
-            getCsrPackage(bindingContext));
+            getCsrBeansPackage(bindingContext));
     }
 }

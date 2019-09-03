@@ -11,7 +11,7 @@
 
     <properties-file-name-pattern>properties-file-name-pattern</properties-file-name-pattern>
     <properties-file-name-processor>properties-file-name-processor</properties-file-name-processor>
-    <csr-package>csr-package</csr-package>
+    <csr-beans-package>csr-beans-package</csr-beans-package>
 
 	<properties>
 		<property>

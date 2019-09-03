@@ -36,7 +36,7 @@ import org.openl.types.java.JavaOpenClass;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
-    public static final String CSR_PACKAGE = "CSR-PACKAGE";
+    public static final String CSR_BEANS_PACKAGE = "csr-beans-package";
 
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetComponentsBuilder componentsBuilder;

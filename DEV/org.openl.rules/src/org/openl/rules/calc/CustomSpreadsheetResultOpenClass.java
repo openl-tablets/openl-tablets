@@ -253,7 +253,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         List<String> errorMessages = new ArrayList<>();
         for (IOpenField field : fields) {
             IOpenField existedField = customSpreadsheetResultOpenClass.getField(field.getName());
-            if (!existedField.getType().isAssignableFrom(field.getType())) {
+            if (!existedField.getType().equals(field.getType())) {
                 errorMessages.add(getName() + "." + field.getName() + "(expected: " + existedField.getType()
                     .getName() + ", found: " + field.getType().getName() + ")");
             }
@@ -519,7 +519,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             name = firstLetterUppercasedName;
         }
 
-        return customSpreadsheetResultOpenClass.getModule().getCsrPackage() + "." + name;
+        return customSpreadsheetResultOpenClass.getModule().getCsrBeansPackage() + "." + name;
     }
 
     private static class SpreadsheetResultValueSetter {

@@ -29,7 +29,7 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
             boolean dispatchingValidationEnabled,
-            String csrPackage) {
+            String csrBeansPackage) {
         super(name,
             metaInfo,
             openl,
@@ -38,7 +38,7 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             classLoader,
             useDescisionTableDispatcher,
             dispatchingValidationEnabled,
-            csrPackage);
+            csrBeansPackage);
         this.prebindHandler = prebindHandler;
     }
 

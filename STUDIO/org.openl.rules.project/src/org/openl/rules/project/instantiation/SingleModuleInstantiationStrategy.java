@@ -63,7 +63,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
 
     protected Map<String, Object> prepareExternalParameters() {
         Map<String, Object> externalProperties = new HashMap<>();
-        externalProperties.put(SpreadsheetBoundNode.CSR_PACKAGE, module.getProject().getCsrPackage());
+        externalProperties.put(SpreadsheetBoundNode.CSR_BEANS_PACKAGE, module.getProject().getCsrBeansPackage());
         if (getModule().getProperties() != null) {
             externalProperties.putAll(getModule().getProperties());
         }

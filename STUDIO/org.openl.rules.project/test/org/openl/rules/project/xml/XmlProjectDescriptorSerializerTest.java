@@ -31,7 +31,7 @@ public class XmlProjectDescriptorSerializerTest {
 
         Assert.assertEquals("properties-file-name-pattern", pd.getPropertiesFileNamePattern());
         Assert.assertEquals("properties-file-name-processor", pd.getPropertiesFileNameProcessor());
-        Assert.assertEquals("csr-package", pd.getCsrPackage());
+        Assert.assertEquals("csr-beans-package", pd.getCsrBeansPackage());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class XmlProjectDescriptorSerializerTest {
 
         Assert.assertEquals("properties-file-name-pattern", pd.getPropertiesFileNamePattern());
         Assert.assertEquals("properties-file-name-processor", pd.getPropertiesFileNameProcessor());
-        Assert.assertEquals("csr-package", pd.getCsrPackage());
+        Assert.assertEquals("csr-beans-package", pd.getCsrBeansPackage());
 
     }
 
