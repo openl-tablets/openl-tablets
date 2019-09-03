@@ -31,10 +31,10 @@
               <ui:repeat value="#{diffSet.lines}" var="line">
                 <tr>
                   <td>
-                    <div class="line-number" title="Their line #">#{line.type == 'OUR' ? ' ' : line.theirLine}</div>
+                    <div class="line-number" title="Their line #">#{line.type == 'YOUR' ? ' ' : line.theirLine}</div>
                   </td>
                   <td>
-                    <div class="line-number" title="Our line #">#{line.type == 'THEIR' ? ' ' : line.ourLine}</div>
+                    <div class="line-number" title="Your line #">#{line.type == 'THEIR' ? ' ' : line.yourLine}</div>
                   </td>
                   <td>
                     <h:panelGroup layout="block"

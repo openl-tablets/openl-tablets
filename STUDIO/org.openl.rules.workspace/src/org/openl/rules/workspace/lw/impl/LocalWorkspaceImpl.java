@@ -73,7 +73,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public AProject getProject(String name) throws ProjectException {
         AProject lp;
         synchronized (localProjects) {
-            lp = localProjects.get(name);
+            lp = localProjects.get(name.toLowerCase());
         }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''!", null, name);
@@ -96,7 +96,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public boolean hasProject(String name) {
         synchronized (localProjects) {
-            return (localProjects.get(name) != null);
+            return (localProjects.get(name.toLowerCase()) != null);
         }
     }
 
@@ -115,7 +115,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                     lpi = new AProject(getRepository(), fileData);
                 }
                 synchronized (localProjects) {
-                    localProjects.put(name, lpi);
+                    localProjects.put(name.toLowerCase(), lpi);
                 }
             }
         }
@@ -123,7 +123,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     private void notifyRemoved(AProject project) {
         synchronized (localProjects) {
-            localProjects.remove(project.getName());
+            localProjects.remove(project.getName().toLowerCase());
         }
     }
 

@@ -27,10 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.helger.jcodemodel.*;
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,6 +37,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.OpenL;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.maven.decompiler.BytecodeDecompiler;
 import org.openl.rules.maven.gen.GenerateInterface;
@@ -50,6 +47,18 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
+
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.EClassType;
+import com.helger.jcodemodel.JClassAlreadyExistsException;
+import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
+
+import net.sf.cglib.beans.BeanGenerator;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
@@ -103,6 +112,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
      */
     @Parameter
     private boolean isProvideVariations;
+
+    /**
+     * Generate CSR classes
+     *
+     * @since 5.23.0
+     */
+    @Parameter
+    private boolean generateCSRBeans;
 
     /**
      * If you want to override some parameters, define them here.
@@ -277,6 +294,10 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate Java beans from OpenL dataTypes
             writeJavaBeans(openLRules.getTypes());
 
+            if (generateCSRBeans) {
+                writeCSRBeans(openLRules.getTypes());
+            }
+
             // Generate interface is optional.
             if (interfaceClass != null) {
                 Class<?> interfaceClass = factory.getInterfaceClass();
@@ -436,17 +457,31 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private void writeJavaBeans(Collection<IOpenClass> types) throws Exception {
         if (CollectionUtils.isNotEmpty(types)) {
             BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
-            for (IOpenClass datatypeOpenClass : types) {
-
+            for (IOpenClass openClass : types) {
                 // Skip java code generation for types what is defined
                 // thru DomainOpenClass (skip java code generation for alias
-                // types).
+                // types, csr types).
                 //
-                if (datatypeOpenClass instanceof DatatypeOpenClass) {
-                    Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
+                if (openClass instanceof DatatypeOpenClass) {
+                    Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
                     info("Java Bean: " + dataType);
-                    decompiler.decompile(dataType, ((DatatypeOpenClass) datatypeOpenClass).getBytecode());
+                    decompiler.decompile(dataType, ((DatatypeOpenClass) openClass).getBytecode());
+                }
+            }
+        }
+    }
+
+    private void writeCSRBeans(Collection<IOpenClass> types) throws Exception {
+        if (CollectionUtils.isNotEmpty(types)) {
+            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
+            for (IOpenClass openClass : types) {
+                // Skip java code generation for other types
+                if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                    Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
+                    info("CSR Bean: " + cls.getName());
+                    decompiler.decompile(cls.getName(), customSpreadsheetResultOpenClass.getBeanClassByteCode());
                 }
             }
         }

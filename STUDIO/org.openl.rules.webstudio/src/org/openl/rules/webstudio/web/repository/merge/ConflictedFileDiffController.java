@@ -166,7 +166,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                             previousType = type;
                             break;
                         case '+':
-                            type = DiffType.OUR;
+                            type = DiffType.YOUR;
                             ourLine++;
                             previousType = type;
                             break;
@@ -181,7 +181,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                             if (type == DiffType.THEIR || type == DiffType.COMMON) {
                                 theirLine++;
                             }
-                            if (type == DiffType.OUR || type == DiffType.COMMON) {
+                            if (type == DiffType.YOUR || type == DiffType.COMMON) {
                                 ourLine++;
                             }
                             noEndOfFile = true;

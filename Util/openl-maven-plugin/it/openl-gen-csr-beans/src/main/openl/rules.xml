@@ -1,0 +1,13 @@
+<project>
+    <name>OpenL Rules Simple Project</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="rules/Main.xlsx"/>
+        </module>
+    </modules>
+    <csr-beans-package>org.openl.generated.csrbeans</csr-beans-package>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

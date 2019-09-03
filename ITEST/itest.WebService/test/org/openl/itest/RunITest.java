@@ -3,10 +3,12 @@ package org.openl.itest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.StringReader;
 import java.util.Collections;
+import java.util.Objects;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -483,7 +485,7 @@ public class RunITest {
 
         String expected = FileUtils.readFileToString(new File("./resources/simple3_main_response.json"), "UTF-8");
         String result = response.getBody();
-        assertEquals(expected, result);
+        assertTrue(Objects.equals(expected, result));
 
         response = simple3RestClient
             .exchange("/mySpr", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class);
@@ -508,7 +510,9 @@ public class RunITest {
         response = simple3RestClient
             .exchange("/mySpr2", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"CA\"}"), String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("{\"Value3_Step3\":null,\"Value4_Step3\":null,\"Value3_Step4\":null,\"Value4_Step4\":null,\"Value1_Step1\":1.0,\"Value2_Step1\":2.0,\"Value1_Step2\":3.0,\"Value2_Step2\":4.0}", response.getBody());
+        assertEquals(
+            "{\"Value3_Step3\":null,\"Value4_Step3\":null,\"Value3_Step4\":null,\"Value4_Step4\":null,\"Value1_Step1\":1.0,\"Value2_Step1\":2.0,\"Value1_Step2\":3.0,\"Value2_Step2\":4.0}",
+            response.getBody());
 
     }
 
@@ -525,7 +529,8 @@ public class RunITest {
 
         String expected = FileUtils.readFileToString(new File("./resources/simple3_main_response.xml"), "UTF-8");
         String result = response.getBody();
-        assertEquals(expected, result);
+        assertTrue(Objects.equals(expected, result));
+
     }
 
 }

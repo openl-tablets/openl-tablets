@@ -36,6 +36,8 @@ import org.openl.types.java.JavaOpenClass;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
+    public static final String CSR_BEANS_PACKAGE = "csr-beans-package";
+
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetComponentsBuilder componentsBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
@@ -171,7 +173,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (csroc != null && csroc.isEmptyBeanClass()) { // If CSR returns null
                             f = false; // IGNORE EMPTY CSRS TYPES
                         }
-                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the.equals(t)) {
+                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
+                        .equals(t)) {
                         f = false; // IGNORE VOID TYPES
                     }
 
@@ -248,9 +251,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         cells = structureBuilder.getCells();
         Spreadsheet spreadsheet = (Spreadsheet) getMethod();
-        spreadsheet.setCells(cells);
+        if (spreadsheet != null) {
+            spreadsheet.setCells(cells);
 
-        spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet));
+            spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet));
+        }
     }
 
     public SpreadsheetCell[][] getCells() {

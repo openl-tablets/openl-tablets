@@ -163,7 +163,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
-            uwp = userRulesProjects.get(name);
+            uwp = userRulesProjects.get(name.toLowerCase());
         }
 
         if (uwp == null) {
@@ -223,7 +223,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            if (userRulesProjects.get(name) != null) {
+            if (userRulesProjects.get(name.toLowerCase()) != null) {
                 return true;
             }
         }
@@ -362,7 +362,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     local = null;
                 }
 
-                userRulesProjects.put(name,
+                userRulesProjects.put(name.toLowerCase(),
                     new RulesProject(this, localRepository, local, desRepo, designFileData, projectsLockEngine));
             }
 
@@ -373,7 +373,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (!designTimeRepository.hasProject(name)) {
                     FileData local = lp.getFileData();
-                    userRulesProjects.put(name,
+                    userRulesProjects.put(name.toLowerCase(),
                         new RulesProject(this, localRepository, local, designRepository, null, projectsLockEngine));
                 }
             }

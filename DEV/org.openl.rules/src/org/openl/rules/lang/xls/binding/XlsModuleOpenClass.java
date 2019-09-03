@@ -87,6 +87,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
+    private String csrBeansPackage;
+
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
     }
@@ -106,7 +108,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
-            boolean dispatchingValidationEnabled) {
+            boolean dispatchingValidationEnabled,
+            String csrBeansPackage) {
         super(name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
@@ -117,13 +120,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
 
+        Objects.requireNonNull(csrBeansPackage);
+        this.csrBeansPackage = csrBeansPackage;
+
         if (usingModules != null) {
             setDependencies(usingModules);
             initDependencies();
         }
         initImports(metaInfo.getXlsModuleNode());
     }
-
+    
+    public String getCsrBeansPackage() {
+        return csrBeansPackage;
+    }    
+    
     public boolean isUseDescisionTableDispatcher() {
         return useDescisionTableDispatcher;
     }

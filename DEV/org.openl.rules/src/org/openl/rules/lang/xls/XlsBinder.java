@@ -42,6 +42,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.constants.ConstantsTableBinder;
@@ -84,6 +85,7 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
+import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
@@ -402,7 +404,22 @@ public class XlsBinder implements IOpenBinder {
             moduleDependencies,
             Thread.currentThread().getContextClassLoader(),
             OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
-            OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
+            OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()),
+            getCsrBeansPackage(bindingContext));
+    }
+
+    protected String getCsrBeansPackage(IBindingContext bindingContext) {
+        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE) instanceof String) {
+            String csrBeansPackage = (String) bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE);
+            if (ClassUtils.isValidPackageName(csrBeansPackage)) {
+                return csrBeansPackage;
+            } else if (log.isWarnEnabled()) {
+                log.warn(
+                    "Invalid package name '{}' is defined for CSR beans. Default value 'org.openl.generated.csr' is used!",
+                    csrBeansPackage);
+            }
+        }
+        return "org.openl.generated.csr";
     }
 
     private void bindPropertiesForAllTables(XlsModuleSyntaxNode moduleNode,
@@ -966,7 +983,7 @@ public class XlsBinder implements IOpenBinder {
         public boolean isPreBinding() {
             return preBinding;
         }
-        
+
         @Override
         public boolean isCompleted() {
             return completed;
