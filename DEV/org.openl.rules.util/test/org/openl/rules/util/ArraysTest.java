@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 import static org.openl.rules.util.Arrays.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -147,6 +149,14 @@ public class ArraysTest {
         assertEquals(1, length(new HashSet() {
             {
                 add(false);
+            }
+        }));
+
+        assertEquals(0, length((Map<?, ?>) null));
+        assertEquals(0, length(new HashMap<>()));
+        assertEquals(1, length(new HashMap() {
+            {
+                put(false, true);
             }
         }));
     }
