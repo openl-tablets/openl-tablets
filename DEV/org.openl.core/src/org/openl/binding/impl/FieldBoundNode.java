@@ -54,7 +54,9 @@ public class FieldBoundNode extends ATargetBoundNode {
             target = targetNode.getType().newInstance(env);
             targetNode.assign(target, env);
         }
-        boundField.set(target, value, env);
+        if (boundField.isWritable()) {
+            boundField.set(target, value, env);
+        }
     }
 
     public String getFieldName() {
