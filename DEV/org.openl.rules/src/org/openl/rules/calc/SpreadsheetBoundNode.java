@@ -72,7 +72,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 spreadsheet.getColumnNamesMarkedWithAsterisk(),
                 spreadsheet.getRowTitles(),
                 spreadsheet.getColumnTitles(),
-                getModule());
+                getModule(),
+                spreadsheet.isVerbose());
 
             customSpreadsheetResultOpenClass
                 .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
@@ -119,6 +120,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
+
+        spreadsheet.setVerbose(Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getVerboseOutputModel()));
 
         validateRowsColumnsWithAsterisks(spreadsheet);
 

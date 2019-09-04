@@ -26,6 +26,8 @@ public class DefaultResultBuilder implements IResultBuilder {
             spreadsheet.getColumnNamesMarkedWithAsterisk(),
             spreadsheet.getFieldsCoordinates());
 
+        spreadsheetBean.setVerbose(spreadsheet.isVerbose());
+
         if (spreadsheet.isCustomSpreadsheetType()) {
             spreadsheetBean
                 .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());

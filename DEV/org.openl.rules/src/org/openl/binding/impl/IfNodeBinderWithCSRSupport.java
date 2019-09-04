@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.component.ComponentBindingContext;
-import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultField;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.syntax.ISyntaxNode;
@@ -24,7 +22,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
     private static String getIfCSRTypeName(CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
         return "IfNode" + type1.getName() + "And" + type2.getName() + "_" + type1.getName()
-            .hashCode() + "_ " + type2.getName().hashCode();
+            .hashCode() + "_" + type2.getName().hashCode();
     }
 
     private static CustomSpreadsheetResultOpenClass merge(IBindingContext bindingContext,
@@ -68,7 +66,8 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             columnNamesMarkedWithAsterisk.toArray(new String[] {}),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
-            type1.getModule());
+            type1.getModule(),
+            false);
 
         Map<String, IOpenField> fields1 = type1.getFields();
         Map<String, IOpenField> fields2 = type2.getFields();

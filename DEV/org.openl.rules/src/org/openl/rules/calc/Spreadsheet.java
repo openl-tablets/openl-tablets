@@ -42,6 +42,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private String[] rowTitles;
 
     private String[] columnTitles;
+    
+    private boolean verbose;
 
     /**
      * Type of the Spreadsheet with all its fields Is some type of internal. Is used on calculating the results of the
@@ -188,6 +190,14 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public String[] getColumnNames() {
         return columnNames;
+    }
+    
+    public boolean isVerbose() {
+        return verbose;
+    }
+    
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 
     @Override

@@ -309,11 +309,14 @@ public class RunITest {
         validateCSRElementsCountWadl(root, xpath, "SprTwoTwo1", 1);
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo1", "Step1");
 
-        validateCSRElementsCountWadl(root, xpath, "SprTwoTwo2", 4);
+        validateCSRElementsCountWadl(root, xpath, "SprTwoTwo2", 7);
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Formula_Step1");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Formula_Step2");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step1");
         validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "Values_Step2");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "columnNames");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "rowNames");
+        validateCSRElementNameWadl(root, xpath, "SprTwoTwo2", "fieldNames");
 
         validateCSRElementsCountWadl(root, xpath, "SprWithEmptyColumn", 2);
         validateCSRElementNameWadl(root, xpath, "SprWithEmptyColumn", "_");
@@ -420,6 +423,15 @@ public class RunITest {
         validateCSRElementNameWsdl(root, xpath, "SprTwoTwo", "Values_Step1");
         validateCSRElementNameWsdl(root, xpath, "SprTwoTwo", "Values_Step2");
 
+        validateCSRElementsCountWsdl(root, xpath, "SprTwoTwo2", 7);
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "Formula_Step1");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "Formula_Step2");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "Values_Step1");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "Values_Step2");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "columnNames");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "rowNames");
+        validateCSRElementNameWsdl(root, xpath, "SprTwoTwo2", "fieldNames");
+        
         validateCSRElementsCountWsdl(root, xpath, "SprWithEmptyColumn", 2);
         validateCSRElementNameWsdl(root, xpath, "SprWithEmptyColumn", "_");
         validateCSRElementNameWsdl(root, xpath, "SprWithEmptyColumn", "Values");

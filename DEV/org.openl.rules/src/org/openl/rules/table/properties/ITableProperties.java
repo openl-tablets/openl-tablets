@@ -192,6 +192,8 @@ public interface ITableProperties {
     void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
     java.lang.String getPrecision();
     void setPrecision(java.lang.String precision);
+    java.lang.Boolean getVerboseOutputModel();
+    void setVerboseOutputModel(java.lang.Boolean verboseOutputModel);
     java.lang.Boolean getAutoType();
     void setAutoType(java.lang.Boolean autoType);
     java.lang.Boolean getCalculateAllCells();

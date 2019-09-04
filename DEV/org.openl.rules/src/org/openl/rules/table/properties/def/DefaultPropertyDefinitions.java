@@ -16,7 +16,7 @@ public class DefaultPropertyDefinitions {
 
     static {
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[37];
+		definitions = new TablePropertyDefinition[38];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -466,13 +466,13 @@ public class DefaultPropertyDefinitions {
 		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[33] = new TablePropertyDefinition();
-		definitions[33].setDefaultValue("true");
-		definitions[33].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
+		definitions[33].setDefaultValue("false");
+		definitions[33].setDescription("Controls generation additional fields in an output model for the Spreadsheet.");
 		definitions[33].setDimensional(false);
-		definitions[33].setDisplayName("Auto Type Discovery");
+		definitions[33].setDisplayName("Verbose Output Model");
 		definitions[33].setGroup("Dev");
 		definitions[33].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[33].setName("autoType");
+		definitions[33].setName("verboseOutputModel");
 		definitions[33].setPrimaryKey(false);
 		definitions[33].setSecurityFilter("no");
 		definitions[33].setSystem(false);
@@ -480,45 +480,58 @@ public class DefaultPropertyDefinitions {
 		definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[34] = new TablePropertyDefinition();
 		definitions[34].setDefaultValue("true");
-		definitions[34].setDescription("If true calculates all cells in the Spreadsheet, otherwise calculates only cells"
-		 + " these are requred for a result. By default = true.");
+		definitions[34].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
 		definitions[34].setDimensional(false);
-		definitions[34].setDisplayName("Calculate All Cells");
+		definitions[34].setDisplayName("Auto Type Discovery");
 		definitions[34].setGroup("Dev");
 		definitions[34].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[34].setName("calculateAllCells");
+		definitions[34].setName("autoType");
 		definitions[34].setPrimaryKey(false);
 		definitions[34].setSecurityFilter("no");
 		definitions[34].setSystem(false);
 		definitions[34].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[35] = new TablePropertyDefinition();
-		definitions[35].setDefaultValue("false");
-		definitions[35].setDescription("Controls parallel execution feature. By default = false.");
+		definitions[35].setDefaultValue("true");
+		definitions[35].setDescription("If true calculates all cells in the Spreadsheet, otherwise calculates only cells"
+		 + " these are requred for a result. By default = true.");
 		definitions[35].setDimensional(false);
-		definitions[35].setDisplayName("Concurrent Execution");
+		definitions[35].setDisplayName("Calculate All Cells");
 		definitions[35].setGroup("Dev");
 		definitions[35].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[35].setName("parallel");
+		definitions[35].setName("calculateAllCells");
 		definitions[35].setPrimaryKey(false);
 		definitions[35].setSecurityFilter("no");
 		definitions[35].setSystem(false);
-		definitions[35].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[35].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[36] = new TablePropertyDefinition();
-		definitions[36].setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getNature()"));
-		definitions[36].setDescription("Nature (type) for which this table works and should be used");
-		definitions[36].setDimensional(true);
-		definitions[36].setDisplayName("Nature");
-		definitions[36].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(nature)"));
-		definitions[36].setGroup("Business Dimension");
+		definitions[36].setDefaultValue("false");
+		definitions[36].setDescription("Controls parallel execution feature. By default = false.");
+		definitions[36].setDimensional(false);
+		definitions[36].setDisplayName("Concurrent Execution");
+		definitions[36].setGroup("Dev");
 		definitions[36].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[36].setName("nature");
+		definitions[36].setName("parallel");
 		definitions[36].setPrimaryKey(false);
-		definitions[36].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[36].setSecurityFilter("no");
 		definitions[36].setSystem(false);
 		definitions[36].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
-		definitions[36].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[36].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[37] = new TablePropertyDefinition();
+		definitions[37].setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getNature()"));
+		definitions[37].setDescription("Nature (type) for which this table works and should be used");
+		definitions[37].setDimensional(true);
+		definitions[37].setDisplayName("Nature");
+		definitions[37].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(nature)"));
+		definitions[37].setGroup("Business Dimension");
+		definitions[37].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[37].setName("nature");
+		definitions[37].setPrimaryKey(false);
+		definitions[37].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[37].setSystem(false);
+		definitions[37].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

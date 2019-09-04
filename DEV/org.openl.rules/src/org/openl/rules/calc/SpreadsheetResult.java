@@ -40,13 +40,15 @@ public class SpreadsheetResult implements Serializable {
     private String[] rowNames;
     private transient String[] rowNamesMarkedWithAsterisk;
     private transient String[] columnNamesMarkedWithAsterisk;
-    private transient Map<String, Point> fieldsCoordinates;
+    transient Map<String, Point> fieldsCoordinates;
+    
+    private boolean verbose;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     private transient ILogicalTable logicalTable;
-
+    
     /**
      * Spreadsheet open class. This filed is used for output bean generation.
      */
@@ -183,6 +185,15 @@ public class SpreadsheetResult implements Serializable {
 
     public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
         this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
+    }
+    
+    @XmlTransient
+    public boolean isVerbose() {
+        return verbose;
+    }
+    
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
 
     public Object getValue(int row, int column) {

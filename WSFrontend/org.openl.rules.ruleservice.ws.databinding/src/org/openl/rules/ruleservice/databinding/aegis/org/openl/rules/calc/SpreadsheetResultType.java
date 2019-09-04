@@ -48,7 +48,8 @@ public class SpreadsheetResultType extends BeanType {
                 "logicalTable",
                 "customSpreadsheetResultOpenClass",
                 "rowNamesMarkedWithAsterisk",
-                "columnNamesMarkedWithAsterisk")));
+                "columnNamesMarkedWithAsterisk",
+                "verbose")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

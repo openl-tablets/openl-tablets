@@ -56,7 +56,7 @@ public class JacksonObjectMapperFactoryBean {
             secondaryIntropsector);
 
         mapper.setAnnotationIntrospector(introspector);
-
+        
         if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         } else {
