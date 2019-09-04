@@ -87,6 +87,12 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         }
     }
 
+    @Override
+    public void setShowEqualElements(boolean showEqualElements) {
+        super.setShowEqualElements(showEqualElements);
+        setDiffTree(getRichDiffTree().getDiffTreeNode());
+    }
+
     private void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
         if (treeComponent instanceof UITree) {
@@ -116,6 +122,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setFilesToCompare(Collections.emptyList());
         deleteTempFiles();
         setDiffTree(null);
+        super.setShowEqualElements(false);
     }
 
     public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
