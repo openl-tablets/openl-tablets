@@ -79,7 +79,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 FileItem our = userWorkspace.getLocalWorkspace().getRepository().read(localName);
                 File ourFile = createTempFile(our, localName);
 
-                compare(Arrays.asList(ourFile, theirFile));
+                compare(Arrays.asList(theirFile, ourFile));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -96,7 +96,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private File createTempFile(FileItem item, String fullName) throws FileNotFoundException {
         if (item == null) {
-            throw new FileNotFoundException("File " + fullName + " is not found");
+            return null;
         }
         File ourFile = FileTool.toTempFile(item.getStream(), FileUtils.getName(fullName));
         if (ourFile == null) {

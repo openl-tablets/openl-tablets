@@ -331,10 +331,6 @@ public class MergeConflictBean {
         return FileTypeHelper.isExcelFile(file);
     }
 
-    public boolean canCompare(String name, String version) {
-        return hasLocalFile(name) && hasRepositoryFile(name, version);
-    }
-
     public boolean hasLocalFile(String name) {
         try {
             String rulesLocation = getRulesLocation();
