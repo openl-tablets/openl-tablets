@@ -2,6 +2,7 @@ package org.openl.rules.util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A set of util methods to work with arrays.
@@ -114,6 +115,10 @@ public final class Arrays {
 
     public static int length(Collection<?> array) {
         return array == null ? 0 : array.size();
+    }
+
+    public static int length(Map<?, ?> map) {
+        return map == null ? 0 : map.size();
     }
 
     public static int length(byte[] array) {
