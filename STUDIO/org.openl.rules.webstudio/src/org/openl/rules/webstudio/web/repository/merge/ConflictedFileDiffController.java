@@ -79,12 +79,18 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 FileItem our = userWorkspace.getLocalWorkspace().getRepository().read(localName);
                 File ourFile = createTempFile(our, localName);
 
-                compare(Arrays.asList(ourFile, theirFile));
+                compare(Arrays.asList(theirFile, ourFile));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new ValidationException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void setShowEqualElements(boolean showEqualElements) {
+        super.setShowEqualElements(showEqualElements);
+        setDiffTree(getRichDiffTree().getDiffTreeNode());
     }
 
     private void clearTreeSelection() {
@@ -96,7 +102,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private File createTempFile(FileItem item, String fullName) throws FileNotFoundException {
         if (item == null) {
-            throw new FileNotFoundException("File " + fullName + " is not found");
+            return null;
         }
         File ourFile = FileTool.toTempFile(item.getStream(), FileUtils.getName(fullName));
         if (ourFile == null) {
@@ -116,6 +122,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setFilesToCompare(Collections.emptyList());
         deleteTempFiles();
         setDiffTree(null);
+        super.setShowEqualElements(false);
     }
 
     public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {

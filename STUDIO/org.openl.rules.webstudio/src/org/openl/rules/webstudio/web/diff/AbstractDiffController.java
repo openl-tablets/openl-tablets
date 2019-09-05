@@ -141,6 +141,11 @@ public abstract class AbstractDiffController {
                 continue;
             }
 
+            // Skip empty sheets
+            if (node.getType().equals(XlsProjectionType.SHEET.name()) && node.isLeaf()) {
+                continue;
+            }
+
             parent.addChild(String.valueOf(idGenerator.getAndIncrement()), node);
 
             // props

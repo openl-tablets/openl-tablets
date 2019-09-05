@@ -8,8 +8,11 @@ import java.util.List;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExcelDiffController extends AbstractDiffController {
+    private final Logger log = LoggerFactory.getLogger(ExcelDiffController.class);
 
     /**
      * Max files count to compare.
@@ -38,6 +41,7 @@ public class ExcelDiffController extends AbstractDiffController {
                 DiffTreeNode diffTree = x.diffFiles(file1, file2);
                 setDiffTree(diffTree);
             } catch (Exception e) {
+                log.warn(e.getMessage(), e);
                 FacesUtils.addErrorMessage(e.getMessage());
             }
 

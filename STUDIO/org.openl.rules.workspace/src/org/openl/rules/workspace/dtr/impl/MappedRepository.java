@@ -459,6 +459,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private FileItem toExternal(Map<String, String> externalToInternal, FileItem internal) {
+        if (internal == null) {
+            return null;
+        }
         return new FileItem(toExternal(externalToInternal, internal.getData()), internal.getStream());
     }
 
@@ -634,7 +637,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             setExternalToInternal(currentMapping);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            setExternalToInternal(Collections.<String, String> emptyMap());
+            setExternalToInternal(Collections.emptyMap());
         }
     }
 

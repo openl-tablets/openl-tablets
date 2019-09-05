@@ -85,13 +85,16 @@ public class XlsDiff2 {
     }
 
     private void load(File xlsFile1, File xlsFile2) {
-        URL url1 = URLSourceCodeModule.toUrl(xlsFile1);
-        URL url2 = URLSourceCodeModule.toUrl(xlsFile2);
-        IOpenSourceCodeModule src1 = new URLSourceCodeModule(url1);
-        IOpenSourceCodeModule src2 = new URLSourceCodeModule(url2);
-
-        tables1 = load(src1);
-        tables2 = load(src2);
+        if (xlsFile1 == null) {
+            tables1 = Collections.emptyList();
+        } else {
+            tables1 = load(new URLSourceCodeModule(URLSourceCodeModule.toUrl(xlsFile1)));
+        }
+        if (xlsFile2 == null) {
+            tables2 = Collections.emptyList();
+        } else {
+            tables2 = load(new URLSourceCodeModule(URLSourceCodeModule.toUrl(xlsFile2)));
+        }
     }
 
     private void add(String guess, DiffPair r) {
@@ -225,7 +228,7 @@ public class XlsDiff2 {
 
     private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
         // TODO Review the algorithm. Seems like it is not optimal.
-        boolean matched[] = new boolean[grid1.getHeight()];
+        boolean[] matched = new boolean[grid1.getHeight()];
         int[] match2 = new int[grid1.getHeight()];
         // The getDiffsCount() is used instead of map to prevent OutOfMemoryError. Not so fast but less
         // memory-consumptive.

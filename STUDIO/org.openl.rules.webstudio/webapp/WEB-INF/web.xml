@@ -156,11 +156,6 @@
   </filter-mapping>
 
   <listener>
-    <!-- Set webapp.root property -->
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-  </listener>
-
-  <listener>
     <listener-class>org.openl.rules.webstudio.web.servlet.StartupListener</listener-class>
   </listener>
 
