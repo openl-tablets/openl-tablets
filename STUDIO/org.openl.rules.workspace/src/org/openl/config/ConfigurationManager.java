@@ -94,19 +94,9 @@ public class ConfigurationManager implements PropertiesHolder {
         PropertiesConfiguration configuration = null;
         if (configLocation != null) {
             try {
-                if (createIfNotExist) {
-                    String webHome = System.getProperty("webstudio.home");
-                    File file;
-                    if (webHome != null && configLocation.contains(webHome)) {
-                        file = new File(configLocation);
-                    } else {
-                        URL resource = ConfigurationManager.class.getClassLoader().getResource(configLocation);
-                        if (resource == null) {
-                            // Configuration isn't found. Skip it
-                            return null;
-                        }
-                        file = new File(resource.getFile());
-                    }
+                String webHome = System.getProperty("webstudio.home");
+                if (createIfNotExist && (webHome != null && configLocation.contains(webHome))) {
+                    File file = new File(configLocation);
                     configuration = new PropertiesConfiguration();
                     configuration.setDelimiterParsingDisabled(true);
                     configuration.setFile(file);
