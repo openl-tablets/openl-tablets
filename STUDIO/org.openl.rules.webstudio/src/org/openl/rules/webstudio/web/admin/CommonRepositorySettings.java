@@ -5,6 +5,7 @@ import java.io.File;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -95,8 +96,8 @@ public class CommonRepositorySettings extends RepositorySettings {
         switch (repositoryType) {
             case LOCAL:
                 return defaultLocalUri != null ? defaultLocalUri
-                                               : System.getProperty(
-                                                   "webstudio.home") + File.separator + type + "-repository";
+                                               : PreferencesManager.INSTANCE
+                                                   .getWebStudioHomeDir() + File.separator + type + "-repository";
             case RMI:
                 return "//localhost:1099/" + type + "-repository";
             case WEBDAV:

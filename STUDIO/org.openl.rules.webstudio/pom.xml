@@ -87,6 +87,7 @@
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
                         <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
+                        <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                     <ignoredClassPatterns>
                         <!-- See https://github.com/basepom/duplicate-finder-maven-plugin/issues/33 -->

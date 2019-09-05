@@ -6,6 +6,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
@@ -61,8 +62,8 @@ public class GitRepositorySettings extends RepositorySettings {
 
         String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
-                                                    : System.getProperty(
-                                                        "webstudio.home") + File.separator + type + "-repository";
+                                                    : PreferencesManager.INSTANCE
+                                                        .getWebStudioHomeDir() + File.separator + type + "-repository";
 
         uri = configManager.getStringProperty(URI);
         login = configManager.getStringProperty(LOGIN);
