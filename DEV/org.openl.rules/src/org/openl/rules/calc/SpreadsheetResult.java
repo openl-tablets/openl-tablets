@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -18,6 +19,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -35,20 +37,20 @@ public class SpreadsheetResult implements Serializable {
     private static final int MAX_DEPTH = 2;
     private static final int MAX_VALUE_LENGTH = 10 * 1024;
 
-    private Object[][] results;
-    private String[] columnNames;
-    private String[] rowNames;
-    private transient String[] rowNamesMarkedWithAsterisk;
-    private transient String[] columnNamesMarkedWithAsterisk;
+    Object[][] results;
+    String[] columnNames;
+    String[] rowNames;
+    transient String[] rowNamesMarkedWithAsterisk;
+    transient String[] columnNamesMarkedWithAsterisk;
     transient Map<String, Point> fieldsCoordinates;
-    
-    private boolean verbose;
+
+    boolean verbose;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     private transient ILogicalTable logicalTable;
-    
+
     /**
      * Spreadsheet open class. This filed is used for output bean generation.
      */
@@ -186,12 +188,12 @@ public class SpreadsheetResult implements Serializable {
     public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
         this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
     }
-    
+
     @XmlTransient
     public boolean isVerbose() {
         return verbose;
     }
-    
+
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
@@ -398,24 +400,57 @@ public class SpreadsheetResult implements Serializable {
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
-            for (int i = 0; i < rowNamesMarkedWithAsterisk.length; i++) {
-                for (int j = 0; j < columnNamesMarkedWithAsterisk.length; j++) {
-                    if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
-                        if (nonNullsColumnsCount == 1) {
-                            values.put(rowNamesMarkedWithAsterisk[i],
-                                convertSpreadsheetResults(module, getValue(i, j)));
-                        } else if (nonNullsRowsCount == 1) {
-                            values.put(columnNamesMarkedWithAsterisk[j],
-                                convertSpreadsheetResults(module, getValue(i, j)));
-                        } else {
-                            StringBuilder sb = new StringBuilder();
-                            sb.append(columnNamesMarkedWithAsterisk[j])
-                                .append("_")
-                                .append(rowNamesMarkedWithAsterisk[i]);
-                            values.put(sb.toString(), convertSpreadsheetResults(module, getValue(i, j)));
+            String[][] fieldNames = verbose ? new String[rowNames.length][columnNames.length] : null;
+            if (customSpreadsheetResultOpenClass != null) {
+                CustomSpreadsheetResultOpenClass csrt;
+                if (module != null) {
+                    csrt = (CustomSpreadsheetResultOpenClass) module
+                        .findType(customSpreadsheetResultOpenClass.getName());
+                } else {
+                    csrt = customSpreadsheetResultOpenClass;
+                }
+                for (Map.Entry<String, List<IOpenField>> e : csrt.getBeanFieldsMap().entrySet()) {
+                    List<IOpenField> openFields = e.getValue();
+                    for (IOpenField openField : openFields) {
+                        Point p = fieldsCoordinates.get(openField.getName());
+                        if (p != null && columnNamesMarkedWithAsterisk[p
+                            .getColumn()] != null && rowNamesMarkedWithAsterisk[p.getRow()] != null) {
+                            values.put(e.getKey(),
+                                convertSpreadsheetResults(module, getValue(p.getRow(), p.getColumn())));
+                            if (verbose) {
+                                fieldNames[p.getRow()][p.getColumn()] = e.getKey();
+                            }
                         }
                     }
                 }
+            } else {
+                for (int i = 0; i < rowNamesMarkedWithAsterisk.length; i++) {
+                    for (int j = 0; j < columnNamesMarkedWithAsterisk.length; j++) {
+                        if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
+                            String fName = null;
+                            if (nonNullsColumnsCount == 1) {
+                                fName = rowNamesMarkedWithAsterisk[i];
+                            } else if (nonNullsRowsCount == 1) {
+                                fName = columnNamesMarkedWithAsterisk[j];
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append(columnNamesMarkedWithAsterisk[j])
+                                    .append("_")
+                                    .append(rowNamesMarkedWithAsterisk[i]);
+                                fName = sb.toString();
+                            }
+                            values.put(fName, convertSpreadsheetResults(module, getValue(i, j)));
+                            if (verbose) {
+                                fieldNames[i][j] = fName;
+                            }
+                        }
+                    }
+                }
+            }
+            if (verbose) {
+                values.put(values.containsKey("fieldNames") ? "$fieldNames" : "fieldNames", fieldNames);
+                values.put(values.containsKey("rowNames") ? "$rowNames" : "rowNames", rowNames);
+                values.put(values.containsKey("columnNames") ? "$columnNames" : "columnNames", columnNames);
             }
         }
         return values;

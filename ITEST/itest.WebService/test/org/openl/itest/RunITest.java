@@ -509,7 +509,7 @@ public class RunITest {
             .exchange("/mySpr", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"CA\"}"), String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        assertEquals("{\"Step1\":null,\"Step2\":null}", response.getBody());
+        assertEquals("{\"Step1\":null,\"Step2\":4.0}", response.getBody());
 
         response = simple3RestClient
             .exchange("/mySpr2", HttpMethod.POST, RestClientFactory.request("{\"usState\": \"AZ\"}"), String.class);
