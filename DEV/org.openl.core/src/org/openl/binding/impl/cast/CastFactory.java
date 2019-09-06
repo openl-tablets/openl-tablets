@@ -99,7 +99,12 @@ public class CastFactory implements ICastFactory {
             IOpenClass openClass2,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
-
+        if (NullOpenClass.the.equals(openClass1)) {
+            return openClass2;
+        }
+        if (NullOpenClass.the.equals(openClass2)) {
+            return openClass1;
+        }
         openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); // AliasDatatypes support
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
 
