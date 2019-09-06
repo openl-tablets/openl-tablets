@@ -23,7 +23,7 @@ public class OpenLJUnitTest {
         assertEquals(6, tests.length);
 
         Object target = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-
+        int cnt = 0;
         for (TestSuiteMethod testSuiteMethod : tests) {
             TestUnitsResults res = (TestUnitsResults) testSuiteMethod
                 .invoke(target, new Object[0], new SimpleRulesVM().getRuntimeEnv());
@@ -36,12 +36,14 @@ public class OpenLJUnitTest {
                     assertTrue(testUnit.getErrors()
                         .get(0)
                         .getSummary()
-                        .contains("Object '0' is outside of a valid domain") || testUnit.getErrors()
+                        .contains("Object '0' is outside of valid domain") || testUnit.getErrors()
                             .get(0)
                             .getSummary()
-                            .contains("Object '0.0' is outside of a valid domain"));
+                            .contains("Object '0.0' is outside of valid domain"));
+                    cnt++;
                 }
             }
         }
+        assertEquals(12, cnt);
     }
 }

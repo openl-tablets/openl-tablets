@@ -34,6 +34,18 @@ public class Comparison {
 
     // Equals
     public static boolean eq(boolean x, boolean y) {
+        return x == y; 
+    }
+    
+    public static boolean eq(byte x, byte y) {
+        return x == y;
+    }
+
+    public static boolean eq(char x, char y) {
+        return x == y;
+    }
+
+    public static boolean eq(short x, short y) {
         return x == y;
     }
 
@@ -105,6 +117,18 @@ public class Comparison {
         return !eq(x, y);
     }
 
+    public static boolean ne(byte x, byte y) {
+        return !eq(x, y);
+    }
+
+    public static boolean ne(char x, char y) {
+        return !eq(x, y);
+    }
+
+    public static boolean ne(short x, short y) {
+        return !eq(x, y);
+    }
+
     public static boolean ne(int x, int y) {
         return !eq(x, y);
     }
@@ -144,6 +168,18 @@ public class Comparison {
     // Greater Than
     public static boolean gt(boolean x, boolean y) {
         return x && !y;
+    }
+
+    public static boolean gt(byte x, byte y) {
+        return x > y;
+    }
+
+    public static boolean gt(char x, char y) {
+        return x > y;
+    }
+    
+    public static boolean gt(short x, short y) {
+        return x > y;
     }
 
     public static boolean gt(int x, int y) {
@@ -197,6 +233,18 @@ public class Comparison {
         return gt(y, x);
     }
 
+    public static boolean lt(byte x, byte y) {
+        return gt(y, x);
+    }
+
+    public static boolean lt(char x, char y) {
+        return gt(y, x);
+    }
+
+    public static boolean lt(short x, short y) {
+        return gt(y, x);
+    }
+
     public static boolean lt(int x, int y) {
         return gt(y, x);
     }
@@ -228,6 +276,18 @@ public class Comparison {
     // Greater or Equals Than
     public static boolean ge(boolean x, boolean y) {
         return x || !y;
+    }
+
+    public static boolean ge(byte x, byte y) {
+        return x >= y;
+    }
+
+    public static boolean ge(char x, char y) {
+        return x >= y;
+    }
+    
+    public static boolean ge(short x, short y) {
+        return x >= y;
     }
 
     public static boolean ge(int x, int y) {
@@ -279,6 +339,18 @@ public class Comparison {
     }
 
     public static boolean le(boolean x, boolean y) {
+        return ge(y, x);
+    }
+
+    public static boolean le(byte x, byte y) {
+        return ge(y, x);
+    }
+
+    public static boolean le(char x, char y) {
+        return ge(y, x);
+    }
+
+    public static boolean le(short x, short y) {
         return ge(y, x);
     }
 

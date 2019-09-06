@@ -1,5 +1,7 @@
 package org.openl.binding.impl.cast;
 
+import java.lang.reflect.Array;
+
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
 import org.openl.util.DomainUtils;
@@ -39,9 +41,12 @@ final class TypeToAliasCast implements IOpenCast {
         if (typeCast != null) {
             from = typeCast.convert(from);
         }
-
         if (from == null) {
-            return null;
+            if (toClass.getInstanceClass().isPrimitive()) {
+                from = Array.get(Array.newInstance(toClass.getInstanceClass(), 1), 0);
+            } else {
+                return null;
+            }
         }
 
         @SuppressWarnings("rawtypes")
