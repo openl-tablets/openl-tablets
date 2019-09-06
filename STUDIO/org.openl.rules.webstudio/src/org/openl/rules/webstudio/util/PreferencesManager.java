@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -13,16 +14,30 @@ public enum PreferencesManager {
     INSTANCE;
 
     private static final String WEBSTUDIO_WORKING_DIR_KEY = "webstudio.home";
+    private static final String WEBSTUDIO_CONFIGURED_MARKER = "webStudioConfigured.txt";
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
     public boolean isAppConfigured() {
         String homePath = readValue(WEBSTUDIO_WORKING_DIR_KEY);
-        return homePath != null && !isDirEmpty(homePath);
+        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
+        return configuredMarker.exists();
     }
 
     public void setWebStudioHomeDir(String workingDir) {
         System.setProperty("webstudio.home", workingDir);
         writeValue(WEBSTUDIO_WORKING_DIR_KEY, workingDir);
+    }
+
+    public void webStudioConfigured() {
+        String homePath = readValue(WEBSTUDIO_WORKING_DIR_KEY);
+        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
+        try {
+            if (!configuredMarker.exists()) {
+                configuredMarker.createNewFile();
+            }
+        } catch (IOException e) {
+            log.error("cannot create configured file", e);
+        }
     }
 
     public String getWebStudioHomeDir() {
@@ -41,20 +56,12 @@ public enum PreferencesManager {
         Preferences node = Preferences.userRoot().node(applicationNodePath);
         node.put(key, value);
         try {
-            //guard against loss in case of abnormal termination of the VM
-            //in case of normal VM termination, the flush method is not required
+            // guard against loss in case of abnormal termination of the VM
+            // in case of normal VM termination, the flush method is not required
             node.flush();
         } catch (BackingStoreException e) {
             log.error("cannot save preferences value", e);
         }
-    }
-
-    private boolean isDirEmpty(String dirPath) {
-        File directory = new File(dirPath);
-        if (!directory.isDirectory()) {
-            return true;
-        }
-        return directory.listFiles().length == 0;
     }
 
     private String getApplicationNode() {

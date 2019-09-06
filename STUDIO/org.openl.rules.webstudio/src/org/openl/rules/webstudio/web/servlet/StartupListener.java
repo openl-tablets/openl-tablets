@@ -41,21 +41,6 @@ public class StartupListener implements ServletContextListener {
 
         boolean configured = Boolean.parseBoolean(System.getProperty("webstudio.configured"));
 
-        String webStudioHomeDirProp = System.getProperty("webstudio.home");
-        String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
-
-        if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
-            String webStudioHome = System.getProperty("user.home") + File.separator + ".openl";
-            System.setProperty("webstudio.home", webStudioHome);
-            PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
-        } else {
-            if (webStudioHomeDirPref != null) {
-                System.setProperty("webstudio.home", webStudioHomeDirPref);
-            } else {
-                PreferencesManager.INSTANCE.setWebStudioHomeDir(System.getProperty("webstudio.home"));
-            }
-        }
-
         if (!configured) {
             configured = PreferencesManager.INSTANCE.isAppConfigured();
         }
@@ -66,7 +51,6 @@ public class StartupListener implements ServletContextListener {
         if (webStudioMode == null) {
             System.setProperty("webstudio.mode", configured ? "webstudio" : "installer");
         }
-
         // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
         // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded
         // directly
@@ -75,16 +59,31 @@ public class StartupListener implements ServletContextListener {
         // later when configuration will be finished.
         if (configured) {
             ConfigurationManager systemConfig = new ConfigurationManager(
-                PreferencesManager.INSTANCE.getWebStudioHomeDir() + "/system-settings/system.properties",
-                "system.properties");
+                    PreferencesManager.INSTANCE.getWebStudioHomeDir() + "/system-settings/system.properties",
+                    "system.properties");
 
             String userMode = systemConfig.getStringProperty("user.mode");
             System.setProperty("user.mode", userMode);
 
             String repoPassKey = StringUtils
-                .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+                    .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
             // Make it globally available. It will not be changed during application execution.
             System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
+        }else{
+            String webStudioHomeDirProp = System.getProperty("webstudio.home");
+            String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
+
+            if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
+                String webStudioHome = System.getProperty("user.home") + File.separator + ".openl";
+                System.setProperty("webstudio.home", webStudioHome);
+                PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
+            } else {
+                if (webStudioHomeDirPref != null) {
+                    System.setProperty("webstudio.home", webStudioHomeDirPref);
+                } else {
+                    PreferencesManager.INSTANCE.setWebStudioHomeDir(System.getProperty("webstudio.home"));
+                }
+            }
         }
     }
 
