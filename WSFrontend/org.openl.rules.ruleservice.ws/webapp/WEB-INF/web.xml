@@ -18,7 +18,7 @@
         <filter-class>org.openl.rules.ruleservice.servlet.RuleServiceRedeployLockFilter</filter-class>
         <init-param>
             <param-name>ignorePrefixes</param-name>
-            <param-value>/rules/deploy,/admin</param-value>
+            <param-value>/admin</param-value>
         </init-param>
     </filter>
 
