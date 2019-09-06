@@ -69,22 +69,23 @@ public class StartupListener implements ServletContextListener {
                     .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
             // Make it globally available. It will not be changed during application execution.
             System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
-        }else{
-            String webStudioHomeDirProp = System.getProperty("webstudio.home");
-            String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
+        }
+        
+        String webStudioHomeDirProp = System.getProperty("webstudio.home");
+        String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
 
-            if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
-                String webStudioHome = System.getProperty("user.home") + File.separator + ".openl";
-                System.setProperty("webstudio.home", webStudioHome);
-                PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
+        if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
+            String webStudioHome = System.getProperty("user.home") + File.separator + ".openl";
+            System.setProperty("webstudio.home", webStudioHome);
+            PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
+        } else {
+            if (webStudioHomeDirProp != null) {
+                PreferencesManager.INSTANCE.setWebStudioHomeDir(System.getProperty("webstudio.home"));
             } else {
-                if (webStudioHomeDirPref != null) {
-                    System.setProperty("webstudio.home", webStudioHomeDirPref);
-                } else {
-                    PreferencesManager.INSTANCE.setWebStudioHomeDir(System.getProperty("webstudio.home"));
-                }
+                System.setProperty("webstudio.home", webStudioHomeDirPref);
             }
         }
+
     }
 
     @Override
