@@ -43,6 +43,8 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             return RulesDeploy.PublisherType.RESTFUL;
                         case RMI:
                             return RulesDeploy.PublisherType.RMI;
+                        case KAFKA:
+                            return RulesDeploy.PublisherType.KAFKA;
                         default:
                             throw new IllegalArgumentException();
                     }
@@ -91,6 +93,8 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             return RulesDeploy_v5_17.PublisherType.RESTFUL;
                         case RMI:
                             return RulesDeploy_v5_17.PublisherType.RMI;
+                        case KAFKA:
+                            return RulesDeploy_v5_17.PublisherType.KAFKA;
                         default:
                             throw new IllegalArgumentException();
                     }

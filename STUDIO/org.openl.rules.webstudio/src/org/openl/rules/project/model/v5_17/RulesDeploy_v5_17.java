@@ -7,7 +7,8 @@ public class RulesDeploy_v5_17 {
     public enum PublisherType {
         WEBSERVICE,
         RESTFUL,
-        RMI
+        RMI,
+        KAFKA
     }
 
     public static class WildcardPattern {
