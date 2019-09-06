@@ -96,9 +96,9 @@ public class ConfigurationManager implements PropertiesHolder {
             try {
                 String webHome = System.getProperty("webstudio.home");
                 if (createIfNotExist && (webHome != null && configLocation.contains(webHome))) {
-                    File file = new File(configLocation);
                     configuration = new PropertiesConfiguration();
                     configuration.setDelimiterParsingDisabled(true);
+                    File file = new File(configLocation);
                     configuration.setFile(file);
                     if (file.exists()) {
                         configuration.load();

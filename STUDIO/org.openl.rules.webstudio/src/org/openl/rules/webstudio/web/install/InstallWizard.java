@@ -392,6 +392,7 @@ public class InstallWizard {
 
             System.setProperty("user.mode", userMode);
             PreferencesManager.INSTANCE.setWebStudioHomeDir(workingDir);
+            PreferencesManager.INSTANCE.webStudioConfigured();
 
             destroyRepositoryObjects();
             destroyTemporaryContext();
