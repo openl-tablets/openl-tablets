@@ -216,7 +216,7 @@
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "rules/delete/" + serviceName, true);
+            xhr.open("DELETE", "admin/delete/" + serviceName, true);
             xhr.send();
         }
     }
@@ -232,7 +232,7 @@
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
-                xhr.open("PUT", "rules/deploy/", true);
+                xhr.open("PUT", "admin/deploy/", true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
             } else {
@@ -256,7 +256,7 @@
             window.URL.revokeObjectURL(url);
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open("GET", "rules/read/" + serviceName, true);
+        xhr.open("GET", "admin/read/" + serviceName, true);
         xhr.send();
     }
 
