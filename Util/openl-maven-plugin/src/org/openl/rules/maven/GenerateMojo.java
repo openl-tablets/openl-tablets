@@ -114,12 +114,12 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideVariations;
 
     /**
-     * Generate CSR classes
+     * Generate custom spreadsheet result bean classes
      *
      * @since 5.23.0
      */
     @Parameter
-    private boolean generateCSRBeans;
+    private boolean generateSpreadsheetResultBeans;
 
     /**
      * If you want to override some parameters, define them here.
@@ -294,8 +294,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate Java beans from OpenL dataTypes
             writeJavaBeans(openLRules.getTypes());
 
-            if (generateCSRBeans) {
-                writeCSRBeans(openLRules.getTypes());
+            if (generateSpreadsheetResultBeans) {
+                writeCustomSpreadsheetResultBeans(openLRules.getTypes());
             }
 
             // Generate interface is optional.
@@ -454,7 +454,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         return resourceDirectory;
     }
 
-    private void writeJavaBeans(Collection<IOpenClass> types) throws Exception {
+    private void writeJavaBeans(Collection<IOpenClass> types) {
         if (CollectionUtils.isNotEmpty(types)) {
             BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {
@@ -472,7 +472,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeCSRBeans(Collection<IOpenClass> types) throws Exception {
+    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) {
         if (CollectionUtils.isNotEmpty(types)) {
             BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {

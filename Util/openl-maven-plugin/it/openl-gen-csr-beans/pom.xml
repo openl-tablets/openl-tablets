@@ -20,7 +20,7 @@
                 <configuration>
                     <interfaceClass>com.example.Service</interfaceClass>
                     <threadCount>2.5C</threadCount>
-                    <generateCSRBeans>true</generateCSRBeans>
+                    <generateSpreadsheetResultBeans>true</generateSpreadsheetResultBeans>
                 </configuration>
                 <executions>
                     <execution>
