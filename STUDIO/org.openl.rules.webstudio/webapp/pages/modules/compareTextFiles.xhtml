@@ -13,6 +13,9 @@
       padding-right: 3px;
     }
   </style>
+  <link rel="stylesheet" type="text/css" href="#{contextPath}/css/diff2html.css"/>
+  <script type="text/javascript" src="#{contextPath}/javascript/diff2html.js"></script>
+
   <rich:popupPanel id="modalCompareTextFiles" resizeable="true">
     <f:facet name="header">
       <h:outputText value="Compare text files" />
@@ -25,27 +28,8 @@
     <div class="scrollable">
       <h:form id="compareTextFilesForm">
         <div style="width: 100%;" class="scrollable">
-          <ui:repeat value="#{conflictedFileDiffController.diffSets}" var="diffSet">
-            <h2>Lines #{diffSet.fromLine} - #{diffSet.toLine}</h2>
-            <table id="diff-table">
-              <ui:repeat value="#{diffSet.lines}" var="line">
-                <tr>
-                  <td>
-                    <div class="line-number" title="Their line #">#{line.type == 'YOUR' ? ' ' : line.theirLine}</div>
-                  </td>
-                  <td>
-                    <div class="line-number" title="Your line #">#{line.type == 'THEIR' ? ' ' : line.yourLine}</div>
-                  </td>
-                  <td>
-                    <h:panelGroup layout="block"
-                                  styleClass="source-code line-type-#{line.type.name().toLowerCase()} #{line.noEndOfFile ? 'line-type-no-eof' : ''}">
-                      <h:outputText value="#{line.text}"/>
-                    </h:panelGroup>
-                  </td>
-                </tr>
-              </ui:repeat>
-            </table>
-          </ui:repeat>
+          <h:inputHidden id="diffText" value="#{conflictedFileDiffController.diff}"/>
+          <div id="text-diff"></div>
         </div>
 
         <a4j:jsFunction name="refreshCompareTextFilesDialog" render="@form" oncomplete="showCompareTextFilesDialog();">
@@ -69,6 +53,11 @@
           width: $j(window).width() * 0.5,
           height: $j(window).height() * 0.5
         };
+        var diff = document.getElementById('compareTextFilesForm:diffText').value;
+        document.getElementById("text-diff").innerHTML = Diff2Html.getPrettyHtml(
+                diff,
+                {matching: 'lines', outputFormat: 'side-by-side', synchronisedScroll: true}
+        );
         RichFaces.$("modalCompareTextFiles").show(null, opts);
       }
       //]]>

@@ -2,12 +2,8 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -37,8 +33,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @ManagedBean
 @SessionScoped
 public class ConflictedFileDiffController extends ExcelDiffController {
-    private static final Pattern LINES_RANGE_PATTERN = Pattern
-        .compile("@@\\s*-(\\d+)(,\\d+)?\\s+\\+(\\d+)(,(\\d+))?\\s*@@");
     private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
     @ManagedProperty(value = "#{workspaceManager}")
@@ -129,83 +123,18 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         this.workspaceManager = workspaceManager;
     }
 
-    public List<DiffSet> getDiffSets() {
+    public String getDiff() {
         if (StringUtils.isBlank(conflictedFile) || isExcelFile(conflictedFile)) {
-            return Collections.emptyList();
+            return null;
         }
 
         MergeConflictInfo mergeConflict = getMergeConflict();
         if (mergeConflict != null) {
             MergeConflictException exception = mergeConflict.getException();
-            String diffText = exception.getDiffs().get(conflictedFile);
-            if (diffText == null) {
-                return Collections.emptyList();
-            }
-
-            List<DiffSet> result = new ArrayList<>();
-            String[] lines = diffText.split("\\r?\\n");
-
-            List<DiffLine> diffLines = new ArrayList<>();
-            int theirLine = 0;
-            int ourLine = 0;
-            DiffType previousType = null;
-            for (String line : lines) {
-                Matcher matcher = LINES_RANGE_PATTERN.matcher(line);
-                if (matcher.matches()) {
-                    diffLines = new ArrayList<>();
-                    theirLine = Integer.parseInt(matcher.group(1)) - 1;
-                    ourLine = Integer.parseInt(matcher.group(3)) - 1;
-                    String ourLineCountStr = matcher.group(5);
-                    int ourLineCount = ourLineCountStr.isEmpty() ? 1 : Integer.parseInt(ourLineCountStr);
-                    result.add(new DiffSet(diffLines, ourLine + 1, ourLine + ourLineCount));
-                } else {
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-                    char c = line.charAt(0);
-
-                    boolean noEndOfFile = false;
-                    DiffType type;
-                    switch (c) {
-                        case '-':
-                            type = DiffType.THEIR;
-                            theirLine++;
-                            previousType = type;
-                            break;
-                        case '+':
-                            type = DiffType.YOUR;
-                            ourLine++;
-                            previousType = type;
-                            break;
-                        case ' ':
-                            type = DiffType.COMMON;
-                            theirLine++;
-                            ourLine++;
-                            previousType = type;
-                            break;
-                        case '\\':
-                            type = previousType;
-                            if (type == DiffType.THEIR || type == DiffType.COMMON) {
-                                theirLine++;
-                            }
-                            if (type == DiffType.YOUR || type == DiffType.COMMON) {
-                                ourLine++;
-                            }
-                            noEndOfFile = true;
-                            break;
-                        default:
-                            log.warn("Line \"{}\" starts with unsupported character '{}'", line, c);
-                            type = DiffType.COMMON;
-                            break;
-                    }
-                    diffLines.add(new DiffLine(line.substring(1), theirLine, ourLine, type, noEndOfFile));
-                }
-            }
-
-            return result;
+            return exception.getDiffs().get(conflictedFile);
         }
 
-        return Collections.emptyList();
+        return null;
     }
 
     private MergeConflictInfo getMergeConflict() {
