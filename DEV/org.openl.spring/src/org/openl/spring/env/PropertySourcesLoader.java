@@ -109,12 +109,6 @@ import org.springframework.util.StringValueResolver;
  * <li>file:${openl.home}/{appName}-{profile}.properties</li>
  * </ol>
  * </li>
- * <li>OpenL loadProperties config. It is used to load initial configurations of this class.
- * <ol>
- * <li>classpath:openl-loadProperties-config.properties</li>
- * <li>${openl.config.loadProperties}</li>
- * </ol>
- * </li>
  * <li>Spring environment.
  * <ol>
  * <li>OS environment variables. {@link System#getenv()}</li>
