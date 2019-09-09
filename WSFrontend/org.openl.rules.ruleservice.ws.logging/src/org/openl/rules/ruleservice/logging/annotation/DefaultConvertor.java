@@ -1,12 +1,10 @@
 package org.openl.rules.ruleservice.logging.annotation;
 
-import java.util.Date;
-
 import org.openl.rules.ruleservice.logging.Convertor;
 
-public final class DefaultDateConvertor implements Convertor<Object, Date> {
+public final class DefaultConvertor implements Convertor<Object, Object> {
     @Override
-    public Date convert(Object value) {
+    public Object convert(Object value) {
         throw new UnsupportedOperationException();
     }
 }

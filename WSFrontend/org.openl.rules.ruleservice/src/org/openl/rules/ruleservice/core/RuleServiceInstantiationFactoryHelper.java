@@ -161,7 +161,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                         "Wrong return type for '{}' method in '{}' class is used. Return type is replaced to '{}'.",
                         MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                         serviceClass.getName(),
-                        entry.getValue().getKey().getSimpleName());
+                        entry.getValue().getKey().getTypeName());
                 }
             }
 
@@ -316,9 +316,9 @@ public final class RuleServiceInstantiationFactoryHelper {
         if (log.isWarnEnabled()) {
             log.warn(
                 "Method return type is not found for '{}.{}'. Please, make sure that @OpenMethodReturnType is used correctly in '{}' interceptor class.",
-                method.getClass().getSimpleName(),
+                method.getClass().getTypeName(),
                 MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
-                interceptorClass.getSimpleName());
+                interceptorClass.getTypeName());
         }
     }
 

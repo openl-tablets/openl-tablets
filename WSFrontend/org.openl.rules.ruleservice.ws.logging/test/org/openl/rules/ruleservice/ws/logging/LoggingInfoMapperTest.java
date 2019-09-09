@@ -9,8 +9,22 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.*;
-import org.openl.rules.ruleservice.logging.annotation.*;
+import org.openl.rules.ruleservice.logging.Convertor;
+import org.openl.rules.ruleservice.logging.LoggingCustomData;
+import org.openl.rules.ruleservice.logging.LoggingInfo;
+import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
+import org.openl.rules.ruleservice.logging.RuleServiceLogging;
+import org.openl.rules.ruleservice.logging.annotation.CustomValue;
+import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.Request;
+import org.openl.rules.ruleservice.logging.annotation.Response;
+import org.openl.rules.ruleservice.logging.annotation.ServiceName;
+import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
 
 public class LoggingInfoMapperTest {
 
@@ -150,7 +164,7 @@ public class LoggingInfoMapperTest {
         Assert.assertEquals(outcomingMessageTime, testEntity.getOutcomingTime());
         Assert.assertEquals(serviceName, testEntity.getServiceName());
         Assert.assertEquals(publisher.toString(), testEntity.getPublisherType());
-        Assert.assertEquals(url, url);
+        Assert.assertEquals(url, testEntity.getUrl());
         Assert.assertEquals(request, testEntity.getRequest());
         Assert.assertEquals(response, testEntity.getResponse());
 
@@ -168,7 +182,7 @@ public class LoggingInfoMapperTest {
         }
     }
 
-    public static class TrimConvertor implements TypeConvertor<String, String> {
+    public static class TrimConvertor implements Convertor<String, String> {
         @Override
         public String convert(String value) {
             if (value == null) {
@@ -185,7 +199,9 @@ public class LoggingInfoMapperTest {
         private String request;
         private String response;
         private String serviceName;
+        @Url
         private String url;
+        @InputName
         private String inputName;
         private String publisherType;
         private String stringValue1;
@@ -194,6 +210,7 @@ public class LoggingInfoMapperTest {
 
         private String value1;
         private String value2;
+        @CustomValue(value = "customString1", convertor = TrimConvertor.class)
         private String value3;
 
         public TestEntity() {
@@ -203,7 +220,7 @@ public class LoggingInfoMapperTest {
             return id;
         }
 
-        @UseLoggingInfoConvertor(convertor = SomeValueConvertor.class)
+        @WithLoggingInfoConvertor(convertor = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }
@@ -212,7 +229,7 @@ public class LoggingInfoMapperTest {
             return incomingTime;
         }
 
-        @SetterIncomingTime
+        @IncomingTime
         public void setIncomingTime(Date incomingTime) {
             this.incomingTime = incomingTime;
         }
@@ -221,16 +238,16 @@ public class LoggingInfoMapperTest {
             return outcomingTime;
         }
 
-        @SetterOutcomingTime
+        @OutcomingTime
         public void setOutcomingTime(Date outcomingTime) {
             this.outcomingTime = outcomingTime;
         }
-
+        
+        @Request
         public String getRequest() {
             return request;
         }
-
-        @SetterRequest
+        
         public void setRequest(String request) {
             this.request = request;
         }
@@ -239,16 +256,16 @@ public class LoggingInfoMapperTest {
             return response;
         }
 
-        @SetterResponse
+        @Response
         public void setResponse(String response) {
             this.response = response;
         }
 
+        @ServiceName
         public String getServiceName() {
             return serviceName;
         }
-
-        @SetterServiceName
+        
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
         }
@@ -257,7 +274,6 @@ public class LoggingInfoMapperTest {
             return url;
         }
 
-        @SetterUrl
         public void setUrl(String url) {
             this.url = url;
         }
@@ -266,7 +282,6 @@ public class LoggingInfoMapperTest {
             return inputName;
         }
 
-        @SetterInputName
         public void setInputName(String inputName) {
             this.inputName = inputName;
         }
@@ -275,7 +290,7 @@ public class LoggingInfoMapperTest {
             return publisherType;
         }
 
-        @SetterPublisher
+        @Publisher
         public void setPublisherType(String publisherType) {
             this.publisherType = publisherType;
         }
@@ -284,7 +299,7 @@ public class LoggingInfoMapperTest {
             return stringValue1;
         }
 
-        @SetterValue("customString1")
+        @CustomValue("customString1")
         public void setStringValue1(String stringValue1) {
             this.stringValue1 = stringValue1;
         }
@@ -293,7 +308,7 @@ public class LoggingInfoMapperTest {
             return stringValue2;
         }
 
-        @SetterValue("customString2")
+        @CustomValue("customString2")
         public void setStringValue2(String stringValue2) {
             this.stringValue2 = stringValue2;
         }
@@ -302,7 +317,7 @@ public class LoggingInfoMapperTest {
             return stringValue3;
         }
 
-        @SetterValue("customString3")
+        @CustomValue("customString3")
         public void setStringValue3(String stringValue3) {
             this.stringValue3 = stringValue3;
         }
@@ -316,16 +331,16 @@ public class LoggingInfoMapperTest {
             return value1;
         }
 
-        @SetterValue(value = "customString1", publisherTypes = PublisherType.WEBSERVICE)
+        @CustomValue(value = "customString1", publisherTypes = PublisherType.WEBSERVICE)
         public void setValue1(String value1) {
             this.value1 = value1;
         }
 
+        @CustomValue(value = "customString2", publisherTypes = PublisherType.RESTFUL)
         public String getValue2() {
             return value2;
         }
 
-        @SetterValue(value = "customString2", publisherTypes = PublisherType.RESTFUL)
         public void setValue2(String value2) {
             this.value2 = value2;
         }
@@ -334,7 +349,6 @@ public class LoggingInfoMapperTest {
             return value3;
         }
 
-        @SetterValue(value = "customString1", convertor = TrimConvertor.class)
         public void setValue3(String value3) {
             this.value3 = value3;
         }

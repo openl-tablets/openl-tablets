@@ -3,7 +3,15 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 import java.util.Date;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.*;
+import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.Request;
+import org.openl.rules.ruleservice.logging.annotation.Response;
+import org.openl.rules.ruleservice.logging.annotation.ServiceName;
+import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -99,57 +107,57 @@ public class LoggingRecord {
         return responseBody;
     }
 
-    @UseLoggingInfoConvertor(convertor = RandomUUID.class)
+    @WithLoggingInfoConvertor(convertor = RandomUUID.class)
     public void setId(String id) {
         this.id = id;
     }
 
-    @SetterIncomingTime
+    @IncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
 
-    @SetterOutcomingTime
+    @OutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
 
-    @SetterRequest
+    @Request
     public void setRequestBody(String requestBody) {
         this.requestBody = requestBody;
     }
 
-    @SetterResponse
+    @Response
     public void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
     }
 
-    @UseLoggingInfoConvertor(convertor = JSONRequest.class, publisherTypes = PublisherType.RESTFUL)
+    @WithLoggingInfoConvertor(convertor = JSONRequest.class, publisherTypes = PublisherType.RESTFUL)
     public void setRequest(Object request) {
         this.request = request;
     }
 
-    @UseLoggingInfoConvertor(convertor = JSONResponse.class, publisherTypes = PublisherType.RESTFUL)
+    @WithLoggingInfoConvertor(convertor = JSONResponse.class, publisherTypes = PublisherType.RESTFUL)
     public void setResponse(Object response) {
         this.response = response;
     }
 
-    @SetterServiceName
+    @ServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    @SetterInputName
+    @InputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
 
-    @SetterPublisher
+    @Publisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
 
-    @SetterUrl
+    @Url
     public void setUrl(String url) {
         this.url = url;
     }

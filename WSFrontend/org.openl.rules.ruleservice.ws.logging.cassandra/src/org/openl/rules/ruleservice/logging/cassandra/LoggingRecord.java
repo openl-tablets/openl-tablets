@@ -51,7 +51,7 @@ public class LoggingRecord {
         return id;
     }
 
-    @UseLoggingInfoConvertor(convertor = TimeBasedUUID.class)
+    @WithLoggingInfoConvertor(convertor = TimeBasedUUID.class)
     public void setId(String id) {
         this.id = id;
     }
@@ -60,7 +60,7 @@ public class LoggingRecord {
         return incomingTime;
     }
 
-    @SetterIncomingTime
+    @IncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
@@ -69,7 +69,7 @@ public class LoggingRecord {
         return outcomingTime;
     }
 
-    @SetterOutcomingTime
+    @OutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
@@ -78,7 +78,7 @@ public class LoggingRecord {
         return request;
     }
 
-    @SetterRequest
+    @Request
     public void setRequest(String request) {
         this.request = request;
     }
@@ -87,7 +87,7 @@ public class LoggingRecord {
         return response;
     }
 
-    @SetterResponse
+    @Response
     public void setResponse(String response) {
         this.response = response;
     }
@@ -96,7 +96,7 @@ public class LoggingRecord {
         return serviceName;
     }
 
-    @SetterServiceName
+    @ServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -105,7 +105,7 @@ public class LoggingRecord {
         return url;
     }
 
-    @SetterUrl
+    @Url
     public void setUrl(String url) {
         this.url = url;
     }
@@ -114,7 +114,7 @@ public class LoggingRecord {
         return inputName;
     }
 
-    @SetterInputName
+    @InputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
@@ -123,7 +123,7 @@ public class LoggingRecord {
         return publisherType;
     }
 
-    @SetterPublisher
+    @Publisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
