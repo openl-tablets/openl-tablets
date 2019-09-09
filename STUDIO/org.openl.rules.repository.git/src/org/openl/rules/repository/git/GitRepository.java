@@ -931,14 +931,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
                         formatter.setRepository(repository);
-                        formatter.setOldPrefix("Their: ");
-                        formatter.setNewPrefix("Our: ");
                         formatter.format(entry);
                         String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
                                                                                            : entry.getNewPath();
                         String comparison = outputStream.toString(StandardCharsets.UTF_8.name());
-                        int conflictIndex = comparison.indexOf("@@");
-                        diffs.put(path, conflictIndex < 0 ? comparison : comparison.substring(conflictIndex));
+                        diffs.put(path, comparison);
                     }
                 }
             }
