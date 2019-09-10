@@ -2,8 +2,6 @@ package org.openl.rules.ruleservice.publish;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -13,17 +11,16 @@ import org.junit.runner.RunWith;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.OpenLService.OpenLServiceBuilder;
 import org.openl.rules.ruleservice.core.OpenLServiceHolder;
 import org.openl.rules.ruleservice.core.OpenLServiceInitializer;
 import org.openl.rules.ruleservice.core.Resource;
 import org.openl.rules.ruleservice.core.ResourceLoader;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.core.OpenLService.OpenLServiceBuilder;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.spring.env.PropertySourcesLoader;
-import org.openl.types.java.JavaOpenClass;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -74,8 +71,10 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
             OpenLServiceHolder.getInstance().setOpenLService(openLService);
 
-            ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBean();
-            ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBean();
+            ServerFactoryBean firstServer = webServicesRuleServicePublisher.getServerFactoryBeanObjectFactory()
+                .getObject();
+            ServerFactoryBean secondServer = webServicesRuleServicePublisher.getServerFactoryBeanObjectFactory()
+                .getObject();
             assertTrue(firstServer != secondServer);
         } finally {
             ServiceDescriptionHolder.getInstance().remove();

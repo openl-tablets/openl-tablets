@@ -46,7 +46,9 @@ import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -81,6 +83,32 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private String defaultGroupId;
 
     private Cloner cloner = new Cloner();
+
+    @Autowired
+    @Qualifier("kafkaConsumerJacksonDatabindingFactoryBean")
+    private ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanObjectFactory;
+
+    @Autowired
+    @Qualifier("kafkaProducerJacksonDatabindingFactoryBean")
+    private ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanObjectFactory;
+
+    public ObjectFactory<JacksonObjectMapperFactoryBean> getConsumerJacksonObjectMapperFactoryBeanObjectFactory() {
+        return consumerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
+
+    public void setConsumerJacksonObjectMapperFactoryBeanObjectFactory(
+            ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanObjectFactory) {
+        this.consumerJacksonObjectMapperFactoryBeanObjectFactory = consumerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
+
+    public ObjectFactory<JacksonObjectMapperFactoryBean> getProducerJacksonObjectMapperFactoryBeanObjectFactory() {
+        return producerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
+
+    public void setProducerJacksonObjectMapperFactoryBeanObjectFactory(
+            ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanObjectFactory) {
+        this.producerJacksonObjectMapperFactoryBeanObjectFactory = producerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
 
     private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
@@ -428,8 +456,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            KafkaDeploy kafkaDeploy = KafkaDeployUtils
-                .getKafkaDeploy(ServiceDescriptionHolder.getInstance().get());
+            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(ServiceDescriptionHolder.getInstance().get());
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
                 .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
@@ -503,7 +530,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private JacksonObjectMapperFactoryBean createConsumerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getConsumerJacksonObjectMapperFactoryBean();
+            return getConsumerJacksonObjectMapperFactoryBeanObjectFactory().getObject();
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
@@ -512,7 +539,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private JacksonObjectMapperFactoryBean createProducerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getProducerJacksonObjectMapperFactoryBean();
+            return getProducerJacksonObjectMapperFactoryBeanObjectFactory().getObject();
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
@@ -638,16 +665,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
                 break;
             }
         }
-    }
-
-    @Lookup("kafkaConsumerJacksonDatabindingFactoryBean")
-    public JacksonObjectMapperFactoryBean getConsumerJacksonObjectMapperFactoryBean() {
-        return null;
-    }
-
-    @Lookup("kafkaProducerJacksonDatabindingFactoryBean")
-    public JacksonObjectMapperFactoryBean getProducerJacksonObjectMapperFactoryBean() {
-        return null;
     }
 
     @Override

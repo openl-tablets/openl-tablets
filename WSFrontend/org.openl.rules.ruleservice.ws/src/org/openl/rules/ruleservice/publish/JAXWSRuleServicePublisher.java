@@ -32,7 +32,9 @@ import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
@@ -47,6 +49,13 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean loggingStoreEnable = false;
+
+    @Autowired
+    @Qualifier("webServicesServerPrototype")
+    private ObjectFactory<ServerFactoryBean> serverFactoryBeanObjectFactory;
+
+    @Autowired
+    private ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory;
 
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
@@ -64,14 +73,21 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.baseAddress = address;
     }
 
-    @Lookup("webServicesServerPrototype")
-    public ServerFactoryBean getServerFactoryBean() {
-        return null;
+    public ObjectFactory<ServerFactoryBean> getServerFactoryBeanObjectFactory() {
+        return serverFactoryBeanObjectFactory;
     }
 
-    @Lookup
-    public StoreLoggingInfoFeature getStoreLoggingFeature() {
-        return null;
+    public void setServerFactoryBeanObjectFactory(ObjectFactory<ServerFactoryBean> serverFactoryBeanObjectFactory) {
+        this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
+    }
+
+    public ObjectFactory<StoreLoggingInfoFeature> getStoreLoggingInfoFeatureObjectFactory() {
+        return storeLoggingInfoFeatureObjectFactory;
+    }
+
+    public void setStoreLoggingInfoFeatureObjectFactory(
+            ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory) {
+        this.storeLoggingInfoFeatureObjectFactory = storeLoggingInfoFeatureObjectFactory;
     }
 
     private ObjectSerializer getObjectSeializer(ServerFactoryBean svrFactory) {
@@ -84,7 +100,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            ServerFactoryBean svrFactory = getServerFactoryBean();
+            ServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
                 String serviceAddress = getBaseAddress() + URLHelper.processURL(service.getUrl());
@@ -101,7 +117,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isLoggingStoreEnable()) {
-                    svrFactory.getFeatures().add(getStoreLoggingFeature());
+                    svrFactory.getFeatures().add(getStoreLoggingInfoFeatureObjectFactory().getObject());
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
