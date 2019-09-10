@@ -16,12 +16,5 @@
         <property name="loggingEnabled" value="${ruleservice.logging.store.enabled}" />
         <property name="loggingInfoStoringService" ref="loggingInfoStoringService"/>
     </bean> 
-    
-    <!-- Should be wrapped via org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean for using service rateled setting. For example unique databinding setting for each service. -->
-    <bean id="storeLoggingFeaturePrototypeFactory"
-        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-        <property name="targetBeanName">
-            <idref bean="storeLoggingFeature" />
-        </property>
-    </bean>
+   
 </beans>

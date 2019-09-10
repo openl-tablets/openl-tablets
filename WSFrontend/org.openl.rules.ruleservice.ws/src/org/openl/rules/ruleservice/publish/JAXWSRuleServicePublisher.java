@@ -1,18 +1,30 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.logging.*;
+import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
+import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
+import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
+import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
+import org.openl.rules.ruleservice.logging.ObjectSerializer;
+import org.openl.rules.ruleservice.logging.StoreLoggingInfoFeature;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.logging.AegisObjectSerializer;
@@ -20,32 +32,21 @@ import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Lookup;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
  *
- * @author PUdalau, Marat Kamalov
+ * @author Marat Kamalov
  */
 public class JAXWSRuleServicePublisher implements RuleServicePublisher, AvailableServicesPresenter {
 
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
-    private ObjectFactory<?> serverFactory;
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean loggingStoreEnable = false;
-
-    private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
-
-    public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
-        return storeLoggingFeatureFactoryBean;
-    }
-
-    public void setStoreLoggingFeatureFactoryBean(ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean) {
-        this.storeLoggingFeatureFactoryBean = storeLoggingFeatureFactoryBean;
-    }
 
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
@@ -63,24 +64,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.baseAddress = address;
     }
 
-    public ObjectFactory<?> getServerFactory() {
-        return serverFactory;
+    @Lookup("webServicesServerPrototype")
+    public ServerFactoryBean getServerFactoryBean() {
+        return null;
     }
 
-    public void setServerFactory(ObjectFactory<?> serverFactory) {
-        this.serverFactory = serverFactory;
-    }
-
-    ServerFactoryBean getServerFactoryBean() {
-        if (serverFactory != null) {
-            return (ServerFactoryBean) serverFactory.getObject();
-        }
-        return new ServerFactoryBean();
-    }
-
-    /* internal for test */Feature getStoreLoggingFeatureBean() {
-        Objects.requireNonNull(storeLoggingFeatureFactoryBean, "loggingInfoStoringService doesn't defined.");
-        return storeLoggingFeatureFactoryBean.getObject();
+    @Lookup
+    public StoreLoggingInfoFeature getStoreLoggingFeature() {
+        return null;
     }
 
     private ObjectSerializer getObjectSeializer(ServerFactoryBean svrFactory) {
@@ -110,16 +101,18 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isLoggingStoreEnable()) {
-                    svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
+                    svrFactory.getFeatures().add(getStoreLoggingFeature());
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                    svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
+                    svrFactory.getInInterceptors()
+                        .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
                     svrFactory.getInFaultInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                    svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
+                    svrFactory.getInFaultInterceptors()
+                        .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 }
                 Server wsServer = svrFactory.create();

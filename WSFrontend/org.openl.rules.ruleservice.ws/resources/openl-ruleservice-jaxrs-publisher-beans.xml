@@ -64,13 +64,6 @@
         <property name="extraClasses" ref="serviceConfigurationRootClasses"/>
     </bean>
     
-    <bean id="wadlGeneratorPrototypeFactory"
-        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-        <property name="targetBeanName">
-            <idref bean="wadlGenerator" />
-        </property>
-    </bean>
-    
     <bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
     
     <bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
@@ -100,15 +93,6 @@
         <property name="bus" ref="cxf"/>
     </bean>
 
-    <!-- Prototypes factory. It will create new server prototype for each new 
-        WebService. -->
-    <bean id="JAXRSServicesServerPrototypeFactory"
-        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-        <property name="targetBeanName">
-            <idref bean="JAXRSServicesServerPrototype" />
-        </property>
-    </bean>
-
     <bean id="swaggerInitializationBean" class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
 
     <!-- Initializes OpenL Engine instances according to web services configuration 
@@ -116,10 +100,7 @@
     <!-- Exposes web services. -->
     <bean id="JAXRSServicesRuleServicePublisher"
         class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="swaggerInitializationBean">
-        <property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
-        <property name="wadlGeneratorFactory" ref="wadlGeneratorPrototypeFactory" />
         <property name="baseAddress" value="${ruleservice.baseAddress}" />
-        <property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
         <property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}" />
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>

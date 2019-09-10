@@ -39,7 +39,7 @@
                 <entry key="WEBSERVICE" value-ref="webServiceRuleServicePublisher"/>
                 <entry key="RESTFUL" value-ref="JAXRSServicesRuleServicePublisher"/>
                 <entry key="RMI" value-ref="RMIServicesRuleServicePublisher"/>
-                <entry key="KAFKA" value-ref="KafkaServicesRuleServicePublisher"/>
+                <entry key="KAFKA" value-ref="kafkaServicesRuleServicePublisher"/>
             </map>
         </property>
     </bean>

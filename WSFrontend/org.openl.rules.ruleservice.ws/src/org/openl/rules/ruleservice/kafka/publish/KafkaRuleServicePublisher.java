@@ -6,7 +6,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +31,13 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
-import org.openl.rules.ruleservice.kafka.conf.*;
+import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
+import org.openl.rules.ruleservice.kafka.conf.ClientIDGenerator;
+import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
+import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
+import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
+import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
+import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.kafka.ser.Message;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
@@ -30,7 +46,7 @@ import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -57,9 +73,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private ResourceLoader resourceLoader;
-
-    private ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanFactory;
-    private ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanFactory;
 
     private KafkaDeploy defaultKafkaDeploy;
     private KafkaDeploy immutableKafkaDeploy;
@@ -490,7 +503,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private JacksonObjectMapperFactoryBean createConsumerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getConsumerJacksonObjectMapperFactoryBeanFactory().getObject();
+            return getConsumerJacksonObjectMapperFactoryBean();
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
@@ -499,7 +512,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private JacksonObjectMapperFactoryBean createProducerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getProducerJacksonObjectMapperFactoryBeanFactory().getObject();
+            return getProducerJacksonObjectMapperFactoryBean();
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
@@ -627,22 +640,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         }
     }
 
-    public ObjectFactory<JacksonObjectMapperFactoryBean> getConsumerJacksonObjectMapperFactoryBeanFactory() {
-        return consumerJacksonObjectMapperFactoryBeanFactory;
+    @Lookup("kafkaConsumerJacksonDatabindingFactoryBean")
+    public JacksonObjectMapperFactoryBean getConsumerJacksonObjectMapperFactoryBean() {
+        return null;
     }
 
-    public void setConsumerJacksonObjectMapperFactoryBeanFactory(
-            ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanFactory) {
-        this.consumerJacksonObjectMapperFactoryBeanFactory = consumerJacksonObjectMapperFactoryBeanFactory;
-    }
-
-    public ObjectFactory<JacksonObjectMapperFactoryBean> getProducerJacksonObjectMapperFactoryBeanFactory() {
-        return producerJacksonObjectMapperFactoryBeanFactory;
-    }
-
-    public void setProducerJacksonObjectMapperFactoryBeanFactory(
-            ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanFactory) {
-        this.producerJacksonObjectMapperFactoryBeanFactory = producerJacksonObjectMapperFactoryBeanFactory;
+    @Lookup("kafkaProducerJacksonDatabindingFactoryBean")
+    public JacksonObjectMapperFactoryBean getProducerJacksonObjectMapperFactoryBean() {
+        return null;
     }
 
     @Override

@@ -33,43 +33,23 @@
         <property name="singleton" value="false"/>
     </bean>
     
-    <!-- <bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding" 
-        scope="prototype"> <property name="contextProperties"> <map> <entry> <key> 
-        <util:constant static-field="com.sun.xml.bind.api.JAXBRIContext.ANNOTATION_READER" 
-        /> </key> <bean class="org.jvnet.annox.xml.bind.AnnoxAnnotationReader" /> 
-        </entry> </map> </property> </bean> -->
-
-
     <!-- Main description for the one WebService -->
     <!-- All configurations for server (like a data binding type and interceptors) 
         are represented there. ServerFactoryBean configuration is similar to a CXF 
         simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
         but without namespace "simple". -->
 
-    <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
-        <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
-    </bean>
-    
     <bean id="webServicesServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
         scope="prototype">
         <property name="dataBinding" ref="webServicesDataBinding" />
         <property name="features">
             <list>
-                <!-- Comment/Uncomment following block for use/unuse logging feature. 
-                    It can increase performance if logging isn't used. -->
-                <ref bean="webServicesLoggingFeature" />
+                <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
+                    <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
+                </bean>
             </list>
         </property>
         <property name="bus" ref="cxf"/>
-    </bean>
-
-    <!-- Prototypes factory. It will create new server prototype for each new 
-        WebService. -->
-    <bean id="webServicesServerPrototypeFactory"
-        class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
-        <property name="targetBeanName">
-            <idref bean="webServicesServerPrototype" />
-        </property>
     </bean>
 
     <!-- Initializes OpenL Engine instances according to web services configuration 
@@ -77,9 +57,7 @@
     <!-- Exposes web services. -->
     <bean id="webServiceRuleServicePublisher"
         class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
-        <property name="serverFactory" ref="webServicesServerPrototypeFactory" />
         <property name="baseAddress" value="${ruleservice.baseAddress}" />
-        <property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
         <property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
     </bean>
 </beans>
