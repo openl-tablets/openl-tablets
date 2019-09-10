@@ -3,13 +3,13 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /**
- * After advice for intercepting method calls.
+ * After advice for intercepting method calls. Implementation must be thread safe.
  *
  * @author Marat Kamalov
  *
  * @param <T>
  */
-public interface ServiceMethodAfterAdvice<T> {
+public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
 
     /**
      * If after advice defined for a service method, invokes this method after method execution finished. Return value

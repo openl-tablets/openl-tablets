@@ -17,7 +17,7 @@
 	</bean>
 
 	<bean id="ruleServiceInstantiationFactory"
-		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl" depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile">
+		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl" depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" autowire="byType">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
 		<property name="externalParameters">

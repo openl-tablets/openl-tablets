@@ -5,16 +5,17 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.CustomValue;
 import org.openl.rules.ruleservice.logging.annotation.DefaultConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
@@ -23,10 +24,12 @@ import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
 import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.Value;
 import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +43,7 @@ public class LoggingInfoMapper {
 
     static {
         Set<Class<? extends Annotation>> customAnnotations = new HashSet<>();
-        customAnnotations.add(CustomValue.class);
+        customAnnotations.add(Value.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
         Set<Class<? extends Annotation>> mappingAnnotations = new HashSet<>();
@@ -61,154 +64,135 @@ public class LoggingInfoMapper {
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         Class<?> targetClass = target.getClass();
         Class<?> clazz = targetClass;
-        Map<Annotation, AnnotatedElement> customAnnotationElementsMap = new HashMap<>();
-        Map<Annotation, AnnotatedElement> annotationElementsMap = new HashMap<>();
+        List<Pair<Annotation, AnnotatedElement>> customAnnotationElements = new ArrayList<>();
+        List<Pair<Annotation, AnnotatedElement>> annotationElements = new ArrayList<>();
         while (clazz != Object.class) {
             for (final Method method : clazz.getDeclaredMethods()) {
-                processAnnotatedElement(customAnnotationElementsMap, annotationElementsMap, method);
+                processAnnotatedElement(customAnnotationElements, annotationElements, method);
             }
             for (final Field field : clazz.getDeclaredFields()) {
-                processAnnotatedElement(customAnnotationElementsMap, annotationElementsMap, field);
+                processAnnotatedElement(customAnnotationElements, annotationElements, field);
             }
             clazz = clazz.getSuperclass();
         }
 
-        for (Entry<Annotation, AnnotatedElement> entry : annotationElementsMap.entrySet()) {
+        for (Entry<Annotation, AnnotatedElement> entry : annotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
-            if (IncomingTime.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getIncomingMessageTime());
+            if (annotation instanceof IncomingTime) {
+                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getIncomingMessageTime());
             }
-            if (OutcomingTime.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getOutcomingMessageTime());
+            if (annotation instanceof OutcomingTime) {
+                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getOutcomingMessageTime());
             }
-            if (InputName.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getInputName());
+            if (annotation instanceof InputName) {
+                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getInputName());
             }
-            if (ServiceName.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getServiceName());
+            if (annotation instanceof ServiceName) {
+                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getServiceName());
             }
-            if (Publisher.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo,
+            if (annotation instanceof Publisher) {
+                injectValue(loggingInfo,
                     target,
                     annotation,
                     annotatedElement,
                     loggingInfo.getPublisherType().toString());
             }
             if (loggingInfo.getRequestMessage() != null) {
-                if (Url.class
-                    .equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
-                    insertValue(loggingInfo,
+                if (annotation instanceof Url && loggingInfo.getRequestMessage().getAddress() != null) {
+                    injectValue(loggingInfo,
                         target,
                         annotation,
                         annotatedElement,
                         loggingInfo.getRequestMessage().getAddress().toString());
                 }
-                if (Request.class
-                    .equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
-                    insertValue(loggingInfo,
+                if (annotation instanceof Request && loggingInfo.getResponseMessage().getPayload() != null) {
+                    injectValue(loggingInfo,
                         target,
                         annotation,
                         annotatedElement,
                         loggingInfo.getRequestMessage().getPayload().toString());
                 }
             } else {
-                log.error("Not found request message in logging info!");
+                log.error("Not found a request message in the logging info!");
             }
             if (loggingInfo.getResponseMessage() != null) {
-                if (Response.class
-                    .equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
-                    insertValue(loggingInfo,
+                if (annotation instanceof Response && loggingInfo.getResponseMessage().getPayload() != null) {
+                    injectValue(loggingInfo,
                         target,
                         annotation,
                         annotatedElement,
                         loggingInfo.getResponseMessage().getPayload().toString());
                 }
             } else {
-                log.error("Not found response message in logging info!");
+                log.error("Not found a response message in the logging info!");
             }
-            if (WithLoggingInfoConvertor.class.equals(annotation.annotationType())) {
+            if (annotation instanceof WithLoggingInfoConvertor) {
                 withLoggingInfoInsertValue(loggingInfo, target, annotation, annotatedElement);
             }
         }
 
-        for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElementsMap.entrySet()) {
+        for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
-            if (CustomValue.class.equals(annotation.annotationType())) {
-                CustomValue setterValue = (CustomValue) annotation;
-                String key = setterValue.value();
-                insertValue(loggingInfo, target, annotation, annotatedElement, loggingCustomData.getValue(key));
+            if (annotation instanceof Value) {
+                Value valueAnnotation = (Value) annotation;
+                String key = valueAnnotation.value();
+                injectValue(loggingInfo, target, annotation, annotatedElement, loggingCustomData.getValue(key));
             }
         }
     }
 
-    private void processAnnotatedElement(Map<Annotation, AnnotatedElement> customAnnotationElementsMap,
-            Map<Annotation, AnnotatedElement> annotationElementsMap,
+    private void processAnnotatedElement(List<Pair<Annotation, AnnotatedElement>> customAnnotationElements,
+            List<Pair<Annotation, AnnotatedElement>> annotationElements,
             final AnnotatedElement annotatedElement) {
         for (Class<? extends Annotation> annotationClass : CUSTOM_ANNOTATIONS) {
             Annotation annotation = annotatedElement.getAnnotation(annotationClass);
             if (annotation != null) {
-                customAnnotationElementsMap.put(annotation, annotatedElement);
+                customAnnotationElements.add(Pair.of(annotation, annotatedElement));
             }
         }
         for (Class<? extends Annotation> annotationClass : MAPPING_ANNOTATIONS) {
             Annotation annotation = annotatedElement.getAnnotation(annotationClass);
             if (annotation != null) {
-                annotationElementsMap.put(annotation, annotatedElement);
+                annotationElements.add(Pair.of(annotation, annotatedElement));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void insertValue(LoggingInfo loggingInfo,
+    private void injectValue(LoggingInfo loggingInfo,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement,
             Object value) {
-        boolean f = false;
-        try {
-            Method publisherTypeMethod = annotation.annotationType().getMethod("publisherTypes");
-            PublisherType[] publisherTypes = (PublisherType[]) publisherTypeMethod.invoke(annotation);
-            for (PublisherType publisherType : publisherTypes) {
-                if (publisherType.equals(loggingInfo.getPublisherType())) {
-                    f = true;
-                    break;
-                }
-            }
-        } catch (NoSuchMethodException e) {
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new IllegalStateException(
-                String.format("Failed to retrive property 'publisherTypes' from annotation '%s' declared on method!",
-                    annotation.getClass().getTypeName()));
-        }
-
-        if (!f) {
+        QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
+        if (qualifyPublisherType != null && !matchPublisherType(qualifyPublisherType.value(),
+            loggingInfo.getPublisherType())) {
             return;
         }
 
-        Class<? extends Convertor<?, ?>> typeConvertorClass = null;
+        Class<? extends Convertor<?, ?>> convertorClass = null;
         try {
             Method convertorMethod = annotation.annotationType().getMethod("convertor");
-            typeConvertorClass = (Class<? extends Convertor<?, ?>>) convertorMethod.invoke(annotation);
+            convertorClass = (Class<? extends Convertor<?, ?>>) convertorMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
                 String.format("Invalid annotation is used! Property 'convertor' is not found in '%s'!",
                     annotation.getClass().getTypeName()));
         }
 
-        if (!(DefaultConvertor.class.equals(typeConvertorClass) || DefaultStringConvertor.class
-            .equals(typeConvertorClass) || DefaultNumberConvertor.class
-                .equals(typeConvertorClass) || DefaultDateConvertor.class.equals(typeConvertorClass))) {
+        if (!(DefaultConvertor.class.equals(convertorClass) || DefaultStringConvertor.class
+            .equals(convertorClass) || DefaultNumberConvertor.class
+                .equals(convertorClass) || DefaultDateConvertor.class.equals(convertorClass))) {
             Convertor<Object, Object> convertor = null;
             try {
-                convertor = (Convertor<Object, Object>) typeConvertorClass.newInstance();
+                convertor = (Convertor<Object, Object>) convertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error(
-                        String.format("Failed to instantiate a type convertor '%s'! Null value is used as a result!",
-                            typeConvertorClass.getTypeName()),
-                        e);
+                    log.error(String.format(
+                        "Convertor class instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
+                        convertorClass.getTypeName()), e);
                 }
                 value = null;
             }
@@ -241,12 +225,12 @@ public class LoggingInfoMapper {
     private String getAnnotatedElementRef(AnnotatedElement annotatedElement) {
         if (annotatedElement instanceof Method) {
             Method method = (Method) annotatedElement;
-            return MethodUtil.printMethod(method.getName(), method.getParameterTypes());
+            return MethodUtil.printQualifiedMethodName(method);
         } else if (annotatedElement instanceof Field) {
             Field field = (Field) annotatedElement;
             return field.getDeclaringClass().getTypeName() + "." + field.getName();
         }
-        throw new IllegalStateException("Wrong type of annotated element! Only method and fields are supported!");
+        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported!");
     }
 
     private void setValueWithAnnotatedElement(Object target,
@@ -271,7 +255,7 @@ public class LoggingInfoMapper {
             field.set(target, value);
             return;
         }
-        throw new IllegalStateException("Wrong type of annotated element! Only method and fields are supported!");
+        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported!");
     }
 
     @SuppressWarnings("unchecked")
@@ -280,24 +264,18 @@ public class LoggingInfoMapper {
             Annotation annotation,
             AnnotatedElement annotatedElement) {
         WithLoggingInfoConvertor withLoggingInfoConvertor = (WithLoggingInfoConvertor) annotation;
-        boolean f = false;
-        for (PublisherType publisherType : withLoggingInfoConvertor.publisherTypes()) {
-            if (publisherType.equals(loggingInfo.getPublisherType())) {
-                f = true;
-                break;
-            }
-        }
-        if (f) {
+        QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
+        if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
+            loggingInfo.getPublisherType())) {
             Class<? extends LoggingInfoConvertor<?>> convertorClass = withLoggingInfoConvertor.convertor();
             LoggingInfoConvertor<Object> convertor = null;
             try {
                 convertor = (LoggingInfoConvertor<Object>) convertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error(
-                        String.format("LoggingInfo convertor '%s' instantiation is failed!",
-                            convertorClass.getTypeName()),
-                        e);
+                    log.error(String.format(
+                        "LoggingInfo convertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
+                        convertorClass.getTypeName()), e);
                 }
                 return;
             }
@@ -323,6 +301,23 @@ public class LoggingInfoMapper {
                     }
                 }
             }
+        }
+    }
+
+    private boolean matchPublisherType(org.openl.rules.ruleservice.logging.annotation.PublisherType[] value,
+            PublisherType publisherType) {
+        switch (publisherType) {
+            case KAFKA:
+                return Arrays.stream(value)
+                    .anyMatch(org.openl.rules.ruleservice.logging.annotation.PublisherType.KAFKA::equals);
+            case WEBSERVICE:
+                return Arrays.stream(value)
+                    .anyMatch(org.openl.rules.ruleservice.logging.annotation.PublisherType.WEBSERVICE::equals);
+            case RESTFUL:
+                return Arrays.stream(value)
+                    .anyMatch(org.openl.rules.ruleservice.logging.annotation.PublisherType.RESTFUL::equals);
+            default:
+                return false;
         }
     }
 }

@@ -15,14 +15,14 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
 
     private ApplicationContext applicationContext;
 
-    private boolean loggingStoreEnable = false;
+    private boolean loggingStoreEnabled = false;
 
-    public boolean isLoggingStoreEnable() {
-        return loggingStoreEnable;
+    public boolean isLoggingStoreEnabled() {
+        return loggingStoreEnabled;
     }
 
-    public void setLoggingStoreEnable(boolean loggingStoreEnable) {
-        this.loggingStoreEnable = loggingStoreEnable;
+    public void setLoggingStoreEnabled(boolean loggingStoreEnabled) {
+        this.loggingStoreEnabled = loggingStoreEnabled;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
 
     @Override
     public StoreLoggingInfoService getObject() throws Exception {
-        if (!isLoggingStoreEnable()) {
+        if (!isLoggingStoreEnabled()) {
             return null;
         }
 

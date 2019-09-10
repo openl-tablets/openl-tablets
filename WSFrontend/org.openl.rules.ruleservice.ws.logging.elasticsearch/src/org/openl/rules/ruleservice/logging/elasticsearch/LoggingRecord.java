@@ -2,11 +2,12 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import java.util.Date;
 
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.PublisherType;
+import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
 import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
@@ -132,12 +133,14 @@ public class LoggingRecord {
         this.responseBody = responseBody;
     }
 
-    @WithLoggingInfoConvertor(convertor = JSONRequest.class, publisherTypes = PublisherType.RESTFUL)
+    @WithLoggingInfoConvertor(convertor = JSONRequest.class)
+    @QualifyPublisherType(PublisherType.RESTFUL)
     public void setRequest(Object request) {
         this.request = request;
     }
 
-    @WithLoggingInfoConvertor(convertor = JSONResponse.class, publisherTypes = PublisherType.RESTFUL)
+    @WithLoggingInfoConvertor(convertor = JSONResponse.class)
+    @QualifyPublisherType(PublisherType.RESTFUL)
     public void setResponse(Object response) {
         this.response = response;
     }

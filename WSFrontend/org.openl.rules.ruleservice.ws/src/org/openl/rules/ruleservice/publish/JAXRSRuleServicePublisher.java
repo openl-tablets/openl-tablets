@@ -115,13 +115,13 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
             if (isLoggingStoreEnable()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeature());
                 svrFactory.getInInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInInterceptors()
                     .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 svrFactory.getInFaultInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                 svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInFaultInterceptors()
                     .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
@@ -170,7 +170,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 true));
     }
 
-    private ObjectSerializer getObjectSeializer(JAXRSServerFactoryBean svrFactory) {
+    private ObjectSerializer getObjectSerializer(JAXRSServerFactoryBean svrFactory) {
         for (Object provider : svrFactory.getProviders()) {
             if (provider instanceof JacksonJsonProvider) {
                 ObjectMapper objectMapper = ((JacksonJsonProvider) provider).locateMapper(null, null);

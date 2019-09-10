@@ -47,6 +47,11 @@ public final class MethodUtil {
         return buf.toString();
     }
 
+    public static String printQualifiedMethodName(Method method) {
+        return method.getDeclaringClass().getTypeName() + "." + MethodUtil.printMethod(method.getName(),
+            method.getParameterTypes());
+    }
+
     private static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
             IConvertor<IOpenClass, String> typeConverter) {

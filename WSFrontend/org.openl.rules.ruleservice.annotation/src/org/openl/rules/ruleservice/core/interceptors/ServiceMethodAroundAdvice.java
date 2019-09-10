@@ -3,12 +3,12 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /**
- * Around advice for intercepting method calls.
+ * Around advice for intercepting method calls. Implementation must be thread safe.
  *
  * @author Marat Kamalov
  *
  */
-public interface ServiceMethodAroundAdvice<T> {
+public interface ServiceMethodAroundAdvice<T> extends ServiceMethodAdvice {
     /**
      * If around advice defined for a service method, invokes this method.
      *

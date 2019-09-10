@@ -264,7 +264,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         if (generatedInterfaceClass != null) {
             return generatedInterfaceClass;
         }
-        log.info("Interface class is undefined for factory. Generated interface has been used.");
+        log.info("Interface class is undefined for factory. Generated interface is used.");
         generatedInterfaceClass = getRulesInstantiationStrategy().getInstanceClass();
         return generatedInterfaceClass;
     }

@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.openl.rules.project.instantiation.variation.VariationInstantiationStr
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
@@ -25,6 +27,7 @@ import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.ObjectFactory;
 
 /**
  * Default implementation of RuleServiceOpenLServiceInstantiationFactory. Depend on RuleLoader.
@@ -41,6 +44,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Map<String, Object> externalParameters;
 
     private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<>();
+
+    private ObjectFactory<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager,
@@ -93,10 +98,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service.getOpenClass(),
-                serviceTarget,
-                serviceClass,
-                classLoader);
+            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
+                .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
             factory.addAdvice(serviceInvocationAdvice);
             if (serviceClass.isInterface()) {
                 factory.addInterface(serviceClass);
@@ -282,6 +285,23 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new IllegalArgumentException("instantiationStrategyFactory arg must not be null.");
         }
         this.instantiationStrategyFactory = instantiationStrategyFactory;
+    }
+
+    public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {
+        if (getServiceInvocationAdviceListeners() != null) {
+            return getServiceInvocationAdviceListeners().getObject();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public ObjectFactory<Collection<ServiceInvocationAdviceListener>> getServiceInvocationAdviceListeners() {
+        return serviceInvocationAdviceListeners;
+    }
+
+    public void setServiceInvocationAdviceListeners(
+            ObjectFactory<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners) {
+        this.serviceInvocationAdviceListeners = serviceInvocationAdviceListeners;
     }
 
     public Map<String, Object> getExternalParameters() {

@@ -3,12 +3,12 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /**
- * Before advice for intercepting method calls.
+ * Before advice for intercepting method calls. Implementation must be thread safe.
  *
  * @author Marat Kamalov
  *
  */
-public interface ServiceMethodBeforeAdvice {
+public interface ServiceMethodBeforeAdvice extends ServiceMethodAdvice {
 
     /**
      * If before advice defined for a service method, invokes this method.

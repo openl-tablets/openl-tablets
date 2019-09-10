@@ -15,15 +15,16 @@ import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
 import org.openl.rules.ruleservice.logging.RuleServiceLogging;
-import org.openl.rules.ruleservice.logging.annotation.CustomValue;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
 import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.Value;
 import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
 
 public class LoggingInfoMapperTest {
@@ -208,9 +209,11 @@ public class LoggingInfoMapperTest {
         private String stringValue2;
         private String stringValue3;
 
+        @Value(value = "customString1")
+        @QualifyPublisherType(org.openl.rules.ruleservice.logging.annotation.PublisherType.WEBSERVICE)
         private String value1;
         private String value2;
-        @CustomValue(value = "customString1", convertor = TrimConvertor.class)
+        @Value(value = "customString1", convertor = TrimConvertor.class)
         private String value3;
 
         public TestEntity() {
@@ -242,12 +245,12 @@ public class LoggingInfoMapperTest {
         public void setOutcomingTime(Date outcomingTime) {
             this.outcomingTime = outcomingTime;
         }
-        
+
         @Request
         public String getRequest() {
             return request;
         }
-        
+
         public void setRequest(String request) {
             this.request = request;
         }
@@ -265,7 +268,7 @@ public class LoggingInfoMapperTest {
         public String getServiceName() {
             return serviceName;
         }
-        
+
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
         }
@@ -299,7 +302,7 @@ public class LoggingInfoMapperTest {
             return stringValue1;
         }
 
-        @CustomValue("customString1")
+        @Value("customString1")
         public void setStringValue1(String stringValue1) {
             this.stringValue1 = stringValue1;
         }
@@ -308,7 +311,7 @@ public class LoggingInfoMapperTest {
             return stringValue2;
         }
 
-        @CustomValue("customString2")
+        @Value("customString2")
         public void setStringValue2(String stringValue2) {
             this.stringValue2 = stringValue2;
         }
@@ -317,7 +320,7 @@ public class LoggingInfoMapperTest {
             return stringValue3;
         }
 
-        @CustomValue("customString3")
+        @Value("customString3")
         public void setStringValue3(String stringValue3) {
             this.stringValue3 = stringValue3;
         }
@@ -331,12 +334,12 @@ public class LoggingInfoMapperTest {
             return value1;
         }
 
-        @CustomValue(value = "customString1", publisherTypes = PublisherType.WEBSERVICE)
         public void setValue1(String value1) {
             this.value1 = value1;
         }
 
-        @CustomValue(value = "customString2", publisherTypes = PublisherType.RESTFUL)
+        @Value(value = "customString2")
+        @QualifyPublisherType(org.openl.rules.ruleservice.logging.annotation.PublisherType.RESTFUL)
         public String getValue2() {
             return value2;
         }

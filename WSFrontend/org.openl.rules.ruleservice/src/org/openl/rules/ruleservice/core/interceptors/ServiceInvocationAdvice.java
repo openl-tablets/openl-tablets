@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
@@ -60,15 +62,19 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     private Class<?> serviceClass;
     private ClassLoader serviceClassLoader;
     private IOpenClass openClass;
+    private Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
             Class<?> serviceClass,
-            ClassLoader serviceClassLoader) {
+            ClassLoader serviceClassLoader,
+            Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners) {
         this.serviceTarget = serviceTarget;
         this.serviceClass = serviceClass;
         this.serviceClassLoader = serviceClassLoader;
         this.openClass = openClass;
+        this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
+            serviceMethodAdviceListeners) : new ArrayList<>();
         init();
     }
 
@@ -125,11 +131,10 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 processAwareInterfaces(aroundInterceptor, method);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(
-                    String.format("Failed to instante 'around' interceptor for method '%s' in class '%s'.",
-                        method.getName(),
-                        serviceClass.getName()),
-                    e);
+                throw new RuleServiceRuntimeException(String.format(
+                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                    MethodUtil.printQualifiedMethodName(method),
+                    interceptorClass.getTypeName()), e);
             }
         }
     }
@@ -141,17 +146,15 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.computeIfAbsent(method,
                 e -> new ArrayList<>());
             for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
-
                 try {
                     ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
                     processAwareInterfaces(preInterceptor, method);
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
-                    throw new RuleServiceRuntimeException(
-                        String.format("Failed to instante 'before' interceptor for method '%s' in class '%s'.",
-                            method.getName(),
-                            serviceClass.getName()),
-                        e);
+                    throw new RuleServiceRuntimeException(String.format(
+                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                        MethodUtil.printQualifiedMethodName(method),
+                        interceptorClass.getTypeName()), e);
                 }
             }
         }
@@ -173,11 +176,10 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 processAwareInterfaces(serviceExtraMethodHandler, method);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(
-                    String.format("Failed to instante service method handler for method '%s' in class '%s'.",
-                        method.getName(),
-                        serviceClass.getName()),
-                    e);
+                throw new RuleServiceRuntimeException(String.format(
+                    "Failed to instante service method handler for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                    MethodUtil.printQualifiedMethodName(method),
+                    serviceExtraMethodHandlerClass.getTypeName()), e);
             }
         }
     }
@@ -194,11 +196,10 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     processAwareInterfaces(postInterceptor, method);
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
-                    throw new RuleServiceRuntimeException(
-                        String.format("Failed to instante 'afterReturning' interceptor for method '%s' in class '%s'.",
-                            method.getName(),
-                            serviceClass.getName()),
-                        e);
+                    throw new RuleServiceRuntimeException(String.format(
+                        "Failed to instante 'afterReturning' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                        MethodUtil.printQualifiedMethodName(method),
+                        interceptorClass.getTypeName()), e);
                 }
             }
         }
@@ -213,16 +214,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
 
     protected void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
         List<ServiceMethodBeforeAdvice> preInterceptors = beforeInterceptors.get(interfaceMethod);
-        if (preInterceptors != null && !preInterceptors.isEmpty()) {
+        if (preInterceptors != null) {
             for (ServiceMethodBeforeAdvice interceptor : preInterceptors) {
+                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
                 interceptor.before(interfaceMethod, serviceTarget, args);
+                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
             }
         }
     }
 
     protected Object serviceExtraMethodInvoke(Method interfaceMethod,
             Object serviceBean,
-            Object... args) throws Throwable {
+            Object... args) throws Exception {
         ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodAnnotations.get(interfaceMethod);
         if (serviceExtraMethodHandler != null) {
             return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
@@ -233,12 +236,17 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     protected Object afterInvocation(Method interfaceMethod,
             Object result,
             Exception t,
-            Object... args) throws Throwable {
+            Object... args) throws Exception {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         if (postInterceptors != null && !postInterceptors.isEmpty()) {
             Object ret = result;
             Exception lastOccuredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
+                invokeBeforeServiceMethodAdviceOnListeners(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccuredException);
                 try {
                     if (lastOccuredException == null) {
                         ret = interceptor.afterReturning(interfaceMethod, ret, args);
@@ -250,6 +258,11 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     lastOccuredException = e;
                     ret = null;
                 }
+                invokeAfterServiceMethodAdviceOnListeners(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccuredException);
             }
             if (lastOccuredException != null) {
                 throw lastOccuredException;
@@ -261,6 +274,34 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 throw t;
             } else {
                 return result;
+            }
+        }
+    }
+
+    private void invokeAfterServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
+            Method interfaceMethod,
+            Object[] args,
+            Object ret,
+            Exception lastOccuredException) {
+        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
+            try {
+                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+            } catch (Exception e1) {
+                log.error("Exception occured!", e1);
+            }
+        }
+    }
+
+    private void invokeBeforeServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
+            Method interfaceMethod,
+            Object[] args,
+            Object ret,
+            Exception lastOccuredException) {
+        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
+            try {
+                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+            } catch (Exception e1) {
+                log.error("Exception occured!", e1);
             }
         }
     }
@@ -290,8 +331,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         sb.append(clazz.getCanonicalName());
                     }
                     throw new OpenLRuntimeException(
-                        "Called method hasn't been found in service bean. Please, check that excel file contains method with name '" + calledMethod
-                            .getName() + "' and arguments (" + sb.toString() + ").");
+                        "Called method is not found in the service bean. Please, check that excel file contains method '" + MethodUtil
+                            .printMethod(calledMethod.getName(), calledMethod.getParameterTypes()) + "'.");
                 }
             }
             try {
@@ -299,31 +340,48 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 try {
                     Thread.currentThread().setContextClassLoader(serviceClassLoader);
                     beforeInvocation(interfaceMethod, args);
-                    if (aroundInterceptors.containsKey(interfaceMethod)) {
-                        result = aroundInterceptors.get(interfaceMethod)
-                            .around(interfaceMethod, beanMethod, serviceTarget, args);
-                    } else {
-                        if (beanMethod != null) {
-                            result = beanMethod.invoke(serviceTarget, args);
+                    ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(interfaceMethod);
+                    try {
+                        invokeBeforeMethodInvocationOnListeners(interfaceMethod, args, null, null);
+                        if (serviceMethodAroundAdvice != null) {
+                            invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                                interfaceMethod,
+                                args,
+                                null,
+                                null);
+                            try {
+                                result = serviceMethodAroundAdvice
+                                    .around(interfaceMethod, beanMethod, serviceTarget, args);
+                            } finally {
+                                invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                                    interfaceMethod,
+                                    args,
+                                    result,
+                                    null);
+                            }
                         } else {
-                            result = serviceExtraMethodInvoke(interfaceMethod, serviceTarget, args);
+                            if (beanMethod != null) {
+                                result = beanMethod.invoke(serviceTarget, args);
+                            } else {
+                                result = serviceExtraMethodInvoke(interfaceMethod, serviceTarget, args);
+                            }
                         }
+                    } finally {
+                        invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result, null);
                     }
                     result = afterInvocation(interfaceMethod, result, null, args);
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
-            } catch (Exception e) {
-                if (e instanceof InvocationTargetException) {
-                    Throwable t = extractInvocationTargetException(e);
-                    if (t instanceof Exception) {
-                        result = afterInvocation(interfaceMethod, null, (Exception) t, args);
-                    } else {
-                        throw t;
-                    }
+            } catch (InvocationTargetException e) {
+                Throwable t = extractInvocationTargetException(e);
+                if (t instanceof Exception) {
+                    result = afterInvocation(interfaceMethod, null, (Exception) t, args);
                 } else {
-                    result = afterInvocation(interfaceMethod, null, e, args);
+                    throw t;
                 }
+            } catch (Exception e) {
+                result = afterInvocation(interfaceMethod, null, e, args);
             }
             return result;
         } catch (Exception t) {
@@ -339,7 +397,33 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 engine.release();
             } else {
                 log.warn(
-                    "Service bean doesn't implement IEngineWrapper interface. Plese, don't use deprecated static wrapper classes. It can be cause of memory leaks!!!");
+                    "Service bean doesn't implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes!!!");
+            }
+        }
+    }
+
+    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
+            Object[] args,
+            Object result,
+            Exception e) {
+        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
+            try {
+                listener.afterMethodInvocation(interfaceMethod, args, result, e);
+            } catch (Exception e1) {
+                log.error("Exception occured!", e1);
+            }
+        }
+    }
+
+    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
+            Object[] args,
+            Object result,
+            Exception e) {
+        for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
+            try {
+                listener.beforeMethodInvocation(interfaceMethod, args, result, e);
+            } catch (Exception e1) {
+                log.error("Exception occured!", e1);
             }
         }
     }
