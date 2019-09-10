@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.rest;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -12,6 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
@@ -19,12 +20,13 @@ public class AdminRestController {
     private RuleServiceManager ruleServiceManager;
     private Map<String, Object> uiConfig;
 
-    @Resource
+    @Autowired
     public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
         this.ruleServiceManager = ruleServiceManager;
     }
 
-    @Resource
+    @Autowired
+    @Qualifier("uiConfig")
     public void setUiConfig(Map<String, Object> uiConfig) {
         this.uiConfig = uiConfig;
     }
