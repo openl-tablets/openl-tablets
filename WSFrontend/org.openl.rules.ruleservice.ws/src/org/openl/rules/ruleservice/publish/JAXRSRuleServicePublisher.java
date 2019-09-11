@@ -38,7 +38,9 @@ import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -59,6 +61,16 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private boolean loggingStoreEnable = false;
     private boolean swaggerPrettyPrint = false;
 
+    @Autowired
+    private ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory;
+
+    @Autowired
+    @Qualifier("JAXRSServicesServerPrototype")
+    private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
+
+    @Autowired
+    private ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory;
+
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
     }
@@ -75,19 +87,30 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.baseAddress = baseAddress;
     }
 
-    @Lookup
-    public WadlGenerator getWadlGenerator() {
-        return null;
+    public ObjectFactory<WadlGenerator> getWadlGeneratorObjectFactory() {
+        return wadlGeneratorObjectFactory;
     }
 
-    @Lookup("JAXRSServicesServerPrototype")
-    public JAXRSServerFactoryBean getServerFactoryBean() {
-        return null;
+    public void setWadlGeneratorObjectFactory(ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory) {
+        this.wadlGeneratorObjectFactory = wadlGeneratorObjectFactory;
     }
 
-    @Lookup
-    public StoreLoggingInfoFeature getStoreLoggingFeature() {
-        return null;
+    public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
+        return serverFactoryBeanObjectFactory;
+    }
+
+    public void setServerFactoryBeanObjectFactory(
+            ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory) {
+        this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
+    }
+
+    public ObjectFactory<StoreLoggingInfoFeature> getStoreLoggingInfoFeatureObjectFactory() {
+        return storeLoggingInfoFeatureObjectFactory;
+    }
+
+    public void setStoreLoggingInfoFeatureObjectFactory(
+            ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory) {
+        this.storeLoggingInfoFeatureObjectFactory = storeLoggingInfoFeatureObjectFactory;
     }
 
     public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
@@ -104,7 +127,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
+            JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             String url = URLHelper.processURL(service.getUrl());
             if (service.getPublishers().size() != 1) {
                 url = getBaseAddress() + REST_PREFIX + url;
@@ -113,7 +136,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
             }
             svrFactory.setAddress(url);
             if (isLoggingStoreEnable()) {
-                svrFactory.getFeatures().add(getStoreLoggingFeature());
+                svrFactory.getFeatures().add(getStoreLoggingInfoFeatureObjectFactory().getObject());
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
@@ -165,7 +188,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         Field wadlGeneratorField = ServerProviderFactory.class.getDeclaredField("wadlGenerator");
         wadlGeneratorField.setAccessible(true);
         wadlGeneratorField.set(serverProviderFactory,
-            new ProviderInfo<ContainerRequestFilter>((ContainerRequestFilter) getWadlGenerator(),
+            new ProviderInfo<ContainerRequestFilter>(
+                (ContainerRequestFilter) getWadlGeneratorObjectFactory().getObject(),
                 svrFactory.getBus(),
                 true));
     }

@@ -123,7 +123,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         spreadsheet.setVerbose(Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getVerboseOutputModel()));
 
-        validateRowsColumnsWithAsterisks(spreadsheet);
+        if (getHeader().getType().getInstanceClass() != null && SpreadsheetResult.class
+            .isAssignableFrom(getHeader().getType().getInstanceClass())) {
+            validateRowsColumnsWithAsterisks(spreadsheet);
+        }
 
         if (spreadsheet.isCustomSpreadsheetType()) {
             CustomSpreadsheetResultOpenClass type = null;

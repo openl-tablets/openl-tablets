@@ -18,6 +18,10 @@ public enum PreferencesManager {
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
     public boolean isAppConfigured() {
+        String configured = System.getProperty("webstudio.configured");
+        if (configured != null) {
+            return Boolean.parseBoolean(configured);
+        }
         String homePath = readValue(WEBSTUDIO_WORKING_DIR_KEY);
         File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
         return configuredMarker.exists();

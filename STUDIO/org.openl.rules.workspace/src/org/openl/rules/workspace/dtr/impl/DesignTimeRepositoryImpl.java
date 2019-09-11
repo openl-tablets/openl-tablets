@@ -2,7 +2,14 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.*;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
@@ -12,8 +19,11 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
@@ -73,33 +83,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
             boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
 
-            try {
-                repository = createRepo(RepositoryMode.DESIGN,
-                    flatProjects,
-                    PROJECTS_NESTED_FOLDER_CONFIG,
-                    rulesLocation);
+            repository = createRepo(RepositoryMode.DESIGN,
+                flatProjects,
+                PROJECTS_NESTED_FOLDER_CONFIG,
+                rulesLocation);
 
-                if (!separateDeployConfigRepo) {
-                    deployConfigRepository = repository;
-                } else {
-                    deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
-                        flatDeployConfig,
-                        DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
-                        deploymentConfigurationLocation);
-                }
-
-                addListener(new DesignTimeRepositoryListener() {
-                    @Override
-                    public void onRepositoryModified() {
-                        synchronized (projects) {
-                            projectsRefreshNeeded = true;
-                        }
-                    }
-                });
-            } catch (RRepositoryException e) {
-                log.error("Cannot init DTR! {}", e.getMessage(), e);
-                throw new IllegalStateException("Can't initialize Design Repository.", e);
+            if (!separateDeployConfigRepo) {
+                deployConfigRepository = repository;
+            } else {
+                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
+                    flatDeployConfig,
+                    DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
+                    deploymentConfigurationLocation);
             }
+
+            addListener(() -> {
+                synchronized (projects) {
+                    projectsRefreshNeeded = true;
+                }
+            });
 
             RepositoryListener callback = new RepositoryListener(listeners);
             repository.setListener(callback);
@@ -112,23 +114,34 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Repository createRepo(RepositoryMode repositoryMode,
             boolean flatStructure,
             String folderConfig,
-            String baseFolder) throws RRepositoryException {
-        Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
-        if (!flatStructure && repo.supports().folders()) {
-            // Nested folder structure is supported for FolderRepository only
-            FolderRepository delegate = (FolderRepository) repo;
-            String configFile = config.get(folderConfig).toString();
+            String baseFolder) {
+        try {
+            Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
+            if (!flatStructure && repo.supports().folders()) {
+                // Nested folder structure is supported for FolderRepository only
+                FolderRepository delegate = (FolderRepository) repo;
+                String configFile = config.get(folderConfig).toString();
 
-            MappedRepository mappedRepository = new MappedRepository();
-            mappedRepository.setDelegate(delegate);
-            mappedRepository.setRepositoryMode(repositoryMode);
-            mappedRepository.setConfigFile(configFile);
-            mappedRepository.setBaseFolder(baseFolder);
-            mappedRepository.initialize();
-            repo = mappedRepository;
+                MappedRepository mappedRepository = new MappedRepository();
+                mappedRepository.setDelegate(delegate);
+                mappedRepository.setRepositoryMode(repositoryMode);
+                mappedRepository.setConfigFile(configFile);
+                mappedRepository.setBaseFolder(baseFolder);
+                mappedRepository.initialize();
+                repo = mappedRepository;
+            }
+
+            return repo;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[] { Repository.class }, (proxy, method, args) -> {
+                    if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
+                        return null;
+                    }
+                    throw new IllegalStateException("Repository configuration is incorrect. Please change configuration.");
+                });
         }
-
-        return repo;
     }
 
     @Override
@@ -246,7 +259,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             result = new ArrayList<>(projects.values());
         }
 
-        Collections.sort(result, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        result.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
 
         return result;
     }

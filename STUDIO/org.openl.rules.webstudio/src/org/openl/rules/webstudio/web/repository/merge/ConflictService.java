@@ -1,9 +1,9 @@
-package org.openl.rules.webstudio.web;
+package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -31,13 +31,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Path("/file-download/")
-public class FileDownloadService {
-    private static final Logger LOG = LoggerFactory.getLogger(FileDownloadService.class);
+@Path("/conflict/")
+public class ConflictService {
+    private static final Logger LOG = LoggerFactory.getLogger(ConflictService.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
 
-    public FileDownloadService(MultiUserWorkspaceManager workspaceManager) {
+    public ConflictService(MultiUserWorkspaceManager workspaceManager) {
         this.workspaceManager = workspaceManager;
     }
 
@@ -50,28 +50,25 @@ public class FileDownloadService {
             @Context HttpServletRequest request) {
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException {
-                InputStream stream = null;
-                try {
-                    FileItem file = workspaceManager.getUserWorkspace(getUser())
-                        .getDesignTimeRepository()
-                        .getRepository()
-                        .readHistory(name, version);
-                    if (file == null) {
-                        throw new FileNotFoundException("File '" + name + "' is not found");
-                    }
-
-                    stream = file.getStream();
-                    IOUtils.copy(stream, output);
-                    output.flush();
-                } catch (WorkspaceException e) {
-                    LOG.warn(e.getMessage(), e);
-                    throw new IOException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
+        StreamingOutput streamingOutput = output -> {
+            InputStream stream = null;
+            try {
+                FileItem file = workspaceManager.getUserWorkspace(getUser())
+                    .getDesignTimeRepository()
+                    .getRepository()
+                    .readHistory(name, version);
+                if (file == null) {
+                    throw new FileNotFoundException("File '" + name + "' is not found");
                 }
+
+                stream = file.getStream();
+                IOUtils.copy(stream, output);
+                output.flush();
+            } catch (WorkspaceException e) {
+                LOG.warn(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(stream);
             }
         };
 
@@ -86,30 +83,49 @@ public class FileDownloadService {
             @Context HttpServletRequest request) {
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException {
-                InputStream stream = null;
-                try {
-                    UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-                    String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
-                    String localName = name.substring(rulesLocation.length());
-                    FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
-                    if (file == null) {
-                        throw new FileNotFoundException("File " + localName + " is not found");
-                    }
-                    stream = file.getStream();
-                    IOUtils.copy(stream, output);
-                    output.flush();
-                } catch (WorkspaceException e) {
-                    LOG.warn(e.getMessage(), e);
-                    throw new IOException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
+        StreamingOutput streamingOutput = output -> {
+            InputStream stream = null;
+            try {
+                UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
+                String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+                String localName = name.substring(rulesLocation.length());
+                FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                if (file == null) {
+                    throw new FileNotFoundException("File " + localName + " is not found");
                 }
+                stream = file.getStream();
+                IOUtils.copy(stream, output);
+                output.flush();
+            } catch (WorkspaceException e) {
+                LOG.warn(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(stream);
             }
         };
 
+        return prepareResponse(request, cookieName, name, streamingOutput);
+    }
+
+    @GET
+    @Path("merged")
+    @Produces("application/octet-stream")
+    public Response merged(@QueryParam(Constants.REQUEST_PARAM_NAME) final String name,
+            @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @Context HttpServletRequest request) {
+
+        StreamingOutput streamingOutput = output -> {
+            Map<String, ConflictResolution> conflictResolutions = ConflictUtils
+                .getConflictsFromSession(request.getSession());
+            ConflictResolution conflictResolution = conflictResolutions.get(name);
+            try (InputStream input = conflictResolution.getCustomResolutionFile().getInput()) {
+                IOUtils.copy(input, output);
+            } finally {
+                output.flush();
+            }
+        };
+
+        String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
         return prepareResponse(request, cookieName, name, streamingOutput);
     }
 

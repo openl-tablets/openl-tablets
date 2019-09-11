@@ -52,6 +52,7 @@ public class MergeConflictBean {
     private Map<String, Boolean> existInRepositoryCache = new HashMap<>();
     private String conflictedFile;
     private String mergeMessage;
+    private boolean mergeMessageModified;
 
     public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = getMergeConflict();
@@ -139,10 +140,16 @@ public class MergeConflictBean {
     }
 
     public String getMergeMessage() {
+        if (!mergeMessageModified) {
+            mergeMessage = generateMergeMessage();
+        }
         return mergeMessage;
     }
 
     public void setMergeMessage(String mergeMessage) {
+        if (StringUtils.notEquals(this.mergeMessage, mergeMessage)) {
+            mergeMessageModified = true;
+        }
         this.mergeMessage = mergeMessage;
     }
 
@@ -275,8 +282,19 @@ public class MergeConflictBean {
     public void init() {
         try {
             conflictResolutions.clear();
+            ConflictUtils.saveConflictsToSession(FacesUtils.getSession(), conflictResolutions);
             conflictedFile = null;
 
+            mergeMessage = generateMergeMessage();
+            mergeMessageModified = false;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new ValidationException(e.getMessage(), e);
+        }
+    }
+
+    private String generateMergeMessage() {
+        try {
             MergeConflictInfo mergeConflict = getMergeConflict();
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
@@ -288,19 +306,27 @@ public class MergeConflictBean {
                 ArrayList<String> conflicts = new ArrayList<>(exception.getConflictedFiles());
                 conflicts.sort(String.CASE_INSENSITIVE_ORDER);
                 for (String file : conflicts) {
+                    ConflictResolution resolution = conflictResolutions.get(file);
+
                     if (file.startsWith(rulesLocation)) {
                         file = file.substring(rulesLocation.length());
                     }
                     messageBuilder.append("\n\t").append(file);
+
+                    if (resolution != null) {
+                        ResolutionType resolutionType = resolution.getResolutionType();
+                        if (resolutionType != ResolutionType.UNRESOLVED) {
+                            messageBuilder.append(" (").append(resolutionType.name().toLowerCase()).append(')');
+                        }
+                    }
                 }
-                mergeMessage = messageBuilder.toString();
-            } else {
-                mergeMessage = null;
+                return messageBuilder.toString();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ValidationException(e.getMessage(), e);
+            log.error("Can't generate merge message. Will use empty string.", e);
         }
+
+        return null;
     }
 
     public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
@@ -320,11 +346,13 @@ public class MergeConflictBean {
         FacesContext facesContext = FacesUtils.getFacesContext();
         if (facesContext != null) {
             facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            ConflictUtils.clear(FacesUtils.getSession());
         }
         conflictResolutions.clear();
         existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
+        mergeMessageModified = false;
     }
 
     public boolean isExcelFile(String file) {
