@@ -1,9 +1,11 @@
 package org.openl.itest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.openl.itest.core.RestClientFactory.assertText;
+import static org.openl.itest.core.RestClientFactory.file;
+import static org.openl.itest.core.RestClientFactory.json;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,20 +25,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 public class RunRestRulesDeploymentTest {
 
     private static final String SINGLE_DEPLOYMENT_ENDPOINT = "/REST/deployed-rules/hello";
     private static final String MULTIPLE_DEPLOYMENT_ENDPOINT = "/REST/project1/sayHello";
-    private static final String SERVICES_INFO_ENDPOINT = "/admin/services";
-    private static final String UI_INFO_ENDPOINT = "/admin/ui/info";
-    private static final String SERVICES_METHODS_ENDPOINT = "/methods";
-    private static final String SERVICES_DELETE_ENDPOINT = "/admin/delete/";
-    private static final String SERVICES_READ_ENDPOINT = "/admin/read/";
 
     private static JettyServer server;
     private static String baseURI;
@@ -61,24 +56,22 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() throws IOException {
-        assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest(SINGLE_DEPLOYMENT_ENDPOINT).getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND,
+            rest.postForEntity(SINGLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class).getStatusCode());
 
-        ResponseEntity<ServiceInfoResponse[]> services = fetchServices(SERVICES_INFO_ENDPOINT);
-        ServiceInfoResponse[] servicesInfo = services.getBody();
+        ServiceInfoResponse[] servicesInfo = rest.getForObject("/admin/services", ServiceInfoResponse[].class);
         assertEquals(0, servicesInfo.length);
 
         long createServiceTime = System.currentTimeMillis();
-        ResponseEntity<String> response = doDeploy("/rules-to-deploy.zip", HttpMethod.POST);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doDeploy("/rules-to-deploy.zip");
 
         ClassPathResource classPathResource = new ClassPathResource("/rules-to-deploy.zip");
 
         File file = classPathResource.getFile();
         byte[] fileContent = Files.readAllBytes(file.toPath());
 
-        ServiceInfoResponse[] servicesInfo2 = fetchServices(SERVICES_INFO_ENDPOINT).getBody();
-        ResponseEntity<byte[]> responseEntity = readService(servicesInfo2[0].getName());
-        byte[] fileContent2 = responseEntity.getBody();
+        ServiceInfoResponse[] servicesInfo2 = rest.getForObject("/admin/services", ServiceInfoResponse[].class);
+        byte[] fileContent2 = rest.getForObject("/admin/read/" + servicesInfo2[0].getName(), byte[].class);
         assertTrue(Arrays.equals(fileContent, fileContent2));
 
         assertEquals(1, servicesInfo2.length);
@@ -86,56 +79,56 @@ public class RunRestRulesDeploymentTest {
         long service2Time = servicesInfo2[0].getStartedTime().getTime();
         checkServiceTime(service2Time, createServiceTime);
 
-        String body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
+        String body = rest.postForObject(SINGLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
         assertEquals("Hello, Vlad", body);
 
         // should not be updated
-        response = doDeploy("/rules-to-deploy_v2.zip", HttpMethod.POST);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doDeploy("/rules-to-deploy_v2.zip");
 
-        ServiceInfoResponse[] servicesInfo3 = fetchServices(SERVICES_INFO_ENDPOINT).getBody();
+        ServiceInfoResponse[] servicesInfo3 = rest.getForObject("/admin/services", ServiceInfoResponse[].class);
         assertEquals(1, servicesInfo3.length);
         checkServiceInfo(servicesInfo3[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
         long service3Time = servicesInfo3[0].getStartedTime().getTime();
         assertEquals(service2Time, service3Time);
 
-        body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
+        body = rest.postForObject(SINGLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
         assertEquals("Hello, Vlad", body);
 
         // should be updated
         createServiceTime = System.currentTimeMillis();
-        response = doDeploy("/rules-to-deploy_v2.zip", HttpMethod.PUT);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doRedeploy("/rules-to-deploy_v2.zip");
 
-        ServiceInfoResponse[] servicesInfo4 = fetchServices(SERVICES_INFO_ENDPOINT).getBody();
+        ServiceInfoResponse[] servicesInfo4 = rest.getForObject("/admin/services", ServiceInfoResponse[].class);
         assertEquals(1, servicesInfo4.length);
         checkServiceInfo(servicesInfo4[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
         checkServiceTime(servicesInfo4[0].getStartedTime().getTime(), createServiceTime);
 
-        ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity = fetchServiceInfo();
-        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getBody().getServices();
+        UiInfoResponse uiInfoResponseResponseEntity = rest.getForObject("/admin/ui/info", UiInfoResponse.class);
+        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getServices();
+        assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
         assertEquals(1, serviceInfo.length);
+        assertEquals("deployed-rules", serviceInfo[0].getName());
 
-        body = pingDeployedService(SINGLE_DEPLOYMENT_ENDPOINT);
+        body = rest.postForObject(SINGLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
         assertEquals("Hello, Mr. Vlad", body);
-        deleteService(serviceInfo[0].getName());
-        ResponseEntity<UiInfoResponse> uiInfoResponseResponseEntity2 = fetchServiceInfo();
-        ServiceInfoResponse[] serviceInfo2 = uiInfoResponseResponseEntity2.getBody().getServices();
-        assertEquals(0, serviceInfo2.length);
+        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
+        rest.delete("/admin/delete/deployed-rules");
+        UiInfoResponse uiInfoResponseResponseEntity2 = rest.getForObject("/admin/ui/info", UiInfoResponse.class);
+        assertEquals(0, uiInfoResponseResponseEntity2.getServices().length);
+        assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
 
     }
 
     @Test
     public void testDeployRules_multipleDeployment() {
 
-        assertEquals(HttpStatus.NOT_FOUND, sendHelloRequest(MULTIPLE_DEPLOYMENT_ENDPOINT).getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND,
+            rest.postForEntity(MULTIPLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class).getStatusCode());
 
         long createServiceTime = System.currentTimeMillis();
-        ResponseEntity<String> response = doDeploy("/multiple-deployment_v1.zip", HttpMethod.POST);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doDeploy("/multiple-deployment_v1.zip");
 
-        ResponseEntity<ServiceInfoResponse[]> services = fetchServices(SERVICES_INFO_ENDPOINT);
-        ServiceInfoResponse[] servicesInfo = services.getBody();
+        ServiceInfoResponse[] servicesInfo = rest.getForObject("/admin/services", ServiceInfoResponse[].class);
         assertEquals(2, servicesInfo.length);
         checkServiceInfo(servicesInfo[0], "project1", "project1", "REST/project1");
         checkServiceTime(servicesInfo[0].getStartedTime().getTime(), createServiceTime);
@@ -145,42 +138,37 @@ public class RunRestRulesDeploymentTest {
             "REST/yaml_project/project2");
         checkServiceTime(servicesInfo[1].getStartedTime().getTime(), createServiceTime);
 
-        ResponseEntity<String> serviceMethods2 = fetchServiceMethods(
-            SERVICES_INFO_ENDPOINT + "/project1" + SERVICES_METHODS_ENDPOINT);
-        assertEquals(
-            "[{\"name\":\"getProject2Version\",\"paramTypes\":[],\"returnType\":\"String\"},{\"name\":\"sayHello\",\"paramTypes\":[\"String\"],\"returnType\":\"String\"}]",
-            serviceMethods2.getBody());
-        ResponseEntity<String> serviceMethods3 = fetchServiceMethods(
-            SERVICES_INFO_ENDPOINT + "/yaml_project_project2" + SERVICES_METHODS_ENDPOINT);
-        assertEquals(
-            "[{\"name\":\"getProject2Version\",\"paramTypes\":[\"IRulesRuntimeContext\"],\"returnType\":\"String\"}]",
-            serviceMethods3.getBody());
+        String serviceMethods2 = rest.getForObject("/admin/services" + "/project1" + "/methods", String.class);
+        assertText(
+            "[{`name`:`getProject2Version`,`paramTypes`:[],`returnType`:`String`},{`name`:`sayHello`,`paramTypes`:[`String`],`returnType`:`String`}]",
+            serviceMethods2);
+        String serviceMethods3 = rest.getForObject("/admin/services" + "/yaml_project_project2" + "/methods",
+            String.class);
+        assertText("[{`name`:`getProject2Version`,`paramTypes`:[`IRulesRuntimeContext`],`returnType`:`String`}]",
+            serviceMethods3);
 
-        String body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
+        String body = rest.postForObject(MULTIPLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
         // TODO: looks like we have a bug. because response looks wrong. It should return "Hello, Vlad! v1"
-        assertEquals("Hello, {\"name\": \"Vlad\"}! v1", body);
+        assertText("Hello, {`name`: `Vlad`}! v1", body);
 
         // should not be updated
-        response = doDeploy("/multiple-deployment_v2.zip", HttpMethod.POST);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doDeploy("/multiple-deployment_v2.zip");
 
-        body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
-        assertEquals("Hello, {\"name\": \"Vlad\"}! v1", body);
+        body = rest.postForObject(MULTIPLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
+        assertText("Hello, {`name`: `Vlad`}! v1", body);
 
         // should not be updated
-        response = doDeploy("/multiple-deployment_v2.zip", HttpMethod.PUT);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        doRedeploy("/multiple-deployment_v2.zip");
 
-        body = pingDeployedService(MULTIPLE_DEPLOYMENT_ENDPOINT);
-        assertEquals("Hello, Mr. {\"name\": \"Vlad\"}! v2", body);
+        body = rest.postForObject(MULTIPLE_DEPLOYMENT_ENDPOINT, json("{`name`: `Vlad`}"), String.class);
+        assertText("Hello, Mr. {`name`: `Vlad`}! v2", body);
     }
 
     @Test
     public void testMissingServiceMethods() {
-        ResponseEntity<String> serviceMethods0 = fetchServiceMethods(
-            SERVICES_INFO_ENDPOINT + "/missing-name" + SERVICES_METHODS_ENDPOINT);
-        assertEquals(HttpStatus.NOT_FOUND, serviceMethods0.getStatusCode());
-        assertNull(serviceMethods0.getBody());
+        ResponseEntity<String> response = rest.getForEntity("/admin/services/missing-name/methods", String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,
@@ -196,60 +184,13 @@ public class RunRestRulesDeploymentTest {
         assertTrue((timeToCheckMs >= createServiceTime && timeToCheckMs <= System.currentTimeMillis()));
     }
 
-    private String pingDeployedService(String endpoint) {
-        ResponseEntity<String> response = sendHelloRequest(endpoint);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        String body = response.getBody();
-        assertNotNull(body);
-        return body;
+    private void doDeploy(String rules) {
+        ResponseEntity<Void> response = rest.postForEntity("/admin/deploy", file(rules), Void.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
-    private ResponseEntity<String> sendHelloRequest(String endpoint) {
-        return rest
-            .exchange(endpoint, HttpMethod.POST, RestClientFactory.request("{\"name\": \"Vlad\"}"), String.class);
-    }
-
-    private ResponseEntity<String> doDeploy(String rules, HttpMethod method) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/zip");
-        return rest
-            .exchange("/admin/deploy", method, new HttpEntity<>(new ClassPathResource(rules), headers), String.class);
-    }
-
-    private ResponseEntity<ServiceInfoResponse[]> fetchServices(String endpoint) {
-        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<ServiceInfoResponse[]> response = rest
-            .exchange(endpoint, HttpMethod.GET, entity, ServiceInfoResponse[].class);
-        return response;
-    }
-
-    private ResponseEntity<UiInfoResponse> fetchServiceInfo() {
-        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<UiInfoResponse> response = rest
-            .exchange(UI_INFO_ENDPOINT, HttpMethod.GET, entity, UiInfoResponse.class);
-        return response;
-    }
-
-    private ResponseEntity<String> deleteService(String serviceName) {
-        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<String> response = rest
-            .exchange(SERVICES_DELETE_ENDPOINT + serviceName, HttpMethod.DELETE, entity, String.class);
-        return response;
-    }
-
-    private ResponseEntity<byte[]> readService(String serviceName) {
-        rest.getMessageConverters().add(new ByteArrayHttpMessageConverter());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.ALL));
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<byte[]> response = rest
-            .exchange(SERVICES_READ_ENDPOINT + serviceName, HttpMethod.GET, entity, byte[].class, "1");
-        return response;
-    }
-
-    private ResponseEntity<String> fetchServiceMethods(String endpoint) {
-        HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<String> response = rest.exchange(endpoint, HttpMethod.GET, entity, String.class);
-        return response;
+    private void doRedeploy(String rules) {
+        ResponseEntity<Void> response = rest.exchange("/admin/deploy", HttpMethod.PUT, file(rules), Void.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 }
