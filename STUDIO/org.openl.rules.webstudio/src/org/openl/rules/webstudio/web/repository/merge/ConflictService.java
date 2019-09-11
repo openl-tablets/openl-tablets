@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.repository.merge;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,28 +50,25 @@ public class ConflictService {
             @Context HttpServletRequest request) {
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException {
-                InputStream stream = null;
-                try {
-                    FileItem file = workspaceManager.getUserWorkspace(getUser())
-                        .getDesignTimeRepository()
-                        .getRepository()
-                        .readHistory(name, version);
-                    if (file == null) {
-                        throw new FileNotFoundException("File '" + name + "' is not found");
-                    }
-
-                    stream = file.getStream();
-                    IOUtils.copy(stream, output);
-                    output.flush();
-                } catch (WorkspaceException e) {
-                    LOG.warn(e.getMessage(), e);
-                    throw new IOException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
+        StreamingOutput streamingOutput = output -> {
+            InputStream stream = null;
+            try {
+                FileItem file = workspaceManager.getUserWorkspace(getUser())
+                    .getDesignTimeRepository()
+                    .getRepository()
+                    .readHistory(name, version);
+                if (file == null) {
+                    throw new FileNotFoundException("File '" + name + "' is not found");
                 }
+
+                stream = file.getStream();
+                IOUtils.copy(stream, output);
+                output.flush();
+            } catch (WorkspaceException e) {
+                LOG.warn(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(stream);
             }
         };
 
@@ -87,27 +83,24 @@ public class ConflictService {
             @Context HttpServletRequest request) {
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException {
-                InputStream stream = null;
-                try {
-                    UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-                    String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
-                    String localName = name.substring(rulesLocation.length());
-                    FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
-                    if (file == null) {
-                        throw new FileNotFoundException("File " + localName + " is not found");
-                    }
-                    stream = file.getStream();
-                    IOUtils.copy(stream, output);
-                    output.flush();
-                } catch (WorkspaceException e) {
-                    LOG.warn(e.getMessage(), e);
-                    throw new IOException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
+        StreamingOutput streamingOutput = output -> {
+            InputStream stream = null;
+            try {
+                UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
+                String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
+                String localName = name.substring(rulesLocation.length());
+                FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                if (file == null) {
+                    throw new FileNotFoundException("File " + localName + " is not found");
                 }
+                stream = file.getStream();
+                IOUtils.copy(stream, output);
+                output.flush();
+            } catch (WorkspaceException e) {
+                LOG.warn(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(stream);
             }
         };
 
