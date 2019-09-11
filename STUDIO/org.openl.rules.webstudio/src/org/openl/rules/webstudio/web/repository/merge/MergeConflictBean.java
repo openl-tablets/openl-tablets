@@ -346,13 +346,13 @@ public class MergeConflictBean {
         FacesContext facesContext = FacesUtils.getFacesContext();
         if (facesContext != null) {
             facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            ConflictUtils.clear(FacesUtils.getSession());
         }
         conflictResolutions.clear();
         existInRepositoryCache.clear();
         conflictedFile = null;
         mergeMessage = null;
         mergeMessageModified = false;
-        ConflictUtils.clear(FacesUtils.getSession());
     }
 
     public boolean isExcelFile(String file) {
