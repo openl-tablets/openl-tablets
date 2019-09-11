@@ -39,11 +39,7 @@ public class StartupListener implements ServletContextListener {
             System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
         }
 
-        boolean configured = Boolean.parseBoolean(System.getProperty("webstudio.configured"));
-
-        if (!configured) {
-            configured = PreferencesManager.INSTANCE.isAppConfigured();
-        }
+        Boolean configured = PreferencesManager.INSTANCE.isAppConfigured();
 
         // If webstudio.mode isn't defined, use either webstudio-beans.xml or installer-beans.xml.
         // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
