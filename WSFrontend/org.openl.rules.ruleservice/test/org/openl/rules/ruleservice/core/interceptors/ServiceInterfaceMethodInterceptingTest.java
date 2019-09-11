@@ -34,7 +34,6 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
@@ -68,8 +67,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         @ServiceCallAfterInterceptor(value = ResultConvertor1.class)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
-        @ServiceCallAfterInterceptors({ @ServiceCallAfterInterceptor(value = ResultConvertor.class) })
-        @ServiceCallAroundInterceptor(value = AroundInterceptor.class)
+        @ServiceCallAfterInterceptor(ResultConvertor.class)
+        @ServiceCallAroundInterceptor(AroundInterceptor.class)
         Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
 
         @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
@@ -103,7 +102,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void before() {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         DeploymentDescription deploymentDescription = new DeploymentDescription("someDeploymentName", version);
-        
+
         Module module = new Module();
         module.setName("Overload");
         List<Module> modules = new ArrayList<>();
@@ -113,7 +112,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         projectDescriptor.setModules(modules);
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
-        
 
         serviceDescription = new ServiceDescription.ServiceDescriptionBuilder()
             .setServiceClassName(OverloadInterface.class.getName())

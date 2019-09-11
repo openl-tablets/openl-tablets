@@ -28,10 +28,8 @@ import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptors;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
@@ -101,8 +99,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             for (Method method : serviceClass.getMethods()) {
                 Annotation[] methodAnnotations = method.getAnnotations();
                 for (Annotation annotation : methodAnnotations) {
-                    checkForBeforeInterceptors(method, annotation);
-                    checkForAfterInterceptors(method, annotation);
+                    checkForBeforeInterceptor(method, annotation);
+                    checkForAfterInterceptor(method, annotation);
                     checkForAroundInterceptor(method, annotation);
                     checkForServiceExtraMethodAnnotation(method, annotation);
                 }
@@ -139,7 +137,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    private void checkForBeforeInterceptors(Method method, Annotation annotation) {
+    private void checkForBeforeInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallBeforeInterceptor) {
             Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
                 .value();
@@ -156,13 +154,6 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
-            }
-        }
-        if (annotation instanceof ServiceCallBeforeInterceptors) {
-            ServiceCallBeforeInterceptor[] serviceCallBeforeInterceptors = ((ServiceCallBeforeInterceptors) annotation)
-                .value();
-            for (ServiceCallBeforeInterceptor serviceCallBeforeInterceptor : serviceCallBeforeInterceptors) {
-                checkForBeforeInterceptors(method, serviceCallBeforeInterceptor);
             }
         }
     }
@@ -184,7 +175,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    private void checkForAfterInterceptors(Method method, Annotation annotation) {
+    private void checkForAfterInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallAfterInterceptor) {
             Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
                 .value();
@@ -201,13 +192,6 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
-            }
-        }
-        if (annotation instanceof ServiceCallAfterInterceptors) {
-            ServiceCallAfterInterceptor[] serviceCallAfterInterceptors = ((ServiceCallAfterInterceptors) annotation)
-                .value();
-            for (ServiceCallAfterInterceptor serviceCallAfterInterceptor : serviceCallAfterInterceptors) {
-                checkForAfterInterceptors(method, serviceCallAfterInterceptor);
             }
         }
     }

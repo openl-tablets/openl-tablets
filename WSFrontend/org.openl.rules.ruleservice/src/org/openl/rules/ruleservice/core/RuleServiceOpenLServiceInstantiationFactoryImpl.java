@@ -65,13 +65,19 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
         }
         compileOpenClass(service, instantiationStrategy);
-        resolveServiceClassLoader(service, instantiationStrategy);
-        Object serviceTarget = resolveInterfaceAndClassLoader(service, serviceDescription, instantiationStrategy);
-        resolveRmiInterface(service);
-        instantiateServiceBean(service, serviceTarget, service.getClassLoader());
+        ClassLoader serviceClassLoader = resolveServiceClassLoader(service, instantiationStrategy);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(serviceClassLoader);
+            Object serviceTarget = resolveInterfaceAndClassLoader(service, serviceDescription, instantiationStrategy);
+            resolveRmiInterface(service);
+            instantiateServiceBean(service, serviceTarget, service.getClassLoader());
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
-    private void resolveServiceClassLoader(OpenLService service,
+    private ClassLoader resolveServiceClassLoader(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
                                                               RuleServiceInstantiationException {
         ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) service.getOpenClass())
@@ -80,7 +86,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
         openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
         service.setClassLoader(openLBundleClassLoader);
-
+        return openLBundleClassLoader;
     }
 
     private void compileOpenClass(OpenLService service,

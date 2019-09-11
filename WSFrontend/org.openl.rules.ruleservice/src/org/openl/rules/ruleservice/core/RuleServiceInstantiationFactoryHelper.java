@@ -29,7 +29,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
 import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
 import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
@@ -210,42 +209,27 @@ public final class RuleServiceInstantiationFactoryHelper {
             Object serviceTarget,
             boolean toServiceClass) {
 
-        Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = null;
         if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null && !method.getReturnType()
             .equals(VariationsResult.class)) {
             ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
                 .getAnnotation(ServiceCallAfterInterceptor.class);
-            lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(serviceCallAfterInterceptor);
-        }
-
-        ServiceCallAfterInterceptors serviceCallAfterInterceptors = method
-            .getAnnotation(ServiceCallAfterInterceptors.class);
-        if (serviceCallAfterInterceptors != null && serviceCallAfterInterceptors.value().length > 0 && !method
-            .getReturnType()
-            .equals(VariationsResult.class)) {
-            for (ServiceCallAfterInterceptor serviceCallAfterInterceptor : serviceCallAfterInterceptors.value()) {
-                Class<? extends ServiceMethodAfterAdvice<?>> x = getLastServiceMethodAfterAdvice(
-                    serviceCallAfterInterceptor);
-                if (x != null) {
-                    lastServiceMethodAfterAdvice = x;
-                }
-            }
-        }
-
-        if (lastServiceMethodAfterAdvice != null) {
-            if (toServiceClass) {
-                if (lastServiceMethodAfterAdvice.isAnnotationPresent(UseOpenMethodReturnType.class)) {
-                    Class<?> t = extractOpenMethodReturnType(method,
-                        serviceTarget,
-                        lastServiceMethodAfterAdvice,
-                        lastServiceMethodAfterAdvice.getAnnotation(UseOpenMethodReturnType.class).value());
-                    if (t != null) {
-                        return t;
+            Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
+                serviceCallAfterInterceptor);
+            if (lastServiceMethodAfterAdvice != null) {
+                if (toServiceClass) {
+                    if (lastServiceMethodAfterAdvice.isAnnotationPresent(UseOpenMethodReturnType.class)) {
+                        Class<?> t = extractOpenMethodReturnType(method,
+                            serviceTarget,
+                            lastServiceMethodAfterAdvice,
+                            lastServiceMethodAfterAdvice.getAnnotation(UseOpenMethodReturnType.class).value());
+                        if (t != null) {
+                            return t;
+                        }
                     }
+                    return getGenericType(lastServiceMethodAfterAdvice);
                 }
-                return getGenericType(lastServiceMethodAfterAdvice);
+                return Object.class;
             }
-            return Object.class;
         }
 
         if (method.getAnnotation(ServiceCallAroundInterceptor.class) != null && !method.getReturnType()
@@ -327,8 +311,8 @@ public final class RuleServiceInstantiationFactoryHelper {
     }
 
     private static boolean isTypeChangingAnnotationPresent(Method method) {
-        return method.isAnnotationPresent(ServiceCallAfterInterceptor.class) || method.isAnnotationPresent(
-            ServiceCallAfterInterceptors.class) || method.isAnnotationPresent(ServiceCallAroundInterceptor.class);
+        return method.isAnnotationPresent(ServiceCallAfterInterceptor.class) || method
+            .isAnnotationPresent(ServiceCallAroundInterceptor.class);
     }
 
     /**

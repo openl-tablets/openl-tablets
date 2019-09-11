@@ -2,7 +2,11 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
@@ -16,7 +20,6 @@ import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
@@ -318,7 +321,6 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     @Override
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
         if (!(interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptor.class) || interfaceMethod
-            .isAnnotationPresent(ServiceCallAfterInterceptors.class) || interfaceMethod
                 .isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
             super.validateReturnType(openMethod, interfaceMethod);
         }
