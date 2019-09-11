@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -62,13 +60,9 @@ public class RunITest {
 
     @Test
     public void test_jsonResponse_SpreadsheetResult_OK() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("i", 100);
-        requestBody.put("j", "foo");
-
         ResponseEntity<String> response = rest.exchange("/REST/wadl-and-spreadsheetresult/tiktak",
             HttpMethod.POST,
-            RestClientFactory.request(requestBody),
+            RestClientFactory.json("{`i`:100, `j`:`foo`}"),
             String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());

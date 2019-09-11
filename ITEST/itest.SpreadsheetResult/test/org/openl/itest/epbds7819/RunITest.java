@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -120,12 +118,8 @@ public class RunITest {
 
     @Test
     public void testPost_tiktakMethod_shouldReturnSpreadsheetResult() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("i", 100);
-        requestBody.put("j", "foo");
-
         ResponseEntity<SpreadsheetResult> response = rest
-            .exchange("/tiktak", HttpMethod.POST, RestClientFactory.request(requestBody), SpreadsheetResult.class);
+            .exchange("/tiktak", HttpMethod.POST, RestClientFactory.json("{`i`:100, `j`:`foo`}"), SpreadsheetResult.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         SpreadsheetResult result = response.getBody();

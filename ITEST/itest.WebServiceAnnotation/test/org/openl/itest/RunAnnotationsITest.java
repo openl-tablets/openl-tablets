@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -195,11 +193,8 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_virtual2_interfaceMethod_withNamedParameters_OK() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("first", 1111);
-        requestBody.put("second", "FOO");
         ResponseEntity<Double> response = annotationClassRest
-            .exchange("/virtual2", HttpMethod.POST, RestClientFactory.request(requestBody), Double.class);
+            .exchange("/virtual2", HttpMethod.POST, RestClientFactory.json("{ `first`:1111, `second`:`FOO`}"), Double.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals((Double) 1666.5d, response.getBody());
@@ -208,7 +203,7 @@ public class RunAnnotationsITest {
     @Test
     public void call_pong_interfaceMethod_OK() {
         ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/ping", HttpMethod.POST, RestClientFactory.request(new MyType("GOOD", 101)), MyType.class);
+            .exchange("/ping", HttpMethod.POST, RestClientFactory.json("{ `status`:`GOOD`, `code`:101}"), MyType.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         MyType body = response.getBody();
@@ -218,11 +213,8 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_process_rulesMethod_OK() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("nick", "bar");
-        requestBody.put("month", 120);
         ResponseEntity<ReturnTypeDto> response = annotationClassRest
-            .exchange("/process", HttpMethod.POST, RestClientFactory.request(requestBody), ReturnTypeDto.class);
+            .exchange("/process", HttpMethod.POST, RestClientFactory.json("{ `nick`:`bar`, `month`:120}"), ReturnTypeDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         ReturnTypeDto body = response.getBody();

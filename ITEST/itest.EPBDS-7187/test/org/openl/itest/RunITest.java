@@ -2,11 +2,9 @@ package org.openl.itest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.openl.itest.core.RestClientFactory.json;
 
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -20,7 +18,6 @@ import org.junit.Test;
 import org.openl.itest.core.ITestUtils;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -53,84 +50,73 @@ public class RunITest {
 
     @Test
     public void testPost_lowCase() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("number", 1d);
-        requestBody.put("string", "a");
-
-        assertReturnsTrue(requestBody, "/upcs/lowCase");
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/lowCase", json("{ `number`:1.0, `string`:`a`}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testPost_UPCase() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("STRING", "B");
-        requestBody.put("NUMBER", 2.5);
-
-        assertReturnsTrue(requestBody, "/upcs/UPCase");
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/UPCase", json("{ `STRING`:`B`, `NUMBER`:2.5}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testPost_MixedCase() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("numBer", 3d);
-        requestBody.put("String", "C");
-
-        assertReturnsTrue(requestBody, "/upcs/MixedCase");
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/MixedCase", json("{ `numBer`:3.0, `String`:`C`}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testPost_eDGECase() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("sTring", "d");
-        requestBody.put("NUMBer", Double.NaN);
-
-        assertReturnsTrue(requestBody, "/upcs/eDGECase");
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/eDGECase", json("{ `sTring`:`d`, `NUMBer`:`NaN`}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testGet_overload() {
-        Map<String, Object> requestBody = new HashMap<>();
-
-        String url = "/upcs/overload";
-        assertReturnsTrue(requestBody, url, HttpMethod.GET);
+        ResponseEntity<String> response = rest.getForEntity("/upcs/overload", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testGet_overload_int() {
-        Map<String, Object> requestBody = new HashMap<>();
-
-        String url = "/upcs/overload2/1";
-        assertReturnsTrue(requestBody, url, HttpMethod.GET);
+        ResponseEntity<String> response = rest.getForEntity("/upcs/overload2/1", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testPost_overload_Integer_String() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("I", 1);
-        requestBody.put("J", "A");
-
-        String url = "/upcs/overload4";
-        assertReturnsTrue(requestBody, url);
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/overload4", json("{ `I`:1, `J`:`A`}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
     public void testPost_overload_int_String() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("i", 1);
-        requestBody.put("J", "a");
-
-        String url = "/upcs/overload3";
-        assertReturnsTrue(requestBody, url);
+        ResponseEntity<String> response = rest
+            .postForEntity("/upcs/overload3", json("{ `i`:1, `J`:`a`}"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
-    public void testPost_overload_Bean() throws Exception {
-        Map<String, Object> requestBody = new HashMap<>();
-        Object bean = Class.forName("Bean").getDeclaredConstructor().newInstance();
-        requestBody.put("b", bean);
-
-        String url = "/upcs/overload1";
-        assertReturnsTrue(requestBody, url);
+    public void testPost_overload_Bean() {
+        ResponseEntity<String> response = rest.postForEntity("/upcs/overload1",
+            json("{ `b` : {`I`:17, `BeanBName` : {`STR` : null, `In` : 0 } }}"),
+            String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("true", response.getBody());
     }
 
     @Test
@@ -266,20 +252,6 @@ public class RunITest {
             assertEquals("EDGECaseRequest", elementValue);
         }
         assertNotNull(nodeForMethodBody);
-    }
-
-    private void assertReturnsTrue(Map<String, Object> requestBody, String url) {
-        assertReturnsTrue(requestBody, url, HttpMethod.POST);
-    }
-
-    private void assertReturnsTrue(Map<String, Object> requestBody, String url, HttpMethod httpMethod) {
-        ResponseEntity<Boolean> response = rest
-            .exchange(url, httpMethod, RestClientFactory.request(requestBody), Boolean.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        Boolean result = response.getBody();
-        assertNotNull(result);
-        assertTrue(result);
     }
 
 }
