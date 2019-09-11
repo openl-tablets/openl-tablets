@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.interceptor.Fault;
@@ -18,9 +19,7 @@ public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, M
     }
 
     public JAXWSInvocationHandler(Object target) {
-        if (target == null) {
-            throw new IllegalArgumentException("target argument must not be null!");
-        }
+        Objects.requireNonNull("target argument must not be null!");
         this.target = target;
     }
 
