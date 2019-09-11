@@ -25,6 +25,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
 import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
@@ -208,51 +209,51 @@ public final class RuleServiceInstantiationFactoryHelper {
     private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(Method method,
             Object serviceTarget,
             boolean toServiceClass) {
-
-        if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null && !method.getReturnType()
-            .equals(VariationsResult.class)) {
-            ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
-                .getAnnotation(ServiceCallAfterInterceptor.class);
+        ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
+            .getAnnotation(ServiceCallAfterInterceptor.class);
+        if (serviceCallAfterInterceptor != null && !method.getReturnType().equals(VariationsResult.class)) {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                 serviceCallAfterInterceptor);
             if (lastServiceMethodAfterAdvice != null) {
-                if (toServiceClass) {
-                    if (lastServiceMethodAfterAdvice.isAnnotationPresent(UseOpenMethodReturnType.class)) {
-                        Class<?> t = extractOpenMethodReturnType(method,
-                            serviceTarget,
-                            lastServiceMethodAfterAdvice,
-                            lastServiceMethodAfterAdvice.getAnnotation(UseOpenMethodReturnType.class).value());
-                        if (t != null) {
-                            return t;
-                        }
-                    }
-                    return getGenericType(lastServiceMethodAfterAdvice);
-                }
-                return Object.class;
+                return extractTypeForMethod(method, serviceTarget, toServiceClass, lastServiceMethodAfterAdvice);
             }
         }
 
-        if (method.getAnnotation(ServiceCallAroundInterceptor.class) != null && !method.getReturnType()
-            .equals(VariationsResult.class)) {
-            ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
-                .getAnnotation(ServiceCallAroundInterceptor.class);
+        ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
+            .getAnnotation(ServiceCallAroundInterceptor.class);
+        if (serviceCallAroundInterceptor != null && !method.getReturnType().equals(VariationsResult.class)) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
-            if (toServiceClass && serviceMethodAroundAdvice != null && !serviceMethodAroundAdvice
-                .isAnnotationPresent(NotConvertor.class)) {
-                Class<?> t = extractOpenMethodReturnType(method,
-                    serviceTarget,
-                    serviceMethodAroundAdvice,
-                    method.getAnnotation(UseOpenMethodReturnType.class).value());
-                if (t != null) {
-                    return t;
-                }
-                return getGenericType(serviceMethodAroundAdvice);
+            if (serviceMethodAroundAdvice != null) {
+                return extractTypeForMethod(method, serviceTarget, toServiceClass, serviceMethodAroundAdvice);
             }
-            return Object.class;
         }
 
         return null;
+    }
+
+    private static Class<?> extractTypeForMethod(Method method,
+            Object serviceTarget,
+            boolean toServiceClass,
+            Class<? extends ServiceMethodAdvice> serviceMethodAdvice) {
+        if (toServiceClass) {
+            UseOpenMethodReturnType useOpenMethodReturnType = serviceMethodAdvice
+                .getAnnotation(UseOpenMethodReturnType.class);
+            if (useOpenMethodReturnType != null) {
+                Class<?> t = extractOpenMethodReturnType(method,
+                    serviceTarget,
+                    serviceMethodAdvice,
+                    useOpenMethodReturnType.value());
+                if (t != null) {
+                    return t;
+                }
+            }
+            if (serviceMethodAdvice.isAnnotationPresent(NotConvertor.class)) {
+                return null;
+            }
+            return getGenericType(serviceMethodAdvice);
+        }
+        return Object.class;
     }
 
     private static Class<?> extractOpenMethodReturnType(Method method,
