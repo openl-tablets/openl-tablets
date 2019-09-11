@@ -8,6 +8,12 @@
 
   <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+  <style>
+    .merged-file-link {
+      margin-left: 24px;
+    }
+  </style>
+
   <rich:popupPanel id="modalResolveConflicts" width="580" autosized="true">
     <f:facet name="header">
       <h:outputText value="Resolve conflicts" />
@@ -32,7 +38,7 @@
               <h:outputText value="#{mergeConflictBean.baseCommit}"/>
 
               <h:outputText value="Comment:"/>
-              <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
+              <h:inputTextarea id="comment" value="#{mergeConflictBean.mergeMessage}" type="text" size="35" readonly="false">
                 <f:ajax execute="@this"/>
               </h:inputTextarea>
             </h:panelGrid>
@@ -71,7 +77,7 @@
                 <ui:param name="hasYourFile" value="#{mergeConflictBean.hasLocalFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasYourFile}">
-                    <a href="#{contextPath}/web/file-download/local?name=#{conflict}"
+                    <a href="#{contextPath}/web/conflict/local?name=#{conflict}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasYourFile}">
@@ -81,7 +87,7 @@
                 <ui:param name="hasTheirFile" value="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.theirCommit)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasTheirFile}">
-                    <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
                        title="Download their version">Download Theirs</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasTheirFile}">
@@ -91,7 +97,7 @@
                 <ui:param name="hasBaseFile" value="#{mergeConflictBean.hasRepositoryFile(conflict, mergeConflictBean.baseCommit)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasBaseFile}">
-                    <a href="#{contextPath}/web/file-download/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
                        title="Download base version">Download Base</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasBaseFile}">
@@ -109,8 +115,14 @@
                   <f:selectItem itemValue="YOURS" itemLabel="#{hasYourFile ? 'Use yours' : 'Delete it'}"/>
                   <f:selectItem itemValue="THEIRS" itemLabel="#{hasTheirFile ? 'Use theirs' : 'Delete it'}"/>
                   <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
-                  <f:ajax execute="@this" render=":resolveConflictsForm:modalResolveConflictsButtons"/>
+                  <f:ajax execute="@this" render=":resolveConflictsForm:modalResolveConflictsButtons :resolveConflictsForm:comment"/>
                 </h:selectOneRadio>
+                <ui:param name="uploadedMerge" value="#{not empty mergeConflictBean.conflictResolutions[conflict].customResolutionFile}"/>
+                <h:panelGroup rendered="#{uploadedMerge}">
+                  <a href="#{contextPath}/web/conflict/merged?name=#{conflict}"
+                     class="merged-file-link"
+                     title="Download merged file">(Download)</a>
+                </h:panelGroup>
               </rich:column>
             </rich:dataTable>
           </ui:repeat>
