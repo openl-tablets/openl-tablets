@@ -51,26 +51,7 @@ public class StartupListener implements ServletContextListener {
         if (webStudioMode == null) {
             System.setProperty("webstudio.mode", configured ? "webstudio" : "installer");
         }
-        // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
-        // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded
-        // directly
-        // from property files and then redefine property if needed (in Install Wizard for example). It'll be set
-        // globally
-        // later when configuration will be finished.
-        if (configured) {
-            ConfigurationManager systemConfig = new ConfigurationManager(
-                    PreferencesManager.INSTANCE.getWebStudioHomeDir() + "/system-settings/system.properties",
-                    "system.properties");
 
-            String userMode = systemConfig.getStringProperty("user.mode");
-            System.setProperty("user.mode", userMode);
-
-            String repoPassKey = StringUtils
-                    .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
-            // Make it globally available. It will not be changed during application execution.
-            System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
-        }
-        
         String webStudioHomeDirProp = System.getProperty("webstudio.home");
         String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
 
@@ -84,6 +65,26 @@ public class StartupListener implements ServletContextListener {
             } else {
                 System.setProperty("webstudio.home", webStudioHomeDirPref);
             }
+        }
+
+        // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
+        // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded
+        // directly
+        // from property files and then redefine property if needed (in Install Wizard for example). It'll be set
+        // globally
+        // later when configuration will be finished.
+        if (configured) {
+            ConfigurationManager systemConfig = new ConfigurationManager(
+                PreferencesManager.INSTANCE.getWebStudioHomeDir() + "/system-settings/system.properties",
+                "system.properties");
+
+            String userMode = systemConfig.getStringProperty("user.mode");
+            System.setProperty("user.mode", userMode);
+
+            String repoPassKey = StringUtils
+                .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+            // Make it globally available. It will not be changed during application execution.
+            System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
         }
 
     }
