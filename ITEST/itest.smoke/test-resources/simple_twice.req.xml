@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:twice xmlns:ns1="http://DefaultNamespace">
+            <ns1:num>6</ns1:num>
+        </ns1:twice>
+    </soap:Body>
+</soap:Envelope>
