@@ -48,7 +48,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
-    private boolean loggingStoreEnable = false;
+    private boolean storeLoggingEnabled = false;
 
     @Autowired
     @Qualifier("webServicesServerPrototype")
@@ -57,12 +57,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     @Autowired
     private ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory;
 
-    public void setLoggingStoreEnable(boolean loggingStoreEnable) {
-        this.loggingStoreEnable = loggingStoreEnable;
+    public boolean isStoreLoggingEnabled() {
+        return storeLoggingEnabled;
     }
 
-    public boolean isLoggingStoreEnable() {
-        return loggingStoreEnable;
+    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
+        this.storeLoggingEnabled = storeLoggingEnabled;
     }
 
     public String getBaseAddress() {
@@ -116,7 +116,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.setServiceBean(target);
 
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
-                if (isLoggingStoreEnable()) {
+                if (isStoreLoggingEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));

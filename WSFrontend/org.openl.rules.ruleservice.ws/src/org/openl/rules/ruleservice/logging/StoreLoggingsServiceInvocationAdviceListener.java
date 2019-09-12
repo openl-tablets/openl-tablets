@@ -16,14 +16,14 @@ import org.slf4j.LoggerFactory;
 public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
     private final Logger log = LoggerFactory.getLogger(StoreLoggingsServiceInvocationAdviceListener.class);
 
-    private boolean loggingStoreEnabled = false;
+    private boolean storeLoggingEnabled = false;
 
-    public boolean isLoggingStoreEnabled() {
-        return loggingStoreEnabled;
+    public boolean isStoreLoggingEnabled() {
+        return storeLoggingEnabled;
     }
 
-    public void setLoggingStoreEnabled(boolean loggingStoreEnabled) {
-        this.loggingStoreEnabled = loggingStoreEnabled;
+    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
+        this.storeLoggingEnabled = storeLoggingEnabled;
     }
 
     public void process(Method interfaceMethod,
@@ -61,11 +61,8 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                             ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get(); // Lazy local variable
                                                                                                   // initialization
                         }
-                        CustomData customData = storeLoggingAdvice.populateCustomData(
-                            getCustomData(ruleServiceStoreLoggingData),
-                            args,
-                            result,
-                            lastOccuredException);
+                        CustomData customData = storeLoggingAdvice.populateCustomData(getCustomData(
+                            ruleServiceStoreLoggingData), args, result, lastOccuredException);
                         ruleServiceStoreLoggingData.setCustomData(customData);
                     }
                 }
@@ -79,7 +76,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Object[] args,
             Object result,
             Exception lastOccuredException) {
-        if (isLoggingStoreEnabled()) {
+        if (isStoreLoggingEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -94,7 +91,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Object[] args,
             Object result,
             Exception lastOccuredException) {
-        if (isLoggingStoreEnabled()) {
+        if (isStoreLoggingEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -108,7 +105,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Object[] args,
             Object result,
             Exception lastOccuredException) {
-        if (isLoggingStoreEnabled()) {
+        if (isStoreLoggingEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -122,7 +119,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Object[] args,
             Object result,
             Exception lastOccuredException) {
-        if (isLoggingStoreEnabled()) {
+        if (isStoreLoggingEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -132,10 +129,8 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
     }
 
     private CustomData getCustomData(RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
-        return ruleServiceStoreLoggingData.getCustomData() != null
-                                                                          ? ruleServiceStoreLoggingData
-                                                                              .getCustomData()
-                                                                          : new CustomData();
+        return ruleServiceStoreLoggingData.getCustomData() != null ? ruleServiceStoreLoggingData.getCustomData()
+                                                                   : new CustomData();
     }
 
 }

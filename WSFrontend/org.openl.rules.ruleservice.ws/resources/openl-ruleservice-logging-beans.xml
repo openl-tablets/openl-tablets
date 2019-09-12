@@ -9,15 +9,15 @@
 
     <!-- Bean for configure storages type via openl-ruleservice.properties file. -->
     <bean id="storeLoggingService" class="org.openl.rules.ruleservice.logging.StoreLoggingServiceFactoryBean" lazy-init="false">
-        <property name="loggingStoreEnabled" value="${ruleservice.logging.store.enabled}"/>
+        <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}"/>
     </bean> 
     
     <bean id="storeLoggingFeature" class="org.openl.rules.ruleservice.logging.StoreLoggingFeature" scope="prototype">
-        <property name="loggingEnabled" value="${ruleservice.logging.store.enabled}" />
-        <property name="loggingInfoStoringService" ref="storeLoggingService"/>
+        <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}" />
+        <property name="storeLoggingService" ref="storeLoggingService"/>
     </bean> 
 
    <bean class="org.openl.rules.ruleservice.logging.StoreLoggingsServiceInvocationAdviceListener" >
-        <property name="loggingStoreEnabled" value="${ruleservice.logging.store.enabled}"/>
+        <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}"/>
    </bean>
 </beans>

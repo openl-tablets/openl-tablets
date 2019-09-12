@@ -9,7 +9,7 @@ import org.apache.cxf.interceptor.InterceptorProvider;
 public class StoreLoggingFeature extends AbstractFeature {
     private static final int DEFAULT_LIMIT = Integer.MAX_VALUE;
 
-    private boolean loggingEnabled = true;
+    private boolean storeLoggingEnabled = true;
 
     private int limit = DEFAULT_LIMIT;
 
@@ -27,7 +27,7 @@ public class StoreLoggingFeature extends AbstractFeature {
 
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
-        if (isLoggingEnabled()) {
+        if (isStoreLoggingEnabled()) {
             CollectRequestMessageInInterceptor storeLoggingInInterceptor = new CollectRequestMessageInInterceptor(
                 Integer.MAX_VALUE);
             storeLoggingInInterceptor.setPrettyLogging(false);
@@ -45,14 +45,14 @@ public class StoreLoggingFeature extends AbstractFeature {
         }
     }
 
-    public boolean isLoggingEnabled() {
-        return loggingEnabled;
+    public boolean isStoreLoggingEnabled() {
+        return storeLoggingEnabled;
     }
-
-    public void setLoggingEnabled(boolean loggingEnabled) {
-        this.loggingEnabled = loggingEnabled;
+    
+    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
+        this.storeLoggingEnabled = storeLoggingEnabled;
     }
-
+    
     /**
      * This function has no effect at this time.
      *
