@@ -63,6 +63,12 @@ public class StoreLoggingDataMapper {
     public void map(StoreLoggingData storeLoggingData, Object target) {
         CustomData customData = storeLoggingData.getCustomData();
         Class<?> targetClass = target.getClass();
+        
+        QualifyPublisherType qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
+        if (qualifyPublisherTypeOnClass != null) {
+            matchPublisherType(qualifyPublisherTypeOnClass.value(), storeLoggingData.getPublisherType());
+        }
+
         Class<?> clazz = targetClass;
         List<Pair<Annotation, AnnotatedElement>> customAnnotationElements = new ArrayList<>();
         List<Pair<Annotation, AnnotatedElement>> annotationElements = new ArrayList<>();
@@ -80,10 +86,18 @@ public class StoreLoggingDataMapper {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof IncomingTime) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getIncomingMessageTime());
+                injectValue(storeLoggingData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLoggingData.getIncomingMessageTime());
             }
             if (annotation instanceof OutcomingTime) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getOutcomingMessageTime());
+                injectValue(storeLoggingData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLoggingData.getOutcomingMessageTime());
             }
             if (annotation instanceof InputName) {
                 injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getInputName());

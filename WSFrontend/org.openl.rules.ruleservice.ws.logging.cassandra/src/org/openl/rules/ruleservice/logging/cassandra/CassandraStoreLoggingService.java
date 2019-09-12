@@ -34,30 +34,36 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
             return;
         }
 
-        Object entity = null;
+        Object[] entities = null;
 
         CassandraEntity cassandraEntity = serviceMethod.getAnnotation(CassandraEntity.class);
         if (cassandraEntity == null) {
             cassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(CassandraEntity.class);
         }
 
-        if (cassandraEntity == null) {
-            entity = new LoggingRecord();
+        if (cassandraEntity == null || cassandraEntity.value().length == 0) {
+            entities = new LoggingRecord[] { new LoggingRecord() };
         } else {
-            Class<?> entityClass = cassandraEntity.value();
-            try {
-                entity = entityClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "Failed to instantiate cassandra entity for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
-                        MethodUtil.printQualifiedMethodName(serviceMethod),
-                        entityClass.getTypeName()), e);
+            entities = new Object[cassandraEntity.value().length];
+            int i = 0;
+            for (Class<?> entityClass : cassandraEntity.value()) {
+                try {
+                    entities[i++] = entityClass.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format(
+                            "Failed to instantiate cassandra entity for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
+                            MethodUtil.printQualifiedMethodName(serviceMethod),
+                            entityClass.getTypeName()), e);
+                    }
+                    return;
                 }
             }
         }
-        if (entity != null) {
+        for (Object entity : entities) {
             storeLoggingDataMapper.map(storeLoggingData, entity);
+        }
+        for (Object entity : entities) {
             cassandraOperations.saveAsync(entity);
         }
     }

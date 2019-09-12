@@ -34,7 +34,7 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
             return;
         }
 
-        IndexBuilder elasticsearchIndexBuilder = null;
+        IndexBuilder[] elasticsearchIndexBuilders = null;
 
         ElasticsearchIndexBuilder elasticsearchIndexBuilderAnnotation = serviceMethod
             .getAnnotation(ElasticsearchIndexBuilder.class);
@@ -42,36 +42,45 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
             elasticsearchIndexBuilderAnnotation = serviceMethod.getDeclaringClass()
                 .getAnnotation(ElasticsearchIndexBuilder.class);
         }
-        if (elasticsearchIndexBuilderAnnotation == null) {
-            elasticsearchIndexBuilder = new DefaultIndexBuilderImpl();
+        if (elasticsearchIndexBuilderAnnotation == null || elasticsearchIndexBuilderAnnotation.value().length == 0) {
+            elasticsearchIndexBuilders = new IndexBuilder[] { new DefaultIndexBuilderImpl() };
         } else {
-            try {
-                Class<? extends IndexBuilder> elasticSearchIndexBuilderClass = elasticsearchIndexBuilderAnnotation
-                    .value();
-                elasticsearchIndexBuilder = elasticSearchIndexBuilderClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                elasticsearchIndexBuilder = new DefaultIndexBuilderImpl();
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that '%s' class is not abstact and has a default constructor. Default index builder is used instead.",
-                        MethodUtil.printQualifiedMethodName(serviceMethod),
-                        elasticsearchIndexBuilderAnnotation.value().getTypeName()), e);
+            Class<? extends IndexBuilder>[] elasticSearchIndexBuilderClasses = elasticsearchIndexBuilderAnnotation
+                .value();
+            elasticsearchIndexBuilders = new IndexBuilder[elasticSearchIndexBuilderClasses.length];
+            int i = 0;
+            for (Class<? extends IndexBuilder> elasticSearchIndexBuilderClass : elasticSearchIndexBuilderClasses) {
+                try {
+                    elasticsearchIndexBuilders[i] = elasticSearchIndexBuilderClass.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format(
+                            "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                            MethodUtil.printQualifiedMethodName(serviceMethod),
+                            elasticSearchIndexBuilderClass.getTypeName()), e);
+                    }
+                    return;
                 }
+                i++;
             }
         }
 
-        IndexQuery indexQuery = new IndexQueryBuilder()
-            .withIndexName(elasticsearchIndexBuilder.withIndexName(storeLoggingData))
-            .withType(elasticsearchIndexBuilder.withType(storeLoggingData))
-            .withId(elasticsearchIndexBuilder.withId(storeLoggingData))
-            .withObject(elasticsearchIndexBuilder.withObject(storeLoggingData))
-            .withVersion(elasticsearchIndexBuilder.withVersion(storeLoggingData))
-            .withSource(elasticsearchIndexBuilder.withSource(storeLoggingData))
-            .withParentId(elasticsearchIndexBuilder.withParentId(storeLoggingData))
-            .build();
-
-        elasticsearchOperations.index(indexQuery);
-
+        IndexQuery[] indexQueries = new IndexQuery[elasticsearchIndexBuilders.length];
+        int i = 0;
+        for (IndexBuilder indexBuilder : elasticsearchIndexBuilders) {
+            IndexQuery indexQuery = new IndexQueryBuilder().withIndexName(indexBuilder.withIndexName(storeLoggingData))
+                .withType(indexBuilder.withType(storeLoggingData))
+                .withId(indexBuilder.withId(storeLoggingData))
+                .withObject(indexBuilder.withObject(storeLoggingData))
+                .withVersion(indexBuilder.withVersion(storeLoggingData))
+                .withSource(indexBuilder.withSource(storeLoggingData))
+                .withParentId(indexBuilder.withParentId(storeLoggingData))
+                .build();
+            indexQueries[i++] = indexQuery;
+        }
+        for (IndexQuery indexQuery : indexQueries) {
+            elasticsearchOperations.index(indexQuery);
+        }
     }
 
 }

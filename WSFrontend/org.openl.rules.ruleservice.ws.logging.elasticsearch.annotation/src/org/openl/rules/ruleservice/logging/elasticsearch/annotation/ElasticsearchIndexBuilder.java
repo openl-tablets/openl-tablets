@@ -10,5 +10,5 @@ import org.openl.rules.ruleservice.logging.elasticsearch.IndexBuilder;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD, ElementType.TYPE })
 public @interface ElasticsearchIndexBuilder {
-    Class<? extends IndexBuilder> value();
+    Class<? extends IndexBuilder>[] value();
 }
