@@ -52,13 +52,10 @@ public class StartupListener implements ServletContextListener {
         String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
 
         if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
-            String webStudioHome = System.getProperty("user.home") + File.separator + ".openl";
-            System.setProperty("webstudio.home", webStudioHome);
+            String webStudioHome = System.getProperty("webstudio.home.default");
             PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
         } else {
-            if (webStudioHomeDirProp != null) {
-                PreferencesManager.INSTANCE.setWebStudioHomeDir(System.getProperty("webstudio.home"));
-            } else {
+            if (webStudioHomeDirProp == null) {
                 System.setProperty("webstudio.home", webStudioHomeDirPref);
             }
         }

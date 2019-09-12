@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.util;
 
-import org.openl.rules.webstudio.web.servlet.StartupListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import org.openl.rules.webstudio.web.servlet.StartupListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum PreferencesManager {
 
@@ -45,6 +45,10 @@ public enum PreferencesManager {
     }
 
     public String getWebStudioHomeDir() {
+        String webStudioHomeDirProp = System.getProperty("webstudio.home");
+        if (webStudioHomeDirProp != null) {
+            return webStudioHomeDirProp;
+        }
         return readValue(WEBSTUDIO_WORKING_DIR_KEY);
     }
 
