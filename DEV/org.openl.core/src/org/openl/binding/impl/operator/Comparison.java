@@ -253,11 +253,11 @@ public class Comparison {
         return gt(y, x);
     }
 
-    public static boolean lt(float x, float y) {
+    public static Boolean lt(float x, float y) {
         return gt(y, x);
     }
 
-    public static boolean lt(double x, double y) {
+    public static Boolean lt(double x, double y) {
         return gt(y, x);
     }
 
@@ -362,11 +362,11 @@ public class Comparison {
         return ge(y, x);
     }
 
-    public static boolean le(float x, float y) {
+    public static Boolean le(float x, float y) {
         return ge(y, x);
     }
 
-    public static boolean le(double x, double y) {
+    public static Boolean le(double x, double y) {
         return ge(y, x);
     }
 
