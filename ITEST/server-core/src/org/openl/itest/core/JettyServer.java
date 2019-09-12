@@ -40,4 +40,8 @@ public class JettyServer {
     public void stop() throws Exception {
         server.stop();
     }
+
+    public HttpClient client() {
+        return HttpClient.create("http://localhost:" + ((ServerConnector) server.getConnectors()[0]).getLocalPort());
+    }
 }

@@ -49,7 +49,7 @@ public class RunAnnotationsITest {
     public static void setUp() throws Exception {
         server = new JettyServer(true);
         baseURI = server.start();
-        client = HttpClient.create(baseURI);
+        client = server.client();
     }
 
     @AfterClass

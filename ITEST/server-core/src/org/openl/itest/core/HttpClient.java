@@ -4,19 +4,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriTemplateHandler;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -35,11 +40,39 @@ public class HttpClient {
 
     private RestTemplate rest;
 
-    public static HttpClient create(String baseURI) {
-        HttpClient client = new HttpClient();
-        client.rest = new RestClientFactory(baseURI).setSupportVariations(true).create();
-        return client;
+    private HttpClient(RestTemplate rest) {
+        this.rest = rest;
     }
+
+    static HttpClient create(String baseURI) {
+        RestTemplate rest = new RestTemplate();
+        for (HttpMessageConverter<?> converter : rest.getMessageConverters()) {
+            if (converter instanceof MappingJackson2HttpMessageConverter) {
+                JacksonObjectMapperFactoryBean objectMapperFactory = new JacksonObjectMapperFactoryBean();
+                objectMapperFactory.setSupportVariations(true);
+                ((MappingJackson2HttpMessageConverter) converter)
+                    .setObjectMapper(objectMapperFactory.createJacksonObjectMapper());
+            }
+        }
+
+        DefaultUriTemplateHandler uriHandler = new DefaultUriTemplateHandler();
+        uriHandler.setBaseUrl(baseURI);
+        rest.setUriTemplateHandler(uriHandler);
+        rest.setErrorHandler(NO_ERROR_HANDLER);
+        return new HttpClient(rest);
+    }
+
+    private static final ResponseErrorHandler NO_ERROR_HANDLER = new ResponseErrorHandler() {
+        @Override
+        public boolean hasError(ClientHttpResponse response) {
+            return false;
+        }
+
+        @Override
+        public void handleError(ClientHttpResponse response) {
+            // To prevent exception throwing and to provide ability to check error codes
+        }
+    };
 
     private static String getMediaType(String path) {
         if (path == null) {
@@ -172,7 +205,8 @@ public class HttpClient {
                     new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
                 .withDifferenceEvaluator(evaluator)
                 .build()
-                .getDifferences().iterator();
+                .getDifferences()
+                .iterator();
             if (differences.hasNext()) {
                 fail("File: [" + responseFile + "]\n" + differences.next());
             }

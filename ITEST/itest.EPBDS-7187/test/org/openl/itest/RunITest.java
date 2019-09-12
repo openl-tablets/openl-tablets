@@ -16,8 +16,8 @@ public class RunITest {
     @BeforeClass
     public static void setUp() throws Exception {
         server = new JettyServer();
-        String baseURI = server.start();
-        client = HttpClient.create(baseURI);
+        server.start();
+        client = server.client();
     }
 
     @AfterClass
