@@ -314,8 +314,7 @@ public class SpreadsheetStructureBuilder {
                     SpreadsheetCellRefType.SINGLE_COLUMN);
                 spreadsheetType.addField(simplifiedField);
             }
-        }
-        if (oneRowSpreadsheet) {
+        } else if (oneRowSpreadsheet) {
             // add simplified field name
             String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
