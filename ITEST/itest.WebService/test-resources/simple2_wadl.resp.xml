@@ -1,0 +1,206 @@
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:prefix2="http://csr.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org">
+    <grammars>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://jaxb.dev.java.net/array"
+                   xmlns:tns="http://csr.generated.openl.org" attributeFormDefault="unqualified"
+                   elementFormDefault="unqualified" targetNamespace="http://csr.generated.openl.org">
+            <xs:import namespace="http://jaxb.dev.java.net/array"/>
+            <xs:element name="Calc" type="tns:Calc"/>
+            <xs:element name="HiddenCalc" type="tns:HiddenCalc"/>
+            <xs:element name="SprIfNode" type="tns:SprIfNode"/>
+            <xs:element name="SprOneColumn" type="tns:SprOneColumn"/>
+            <xs:element name="SprOneOne" type="tns:SprOneOne"/>
+            <xs:element name="SprOneOneNoAsterisk" type="tns:SprOneOneNoAsterisk"/>
+            <xs:element name="SprOneRow" type="tns:SprOneRow"/>
+            <xs:element name="SprTwoTwo" type="tns:SprTwoTwo"/>
+            <xs:element name="SprTwoTwo1" type="tns:SprTwoTwo1"/>
+            <xs:element name="SprTwoTwo2" type="tns:SprTwoTwo2"/>
+            <xs:element name="SprWithEmptyColumn" type="tns:SprWithEmptyColumn"/>
+            <xs:element name="SprWithEmptyRow" type="tns:SprWithEmptyRow"/>
+            <xs:complexType name="HiddenCalc">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneOne">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneOneNoAsterisk">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneColumn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="moreValues" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values1" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprIfNode">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:anyType"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Calc">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="tns:SprOneRow"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneRow">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="moreValues" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values1" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprTwoTwo2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values_Step1" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step1" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values_Step2" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step2" nillable="true" type="xs:int"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" nillable="true"
+                                type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" nillable="true"
+                                type="ns1:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprTwoTwo1">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprWithEmptyRow">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="_" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprWithEmptyColumn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="_" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprTwoTwo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values_Step1" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step1" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values_Step2" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step2" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values2_Step3" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula2_Step3" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values2_Step4" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula2_Step4" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org">
+            <xs:element name="CalcRequest" type="tns:CalcRequest"/>
+            <xs:element name="DtRetSpr2Request" type="tns:DtRetSpr2Request"/>
+            <xs:element name="DtRetSpr3Request" type="tns:DtRetSpr3Request"/>
+            <xs:element name="DtRetSprRequest" type="tns:DtRetSprRequest"/>
+            <xs:complexType name="DtRetSpr3Request">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="DtRetSpr2Request">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="DtRetSprRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="CalcRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="a" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org">
+            <xs:complexType name="error">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="message" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxb.dev.java.net/array"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxb.dev.java.net/array">
+            <xs:complexType final="#all" name="stringArray">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </grammars>
+    <resources base="http://localhost:#####/REST/deployment2/simple2">
+        <resource path="/">
+            <resource path="calc">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:CalcRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json" element="prefix2:Calc"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="dtRetSpr">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:DtRetSprRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="dtRetSpr2">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:DtRetSpr2Request"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="dtRetSpr3">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:DtRetSpr3Request"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+        </resource>
+        <resource path="/swagger.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+    </resources>
+</application>

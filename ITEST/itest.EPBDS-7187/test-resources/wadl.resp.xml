@@ -1,0 +1,168 @@
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:prefix2="xxx.yyy" xmlns:prefix1="http://jaxrs.openl.org">
+    <grammars>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="xxx.yyy" attributeFormDefault="unqualified"
+                   elementFormDefault="unqualified" targetNamespace="xxx.yyy">
+            <xs:element name="bean" type="tns:Bean"/>
+            <xs:element name="beanB" type="tns:BeanB"/>
+            <xs:complexType name="Bean">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="beanBName" type="tns:BeanB"/>
+                    <xs:element default="17" name="I" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="BeanB">
+                <xs:sequence>
+                    <xs:element name="In" type="xs:int"/>
+                    <xs:element minOccurs="0" name="STR" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org">
+            <xs:element name="EDGECaseRequest" type="tns:EDGECaseRequest"/>
+            <xs:element name="LowCaseRequest" type="tns:LowCaseRequest"/>
+            <xs:element name="MixedCaseRequest" type="tns:MixedCaseRequest"/>
+            <xs:element name="OverloadRequest3" type="tns:OverloadRequest3"/>
+            <xs:element name="OverloadRequest4" type="tns:OverloadRequest4"/>
+            <xs:element name="UPCaseRequest" type="tns:UPCaseRequest"/>
+            <xs:complexType name="MixedCaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="numBer" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="String" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="LowCaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="number" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="string" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OverloadRequest4">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="I" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OverloadRequest3">
+                <xs:sequence>
+                    <xs:element name="i" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="UPCaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="STRING" nillable="true" type="xs:string"/>
+                    <xs:element name="NUMBER" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="EDGECaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="sTring" nillable="true" type="xs:string"/>
+                    <xs:element name="NUMBer" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </grammars>
+    <resources base="http://localhost:#####/upcs">
+        <resource path="/">
+            <resource path="MixedCase">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:MixedCaseRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="UPCase">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:UPCaseRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="eDGECase">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:EDGECaseRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="lowCase">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:LowCaseRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="overload">
+                <method name="GET">
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="overload1">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix2:bean"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="overload2/{I: .*}">
+                <param name="I" style="template" type="xs:int"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="overload3">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:OverloadRequest3"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="overload4">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:OverloadRequest4"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+        </resource>
+        <resource path="/swagger.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+    </resources>
+</application>

@@ -1,11 +1,8 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Collections;
 
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -42,12 +39,6 @@ public class RestClientFactory {
         JSON_HEADERS.setContentType(MediaType.APPLICATION_JSON);
         JSON_HEADERS.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     }
-    private static final HttpHeaders ZIP_HEADERS;
-    static {
-        ZIP_HEADERS = new HttpHeaders();
-        ZIP_HEADERS.set(HttpHeaders.CONTENT_TYPE, "application/zip");
-        ZIP_HEADERS.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    }
 
     private final String address;
     private boolean supportVariations = false;
@@ -58,18 +49,6 @@ public class RestClientFactory {
 
     public static HttpEntity<?> request(Object json) {
         return new HttpEntity<>(json, JSON_HEADERS);
-    }
-
-    public static HttpEntity<?> file(String path) {
-        return new HttpEntity<>(new ClassPathResource(path), ZIP_HEADERS);
-    }
-
-    public static HttpEntity<?> json(String json) {
-        return new HttpEntity<>(json.replace('`', '"'), JSON_HEADERS);
-    }
-
-    public static void assertText(String expected, String actual) {
-        assertEquals(expected.replace('`', '"'), actual);
     }
 
     public RestClientFactory setSupportVariations(boolean supportVariations) {

@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:def="http://DefaultNamespace">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <def:main>
+            <def:runtimeContext>
+            </def:runtimeContext>
+        </def:main>
+    </soapenv:Body>
+</soapenv:Envelope>

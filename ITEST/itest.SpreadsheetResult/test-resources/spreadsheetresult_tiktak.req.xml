@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:tiktak xmlns:ns1="http://itest.openl.org/">
+            <ns1:arg0>100</ns1:arg0>
+            <ns1:arg1>foo</ns1:arg1>
+        </ns1:tiktak>
+    </soap:Body>
+</soap:Envelope>

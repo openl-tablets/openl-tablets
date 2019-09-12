@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="String Parser(version=v1)"
+                  targetNamespace="http://DefaultNamespace">
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://internal.service.itest.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://internal.service.itest.openl.org">
+            <xsd:complexType name="MyType">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="code" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="status" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://cxf.apache.org/arrays">
+            <xsd:complexType name="ArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true"
+                                 type="tns:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
+                    xmlns:ns1="http://beans.generated.openl.org" xmlns:ns0="http://internal.service.itest.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://DefaultNamespace">
+            <xsd:import namespace="http://internal.service.itest.openl.org"/>
+            <xsd:import namespace="http://beans.generated.openl.org"/>
+            <xsd:complexType name="ArrayOfString">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="ping" type="tns:ping"/>
+            <xsd:complexType name="ping">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="input" type="ns0:MyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="pingResponse" type="tns:pingResponse"/>
+            <xsd:complexType name="pingResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns0:MyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="process" type="tns:process"/>
+            <xsd:complexType name="process">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="nick" nillable="true" type="xsd:string"/>
+                    <xsd:element name="month" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="processResponse" type="tns:processResponse"/>
+            <xsd:complexType name="processResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" type="ns1:RuleType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="virtual" type="tns:virtual"/>
+            <xsd:complexType name="virtual">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="text" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="virtualResponse" type="tns:virtualResponse"/>
+            <xsd:complexType name="virtualResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:double"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="toStr" type="tns:toStr"/>
+            <xsd:complexType name="toStr">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="x" type="ns1:RuleType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="toStrResponse" type="tns:toStrResponse"/>
+            <xsd:complexType name="toStrResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse4" type="tns:parse4"/>
+            <xsd:complexType name="parse4">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse4Response" type="tns:parse4Response"/>
+            <xsd:complexType name="parse4Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse" type="tns:parse"/>
+            <xsd:complexType name="parse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parseResponse" type="tns:parseResponse"/>
+            <xsd:complexType name="parseResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse3" type="tns:parse3"/>
+            <xsd:complexType name="parse3">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse3Response" type="tns:parse3Response"/>
+            <xsd:complexType name="parse3Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse6" type="tns:parse6"/>
+            <xsd:complexType name="parse6">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse6Response" type="tns:parse6Response"/>
+            <xsd:complexType name="parse6Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse5" type="tns:parse5"/>
+            <xsd:complexType name="parse5">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse5Response" type="tns:parse5Response"/>
+            <xsd:complexType name="parse5Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:double"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse2" type="tns:parse2"/>
+            <xsd:complexType name="parse2">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse2Response" type="tns:parse2Response"/>
+            <xsd:complexType name="parse2Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="notExcludedBecauseof_p_" type="tns:notExcludedBecauseof_p_"/>
+            <xsd:complexType name="notExcludedBecauseof_p_">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="notExcludedBecauseof_p_Response" type="tns:notExcludedBecauseof_p_Response"/>
+            <xsd:complexType name="notExcludedBecauseof_p_Response">
+                <xsd:sequence>
+                    <xsd:element name="return" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="virtual2" type="tns:virtual2"/>
+            <xsd:complexType name="virtual2">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="first" nillable="true" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="second" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="virtual2Response" type="tns:virtual2Response"/>
+            <xsd:complexType name="virtual2Response">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:double"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://table.rules.openl.org">
+            <xsd:complexType name="Point">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://beans.generated.openl.org">
+            <xsd:complexType name="RuleType">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="age" nillable="true" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="name" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
+                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://calc.rules.openl.org">
+            <xsd:import namespace="http://DefaultNamespace"/>
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="SpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="ping">
+        <wsdl:part element="tns:ping" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse6Response">
+        <wsdl:part element="tns:parse6Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="process">
+        <wsdl:part element="tns:process" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="virtual">
+        <wsdl:part element="tns:virtual" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="toStr">
+        <wsdl:part element="tns:toStr" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse2Response">
+        <wsdl:part element="tns:parse2Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="toStrResponse">
+        <wsdl:part element="tns:toStrResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4">
+        <wsdl:part element="tns:parse4" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse">
+        <wsdl:part element="tns:parse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse3">
+        <wsdl:part element="tns:parse3" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse6">
+        <wsdl:part element="tns:parse6" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="virtual2Response">
+        <wsdl:part element="tns:virtual2Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse5">
+        <wsdl:part element="tns:parse5" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse2">
+        <wsdl:part element="tns:parse2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4Response">
+        <wsdl:part element="tns:parse4Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse3Response">
+        <wsdl:part element="tns:parse3Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="virtualResponse">
+        <wsdl:part element="tns:virtualResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="processResponse">
+        <wsdl:part element="tns:processResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="notExcludedBecauseof_p_">
+        <wsdl:part element="tns:notExcludedBecauseof_p_" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="pingResponse">
+        <wsdl:part element="tns:pingResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parseResponse">
+        <wsdl:part element="tns:parseResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="virtual2">
+        <wsdl:part element="tns:virtual2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse5Response">
+        <wsdl:part element="tns:parse5Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="notExcludedBecauseof_p_Response">
+        <wsdl:part element="tns:notExcludedBecauseof_p_Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="String Parser(version=v1)PortType">
+        <wsdl:operation name="ping">
+            <wsdl:input message="tns:ping" name="ping">
+            </wsdl:input>
+            <wsdl:output message="tns:pingResponse" name="pingResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="process">
+            <wsdl:input message="tns:process" name="process">
+            </wsdl:input>
+            <wsdl:output message="tns:processResponse" name="processResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="virtual">
+            <wsdl:input message="tns:virtual" name="virtual">
+            </wsdl:input>
+            <wsdl:output message="tns:virtualResponse" name="virtualResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="toStr">
+            <wsdl:input message="tns:toStr" name="toStr">
+            </wsdl:input>
+            <wsdl:output message="tns:toStrResponse" name="toStrResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse4">
+            <wsdl:input message="tns:parse4" name="parse4">
+            </wsdl:input>
+            <wsdl:output message="tns:parse4Response" name="parse4Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse">
+            <wsdl:input message="tns:parse" name="parse">
+            </wsdl:input>
+            <wsdl:output message="tns:parseResponse" name="parseResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse3">
+            <wsdl:input message="tns:parse3" name="parse3">
+            </wsdl:input>
+            <wsdl:output message="tns:parse3Response" name="parse3Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse6">
+            <wsdl:input message="tns:parse6" name="parse6">
+            </wsdl:input>
+            <wsdl:output message="tns:parse6Response" name="parse6Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse5">
+            <wsdl:input message="tns:parse5" name="parse5">
+            </wsdl:input>
+            <wsdl:output message="tns:parse5Response" name="parse5Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse2">
+            <wsdl:input message="tns:parse2" name="parse2">
+            </wsdl:input>
+            <wsdl:output message="tns:parse2Response" name="parse2Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="notExcludedBecauseof_p_">
+            <wsdl:input message="tns:notExcludedBecauseof_p_" name="notExcludedBecauseof_p_">
+            </wsdl:input>
+            <wsdl:output message="tns:notExcludedBecauseof_p_Response" name="notExcludedBecauseof_p_Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="virtual2">
+            <wsdl:input message="tns:virtual2" name="virtual2">
+            </wsdl:input>
+            <wsdl:output message="tns:virtual2Response" name="virtual2Response">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="String Parser(version=v1)SoapBinding" type="tns:String Parser(version=v1)PortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="ping">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="ping">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="pingResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="virtual">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="virtual">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="virtualResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="process">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="process">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="processResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="toStr">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="toStr">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="toStrResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse4">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse4">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse4Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parseResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse3">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse3">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse3Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse6">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse6">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse6Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse5">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse5">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse5Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse2">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse2">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse2Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="notExcludedBecauseof_p_">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="notExcludedBecauseof_p_">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="notExcludedBecauseof_p_Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="virtual2">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="virtual2">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="virtual2Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="String Parser(version=v1)">
+        <wsdl:port binding="tns:String Parser(version=v1)SoapBinding" name="String Parser(version=v1)PortType">
+            <soap:address location="http://localhost:#####/v1/string/toNumber"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
