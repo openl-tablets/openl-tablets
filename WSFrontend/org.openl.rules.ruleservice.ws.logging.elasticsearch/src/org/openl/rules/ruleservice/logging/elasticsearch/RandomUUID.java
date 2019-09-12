@@ -2,12 +2,12 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import java.util.UUID;
 
-import org.openl.rules.ruleservice.logging.LoggingInfo;
-import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingConvertor;
 
-public class RandomUUID implements LoggingInfoConvertor<String> {
+public class RandomUUID implements StoreLoggingConvertor<String> {
     @Override
-    public String convert(LoggingInfo loggingInfo) {
+    public String convert(StoreLoggingData storeLoggingData) {
         return UUID.randomUUID().toString();
     }
 }

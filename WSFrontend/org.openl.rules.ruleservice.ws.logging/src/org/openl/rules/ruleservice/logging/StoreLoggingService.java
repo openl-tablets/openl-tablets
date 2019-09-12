@@ -6,6 +6,6 @@ package org.openl.rules.ruleservice.logging;
  * @author Marat Kamalov.
  *
  */
-public interface StoreLoggingInfoService {
-    void store(LoggingInfo loggingInfo);
+public interface StoreLoggingService {
+    void store(StoreLoggingData storeLoggingData);
 }

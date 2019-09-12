@@ -29,7 +29,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLoggingInfoFeature;
+import org.openl.rules.ruleservice.logging.StoreLoggingFeature;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator;
 import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
@@ -69,7 +69,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
-    private ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory;
+    private ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory;
 
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
@@ -104,13 +104,13 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
     }
 
-    public ObjectFactory<StoreLoggingInfoFeature> getStoreLoggingInfoFeatureObjectFactory() {
-        return storeLoggingInfoFeatureObjectFactory;
+    public ObjectFactory<StoreLoggingFeature> getStoreLoggingFeatureObjectFactory() {
+        return storeLoggingFeatureObjectFactory;
     }
 
-    public void setStoreLoggingInfoFeatureObjectFactory(
-            ObjectFactory<StoreLoggingInfoFeature> storeLoggingInfoFeatureObjectFactory) {
-        this.storeLoggingInfoFeatureObjectFactory = storeLoggingInfoFeatureObjectFactory;
+    public void setStoreLoggingFeatureObjectFactory(
+            ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory) {
+        this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
     }
 
     public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
@@ -136,7 +136,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
             }
             svrFactory.setAddress(url);
             if (isLoggingStoreEnable()) {
-                svrFactory.getFeatures().add(getStoreLoggingInfoFeatureObjectFactory().getObject());
+                svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));

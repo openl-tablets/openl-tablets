@@ -6,7 +6,7 @@ import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
 
 @NoJSR250Annotations
-public class StoreLoggingInfoFeature extends AbstractFeature {
+public class StoreLoggingFeature extends AbstractFeature {
     private static final int DEFAULT_LIMIT = Integer.MAX_VALUE;
 
     private boolean loggingEnabled = true;
@@ -15,14 +15,14 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
     private boolean prettyLogging;
 
-    private StoreLoggingInfoService loggingInfoStoringService;
+    private StoreLoggingService storeLoggingService;
 
-    public StoreLoggingInfoService getLoggingInfoStoringService() {
-        return loggingInfoStoringService;
+    public StoreLoggingService getStoreLoggingService() {
+        return storeLoggingService;
     }
 
-    public void setLoggingInfoStoringService(StoreLoggingInfoService loggingInfoStoringService) {
-        this.loggingInfoStoringService = loggingInfoStoringService;
+    public void setStoreLoggingService(StoreLoggingService storeLoggingService) {
+        this.storeLoggingService = storeLoggingService;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class StoreLoggingInfoFeature extends AbstractFeature {
 
             CollectResponseMessageOutInterceptor storeLoggingOutInterceptor = new CollectResponseMessageOutInterceptor(
                 Integer.MAX_VALUE,
-                loggingInfoStoringService);
+                getStoreLoggingService());
             storeLoggingOutInterceptor.setPrettyLogging(false);
             provider.getOutInterceptors().add(storeLoggingOutInterceptor);
             provider.getOutFaultInterceptors().add(storeLoggingOutInterceptor);

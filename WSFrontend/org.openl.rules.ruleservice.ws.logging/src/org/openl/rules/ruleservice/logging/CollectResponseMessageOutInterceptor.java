@@ -1,6 +1,10 @@
 package org.openl.rules.ruleservice.logging;
 
-import java.io.*;
+import java.io.FilterWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,24 +32,24 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     private final Logger log = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
-    private StoreLoggingInfoService loggingInfoStoringService;
+    private StoreLoggingService storeLoggingService;
 
-    public StoreLoggingInfoService getLoggingInfoStoringService() {
-        return loggingInfoStoringService;
+    public StoreLoggingService getStoreLoggingService() {
+        return storeLoggingService;
     }
 
-    public CollectResponseMessageOutInterceptor(String phase, StoreLoggingInfoService loggingInfoStoringService) {
+    public CollectResponseMessageOutInterceptor(String phase, StoreLoggingService storeLoggingSevice) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
-        this.loggingInfoStoringService = loggingInfoStoringService;
+        this.storeLoggingService = storeLoggingSevice;
     }
 
-    public CollectResponseMessageOutInterceptor(StoreLoggingInfoService loggingInfoStoringService) {
-        this(Phase.PRE_STREAM, loggingInfoStoringService);
+    public CollectResponseMessageOutInterceptor(StoreLoggingService storeLoggingSevice) {
+        this(Phase.PRE_STREAM, storeLoggingSevice);
     }
 
-    public CollectResponseMessageOutInterceptor(int lim, StoreLoggingInfoService loggingInfoStoringService) {
-        this(loggingInfoStoringService);
+    public CollectResponseMessageOutInterceptor(int lim, StoreLoggingService storeLoggingSevice) {
+        this(storeLoggingSevice);
         limit = lim;
     }
 
@@ -185,20 +189,20 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private class StoreTask implements Runnable {
-        private RuleServiceLogging ruleserviceLoggingInfo;
+        private RuleServiceStoreLoggingData ruleServiceStoreLoggingData;
 
-        public StoreTask(RuleServiceLogging ruleserviceLoggingInfo) {
-            this.ruleserviceLoggingInfo = ruleserviceLoggingInfo;
+        public StoreTask(RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
+            this.ruleServiceStoreLoggingData = ruleServiceStoreLoggingData;
         }
 
-        public RuleServiceLogging getRuleserviceLoggingInfo() {
-            return ruleserviceLoggingInfo;
+        public RuleServiceStoreLoggingData getRuleServiceStoreLoggingData() {
+            return ruleServiceStoreLoggingData;
         }
 
         @Override
         public void run() {
             try {
-                getLoggingInfoStoringService().store(new LoggingInfo(getRuleserviceLoggingInfo()));
+                getStoreLoggingService().store(new StoreLoggingData(getRuleServiceStoreLoggingData()));
             } catch (Exception e) {
                 log.error("Logging info storing failure!", e);
             }
@@ -207,13 +211,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        final RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
-        ruleServiceLogging.setResponseMessage(message);
-        ruleServiceLogging.setOutcomingMessageTime(new Date());
-        if (!ruleServiceLogging.isIgnorable()) {
-            executorService.submit(new StoreTask(ruleServiceLogging));
+        final RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        ruleServiceStoreLoggingData.setResponseMessage(message);
+        ruleServiceStoreLoggingData.setOutcomingMessageTime(new Date());
+        if (!ruleServiceStoreLoggingData.isIgnorable()) {
+            executorService.submit(new StoreTask(ruleServiceStoreLoggingData));
         }
-        RuleServiceLoggingHolder.remove();
+        RuleServiceStoreLoggingDataolder.remove();
     }
 
     protected String formatLoggingMessage(LoggingMessage buffer) {

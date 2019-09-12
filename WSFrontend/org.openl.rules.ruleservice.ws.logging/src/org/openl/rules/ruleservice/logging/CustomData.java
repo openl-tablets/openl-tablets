@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.logging;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoggingCustomData {
+public class CustomData {
 
     private Map<String, Object> values = new HashMap<>();
 

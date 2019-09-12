@@ -4,63 +4,63 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
 
-import org.openl.rules.ruleservice.logging.LoggingInfo;
-import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
+import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 
 public class DefaultIndexBuilderImpl implements IndexBuilder {
     private static final String ID = "DEFAULT_ELASTIC_SEARCH_INDEX_ID";
 
-    LoggingInfoMapper loggingInfoMapper = new LoggingInfoMapper();
+    StoreLoggingDataMapper storeLoggingDataMapper = new StoreLoggingDataMapper();
 
     @Override
-    public LoggingRecord withObject(LoggingInfo loggingInfo) {
+    public LoggingRecord withObject(StoreLoggingData storeLoggingData) {
         LoggingRecord loggingRecord = new LoggingRecord();
 
-        loggingInfoMapper.map(loggingInfo, loggingRecord);
+        storeLoggingDataMapper.map(storeLoggingData, loggingRecord);
 
         return loggingRecord;
     }
 
     @Override
-    public String withId(LoggingInfo loggingInfo) {
+    public String withId(StoreLoggingData storeLoggingData) {
         String id = null;
 
-        Object existingId = loggingInfo.getLoggingContext().get(ID);
+        Object existingId = storeLoggingData.getLoggingContext().get(ID);
         if (existingId != null) {
             id = (String) existingId;
         } else {
             id = UUID.randomUUID().toString();
-            loggingInfo.getLoggingContext().put(ID, id);
+            storeLoggingData.getLoggingContext().put(ID, id);
         }
         return id;
     }
 
     @Override
-    public String withIndexName(LoggingInfo loggingInfo) {
+    public String withIndexName(StoreLoggingData storeLoggingData) {
         try {
-            return URLEncoder.encode(loggingInfo.getServiceName(), "UTF-8").toLowerCase();
+            return URLEncoder.encode(storeLoggingData.getServiceName(), "UTF-8").toLowerCase();
         } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
 
     @Override
-    public String withType(LoggingInfo loggingInfo) {
+    public String withType(StoreLoggingData storeLoggingData) {
         return null;
     }
 
     @Override
-    public String withSource(LoggingInfo loggingInfo) {
+    public String withSource(StoreLoggingData storeLoggingData) {
         return null;
     }
 
     @Override
-    public String withParentId(LoggingInfo loggingInfo) {
+    public String withParentId(StoreLoggingData storeLoggingData) {
         return null;
     }
 
     @Override
-    public Long withVersion(LoggingInfo loggingInfo) {
+    public Long withVersion(StoreLoggingData storeLoggingData) {
         return null;
     }
 }

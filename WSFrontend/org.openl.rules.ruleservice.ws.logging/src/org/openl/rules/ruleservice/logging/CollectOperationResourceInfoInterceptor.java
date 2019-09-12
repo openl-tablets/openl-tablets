@@ -26,13 +26,13 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {
             Method serviceMethod = operationResourceInfo.getAnnotatedMethod();
-            ruleServiceLogging.setServiceMethod(serviceMethod);
+            ruleServiceStoreLoggingData.setServiceMethod(serviceMethod);
             if (serviceMethod.isAnnotationPresent(IgnoreLogging.class)) {
-                ruleServiceLogging.setIgnorable(true);
+                ruleServiceStoreLoggingData.setIgnorable(true);
             }
         } else {
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
@@ -40,7 +40,7 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
                 .get(Service.class)
                 .get(MethodDispatcher.class.getName());
             Method method = md.getMethod(bop);
-            ruleServiceLogging.setServiceMethod(method);
+            ruleServiceStoreLoggingData.setServiceMethod(method);
         }
     }
 }

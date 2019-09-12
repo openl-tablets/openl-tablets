@@ -2,16 +2,15 @@ package org.openl.rules.ruleservice.logging;
 
 import java.util.Map;
 
-import org.openl.rules.ruleservice.logging.conf.StoreLoggingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLoggingInfoService>, ApplicationContextAware {
+public class StoreLoggingServiceFactoryBean implements FactoryBean<StoreLoggingService>, ApplicationContextAware {
 
-    private final Logger log = LoggerFactory.getLogger(StoreLoggingConfigurationFactoryBean.class);
+    private final Logger log = LoggerFactory.getLogger(StoreLoggingServiceFactoryBean.class);
 
     private ApplicationContext applicationContext;
 
@@ -36,28 +35,28 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
     }
 
     @Override
-    public StoreLoggingInfoService getObject() throws Exception {
+    public StoreLoggingService getObject() throws Exception {
         if (!isLoggingStoreEnabled()) {
             return null;
         }
 
-        Map<String, Object> storeLoggingInfoServices = applicationContext
-            .getBeansWithAnnotation(StoreLoggingConfiguration.class);
-        if (storeLoggingInfoServices.isEmpty()) {
+        Map<String, StoreLoggingService> storeLoggingServices = applicationContext
+            .getBeansOfType(StoreLoggingService.class);
+        if (storeLoggingServices.isEmpty()) {
             log.error("Failed to load logging store service! Please, check your configuration!");
         } else {
-            if (storeLoggingInfoServices.size() > 1) {
-                log.error("Failed to load logging store service! More that one logging info service was found!");
+            if (storeLoggingServices.size() > 1) {
+                log.error("Failed to load logging store service! Multiple store logging service is found!");
                 return null;
             }
             log.info("Logging store service is loaded!");
         }
-        return (StoreLoggingInfoService) storeLoggingInfoServices.entrySet().iterator().next().getValue();
+        return storeLoggingServices.entrySet().iterator().next().getValue();
     }
 
     @Override
     public Class<?> getObjectType() {
-        return StoreLoggingInfoService.class;
+        return StoreLoggingService.class;
     }
 
 }

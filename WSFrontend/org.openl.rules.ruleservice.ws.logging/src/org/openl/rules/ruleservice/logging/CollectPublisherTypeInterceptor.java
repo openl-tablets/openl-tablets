@@ -23,7 +23,7 @@ public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Me
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
-        ruleServiceLogging.setPublisherType(publisherType);
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        ruleServiceStoreLoggingData.setPublisherType(publisherType);
     }
 }

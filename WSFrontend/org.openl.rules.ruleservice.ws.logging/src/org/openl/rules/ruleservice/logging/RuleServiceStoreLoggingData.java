@@ -14,7 +14,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
  * @author Marat Kamalov
  *
  */
-public class RuleServiceLogging {
+public class RuleServiceStoreLoggingData {
     private LoggingMessage requestMessage;
     private LoggingMessage responseMessage;
 
@@ -30,7 +30,7 @@ public class RuleServiceLogging {
 
     private Method serviceMethod;
 
-    private LoggingCustomData loggingCustomData;
+    private CustomData customData;
 
     private ObjectSerializer objectSerializer;
 
@@ -102,12 +102,12 @@ public class RuleServiceLogging {
         this.parameters = parameters;
     }
 
-    public LoggingCustomData getLoggingCustomData() {
-        return loggingCustomData;
+    public CustomData getCustomData() {
+        return customData;
     }
 
-    public void setLoggingCustomData(LoggingCustomData loggingCustomData) {
-        this.loggingCustomData = loggingCustomData;
+    public void setCustomData(CustomData customData) {
+        this.customData = customData;
     }
 
     public Method getServiceMethod() {

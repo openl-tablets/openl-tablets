@@ -1,23 +1,26 @@
 package org.openl.rules.ruleservice.logging.advice;
 
-import org.openl.rules.ruleservice.logging.LoggingCustomData;
-import org.openl.rules.ruleservice.logging.LoggingInfo;
-import org.openl.rules.ruleservice.logging.RuleServiceLogging;
-import org.openl.rules.ruleservice.logging.RuleServiceLoggingHolder;
+import org.openl.rules.ruleservice.logging.CustomData;
+import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
+import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingDataolder;
 
 public abstract class AbstractIgnoreStoreLoggingAdvice implements StoreLoggingAdvice {
 
     @Override
-    public LoggingCustomData populateCustomData(LoggingCustomData loggingCustomData,
+    public CustomData populateCustomData(CustomData customData,
             Object[] args,
             Object result,
             Exception ex) {
-        RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
-        if (isIgnorable(args, result, null, new LoggingInfo(ruleServiceLogging))) {
-            ruleServiceLogging.ignore();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        if (isIgnorable(args, result, null, new StoreLoggingData(ruleServiceStoreLoggingData))) {
+            ruleServiceStoreLoggingData.ignore();
         }
-        return loggingCustomData;
+        return customData;
     }
 
-    protected abstract boolean isIgnorable(Object[] args, Object result, Exception rx, LoggingInfo loggingInfo);
+    protected abstract boolean isIgnorable(Object[] args,
+            Object result,
+            Exception rx,
+            StoreLoggingData storeLoggingData);
 }

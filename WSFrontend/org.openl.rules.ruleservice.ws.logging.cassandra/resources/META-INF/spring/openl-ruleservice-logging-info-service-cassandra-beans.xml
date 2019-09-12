@@ -23,7 +23,7 @@
 	</bean>
 
 	<!-- Cassandra logging store service bean. -->
-	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraStoreLoggingInfoService" lazy-init="true">
+	<bean id="cassandraStoreLoggingService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraStoreLoggingService" lazy-init="true">
 		<property name="cassandraOperations" ref="cassandraOperations"/>
 	</bean>
 </beans>

@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.Convertor;
-import org.openl.rules.ruleservice.logging.LoggingCustomData;
-import org.openl.rules.ruleservice.logging.LoggingInfo;
-import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
-import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
-import org.openl.rules.ruleservice.logging.RuleServiceLogging;
+import org.openl.rules.ruleservice.logging.CustomData;
+import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingConvertor;
+import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
@@ -25,9 +25,9 @@ import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
 import org.openl.rules.ruleservice.logging.annotation.Value;
-import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
 
-public class LoggingInfoMapperTest {
+public class StoreLoggingDataMapperTest {
 
     private static final String SOME_VALUE = RandomStringUtils.random(10, true, true);
 
@@ -53,24 +53,24 @@ public class LoggingInfoMapperTest {
 
     @Test
     public void testPublisherFilteringMapping() {
-        LoggingInfoMapper mapper = new LoggingInfoMapper();
+        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
 
-        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
-        LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setValue("customString1", customString1);
-        loggingCustomData.setValue("customString2", customString2);
+        CustomData customData = new CustomData();
+        customData.setValue("customString1", customString1);
+        customData.setValue("customString2", customString2);
 
-        ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
+        ruleServiceStoreLoggingData.setCustomData(customData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        ruleServiceLoggingInfo.setPublisherType(publisher1);
-        LoggingInfo loggingInfo = new LoggingInfo(ruleServiceLoggingInfo);
+        ruleServiceStoreLoggingData.setPublisherType(publisher1);
+        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
 
         TestEntity testEntity1 = new TestEntity();
-        mapper.map(loggingInfo, testEntity1);
+        mapper.map(storeLoggingData, testEntity1);
 
         // validation
         Assert.assertEquals(customString2, testEntity1.getValue2());
@@ -78,10 +78,10 @@ public class LoggingInfoMapperTest {
         Assert.assertEquals(null, testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
-        ruleServiceLoggingInfo.setPublisherType(publisher2);
+        ruleServiceStoreLoggingData.setPublisherType(publisher2);
 
         TestEntity testEntity2 = new TestEntity();
-        mapper.map(loggingInfo, testEntity2);
+        mapper.map(storeLoggingData, testEntity2);
 
         // validation
         Assert.assertEquals(null, testEntity2.getValue2());
@@ -90,22 +90,22 @@ public class LoggingInfoMapperTest {
 
     @Test
     public void testPublisherConvertorMapping() {
-        LoggingInfoMapper mapper = new LoggingInfoMapper();
+        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
 
-        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
-        LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setValue("customString1", " " + customString1 + " ");
+        CustomData customData = new CustomData();
+        customData.setValue("customString1", " " + customString1 + " ");
 
-        ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
+        ruleServiceStoreLoggingData.setCustomData(customData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        ruleServiceLoggingInfo.setPublisherType(publisher1);
-        LoggingInfo loggingInfo = new LoggingInfo(ruleServiceLoggingInfo);
+        ruleServiceStoreLoggingData.setPublisherType(publisher1);
+        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
 
         TestEntity testEntity = new TestEntity();
-        mapper.map(loggingInfo, testEntity);
+        mapper.map(storeLoggingData, testEntity);
 
         // validation
         Assert.assertEquals(customString1, testEntity.getValue3());
@@ -113,18 +113,18 @@ public class LoggingInfoMapperTest {
 
     @Test
     public void testSimpleMapping() {
-        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
 
-        LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setValue("customString1", customString1);
-        loggingCustomData.setValue("customString2", customString2);
-        loggingCustomData.setValue("customString3", customString3);
+        CustomData customData = new CustomData();
+        customData.setValue("customString1", customString1);
+        customData.setValue("customString2", customString2);
+        customData.setValue("customString3", customString3);
 
-        ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
+        ruleServiceStoreLoggingData.setCustomData(customData);
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);
@@ -136,27 +136,27 @@ public class LoggingInfoMapperTest {
         final Date incomingMessageTime = getRandomTimeBetweenTwoDates();
         final Date outcomingMessageTime = getRandomTimeBetweenTwoDates();
 
-        ruleServiceLoggingInfo.setIncomingMessageTime(incomingMessageTime);
-        ruleServiceLoggingInfo.setOutcomingMessageTime(outcomingMessageTime);
-        ruleServiceLoggingInfo.setInputName(inputName);
-        ruleServiceLoggingInfo.setServiceName(serviceName);
-        ruleServiceLoggingInfo.setPublisherType(publisher);
+        ruleServiceStoreLoggingData.setIncomingMessageTime(incomingMessageTime);
+        ruleServiceStoreLoggingData.setOutcomingMessageTime(outcomingMessageTime);
+        ruleServiceStoreLoggingData.setInputName(inputName);
+        ruleServiceStoreLoggingData.setServiceName(serviceName);
+        ruleServiceStoreLoggingData.setPublisherType(publisher);
         LoggingMessage requestLoggingMessage = new LoggingMessage("", "");
         requestLoggingMessage.getPayload().append(request);
         requestLoggingMessage.getAddress().append(url);
-        ruleServiceLoggingInfo.setRequestMessage(requestLoggingMessage);
+        ruleServiceStoreLoggingData.setRequestMessage(requestLoggingMessage);
 
         LoggingMessage responseLoggingMessage = new LoggingMessage("", "");
         responseLoggingMessage.getPayload().append(response);
         responseLoggingMessage.getAddress().append(url);
-        ruleServiceLoggingInfo.setResponseMessage(responseLoggingMessage);
+        ruleServiceStoreLoggingData.setResponseMessage(responseLoggingMessage);
 
-        LoggingInfo loggingInfo = new LoggingInfo(ruleServiceLoggingInfo);
+        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
 
-        LoggingInfoMapper mapper = new LoggingInfoMapper();
+        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
         TestEntity testEntity = new TestEntity();
 
-        mapper.map(loggingInfo, testEntity);
+        mapper.map(storeLoggingData, testEntity);
 
         // validation
         Assert.assertEquals(SOME_VALUE, testEntity.getId());
@@ -176,9 +176,9 @@ public class LoggingInfoMapperTest {
         Assert.assertEquals(customString3, testEntity.getStringValue3());
     }
 
-    public static class SomeValueConvertor implements LoggingInfoConvertor<String> {
+    public static class SomeValueConvertor implements StoreLoggingConvertor<String> {
         @Override
-        public String convert(LoggingInfo loggingInfo) {
+        public String convert(StoreLoggingData storeLoggingData) {
             return SOME_VALUE;
         }
     }
@@ -223,7 +223,7 @@ public class LoggingInfoMapperTest {
             return id;
         }
 
-        @WithLoggingInfoConvertor(convertor = SomeValueConvertor.class)
+        @WithStoreLoggingDataConvertor(convertor = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }

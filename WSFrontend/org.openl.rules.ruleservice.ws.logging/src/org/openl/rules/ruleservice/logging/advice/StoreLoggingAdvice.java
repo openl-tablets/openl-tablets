@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.logging.advice;
 
-import org.openl.rules.ruleservice.logging.LoggingCustomData;
+import org.openl.rules.ruleservice.logging.CustomData;
 
 /**
  * Before advice for logging method calls.
@@ -9,7 +9,7 @@ import org.openl.rules.ruleservice.logging.LoggingCustomData;
  *
  */
 public interface StoreLoggingAdvice {
-    LoggingCustomData populateCustomData(LoggingCustomData loggingCustomData,
+    CustomData populateCustomData(CustomData customData,
             Object[] args,
             Object result,
             Exception ex);

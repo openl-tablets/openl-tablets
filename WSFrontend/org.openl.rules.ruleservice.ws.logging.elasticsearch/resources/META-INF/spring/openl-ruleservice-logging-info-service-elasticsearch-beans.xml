@@ -26,7 +26,7 @@
 	</bean>
 
 	<!-- Elastic search logging store service bean. -->
-	<bean id="elasticSearchLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.elasticsearch.ElasticSearchStoreLoggingInfoService" lazy-init="true">
+	<bean id="elasticSearchStoreLoggingService" class="org.openl.rules.ruleservice.logging.elasticsearch.ElasticSearchStoreLoggingService" lazy-init="true">
 		<property name="elasticsearchOperations" ref="elasticsearchTemplate"/>
 	</bean>
 

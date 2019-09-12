@@ -30,13 +30,13 @@ import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
 import org.openl.rules.ruleservice.logging.annotation.Value;
-import org.openl.rules.ruleservice.logging.annotation.WithLoggingInfoConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoggingInfoMapper {
+public class StoreLoggingDataMapper {
 
-    private final Logger log = LoggerFactory.getLogger(LoggingInfoMapper.class);
+    private final Logger log = LoggerFactory.getLogger(StoreLoggingDataMapper.class);
 
     private static final Set<Class<? extends Annotation>> CUSTOM_ANNOTATIONS;
     private static final Set<Class<? extends Annotation>> MAPPING_ANNOTATIONS;
@@ -55,13 +55,13 @@ public class LoggingInfoMapper {
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(WithLoggingInfoConvertor.class);
+        mappingAnnotations.add(WithStoreLoggingDataConvertor.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
 
-    public void map(LoggingInfo loggingInfo, Object target) {
-        LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
+    public void map(StoreLoggingData storeLoggingData, Object target) {
+        CustomData customData = storeLoggingData.getCustomData();
         Class<?> targetClass = target.getClass();
         Class<?> clazz = targetClass;
         List<Pair<Annotation, AnnotatedElement>> customAnnotationElements = new ArrayList<>();
@@ -80,55 +80,55 @@ public class LoggingInfoMapper {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof IncomingTime) {
-                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getIncomingMessageTime());
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getIncomingMessageTime());
             }
             if (annotation instanceof OutcomingTime) {
-                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getOutcomingMessageTime());
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getOutcomingMessageTime());
             }
             if (annotation instanceof InputName) {
-                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getInputName());
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getInputName());
             }
             if (annotation instanceof ServiceName) {
-                injectValue(loggingInfo, target, annotation, annotatedElement, loggingInfo.getServiceName());
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getServiceName());
             }
             if (annotation instanceof Publisher) {
-                injectValue(loggingInfo,
+                injectValue(storeLoggingData,
                     target,
                     annotation,
                     annotatedElement,
-                    loggingInfo.getPublisherType().toString());
+                    storeLoggingData.getPublisherType().toString());
             }
-            if (loggingInfo.getRequestMessage() != null) {
-                if (annotation instanceof Url && loggingInfo.getRequestMessage().getAddress() != null) {
-                    injectValue(loggingInfo,
+            if (storeLoggingData.getRequestMessage() != null) {
+                if (annotation instanceof Url && storeLoggingData.getRequestMessage().getAddress() != null) {
+                    injectValue(storeLoggingData,
                         target,
                         annotation,
                         annotatedElement,
-                        loggingInfo.getRequestMessage().getAddress().toString());
+                        storeLoggingData.getRequestMessage().getAddress().toString());
                 }
-                if (annotation instanceof Request && loggingInfo.getResponseMessage().getPayload() != null) {
-                    injectValue(loggingInfo,
+                if (annotation instanceof Request && storeLoggingData.getResponseMessage().getPayload() != null) {
+                    injectValue(storeLoggingData,
                         target,
                         annotation,
                         annotatedElement,
-                        loggingInfo.getRequestMessage().getPayload().toString());
+                        storeLoggingData.getRequestMessage().getPayload().toString());
                 }
             } else {
                 log.error("Not found a request message in the logging info!");
             }
-            if (loggingInfo.getResponseMessage() != null) {
-                if (annotation instanceof Response && loggingInfo.getResponseMessage().getPayload() != null) {
-                    injectValue(loggingInfo,
+            if (storeLoggingData.getResponseMessage() != null) {
+                if (annotation instanceof Response && storeLoggingData.getResponseMessage().getPayload() != null) {
+                    injectValue(storeLoggingData,
                         target,
                         annotation,
                         annotatedElement,
-                        loggingInfo.getResponseMessage().getPayload().toString());
+                        storeLoggingData.getResponseMessage().getPayload().toString());
                 }
             } else {
                 log.error("Not found a response message in the logging info!");
             }
-            if (annotation instanceof WithLoggingInfoConvertor) {
-                withLoggingInfoInsertValue(loggingInfo, target, annotation, annotatedElement);
+            if (annotation instanceof WithStoreLoggingDataConvertor) {
+                withStoreLoggingDataInsertValue(storeLoggingData, target, annotation, annotatedElement);
             }
         }
 
@@ -138,7 +138,7 @@ public class LoggingInfoMapper {
             if (annotation instanceof Value) {
                 Value valueAnnotation = (Value) annotation;
                 String key = valueAnnotation.value();
-                injectValue(loggingInfo, target, annotation, annotatedElement, loggingCustomData.getValue(key));
+                injectValue(storeLoggingData, target, annotation, annotatedElement, customData.getValue(key));
             }
         }
     }
@@ -161,14 +161,14 @@ public class LoggingInfoMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private void injectValue(LoggingInfo loggingInfo,
+    private void injectValue(StoreLoggingData storeLoggingData,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement,
             Object value) {
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType != null && !matchPublisherType(qualifyPublisherType.value(),
-            loggingInfo.getPublisherType())) {
+            storeLoggingData.getPublisherType())) {
             return;
         }
 
@@ -259,22 +259,22 @@ public class LoggingInfoMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private void withLoggingInfoInsertValue(LoggingInfo loggingInfo,
+    private void withStoreLoggingDataInsertValue(StoreLoggingData storeLoggingData,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement) {
-        WithLoggingInfoConvertor withLoggingInfoConvertor = (WithLoggingInfoConvertor) annotation;
+        WithStoreLoggingDataConvertor withStoreLoggingDataConvertor = (WithStoreLoggingDataConvertor) annotation;
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
-            loggingInfo.getPublisherType())) {
-            Class<? extends LoggingInfoConvertor<?>> convertorClass = withLoggingInfoConvertor.convertor();
-            LoggingInfoConvertor<Object> convertor = null;
+            storeLoggingData.getPublisherType())) {
+            Class<? extends StoreLoggingConvertor<?>> convertorClass = withStoreLoggingDataConvertor.convertor();
+            StoreLoggingConvertor<Object> convertor = null;
             try {
-                convertor = (LoggingInfoConvertor<Object>) convertorClass.newInstance();
+                convertor = (StoreLoggingConvertor<Object>) convertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "LoggingInfo convertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
+                        "StoreLoggingConvertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
                         convertorClass.getTypeName()), e);
                 }
                 return;
@@ -282,7 +282,7 @@ public class LoggingInfoMapper {
             if (convertor != null) {
                 Object convertedValue = null;
                 try {
-                    convertedValue = convertor.convert(loggingInfo);
+                    convertedValue = convertor.convert(storeLoggingData);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(

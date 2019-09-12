@@ -51,7 +51,7 @@ public class LoggingRecord {
         return id;
     }
 
-    @WithLoggingInfoConvertor(convertor = TimeBasedUUID.class)
+    @WithStoreLoggingDataConvertor(convertor = TimeBasedUUID.class)
     public void setId(String id) {
         this.id = id;
     }

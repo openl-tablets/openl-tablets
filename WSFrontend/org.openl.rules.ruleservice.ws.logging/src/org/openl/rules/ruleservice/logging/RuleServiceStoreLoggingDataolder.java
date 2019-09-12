@@ -6,17 +6,17 @@ package org.openl.rules.ruleservice.logging;
  * @author Marat Kamalov
  *
  */
-public final class RuleServiceLoggingHolder {
+public final class RuleServiceStoreLoggingDataolder {
 
-    private RuleServiceLoggingHolder() {
+    private RuleServiceStoreLoggingDataolder() {
     }
 
-    public static final ThreadLocal<RuleServiceLogging> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();
+    public static final ThreadLocal<RuleServiceStoreLoggingData> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();
 
-    public static RuleServiceLogging get() {
-        RuleServiceLogging requestData = RULESERVICE_LOGGING_HOLDER.get();
+    public static RuleServiceStoreLoggingData get() {
+        RuleServiceStoreLoggingData requestData = RULESERVICE_LOGGING_HOLDER.get();
         if (requestData == null) {
-            requestData = new RuleServiceLogging();
+            requestData = new RuleServiceStoreLoggingData();
             RULESERVICE_LOGGING_HOLDER.set(requestData);
         }
         return requestData;

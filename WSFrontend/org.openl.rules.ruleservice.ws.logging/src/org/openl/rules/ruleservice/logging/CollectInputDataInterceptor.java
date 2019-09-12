@@ -22,15 +22,15 @@ public class CollectInputDataInterceptor extends AbstractPhaseInterceptor<Messag
         OperationInfo operationInfo = message.getExchange().get(OperationInfo.class);
         if (operationInfo != null) {
             String inputName = operationInfo.getInputName();
-            RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
-            ruleServiceLogging.setInputName(inputName);
+            RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+            ruleServiceStoreLoggingData.setInputName(inputName);
             MessageContentsList objs = MessageContentsList.getContentsList(message);
             if (objs != null) {
                 Object[] params = new Object[objs.size()];
                 for (int i = 0; i < params.length; i++) {
                     params[i] = objs.get(i);
                 }
-                ruleServiceLogging.setParameters(params);
+                ruleServiceStoreLoggingData.setParameters(params);
             }
         }
     }
