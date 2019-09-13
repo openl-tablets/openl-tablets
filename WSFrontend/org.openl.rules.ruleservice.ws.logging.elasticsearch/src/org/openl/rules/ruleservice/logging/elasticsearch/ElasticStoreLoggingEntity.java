@@ -16,30 +16,48 @@ import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConver
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "loggingrecord")
-public class LoggingRecord {
+@Document(indexName = "logginghistory")
+public class ElasticStoreLoggingEntity {
+    @WithStoreLoggingDataConvertor(convertor = RandomUUID.class)
     @Id
     private String id;
 
+    @IncomingTime
     private Date incomingTime;
+
+    @OutcomingTime
     private Date outcomingTime;
 
+    @Request
     private String requestBody;
+
+    @Response
     private String responseBody;
 
+    @WithStoreLoggingDataConvertor(convertor = JSONRequest.class)
+    @QualifyPublisherType(PublisherType.RESTFUL)
     private Object request;
+
+    @WithStoreLoggingDataConvertor(convertor = JSONResponse.class)
+    @QualifyPublisherType(PublisherType.RESTFUL)
     private Object response;
 
+    @ServiceName
     private String serviceName;
+
+    @InputName
     private String inputName;
+
+    @Publisher
     private String publisherType;
 
+    @Url
     private String url;
 
-    public LoggingRecord() {
+    public ElasticStoreLoggingEntity() {
     }
 
-    public LoggingRecord(String id,
+    public ElasticStoreLoggingEntity(String id,
             Date incomingTime,
             Date outcomingTime,
             Object request,
@@ -108,65 +126,52 @@ public class LoggingRecord {
         return responseBody;
     }
 
-    @WithStoreLoggingDataConvertor(convertor = RandomUUID.class)
     public void setId(String id) {
         this.id = id;
     }
 
-    @IncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
 
-    @OutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
 
-    @Request
     public void setRequestBody(String requestBody) {
         this.requestBody = requestBody;
     }
 
-    @Response
     public void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
     }
 
-    @WithStoreLoggingDataConvertor(convertor = JSONRequest.class)
-    @QualifyPublisherType(PublisherType.RESTFUL)
     public void setRequest(Object request) {
         this.request = request;
     }
 
-    @WithStoreLoggingDataConvertor(convertor = JSONResponse.class)
-    @QualifyPublisherType(PublisherType.RESTFUL)
     public void setResponse(Object response) {
         this.response = response;
     }
 
-    @ServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    @InputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
 
-    @Publisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
 
-    @Url
     public void setUrl(String url) {
         this.url = url;
     }
 
     @Override
     public String toString() {
-        return "LoggingRecord [id=" + id + "]";
+        return "ElasticStoreLoggingEntity [id=" + id + "]";
     }
 }

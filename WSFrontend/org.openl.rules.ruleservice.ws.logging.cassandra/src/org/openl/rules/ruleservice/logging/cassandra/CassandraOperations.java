@@ -15,6 +15,7 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.datastax.driver.mapping.Mapper;
@@ -62,21 +63,25 @@ public class CassandraOperations implements InitializingBean {
     private Set<String> alreadyCreatedTableNames = new HashSet<>();
 
     public void save(Object entity) {
+        if (entity == null) {
+            return;
+        }
         try {
             createShemaIfNeeded(entity.getClass());
             @SuppressWarnings("unchecked")
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
             mapper.save(entity);
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Save operation was failure!", e);
-            }
+            log.error("Failed on cassandra entity save operation.", e);
         }
     }
 
     private ExecutorService sinleThreadExecuror = Executors.newSingleThreadExecutor();
 
     public void saveAsync(Object entity) {
+        if (entity == null) {
+            return;
+        }
         try {
             createShemaIfNeeded(entity.getClass());
             @SuppressWarnings("unchecked")
@@ -86,15 +91,11 @@ public class CassandraOperations implements InitializingBean {
                 try {
                     listenableFuture.get();
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error("Save operation was failure!", e);
-                    }
+                    log.error("Failed on cassandra entity save operation.", e);
                 }
             }, sinleThreadExecuror);
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Save operation was failure!", e);
-            }
+            log.error("Failed on cassandra entity save operation.", e);
         }
     }
 
@@ -119,16 +120,15 @@ public class CassandraOperations implements InitializingBean {
                                         session.execute(removeCommentsInStatement(q.trim()));
                                     }
                                 } catch (IOException e) {
-                                    if (log.isErrorEnabled()) {
-                                        log.error("Table creation was failure!", e);
-                                    }
-                                } catch (QueryExecutionException e) {
-                                    throw new SchemaCreationException(
-                                        "Schema creation fails for '" + entityClass.getSimpleName() + "'",
+                                    log.error(
+                                        String.format("Failed to extract CQL query for '%s'.",
+                                            entityClass.getTypeName()),
                                         e);
-                                } catch (QueryValidationException e) {
+                                } catch (QueryExecutionException | QueryValidationException
+                                        | NoHostAvailableException e) {
                                     throw new SchemaCreationException(
-                                        "Schema creation fails for '" + entityClass.getSimpleName() + "'",
+                                        String.format("Failed to execute schema creation CQL for '%s'",
+                                            entityClass.getTypeName()),
                                         e);
                                 }
                             }
@@ -221,18 +221,17 @@ public class CassandraOperations implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         if (contactpoints == null || contactpoints.trim().isEmpty()) {
             throw new BeanInitializationException(
-                "Property 'contactpoints' must be defined! Please, check your configuration.");
+                "Property 'contactpoints' is required. Please, check your configuration.");
         } else {
             contactpoints = contactpoints.trim();
         }
         if (port == null || port.trim().isEmpty()) {
-            throw new BeanInitializationException("Property 'port' must be defined! Please, check your configuration.");
+            throw new BeanInitializationException("Property 'port' is required. Please, check your configuration.");
         } else {
             port = port.trim();
         }
         if (keyspace == null || keyspace.trim().isEmpty()) {
-            throw new BeanInitializationException(
-                "Property 'keyspace' must be defined! Please, check your configuration.");
+            throw new BeanInitializationException("Property 'keyspace' is required! Please, check your configuration.");
         } else {
             keyspace = keyspace.trim();
         }
@@ -245,9 +244,7 @@ public class CassandraOperations implements InitializingBean {
         try {
             init();
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Cassandra initialization failure!", e);
-            }
+            log.error("Cassandra initialization failure!", e);
             cluster.close();
 
         }

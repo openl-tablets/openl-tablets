@@ -2,32 +2,56 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.logging.annotation.*;
+import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.Publisher;
+import org.openl.rules.ruleservice.logging.annotation.Request;
+import org.openl.rules.ruleservice.logging.annotation.Response;
+import org.openl.rules.ruleservice.logging.annotation.ServiceName;
+import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(name = "openl_logging")
-public class LoggingRecord {
+@Table(name = "logginghistory")
+public class CassandraStoreLoggingEntity {
     @PartitionKey(0)
+    @WithStoreLoggingDataConvertor(convertor = TimeBasedUUID.class)
     private String id;
 
+    @IncomingTime
     private Date incomingTime;
+
+    @OutcomingTime
     private Date outcomingTime;
+
+    @Request
     private String request;
+
+    @Response
     private String response;
+
     @ClusteringColumn(1)
+    @ServiceName
     private String serviceName;
+
+    @Url
     private String url;
+
+    @InputName
     private String inputName;
+
     @ClusteringColumn(0)
+    @Publisher
     private String publisherType;
 
-    public LoggingRecord() {
+    public CassandraStoreLoggingEntity() {
     }
 
-    public LoggingRecord(String id,
+    public CassandraStoreLoggingEntity(String id,
             Date incomingTime,
             Date outcomingTime,
             String request,
@@ -51,7 +75,6 @@ public class LoggingRecord {
         return id;
     }
 
-    @WithStoreLoggingDataConvertor(convertor = TimeBasedUUID.class)
     public void setId(String id) {
         this.id = id;
     }
@@ -60,7 +83,6 @@ public class LoggingRecord {
         return incomingTime;
     }
 
-    @IncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
@@ -69,7 +91,6 @@ public class LoggingRecord {
         return outcomingTime;
     }
 
-    @OutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
@@ -78,7 +99,6 @@ public class LoggingRecord {
         return request;
     }
 
-    @Request
     public void setRequest(String request) {
         this.request = request;
     }
@@ -87,7 +107,6 @@ public class LoggingRecord {
         return response;
     }
 
-    @Response
     public void setResponse(String response) {
         this.response = response;
     }
@@ -96,7 +115,6 @@ public class LoggingRecord {
         return serviceName;
     }
 
-    @ServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -105,7 +123,6 @@ public class LoggingRecord {
         return url;
     }
 
-    @Url
     public void setUrl(String url) {
         this.url = url;
     }
@@ -114,7 +131,6 @@ public class LoggingRecord {
         return inputName;
     }
 
-    @InputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
@@ -123,14 +139,13 @@ public class LoggingRecord {
         return publisherType;
     }
 
-    @Publisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
 
     @Override
     public String toString() {
-        return "LoggingRecord [id=" + id + "]";
+        return "CassandraStoreLoggingEntity [id=" + id + "]";
     }
 
 }

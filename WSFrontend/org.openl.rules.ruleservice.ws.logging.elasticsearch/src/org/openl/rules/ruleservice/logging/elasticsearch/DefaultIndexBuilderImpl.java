@@ -13,8 +13,8 @@ public class DefaultIndexBuilderImpl implements IndexBuilder {
     StoreLoggingDataMapper storeLoggingDataMapper = new StoreLoggingDataMapper();
 
     @Override
-    public LoggingRecord withObject(StoreLoggingData storeLoggingData) {
-        LoggingRecord loggingRecord = new LoggingRecord();
+    public ElasticStoreLoggingEntity withObject(StoreLoggingData storeLoggingData) {
+        ElasticStoreLoggingEntity loggingRecord = new ElasticStoreLoggingEntity();
 
         storeLoggingDataMapper.map(storeLoggingData, loggingRecord);
 

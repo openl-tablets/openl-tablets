@@ -79,7 +79,9 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
             indexQueries[i++] = indexQuery;
         }
         for (IndexQuery indexQuery : indexQueries) {
-            elasticsearchOperations.index(indexQuery);
+            if (indexQuery != null) {
+                elasticsearchOperations.index(indexQuery);
+            }
         }
     }
 

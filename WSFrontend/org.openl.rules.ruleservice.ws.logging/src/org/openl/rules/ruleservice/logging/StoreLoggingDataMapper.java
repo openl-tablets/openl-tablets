@@ -61,6 +61,10 @@ public class StoreLoggingDataMapper {
     }
 
     public void map(StoreLoggingData storeLoggingData, Object target) {
+        if (target == null) {
+            return;
+        }
+        
         CustomData customData = storeLoggingData.getCustomData();
         Class<?> targetClass = target.getClass();
         

@@ -42,7 +42,7 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
         }
 
         if (cassandraEntity == null || cassandraEntity.value().length == 0) {
-            entities = new LoggingRecord[] { new LoggingRecord() };
+            entities = new CassandraStoreLoggingEntity[] { new CassandraStoreLoggingEntity() };
         } else {
             entities = new Object[cassandraEntity.value().length];
             int i = 0;
@@ -61,10 +61,21 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
             }
         }
         for (Object entity : entities) {
-            storeLoggingDataMapper.map(storeLoggingData, entity);
+            try {
+                storeLoggingDataMapper.map(storeLoggingData, entity);
+            } catch (Exception e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to map '%s' cassandra entity for '%s' method.",
+                        entity.getClass().getTypeName(),
+                        MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                }
+                return;
+            }
         }
         for (Object entity : entities) {
-            cassandraOperations.saveAsync(entity);
+            if (entity != null) {
+                cassandraOperations.saveAsync(entity);
+            }
         }
     }
 }
