@@ -39,7 +39,7 @@ public class BenchmarkBean {
 
     private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
-            .getNumberOfTests();
+            .getNumberOfTestsCases();
     }
 
     public void addLastBenchmark() {

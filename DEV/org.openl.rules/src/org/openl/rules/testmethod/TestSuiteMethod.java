@@ -142,8 +142,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
     }
 
-    public int getNumberOfTests() {
-        return getTests().length;
+    public int getNumberOfTestsCases() {
+        return getTestObjects().length;
     }
 
     @Override
@@ -239,7 +239,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
      *         TODO: rename it. it is difficult to understand what is it doing
      */
     public boolean isRunmethodTestable() {
-        for (int i = 0; i < getNumberOfTests(); i++) {
+        for (int i = 0; i < getNumberOfTestsCases(); i++) {
             if (getTest(i).isExpectedResultDefined() || getTest(i)
                 .isExpectedErrorDefined() || containsFieldsForSprCellTests(
                     getTest(i).getTestObject().getFieldValues().keySet()) || (testedMethod instanceof Spreadsheet)) {

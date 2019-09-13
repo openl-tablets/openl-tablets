@@ -105,7 +105,7 @@ public final class ProjectHelper {
             return null;
         }
 
-        return getTestInfo(testMethod, ((TestSuiteMethod) testMethod).getNumberOfTests());
+        return getTestInfo(testMethod, ((TestSuiteMethod) testMethod).getNumberOfTestsCases());
     }
 
     public static String getTestInfo(TestSuite testSuite) {
