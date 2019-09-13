@@ -17,6 +17,10 @@
         </f:facet>
 
         <h:form id="userProfileForm">
+            <!-- Sometimes browser ignores autocomplete="off" option. See https://stackoverflow.com/a/15917221 -->
+            <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"/>
+            <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"/>
+
             <rich:tabPanel switchType="client" id="userProfileTab">
                 <rich:tab header="Details" id="userProfileDetails">
                     <div class="fields">
@@ -189,10 +193,11 @@
 <script>
     //<![CDATA[
     $j(function () {
-        // Enable save button only if the form is dirty - using events.
-        $j("#userProfileForm").areYouSure();
+        $j("#userProfileForm").find('.save-button').prop("disabled", true);
+
         // Ignore hidden input for selected tab from the dirtiness check
         $j("#userProfileForm\\:userProfileTab-value").addClass('ays-ignore');
+        $j(".fake-autofill-field").addClass('ays-ignore');
 
         $j("#userProfileForm").bind('dirty.areYouSure', function () {
             $j(this).find('.save-button').prop("disabled", false);
@@ -200,16 +205,14 @@
         $j("#userProfileForm").bind('clean.areYouSure', function () {
             $j(this).find('.save-button').prop("disabled", true);
         });
+        // Enable save button only if the form is dirty - using events.
+        $j("#userProfileForm").areYouSure();
     });
 
     function editUserProfile(tab) {
         RichFaces.$("modalUserProfile").show();
         #{rich:component("userProfileTab")}.switchToItem(
                 tab === "settings" ? "userProfileSettings" : "userProfileDetails");
-        $j(function () {
-            $j("#userProfileForm").find('.save-button').prop("disabled", true);
-            $j("#userProfileForm").trigger('reinitialize.areYouSure');
-        });
     }
 
     function hideAndReload() {
