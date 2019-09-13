@@ -42,7 +42,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                         if (storeLoggingAdvice instanceof ObjectSerializerAware) {
                             ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLoggingAdvice;
                             if (ruleServiceStoreLoggingData == null) {
-                                ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get(); // Lazy local
+                                ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get(); // Lazy local
                                                                                                       // variable
                                 // initialization
                             }
@@ -58,7 +58,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                     }
                     if (storeLoggingAdvice != null) {
                         if (ruleServiceStoreLoggingData == null) {
-                            ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get(); // Lazy local variable
+                            ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get(); // Lazy local variable
                                                                                                   // initialization
                         }
                         CustomData customData = storeLoggingAdvice.populateCustomData(getCustomData(

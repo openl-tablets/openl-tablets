@@ -25,6 +25,7 @@
 	<!-- Cassandra logging store service bean. -->
 	<bean id="cassandraStoreLoggingService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraStoreLoggingService" lazy-init="true">
 		<property name="cassandraOperations" ref="cassandraOperations"/>
+        <property name="enabled" value="${ruleservice.logging.store.cassandra.enabled}"/>
 	</bean>
 </beans>
 

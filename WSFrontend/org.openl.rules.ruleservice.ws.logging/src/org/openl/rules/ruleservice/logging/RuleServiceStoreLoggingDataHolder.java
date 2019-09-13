@@ -6,9 +6,9 @@ package org.openl.rules.ruleservice.logging;
  * @author Marat Kamalov
  *
  */
-public final class RuleServiceStoreLoggingDataolder {
+public final class RuleServiceStoreLoggingDataHolder {
 
-    private RuleServiceStoreLoggingDataolder() {
+    private RuleServiceStoreLoggingDataHolder() {
     }
 
     public static final ThreadLocal<RuleServiceStoreLoggingData> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();

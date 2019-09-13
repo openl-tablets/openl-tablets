@@ -16,6 +16,8 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLoggingService.class);
 
+    private boolean enabled = true;
+
     private ElasticsearchOperations elasticsearchOperations;
 
     public ElasticsearchOperations getElasticsearchOperations() {
@@ -27,7 +29,16 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
     }
 
     @Override
-    public void store(StoreLoggingData storeLoggingData) {
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void save(StoreLoggingData storeLoggingData) {
         Method serviceMethod = storeLoggingData.getServiceMethod();
         if (serviceMethod == null) {
             log.error("Service method is not found! Please, see previous errors.");
@@ -80,7 +91,12 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
         }
         for (IndexQuery indexQuery : indexQueries) {
             if (indexQuery != null) {
-                elasticsearchOperations.index(indexQuery);
+                try {
+                    elasticsearchOperations.index(indexQuery);
+                } catch (Exception e) {
+                    // Continue the loop if exception occurs
+                    log.error("Failed on ElasticSearch entity save operation.", e);
+                }
             }
         }
     }

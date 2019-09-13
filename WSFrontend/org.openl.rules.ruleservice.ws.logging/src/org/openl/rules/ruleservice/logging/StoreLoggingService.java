@@ -7,5 +7,7 @@ package org.openl.rules.ruleservice.logging;
  *
  */
 public interface StoreLoggingService {
-    void store(StoreLoggingData storeLoggingData);
+    void save(StoreLoggingData storeLoggingData);
+
+    boolean isEnabled();
 }

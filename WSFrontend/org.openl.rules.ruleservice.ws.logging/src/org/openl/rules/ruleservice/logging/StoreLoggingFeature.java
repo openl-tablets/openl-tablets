@@ -15,16 +15,16 @@ public class StoreLoggingFeature extends AbstractFeature {
 
     private boolean prettyLogging;
 
-    private StoreLoggingService storeLoggingService;
+    private StoreLoggingManager storeLoggingManager;
 
-    public StoreLoggingService getStoreLoggingService() {
-        return storeLoggingService;
+    public void setStoreLoggingManager(StoreLoggingManager storeLoggingManager) {
+        this.storeLoggingManager = storeLoggingManager;
     }
-
-    public void setStoreLoggingService(StoreLoggingService storeLoggingService) {
-        this.storeLoggingService = storeLoggingService;
+    
+    public StoreLoggingManager getStoreLoggingManager() {
+        return storeLoggingManager;
     }
-
+    
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         if (isStoreLoggingEnabled()) {
@@ -36,7 +36,7 @@ public class StoreLoggingFeature extends AbstractFeature {
 
             CollectResponseMessageOutInterceptor storeLoggingOutInterceptor = new CollectResponseMessageOutInterceptor(
                 Integer.MAX_VALUE,
-                getStoreLoggingService());
+                getStoreLoggingManager());
             storeLoggingOutInterceptor.setPrettyLogging(false);
             provider.getOutInterceptors().add(storeLoggingOutInterceptor);
             provider.getOutFaultInterceptors().add(storeLoggingOutInterceptor);

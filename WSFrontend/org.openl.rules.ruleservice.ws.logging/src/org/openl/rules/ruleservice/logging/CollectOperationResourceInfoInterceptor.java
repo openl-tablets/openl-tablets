@@ -26,7 +26,7 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {
             Method serviceMethod = operationResourceInfo.getAnnotatedMethod();

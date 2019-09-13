@@ -34,7 +34,7 @@ public class CassandraOperations implements InitializingBean {
     private String keyspace;
     private String username;
     private String password;
-    private boolean createShemaEnabled = false;
+    private boolean shemaCreationEnabled = false;
     private ProtocolVersion protocolVersion = ProtocolVersion.V3;
 
     private void init() {
@@ -67,7 +67,7 @@ public class CassandraOperations implements InitializingBean {
             return;
         }
         try {
-            createShemaIfNeeded(entity.getClass());
+            createShemaIfMissed(entity.getClass());
             @SuppressWarnings("unchecked")
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
             mapper.save(entity);
@@ -76,14 +76,14 @@ public class CassandraOperations implements InitializingBean {
         }
     }
 
-    private ExecutorService sinleThreadExecuror = Executors.newSingleThreadExecutor();
+    private ExecutorService singleThreadExecuror = Executors.newSingleThreadExecutor();
 
     public void saveAsync(Object entity) {
         if (entity == null) {
             return;
         }
         try {
-            createShemaIfNeeded(entity.getClass());
+            createShemaIfMissed(entity.getClass());
             @SuppressWarnings("unchecked")
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
             final ListenableFuture<Void> listenableFuture = mapper.saveAsync(entity);
@@ -93,13 +93,13 @@ public class CassandraOperations implements InitializingBean {
                 } catch (Exception e) {
                     log.error("Failed on cassandra entity save operation.", e);
                 }
-            }, sinleThreadExecuror);
+            }, singleThreadExecuror);
         } catch (Exception e) {
             log.error("Failed on cassandra entity save operation.", e);
         }
     }
 
-    public void createShemaIfNeeded(Class<?> entityClass) {
+    public void createShemaIfMissed(Class<?> entityClass) {
         if (isCreateShemaEnabled()) {
             Table table = entityClass.getAnnotation(Table.class);
             if (table != null) {
@@ -120,8 +120,8 @@ public class CassandraOperations implements InitializingBean {
                                         session.execute(removeCommentsInStatement(q.trim()));
                                     }
                                 } catch (IOException e) {
-                                    log.error(
-                                        String.format("Failed to extract CQL query for '%s'.",
+                                    throw new SchemaCreationException(
+                                        String.format("Failed to extract a file with schema creation CQL query for '%s'.",
                                             entityClass.getTypeName()),
                                         e);
                                 } catch (QueryExecutionException | QueryValidationException
@@ -210,11 +210,11 @@ public class CassandraOperations implements InitializingBean {
     }
 
     public boolean isCreateShemaEnabled() {
-        return createShemaEnabled;
+        return shemaCreationEnabled;
     }
 
     public void setCreateShemaEnabled(boolean createShemaEnabled) {
-        this.createShemaEnabled = createShemaEnabled;
+        this.shemaCreationEnabled = createShemaEnabled;
     }
 
     @Override

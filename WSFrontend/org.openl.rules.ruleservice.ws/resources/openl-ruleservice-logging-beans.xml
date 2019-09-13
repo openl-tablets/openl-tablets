@@ -8,13 +8,13 @@
     <import resource="classpath*:META-INF/spring/openl-ruleservice-logging-info-service-*.xml" />
 
     <!-- Bean for configure storages type via openl-ruleservice.properties file. -->
-    <bean id="storeLoggingService" class="org.openl.rules.ruleservice.logging.StoreLoggingServiceFactoryBean" lazy-init="false">
+    <bean id="storeLoggingManager" class="org.openl.rules.ruleservice.logging.StoreLoggingManagerFactoryBean" lazy-init="false">
         <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}"/>
     </bean> 
     
     <bean id="storeLoggingFeature" class="org.openl.rules.ruleservice.logging.StoreLoggingFeature" scope="prototype">
         <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}" />
-        <property name="storeLoggingService" ref="storeLoggingService"/>
+        <property name="storeLoggingManager" ref="storeLoggingManager"/>
     </bean> 
 
    <bean class="org.openl.rules.ruleservice.logging.StoreLoggingsServiceInvocationAdviceListener" >

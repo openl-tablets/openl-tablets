@@ -18,6 +18,8 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
 
     private StoreLoggingDataMapper storeLoggingDataMapper = new StoreLoggingDataMapper();
 
+    private boolean enabled = true;
+
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
     }
@@ -27,7 +29,16 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
     }
 
     @Override
-    public void store(StoreLoggingData storeLoggingData) {
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void save(StoreLoggingData storeLoggingData) {
         Method serviceMethod = storeLoggingData.getServiceMethod();
         if (serviceMethod == null) {
             log.error("Service method has not been found! Please, see previous errors.");
@@ -74,7 +85,12 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
         }
         for (Object entity : entities) {
             if (entity != null) {
-                cassandraOperations.saveAsync(entity);
+                try {
+                    cassandraOperations.saveAsync(entity);
+                } catch (Exception e) {
+                    // Continue the loop if exception occurs
+                    log.error("Failed on cassandra entity save operation.", e);
+                }
             }
         }
     }

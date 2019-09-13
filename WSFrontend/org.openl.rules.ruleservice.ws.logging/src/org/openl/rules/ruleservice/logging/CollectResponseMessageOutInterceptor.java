@@ -32,24 +32,24 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     private final Logger log = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
-    private StoreLoggingService storeLoggingService;
+    private StoreLoggingManager storeLoggingManager;
 
-    public StoreLoggingService getStoreLoggingService() {
-        return storeLoggingService;
+    public StoreLoggingManager getStoreLoggingManager() {
+        return storeLoggingManager;
     }
 
-    public CollectResponseMessageOutInterceptor(String phase, StoreLoggingService storeLoggingSevice) {
+    public CollectResponseMessageOutInterceptor(String phase, StoreLoggingManager storeLoggingManager) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
-        this.storeLoggingService = storeLoggingSevice;
+        this.storeLoggingManager = storeLoggingManager;
     }
 
-    public CollectResponseMessageOutInterceptor(StoreLoggingService storeLoggingSevice) {
-        this(Phase.PRE_STREAM, storeLoggingSevice);
+    public CollectResponseMessageOutInterceptor(StoreLoggingManager storeLoggingManager) {
+        this(Phase.PRE_STREAM, storeLoggingManager);
     }
 
-    public CollectResponseMessageOutInterceptor(int lim, StoreLoggingService storeLoggingSevice) {
-        this(storeLoggingSevice);
+    public CollectResponseMessageOutInterceptor(int lim, StoreLoggingManager storeLoggingManager) {
+        this(storeLoggingManager);
         limit = lim;
     }
 
@@ -202,7 +202,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         @Override
         public void run() {
             try {
-                getStoreLoggingService().store(new StoreLoggingData(getRuleServiceStoreLoggingData()));
+                getStoreLoggingManager().save(new StoreLoggingData(getRuleServiceStoreLoggingData()));
             } catch (Exception e) {
                 log.error("Logging info storing failure!", e);
             }
@@ -211,13 +211,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        final RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        final RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
         ruleServiceStoreLoggingData.setResponseMessage(message);
         ruleServiceStoreLoggingData.setOutcomingMessageTime(new Date());
         if (!ruleServiceStoreLoggingData.isIgnorable()) {
             executorService.submit(new StoreTask(ruleServiceStoreLoggingData));
         }
-        RuleServiceStoreLoggingDataolder.remove();
+        RuleServiceStoreLoggingDataHolder.remove();
     }
 
     protected String formatLoggingMessage(LoggingMessage buffer) {

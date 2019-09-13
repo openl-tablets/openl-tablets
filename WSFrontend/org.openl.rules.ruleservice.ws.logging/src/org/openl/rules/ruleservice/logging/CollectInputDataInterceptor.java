@@ -22,7 +22,7 @@ public class CollectInputDataInterceptor extends AbstractPhaseInterceptor<Messag
         OperationInfo operationInfo = message.getExchange().get(OperationInfo.class);
         if (operationInfo != null) {
             String inputName = operationInfo.getInputName();
-            RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+            RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
             ruleServiceStoreLoggingData.setInputName(inputName);
             MessageContentsList objs = MessageContentsList.getContentsList(message);
             if (objs != null) {

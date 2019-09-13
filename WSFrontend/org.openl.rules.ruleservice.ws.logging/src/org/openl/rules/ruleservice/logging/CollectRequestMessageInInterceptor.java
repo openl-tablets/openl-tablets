@@ -132,7 +132,7 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
         ruleServiceStoreLoggingData.setRequestMessage(message);
         ruleServiceStoreLoggingData.setIncomingMessageTime(new Date());
     }

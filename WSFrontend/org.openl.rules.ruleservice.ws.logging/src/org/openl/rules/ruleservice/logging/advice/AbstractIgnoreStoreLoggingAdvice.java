@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.logging.advice;
 import org.openl.rules.ruleservice.logging.CustomData;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
-import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingDataolder;
+import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingDataHolder;
 
 public abstract class AbstractIgnoreStoreLoggingAdvice implements StoreLoggingAdvice {
 
@@ -12,7 +12,7 @@ public abstract class AbstractIgnoreStoreLoggingAdvice implements StoreLoggingAd
             Object[] args,
             Object result,
             Exception ex) {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataolder.get();
+        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
         if (isIgnorable(args, result, null, new StoreLoggingData(ruleServiceStoreLoggingData))) {
             ruleServiceStoreLoggingData.ignore();
         }
