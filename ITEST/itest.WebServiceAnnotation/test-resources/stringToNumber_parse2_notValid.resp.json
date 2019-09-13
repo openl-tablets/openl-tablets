@@ -1,0 +1,1 @@
+{"body":"Failure in the method: public static org.openl.binding.impl.cast.ThrowableVoidCast$ThrowableVoid org.openl.rules.helpers.RulesUtils.error(java.lang.String) on the target: Spreadsheet[1 x 3] with values: [A is not valid]. Cause: A is not valid"}

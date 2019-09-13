@@ -1,54 +1,20 @@
 package org.openl.itest;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.StringReader;
-import java.math.BigDecimal;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.openl.itest.core.RestClientFactory;
-import org.openl.itest.core.SoapClientFactory;
-import org.openl.itest.responsedto.ErrorResponse;
-import org.openl.itest.service.internal.MyType;
-import org.openl.itest.serviceclass.MyService;
-import org.openl.itest.serviceclass.internal.Response;
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.ruleservice.core.ExceptionType;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 public class RunAnnotationsITest {
 
     private static JettyServer server;
-    private static String baseURI;
     private static HttpClient client;
-
-    private RestTemplate annotationClassRest;
-    private RestTemplate serviceClassRest;
-    private RestTemplate serviceClassNegativeRest;
-    private MyService soapClient;
-    private RestTemplate runTestServiceRest;
 
     @BeforeClass
     public static void setUp() throws Exception {
         server = new JettyServer(true);
-        baseURI = server.start();
+        server.start();
         client = server.client();
     }
 
@@ -57,140 +23,93 @@ public class RunAnnotationsITest {
         server.stop();
     }
 
-    @Before
-    public void before() {
-        annotationClassRest = new RestClientFactory(baseURI + "/REST/v1/string/toNumber").create();
-        serviceClassRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-positive").create();
-        serviceClassNegativeRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-negative").create();
-        soapClient = new SoapClientFactory<>(baseURI + "/ws-serviceclass-positive", MyService.class).createProxy();
-        runTestServiceRest = new RestClientFactory(baseURI + "/REST/rules-tests-and-run-tables").create();
-    }
-
     @Test
     public void call_parse_interfaceMethod_shouldBeCalledSuccessfully_OK() {
-        // parse method was bound to the "/parse1" endpoint
-        ResponseEntity<Integer> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Integer) 1001, response.getBody());
+        client.post("/REST/v1/string/toNumber/parse1",
+            "/stringToNumber_parse1.req.txt",
+            "/stringToNumber_parse1.resp.txt");
     }
 
     @Test
     public void call_parse_interfaceMethod_shouldReturn_UNPROCESSABLE_ENTITY() {
-        ResponseEntity<ErrorResponse> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("B"), ErrorResponse.class);
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-        ErrorResponse body = response.getBody();
-        assertNotNull(body);
-        assertEquals("not acceptable", body.getMessage());
-        assertEquals(ExceptionType.USER_ERROR.name(), body.getType());
+        client.post("/REST/v1/string/toNumber/parse1",
+            "/stringToNumber_parse1_error.req.txt",
+            422,
+            "/stringToNumber_parse1_error.resp.json");
     }
 
     @Test
     public void call_parse1_interfaceMethod_shouldReturn_NOT_FOUND() {
-        ResponseEntity<String> response = annotationClassRest
-            .exchange("/parse11", HttpMethod.POST, RestClientFactory.request("B"), String.class);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.post("/REST/v1/string/toNumber/parse11", "/stringToNumber_parse11.req.txt", 404, "/404.resp.txt");
     }
 
     @Test
     public void call_parse2_interfaceMethod_thenInvokeAfterInterceptorAndWrapException_NOT_ACCEPTABLE() {
-        ResponseEntity<Parse2Dto> response = annotationClassRest
-            .exchange("/parse2", HttpMethod.POST, RestClientFactory.request("A"), Parse2Dto.class);
-
-        assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
-        Parse2Dto body = response.getBody();
-        assertNotNull(body);
-        assertContains(body.getBody(), "A is not valid");
+        client.post("/REST/v1/string/toNumber/parse2",
+            "/stringToNumber_parse2_notValid.req.txt",
+            406,
+            "/stringToNumber_parse2_notValid.resp.json");
     }
 
     @Test
     public void call_parse2_interfaceMethod_thenInvokeAfterInterceptorAndWrapResponse_OK() {
-        ResponseEntity<Parse2Dto> response = annotationClassRest
-            .exchange("/parse2", HttpMethod.POST, RestClientFactory.request("11"), Parse2Dto.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Parse2Dto body = response.getBody();
-        assertNotNull(body);
-        assertEquals("21", body.getBody());
+        client.post("/REST/v1/string/toNumber/parse2",
+            "/stringToNumber_parse2.req.txt",
+            "/stringToNumber_parse2.resp.json");
     }
 
     @Test
     public void call_parse3_interfaceMethod_usingCustomEndpoint_OK() {
-        ResponseEntity<Integer> response = annotationClassRest.getForEntity("/parse/111", Integer.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Integer) 211, response.getBody());
+        client.get("/REST/v1/string/toNumber/parse/111", "/stringToNumber_parse.resp.txt");
     }
 
     @Test
     public void call_parse3_interfaceMethod_usingCustomEndpoint_errorResponseMustBeReturned_UNPROCESSABLE_ENTITY() {
-        ResponseEntity<ErrorResponse> response = annotationClassRest.getForEntity("/parse/A", ErrorResponse.class);
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-        ErrorResponse body = response.getBody();
-        assertNotNull(body);
-        assertEquals("A is not valid", body.getMessage());
-        assertEquals(ExceptionType.USER_ERROR.name(), body.getType());
+        client.get("/REST/v1/string/toNumber/parse/A", 422, "/stringToNumber_parse_notValid.resp.json");
     }
 
     @Test
-    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_OK() throws XPathExpressionException {
-        ResponseEntity<String> response = annotationClassRest.postForEntity("/parseX", "11", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertMyTypeEquals(new MyType("PARSED", 111), response.getBody());
+    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_OK() {
+        client.post("/REST/v1/string/toNumber/parseX",
+            "/stringToNumber_parseX.req.txt!",
+            "/stringToNumber_parseX.resp.xml");
     }
 
     @Test
-    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldReturnError_OK() throws XPathExpressionException {
-        ResponseEntity<String> response = annotationClassRest.postForEntity("/parseX", "A", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertMyTypeEquals(new MyType("ERROR", -1), response.getBody());
+    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldReturnError_OK() {
+        client.post("/REST/v1/string/toNumber/parseX",
+            "/stringToNumber_parseX_error.req.txt!",
+            "/stringToNumber_parseX_error.resp.xml");
     }
 
     @Test
-    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldThrowErrorInBeforeInterceptor_OK() throws XPathExpressionException {
-        ResponseEntity<String> response = annotationClassRest.postForEntity("/parseX", "throwBeforeCall", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertMyTypeEquals(new MyType("ERROR", -1), response.getBody());
+    public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldThrowErrorInBeforeInterceptor_OK() {
+        client.post("/REST/v1/string/toNumber/parseX",
+            "/stringToNumber_parseX_throwBeforeCall.req.txt!",
+            "/stringToNumber_parseX_throwBeforeCall.resp.xml");
     }
 
     @Test
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldReturn_UNSUPPORTED_MEDIA_TYPE() {
-        ResponseEntity<String> response = annotationClassRest
-            .exchange("/parseX", HttpMethod.POST, RestClientFactory.request("throwBeforeCall"), String.class);
-        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, response.getStatusCode());
-
-        assertEquals("WebApplicationException has been caught, status: 415, message: HTTP 415 Unsupported Media Type",
-            response.getBody());
+        client.post("/REST/v1/string/toNumber/parseX",
+            "/stringToNumber_parseX_throwBeforeCall-415.req.json",
+            415,
+            "/stringToNumber_parseX_throwBeforeCall-415.resp.txt");
     }
 
     @Test
     public void call_virtual_interfaceMethod_OK() {
-        ResponseEntity<Double> response = annotationClassRest
-            .exchange("/virtual", HttpMethod.POST, RestClientFactory.request("1001"), Double.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Double) 1501.5d, response.getBody());
+        client.post("/REST/v1/string/toNumber/virtual",
+            "/stringToNumber_virtual.req.txt",
+            "/stringToNumber_virtual.resp.txt");
     }
 
     @Test
     public void call_virtual_interfaceMethod_UNPROCESSABLE_ENTITY() {
-        ResponseEntity<ErrorResponse> response = annotationClassRest
-            .exchange("/virtual", HttpMethod.POST, RestClientFactory.request("A"), ErrorResponse.class);
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-
-        ErrorResponse body = response.getBody();
-        assertNotNull(body);
-        assertEquals("A is not valid", body.getMessage());
-        assertEquals(ExceptionType.USER_ERROR.name(), body.getType());
+        client.post("/REST/v1/string/toNumber/virtual",
+            "/stringToNumber_virtual_error.req.txt",
+            422,
+            "/stringToNumber_virtual_error.resp.json");
     }
 
     @Test
@@ -214,258 +133,168 @@ public class RunAnnotationsITest {
 
     @Test
     public void call__notExcludedBecauseof_p__rulesMethod_OK() {
-        ResponseEntity<Integer> response = annotationClassRest
-            .exchange("/notExcludedBecauseof_p_", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Integer) (-999), response.getBody());
+        client.post("/REST/v1/string/toNumber/notExcludedBecauseof_p_",
+            "/stringToNumber_notExculded.req.txt",
+            "/stringToNumber_notExculded.resp.txt");
     }
 
     @Test
     public void call_excluded_rulesMethod_NOT_FOUND() {
-        ResponseEntity<String> response = annotationClassRest
-            .exchange("/excluded", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.post("/REST/v1/string/toNumber/excluded", "/stringToNumber_exculded.req.txt", 404, "/404.resp.txt");
     }
 
     @Test
     public void test_doSomething_REST() {
-        ResponseEntity<Long> response = serviceClassRest
-            .exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), Long.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Long) 1001L, response.getBody());
+        client.post("/REST/ws-serviceclass-positive/doSomething",
+            "/serviceclass-positive_doSomething.req.txt",
+            "/serviceclass-positive_doSomething.resp.txt");
     }
 
     @Test
     public void test_doSomething_SOAP() {
-        assertEquals((Long) 1001L, soapClient.doSomething("1001"));
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_doSomething.req.xml",
+            "/serviceclass-positive_doSomething.resp.xml");
     }
 
     @Test
     public void test_doArray_REST() {
-        ResponseEntity<long[]> response = serviceClassRest.getForEntity("/doArray", long[].class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(3, response.getBody().length);
+        client.get("/REST/ws-serviceclass-positive/doArray", "/serviceclass-positive_doArray.resp.json");
     }
 
     @Test
     public void test_doArray_SOAP() {
-        assertEquals(3, soapClient.doArray().length);
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_doArray.req.xml",
+            "/serviceclass-positive_doArray.resp.xml");
     }
 
     @Test
     public void test_voidMethod_REST() {
-        ResponseEntity<Void> response = serviceClassRest.getForEntity("/voidMethod", Void.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        client.get("/REST/ws-serviceclass-positive/voidMethod");
     }
 
     @Test
     public void test_voidMethod_SOAP() {
-        soapClient.voidMethod();
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_voidMethod.req.xml",
+            "/serviceclass-positive_voidMethod.resp.xml");
     }
 
     @Test
     public void test_voidMethodWithAfterReturnInterceptor_REST() {
-        ResponseEntity<Response> response = serviceClassRest.getForEntity("/voidMethodWithAfterReturnInterceptor",
-            Response.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Response body = response.getBody();
-        assertNotNull(body);
-        assertEquals("PASSED", body.getStatus());
-        assertEquals(0, body.getCode());
+        client.get("/REST/ws-serviceclass-positive/voidMethodWithAfterReturnInterceptor",
+            "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.resp.json");
     }
 
     @Test
     public void test_voidMethodWithAfterReturnInterceptor_SOAP() {
-        Response body = soapClient.voidMethodWithAfterReturnInterceptor();
-        assertNotNull(body);
-        assertEquals("PASSED", body.getStatus());
-        assertEquals(0, body.getCode());
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.req.xml",
+            "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.resp.xml");
     }
 
     @Test
     public void test_longMethodWithAfterReturnInterceptor_REST() {
-        ResponseEntity<Response> response = serviceClassRest.exchange("/longMethodWithAfterReturnInterceptor",
-            HttpMethod.POST,
-            RestClientFactory.request("1111"),
-            Response.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Response body = response.getBody();
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(1111, body.getCode());
+        client.post("/REST/ws-serviceclass-positive/longMethodWithAfterReturnInterceptor",
+            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.req.txt",
+            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.resp.json");
     }
 
     @Test
     public void test_longMethodWithAfterReturnInterceptor_SOAP() {
-        Response body = soapClient.longMethodWithAfterReturnInterceptor("1111");
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(1111, body.getCode());
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.req.xml",
+            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.resp.xml");
     }
 
     @Test
     public void test_longMethodWithUpcast_REST() {
-        ResponseEntity<Long> response = serviceClassRest
-            .exchange("/longMethodWithUpcast", HttpMethod.POST, RestClientFactory.request("1111"), Long.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Long) 1111L, response.getBody());
+        client.post("/REST/ws-serviceclass-positive/longMethodWithUpcast",
+            "/serviceclass-positive_longMethodWithUpcast.req.txt",
+            "/serviceclass-positive_longMethodWithUpcast.resp.txt");
     }
 
     @Test
     public void test_longMethodWithUpcast_SOAP() {
-        final Number expected = BigDecimal.valueOf(1111L);
-        assertEquals(expected, soapClient.longMethodWithUpcast("1111"));
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_longMethodWithUpcast.req.xml",
+            "/serviceclass-positive_longMethodWithUpcast.resp.xml");
     }
 
     @Test
     public void test_aroundLongMethod_REST() {
-        ResponseEntity<Response> response = serviceClassRest
-            .exchange("/aroundLongMethod", HttpMethod.POST, RestClientFactory.request("1111"), Response.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Response body = response.getBody();
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(1111, body.getCode());
+        client.post("/REST/ws-serviceclass-positive/aroundLongMethod",
+            "/serviceclass-positive_aroundLongMethod.req.txt",
+            "/serviceclass-positive_aroundLongMethod.resp.json");
     }
 
     @Test
     public void test_aroundLongMethod_SOAP() {
-        Response body = soapClient.aroundLongMethod("1111");
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(1111, body.getCode());
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_aroundLongMethod.req.xml",
+            "/serviceclass-positive_aroundLongMethod.resp.xml");
     }
 
     @Test
     public void test_aroundVoidMethod_REST() {
-        ResponseEntity<Response> response = serviceClassRest.getForEntity("/aroundVoidMethod", Response.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Response body = response.getBody();
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(0, body.getCode());
+        client.get("/REST/ws-serviceclass-positive/aroundVoidMethod",
+            "/serviceclass-positive_aroundVoidMethod.resp.json");
     }
 
     @Test
     public void test_aroundVoidMethod_SOAP() {
-        Response body = soapClient.aroundVoidMethod();
-        assertNotNull(body);
-        assertEquals("SUCCESS", body.getStatus());
-        assertEquals(0, body.getCode());
+        client.post("/ws-serviceclass-positive",
+            "/serviceclass-positive_aroundVoidMethod.req.xml",
+            "/serviceclass-positive_aroundVoidMethod.resp.xml");
     }
 
     @Test
     public void test_doSomething_negative_REST() {
-        ResponseEntity<String> response = serviceClassNegativeRest
-            .exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.post("/REST/ws-serviceclass-negative/doSomething",
+            "/serviceclass-negative_doSomething.req.txt",
+            404,
+            "/404.resp.html");
     }
 
     @Test
     public void test_runTestTables_calculatePremium_REST() {
-        ResponseEntity<SpreadsheetResult> response = runTestServiceRest.exchange("/calculatePremium",
-            HttpMethod.POST,
-            RestClientFactory.request("{\"covName\": \"Cov1\", \"amount\": 1000}"),
-            SpreadsheetResult.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        SpreadsheetResult body = response.getBody();
-        assertNotNull(body);
-        assertEquals((Double) 0.1, body.getFieldValue("$Formula$Factor"));
-        assertEquals((Double) 100., body.getFieldValue("$Formula$Premium"));
-        assertEquals((Double) 0., body.getFieldValue("$Formula$Discount"));
-        assertEquals((Double) 0., body.getFieldValue("$Formula$DiscountAmt"));
-        assertEquals((Double) 100., body.getFieldValue("$Formula$FinalPremium"));
-
+        client.post("/REST/rules-tests-and-run-tables/calculatePremium",
+            "/runTestTables_calculatePremium.req.json",
+            "/runTestTables_calculatePremium.resp.json");
     }
 
     @Test
     public void test_runTestTables_calculatePremium_ValidationError_REST() {
-        ResponseEntity<ErrorResponse> response = runTestServiceRest.exchange("/calculatePremium",
-            HttpMethod.POST,
-            RestClientFactory.request("{\"covName\": \"Cov100\", \"amount\": 1000}"),
-            ErrorResponse.class);
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-
-        ErrorResponse body = response.getBody();
-        assertNotNull(body);
-        assertEquals(
-            "Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]",
-            body.getMessage());
-        assertEquals(ExceptionType.VALIDATION.name(), body.getType());
+        client.post("/REST/rules-tests-and-run-tables/calculatePremium",
+            "/runTestTables_calculatePremium_notValid.req.json",
+            422,
+            "/runTestTables_calculatePremium_notValid.resp.json");
     }
 
     @Test
     public void test_runTestTables_calculatePremiumTest_REST() {
-        ResponseEntity<Void> response = runTestServiceRest.getForEntity("/calculatePremiumTest", Void.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.get("/REST/rules-tests-and-run-tables/calculatePremiumTest", 404, "/404.resp.txt");
     }
 
     @Test
     public void test_runTestTables_getFactor_REST() {
-        ResponseEntity<String> response = runTestServiceRest
-            .exchange("/getFactor", HttpMethod.POST, RestClientFactory.request("Cov1"), String.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.post("/REST/rules-tests-and-run-tables/getFactor", "/404.req.txt", 404, "/404.resp.txt");
     }
 
     @Test
     public void test_runTestTables_getDiscount_REST() {
-        ResponseEntity<String> response = runTestServiceRest
-            .exchange("/getDiscount", HttpMethod.POST, RestClientFactory.request("100"), String.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        client.post("/REST/rules-tests-and-run-tables/getDiscount", "/404.req.txt", 404, "/404.resp.txt");
     }
 
     @Test
     public void test_runTestTables_calculatePremiumRun_REST() {
-        ResponseEntity<Void> response = runTestServiceRest.getForEntity("/calculatePremiumRun", Void.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    private void assertMyTypeEquals(MyType expected, String xml) throws XPathExpressionException {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(xml));
-        final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
-
-        Node statusNode = (Node) xpath.evaluate("/myType/status", root, XPathConstants.NODE);
-        assertNotNull(statusNode);
-        assertEquals(expected.getStatus(), statusNode.getTextContent());
-
-        Node codeNode = (Node) xpath.evaluate("/myType/code", root, XPathConstants.NODE);
-        assertNotNull(statusNode);
-        assertEquals(String.valueOf(expected.getCode()), codeNode.getTextContent());
+        client.post("/REST/rules-tests-and-run-tables/calculatePremiumRun", "/404.req.txt", 404, "/404.resp.txt");
     }
 
     @Test
     public void typeChangingToGenericTypeTest() {
         client.get("/v1/string/toNumber?wsdl", "/stringToNumber_wsdl.resp.xml");
-    }
-
-    private void assertContains(String text, String expected) {
-        assertNotNull(text);
-        assertTrue(text, text.contains(expected));
-    }
-
-    private static class Parse2Dto {
-
-        private String body;
-
-        public String getBody() {
-            return body;
-        }
-
-        public void setBody(String body) {
-            this.body = body;
-        }
+        client.get("/REST/v1/string/toNumber?_wadl", "/stringToNumber_wadl.resp.xml");
     }
 }

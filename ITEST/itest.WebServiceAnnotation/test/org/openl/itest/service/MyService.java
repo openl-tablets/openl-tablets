@@ -38,7 +38,7 @@ public interface MyService {
     @POST
     @Path("parseX")
     @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.TEXT_XML)
+    @Produces(MediaType.APPLICATION_XML)
     @ServiceCallBeforeInterceptor({ InputInterceptor.class })
     @ServiceCallAfterInterceptor({ OutputInterceptor.class })
     MyType parse4(String num);
