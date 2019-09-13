@@ -1,0 +1,24 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:tiktakResponse xmlns:ns1="http://itest.openl.org/">
+            <ns1:return xmlns:ns2="http://calc.rules.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:type="ns2:SpreadsheetResult">
+                <ns2:columnNames>
+                    <ns1:string>calc</ns1:string>
+                </ns2:columnNames>
+                <ns2:rowNames>
+                    <ns1:string>INT</ns1:string>
+                    <ns1:string>String</ns1:string>
+                </ns2:rowNames>
+                <ns2:results>
+                    <ns3:ArrayOfAnyType xmlns:ns3="http://cxf.apache.org/arrays">
+                        <ns3:anyType xmlns:ns4="http://www.w3.org/2001/XMLSchema" xsi:type="ns4:int">100</ns3:anyType>
+                    </ns3:ArrayOfAnyType>
+                    <ns3:ArrayOfAnyType xmlns:ns3="http://cxf.apache.org/arrays">
+                        <ns3:anyType xmlns:ns4="http://www.w3.org/2001/XMLSchema" xsi:type="ns4:string">foo</ns3:anyType>
+                    </ns3:ArrayOfAnyType>
+                </ns2:results>
+            </ns1:return>
+        </ns1:tiktakResponse>
+    </soap:Body>
+</soap:Envelope>

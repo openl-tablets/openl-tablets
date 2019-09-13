@@ -16,7 +16,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.itest.core.ITestUtils;
+import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.core.SoapClientFactory;
@@ -37,6 +37,7 @@ public class RunAnnotationsITest {
 
     private static JettyServer server;
     private static String baseURI;
+    private static HttpClient client;
 
     private RestTemplate annotationClassRest;
     private RestTemplate serviceClassRest;
@@ -48,6 +49,7 @@ public class RunAnnotationsITest {
     public static void setUp() throws Exception {
         server = new JettyServer(true);
         baseURI = server.start();
+        client = server.client();
     }
 
     @AfterClass
@@ -193,34 +195,21 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_virtual2_interfaceMethod_withNamedParameters_OK() {
-        ResponseEntity<Double> response = annotationClassRest
-            .exchange("/virtual2", HttpMethod.POST, RestClientFactory.json("{ `first`:1111, `second`:`FOO`}"), Double.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals((Double) 1666.5d, response.getBody());
+        client.post("/REST/v1/string/toNumber/virtual2",
+            "/stringToNumber_virtual2.req.json",
+            "/stringToNumber_virtual2.resp.txt");
     }
 
     @Test
     public void call_pong_interfaceMethod_OK() {
-        ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/ping", HttpMethod.POST, RestClientFactory.json("{ `status`:`GOOD`, `code`:101}"), MyType.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        MyType body = response.getBody();
-        assertEquals("pong", body.getStatus());
-        assertEquals(-101, body.getCode());
+        client.post("/REST/v1/string/toNumber/ping", "/stringToNumber_ping.req.json", "/stringToNumber_ping.resp.json");
     }
 
     @Test
     public void call_process_rulesMethod_OK() {
-        ResponseEntity<ReturnTypeDto> response = annotationClassRest
-            .exchange("/process", HttpMethod.POST, RestClientFactory.json("{ `nick`:`bar`, `month`:120}"), ReturnTypeDto.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        ReturnTypeDto body = response.getBody();
-
-        assertEquals("bar", body.getName());
-        assertEquals((Double) 10d, body.getAge());
+        client.post("/REST/v1/string/toNumber/process",
+            "/stringToNumber_process.req.json",
+            "/stringToNumber_process.resp.json");
     }
 
     @Test
@@ -457,33 +446,9 @@ public class RunAnnotationsITest {
         assertEquals(String.valueOf(expected.getCode()), codeNode.getTextContent());
     }
 
-    private void assertEqualsIgnorePrefix(String expected, String actual) {
-        if (actual.indexOf(":") > 0) {
-            assertEquals(expected, actual.substring(actual.indexOf(":") + 1));
-        } else {
-            assertEquals(expected, actual);
-        }
-    }
-
     @Test
-    public void typeChangingToGenericTypeTest() throws XPathExpressionException {
-        String wsdlBody = ITestUtils.getWsdlBody(baseURI + "/v1/string/toNumber?wsdl");
-
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource inputSource = new InputSource(new StringReader(wsdlBody));
-        final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
-
-        final Node node1 = (Node) xpath.evaluate(
-            "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='parse5Response']/*[local-name()='sequence']/*[local-name()='element']",
-            root,
-            XPathConstants.NODE);
-        assertEqualsIgnorePrefix("double", node1.getAttributes().getNamedItem("type").getTextContent());
-
-        final Node node2 = (Node) xpath.evaluate(
-            "/*[local-name()='definitions']/*[local-name()='types']/*[local-name()='schema']/*[local-name()='complexType' and @name='parse6Response']/*[local-name()='sequence']/*[local-name()='element']",
-            root,
-            XPathConstants.NODE);
-        assertEqualsIgnorePrefix("int", node2.getAttributes().getNamedItem("type").getTextContent());
+    public void typeChangingToGenericTypeTest() {
+        client.get("/v1/string/toNumber?wsdl", "/stringToNumber_wsdl.resp.xml");
     }
 
     private void assertContains(String text, String expected) {
@@ -503,27 +468,4 @@ public class RunAnnotationsITest {
             this.body = body;
         }
     }
-
-    private static class ReturnTypeDto {
-
-        private String name;
-        private Double age;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Double getAge() {
-            return age;
-        }
-
-        public void setAge(Double age) {
-            this.age = age;
-        }
-    }
-
 }

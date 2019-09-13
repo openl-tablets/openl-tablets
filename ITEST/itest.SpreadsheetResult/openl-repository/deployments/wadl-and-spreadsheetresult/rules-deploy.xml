@@ -2,12 +2,12 @@
   <isProvideRuntimeContext>false</isProvideRuntimeContext>
   <isProvideVariations>false</isProvideVariations>
   <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
-  <serviceName>wadl-and-spreadsheetresult</serviceName>
+  <serviceName>spreadsheetresult</serviceName>
   <publishers>
     <publisher>WEBSERVICE</publisher>
     <publisher>RESTFUL</publisher>
   </publishers>
-  <url>wadl-and-spreadsheetresult</url>
+  <url>spreadsheetresult</url>
   <!-- STATIC INTERFACE -->
   <serviceClass>org.openl.itest.MainService</serviceClass>
   <!-- //STATIC INTERFACE -->

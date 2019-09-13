@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:pingResponse xmlns:ns1="http://DefaultNamespace">
+            <ns1:return>Pong!</ns1:return>
+        </ns1:pingResponse>
+    </soap:Body>
+</soap:Envelope>
