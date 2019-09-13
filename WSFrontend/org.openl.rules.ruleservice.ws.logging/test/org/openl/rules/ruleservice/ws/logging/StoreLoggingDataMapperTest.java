@@ -12,8 +12,9 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.Convertor;
 import org.openl.rules.ruleservice.logging.CustomData;
 import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingConvertor;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataImpl;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
@@ -67,7 +68,7 @@ public class StoreLoggingDataMapperTest {
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
         ruleServiceStoreLoggingData.setPublisherType(publisher1);
-        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
+        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
 
         TestEntity testEntity1 = new TestEntity();
         mapper.map(storeLoggingData, testEntity1);
@@ -102,7 +103,7 @@ public class StoreLoggingDataMapperTest {
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
         ruleServiceStoreLoggingData.setPublisherType(publisher1);
-        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
+        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
 
         TestEntity testEntity = new TestEntity();
         mapper.map(storeLoggingData, testEntity);
@@ -151,7 +152,7 @@ public class StoreLoggingDataMapperTest {
         responseLoggingMessage.getAddress().append(url);
         ruleServiceStoreLoggingData.setResponseMessage(responseLoggingMessage);
 
-        StoreLoggingData storeLoggingData = new StoreLoggingData(ruleServiceStoreLoggingData);
+        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
 
         StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
         TestEntity testEntity = new TestEntity();
@@ -176,7 +177,7 @@ public class StoreLoggingDataMapperTest {
         Assert.assertEquals(customString3, testEntity.getStringValue3());
     }
 
-    public static class SomeValueConvertor implements StoreLoggingConvertor<String> {
+    public static class SomeValueConvertor implements StoreLoggingDataConvertor<String> {
         @Override
         public String convert(StoreLoggingData storeLoggingData) {
             return SOME_VALUE;

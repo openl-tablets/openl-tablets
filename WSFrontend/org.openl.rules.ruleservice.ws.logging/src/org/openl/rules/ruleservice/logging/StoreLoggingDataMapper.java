@@ -64,10 +64,10 @@ public class StoreLoggingDataMapper {
         if (target == null) {
             return;
         }
-        
+
         CustomData customData = storeLoggingData.getCustomData();
         Class<?> targetClass = target.getClass();
-        
+
         QualifyPublisherType qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherTypeOnClass != null) {
             matchPublisherType(qualifyPublisherTypeOnClass.value(), storeLoggingData.getPublisherType());
@@ -116,41 +116,23 @@ public class StoreLoggingDataMapper {
                     annotatedElement,
                     storeLoggingData.getPublisherType().toString());
             }
-            if (storeLoggingData.getRequestMessage() != null) {
-                if (annotation instanceof Url && storeLoggingData.getRequestMessage().getAddress() != null) {
-                    injectValue(storeLoggingData,
-                        target,
-                        annotation,
-                        annotatedElement,
-                        storeLoggingData.getRequestMessage().getAddress().toString());
-                }
-                if (annotation instanceof Request && storeLoggingData.getResponseMessage().getPayload() != null) {
-                    injectValue(storeLoggingData,
-                        target,
-                        annotation,
-                        annotatedElement,
-                        storeLoggingData.getRequestMessage().getPayload().toString());
-                }
-            } else {
-                log.error("Not found a request message in the logging info!");
+            if (annotation instanceof Url) {
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getUrl());
             }
-            if (storeLoggingData.getResponseMessage() != null) {
-                if (annotation instanceof Response && storeLoggingData.getResponseMessage().getPayload() != null) {
-                    injectValue(storeLoggingData,
-                        target,
-                        annotation,
-                        annotatedElement,
-                        storeLoggingData.getResponseMessage().getPayload().toString());
-                }
-            } else {
-                log.error("Not found a response message in the logging info!");
+            if (annotation instanceof Request) {
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getRequest());
+            }
+            if (annotation instanceof Response) {
+                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getResponse());
             }
             if (annotation instanceof WithStoreLoggingDataConvertor) {
                 withStoreLoggingDataInsertValue(storeLoggingData, target, annotation, annotatedElement);
             }
         }
 
-        for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
+        for (
+
+        Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof Value) {
@@ -285,10 +267,10 @@ public class StoreLoggingDataMapper {
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
             storeLoggingData.getPublisherType())) {
-            Class<? extends StoreLoggingConvertor<?>> convertorClass = withStoreLoggingDataConvertor.convertor();
-            StoreLoggingConvertor<Object> convertor = null;
+            Class<? extends StoreLoggingDataConvertor<?>> convertorClass = withStoreLoggingDataConvertor.convertor();
+            StoreLoggingDataConvertor<Object> convertor = null;
             try {
-                convertor = (StoreLoggingConvertor<Object>) convertorClass.newInstance();
+                convertor = (StoreLoggingDataConvertor<Object>) convertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(

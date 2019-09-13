@@ -15,6 +15,7 @@
         <module>org.openl.rules.ruleservice</module>
         <module>org.openl.rules.ruleservice.rmi.frontend</module>
         <module>org.openl.rules.ruleservice.rmi</module>
+        <module>org.openl.rules.ruleservice.kafka</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>
         <module>org.openl.rules.ruleservice.ws.logging</module>
         <module>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</module>

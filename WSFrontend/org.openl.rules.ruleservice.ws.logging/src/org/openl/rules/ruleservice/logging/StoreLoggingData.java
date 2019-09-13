@@ -1,74 +1,36 @@
 package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.cxf.interceptor.LoggingMessage;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
-public class StoreLoggingData {
+public interface StoreLoggingData {
+    public PublisherType getPublisherType();
 
-    private RuleServiceStoreLoggingData ruleServiceStoreLoggingData;
+    public String getRequest();
 
-    private Map<String, Object> loggingContext = new HashMap<>();
+    public String getResponse();
 
-    public StoreLoggingData(RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
-        this.ruleServiceStoreLoggingData = ruleServiceStoreLoggingData;
-    }
+    public String getUrl();
 
-    public PublisherType getPublisherType() {
-        return ruleServiceStoreLoggingData.getPublisherType();
-    }
+    public String getServiceName();
 
-    public LoggingMessage getRequestMessage() {
-        return ruleServiceStoreLoggingData.getRequestMessage();
-    }
+    public Date getIncomingMessageTime();
 
-    public LoggingMessage getResponseMessage() {
-        return ruleServiceStoreLoggingData.getResponseMessage();
-    }
+    public Date getOutcomingMessageTime();
 
-    public String getServiceName() {
-        return ruleServiceStoreLoggingData.getServiceName();
-    }
+    public String getInputName();
 
-    public Date getIncomingMessageTime() {
-        return ruleServiceStoreLoggingData.getIncomingMessageTime();
-    }
+    public Object[] getParameters();
 
-    public Date getOutcomingMessageTime() {
-        return ruleServiceStoreLoggingData.getOutcomingMessageTime();
-    }
+    public CustomData getCustomData();
 
-    public String getInputName() {
-        return ruleServiceStoreLoggingData.getInputName();
-    }
+    public Method getServiceMethod();
 
-    public Object[] getParameters() {
-        return ruleServiceStoreLoggingData.getParameters();
-    }
+    public String getOutTopic();
 
-    public CustomData getCustomData() {
-        return ruleServiceStoreLoggingData.getCustomData();
-    }
+    public String getInTopic();
 
-    public Method getServiceMethod() {
-        return ruleServiceStoreLoggingData.getServiceMethod();
-    }
-
-    public Map<String, Object> getContext() {
-        return Collections.unmodifiableMap(ruleServiceStoreLoggingData.getContext());
-    }
-
-    public Map<String, Object> getLoggingContext() {
-        return loggingContext;
-    }
-
-    public boolean isIgnorable() {
-        return ruleServiceStoreLoggingData.isIgnorable();
-    }
-
+    public boolean isIgnorable();
 }

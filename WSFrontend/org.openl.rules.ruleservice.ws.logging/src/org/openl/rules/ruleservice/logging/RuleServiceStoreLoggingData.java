@@ -2,11 +2,12 @@ package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.cxf.interceptor.LoggingMessage;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.ruleservice.kafka.publish.Message;
 
 /**
  * Bean for data for logging to external source feature.
@@ -17,6 +18,10 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 public class RuleServiceStoreLoggingData {
     private LoggingMessage requestMessage;
     private LoggingMessage responseMessage;
+
+    private ConsumerRecord<String, Message> consumerRecord;
+    private ProducerRecord<String, Object> producerRecord;
+    private ProducerRecord<String, byte[]> dltRecord;
 
     private Date incomingMessageTime;
     private Date outcomingMessageTime;
@@ -34,9 +39,71 @@ public class RuleServiceStoreLoggingData {
 
     private ObjectSerializer objectSerializer;
 
-    private Map<String, Object> context = new HashMap<>();
-
     private boolean ignorable = false;
+
+    private String outTopic;
+
+    private String inTopic;
+
+    private int partition;
+
+    private long offset;
+
+    public int getPartition() {
+        return partition;
+    }
+
+    public void setPartition(int partition) {
+        this.partition = partition;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
+    public ProducerRecord<String, Object> getProducerRecord() {
+        return producerRecord;
+    }
+
+    public void setProducerRecord(ProducerRecord<String, Object> producerRecord) {
+        this.producerRecord = producerRecord;
+    }
+    
+    public ProducerRecord<String, byte[]> getDltRecord() {
+        return dltRecord;
+    }
+    
+    public void setDltRecord(ProducerRecord<String, byte[]> dltRecord) {
+        this.dltRecord = dltRecord;
+    }
+
+    public ConsumerRecord<String, Message> getConsumerRecord() {
+        return consumerRecord;
+    }
+
+    public void setConsumerRecord(ConsumerRecord<String, Message> consumerRecord) {
+        this.consumerRecord = consumerRecord;
+    }
+
+    public String getOutTopic() {
+        return outTopic;
+    }
+
+    public void setOutTopic(String outTopic) {
+        this.outTopic = outTopic;
+    }
+
+    public String getInTopic() {
+        return inTopic;
+    }
+
+    public void setInTopic(String inTopic) {
+        this.inTopic = inTopic;
+    }
 
     public PublisherType getPublisherType() {
         return publisherType;
@@ -116,10 +183,6 @@ public class RuleServiceStoreLoggingData {
 
     public void setServiceMethod(Method serviceMethod) {
         this.serviceMethod = serviceMethod;
-    }
-
-    public Map<String, Object> getContext() {
-        return context;
     }
 
     public boolean isIgnorable() {

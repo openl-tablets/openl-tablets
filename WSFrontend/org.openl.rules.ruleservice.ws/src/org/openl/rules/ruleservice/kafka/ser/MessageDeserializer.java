@@ -19,6 +19,7 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
+import org.openl.rules.ruleservice.kafka.publish.Message;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 

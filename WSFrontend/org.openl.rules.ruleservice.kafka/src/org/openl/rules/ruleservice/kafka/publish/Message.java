@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.kafka.ser;
+package org.openl.rules.ruleservice.kafka.publish;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class Message {
         this.rawData = bytes;
     }
 
-    public Object[] getParameters() throws Exception {
+    public final Object[] getParameters() throws Exception {
         if (isSuccess()) {
             return parameters.clone();
         } else {
@@ -31,7 +31,7 @@ public class Message {
         }
     }
 
-    public Method getMethod() throws Exception {
+    public final Method getMethod() throws Exception {
         if (method != null) {
             return method;
         } else {
@@ -39,19 +39,19 @@ public class Message {
         }
     }
 
-    public boolean isSuccess() {
+    public final boolean isSuccess() {
         return exception == null;
     }
 
-    public Exception getException() {
+    public final Exception getException() {
         return exception;
     }
 
-    public byte[] getRawData() {
+    public final byte[] getRawData() {
         return rawData;
     }
 
-    public String asText() {
+    public final String asText() {
         return new String(rawData);
     }
 }

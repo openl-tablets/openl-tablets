@@ -39,9 +39,11 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
-import org.openl.rules.ruleservice.kafka.ser.Message;
+import org.openl.rules.ruleservice.logging.ObjectSerializer;
+import org.openl.rules.ruleservice.logging.StoreLoggingManager;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
@@ -83,6 +85,26 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private String defaultGroupId;
 
     private Cloner cloner = new Cloner();
+
+    private StoreLoggingManager storeLoggingManager;
+
+    private boolean storeLoggingEnabled = false;
+
+    public void setStoreLoggingManager(StoreLoggingManager storeLoggingManager) {
+        this.storeLoggingManager = storeLoggingManager;
+    }
+
+    public StoreLoggingManager getStoreLoggingManager() {
+        return storeLoggingManager;
+    }
+
+    public boolean isStoreLoggingEnabled() {
+        return storeLoggingEnabled;
+    }
+
+    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
+        this.storeLoggingEnabled = storeLoggingEnabled;
+    }
 
     @Autowired
     @Qualifier("kafkaConsumerJacksonDatabindingFactoryBean")
@@ -407,16 +429,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
 
         // Build Method Kafka Producer or reuse shared
         boolean possibleToReuseShared = config.getProducerConfigs() == null || config.getProducerConfigs().isEmpty();
+        ObjectSerializer objectSerializer = null;
         KafkaProducer<String, Object> producer = null;
         if (possibleToReuseShared) {
             producer = context.getProducer();
+            objectSerializer = context.getObjectSerializer();
         }
         if (producer == null) {
-            producer = buildProducer(service,
-                producerJacksonObjectMapperFactoryBean.createJacksonObjectMapper(),
-                cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
+            ObjectMapper objectMapper = producerJacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+            objectSerializer = new JacksonObjectSerializer(objectMapper);
+            producer = buildProducer(service, objectMapper, cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
             if (possibleToReuseShared) {
-                context.setProducer(producer);
+                context.setProducerAndObjectSerializer(producer, objectSerializer);
             }
             kafkaProducers.add(producer);
         }
@@ -425,7 +449,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         possibleToReuseShared = config.getDltProducerConfigs() == null || config.getDltProducerConfigs().isEmpty();
         if (possibleToReuseShared) {
             dltProducer = context.getDltProducer();
-
         }
         if (dltProducer == null) {
             dltProducer = buildDltProducer(cleanupConfigs(mergedKafkaConfig.getDltProducerConfigs()));
@@ -441,7 +464,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             mergedKafkaConfig.getDltTopic(),
             consumer,
             producer,
-            dltProducer);
+            dltProducer,
+            objectSerializer,
+            getStoreLoggingManager(),
+            isStoreLoggingEnabled());
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -691,12 +717,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
     private static final class ServiceDeployContext {
         private KafkaProducer<String, Object> producer;
         private KafkaProducer<String, byte[]> dltProducer;
+        private ObjectSerializer objectSerializer;
 
         public KafkaProducer<String, byte[]> getDltProducer() {
             return dltProducer;
         }
 
         public void setDltProducer(KafkaProducer<String, byte[]> dltProducer) {
+            Objects.requireNonNull(dltProducer);
             this.dltProducer = dltProducer;
         }
 
@@ -704,8 +732,17 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             return producer;
         }
 
-        public void setProducer(KafkaProducer<String, Object> producer) {
+        public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
+                ObjectSerializer objectSerializer) {
+            Objects.requireNonNull(producer);
+            Objects.requireNonNull(objectSerializer);
             this.producer = producer;
+            this.objectSerializer = objectSerializer;
         }
+
+        public ObjectSerializer getObjectSerializer() {
+            return objectSerializer;
+        }
+
     }
 }

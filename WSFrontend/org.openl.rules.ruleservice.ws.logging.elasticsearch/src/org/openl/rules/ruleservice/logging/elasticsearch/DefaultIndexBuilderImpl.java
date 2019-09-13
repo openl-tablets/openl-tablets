@@ -25,12 +25,12 @@ public class DefaultIndexBuilderImpl implements IndexBuilder {
     public String withId(StoreLoggingData storeLoggingData) {
         String id = null;
 
-        Object existingId = storeLoggingData.getLoggingContext().get(ID);
+        Object existingId = storeLoggingData.getCustomData().getValue(ID);
         if (existingId != null) {
             id = (String) existingId;
         } else {
             id = UUID.randomUUID().toString();
-            storeLoggingData.getLoggingContext().put(ID, id);
+            storeLoggingData.getCustomData().setValue(ID, id);
         }
         return id;
     }

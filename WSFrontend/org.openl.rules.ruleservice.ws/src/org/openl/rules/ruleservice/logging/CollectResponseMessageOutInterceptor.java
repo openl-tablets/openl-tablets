@@ -202,7 +202,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         @Override
         public void run() {
             try {
-                getStoreLoggingManager().save(new StoreLoggingData(getRuleServiceStoreLoggingData()));
+                getStoreLoggingManager().save(new StoreLoggingDataImpl(getRuleServiceStoreLoggingData()));
             } catch (Exception e) {
                 log.error("Logging info storing failure!", e);
             }
