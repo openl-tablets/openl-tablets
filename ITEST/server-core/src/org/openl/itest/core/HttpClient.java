@@ -86,14 +86,16 @@ public class HttpClient {
             case "xml":
                 return "application/xml";
             case "txt":
-                return "application/json"; // FIXME: EPBDS-8931 text/plain;
+                return "application/json"; // FIXME: EPBDS-8931 text/plain should be there
+            case "txt!":    // FIXME: EPBDS-8931 remove txt! anywhere
+                return "text/plain";
             default:
                 return null;
         }
     }
 
     private static HttpEntity<?> file(String requestFile, String responseFile) {
-        return new HttpEntity<>(requestFile != null ? new ClassPathResource(requestFile) : null,
+        return new HttpEntity<>(requestFile != null ? new ClassPathResource(requestFile.replaceAll("txt!", "txt")) : null,
             getHeaders(requestFile, responseFile));
     }
 
@@ -112,12 +114,20 @@ public class HttpClient {
         return headers;
     }
 
+    public void get(String url) {
+        send(HttpMethod.GET, url, null, 200, null);
+    }
+
     public void get(String url, String responseFile) {
         send(HttpMethod.GET, url, null, 200, responseFile);
     }
 
     public void get(String url, int status) {
         send(HttpMethod.GET, url, null, status, null);
+    }
+
+    public void get(String url, int status, String responseFile) {
+        send(HttpMethod.GET, url, null, status, responseFile);
     }
 
     public <T> T get(String url, Class<T> clazz) {

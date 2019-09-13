@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:longMethodWithUpcast xmlns:ns1="http://serviceclass.itest.openl.org/">
+            <ns1:arg0>1111</ns1:arg0>
+        </ns1:longMethodWithUpcast>
+    </soap:Body>
+</soap:Envelope>

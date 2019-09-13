@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:doSomething xmlns:ns1="http://serviceclass.itest.openl.org/">
+            <ns1:arg0>1001</ns1:arg0>
+        </ns1:doSomething>
+    </soap:Body>
+</soap:Envelope>

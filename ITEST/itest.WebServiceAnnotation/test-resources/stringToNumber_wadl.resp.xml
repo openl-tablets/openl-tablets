@@ -1,0 +1,192 @@
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:prefix2="http://beans.generated.openl.org" xmlns:prefix1="http://jaxrs.openl.org">
+    <grammars>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://beans.generated.openl.org">
+            <xs:element name="RuleType" type="tns:RuleType"/>
+            <xs:complexType name="RuleType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="age" nillable="true" type="xs:double"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org">
+            <xs:element name="ProcessRequest" type="tns:ProcessRequest"/>
+            <xs:element name="Virtual2Request" type="tns:Virtual2Request"/>
+            <xs:complexType name="ProcessRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="nick" nillable="true" type="xs:string"/>
+                    <xs:element name="month" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Virtual2Request">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="first" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="second" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jaxrs.openl.org"
+                   attributeFormDefault="unqualified" elementFormDefault="unqualified"
+                   targetNamespace="http://jaxrs.openl.org">
+            <xs:element name="myType" type="myType"/>
+            <xs:complexType name="myType">
+                <xs:sequence>
+                    <xs:element name="code" type="xs:int"/>
+                    <xs:element minOccurs="0" name="status" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </grammars>
+    <resources base="http://localhost:#####/REST/v1/string/toNumber">
+        <resource path="/">
+            <resource path="notExcludedBecauseof_p_">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parse/{num}">
+                <param name="num" style="template" type="xs:string"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parse1">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parse2">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parse5">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parse6">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="parseX">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="text/plain">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/xml"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="ping">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="process">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:ProcessRequest"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json" element="prefix2:RuleType"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="toStr">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix2:RuleType"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="virtual">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json">
+                            <param name="request" style="plain" type="xs:string"/>
+                        </representation>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+            <resource path="virtual2">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:Virtual2Request"/>
+                    </request>
+                    <response>
+                        <representation mediaType="application/json"/>
+                    </response>
+                </method>
+            </resource>
+        </resource>
+        <resource path="/swagger.{type:json|yaml}">
+            <param name="type" style="template" type="xs:string"/>
+            <method name="GET">
+                <request></request>
+                <response>
+                    <representation mediaType="application/json"/>
+                    <representation mediaType="application/yaml"/>
+                </response>
+            </method>
+        </resource>
+    </resources>
+</application>

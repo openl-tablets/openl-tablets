@@ -1,0 +1,11 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:aroundVoidMethodResponse xmlns:ns1="http://serviceclass.itest.openl.org/">
+            <ns1:return xmlns:ns2="http://internal.serviceclass.itest.openl.org"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Response">
+                <ns2:code>0</ns2:code>
+                <ns2:status>SUCCESS</ns2:status>
+            </ns1:return>
+        </ns1:aroundVoidMethodResponse>
+    </soap:Body>
+</soap:Envelope>
