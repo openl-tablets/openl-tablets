@@ -1,0 +1,27 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:throwCompilationError xmlns:ns1="http://rules.itest.openl.org/">
+            <ns1:arg0>
+                <ns2:caProvince xmlns:ns2="http://context.rules.openl.org"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:caRegion xmlns:ns2="http://context.rules.openl.org"
+                              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:country xmlns:ns2="http://context.rules.openl.org"
+                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:currency xmlns:ns2="http://context.rules.openl.org"
+                              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:lang xmlns:ns2="http://context.rules.openl.org"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:lob xmlns:ns2="http://context.rules.openl.org">module1</ns2:lob>
+                <ns2:nature xmlns:ns2="http://context.rules.openl.org"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:region xmlns:ns2="http://context.rules.openl.org"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:usRegion xmlns:ns2="http://context.rules.openl.org"
+                              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+                <ns2:usState xmlns:ns2="http://context.rules.openl.org"
+                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+            </ns1:arg0>
+        </ns1:throwCompilationError>
+    </soap:Body>
+</soap:Envelope>

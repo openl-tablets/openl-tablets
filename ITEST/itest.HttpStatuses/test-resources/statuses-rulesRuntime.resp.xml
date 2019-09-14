@@ -1,0 +1,15 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Server</faultcode>
+            <faultstring>Failure in the method: public static java.lang.Double
+                java.lang.Double.valueOf(java.lang.String) throws java.lang.NumberFormatException on the target:
+                java.lang.Double with values: [sdsd]. Cause: For input string: "sdsd"
+            </faultstring>
+            <detail>
+                <type>RULES_RUNTIME</type>
+                <stackTrace>***</stackTrace>
+            </detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>
