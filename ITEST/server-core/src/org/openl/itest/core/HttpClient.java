@@ -87,7 +87,7 @@ public class HttpClient {
                 return "application/xml";
             case "txt":
                 return "application/json"; // FIXME: EPBDS-8931 text/plain should be there
-            case "txt!":    // FIXME: EPBDS-8931 remove txt! anywhere
+            case "txt!": // FIXME: EPBDS-8931 remove txt! anywhere
                 return "text/plain";
             default:
                 return null;
@@ -95,7 +95,8 @@ public class HttpClient {
     }
 
     private static HttpEntity<?> file(String requestFile, String responseFile) {
-        return new HttpEntity<>(requestFile != null ? new ClassPathResource(requestFile.replaceAll("txt!", "txt")) : null,
+        return new HttpEntity<>(
+            requestFile != null ? new ClassPathResource(requestFile.replaceAll("txt!", "txt")) : null,
             getHeaders(requestFile, responseFile));
     }
 
@@ -235,10 +236,13 @@ public class HttpClient {
                     String testValue = test.getNodeValue();
                     if (controlValue != null && testValue != null) {
                         String regExp = controlValue.replaceAll("\\\\", "\\\\\\\\")
+                            .replaceAll("\\s+", " ")
                             .replaceAll("#+", "\\\\d+")
                             .replaceAll("@+", "[@\\\\w]+")
-                            .replaceAll("\\*+", ".*");
-                        boolean matches = Pattern.compile(regExp).matcher(testValue).matches();
+                            .replaceAll("\\*+", "[^\uFFFF]*");
+                        String noSpaces = testValue.replaceAll("\\s+", " ");
+                        boolean matches = noSpaces
+                            .equals(regExp) || Pattern.compile(regExp).matcher(noSpaces).matches();
                         if (matches) {
                             return ComparisonResult.SIMILAR;
                         }
