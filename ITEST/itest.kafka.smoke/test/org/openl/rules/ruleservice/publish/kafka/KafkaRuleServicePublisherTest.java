@@ -170,9 +170,9 @@ public class KafkaRuleServicePublisherTest {
         Assert.assertEquals("Hello", getHeaderValue(v, "methodName"));
         Assert.assertEquals("hello-reply-topic", getHeaderValue(v, "kafka_replyTopic"));
         Assert.assertEquals("891", getHeaderValue(v, "kafka_replyPartition"));
-        Assert.assertEquals("org.openl.rules.ruleservice.kafka.ser.MessageFormatException",
+        Assert.assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
             getHeaderValue(v, "kafka_dlt-exception-fqcn"));
-        Assert.assertEquals("Message format is wrong.", getHeaderValue(v, "kafka_dlt-exception-message"));
+        Assert.assertEquals("Invalid message format.", getHeaderValue(v, "kafka_dlt-exception-message"));
         Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-original-offset"));
         Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-original-partition"));
         Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-exception-stacktrace"));

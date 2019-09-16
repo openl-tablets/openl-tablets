@@ -51,7 +51,7 @@ public final class KafkaService implements Runnable {
     private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     private KafkaProducer<String, Object> producer;
     private KafkaProducer<String, byte[]> dltProducer;
-    private KafkaConsumer<String, KafkaRequest> consumer;
+    private KafkaConsumer<String, RequestMessage> consumer;
     private Thread loopRunningThread;
     private ObjectSerializer objectSerializer;
     private boolean storeLoggingEnabled;
@@ -61,7 +61,7 @@ public final class KafkaService implements Runnable {
             String inTopic,
             String outTopic,
             String dltTopic,
-            KafkaConsumer<String, KafkaRequest> consumer,
+            KafkaConsumer<String, RequestMessage> consumer,
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
@@ -83,7 +83,7 @@ public final class KafkaService implements Runnable {
             String inTopic,
             String outTopic,
             String dltTopic,
-            KafkaConsumer<String, KafkaRequest> consumer,
+            KafkaConsumer<String, RequestMessage> consumer,
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
@@ -126,18 +126,18 @@ public final class KafkaService implements Runnable {
         return inTopic;
     }
 
-    public String getOutTopic(ConsumerRecord<?, ?> record) throws UnsupportedEncodingException {
+    public String getOutTopic(ConsumerRecord<?, ?> record) throws UndefinedTopicException {
         Header header = record.headers().lastHeader(KafkaHeaders.REPLY_TOPIC);
         if (header != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
         if (outTopic == null) {
-            throw new DltTopicIsNotDefinedException("Output topic is not defined.");
+            throw new UndefinedTopicException("Output topic isn't defined.");
         }
         return outTopic;
     }
 
-    public String getDltTopic(ConsumerRecord<?, ?> record) throws UnsupportedEncodingException {
+    public String getDltTopic(ConsumerRecord<?, ?> record) throws UndefinedTopicException {
         Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_TOPIC);
         if (header != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
@@ -147,7 +147,7 @@ public final class KafkaService implements Runnable {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
         if (dltTopic == null) {
-            throw new DltTopicIsNotDefinedException("DLT topic is not defined.");
+            throw new UndefinedTopicException("Dead letter queue topic isn't defined.");
         }
         return dltTopic;
     }
@@ -194,26 +194,25 @@ public final class KafkaService implements Runnable {
     public void run() {
         while (flag) {
             try {
-                ConsumerRecords<String, KafkaRequest> records = consumer.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, RequestMessage> records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
                     Date incomingTime = new Date();
-                    for (ConsumerRecord<String, KafkaRequest> record : records) {
+                    for (ConsumerRecord<String, RequestMessage> record : records) {
                         executor.submit(() -> {
                             StoreLoggingData storeLoggingData = isStoreLoggingEnabled() ? StoreLoggingDataHolder.get()
                                                                                         : null;
                             try {
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setServiceName(service.getName());
-                                    storeLoggingData.setInTopic(getInTopic());
                                     storeLoggingData.setIncomingMessageTime(incomingTime);
                                     storeLoggingData.setPublisherType(PublisherType.KAFKA);
                                     storeLoggingData.setObjectSerializer(getObjectSerializer());
                                 }
                                 String outputTopic = getOutTopic(record);
-                                KafkaRequest message = record.value();
-                                Object result = message.getMethod()
-                                    .invoke(service.getServiceBean(), message.getParameters());
+                                RequestMessage requestMessage = record.value();
+                                Object result = requestMessage.getMethod()
+                                    .invoke(service.getServiceBean(), requestMessage.getParameters());
                                 ProducerRecord<String, Object> producerRecord;
                                 Header header = record.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                 if (header == null) {
@@ -225,16 +224,13 @@ public final class KafkaService implements Runnable {
                                 }
                                 forwardHeadersToOutput(record, producerRecord);
                                 if (storeLoggingData != null) {
-                                    storeLoggingData.setOutTopic(outputTopic);
                                     storeLoggingData.setOutcomingMessageTime(new Date());
-                                    storeLoggingData.setInputName(message.getMethod().getName());
-                                    storeLoggingData.setParameters(message.getParameters());
-                                    storeLoggingData.setServiceMethod(message.getMethod());
+                                    storeLoggingData.setInputName(requestMessage.getMethod().getName());
+                                    storeLoggingData.setParameters(requestMessage.getParameters());
+                                    storeLoggingData.setServiceMethod(requestMessage.getMethod());
                                 }
                                 producer.send(producerRecord, (metadata, exception) -> {
                                     if (storeLoggingData != null) {
-                                        storeLoggingData.setPartition(metadata.partition());
-                                        storeLoggingData.setOffset(metadata.offset());
                                         storeLoggingData.setProducerRecord(producerRecord);
                                     }
                                     if (exception != null) {
@@ -242,7 +238,7 @@ public final class KafkaService implements Runnable {
                                             if (log.isErrorEnabled()) {
                                                 log.error(String.format(
                                                     "Failed to send a result message for '%s' method in '%s' service to '%s' output topic.",
-                                                    message.getMethod(),
+                                                    requestMessage.getMethod(),
                                                     getService().getName(),
                                                     getOutTopic(record)), exception);
                                             }
@@ -271,7 +267,7 @@ public final class KafkaService implements Runnable {
                         });
                     }
                     countDownLatch.await();
-                    for (ConsumerRecord<String, KafkaRequest> record : records) {
+                    for (ConsumerRecord<String, RequestMessage> record : records) {
                         currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1));
                     }
@@ -317,7 +313,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void setDltHeaders(ConsumerRecord<String, KafkaRequest> record,
+    private void setDltHeaders(ConsumerRecord<String, RequestMessage> record,
             ProducerRecord<?, ?> dltRecord) throws UnsupportedEncodingException {
         dltRecord.headers()
             .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY,
@@ -349,13 +345,21 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void sendErrorToDlt(ConsumerRecord<String, KafkaRequest> record,
+    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record,
             Exception e,
             StoreLoggingData storeLoggingData) {
-        String topic = null;
+        final String dltTopic;
         try {
-            String dltTopic = getDltTopic(record);
-            topic = dltTopic;
+            dltTopic = getDltTopic(record);
+        } catch (UndefinedTopicException e1) {
+            if (log.isErrorEnabled()) {
+                log.error(String.format("Failed to send a message to dead letter queue topic.%sPayload: %s",
+                    System.lineSeparator(),
+                    record.value().asText()), e1);
+            }
+            return;
+        }
+        try {
             ProducerRecord<String, byte[]> dltRecord;
             Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {
@@ -372,11 +376,9 @@ public final class KafkaService implements Runnable {
             dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLoggingData != null) {
                     storeLoggingData.setDltRecord(dltRecord);
-                    storeLoggingData.setPartition(metadata.partition());
-                    storeLoggingData.setOffset(metadata.offset());
                 }
                 if (exception != null && log.isErrorEnabled()) {
-                    log.error(String.format("Failed to send a message to '%s' dead letter topic.%sPayload: %s",
+                    log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",
                         dltTopic,
                         System.lineSeparator(),
                         record.value().asText()), exception);
@@ -384,16 +386,10 @@ public final class KafkaService implements Runnable {
                     getStoreLoggingManager().submit(storeLoggingData);
                 }
             });
-        } catch (DltTopicIsNotDefinedException | UnsupportedEncodingException e1) {
-            if (log.isErrorEnabled()) {
-                log.error(String.format("Failed to send a message to dead letter topic.%sPayload: %s",
-                    System.lineSeparator(),
-                    record.value().asText()), e1);
-            }
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
-                log.error(String.format("Failed to send a message to '%s' dead letter topic.%sPayload: %s",
-                    topic,
+                log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",
+                    dltTopic,
                     System.lineSeparator(),
                     record.value().asText()), e1);
             }

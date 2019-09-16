@@ -9,7 +9,7 @@ import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.kafka.publish.KafkaRequest;
+import org.openl.rules.ruleservice.kafka.publish.RequestMessage;
 
 /**
  * Bean for data for logging to external source feature.
@@ -21,7 +21,7 @@ public class StoreLoggingData {
     private LoggingMessage requestMessage;
     private LoggingMessage responseMessage;
 
-    private ConsumerRecord<String, KafkaRequest> consumerRecord;
+    private ConsumerRecord<String, RequestMessage> consumerRecord;
     private ProducerRecord<String, Object> producerRecord;
     private ProducerRecord<String, byte[]> dltRecord;
 
@@ -43,30 +43,6 @@ public class StoreLoggingData {
 
     private boolean ignorable = false;
 
-    private String outTopic;
-
-    private String inTopic;
-
-    private int partition;
-
-    private long offset;
-
-    public int getPartition() {
-        return partition;
-    }
-
-    public void setPartition(int partition) {
-        this.partition = partition;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
     public ProducerRecord<String, Object> getProducerRecord() {
         return producerRecord;
     }
@@ -83,28 +59,12 @@ public class StoreLoggingData {
         this.dltRecord = dltRecord;
     }
 
-    public ConsumerRecord<String, KafkaRequest> getConsumerRecord() {
+    public ConsumerRecord<String, RequestMessage> getConsumerRecord() {
         return consumerRecord;
     }
 
-    public void setConsumerRecord(ConsumerRecord<String, KafkaRequest> consumerRecord) {
+    public void setConsumerRecord(ConsumerRecord<String, RequestMessage> consumerRecord) {
         this.consumerRecord = consumerRecord;
-    }
-
-    public String getOutTopic() {
-        return outTopic;
-    }
-
-    public void setOutTopic(String outTopic) {
-        this.outTopic = outTopic;
-    }
-
-    public String getInTopic() {
-        return inTopic;
-    }
-
-    public void setInTopic(String inTopic) {
-        this.inTopic = inTopic;
     }
 
     public PublisherType getPublisherType() {

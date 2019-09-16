@@ -1,29 +1,29 @@
 package org.openl.rules.ruleservice.kafka.ser;
 
-public class MessageFormatException extends RuntimeException {
+public class RequestMessageFormatException extends RuntimeException {
 
     private static final long serialVersionUID = -176280184625803237L;
 
-    public MessageFormatException() {
+    public RequestMessageFormatException() {
         super();
     }
 
-    public MessageFormatException(String message,
+    public RequestMessageFormatException(String message,
             Throwable cause,
             boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public MessageFormatException(String message, Throwable cause) {
+    public RequestMessageFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public MessageFormatException(String message) {
+    public RequestMessageFormatException(String message) {
         super(message);
     }
 
-    public MessageFormatException(Throwable cause) {
+    public RequestMessageFormatException(Throwable cause) {
         super(cause);
     }
 

@@ -19,13 +19,13 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
-import org.openl.rules.ruleservice.kafka.publish.KafkaRequest;
+import org.openl.rules.ruleservice.kafka.publish.RequestMessage;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
+public class RequestMessageDeserializer implements Deserializer<RequestMessage> {
 
     private static final String UTF8 = "UTF8";
     private final ObjectMapper objectMapper;
@@ -35,7 +35,7 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private String encoding = UTF8;
 
-    public KafkaRequestDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
+    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
         Objects.requireNonNull(service, "service can't be null.");
         Objects.requireNonNull(objectMapper, "objectMapper can't be null.");
         this.service = service;
@@ -49,7 +49,7 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
         }
     }
 
-    public KafkaRequestDeserializer(OpenLService service, ObjectMapper objectMapper) throws Exception {
+    public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper) throws Exception {
         this(service, objectMapper, null);
     }
 
@@ -88,7 +88,7 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
     }
 
     @Override
-    public KafkaRequest deserialize(String topic, byte[] data) {
+    public RequestMessage deserialize(String topic, byte[] data) {
         return null;
     }
 
@@ -101,13 +101,13 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
     }
 
     @Override
-    public KafkaRequest deserialize(String topic, Headers headers, byte[] rawData) {
+    public RequestMessage deserialize(String topic, Headers headers, byte[] rawData) {
         if (methodParametersWrapperClassInfo != null) { // This is method type message
             try {
-                return buildKafkaRequest(methodParametersWrapperClassInfo, rawData);
+                return buildRequestMessage(methodParametersWrapperClassInfo, rawData);
             } catch (Exception e) {
-                return new KafkaRequest(methodParametersWrapperClassInfo.getMethod(),
-                    new MessageFormatException("Message format is wrong.", e),
+                return new RequestMessage(methodParametersWrapperClassInfo.getMethod(),
+                    new RequestMessageFormatException("Invalid message format.", e),
                     rawData,
                     encoding);
             }
@@ -122,24 +122,25 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
                     entry = generateWrapperClass(m1);
                     putCachedMethodParametersWrapperClassInfo(methodName, methodParameters, entry);
                 }
-                return buildKafkaRequest(entry, rawData);
+                return buildRequestMessage(entry, rawData);
             } catch (Exception e) {
-                return new KafkaRequest(m,
-                    new MessageFormatException("Message format is wrong.", e),
+                return new RequestMessage(m,
+                    new RequestMessageFormatException("Invalid message format.", e),
                     rawData,
                     encoding);
             }
         }
     }
 
-    protected KafkaRequest buildKafkaRequest(Entry entry, byte[] rawData) throws IOException, IllegalAccessException {
+    protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException,
+                                                                              IllegalAccessException {
         final Method method = entry.getMethod();
         final int numOfParameters = method.getParameterCount();
         if (numOfParameters == 0) {
-            return new KafkaRequest(method, new Object[] {}, rawData, encoding);
+            return new RequestMessage(method, new Object[] {}, rawData, encoding);
         } else if (numOfParameters == 1) {
             Object arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
-            return new KafkaRequest(method, new Object[] { arg }, rawData, encoding);
+            return new RequestMessage(method, new Object[] { arg }, rawData, encoding);
         } else {
             Object wrapperTarget = objectMapper.readValue(new String(rawData, encoding), entry.getWrapperClass());
             Object[] parameters = new Object[numOfParameters];
@@ -147,7 +148,7 @@ public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
             for (int i = 0; i < method.getParameterCount(); i++) {
                 parameters[i] = wrapperClassFields[i].get(wrapperTarget);
             }
-            return new KafkaRequest(method, parameters, rawData, encoding);
+            return new RequestMessage(method, parameters, rawData, encoding);
         }
     }
 

@@ -26,8 +26,7 @@ import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
-import org.openl.rules.ruleservice.logging.annotation.KafkaConsumerRecordHeader;
-import org.openl.rules.ruleservice.logging.annotation.KafkaProducerRecordHeader;
+import org.openl.rules.ruleservice.logging.annotation.KafkaMessageHeader;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
@@ -169,29 +168,32 @@ public class StoreLoggingDataMapper {
                 injectValue(storeLoggingData, target, annotation, annotatedElement, response);
             } else if (annotation instanceof WithStoreLoggingDataConvertor) {
                 withStoreLoggingDataInsertValue(storeLoggingData, target, annotation, annotatedElement);
-            } else if (annotation instanceof KafkaConsumerRecordHeader) {
-                KafkaConsumerRecordHeader consumerRecordHeader = (KafkaConsumerRecordHeader) annotation;
-                if (storeLoggingData.getConsumerRecord() != null) {
-                    Header header = storeLoggingData.getConsumerRecord()
-                        .headers()
-                        .lastHeader(consumerRecordHeader.value());
-                    if (header != null) {
-                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+            } else if (annotation instanceof KafkaMessageHeader) {
+                KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
+                if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
+                    if (storeLoggingData.getConsumerRecord() != null) {
+                        Header header = storeLoggingData.getConsumerRecord()
+                            .headers()
+                            .lastHeader(kafkaMessageHeader.value());
+                        if (header != null) {
+                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                        }
                     }
-                }
-            } else if (annotation instanceof KafkaProducerRecordHeader) {
-                KafkaProducerRecordHeader producerRecordHeader = (KafkaProducerRecordHeader) annotation;
-                if (storeLoggingData.getProducerRecord() != null) {
-                    Header header = storeLoggingData.getProducerRecord()
-                        .headers()
-                        .lastHeader(producerRecordHeader.value());
-                    if (header != null) {
-                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
-                    }
-                } else if (storeLoggingData.getDltRecord() != null) {
-                    Header header = storeLoggingData.getDltRecord().headers().lastHeader(producerRecordHeader.value());
-                    if (header != null) {
-                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                } else {
+                    if (storeLoggingData.getProducerRecord() != null) {
+                        Header header = storeLoggingData.getProducerRecord()
+                            .headers()
+                            .lastHeader(kafkaMessageHeader.value());
+                        if (header != null) {
+                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                        }
+                    } else if (storeLoggingData.getDltRecord() != null) {
+                        Header header = storeLoggingData.getDltRecord()
+                            .headers()
+                            .lastHeader(kafkaMessageHeader.value());
+                        if (header != null) {
+                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                        }
                     }
                 }
             }

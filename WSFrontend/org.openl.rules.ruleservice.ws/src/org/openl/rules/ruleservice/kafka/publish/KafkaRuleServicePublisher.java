@@ -388,12 +388,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         return new KafkaProducer<>(configs);
     }
 
-    private KafkaConsumer<String, KafkaRequest> buildConsumer(OpenLService service,
+    private KafkaConsumer<String, RequestMessage> buildConsumer(OpenLService service,
             ObjectMapper objectMapper,
             Method method,
             Properties configs) throws KafkaServiceConfigurationException {
         Deserializer<String> keyDeserializer;
-        Deserializer<KafkaRequest> valueDeserializer;
+        Deserializer<RequestMessage> valueDeserializer;
         try {
             keyDeserializer = getConfiguredKeySerializerOrDeserializer(service,
                 configs.getProperty("key.deserializer"));
@@ -421,7 +421,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             mergedKafkaConfig);
 
         // Build Method Kafka Consumer
-        final KafkaConsumer<String, KafkaRequest> consumer = buildConsumer(service,
+        final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
             consumerJacksonObjectMapperFactoryBean.createJacksonObjectMapper(),
             method,
             cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));

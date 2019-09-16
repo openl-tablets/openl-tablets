@@ -4,14 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-public class KafkaRequest {
+public class RequestMessage {
     private Object[] parameters;
     private Exception exception;
     private Method method;
     private byte[] rawData;
     private String encoding = "UTF8";
 
-    public KafkaRequest(Method method, Object[] parameters, byte[] rawData, String encoding) {
+    public RequestMessage(Method method, Object[] parameters, byte[] rawData, String encoding) {
         this(rawData, encoding);
         Objects.requireNonNull(method, "method can't be null");
         Objects.requireNonNull(parameters, "methodArgs can't be null");
@@ -19,13 +19,13 @@ public class KafkaRequest {
         this.parameters = parameters;
     }
 
-    public KafkaRequest(Method method, Exception exception, byte[] rawData, String encoding) {
+    public RequestMessage(Method method, Exception exception, byte[] rawData, String encoding) {
         this(rawData, encoding);
         Objects.requireNonNull(exception, "exception can't be null");
         this.exception = exception;
     }
 
-    private KafkaRequest(byte[] rawData, String encoding) {
+    private RequestMessage(byte[] rawData, String encoding) {
         this.rawData = rawData;
         if (encoding != null) {
             this.encoding = encoding;
