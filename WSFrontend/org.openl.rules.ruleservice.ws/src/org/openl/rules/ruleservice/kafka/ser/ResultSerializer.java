@@ -32,7 +32,7 @@ public class ResultSerializer implements Serializer<Object> {
         try {
             return objectMapper.writeValueAsString(data).getBytes(encoding);
         } catch (Exception e) {
-            throw new SerializeException("Failed to serialize a result.", e);
+            throw new SerializationException("Failed to write a result.", e);
         }
     }
 

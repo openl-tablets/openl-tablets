@@ -9,6 +9,8 @@ import org.openl.rules.ruleservice.logging.Convertor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
-public @interface InputName {
-    Class<? extends Convertor<Object, String>> convertor() default DefaultStringConvertor.class;
+public @interface KafkaConsumerRecordHeader {
+    String value();
+
+    Class<? extends Convertor<byte[], ?>> convertor() default KafkaHeaderToStringConvertor.class;
 }

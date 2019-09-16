@@ -29,7 +29,7 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
-        ruleServiceStoreLoggingData.setServiceName(service.getName());
+        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        storeLoggingData.setServiceName(service.getName());
     }
 }

@@ -1,26 +1,35 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-public class Message {
+public class KafkaRequest {
     private Object[] parameters;
     private Exception exception;
     private Method method;
     private byte[] rawData;
+    private String encoding = "UTF8";
 
-    public Message(Method method, Object[] parameters, byte[] bytes) {
+    public KafkaRequest(Method method, Object[] parameters, byte[] rawData, String encoding) {
+        this(rawData, encoding);
         Objects.requireNonNull(method, "method can't be null");
         Objects.requireNonNull(parameters, "methodArgs can't be null");
         this.method = method;
         this.parameters = parameters;
-        this.rawData = bytes;
     }
 
-    public Message(Method method, Exception exception, byte[] bytes) {
+    public KafkaRequest(Method method, Exception exception, byte[] rawData, String encoding) {
+        this(rawData, encoding);
         Objects.requireNonNull(exception, "exception can't be null");
         this.exception = exception;
-        this.rawData = bytes;
+    }
+
+    private KafkaRequest(byte[] rawData, String encoding) {
+        this.rawData = rawData;
+        if (encoding != null) {
+            this.encoding = encoding;
+        }
     }
 
     public final Object[] getParameters() throws Exception {
@@ -52,6 +61,10 @@ public class Message {
     }
 
     public final String asText() {
-        return new String(rawData);
+        try {
+            return new String(rawData, encoding);
+        } catch (UnsupportedEncodingException e) {
+            return new String(rawData);
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,15 +14,20 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.kafka.common.header.Header;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.logging.annotation.DefaultConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.KafkaConsumerRecordHeader;
+import org.openl.rules.ruleservice.logging.annotation.KafkaProducerRecordHeader;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
@@ -95,38 +101,95 @@ public class StoreLoggingDataMapper {
                     annotation,
                     annotatedElement,
                     storeLoggingData.getIncomingMessageTime());
-            }
-            if (annotation instanceof OutcomingTime) {
+            } else if (annotation instanceof OutcomingTime) {
                 injectValue(storeLoggingData,
                     target,
                     annotation,
                     annotatedElement,
                     storeLoggingData.getOutcomingMessageTime());
-            }
-            if (annotation instanceof InputName) {
+            } else if (annotation instanceof InputName) {
                 injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getInputName());
-            }
-            if (annotation instanceof ServiceName) {
+            } else if (annotation instanceof ServiceName) {
                 injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getServiceName());
-            }
-            if (annotation instanceof Publisher) {
+            } else if (annotation instanceof Publisher) {
                 injectValue(storeLoggingData,
                     target,
                     annotation,
                     annotatedElement,
                     storeLoggingData.getPublisherType().toString());
-            }
-            if (annotation instanceof Url) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getUrl());
-            }
-            if (annotation instanceof Request) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getRequest());
-            }
-            if (annotation instanceof Response) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getResponse());
-            }
-            if (annotation instanceof WithStoreLoggingDataConvertor) {
+            } else if (annotation instanceof Url) {
+                if (storeLoggingData.getRequestMessage() != null && storeLoggingData.getRequestMessage()
+                    .getAddress() != null) {
+                    injectValue(storeLoggingData,
+                        target,
+                        annotation,
+                        annotatedElement,
+                        storeLoggingData.getRequestMessage().getAddress().toString());
+                }
+            } else if (annotation instanceof Request) {
+                String request = null;
+                switch (storeLoggingData.getPublisherType()) {
+                    case KAFKA:
+                        request = storeLoggingData.getConsumerRecord().value().asText();
+                        break;
+                    case RMI:
+                        break;
+                    case RESTFUL:
+                    case WEBSERVICE:
+                        if (storeLoggingData.getRequestMessage() != null && storeLoggingData.getRequestMessage()
+                            .getPayload() != null) {
+                            request = storeLoggingData.getRequestMessage().getPayload().toString();
+                        }
+                }
+                injectValue(storeLoggingData, target, annotation, annotatedElement, request);
+            } else if (annotation instanceof Response) {
+                String response = null;
+                switch (storeLoggingData.getPublisherType()) {
+                    case KAFKA:
+                        if (storeLoggingData.getDltRecord() != null) {
+                            response = StringUtils.toEncodedString(storeLoggingData.getDltRecord().value(),
+                                StandardCharsets.UTF_8);
+                        } else if (storeLoggingData.getProducerRecord() != null) {
+                            try {
+                                response = storeLoggingData.getObjectSerializer()
+                                    .writeValueAsString(storeLoggingData.getProducerRecord().value());
+                            } catch (ProcessingException e) {
+                                throw new RuleServiceRuntimeException(e);
+                            }
+                        }
+                        break;
+                    case RMI:
+                        break;
+                    case RESTFUL:
+                    case WEBSERVICE:
+                        if (storeLoggingData.getResponseMessage() != null && storeLoggingData.getResponseMessage()
+                            .getPayload() != null) {
+                            response = storeLoggingData.getResponseMessage().getPayload().toString();
+                        }
+                }
+                injectValue(storeLoggingData, target, annotation, annotatedElement, response);
+            } else if (annotation instanceof WithStoreLoggingDataConvertor) {
                 withStoreLoggingDataInsertValue(storeLoggingData, target, annotation, annotatedElement);
+            } else if (annotation instanceof KafkaConsumerRecordHeader) {
+                KafkaConsumerRecordHeader consumerRecordHeader = (KafkaConsumerRecordHeader) annotation;
+                if (storeLoggingData.getConsumerRecord() != null) {
+                    Header header = storeLoggingData.getConsumerRecord()
+                        .headers()
+                        .lastHeader(consumerRecordHeader.value());
+                    if (header != null) {
+                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                    }
+                }
+            } else if (annotation instanceof KafkaProducerRecordHeader) {
+                KafkaProducerRecordHeader producerRecordHeader = (KafkaProducerRecordHeader) annotation;
+                if (storeLoggingData.getProducerRecord() != null) {
+                    Header header = storeLoggingData.getProducerRecord()
+                        .headers()
+                        .lastHeader(producerRecordHeader.value());
+                    if (header != null) {
+                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                    }
+                }
             }
         }
 

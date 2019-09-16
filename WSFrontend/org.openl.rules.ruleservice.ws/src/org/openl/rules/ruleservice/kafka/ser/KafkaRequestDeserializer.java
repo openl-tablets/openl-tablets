@@ -19,13 +19,13 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
-import org.openl.rules.ruleservice.kafka.publish.Message;
+import org.openl.rules.ruleservice.kafka.publish.KafkaRequest;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class MessageDeserializer implements Deserializer<Message> {
+public class KafkaRequestDeserializer implements Deserializer<KafkaRequest> {
 
     private static final String UTF8 = "UTF8";
     private final ObjectMapper objectMapper;
@@ -35,7 +35,7 @@ public class MessageDeserializer implements Deserializer<Message> {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private String encoding = UTF8;
 
-    public MessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
+    public KafkaRequestDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
         Objects.requireNonNull(service, "service can't be null.");
         Objects.requireNonNull(objectMapper, "objectMapper can't be null.");
         this.service = service;
@@ -49,7 +49,7 @@ public class MessageDeserializer implements Deserializer<Message> {
         }
     }
 
-    public MessageDeserializer(OpenLService service, ObjectMapper objectMapper) throws Exception {
+    public KafkaRequestDeserializer(OpenLService service, ObjectMapper objectMapper) throws Exception {
         this(service, objectMapper, null);
     }
 
@@ -66,7 +66,7 @@ public class MessageDeserializer implements Deserializer<Message> {
 
     private Entry generateWrapperClass(Method m) throws Exception {
         String[] parameterNames = MethodUtils.getParameterNames(m, service);
-        String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.MessageDeserializer$" + m
+        String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
             .getName() + "$" + RandomStringUtils.random(16, true, false);
 
         int i = 0;
@@ -88,7 +88,7 @@ public class MessageDeserializer implements Deserializer<Message> {
     }
 
     @Override
-    public Message deserialize(String topic, byte[] data) {
+    public KafkaRequest deserialize(String topic, byte[] data) {
         return null;
     }
 
@@ -101,14 +101,15 @@ public class MessageDeserializer implements Deserializer<Message> {
     }
 
     @Override
-    public Message deserialize(String topic, Headers headers, byte[] data) {
+    public KafkaRequest deserialize(String topic, Headers headers, byte[] rawData) {
         if (methodParametersWrapperClassInfo != null) { // This is method type message
             try {
-                return buildMessage(methodParametersWrapperClassInfo, data);
+                return buildKafkaRequest(methodParametersWrapperClassInfo, rawData);
             } catch (Exception e) {
-                return new Message(methodParametersWrapperClassInfo.getMethod(),
+                return new KafkaRequest(methodParametersWrapperClassInfo.getMethod(),
                     new MessageFormatException("Message format is wrong.", e),
-                    data);
+                    rawData,
+                    encoding);
             }
         } else {
             Method m = null;
@@ -121,29 +122,32 @@ public class MessageDeserializer implements Deserializer<Message> {
                     entry = generateWrapperClass(m1);
                     putCachedMethodParametersWrapperClassInfo(methodName, methodParameters, entry);
                 }
-                return buildMessage(entry, data);
+                return buildKafkaRequest(entry, rawData);
             } catch (Exception e) {
-                return new Message(m, new MessageFormatException("Message format is wrong.", e), data);
+                return new KafkaRequest(m,
+                    new MessageFormatException("Message format is wrong.", e),
+                    rawData,
+                    encoding);
             }
         }
     }
 
-    protected Message buildMessage(Entry entry, byte[] data) throws IOException, IllegalAccessException {
+    protected KafkaRequest buildKafkaRequest(Entry entry, byte[] rawData) throws IOException, IllegalAccessException {
         final Method method = entry.getMethod();
         final int numOfParameters = method.getParameterCount();
         if (numOfParameters == 0) {
-            return new Message(method, new Object[] {}, data);
+            return new KafkaRequest(method, new Object[] {}, rawData, encoding);
         } else if (numOfParameters == 1) {
-            Object arg = objectMapper.readValue(new String(data, encoding), method.getParameterTypes()[0]);
-            return new Message(method, new Object[] { arg }, data);
+            Object arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
+            return new KafkaRequest(method, new Object[] { arg }, rawData, encoding);
         } else {
-            Object wrapperTarget = objectMapper.readValue(new String(data, encoding), entry.getWrapperClass());
+            Object wrapperTarget = objectMapper.readValue(new String(rawData, encoding), entry.getWrapperClass());
             Object[] parameters = new Object[numOfParameters];
             Field[] wrapperClassFields = entry.getWrapperClassFields();
             for (int i = 0; i < method.getParameterCount(); i++) {
                 parameters[i] = wrapperClassFields[i].get(wrapperTarget);
             }
-            return new Message(method, parameters, data);
+            return new KafkaRequest(method, parameters, rawData, encoding);
         }
     }
 

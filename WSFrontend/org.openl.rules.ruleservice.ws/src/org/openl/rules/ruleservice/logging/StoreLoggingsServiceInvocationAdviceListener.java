@@ -33,7 +33,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Predicate<StoreLogging> predicate) {
         StoreLoggings storeLoggings = interfaceMethod.getAnnotation(StoreLoggings.class);
         if (storeLoggings != null) {
-            RuleServiceStoreLoggingData ruleServiceStoreLoggingData = null;
+            StoreLoggingData storeLoggingData = null;
             for (StoreLogging storeLogging : storeLoggings.value()) {
                 if (predicate.test(storeLogging)) {
                     StoreLoggingAdvice storeLoggingAdvice = null;
@@ -41,13 +41,12 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                         storeLoggingAdvice = storeLogging.value().newInstance();
                         if (storeLoggingAdvice instanceof ObjectSerializerAware) {
                             ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLoggingAdvice;
-                            if (ruleServiceStoreLoggingData == null) {
-                                ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get(); // Lazy local
-                                                                                                      // variable
+                            if (storeLoggingData == null) {
+                                storeLoggingData = StoreLoggingDataHolder.get(); // Lazy local
+                                                                                 // variable
                                 // initialization
                             }
-                            objectSerializerAware
-                                .setObjectSerializer(ruleServiceStoreLoggingData.getObjectSerializer());
+                            objectSerializerAware.setObjectSerializer(storeLoggingData.getObjectSerializer());
                         }
                     } catch (Exception e) {
                         String msg = String.format(
@@ -57,13 +56,13 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                         log.error(msg, e);
                     }
                     if (storeLoggingAdvice != null) {
-                        if (ruleServiceStoreLoggingData == null) {
-                            ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get(); // Lazy local variable
-                                                                                                  // initialization
+                        if (storeLoggingData == null) {
+                            storeLoggingData = StoreLoggingDataHolder.get(); // Lazy local variable
+                                                                             // initialization
                         }
-                        CustomData customData = storeLoggingAdvice.populateCustomData(getCustomData(
-                            ruleServiceStoreLoggingData), args, result, lastOccuredException);
-                        ruleServiceStoreLoggingData.setCustomData(customData);
+
+                        storeLoggingAdvice
+                            .populateCustomData(storeLoggingData.getCustomData(), args, result, lastOccuredException);
                     }
                 }
             }
@@ -128,9 +127,8 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
         }
     }
 
-    private CustomData getCustomData(RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
-        return ruleServiceStoreLoggingData.getCustomData() != null ? ruleServiceStoreLoggingData.getCustomData()
-                                                                   : new CustomData();
+    private CustomData getCustomData(StoreLoggingData storeLoggingData) {
+        return storeLoggingData.getCustomData() != null ? storeLoggingData.getCustomData() : new CustomData();
     }
 
 }

@@ -28,7 +28,7 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
-        ruleServiceStoreLoggingData.setObjectSerializer(objectSerializer);
+        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        storeLoggingData.setObjectSerializer(objectSerializer);
     }
 }

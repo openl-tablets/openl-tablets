@@ -27,8 +27,8 @@ import org.apache.kafka.common.header.Header;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
-import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingDataHolder;
+import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataHolder;
 import org.openl.rules.ruleservice.logging.StoreLoggingManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public final class KafkaService implements Runnable {
     private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     private KafkaProducer<String, Object> producer;
     private KafkaProducer<String, byte[]> dltProducer;
-    private KafkaConsumer<String, Message> consumer;
+    private KafkaConsumer<String, KafkaRequest> consumer;
     private Thread loopRunningThread;
     private ObjectSerializer objectSerializer;
     private boolean storeLoggingEnabled;
@@ -61,7 +61,7 @@ public final class KafkaService implements Runnable {
             String inTopic,
             String outTopic,
             String dltTopic,
-            KafkaConsumer<String, Message> consumer,
+            KafkaConsumer<String, KafkaRequest> consumer,
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
@@ -83,7 +83,7 @@ public final class KafkaService implements Runnable {
             String inTopic,
             String outTopic,
             String dltTopic,
-            KafkaConsumer<String, Message> consumer,
+            KafkaConsumer<String, KafkaRequest> consumer,
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
@@ -194,24 +194,24 @@ public final class KafkaService implements Runnable {
     public void run() {
         while (flag) {
             try {
-                ConsumerRecords<String, Message> records = consumer.poll(Duration.ofMillis(100));
+                ConsumerRecords<String, KafkaRequest> records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
                     Date incomingTime = new Date();
-                    for (ConsumerRecord<String, Message> record : records) {
+                    for (ConsumerRecord<String, KafkaRequest> record : records) {
                         executor.submit(() -> {
-                            RuleServiceStoreLoggingData ruleServiceStoreLoggingData = isStoreLoggingEnabled() ? RuleServiceStoreLoggingDataHolder
-                                .get() : null;
+                            StoreLoggingData storeLoggingData = isStoreLoggingEnabled() ? StoreLoggingDataHolder.get()
+                                                                                        : null;
                             try {
-                                if (ruleServiceStoreLoggingData != null) {
-                                    ruleServiceStoreLoggingData.setServiceName(service.getName());
-                                    ruleServiceStoreLoggingData.setInTopic(getInTopic());
-                                    ruleServiceStoreLoggingData.setIncomingMessageTime(incomingTime);
-                                    ruleServiceStoreLoggingData.setPublisherType(PublisherType.KAFKA);
-                                    ruleServiceStoreLoggingData.setObjectSerializer(getObjectSerializer());
+                                if (storeLoggingData != null) {
+                                    storeLoggingData.setServiceName(service.getName());
+                                    storeLoggingData.setInTopic(getInTopic());
+                                    storeLoggingData.setIncomingMessageTime(incomingTime);
+                                    storeLoggingData.setPublisherType(PublisherType.KAFKA);
+                                    storeLoggingData.setObjectSerializer(getObjectSerializer());
                                 }
                                 String outputTopic = getOutTopic(record);
-                                Message message = record.value();
+                                KafkaRequest message = record.value();
                                 Object result = message.getMethod()
                                     .invoke(service.getServiceBean(), message.getParameters());
                                 ProducerRecord<String, Object> producerRecord;
@@ -224,18 +224,18 @@ public final class KafkaService implements Runnable {
                                     producerRecord = new ProducerRecord<>(outputTopic, partition, null, result);
                                 }
                                 forwardHeadersToOutput(record, producerRecord);
-                                if (ruleServiceStoreLoggingData != null) {
-                                    ruleServiceStoreLoggingData.setOutTopic(outputTopic);
-                                    ruleServiceStoreLoggingData.setOutcomingMessageTime(new Date());
-                                    ruleServiceStoreLoggingData.setInputName(message.getMethod().getName());
-                                    ruleServiceStoreLoggingData.setParameters(message.getParameters());
-                                    ruleServiceStoreLoggingData.setServiceMethod(message.getMethod());
+                                if (storeLoggingData != null) {
+                                    storeLoggingData.setOutTopic(outputTopic);
+                                    storeLoggingData.setOutcomingMessageTime(new Date());
+                                    storeLoggingData.setInputName(message.getMethod().getName());
+                                    storeLoggingData.setParameters(message.getParameters());
+                                    storeLoggingData.setServiceMethod(message.getMethod());
                                 }
                                 producer.send(producerRecord, (metadata, exception) -> {
-                                    if (ruleServiceStoreLoggingData != null) {
-                                        ruleServiceStoreLoggingData.setPartition(metadata.partition());
-                                        ruleServiceStoreLoggingData.setOffset(metadata.offset());
-                                        ruleServiceStoreLoggingData.setProducerRecord(producerRecord);
+                                    if (storeLoggingData != null) {
+                                        storeLoggingData.setPartition(metadata.partition());
+                                        storeLoggingData.setOffset(metadata.offset());
+                                        storeLoggingData.setProducerRecord(producerRecord);
                                     }
                                     if (exception != null) {
                                         try {
@@ -249,7 +249,9 @@ public final class KafkaService implements Runnable {
                                         } catch (Exception e) {
                                             log.error("Unexpected error.", e);
                                         }
-                                        sendErrorToDlt(record, exception, ruleServiceStoreLoggingData);
+                                        sendErrorToDlt(record, exception, storeLoggingData);
+                                    } else if (storeLoggingData != null) {
+                                        getStoreLoggingManager().submit(storeLoggingData);
                                     }
                                 });
                             } catch (Exception e) {
@@ -259,17 +261,17 @@ public final class KafkaService implements Runnable {
                                             getInTopic()),
                                         e);
                                 }
-                                sendErrorToDlt(record, e, ruleServiceStoreLoggingData);
+                                sendErrorToDlt(record, e, storeLoggingData);
                             } finally {
                                 countDownLatch.countDown();
                                 if (isStoreLoggingEnabled()) {
-                                    RuleServiceStoreLoggingDataHolder.remove();
+                                    StoreLoggingDataHolder.remove();
                                 }
                             }
                         });
                     }
                     countDownLatch.await();
-                    for (ConsumerRecord<String, Message> record : records) {
+                    for (ConsumerRecord<String, KafkaRequest> record : records) {
                         currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1));
                     }
@@ -315,7 +317,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void setDltHeaders(ConsumerRecord<String, Message> record,
+    private void setDltHeaders(ConsumerRecord<String, KafkaRequest> record,
             ProducerRecord<?, ?> dltRecord) throws UnsupportedEncodingException {
         dltRecord.headers()
             .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY,
@@ -347,9 +349,9 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void sendErrorToDlt(ConsumerRecord<String, Message> record,
+    private void sendErrorToDlt(ConsumerRecord<String, KafkaRequest> record,
             Exception e,
-            RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
+            StoreLoggingData storeLoggingData) {
         String topic = null;
         try {
             String dltTopic = getDltTopic(record);
@@ -364,20 +366,22 @@ public final class KafkaService implements Runnable {
             }
             forwardHeadersToDlt(record, dltRecord);
             setDltHeaders(record, dltRecord);
-            if (ruleServiceStoreLoggingData != null) {
-                ruleServiceStoreLoggingData.setOutcomingMessageTime(new Date());
+            if (storeLoggingData != null) {
+                storeLoggingData.setOutcomingMessageTime(new Date());
             }
             dltProducer.send(dltRecord, (metadata, exception) -> {
-                if (ruleServiceStoreLoggingData != null) {
-                    ruleServiceStoreLoggingData.setDltRecord(dltRecord);
-                    ruleServiceStoreLoggingData.setPartition(metadata.partition());
-                    ruleServiceStoreLoggingData.setOffset(metadata.offset());
+                if (storeLoggingData != null) {
+                    storeLoggingData.setDltRecord(dltRecord);
+                    storeLoggingData.setPartition(metadata.partition());
+                    storeLoggingData.setOffset(metadata.offset());
                 }
                 if (exception != null && log.isErrorEnabled()) {
                     log.error(String.format("Failed to send a message to '%s' dead letter topic.%sPayload: %s",
                         dltTopic,
                         System.lineSeparator(),
                         record.value().asText()), exception);
+                } else if (storeLoggingData != null) {
+                    getStoreLoggingManager().submit(storeLoggingData);
                 }
             });
         } catch (DltTopicIsNotDefinedException | UnsupportedEncodingException e1) {

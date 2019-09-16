@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
@@ -18,8 +16,6 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
@@ -29,8 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 @NoJSR250Annotations
 public class CollectResponseMessageOutInterceptor extends AbstractProcessLoggingMessageInterceptor {
-
-    private final Logger log = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
     private StoreLoggingManager storeLoggingManager;
 
@@ -186,38 +180,15 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         }
     }
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-    private class StoreTask implements Runnable {
-        private RuleServiceStoreLoggingData ruleServiceStoreLoggingData;
-
-        public StoreTask(RuleServiceStoreLoggingData ruleServiceStoreLoggingData) {
-            this.ruleServiceStoreLoggingData = ruleServiceStoreLoggingData;
-        }
-
-        public RuleServiceStoreLoggingData getRuleServiceStoreLoggingData() {
-            return ruleServiceStoreLoggingData;
-        }
-
-        @Override
-        public void run() {
-            try {
-                getStoreLoggingManager().save(new StoreLoggingDataImpl(getRuleServiceStoreLoggingData()));
-            } catch (Exception e) {
-                log.error("Logging info storing failure!", e);
-            }
-        }
-    }
-
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        final RuleServiceStoreLoggingData ruleServiceStoreLoggingData = RuleServiceStoreLoggingDataHolder.get();
-        ruleServiceStoreLoggingData.setResponseMessage(message);
-        ruleServiceStoreLoggingData.setOutcomingMessageTime(new Date());
-        if (!ruleServiceStoreLoggingData.isIgnorable()) {
-            executorService.submit(new StoreTask(ruleServiceStoreLoggingData));
+        final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        storeLoggingData.setResponseMessage(message);
+        storeLoggingData.setOutcomingMessageTime(new Date());
+        if (!storeLoggingData.isIgnorable()) {
+            getStoreLoggingManager().submit(storeLoggingData);
         }
-        RuleServiceStoreLoggingDataHolder.remove();
+        StoreLoggingDataHolder.remove();
     }
 
     protected String formatLoggingMessage(LoggingMessage buffer) {

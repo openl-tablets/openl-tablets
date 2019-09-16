@@ -11,10 +11,8 @@ import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.Convertor;
 import org.openl.rules.ruleservice.logging.CustomData;
-import org.openl.rules.ruleservice.logging.RuleServiceStoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataImpl;
+import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.InputName;
@@ -56,19 +54,16 @@ public class StoreLoggingDataMapperTest {
     public void testPublisherFilteringMapping() {
         StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
 
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
+        StoreLoggingData storeLoggingData = new StoreLoggingData();
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = new CustomData();
+        CustomData customData = storeLoggingData.getCustomData();
         customData.setValue("customString1", customString1);
         customData.setValue("customString2", customString2);
 
-        ruleServiceStoreLoggingData.setCustomData(customData);
-
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        ruleServiceStoreLoggingData.setPublisherType(publisher1);
-        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
+        storeLoggingData.setPublisherType(publisher1);
 
         TestEntity testEntity1 = new TestEntity();
         mapper.map(storeLoggingData, testEntity1);
@@ -79,7 +74,7 @@ public class StoreLoggingDataMapperTest {
         Assert.assertEquals(null, testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
-        ruleServiceStoreLoggingData.setPublisherType(publisher2);
+        storeLoggingData.setPublisherType(publisher2);
 
         TestEntity testEntity2 = new TestEntity();
         mapper.map(storeLoggingData, testEntity2);
@@ -93,17 +88,14 @@ public class StoreLoggingDataMapperTest {
     public void testPublisherConvertorMapping() {
         StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
 
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
+        StoreLoggingData storeLoggingData = new StoreLoggingData();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = new CustomData();
+        CustomData customData = storeLoggingData.getCustomData();
         customData.setValue("customString1", " " + customString1 + " ");
 
-        ruleServiceStoreLoggingData.setCustomData(customData);
-
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        ruleServiceStoreLoggingData.setPublisherType(publisher1);
-        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
+        storeLoggingData.setPublisherType(publisher1);
 
         TestEntity testEntity = new TestEntity();
         mapper.map(storeLoggingData, testEntity);
@@ -114,18 +106,16 @@ public class StoreLoggingDataMapperTest {
 
     @Test
     public void testSimpleMapping() {
-        RuleServiceStoreLoggingData ruleServiceStoreLoggingData = new RuleServiceStoreLoggingData();
+        StoreLoggingData storeLoggingData = new StoreLoggingData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = new CustomData();
+        CustomData customData = storeLoggingData.getCustomData();
         customData.setValue("customString1", customString1);
         customData.setValue("customString2", customString2);
         customData.setValue("customString3", customString3);
-
-        ruleServiceStoreLoggingData.setCustomData(customData);
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);
@@ -137,22 +127,20 @@ public class StoreLoggingDataMapperTest {
         final Date incomingMessageTime = getRandomTimeBetweenTwoDates();
         final Date outcomingMessageTime = getRandomTimeBetweenTwoDates();
 
-        ruleServiceStoreLoggingData.setIncomingMessageTime(incomingMessageTime);
-        ruleServiceStoreLoggingData.setOutcomingMessageTime(outcomingMessageTime);
-        ruleServiceStoreLoggingData.setInputName(inputName);
-        ruleServiceStoreLoggingData.setServiceName(serviceName);
-        ruleServiceStoreLoggingData.setPublisherType(publisher);
+        storeLoggingData.setIncomingMessageTime(incomingMessageTime);
+        storeLoggingData.setOutcomingMessageTime(outcomingMessageTime);
+        storeLoggingData.setInputName(inputName);
+        storeLoggingData.setServiceName(serviceName);
+        storeLoggingData.setPublisherType(publisher);
         LoggingMessage requestLoggingMessage = new LoggingMessage("", "");
         requestLoggingMessage.getPayload().append(request);
         requestLoggingMessage.getAddress().append(url);
-        ruleServiceStoreLoggingData.setRequestMessage(requestLoggingMessage);
+        storeLoggingData.setRequestMessage(requestLoggingMessage);
 
         LoggingMessage responseLoggingMessage = new LoggingMessage("", "");
         responseLoggingMessage.getPayload().append(response);
         responseLoggingMessage.getAddress().append(url);
-        ruleServiceStoreLoggingData.setResponseMessage(responseLoggingMessage);
-
-        StoreLoggingData storeLoggingData = new StoreLoggingDataImpl(ruleServiceStoreLoggingData);
+        storeLoggingData.setResponseMessage(responseLoggingMessage);
 
         StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
         TestEntity testEntity = new TestEntity();

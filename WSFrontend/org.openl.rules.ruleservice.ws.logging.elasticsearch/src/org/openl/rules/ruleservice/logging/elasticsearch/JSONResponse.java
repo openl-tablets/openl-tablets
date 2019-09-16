@@ -7,6 +7,10 @@ import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 public class JSONResponse implements StoreLoggingDataConvertor<Object> {
     @Override
     public Object convert(StoreLoggingData storeLoggingData) {
-        return JSON.parse(storeLoggingData.getResponse());
+        if (storeLoggingData.getResponseMessage() != null && storeLoggingData.getResponseMessage()
+            .getPayload() != null) {
+            return JSON.parse(storeLoggingData.getResponseMessage().getPayload().toString());
+        }
+        return null;
     }
 }

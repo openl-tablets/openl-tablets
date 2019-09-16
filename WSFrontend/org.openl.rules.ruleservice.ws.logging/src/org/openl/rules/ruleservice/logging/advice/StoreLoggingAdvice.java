@@ -9,7 +9,7 @@ import org.openl.rules.ruleservice.logging.CustomData;
  *
  */
 public interface StoreLoggingAdvice {
-    CustomData populateCustomData(CustomData customData,
+    void populateCustomData(CustomData customData,
             Object[] args,
             Object result,
             Exception ex);

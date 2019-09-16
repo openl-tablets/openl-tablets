@@ -2,7 +2,7 @@ consumer.configs:
   max.poll.records: 128
   client.id.generator: org.openl.rules.ruleservice.kafka.conf.RandomClientIDGenerator
   key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  value.deserializer: org.openl.rules.ruleservice.kafka.ser.MessageDeserializer
+  value.deserializer: org.openl.rules.ruleservice.kafka.ser.KafkaRequestDeserializer
   jacksondatabinding.defaultTypingMode: SMART
 producer.configs:
   acks: all
