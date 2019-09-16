@@ -189,6 +189,11 @@ public class StoreLoggingDataMapper {
                     if (header != null) {
                         injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
                     }
+                } else if (storeLoggingData.getDltRecord() != null) {
+                    Header header = storeLoggingData.getDltRecord().headers().lastHeader(producerRecordHeader.value());
+                    if (header != null) {
+                        injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                    }
                 }
             }
         }

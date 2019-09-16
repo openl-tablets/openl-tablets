@@ -183,10 +183,12 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
         final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.setResponseMessage(message);
-        storeLoggingData.setOutcomingMessageTime(new Date());
-        if (!storeLoggingData.isIgnorable()) {
-            getStoreLoggingManager().submit(storeLoggingData);
+        if (storeLoggingData.getServiceMethod() != null) {
+            storeLoggingData.setResponseMessage(message);
+            storeLoggingData.setOutcomingMessageTime(new Date());
+            if (!storeLoggingData.isIgnorable()) {
+                getStoreLoggingManager().submit(storeLoggingData);
+            }
         }
         StoreLoggingDataHolder.remove();
     }
