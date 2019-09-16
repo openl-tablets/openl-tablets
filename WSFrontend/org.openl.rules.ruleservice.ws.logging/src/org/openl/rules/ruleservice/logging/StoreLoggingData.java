@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -35,7 +37,7 @@ public class StoreLoggingData {
 
     private Method serviceMethod;
 
-    private CustomData customData = new CustomData();
+    private Map<String, Object> customValues = new HashMap<>();
 
     private ObjectSerializer objectSerializer;
 
@@ -72,11 +74,11 @@ public class StoreLoggingData {
     public void setProducerRecord(ProducerRecord<String, Object> producerRecord) {
         this.producerRecord = producerRecord;
     }
-    
+
     public ProducerRecord<String, byte[]> getDltRecord() {
         return dltRecord;
     }
-    
+
     public void setDltRecord(ProducerRecord<String, byte[]> dltRecord) {
         this.dltRecord = dltRecord;
     }
@@ -169,8 +171,8 @@ public class StoreLoggingData {
         this.parameters = parameters;
     }
 
-    public CustomData getCustomData() {
-        return customData;
+    public Map<String, Object> getCustomValues() {
+        return customValues;
     }
 
     public Method getServiceMethod() {

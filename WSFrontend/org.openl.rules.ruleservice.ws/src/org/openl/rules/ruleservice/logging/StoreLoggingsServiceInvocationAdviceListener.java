@@ -62,7 +62,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                         }
 
                         storeLoggingAdvice
-                            .populateCustomData(storeLoggingData.getCustomData(), args, result, lastOccuredException);
+                            .populateCustomData(storeLoggingData.getCustomValues(), args, result, lastOccuredException);
                     }
                 }
             }
@@ -125,10 +125,6 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                 lastOccuredException,
                 e -> !e.before() && e.bindToServiceMethodAdvice().equals(StoreLogging.Default.class));
         }
-    }
-
-    private CustomData getCustomData(StoreLoggingData storeLoggingData) {
-        return storeLoggingData.getCustomData() != null ? storeLoggingData.getCustomData() : new CustomData();
     }
 
 }

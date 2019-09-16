@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.ws.logging;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.interceptor.LoggingMessage;
@@ -10,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.Convertor;
-import org.openl.rules.ruleservice.logging.CustomData;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
@@ -58,9 +58,9 @@ public class StoreLoggingDataMapperTest {
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = storeLoggingData.getCustomData();
-        customData.setValue("customString1", customString1);
-        customData.setValue("customString2", customString2);
+        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        customValues.put("customString1", customString1);
+        customValues.put("customString2", customString2);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
         storeLoggingData.setPublisherType(publisher1);
@@ -91,8 +91,8 @@ public class StoreLoggingDataMapperTest {
         StoreLoggingData storeLoggingData = new StoreLoggingData();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = storeLoggingData.getCustomData();
-        customData.setValue("customString1", " " + customString1 + " ");
+        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        customValues.put("customString1", " " + customString1 + " ");
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
         storeLoggingData.setPublisherType(publisher1);
@@ -112,10 +112,10 @@ public class StoreLoggingDataMapperTest {
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
 
-        CustomData customData = storeLoggingData.getCustomData();
-        customData.setValue("customString1", customString1);
-        customData.setValue("customString2", customString2);
-        customData.setValue("customString3", customString3);
+        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        customValues.put("customString1", customString1);
+        customValues.put("customString2", customString2);
+        customValues.put("customString3", customString3);
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);

@@ -71,7 +71,6 @@ public class StoreLoggingDataMapper {
             return;
         }
 
-        CustomData customData = storeLoggingData.getCustomData();
         Class<?> targetClass = target.getClass();
 
         QualifyPublisherType qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
@@ -206,7 +205,11 @@ public class StoreLoggingDataMapper {
             if (annotation instanceof Value) {
                 Value valueAnnotation = (Value) annotation;
                 String key = valueAnnotation.value();
-                injectValue(storeLoggingData, target, annotation, annotatedElement, customData.getValue(key));
+                injectValue(storeLoggingData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLoggingData.getCustomValues().get(key));
             }
         }
     }
