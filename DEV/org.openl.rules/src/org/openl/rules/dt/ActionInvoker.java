@@ -23,7 +23,7 @@ public class ActionInvoker implements Invokable {
 
     private Object addReturnValues(Collection<Object> returnValue, Object[] returnValues, boolean[] f) {
         for (int i = 0; i < returnValues.length; i++) {
-            if (f[i]) {
+            if (f[i] && returnValues[i] != null) {
                 returnValue.add(returnValues[i]);
             }
         }
@@ -35,7 +35,7 @@ public class ActionInvoker implements Invokable {
             Object[] keyValues,
             boolean[] f) {
         for (int i = 0; i < returnValues.length; i++) {
-            if (f[i]) {
+            if (f[i] && keyValues[i] != null && returnValues[i] != null) {
                 returnValue.put(keyValues[i], returnValues[i]);
             }
         }
@@ -52,12 +52,12 @@ public class ActionInvoker implements Invokable {
                 }
             }
             if (c == 0) {
-                return returnValues;
+                return Arrays.stream(returnValues).filter(Objects::nonNull).toArray(Object[]::new);
             }
             Object[] ret = (Object[]) Array.newInstance(type.getComponentClass().getInstanceClass(), c);
             int j = 0;
             for (int i = 0; i < returnValues.length; i++) {
-                if (f[i]) {
+                if (f[i] && returnValues[i] != null) {
                     ret[j] = returnValues[i];
                     j++;
                 }
