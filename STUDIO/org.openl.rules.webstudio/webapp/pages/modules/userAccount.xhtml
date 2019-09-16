@@ -227,6 +227,7 @@
         $j("#userProfileForm\\:firstNameError,#userProfileForm\\:lastNameError,#userProfileForm\\:currentPasswordError, #userProfileForm\\:newPasswordError, #userProfileForm\\:confirmPasswordError").text("");
         $j("#userProfileForm")[0].reset();
         $j("#userProfileForm\\:caseFailures").toggle($j("#userProfileForm\\:testsFailuresOnly").is(':checked'));
+        $j("#userProfileForm").trigger('reinitialize.areYouSure');
     }
 
     //]]>
