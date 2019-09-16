@@ -11,7 +11,7 @@
 
     <artifactId>itest.kafka.smoke</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - Kafka Smock Test</name>
+    <name>ITEST - Kafka Smoke Test</name>
     <url>https://openl-tablets.org</url>
 
     <properties>
