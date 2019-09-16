@@ -5,4 +5,5 @@ methods:
     out.topic.name: hello-out-topic
     dlt.topic.name: hello-dlt-topic
     consumer.configs:
+        metadata.max.age.ms: 1000
         auto.offset.reset: earliest
