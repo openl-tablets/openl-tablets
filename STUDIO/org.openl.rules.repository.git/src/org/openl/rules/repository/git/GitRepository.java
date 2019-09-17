@@ -605,15 +605,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new RRepositoryException(error, new IllegalArgumentException(error));
             }
 
-            // 301 Moved permanently
-            // TODO: Remove it when migrate to the latest version of JGit. JGit handles 301 status codes correctly after
-            // version 4.9 but it requires java 8.
-            String message = cause.getMessage();
-            if (message != null && message.endsWith("301 Moved Permanently")) {
-                String error = "Invalid URL " + uri;
-                throw new RRepositoryException(error, new IllegalArgumentException(error));
-            }
-
             // Other cases
             throw new RRepositoryException(e.getMessage(), e);
         } finally {
