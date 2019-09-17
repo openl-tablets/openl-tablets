@@ -147,6 +147,9 @@
         <div>
             <h:form id="systemSettingsForm">
 
+            <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
+            <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
+
             <c:set var="validator" value="#{systemSettingsBean.validator}" />
 
             <h:panelGroup id="restartMessage" layout="block" styleClass="restartMessage">

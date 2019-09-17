@@ -18,6 +18,9 @@
     </f:facet>
 
     <h:form id="modalAddRepoConnectionForm">
+        <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
+        <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
+
         <h:panelGrid id="modalAddRepoConnectionPanel" columns="2" columnClasses="titleColumn">
             <h:outputText value="" />
             <h:panelGroup id="messagePanel">
