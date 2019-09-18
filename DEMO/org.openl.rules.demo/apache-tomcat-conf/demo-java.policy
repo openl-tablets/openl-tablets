@@ -114,6 +114,8 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //Reading of the value of the specified environment variable
         permission java.lang.RuntimePermission "getenv.*";
 
+        permission java.lang.RuntimePermission "reflectionFactoryAccess";
+
         //allows anyone to listen on dynamic ports (DB, LDAP, SSO...)
         permission java.net.SocketPermission "*", "accept,connect,listen,resolve";
 
@@ -138,4 +140,9 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.io.FilePermission "${catalina.base}/logs/-", "write,delete";
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";
+
+        //oracle.jdbc.driver.OracleDriver.registerMBeans
+        permission javax.management.MBeanServerPermission "createMBeanServer";
+        permission javax.management.MBeanPermission "*", "*";
+        permission javax.management.MBeanTrustPermission "register";
 };

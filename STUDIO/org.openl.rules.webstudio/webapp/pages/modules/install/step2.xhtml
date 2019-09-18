@@ -52,6 +52,9 @@
         <div class="wizard-page">
             <div class="wizard-page-container">
                 <h:form>
+                    <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
+                    <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
+
                     <h:panelGroup styleClass="messages" layout="block"
                                   rendered="#{!empty facesContext.maximumSeverity}">
                         <h:messages infoClass="success" errorClass="error" showDetail="true"

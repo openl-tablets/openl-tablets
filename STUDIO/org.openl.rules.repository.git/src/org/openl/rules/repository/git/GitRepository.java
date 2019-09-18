@@ -19,18 +19,18 @@ import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -70,6 +70,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private ChangesMonitor monitor;
     private Git git;
+    private NotResettableCredentialsProvider credentialsProvider;
 
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
     private ReentrantLock remoteRepoLock = new ReentrantLock();
@@ -472,6 +473,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("initialize(): lock");
             writeLock.lock();
 
+            if (StringUtils.isNotBlank(login) && StringUtils.isNotBlank(password)) {
+                credentialsProvider = new NotResettableCredentialsProvider(login, password);
+            }
+
             File local = new File(localRepositoryPath);
 
             boolean shouldClone;
@@ -519,8 +524,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         .setBranch(branch)
                         .setCloneAllBranches(true);
 
-                    if (StringUtils.isNotBlank(login)) {
-                        cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                    CredentialsProvider credentialsProvider = getCredentialsProvider();
+                    if (credentialsProvider != null) {
+                        cloneCommand.setCredentialsProvider(credentialsProvider);
                     }
 
                     Git cloned = cloneCommand.call();
@@ -569,6 +575,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     doFastForward(fetchAll());
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
+                    if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
+                        throw new IOException("Incorrect login or password for git repository.");
+                    }
                 }
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
@@ -596,15 +605,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new RRepositoryException(error, new IllegalArgumentException(error));
             }
 
-            // 301 Moved permanently
-            // TODO: Remove it when migrate to the latest version of JGit. JGit handles 301 status codes correctly after
-            // version 4.9 but it requires java 8.
-            String message = cause.getMessage();
-            if (message != null && message.endsWith("301 Moved Permanently")) {
-                String error = "Invalid URL " + uri;
-                throw new RRepositoryException(error, new IllegalArgumentException(error));
-            }
-
             // Other cases
             throw new RRepositoryException(e.getMessage(), e);
         } finally {
@@ -621,6 +621,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
         if (git != null) {
             git.close();
+            git = null;
         }
         for (GitRepository repository : branchRepos.values()) {
             repository.close();
@@ -962,10 +963,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private FetchResult fetchAll() throws GitAPIException {
+    private FetchResult fetchAll() throws GitAPIException, IOException {
         FetchCommand fetchCommand = git.fetch();
-        if (StringUtils.isNotBlank(login)) {
-            fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        if (credentialsProvider != null) {
+            fetchCommand.setCredentialsProvider(credentialsProvider);
         }
         fetchCommand.setRefSpecs(new RefSpec().setSourceDestination(Constants.R_HEADS + "*",
             Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/*"));
@@ -980,8 +982,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             PushCommand push = git.push().setPushTags().add(branch).setTimeout(connectionTimeout);
 
-            if (StringUtils.isNotBlank(login)) {
-                push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+            CredentialsProvider credentialsProvider = getCredentialsProvider();
+            if (credentialsProvider != null) {
+                push.setCredentialsProvider(credentialsProvider);
             }
 
             Iterable<PushResult> results = push.call();
@@ -1640,6 +1643,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setUri(uri);
         repo.setLogin(login);
         repo.setPassword(password);
+        repo.credentialsProvider = credentialsProvider;
         repo.setUserDisplayName(userDisplayName);
         repo.setUserEmail(userEmail);
         repo.setLocalRepositoryPath(localRepositoryPath);
@@ -1685,8 +1689,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
         PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
-        if (StringUtils.isNotBlank(login)) {
-            push.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        if (credentialsProvider != null) {
+            push.setCredentialsProvider(credentialsProvider);
         }
 
         Iterable<PushResult> results = push.call();
@@ -1839,6 +1844,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
         }
         return false;
+    }
+
+    private CredentialsProvider getCredentialsProvider() throws IOException {
+        if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
+            // We can't use this credentials provider anymore. If we continue, the server can lock us for brute forcing.
+            throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
+        }
+        return credentialsProvider;
     }
 
     private class GitRevisionGetter implements RevisionGetter {
