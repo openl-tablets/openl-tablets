@@ -247,16 +247,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             }
         }
 
-        /*
-         * errorMessages.add(getName() + "." + field.getName() + "(expected: " + thisField.getType() .getName() +
-         * ", found: " + field.getType().getName() + ")");
-         * 
-         * if (!errorMessages.isEmpty()) { StringBuilder sb = new StringBuilder(); boolean first = true; for (String
-         * errorMessage : errorMessages) { if (!first) { sb.append(", "); } else { first = false; }
-         * sb.append(errorMessage); } throw new
-         * OpenlNotCheckedException("Incompatible type usage in spreadsheet cells: " + sb.toString()); } }
-         */
-
         this.verbose = this.verbose || verbose;
 
     }
