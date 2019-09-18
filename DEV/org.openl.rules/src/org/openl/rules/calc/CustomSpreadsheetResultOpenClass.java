@@ -98,7 +98,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     @Override
     public void addField(IOpenField field) throws DuplicatedFieldException {
         if (!(field instanceof CustomSpreadsheetResultField)) {
-            throw new OpenlNotCheckedException("Expected CustomSpreadsheetResultField.");
+            throw new OpenlNotCheckedException(String.format("Expected '%s', but found '%s'.",
+                CustomSpreadsheetResultField.class.getTypeName(),
+                field.getClass().getTypeName()));
         }
         super.addField(field);
     }
