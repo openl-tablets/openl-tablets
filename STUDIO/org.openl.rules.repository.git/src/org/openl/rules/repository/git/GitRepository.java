@@ -621,6 +621,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
         if (git != null) {
             git.close();
+            git = null;
         }
         for (GitRepository repository : branchRepos.values()) {
             repository.close();
