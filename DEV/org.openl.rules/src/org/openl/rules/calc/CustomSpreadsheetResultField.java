@@ -15,7 +15,24 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
             return getType().nullObject();
         }
 
-        Object res = ((SpreadsheetResult) target).getFieldValue(getName());
+        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
+
+        Object res = spreadsheetResult.getFieldValue(getName());
+
+        return processResult(spreadsheetResult, res);
+    }
+
+    public Object processResult(SpreadsheetResult spreadsheetResult, Object res) {
+        if (res != null && spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && !getType()
+            .getInstanceClass()
+            .isAssignableFrom(res.getClass())) {
+            throw new UnexpectedSpreadsheetResultFieldTypeException(
+                String.format("Unexpected type for field %s in %s. Expected: %s, found: %s",
+                    getName(),
+                    getDeclaringClass().getName(),
+                    spreadsheetResult.getCustomSpreadsheetResultOpenClass().getName(),
+                    res.getClass().getTypeName()));
+        }
 
         return res != null ? res : getType().nullObject();
     }

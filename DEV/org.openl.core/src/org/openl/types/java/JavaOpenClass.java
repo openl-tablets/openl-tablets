@@ -224,7 +224,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public String getName() {
         if (name == null) {
-            name = instanceClass.getCanonicalName();
+            name = instanceClass.getTypeName();
         }
         return name;
     }

@@ -18,6 +18,9 @@ import java.util.Set;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.impl.CastToWiderType;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -92,6 +95,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.verbose = verbose;
     }
 
+    @Override
+    public void addField(IOpenField field) throws DuplicatedFieldException {
+        if (!(field instanceof CustomSpreadsheetResultField)) {
+            throw new OpenlNotCheckedException("Expected CustomSpreadsheetResultField.");
+        }
+        super.addField(field);
+    }
+
     public CustomSpreadsheetResultOpenClass(String name) {
         super(name, SpreadsheetResult.class);
     }
@@ -140,7 +151,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             Collection<IOpenField> fields,
             boolean simpleRefBeanByRow,
             boolean simpleRefBeanByColumn,
-            boolean verbose) {
+            boolean verbose,
+            IBindingContext bindingContext) {
         if (beanClass != null) {
             throw new IllegalStateException(
                 "Bean class for custom spreadsheet result has already been generated. Spreasheet result can't be extended.");
@@ -215,12 +227,38 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         for (IOpenField field : fields) {
-            if (getField(field.getName()) == null) {
-                super.addField(field);
+            IOpenField thisField = getField(field.getName());
+
+            if (thisField == null) {
+                addField(field);
+            } else {
+                if (!thisField.getType().equals(field.getType())) {
+                    CastToWiderType castToWiderType = CastToWiderType
+                        .create(bindingContext, thisField.getType(), field.getType());
+                    fieldMap().put(field.getName(),
+                        new CastingCustomSpreadsheetResultField(getModule(),
+                            field.getName(),
+                            (CustomSpreadsheetResultField) thisField,
+                            castToWiderType.getCast1(),
+                            (CustomSpreadsheetResultField) field,
+                            castToWiderType.getCast2(),
+                            castToWiderType.getWiderType()));
+                }
             }
         }
 
+        /*
+         * errorMessages.add(getName() + "." + field.getName() + "(expected: " + thisField.getType() .getName() +
+         * ", found: " + field.getType().getName() + ")");
+         * 
+         * if (!errorMessages.isEmpty()) { StringBuilder sb = new StringBuilder(); boolean first = true; for (String
+         * errorMessage : errorMessages) { if (!first) { sb.append(", "); } else { first = false; }
+         * sb.append(errorMessage); } throw new
+         * OpenlNotCheckedException("Incompatible type usage in spreadsheet cells: " + sb.toString()); } }
+         */
+
         this.verbose = this.verbose || verbose;
+
     }
 
     public String[] getRowNames() {
@@ -239,7 +277,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnTitles.clone();
     }
 
-    public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+    public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
+            IBindingContext bindingContext) {
         if (beanClass != null) {
             throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
         }
@@ -252,32 +291,24 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.getFields().values(),
             customSpreadsheetResultOpenClass.simpleRefBeanByRow,
             customSpreadsheetResultOpenClass.simpleRefBeanByColumn,
-            customSpreadsheetResultOpenClass.verbose);
-        validate(this, customSpreadsheetResultOpenClass.getFields().values());
+            customSpreadsheetResultOpenClass.verbose,
+            bindingContext);
     }
 
-    private void validate(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            Collection<IOpenField> fields) {
-        List<String> errorMessages = new ArrayList<>();
-        for (IOpenField field : fields) {
-            IOpenField existedField = customSpreadsheetResultOpenClass.getField(field.getName());
-            if (!existedField.getType().equals(field.getType())) {
-                errorMessages.add(getName() + "." + field.getName() + "(expected: " + existedField.getType()
-                    .getName() + ", found: " + field.getType().getName() + ")");
-            }
+    public void fixCSRFields() {
+        if (beanClass != null) {
+            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
         }
-        if (!errorMessages.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
-            for (String errorMessage : errorMessages) {
-                if (!first) {
-                    sb.append(", ");
-                } else {
-                    first = false;
+        for (String fieldName : fieldMap().keySet()) {
+            IOpenField openField = fieldMap().get(fieldName);
+            if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
+                IOpenClass openClass = module.findType(openField.getType().getName());
+                if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, openClass));
+                } else if (openClass != null) {
+                    throw new OpenlNotCheckedException("Expected custom spreadsheet result type.");
                 }
-                sb.append(errorMessage);
             }
-            throw new OpenlNotCheckedException("Incompatible type usage in spreadsheet fields: " + sb.toString());
         }
     }
 
@@ -300,7 +331,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             module,
             verbose);
         for (IOpenField field : getFields().values()) {
-            type.addField(field);
+            if (field instanceof CustomSpreadsheetResultField) {
+                type.addField(field);
+            }
         }
         type.setMetaInfo(getMetaInfo());
         return type;

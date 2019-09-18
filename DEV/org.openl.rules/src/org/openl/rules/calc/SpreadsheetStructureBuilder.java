@@ -341,7 +341,7 @@ public class SpreadsheetStructureBuilder {
      * @param rowName name of the row column
      * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final
      */
-    private String getSpreadsheetCellFieldName(String columnName, String rowName) {
+    public static String getSpreadsheetCellFieldName(String columnName, String rowName) {
         return (DOLLAR_SIGN + columnName + DOLLAR_SIGN + rowName).intern();
     }
 

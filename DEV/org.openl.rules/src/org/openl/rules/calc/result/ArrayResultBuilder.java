@@ -25,7 +25,7 @@ public class ArrayResultBuilder implements IResultBuilder {
     }
 
     @Override
-    public Object makeResult(SpreadsheetResultCalculator resultCalculator) {
+    public Object buildResult(SpreadsheetResultCalculator resultCalculator) {
         int size = cells.length;
         IAggregateInfo aggregateInfo = type.getAggregateInfo();
         Object array = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(type), size);

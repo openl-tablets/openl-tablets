@@ -193,10 +193,10 @@ public class SpreadsheetComponentsBuilder {
         return tableSyntaxNode;
     }
 
-    public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet) {
+    public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet, IBindingContext bindingContext) {
         IResultBuilder resultBuilder = null;
         try {
-            resultBuilder = getResultBuilderInternal(spreadsheet);
+            resultBuilder = getResultBuilderInternal(spreadsheet, bindingContext);
         } catch (SyntaxNodeException e) {
             addError(e);
         }
@@ -477,7 +477,8 @@ public class SpreadsheetComponentsBuilder {
         return returnHeaderDefinition;
     }
 
-    private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
+    private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         IResultBuilder resultBuilder;
 
         SymbolicTypeDefinition symbolicTypeDefinition = null;

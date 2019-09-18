@@ -7,7 +7,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.constants.ConstantsTableBoundNode;
 import org.openl.rules.data.IDataBase;
@@ -39,19 +38,19 @@ public class XlsPreBinder extends XlsBinder {
     @Override
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
-            RulesModuleBindingContext moduleContext) {
+            RulesModuleBindingContext rulesModuleBindingContext) {
         if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode) {
             try {
-                memberBoundNode.finalizeBind(moduleContext);
+                memberBoundNode.finalizeBind(rulesModuleBindingContext);
             } catch (SyntaxNodeException error) {
-                processError(error, tableSyntaxNode, moduleContext);
+                processError(error, tableSyntaxNode, rulesModuleBindingContext);
             } catch (CompositeSyntaxNodeException ex) {
                 for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tableSyntaxNode, moduleContext);
+                    processError(error, tableSyntaxNode, rulesModuleBindingContext);
                 }
             } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
-                processError(error, tableSyntaxNode, moduleContext);
+                processError(error, tableSyntaxNode, rulesModuleBindingContext);
             }
         }
     }
@@ -70,8 +69,6 @@ public class XlsPreBinder extends XlsBinder {
             prebindHandler,
             moduleDependencies,
             Thread.currentThread().getContextClassLoader(),
-            OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
-            OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())),
-            getCsrBeansPackage(bindingContext));
+            bindingContext);
     }
 }

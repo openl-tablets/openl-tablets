@@ -18,7 +18,7 @@ public class ScalarResultBuilder implements IResultBuilder {
     }
 
     @Override
-    public Object makeResult(SpreadsheetResultCalculator result) {
+    public Object buildResult(SpreadsheetResultCalculator result) {
         Object ret;
         if (!calculateAllCells) {
             ret = result.getValue(cell.getRowIndex(), cell.getColumnIndex());

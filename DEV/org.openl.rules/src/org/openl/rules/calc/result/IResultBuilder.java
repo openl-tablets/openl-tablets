@@ -4,6 +4,6 @@ import org.openl.rules.calc.SpreadsheetResultCalculator;
 
 public interface IResultBuilder {
 
-    Object makeResult(SpreadsheetResultCalculator res);
+    Object buildResult(SpreadsheetResultCalculator res);
 
 }

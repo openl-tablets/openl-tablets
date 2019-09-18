@@ -92,8 +92,8 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public boolean isCustomSpreadsheetType() {
-        return delegate.isCustomSpreadsheetType();
+    public boolean isCustomSpreadsheet() {
+        return delegate.isCustomSpreadsheet();
     }
 
     @Override

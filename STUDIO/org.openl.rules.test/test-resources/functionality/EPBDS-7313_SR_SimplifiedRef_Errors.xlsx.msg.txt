@@ -1,1 +1,0 @@
-ERROR: Incompatible type usage in spreadsheet fields: SpreadsheetResultInner.$Value$B

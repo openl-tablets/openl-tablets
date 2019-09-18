@@ -17,15 +17,18 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
@@ -57,8 +60,11 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
+import org.openl.util.ClassUtils;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rits.cloning.Cloner;
 
@@ -67,6 +73,8 @@ import com.rits.cloning.Cloner;
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
+    private final Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
+
     private IDataBase dataBase = null;
 
     /**
@@ -93,10 +101,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return rulesModuleBindingContext;
     }
 
-    public void setRulesModuleBindingContext(RulesModuleBindingContext rulesModuleBindingContext) {
-        this.rulesModuleBindingContext = rulesModuleBindingContext;
-    }
-
     /**
      * Constructor for module with dependent modules
      *
@@ -107,21 +111,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
-            boolean useDescisionTableDispatcher,
-            boolean dispatchingValidationEnabled,
-            String csrBeansPackage) {
+            IBindingContext bindingContext) {
         super(name, openl);
+
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
-        this.useDescisionTableDispatcher = useDescisionTableDispatcher;
-        this.dispatchingValidationEnabled = dispatchingValidationEnabled;
+        this.useDescisionTableDispatcher = OpenLSystemProperties
+            .isDTDispatchingMode(bindingContext.getExternalParams());
+        this.dispatchingValidationEnabled = OpenLSystemProperties
+            .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
 
         this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
 
-        Objects.requireNonNull(csrBeansPackage);
-        this.csrBeansPackage = csrBeansPackage;
+        this.csrBeansPackage = getCsrBeansPackage(bindingContext);
+
+        this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
 
         if (usingModules != null) {
             setDependencies(usingModules);
@@ -129,11 +135,27 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         initImports(metaInfo.getXlsModuleNode());
     }
-    
+
+    private String getCsrBeansPackage(IBindingContext bindingContext) {
+        if (bindingContext.getExternalParams().get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE) instanceof String) {
+            String packageName = (String) bindingContext.getExternalParams()
+                .get(SpreadsheetBoundNode.CSR_BEANS_PACKAGE);
+            if (ClassUtils.isValidPackageName(packageName)) {
+                return packageName;
+            } else if (log.isWarnEnabled()) {
+                log.warn(
+                    "Invalid package name '{}' is defined for generated custom spreadsheet result beans for module '{}'. Default value 'org.openl.generated.csr' is used.",
+                    packageName,
+                    getName());
+            }
+        }
+        return "org.openl.generated.csr";
+    }
+
     public String getCsrBeansPackage() {
         return csrBeansPackage;
-    }    
-    
+    }
+
     public boolean isUseDescisionTableDispatcher() {
         return useDescisionTableDispatcher;
     }
@@ -173,7 +195,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenClass existingType = findType(type.getName());
             if (existingType instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass existingCustomSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) existingType;
-                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type);
+                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type,
+                    getRulesModuleBindingContext());
                 return existingCustomSpreadsheetResultOpenClass;
             } else {
                 return ((CustomSpreadsheetResultOpenClass) type).makeCopyForModule(this);
@@ -206,6 +229,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             addDataTables(dependency.getCompiledOpenClass()); // Required for
             // data tables.
             addFields(dependency);
+        }
+
+        for (IOpenClass type : getTypes()) {
+            if (type instanceof CustomSpreadsheetResultOpenClass) {
+                ((CustomSpreadsheetResultOpenClass) type).fixCSRFields();
+            }
         }
     }
 

@@ -31,17 +31,17 @@ public class ModuleNodeBinder extends ANodeBinder {
         // TODO fix schema, name
         ModuleOpenClass module = new ModuleOpenClass("UndefinedType", bindingContext.getOpenL());
         processErrors(module.getErrors(), node, bindingContext);
-        ModuleBindingContext moduleContext = new ModuleBindingContext(bindingContext, module);
+        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(bindingContext, module);
 
         for (IBoundNode child : children) {
-            ((IMemberBoundNode) child).addTo(moduleContext.getModule());
+            ((IMemberBoundNode) child).addTo(moduleBindingContext.getModule());
         }
 
         for (IBoundNode child : children) {
-            ((IMemberBoundNode) child).finalizeBind(moduleContext);
+            ((IMemberBoundNode) child).finalizeBind(moduleBindingContext);
         }
 
-        return new ModuleNode(node, moduleContext.getModule());
+        return new ModuleNode(node, moduleBindingContext.getModule());
     }
 
     private void processErrors(List<Exception> errors, ISyntaxNode node, IBindingContext bindingContext) {

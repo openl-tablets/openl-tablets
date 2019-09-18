@@ -369,7 +369,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         }
                     } else {
                         fieldSequence[i] = currentType.getField(identifier);
-                        if (fieldSequence[i] == null) {
+                        if (fieldSequence[i] == null && StringUtils
+                            .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
                             // Try process field as SpreadsheetResult
                             IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
                             IOpenField openField = spreadsheetResultOpenClass.getField(identifier);

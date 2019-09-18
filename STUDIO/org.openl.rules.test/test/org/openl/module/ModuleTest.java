@@ -252,9 +252,9 @@ public class ModuleTest extends TestCase {
 
         BindingContext cxt = new BindingContext(op.getBinder(), null, op);
 
-        ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
+        ModuleBindingContext moduleBindingContext = new ModuleBindingContext(cxt, module);
 
-        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, moduleContext);
+        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, moduleBindingContext);
 
         return method;
     }

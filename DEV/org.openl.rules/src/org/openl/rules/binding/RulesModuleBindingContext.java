@@ -153,7 +153,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 super.add(namespace, typeName, copyOfCustomType);
             } else {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
-                csroc.extendWith((CustomSpreadsheetResultOpenClass) type);
+                csroc.extendWith((CustomSpreadsheetResultOpenClass) type, this);
             }
         } else {
             super.add(namespace, typeName, type);

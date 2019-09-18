@@ -65,17 +65,17 @@ class TableSyntaxNodeDispatcherBuilder {
         }
     }
 
-    private RulesModuleBindingContext moduleContext;
+    private RulesModuleBindingContext rulesModuleBindingContext;
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
 
-    TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext,
+    TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext rulesModuleBindingContext,
             XlsModuleOpenClass moduleOpenClass,
             MatchingOpenMethodDispatcher dispatcher) {
-        if (moduleContext == null || moduleOpenClass == null || dispatcher == null) {
+        if (rulesModuleBindingContext == null || moduleOpenClass == null || dispatcher == null) {
             throw new IllegalArgumentException("None of the constructor parameters can be null");
         }
-        this.moduleContext = moduleContext;
+        this.rulesModuleBindingContext = rulesModuleBindingContext;
         this.moduleOpenClass = moduleOpenClass;
         this.dispatcher = dispatcher;
     }
@@ -138,7 +138,7 @@ class TableSyntaxNodeDispatcherBuilder {
             try {
                 tsn = XlsHelper.createTableSyntaxNode(decisionTableSource, sheetSource);
             } catch (OpenLCompilationException e) {
-                moduleContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+                rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
                 return null;
             }
 
@@ -172,7 +172,7 @@ class TableSyntaxNodeDispatcherBuilder {
 
             dispatcher.setDecisionTableOpenMethod(decisionTable);
 
-            if (moduleContext.isExecutionMode()) {
+            if (rulesModuleBindingContext.isExecutionMode()) {
                 removeDebugInformation(decisionTable, tsn);
             }
         }
@@ -189,7 +189,7 @@ class TableSyntaxNodeDispatcherBuilder {
 
         clearCompositeMethods(decisionTable);
 
-        if (!OpenLSystemProperties.isDTDispatchingMode(moduleContext.getExternalParams())) {
+        if (!OpenLSystemProperties.isDTDispatchingMode(rulesModuleBindingContext.getExternalParams())) {
             tsn.setMember(null);
         }
     }
@@ -337,7 +337,7 @@ class TableSyntaxNodeDispatcherBuilder {
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
-        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, moduleOpenClass);
+        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), rulesModuleBindingContext, moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
 
         setTableProperties(tsn);
@@ -348,7 +348,7 @@ class TableSyntaxNodeDispatcherBuilder {
                 .loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            moduleContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+            rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
         }
     }
 
@@ -364,7 +364,7 @@ class TableSyntaxNodeDispatcherBuilder {
             IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
         }
-        return new InternalBindingContextDelegator(moduleContext, auxiliaryMethods);
+        return new InternalBindingContextDelegator(rulesModuleBindingContext, auxiliaryMethods);
     }
 
     /**

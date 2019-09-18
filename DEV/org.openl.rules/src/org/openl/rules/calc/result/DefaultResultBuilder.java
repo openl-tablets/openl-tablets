@@ -13,33 +13,32 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 public class DefaultResultBuilder implements IResultBuilder {
 
     @Override
-    public Object makeResult(SpreadsheetResultCalculator result) {
+    public Object buildResult(SpreadsheetResultCalculator result) {
 
-        Object[][] resultArray = result.getValues();
-
+        Object[][] resultValues = result.getValues();
         final Spreadsheet spreadsheet = result.getSpreadsheet();
 
-        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray,
+        SpreadsheetResult spreadsheetResult = new SpreadsheetResult(resultValues,
             spreadsheet.getRowNames(),
             spreadsheet.getColumnNames(),
             spreadsheet.getRowNamesMarkedWithAsterisk(),
             spreadsheet.getColumnNamesMarkedWithAsterisk(),
             spreadsheet.getFieldsCoordinates());
 
-        spreadsheetBean.setVerbose(spreadsheet.isVerbose());
+        spreadsheetResult.setVerbose(spreadsheet.isVerbose());
 
-        if (spreadsheet.isCustomSpreadsheetType()) {
-            spreadsheetBean
+        if (spreadsheet.isCustomSpreadsheet()) {
+            spreadsheetResult
                 .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());
         }
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
 
         if (tsn != null) {
-            spreadsheetBean.setLogicalTable(tsn.getTableBody());
+            spreadsheetResult.setLogicalTable(tsn.getTableBody());
         }
 
-        return spreadsheetBean;
+        return spreadsheetResult;
     }
 
 }

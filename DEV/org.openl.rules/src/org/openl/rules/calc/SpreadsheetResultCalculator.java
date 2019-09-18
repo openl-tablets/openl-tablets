@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
-    public static final Object NEED_TO_CALCULATE_VALUE = new Object();
+    public static final Object METHOD_VALUE = new Object();
     public static final Object EMPTY_CELL = new Object();
 
     private Spreadsheet spreadsheet;
@@ -99,7 +99,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             return null;
         }
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
-        if (result != NEED_TO_CALCULATE_VALUE) {
+        if (result != METHOD_VALUE) {
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
                 Tracer.resolveTraceNode(spreadsheetCell, this, params, env, this);
             } else {

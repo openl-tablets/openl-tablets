@@ -110,12 +110,9 @@ public class SpreadsheetResult implements Serializable {
             for (int i = 0; i < rowNames.length; i++) {
                 for (int j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                            .append(columnNames[j])
-                            .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                            .append(rowNames[i]);
-                        fieldsCoordinates.put(sb.toString(), new Point(j, i));
+                        fieldsCoordinates.put(
+                            SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
+                            new Point(j, i));
                         if (nonNullsRowsCount == 1) {
                             StringBuilder sb1 = new StringBuilder();
                             sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(columnNames[j]);

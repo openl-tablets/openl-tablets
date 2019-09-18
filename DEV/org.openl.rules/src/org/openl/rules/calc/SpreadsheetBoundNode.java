@@ -57,9 +57,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     public XlsModuleOpenClass getModule() {
         return (XlsModuleOpenClass) super.getModule();
     }
-
+    
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
-        if (spreadsheet.isCustomSpreadsheetType()) {
+        if (spreadsheet.isCustomSpreadsheet()) {
             Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
             spreadsheetOpenClassFields.remove("this");
             String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
@@ -100,11 +100,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
              * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
              * and the customspreadsheet property is true
              */
-            boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
+            boolean isCustomSpreadsheet = SpreadsheetResult.class.equals(getType()
                 .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
                     .isCustomSpreadsheetType(bindingContext.getExternalParams());
 
-            spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
+            spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheet);
         }
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
@@ -128,7 +128,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             validateRowsColumnsWithAsterisks(spreadsheet);
         }
 
-        if (spreadsheet.isCustomSpreadsheetType()) {
+        if (spreadsheet.isCustomSpreadsheet()) {
             CustomSpreadsheetResultOpenClass type = null;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
@@ -164,8 +164,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 if (spreadsheet.getColumnNamesMarkedWithAsterisk()[j] != null && spreadsheet
                     .getRowNamesMarkedWithAsterisk()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
                                                                                    // messages
-                    String fieldName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet
-                        .getColumnNames()[j] + SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
+                    String fieldName = SpreadsheetStructureBuilder
+                        .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
+
                     IOpenField field = spreadsheet.getSpreadsheetType().getField(fieldName);
                     IOpenClass t = field.getType();
                     while (t.isArray()) {
@@ -260,7 +261,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (spreadsheet != null) {
             spreadsheet.setCells(cells);
 
-            spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet));
+            spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet, bindingContext));
         }
     }
 

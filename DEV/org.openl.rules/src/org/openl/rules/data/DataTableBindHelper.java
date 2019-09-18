@@ -67,7 +67,7 @@ public class DataTableBindHelper {
     static final Pattern THIS_MAP_ACCESS_PATTERN = Pattern
         .compile("\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
     public static final Pattern PRECISION_PATTERN = Pattern.compile("^\\(\\-?[0-9]+\\)$");
-    public static final Pattern SPREADSHEETRESULTFIELD_PATTERN = Pattern.compile("^\\$.+\\$.+$");
+    public static final Pattern SPREADSHEETRESULTFIELD_PATTERN = Pattern.compile("^\\$.+$");
     private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
     private static final Pattern QUOTED = Pattern.compile("\\\".*\\\"");
 

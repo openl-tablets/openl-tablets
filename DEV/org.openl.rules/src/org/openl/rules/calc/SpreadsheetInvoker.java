@@ -31,7 +31,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
             params,
             env,
             preFetchedResult);
-        return getInvokableMethod().getResultBuilder().makeResult(res);
+        return getInvokableMethod().getResultBuilder().buildResult(res);
     }
 
     /**
@@ -56,7 +56,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                         res[i][j] = cell.getValue();
                         break;
                     case METHOD:
-                        res[i][j] = SpreadsheetResultCalculator.NEED_TO_CALCULATE_VALUE;
+                        res[i][j] = SpreadsheetResultCalculator.METHOD_VALUE;
                         break;
                 }
             }

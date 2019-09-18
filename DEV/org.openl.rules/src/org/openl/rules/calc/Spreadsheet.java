@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -64,21 +65,21 @@ public class Spreadsheet extends ExecutableRulesMethod {
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
      */
-    private boolean customSpreadsheetType;
+    private boolean customSpreadsheet;
 
     public Spreadsheet() {
         super(null, null);
     }
 
-    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheetType) {
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheet) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
-        this.customSpreadsheetType = customSpreadsheetType;
+        this.customSpreadsheet = customSpreadsheet;
     }
 
     @Override
     public IOpenClass getType() {
-        if (isCustomSpreadsheetType()) {
+        if (isCustomSpreadsheet()) {
             return spreadsheetCustomResultType;
         } else {
             return super.getType();
@@ -89,8 +90,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.spreadsheetCustomResultType = spreadsheetCustomResultType;
     }
 
-    public boolean isCustomSpreadsheetType() {
-        return customSpreadsheetType;
+    public boolean isCustomSpreadsheet() {
+        return customSpreadsheet;
     }
 
     @Override
@@ -237,4 +238,5 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return fieldsCoordinates;
     }
+    
 }

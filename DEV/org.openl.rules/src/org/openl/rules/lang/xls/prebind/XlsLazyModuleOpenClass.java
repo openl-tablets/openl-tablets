@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.prebind;
 import java.util.Set;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.dependency.CompiledDependency;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -27,18 +28,8 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             IPrebindHandler prebindHandler,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
-            boolean useDescisionTableDispatcher,
-            boolean dispatchingValidationEnabled,
-            String csrBeansPackage) {
-        super(name,
-            metaInfo,
-            openl,
-            dbase,
-            usingModules,
-            classLoader,
-            useDescisionTableDispatcher,
-            dispatchingValidationEnabled,
-            csrBeansPackage);
+            IBindingContext bindingContext) {
+        super(name, metaInfo, openl, dbase, usingModules, classLoader, bindingContext);
         this.prebindHandler = prebindHandler;
     }
 
