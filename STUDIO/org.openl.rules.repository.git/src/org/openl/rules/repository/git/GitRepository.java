@@ -1642,6 +1642,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setUri(uri);
         repo.setLogin(login);
         repo.setPassword(password);
+        repo.credentialsProvider = credentialsProvider;
         repo.setUserDisplayName(userDisplayName);
         repo.setUserEmail(userEmail);
         repo.setLocalRepositoryPath(localRepositoryPath);
