@@ -84,6 +84,12 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission javax.management.MBeanServerPermission "createMBeanServer";
         permission javax.management.MBeanPermission "*", "*";
         permission javax.management.MBeanTrustPermission "register";
+
+        // jgit
+        permission java.io.FilePermission "${user.home}/.gitconfig", "read";
+        permission java.net.NetPermission "getProxySelector";
+        permission java.security.SecurityPermission "insertProvider.BC";
+        permission java.security.SecurityPermission "putProviderProperty.BC";
 };
 
 // WEBSERVICE
