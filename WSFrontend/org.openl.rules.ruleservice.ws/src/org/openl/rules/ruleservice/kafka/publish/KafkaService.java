@@ -198,7 +198,7 @@ public final class KafkaService implements Runnable {
                 if (!records.isEmpty()) {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
                     Date incomingTime = new Date();
-                    for (ConsumerRecord<String, RequestMessage> record : records) {
+                    for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
                             StoreLoggingData storeLoggingData = isStoreLoggingEnabled() ? StoreLoggingDataHolder.get()
                                                                                         : null;
@@ -208,13 +208,14 @@ public final class KafkaService implements Runnable {
                                     storeLoggingData.setIncomingMessageTime(incomingTime);
                                     storeLoggingData.setPublisherType(PublisherType.KAFKA);
                                     storeLoggingData.setObjectSerializer(getObjectSerializer());
+                                    storeLoggingData.setConsumerRecord(consumerRecord);
                                 }
-                                String outputTopic = getOutTopic(record);
-                                RequestMessage requestMessage = record.value();
+                                String outputTopic = getOutTopic(consumerRecord);
+                                RequestMessage requestMessage = consumerRecord.value();
                                 Object result = requestMessage.getMethod()
                                     .invoke(service.getServiceBean(), requestMessage.getParameters());
                                 ProducerRecord<String, Object> producerRecord;
-                                Header header = record.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
+                                Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                 if (header == null) {
                                     producerRecord = new ProducerRecord<>(outputTopic, result);
                                 } else {
@@ -222,7 +223,7 @@ public final class KafkaService implements Runnable {
                                         .valueOf(new String(header.value(), StandardCharsets.UTF_8));
                                     producerRecord = new ProducerRecord<>(outputTopic, partition, null, result);
                                 }
-                                forwardHeadersToOutput(record, producerRecord);
+                                forwardHeadersToOutput(consumerRecord, producerRecord);
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setOutcomingMessageTime(new Date());
                                     storeLoggingData.setInputName(requestMessage.getMethod().getName());
@@ -240,12 +241,12 @@ public final class KafkaService implements Runnable {
                                                     "Failed to send a result message for '%s' method in '%s' service to '%s' output topic.",
                                                     requestMessage.getMethod(),
                                                     getService().getName(),
-                                                    getOutTopic(record)), exception);
+                                                    getOutTopic(consumerRecord)), exception);
                                             }
                                         } catch (Exception e) {
                                             log.error("Unexpected error.", e);
                                         }
-                                        sendErrorToDlt(record, exception, storeLoggingData);
+                                        sendErrorToDlt(consumerRecord, exception, storeLoggingData);
                                     } else if (storeLoggingData != null) {
                                         getStoreLoggingManager().submit(storeLoggingData);
                                     }
@@ -257,7 +258,7 @@ public final class KafkaService implements Runnable {
                                             getInTopic()),
                                         e);
                                 }
-                                sendErrorToDlt(record, e, storeLoggingData);
+                                sendErrorToDlt(consumerRecord, e, storeLoggingData);
                             } finally {
                                 countDownLatch.countDown();
                                 if (isStoreLoggingEnabled()) {
