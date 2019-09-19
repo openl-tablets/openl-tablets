@@ -30,6 +30,7 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.lang.RuntimePermission "closeClassLoader";
 
         //Modification of threads
         //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
@@ -104,6 +105,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
+        permission java.lang.RuntimePermission "closeClassLoader";
 
         //Modification of threads
         //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
