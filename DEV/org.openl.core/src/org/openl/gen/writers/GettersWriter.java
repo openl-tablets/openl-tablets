@@ -61,7 +61,7 @@ public class GettersWriter extends MethodWriter {
         AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av.visit("name", fieldName);
 
-        if (!field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
+        if (field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
             av.visit("nillable", true);
         }
         if (field.hasDefaultValue() && !field.hasDefaultKeyWord()) {

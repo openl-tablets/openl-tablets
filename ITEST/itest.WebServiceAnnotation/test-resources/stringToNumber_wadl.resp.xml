@@ -7,8 +7,8 @@
             <xs:element name="RuleType" type="tns:RuleType"/>
             <xs:complexType name="RuleType">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="age" nillable="true" type="xs:double"/>
+                    <xs:element minOccurs="0" name="name" type="xs:string"/>
+                    <xs:element default="0.0" minOccurs="0" name="age" nillable="true" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -19,14 +19,14 @@
             <xs:element name="Virtual2Request" type="tns:Virtual2Request"/>
             <xs:complexType name="ProcessRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="nick" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="nick" type="xs:string"/>
                     <xs:element name="month" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Virtual2Request">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="first" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="second" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="first" type="xs:string"/>
+                    <xs:element minOccurs="0" name="second" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

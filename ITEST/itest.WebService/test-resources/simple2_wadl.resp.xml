@@ -17,84 +17,82 @@
             <xs:element name="SprTwoTwo2" type="tns:SprTwoTwo2"/>
             <xs:element name="SprWithEmptyColumn" type="tns:SprWithEmptyColumn"/>
             <xs:element name="SprWithEmptyRow" type="tns:SprWithEmptyRow"/>
-            <xs:complexType name="HiddenCalc">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprOneOne">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprOneOneNoAsterisk">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprOneColumn">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="moreValues" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values1" nillable="true" type="xs:int"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprIfNode">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:anyType"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="Calc">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="tns:SprOneRow"/>
+                    <xs:element minOccurs="0" name="Step1" type="tns:SprOneRow"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="SprOneRow">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="moreValues" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values1" nillable="true" type="xs:int"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprTwoTwo2">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Values_Step1" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula_Step1" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values_Step2" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula_Step2" nillable="true" type="xs:int"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" nillable="true"
-                                type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" nillable="true"
-                                type="ns1:stringArray"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SprTwoTwo1">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Step1" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values" type="xs:int"/>
+                    <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values1" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="SprWithEmptyRow">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="_" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="_" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="SprWithEmptyColumn">
+            <xs:complexType name="SprOneOne">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="_" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Step1" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprIfNode">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:anyType"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprTwoTwo2">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values_Step1" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step1" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values_Step2" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step2" type="xs:int"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="rowNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="columnNames" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="fieldNames" type="ns1:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneOneNoAsterisk">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="HiddenCalc">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprTwoTwo1">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Step1" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="SprTwoTwo">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Values_Step1" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula_Step1" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values_Step2" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula_Step2" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values2_Step3" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula2_Step3" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Values2_Step4" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="Formula2_Step4" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values_Step1" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step1" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values_Step2" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula_Step2" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values2_Step3" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula2_Step3" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values2_Step4" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Formula2_Step4" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprOneColumn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Values" type="xs:int"/>
+                    <xs:element minOccurs="0" name="moreValues" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values1" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="SprWithEmptyColumn">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="_" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Values" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -107,26 +105,26 @@
             <xs:element name="DtRetSprRequest" type="tns:DtRetSprRequest"/>
             <xs:complexType name="DtRetSpr3Request">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="DtRetSpr2Request">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="DtRetSprRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="v" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="v" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="CalcRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="a" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="a" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="DtRetSpr2Request">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="v" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

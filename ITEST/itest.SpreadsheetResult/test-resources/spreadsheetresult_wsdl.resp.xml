@@ -24,8 +24,8 @@
                     targetNamespace="http://csr.generated.openl.org">
             <xsd:complexType name="Tiktak">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="INT" nillable="true" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="String" nillable="true" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="INT" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="String" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
@@ -36,20 +36,6 @@
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="column" type="xsd:int"/>
                     <xsd:element minOccurs="0" name="row" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
-                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://itest.openl.org/"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://calc.rules.openl.org">
-            <xsd:import namespace="http://itest.openl.org/"/>
-            <xsd:import namespace="http://cxf.apache.org/arrays"/>
-            <xsd:complexType name="SpreadsheetResult">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
-                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
-                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
@@ -73,6 +59,20 @@
             <xsd:complexType name="tiktakResponse">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="return" type="ns0:SpreadsheetResult"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
+                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://itest.openl.org/"
+                    attributeFormDefault="qualified" elementFormDefault="qualified"
+                    targetNamespace="http://calc.rules.openl.org">
+            <xsd:import namespace="http://itest.openl.org/"/>
+            <xsd:import namespace="http://cxf.apache.org/arrays"/>
+            <xsd:complexType name="SpreadsheetResult">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="columnNames" nillable="true" type="ns0:ArrayOfString"/>
+                    <xsd:element minOccurs="0" name="results" nillable="true" type="ns1:ArrayOfArrayOfAnyType"/>
+                    <xsd:element minOccurs="0" name="rowNames" nillable="true" type="ns0:ArrayOfString"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>

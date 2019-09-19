@@ -29,37 +29,37 @@
             <xs:element name="UPCaseRequest" type="tns:UPCaseRequest"/>
             <xs:complexType name="MixedCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="numBer" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="String" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="numBer" type="xs:double"/>
+                    <xs:element minOccurs="0" name="String" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="LowCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="number" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="string" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="number" type="xs:double"/>
+                    <xs:element minOccurs="0" name="string" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="OverloadRequest4">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="I" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="J" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="I" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="OverloadRequest3">
                 <xs:sequence>
                     <xs:element name="i" type="xs:int"/>
-                    <xs:element minOccurs="0" name="J" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="J" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="UPCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="STRING" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
                     <xs:element name="NUMBER" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="EDGECaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="sTring" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
                     <xs:element name="NUMBer" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>

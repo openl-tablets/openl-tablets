@@ -7,8 +7,8 @@
             <xs:element name="Tiktak" type="tns:Tiktak"/>
             <xs:complexType name="Tiktak">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="INT" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="String" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="INT" type="xs:int"/>
+                    <xs:element minOccurs="0" name="String" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -34,7 +34,7 @@
             <xs:complexType name="TiktakRequest">
                 <xs:sequence>
                     <xs:element name="i" type="xs:int"/>
-                    <xs:element minOccurs="0" name="j" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="j" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

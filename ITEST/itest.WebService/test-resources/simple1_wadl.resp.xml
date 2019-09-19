@@ -53,18 +53,18 @@
             <xs:element name="Test" type="tns:Test"/>
             <xs:complexType name="Test">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Value_R10" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_R10" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_R10" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="Value_R20" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_R20" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_R20" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="Value_R30" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_R30" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_R30" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="Value_R40" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value1_R40" nillable="true" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value2_R40" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Value_R10" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_R10" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_R10" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Value_R20" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_R20" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_R20" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Value_R30" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_R30" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_R30" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Value_R40" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value1_R40" type="xs:double"/>
+                    <xs:element minOccurs="0" name="Value2_R40" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -190,28 +190,28 @@
             <xs:element name="TestRequest1" type="tns:TestRequest1"/>
             <xs:complexType name="HelloRequest1">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="hour" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="variationPack" nillable="true" type="ns1:variationsPack"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="hour" type="xs:int"/>
+                    <xs:element minOccurs="0" name="variationPack" type="ns1:variationsPack"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TestRequest1">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="hour" nillable="true" type="xs:int"/>
-                    <xs:element minOccurs="0" name="variationPack" nillable="true" type="ns1:variationsPack"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="hour" type="xs:int"/>
+                    <xs:element minOccurs="0" name="variationPack" type="ns1:variationsPack"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TestRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="hour" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="hour" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="HelloRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="runtimeContext" nillable="true" type="xs:anyType"/>
-                    <xs:element minOccurs="0" name="hour" nillable="true" type="xs:int"/>
+                    <xs:element minOccurs="0" name="runtimeContext" type="xs:anyType"/>
+                    <xs:element minOccurs="0" name="hour" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

@@ -204,18 +204,18 @@
                     targetNamespace="http://csr.generated.openl.org">
             <xsd:complexType name="Test">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="Value1_R10" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value1_R20" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value1_R30" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value1_R40" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value2_R10" nillable="true" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="Value2_R20" nillable="true" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="Value2_R30" nillable="true" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="Value2_R40" nillable="true" type="xsd:string"/>
-                    <xsd:element minOccurs="0" name="Value_R10" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value_R20" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value_R30" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="Value_R40" nillable="true" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_R10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_R20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_R30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value1_R40" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value2_R10" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Value2_R20" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Value2_R30" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Value2_R40" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="Value_R10" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_R20" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_R30" type="xsd:double"/>
+                    <xsd:element minOccurs="0" name="Value_R40" type="xsd:double"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>

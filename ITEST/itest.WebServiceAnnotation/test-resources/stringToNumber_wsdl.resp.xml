@@ -203,7 +203,7 @@
             <xsd:complexType name="RuleType">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="age" nillable="true" type="xsd:double"/>
-                    <xsd:element minOccurs="0" name="name" nillable="true" type="xsd:string"/>
+                    <xsd:element minOccurs="0" name="name" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
