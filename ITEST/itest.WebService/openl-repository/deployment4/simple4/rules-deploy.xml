@@ -1,0 +1,13 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>simple4</serviceName>
+
+    <configuration>
+        <entry>
+            <string>jackson.serializationInclusion</string>
+            <string>NON_EMPTY</string>
+        </entry>
+    </configuration>
+
+</rules-deploy>
