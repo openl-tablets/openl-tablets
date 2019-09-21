@@ -38,6 +38,20 @@ public class RunITest {
     }
 
     @Test
+    public void testSerializationInclusionConfiguration() {
+
+        RestTemplate rest = new RestClientFactory(baseURI + "/rules-serializationInclusion").create();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = rest.exchange("/getObject", HttpMethod.GET, entity, String.class);
+        String body = response.getBody();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"num\":22,\"str\":\"test\",\"intArr\":[],\"ldt\":\"2019-02-20T06:30:00\",\"ld\":\"2019-08-16\",\"lt\":\"10:15:30\",\"zdt\":\"2019-12-02T11:15:30-05:00\"}", body);
+
+    }
+
+    @Test
     public void testDefaultDateFormatConfiguration() {
 
         RestTemplate rest = new RestClientFactory(baseURI + "/rules-defaultdateformat").create();
@@ -76,7 +90,8 @@ public class RunITest {
         ResponseEntity<String> response = rest.exchange("/myCat", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("{\"@class\":\"org.openl.generated.beans.Cat\",\"name\":null,\"likesCream\":null,\"lives\":0}", response.getBody());
+        assertEquals("{\"@class\":\"org.openl.generated.beans.Cat\",\"name\":null,\"likesCream\":null,\"lives\":0}",
+            response.getBody());
     }
 
     private static void assertNotBlank(String s) {

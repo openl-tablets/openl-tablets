@@ -23,6 +23,18 @@
         <property name="type" value="CONSUMER" />
     </bean>
 
+    <bean id="kafkaProducerSerializationInclusionFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationSerializationInclusionFactoryBean" scope="prototype">
+        <property name="type" value="PRODUCER" />
+        <property name="defaultSerializationInclusion"
+                  value="${ruleservice.jackson.serializationInclusion}"/>
+    </bean>
+
+    <bean id="kafkaConsumerSerializationInclusionFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationSerializationInclusionFactoryBean" scope="prototype">
+        <property name="type" value="CONSUMER" />
+        <property name="defaultSerializationInclusion"
+                  value="${ruleservice.jackson.serializationInclusion}"/>
+    </bean>
+
     <bean id="kafkaProducerRootClassNamesBindingFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationRootClassNamesBindingFactoryBean" scope="prototype">
         <property name="type" value="PRODUCER" />
         <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean" />
@@ -38,6 +50,7 @@
         <property name="overrideTypes" ref="kafkaProducerRootClassNamesBindingFactoryBean" />
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="kafkaProducerDefaultDateFormatFactoryBean" />
+        <property name="serializationInclusion" ref="kafkaProducerSerializationInclusionFactoryBean" />
     </bean>
 
     <bean id="kafkaConsumerJacksonDatabindingFactoryBean" class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
@@ -45,6 +58,7 @@
         <property name="overrideTypes" ref="kafkaConsumerRootClassNamesBindingFactoryBean" />
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="kafkaConsumerDefaultDateFormatFactoryBean" />
+        <property name="serializationInclusion" ref="kafkaConsumerSerializationInclusionFactoryBean" />
     </bean>
 
     <!-- Initializes OpenL Engine instances according to web services configuration 

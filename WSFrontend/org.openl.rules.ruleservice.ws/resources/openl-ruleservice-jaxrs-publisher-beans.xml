@@ -8,16 +8,23 @@
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
     </bean>
 
-    <bean id="JAXRSserviceConfigurationDefaultTypingModeFactoryBean" 
+    <bean id="JAXRSserviceConfigurationDefaultTypingModeFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean"
         scope="prototype">
         <property name="defaultValue" value="SMART"/>
     </bean>
-    
+
     <bean id="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"
           class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean"
           scope="prototype"/>
-    
+
+    <bean id="JAXRSserviceConfigurationSerializationInclusionFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationSerializationInclusionFactoryBean"
+          scope="prototype">
+        <property name="defaultSerializationInclusion"
+                  value="${ruleservice.jackson.serializationInclusion}"/>
+    </bean>
+
     <bean id="JAXRSJacksonDatabindingFactoryBean"
         class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
         scope="prototype">
@@ -28,6 +35,7 @@
         <property name="supportVariations"
             ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"/>
+        <property name="serializationInclusion" ref="JAXRSserviceConfigurationSerializationInclusionFactoryBean"/>
     </bean>
 
     <bean id="JAXRSJacksonObjectMapper"
@@ -51,7 +59,7 @@
         class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}" />
     </bean>
-    
+
     <bean id="serviceConfigurationRootClasses"
         class="org.openl.rules.ruleservice.databinding.SetToListOfClassesFactoryBean" scope="prototype">
         <property name="setOfClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean" />
@@ -63,9 +71,9 @@
         <property name="supportCollections" value="false" />
         <property name="extraClasses" ref="serviceConfigurationRootClasses"/>
     </bean>
-    
+
     <bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
-    
+
     <bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
         scope="prototype">
         <property name="features">

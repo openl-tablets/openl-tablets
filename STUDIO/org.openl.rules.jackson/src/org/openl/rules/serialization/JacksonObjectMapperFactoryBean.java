@@ -11,10 +11,28 @@ package org.openl.rules.serialization;
  */
 
 import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.DeepCloningVariation;
@@ -24,6 +42,7 @@ import org.openl.rules.variation.VariationsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -44,19 +63,30 @@ public class JacksonObjectMapperFactoryBean {
 
     private DateFormat defaultDateFormat = getISO8601Format();
 
+    private JsonInclude.Include serializationInclusion;
+
     private Set<String> overrideTypes;
 
     public ObjectMapper createJacksonObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
+        mapper.registerModule(new ParameterNamesModule())
+            .registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule());
+
         AnnotationIntrospector secondaryIntropsector = new JacksonAnnotationIntrospector();
-        AnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
+        JaxbAnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
+
+        if (serializationInclusion != null) {
+            mapper.setSerializationInclusion(serializationInclusion);
+            primaryIntrospector.setNonNillableInclusion(serializationInclusion);
+        }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
             secondaryIntropsector);
 
         mapper.setAnnotationIntrospector(introspector);
-        
+
         if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         } else {
@@ -109,7 +139,6 @@ public class JacksonObjectMapperFactoryBean {
         } else {
             mapper.setDateFormat(getDefaultDateFormat());
         }
-
         return mapper;
     }
 
@@ -187,5 +216,13 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setDefaultDateFormat(DateFormat defaultDateFormat) {
         this.defaultDateFormat = defaultDateFormat;
+    }
+
+    public JsonInclude.Include getSerializationInclusion() {
+        return serializationInclusion;
+    }
+
+    public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
+        this.serializationInclusion = serializationInclusion;
     }
 }

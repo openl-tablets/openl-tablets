@@ -53,6 +53,11 @@ public class RunITest {
     }
 
     @Test
+    public void testSimple4SerializationInclusion() {
+        client.post("/REST/deployment4/simple4/main", "/simple3_main.req.json", "/simple3_main_response_serialization_inclusion.json");
+    }
+
+    @Test
     public void testSimple3_CSPR_Convert_2() {
         client.post("/deployment3/simple3", "/simple3_main.req.xml", "/simple3_main.resp.xml");
     }
