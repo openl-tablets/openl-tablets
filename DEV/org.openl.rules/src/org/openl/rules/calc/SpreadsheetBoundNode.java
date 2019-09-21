@@ -57,7 +57,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     public XlsModuleOpenClass getModule() {
         return (XlsModuleOpenClass) super.getModule();
     }
-    
+
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
         if (spreadsheet.isCustomSpreadsheet()) {
             Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
@@ -73,7 +73,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 spreadsheet.getRowTitles(),
                 spreadsheet.getColumnTitles(),
                 getModule(),
-                spreadsheet.isVerbose());
+                spreadsheet.isDetailedPlainModel());
 
             customSpreadsheetResultOpenClass
                 .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
@@ -121,7 +121,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        spreadsheet.setVerbose(Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getVerboseOutputModel()));
+        spreadsheet.setDetailedPlainModel(
+            Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
 
         if (getHeader().getType().getInstanceClass() != null && SpreadsheetResult.class
             .isAssignableFrom(getHeader().getType().getInstanceClass())) {

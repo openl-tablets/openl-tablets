@@ -49,7 +49,7 @@ public class SpreadsheetResultType extends BeanType {
                 "customSpreadsheetResultOpenClass",
                 "rowNamesMarkedWithAsterisk",
                 "columnNamesMarkedWithAsterisk",
-                "verbose")));
+                "detailedPlainModel")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

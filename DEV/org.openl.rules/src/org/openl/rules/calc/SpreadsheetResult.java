@@ -44,7 +44,7 @@ public class SpreadsheetResult implements Serializable {
     transient String[] columnNamesMarkedWithAsterisk;
     transient Map<String, Point> fieldsCoordinates;
 
-    boolean verbose;
+    boolean detailedPlainModel;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
@@ -187,14 +187,14 @@ public class SpreadsheetResult implements Serializable {
     }
 
     @XmlTransient
-    public boolean isVerbose() {
-        return verbose;
+    public boolean isDetailedPlainModel() {
+        return detailedPlainModel;
     }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
+    
+    public void setDetailedPlainModel(boolean detailedPlainModel) {
+        this.detailedPlainModel = detailedPlainModel;
     }
-
+    
     public Object getValue(int row, int column) {
         return results[row][column];
     }
@@ -397,7 +397,7 @@ public class SpreadsheetResult implements Serializable {
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
-            String[][] fieldNames = verbose ? new String[rowNames.length][columnNames.length] : null;
+            String[][] fieldNames = detailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -414,7 +414,7 @@ public class SpreadsheetResult implements Serializable {
                             .getColumn()] != null && rowNamesMarkedWithAsterisk[p.getRow()] != null) {
                             values.put(e.getKey(),
                                 convertSpreadsheetResults(module, getValue(p.getRow(), p.getColumn())));
-                            if (verbose) {
+                            if (detailedPlainModel) {
                                 fieldNames[p.getRow()][p.getColumn()] = e.getKey();
                             }
                         }
@@ -437,14 +437,14 @@ public class SpreadsheetResult implements Serializable {
                                 fName = sb.toString();
                             }
                             values.put(fName, convertSpreadsheetResults(module, getValue(i, j)));
-                            if (verbose) {
+                            if (detailedPlainModel) {
                                 fieldNames[i][j] = fName;
                             }
                         }
                     }
                 }
             }
-            if (verbose) {
+            if (detailedPlainModel) {
                 values.put(values.containsKey("fieldNames") ? "$fieldNames" : "fieldNames", fieldNames);
                 values.put(values.containsKey("rowNames") ? "$rowNames" : "rowNames", rowNames);
                 values.put(values.containsKey("columnNames") ? "$columnNames" : "columnNames", columnNames);

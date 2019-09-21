@@ -25,7 +25,7 @@ public class DefaultResultBuilder implements IResultBuilder {
             spreadsheet.getColumnNamesMarkedWithAsterisk(),
             spreadsheet.getFieldsCoordinates());
 
-        spreadsheetResult.setVerbose(spreadsheet.isVerbose());
+        spreadsheetResult.setDetailedPlainModel(spreadsheet.isDetailedPlainModel());
 
         if (spreadsheet.isCustomSpreadsheet()) {
             spreadsheetResult

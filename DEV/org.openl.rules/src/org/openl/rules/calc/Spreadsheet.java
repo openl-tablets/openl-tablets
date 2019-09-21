@@ -3,7 +3,6 @@ package org.openl.rules.calc;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContext;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -43,8 +42,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private String[] rowTitles;
 
     private String[] columnTitles;
-    
-    private boolean verbose;
+
+    private boolean detailedPlainModel;
 
     /**
      * Type of the Spreadsheet with all its fields Is some type of internal. Is used on calculating the results of the
@@ -192,13 +191,13 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public String[] getColumnNames() {
         return columnNames;
     }
-    
-    public boolean isVerbose() {
-        return verbose;
+
+    public boolean isDetailedPlainModel() {
+        return detailedPlainModel;
     }
-    
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
+
+    public void setDetailedPlainModel(boolean detailedPlainModel) {
+        this.detailedPlainModel = detailedPlainModel;
     }
 
     @Override
@@ -238,5 +237,5 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return fieldsCoordinates;
     }
-    
+
 }

@@ -404,13 +404,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
     @Override
-    public java.lang.Boolean getVerboseOutputModel() {
-        return (java.lang.Boolean) getPropertyValue("verboseOutputModel");
+    public java.lang.Boolean getDetailedPlainModel() {
+        return (java.lang.Boolean) getPropertyValue("detailedPlainModel");
     }
 	
     @Override
-    public void setVerboseOutputModel(java.lang.Boolean verboseOutputModel) {
-        setFieldValue("verboseOutputModel", verboseOutputModel);
+    public void setDetailedPlainModel(java.lang.Boolean detailedPlainModel) {
+        setFieldValue("detailedPlainModel", detailedPlainModel);
         reset();
     }
     @Override

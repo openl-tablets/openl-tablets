@@ -53,7 +53,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private long columnsWithAsteriskCount;
     private long rowsWithAsteriskCount;
     private byte[] beanClassByteCode;
-    private boolean verbose;
+    private boolean detailedPlainModel;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -64,7 +64,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             String[] rowTitles,
             String[] columnTitles,
             XlsModuleOpenClass module,
-            boolean verbose) {
+            boolean detailedPlainModel) {
         super(name, SpreadsheetResult.class);
         Objects.requireNonNull(rowNames);
         Objects.requireNonNull(columnNames);
@@ -92,7 +92,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.columnTitles = columnTitles;
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = module;
-        this.verbose = verbose;
+        this.detailedPlainModel = detailedPlainModel;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             Collection<IOpenField> fields,
             boolean simpleRefBeanByRow,
             boolean simpleRefBeanByColumn,
-            boolean verbose,
+            boolean detailedPlainModel,
             IBindingContext bindingContext) {
         if (beanClass != null) {
             throw new IllegalStateException(
@@ -249,7 +249,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             }
         }
 
-        this.verbose = this.verbose || verbose;
+        this.detailedPlainModel = this.detailedPlainModel || detailedPlainModel;
 
     }
 
@@ -283,7 +283,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             customSpreadsheetResultOpenClass.getFields().values(),
             customSpreadsheetResultOpenClass.simpleRefBeanByRow,
             customSpreadsheetResultOpenClass.simpleRefBeanByColumn,
-            customSpreadsheetResultOpenClass.verbose,
+            customSpreadsheetResultOpenClass.detailedPlainModel,
             bindingContext);
     }
 
@@ -321,7 +321,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             rowTitles,
             columnTitles,
             module,
-            verbose);
+            detailedPlainModel);
         for (IOpenField field : getFields().values()) {
             if (field instanceof CustomSpreadsheetResultField) {
                 type.addField(field);
@@ -428,7 +428,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder, Set<String> beanFieldNames) {
-        if (verbose) {
+        if (detailedPlainModel) {
             String[] sprStructureFieldNames = new String[3];
             sprStructureFieldNames[0] = beanFieldNames.contains("rowNames") ? "$rowNames" : "rowNames";
             sprStructureFieldNames[1] = beanFieldNames.contains("columnNames") ? "$columnNames" : "columnNames";
@@ -651,7 +651,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
-            if (spreadsheetResult.isVerbose()) {
+            if (spreadsheetResult.isDetailedPlainModel()) {
                 field.set(target, spreadsheetResult.columnNames);
             }
         }
@@ -669,7 +669,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
-            if (spreadsheetResult.isVerbose()) {
+            if (spreadsheetResult.isDetailedPlainModel()) {
                 field.set(target, spreadsheetResult.rowNames);
             }
         }
@@ -690,7 +690,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
-            if (spreadsheetResult.isVerbose()) {
+            if (spreadsheetResult.isDetailedPlainModel()) {
                 String[][] fieldNames = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];
                 for (Map.Entry<String, List<IOpenField>> e : beanFieldsMap.entrySet()) {

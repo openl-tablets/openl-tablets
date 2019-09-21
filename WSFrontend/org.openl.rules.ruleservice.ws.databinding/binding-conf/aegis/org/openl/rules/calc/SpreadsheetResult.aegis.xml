@@ -8,6 +8,6 @@
     <property name="fieldsCoordinates" ignore="true"/>
     <property name="rowNamesMarkedWithAsterisk" ignore="true"/>
     <property name="columnNamesMarkedWithAsterisk" ignore="true"/>
-    <property name="verbose" ignore="true"/>
+    <property name="detailedPlainModel" ignore="true"/>
  </mapping>
 </mappings>

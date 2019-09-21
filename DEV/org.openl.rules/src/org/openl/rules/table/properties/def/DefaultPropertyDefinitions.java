@@ -467,12 +467,12 @@ public class DefaultPropertyDefinitions {
 		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[33] = new TablePropertyDefinition();
 		definitions[33].setDefaultValue("false");
-		definitions[33].setDescription("Controls generation additional fields in an output model for the Spreadsheet.");
+		definitions[33].setDescription("Controls generation additional fields in an plain model for the Spreadsheet.");
 		definitions[33].setDimensional(false);
-		definitions[33].setDisplayName("Verbose Output Model");
+		definitions[33].setDisplayName("Detaled Plain Model");
 		definitions[33].setGroup("Dev");
 		definitions[33].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[33].setName("verboseOutputModel");
+		definitions[33].setName("detailedPlainModel");
 		definitions[33].setPrimaryKey(false);
 		definitions[33].setSecurityFilter("no");
 		definitions[33].setSystem(false);
