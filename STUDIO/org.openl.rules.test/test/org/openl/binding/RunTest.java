@@ -206,6 +206,7 @@ public class RunTest {
 
         assertEqual("10%", 0.1);
         assertEqual("10% of \n the  50", 5.0);
+        assertEqual("10% of    the  50", 5.0);
 
         assertEqual("long Of =-1;int y=60; Of >>> y ", (long) -1 >>> 60);
         assertEqual("5.0 ** 7.0 ", Math.pow(5, 7));

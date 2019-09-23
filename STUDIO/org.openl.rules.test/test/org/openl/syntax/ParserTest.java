@@ -59,7 +59,6 @@ public class ParserTest extends TestCase {
         super(arg0);
     }
 
-    @SuppressWarnings("unchecked")
     public void _testLiteral(String src, String res, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
@@ -83,7 +82,6 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, syntaxNode.getType());
     }
 
-    @SuppressWarnings("unchecked")
     public void _testModule(String src, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
@@ -127,7 +125,6 @@ public class ParserTest extends TestCase {
 
     }
 
-    @SuppressWarnings("unchecked")
     public void _testType(String src, final String type) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
@@ -144,7 +141,24 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, bn.getType());
     }
 
-    @SuppressWarnings("unchecked")
+    public void testOfMethod() {
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
+
+        SyntaxNodeException[] error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
+
+        error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+    }
+
     public void _testNumberParseAndBind(INodeBinder binder,
             String src,
             Object res,

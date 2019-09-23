@@ -165,12 +165,18 @@ SKIP :
 | "\f"
 }
 
-/*
+<* >
 TOKEN :
 {
- < EOL: "\n" >
+  < #_WHITESPACE :
+    (
+      " "
+    | "\t"
+    | "\n"
+    | "\r"
+    | "\f"
+    ) >
 }
-*/
 
 /* special words */
 
@@ -190,7 +196,6 @@ TOKEN :
   //| < BOOLEAN: "boolean" >
   < BREAK : "break" >
   //| < BYTE: "byte" >
-| < CALCULATE : "Calculate" >
 | < CASE : "case" >
 | < CATCH : "catch" >
   //| < CHAR: "char" >
@@ -243,8 +248,7 @@ TOKEN :
 
 TOKEN :
 {
-  < OF : "of" >
-| < THE : "the" >
+  < OF_THE : "of" (< _WHITESPACE >)+ "the" >
 | < WHERE : "where" >
 | < IS : "is" >
 | < LESS : "less" >
@@ -1009,7 +1013,7 @@ void OfTheExpressionSuffix() :
   Token x;
 }
 {
-  x = < OF > < THE > PrimaryExpression()
+  x = < OF_THE > PrimaryExpression()
   {
     syntaxBuilder.bop("chain.suffix.of.the", null);
   }
@@ -1137,8 +1141,10 @@ void PrimarySuffix() :
   {
     syntaxBuilder.bop("chain.suffix.dot.function", null);
   }
-| OfTheExpressionSuffix()
-| "." identifier()
+| LOOKAHEAD(OfTheExpressionSuffix())
+  OfTheExpressionSuffix()
+| LOOKAHEAD("." identifier())
+  "." identifier()
   {
     syntaxBuilder.bop("chain.suffix.dot.identifier", null);
   }
