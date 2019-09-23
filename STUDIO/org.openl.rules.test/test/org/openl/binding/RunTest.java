@@ -213,6 +213,17 @@ public class RunTest {
         assertEqual("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)));
         assertEqual("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000"));
 
+        assertEqual("1 == 1", true);
+        assertEqual("1 is same as 1", true);
+        assertEqual("1 is same \n as 1", true);
+        assertEqual("1   is   same   as   1", true);
+        assertEqual("1 is the same as 1", true);
+        assertEqual("1 is the \n same as 1", true);
+        assertEqual("1   is   the   same   as   1", true);
+        assertEqual("1 equals to 1", true);
+        assertEqual("1 equals \n to 1", true);
+        assertEqual("1  equals  to  1", true);
+
     }
 
     @Test

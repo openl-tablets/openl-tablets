@@ -103,25 +103,25 @@ public interface BExGrammarConstants {
   /** RegularExpression Id. */
   int TDOT_UNICODE = 51;
   /** RegularExpression Id. */
-  int ASSIGN = 52;
+  int EQ = 52;
   /** RegularExpression Id. */
-  int GT = 53;
+  int ASSIGN = 53;
   /** RegularExpression Id. */
-  int STRICT_GT = 54;
+  int GT = 54;
   /** RegularExpression Id. */
-  int LT = 55;
+  int STRICT_GT = 55;
   /** RegularExpression Id. */
-  int STRICT_LT = 56;
+  int LT = 56;
   /** RegularExpression Id. */
-  int BANG = 57;
+  int STRICT_LT = 57;
   /** RegularExpression Id. */
-  int TILDE = 58;
+  int BANG = 58;
   /** RegularExpression Id. */
-  int HOOK = 59;
+  int TILDE = 59;
   /** RegularExpression Id. */
-  int COLON = 60;
+  int HOOK = 60;
   /** RegularExpression Id. */
-  int EQ = 61;
+  int COLON = 61;
   /** RegularExpression Id. */
   int STRICT_EQ = 62;
   /** RegularExpression Id. */
@@ -312,6 +312,7 @@ public interface BExGrammarConstants {
     "\"..\"",
     "\"...\"",
     "\"\\u2026\"",
+    "<EQ>",
     "\"=\"",
     "\">\"",
     "\">==\"",
@@ -321,7 +322,6 @@ public interface BExGrammarConstants {
     "\"~\"",
     "\"?\"",
     "\":\"",
-    "\"==\"",
     "\"====\"",
     "\"<=\"",
     "\"<===\"",
@@ -389,8 +389,6 @@ public interface BExGrammarConstants {
     "\"*/\"",
     "\"*/\"",
     "<token of kind 128>",
-    "\"equals to\"",
-    "\"is same as\"",
     "\"does not equal to\"",
     "\"is different from\"",
     "\"is less than\"",

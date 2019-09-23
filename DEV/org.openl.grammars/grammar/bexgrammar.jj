@@ -277,6 +277,15 @@ TOKEN :
 
 TOKEN :
 {
+  < EQ :
+    "=="
+  | "equals" (< _WHITESPACE >)+ "to"
+  | "is" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as"
+  | "is" (< _WHITESPACE >)+ "the" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as" >
+}
+
+TOKEN :
+{
   < ASSIGN : "=" >
 | < GT : ">" >
 | < STRICT_GT : ">==" >
@@ -287,7 +296,6 @@ TOKEN :
 | < HOOK : "?" >
 | < COLON : ":" >
   //| < DOLLAR: "$" >
-| < EQ : "==" >
 | < STRICT_EQ : "====" >
 | < LE : "<=" >
 | < STRICT_LE : "<===" >
@@ -720,8 +728,6 @@ void EqualityExpression() :
     (
       (
         x = < EQ >
-      | x = "equals to"
-      | x = "is same as"
       )
       {
         func = "op.binary.eq";
