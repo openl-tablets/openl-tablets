@@ -14,6 +14,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -346,7 +347,10 @@ public class MergeConflictBean {
         FacesContext facesContext = FacesUtils.getFacesContext();
         if (facesContext != null) {
             facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
-            ConflictUtils.clear(FacesUtils.getSession());
+            HttpSession session = FacesUtils.getSession();
+            if (session != null) {
+                ConflictUtils.clear(session);
+            }
         }
         conflictResolutions.clear();
         existInRepositoryCache.clear();
