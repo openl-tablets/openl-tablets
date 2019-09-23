@@ -201,41 +201,41 @@ TOKEN :
 | < DO : "do" >
   //| < DOUBLE: "double" >
 | < ELSE : "else" >
-//| < EXTENDS : "extends" >
+  //| < EXTENDS : "extends" >
 | < FALSE : "false" >
-//| < FINAL : "final" >
+  //| < FINAL : "final" >
 | < FINALLY : "finally" >
   //| < FLOAT: "float" >
 | < FOR : "for" >
 | < GOTO : "goto" >
 | < IF : "if" >
-//| < IMPLEMENTS : "implements" >
-//| < IMPORT : "import" >
+  //| < IMPLEMENTS : "implements" >
+  //| < IMPORT : "import" >
 | < INSTANCEOF : "instanceof" >
-//| < INT: "int" >
-//| < INTERFACE : "interface" >
-//| < LONG: "long" >
-//| < NATIVE : "native" >
+  //| < INT: "int" >
+  //| < INTERFACE : "interface" >
+  //| < LONG: "long" >
+  //| < NATIVE : "native" >
 | < NEW : "new" >
 | < NULL : "null" >
-//| < PACKAGE : "package" >
-//| < PRIVATE : "private" >
-//| < PROTECTED : "protected" >
-//| < PUBLIC : "public" >
+  //| < PACKAGE : "package" >
+  //| < PRIVATE : "private" >
+  //| < PROTECTED : "protected" >
+  //| < PUBLIC : "public" >
 | < RETURN : "return" >
-//| < SHORT: "short" >
-//| < STATIC : "static" >
+  //| < SHORT: "short" >
+  //| < STATIC : "static" >
 | < SUPER : "super" >
 | < SWITCH : "switch" >
-//| < SYNCHRONIZED : "synchronized" >
-//| < THIS: "this" >
+  //| < SYNCHRONIZED : "synchronized" >
+  //| < THIS: "this" >
 | < THROW : "throw" >
 | < THROWS : "throws" >
-//| < TRANSIENT : "transient" >
+  //| < TRANSIENT : "transient" >
 | < TRUE : "true" >
 | < TRY : "try" >
 | < VOID : "void" >
-//| < VOLATILE : "volatile" >
+  //| < VOLATILE : "volatile" >
 | < WHILE : "while" >
 }
 
@@ -326,7 +326,7 @@ TOKEN :
 | < STRING_GT : "string>" >
 | < STRING_EQ : "string==" >
 | < STRING_NE : "string!=" >
-| < STRING_NE_ALT : "string<>" > 
+| < STRING_NE_ALT : "string<>" >
 }
 
 /* JAVA LITERALS */
@@ -359,7 +359,6 @@ TOKEN :
     )? >
 | 
   < FLOATING_POINT_LITERAL :
-    //      (["-","+"])?
     (
       ([ "0"-"9" ])+ "." ([ "0"-"9" ])* (< EXPONENT >)? ([ "f", "F", "d", "D" ])?
     | "." ([ "0"-"9" ])+ (< EXPONENT >)? ([ "f", "F", "d", "D" ])?
@@ -495,11 +494,6 @@ TOKEN :
   < RANGE_VARIABLE : < IDENTIFIER > ":" < IDENTIFIER > >
 }
 
-//
-//TOKEN :
-//{
-//  < LABEL: <IDENTIFIER> <COLON> >
-//}
 /* COMMENTS */
 
 MORE :
@@ -516,10 +510,6 @@ MORE :
 }
 
 //<IN_SINGLE_LINE_COMMENT>
-//SPECIAL_TOKEN :
-//{
-//  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
-//}
 SPECIAL_TOKEN :
 {
   < SINGLE_LINE_COMMENT :
@@ -754,7 +744,11 @@ void EqualityExpression() :
       {
         func = "op.binary.string_eq";
       }
-    | (x = < STRING_NE > | x = < STRING_NE_ALT >)
+    |
+      (
+        x = < STRING_NE >
+      | x = < STRING_NE_ALT >
+      )
       {
         func = "op.binary.string_ne";
       }
@@ -764,21 +758,6 @@ void EqualityExpression() :
       syntaxBuilder.bop(func, pos(x));
     }
   )*
-}
-
-void OfTheExpression() :
-{
-  Token x;
-}
-{
-  Expression()
-  (
-    (x = < OF > < THE >) 
-    Expression()
-    {
-      syntaxBuilder.bop("of.the", pos(x));
-    }
-  )
 }
 
 void RelationalExpression() :
@@ -1065,21 +1044,6 @@ void PostfixExpression() :
   ]
 }
 
-//void PrimaryExpression() :
-//{
-//  int args = 1;
-//  String func = "standard";
-//}
-//{
-//	
-//  PrimaryPrefix() ( LOOKAHEAD(2) PrimarySuffix() {++args;} )* 
-//  {
-//  	if (args > 1)
-//  		syntaxBuilder.nop("chain", null, args);
-//  }
-//  
-//  
-//}
 void PrimaryExpression() :
 {
   int args = 1;
@@ -1111,46 +1075,16 @@ void PrimaryPrefix() :
   "(" Expression() ")"
 | 
   AllocationExpression()
-  //|
-  //  LOOKAHEAD( ResultType() "." "class" )
-  //  ResultType() "." "class"
-  //  { syntaxBuilder.identifier("ident", token.image); syntaxBuilder.nop(".chain",2); }
 | 
   LOOKAHEAD(function())
   function()
-  //|
-  //LOOKAHEAD(2) 
-  //
-  //FilterExpression() IdentifierSequence() 
 | 
   LOOKAHEAD(2)
   rangeidentifier()
 | 
   IdentifierSequence()
-  //|
-  //  identifier()
-  //| BlockClosure()
 }
 
-//void IdentifierChain() :
-//{Token x1;}
-//{
-// 	
-//  IdentifierSequence()
-//  (x1="of the" IdentifierSequence())*
-//}
-//void IdentifierSequence() :
-//{Token x1; int args = 2;}
-//{
-//  (x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.sequence.element", pos(token),token.image);})
-//  (x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.sequence.element", pos(token),token.image);})
-//  (x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*
-//  {
-//    	if (args > 1)
-//  		   syntaxBuilder.nop("identifier.sequence", null, args);
-//  }		
-//  
-//}
 void IdentifierSequence() :
 {
   Token x1;
@@ -1176,26 +1110,6 @@ void IdentifierSequence() :
   }		
 }
 
-//void FilterExpression() :
-//{Token x1; int args = 1;}
-//{
-//	SimpleFilter() ("or" | "and") FilterExpression()
-//	|
-//	SimpleNotFilter() (("or" | "and") (SimpleFilter() | SimpleNotFilter()))*  
-//}
-//
-//void SimpleFilter() :
-//{}
-//{
-//	Word("identifier.filter")
-//}
-//
-//
-//void SimpleNotFilter() :
-//{}
-//{
-//	"not" Word("identifier.filter.not")
-//}
 void Word(String type) :
 {
   Token x1;
@@ -1209,17 +1123,6 @@ void Word(String type) :
   )
 }
 
-//void IdentifierSequence(int limit) :
-//{Token x1; int args = 2;}
-//{
-//  (x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.sequence.element", pos(token),token.image);})
-//  (x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.sequence.element", pos(token),token.image); ++args;})*
-//  {
-//    	if (args > 1)
-//  		   syntaxBuilder.nop("identifier.sequence", null, args);
-//  }		
-//  
-//}
 void PrimarySuffix() :
 {
   Token x1;
@@ -1234,13 +1137,11 @@ void PrimarySuffix() :
   {
     syntaxBuilder.bop("chain.suffix.dot.function", null);
   }
-  // | "of the" PrimaryExpression()
 | OfTheExpressionSuffix()
 | "." identifier()
   {
     syntaxBuilder.bop("chain.suffix.dot.identifier", null);
   }
-  //  | x1 = <IDENTIFIER> {syntaxBuilder.identifier("identifier.chain", pos(token),token.image);}
 }
 
 void CastExpression() :
@@ -1304,22 +1205,20 @@ void TypeDimension() :
 void parseType() :
 {}
 {
-  Type()
+  Type() 
   < EOF >
 }
 
 void parseMethodHeader() :
 {}
 {
-  MethodHeader()
+  MethodHeader() 
   < EOF >
 }
 
 void Type() :
+{}
 {
-}
-{
-  //  ( PrimitiveType() | ClassName() ) ( TypeDimension() )*
   ClassName()
   (
     TypeDimension()
@@ -1642,9 +1541,6 @@ void Literal() :
     syntaxBuilder.literal("literal.integer", pos(token), token.image);
   }
 | 
-  //  LOOKAHEAD(LiteralBI() "-")
-  //  RangeLiteralBinary()
-  //  |
   < BUSINESS_INTEGER_LITERAL >
   {
     syntaxBuilder.literal("literal.integer.business", pos(token), token.image);
@@ -1822,8 +1718,7 @@ void RangeBinary() :
 }
 
 void RangeNumber() :
-{
-}
+{}
 {
   (
     LiteralBI()
@@ -2105,8 +2000,7 @@ void rangeInvertedVerboseBounds() :
 }
 
 void rangeBothBounds() :
-{
-}
+{}
 {
   LOOKAHEAD(rangeComparisonBounds())
   rangeComparisonBounds()
@@ -2122,8 +2016,7 @@ void rangeBothBounds() :
 }
 
 void RangeLiteral() :
-{
-}
+{}
 {
   (
     LOOKAHEAD(RangeBinary())
@@ -2231,8 +2124,7 @@ void RangeBinaryFloat() :
 }
 
 void RangeNumberFloat() :
-{
-}
+{}
 {
   (
     LiteralFloat()
@@ -2514,8 +2406,7 @@ void rangeInvertedVerboseBoundsFloat() :
 }
 
 void rangeBothBoundsFloat() :
-{
-}
+{}
 {
   LOOKAHEAD(rangeComparisonBoundsFloat())
   rangeComparisonBoundsFloat()
@@ -2531,8 +2422,7 @@ void rangeBothBoundsFloat() :
 }
 
 void RangeLiteralFloat() :
-{
-}
+{}
 {
   (
     LOOKAHEAD(RangeBracketsFloat())
@@ -2615,9 +2505,6 @@ void Block() :
   x1 = "{" 
   BlockStatementList() 
   x2 = "}"
-  {
-  //syntaxBuilder.uop("{}", pos(x1, x2)); 
-  }
 }
 
 void BlockStatementList() :
@@ -2660,8 +2547,6 @@ void Statement() :
   Block()
 | 
   EmptyStatement()
-  //|
-  //   LOOKAHEAD(2) ExtendedWhereStatement() 	  
 | 
   StatementExpression() OptionalSemiColon()
 | 
@@ -2687,7 +2572,6 @@ void ExtendedWhereStatement() :
   int args = 1;	
 }
 {
-  //(<IDENTIFIER> ":=" | "Calculate") Expression()
   "," "where" WhereVarExpalnation()
   (
     LOOKAHEAD(2)
@@ -2790,12 +2674,10 @@ void WhileStatement() :
   Token x;
 }
 {
-  //  { syntaxBuilder.notImplemented("startLabel(null)"); } // anonymous label for cycles
   x = "while" "(" Expression() ")" Statement()
   {
     syntaxBuilder.bop("control.while", pos(x));
   }
-  //  { syntaxBuilder.notImplemented("endLabel()"); }
 }
 
 void ReturnStatement() :
@@ -2875,11 +2757,6 @@ void VariableDeclarator() :
     {
       syntaxBuilder.bop("local.var.name.init", null);	
     }
-    else
-    {
-    //  	  syntaxBuilder.uop("local.name.noinit", pos(x));	
-    }
-    //  	syntaxBuilder.notImplemented("varDeclarator(withInitializer)"); 
   }
 }
 
@@ -2933,9 +2810,6 @@ void ForStatement() :
   Token x;
 }
 {
-  {
-  //!!!syntaxBuilder.notImplemented("startLabel(null)"); 
-  } // anonymous label for cycles
   x = "for" "("
   [
     ForInit()
@@ -2963,9 +2837,6 @@ void ForStatement() :
   }
   {
     syntaxBuilder.nop("control.for", pos(x), bParts);
-  }
-  {
-  //!!!syntaxBuilder.notImplemented("endLabel()"); 
   }
 }
 
@@ -3044,7 +2915,6 @@ void ContinueStatement() :
 void MethodHeader() :
 {}
 {
-  //("public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized")*
   ResultType() MethodDeclarator()
   {
     syntaxBuilder.nop("method.header", null, 3);
@@ -3054,10 +2924,7 @@ void MethodHeader() :
 void MethodDeclaration() :
 {}
 {
-  //  ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" | "strictfp")*
-  //("public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized")*
   ResultType() MethodDeclarator()
-  //[ "throws" NameList() ]
   (
     Block()
     {
@@ -3105,27 +2972,16 @@ void FormalParameters() :
 }
 
 void FormalParameter() :
+{}
 {
-//	java.util.Map map = new java.util.HashMap();			
-}
-{
-  // [ "final" {map.put("final", "final");} ] 
   Type() VariableDeclaratorId()
-  //   [
-  //    "in" {map.put("in", "in");} 
-  //    | 
-  //    "out" {map.put("out", "out");} 
-  //    | 
-  //    "inout" {map.put("inout", "inout");}
-  //    ]
   {
     syntaxBuilder.nop("parameter.declaration", null, 2);
   }
 }
 
 void VarDeclaration() :
-{
-}
+{}
 {
   LocalVariableDeclaration() ";"
   {
@@ -3134,8 +2990,7 @@ void VarDeclaration() :
 }
 
 void MethodOrVarDeclaration() :
-{
-}
+{}
 {
   LOOKAHEAD(ResultType() MethodDeclarator())	
   MethodDeclaration()
@@ -3148,7 +3003,6 @@ void parseModuleInternal() :
   int nMethods = 1;
 }
 {
-  //   MethodDeclaration() (MethodDeclaration()  {++nMethods;})*
   MethodOrVarDeclaration()
   (
     MethodOrVarDeclaration()
@@ -3169,6 +3023,5 @@ void parseTopNodeInternal() :
   {
     syntaxBuilder.uop("block.top", null);
   }
-  //  parseMethodsInternal()
   < EOF >
 }
