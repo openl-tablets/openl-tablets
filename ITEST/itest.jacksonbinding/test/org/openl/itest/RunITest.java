@@ -10,23 +10,18 @@ import org.openl.itest.core.JettyServer;
 public class RunITest {
 
     private static JettyServer server;
-    private static String baseURI;
     private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
         server = new JettyServer();
-        baseURI = server.start();
+        server.start();
         client = server.client();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-    }
-
-    @Before
-    public void before() {
     }
 
     @Test
@@ -36,19 +31,16 @@ public class RunITest {
 
     @Test
     public void testDefaultDateFormatConfiguration() {
-
         client.get("/rules-defaultdateformat/getDate", "/default_dat_format.txt");
     }
 
     @Test
     public void testDisableDefaultTyping() {
-
         client.get("/rules-disabledefaulttyping/getObject", "/disable_default_typing.json");
     }
 
     @Test
     public void testSmartDefaultTyping() {
-
         client.get("/rules-smartdefaulttyping/myCat", "/smart_default_typing.json");
     }
 
