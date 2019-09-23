@@ -8,6 +8,9 @@ options
 
   LOOKAHEAD= 1;
   STATIC = false;
+  // DEBUG_TOKEN_MANAGER = true;
+  // DEBUG_PARSER = true;
+  // DEBUG_LOOKAHEAD = true;
 }
 
 PARSER_BEGIN(BExGrammar)
@@ -178,16 +181,6 @@ TOKEN :
     ) >
 }
 
-/* special words */
-
-TOKEN :
-{
-  < OR : "or" >
-  //| < BOOLEAN: "boolean" >
-| < AND : "and" >
-| < NOT : "not" >
-}
-
 /* JAVA RESERVED WORDS AND LITERALS */
 
 TOKEN :
@@ -231,7 +224,7 @@ TOKEN :
   //| < SHORT: "short" >
   //| < STATIC : "static" >
 | < SUPER : "super" >
-| < SWITCH : "switch" >
+  //| < SWITCH : "switch" >
   //| < SYNCHRONIZED : "synchronized" >
   //| < THIS: "this" >
 | < THROW : "throw" >
@@ -267,7 +260,6 @@ TOKEN :
 | < RBRACKET : "]" >
 | < SEMICOLON : ";" >
 | < COMMA : "," >
-| < DOT : "." >
 | < DDOT : ".." >
 | < TDOT : "..." >
 | < TDOT_UNICODE : "\u2026" > //"…"
@@ -291,7 +283,9 @@ TOKEN :
 | < STRICT_GT : ">==" >
 | < LT : "<" >
 | < STRICT_LT : "<==" >
-| < BANG : "!" >
+| < NOT :
+    "!"
+  | "not" >
 | < TILDE : "~" >
 | < HOOK : "?" >
 | < COLON : ":" >
@@ -304,8 +298,12 @@ TOKEN :
 | < NE : "!=" >
 | < NE_ALT : "<>" >
 | < STRICT_NE : "!===" >
-| < BOOL_OR : "||" >
-| < BOOL_AND : "&&" >
+| < BOOL_OR :
+    "||"
+  | "or" >
+| < BOOL_AND :
+    "&&"
+  | "and" >
 | < INCR : "++" >
 | < DECR : "--" >
 | < PLUS : "+" >
@@ -646,9 +644,8 @@ void ConditionalOrExpression() :
   ConditionalAndExpression()
   (
     (
-      x = < BOOL_OR >
-    | x = < OR >
-    )
+    x = < BOOL_OR >
+    ) 
     ConditionalAndExpression()
     {
       syntaxBuilder.bop("op.binary.or", pos(x));
@@ -664,9 +661,8 @@ void ConditionalAndExpression() :
   BitwiseOrExpression()
   (
     (
-      x = < BOOL_AND >
-    | x = < AND >
-    )
+    x = < BOOL_AND >
+    ) 
     BitwiseOrExpression()
     {
       syntaxBuilder.bop("op.binary.and", pos(x));
@@ -727,7 +723,7 @@ void EqualityExpression() :
   (
     (
       (
-        x = < EQ >
+      x = < EQ >
       )
       {
         func = "op.binary.eq";
@@ -983,12 +979,12 @@ void UnaryExpression() :
     syntaxBuilder.uop("op.unary.bitnot", pos(x));
   }
 | 
-  x = < BANG > UnaryExpression()
+  x = < NOT > UnaryExpression()
   {
     syntaxBuilder.uop("op.unary.not", pos(x));
   }
 | 
-  x = < NOT > UnaryExpression()
+  x = "not " UnaryExpression()
   {
     syntaxBuilder.uop("op.unary.not", pos(x));
   }
@@ -1175,7 +1171,6 @@ void CastLookahead() :
     < PLUS >
   | < MINUS >
   | < TILDE >
-  | < BANG >
   | < NOT >
   | < LPAREN >
   | < LBRACKET >
