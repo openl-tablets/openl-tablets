@@ -4,36 +4,6 @@ package org.openl.grammar.bexgrammar;
 
 /** Token Manager. */
 public class BExGrammarTokenManager implements BExGrammarConstants {
-  // CommonTokenAction: use the begins/ends fields added to the Jack
-  // CharStream class to set corresponding fields in each Token (which was
-  // also extended with new fields). By default Jack doesn't supply absolute
-  // offsets, just line/column offsets
-  void CommonTokenAction(Token t)
-  {
-  //    t.beginsAt = input_stream.beginOffset;
-  //    t.endsAt = input_stream.endOffset;
-  //    throw new RuntimeException("Define CommonTokenAction");
-  /*
-    org.openl.util.Log.debug(
-      "Token = <"
-        + t.image
-        + "> "
-        + "("
-        + t.beginLine
-        + ","
-        + t.beginColumn
-        + ")-("
-        + t.endLine
-        + ","
-        + t.endColumn
-        + ")"
-        + " "
-        + t.kind
-        + " = "
-        + JGrammarConstants.tokenImage[t.kind]);
-*/
-
-  }
 
   /** Debug output. */
   public  java.io.PrintStream debugStream = System.out;
@@ -3587,7 +3557,6 @@ public Token getNextToken()
       jjmatchedPos = -1;
       matchedToken = jjFillToken();
       matchedToken.specialToken = specialToken;
-      CommonTokenAction(matchedToken);
       return matchedToken;
    }
    image = jjimage;
@@ -3657,7 +3626,6 @@ public Token getNextToken()
            matchedToken.specialToken = specialToken;
        if (jjnewLexState[jjmatchedKind] != -1)
          curLexState = jjnewLexState[jjmatchedKind];
-           CommonTokenAction(matchedToken);
            return matchedToken;
         }
         else if ((jjtoSkip[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L)
