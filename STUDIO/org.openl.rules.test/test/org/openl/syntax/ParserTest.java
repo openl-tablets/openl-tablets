@@ -159,6 +159,35 @@ public class ParserTest extends TestCase {
 
     }
 
+    public void testOperatorMethods() {
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+
+        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
+        SyntaxNodeException[] error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
+        error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
+        error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
+        error = pc.getErrors();
+        if (error.length > 0) {
+            throw new CompositeSyntaxNodeException("Parsing Error:", error);
+        }
+
+    }
+
     public void _testNumberParseAndBind(INodeBinder binder,
             String src,
             Object res,

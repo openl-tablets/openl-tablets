@@ -224,6 +224,17 @@ public class RunTest {
         assertEqual("1 equals \n to 1", true);
         assertEqual("1  equals  to  1", true);
 
+        assertEqual("not false", true);
+        
+        assertEqual("true and true", true);
+        assertEqual("(true)and(true)", true);
+        assertEqual("true and false", false);
+        assertEqual("(true)and(false)", false);
+        assertEqual("true or false", true);
+        assertEqual("(true)or(false)", true);
+        assertEqual("(false)or(false)", false);
+        assertEqual("false or false", false);
+        
     }
 
     @Test

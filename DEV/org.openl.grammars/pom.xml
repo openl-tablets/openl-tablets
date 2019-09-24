@@ -39,19 +39,6 @@
                                     <outputDirectory>${project.basedir}/src</outputDirectory>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>jgrammar</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>javacc</goal>
-                                </goals>
-                                <configuration>
-                                    <isStatic>false</isStatic>
-                                    <sourceDirectory>grammar</sourceDirectory>
-                                    <includes>jgrammar.jj</includes>
-                                    <outputDirectory>${project.basedir}/src</outputDirectory>
-                                </configuration>
-                            </execution>
                         </executions>
                         <dependencies>
                             <dependency>

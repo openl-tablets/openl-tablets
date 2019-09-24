@@ -181,6 +181,11 @@ TOKEN :
     ) >
 }
 
+TOKEN :
+{
+  < DOT_OPERATOR : "." > : REF_IDENTIFIER
+}
+
 /* JAVA RESERVED WORDS AND LITERALS */
 
 TOKEN :
@@ -457,6 +462,7 @@ TOKEN :
 
 /* IDENTIFIERS */
 
+< DEFAULT, REF_IDENTIFIER >
 TOKEN :
 {
   < IDENTIFIER :
@@ -465,6 +471,7 @@ TOKEN :
       < LETTER >
     | < DIGIT >
     )* >
+  : DEFAULT
 | 
   < #LETTER : 
     [ 
@@ -1141,15 +1148,15 @@ void PrimarySuffix() :
   {
     syntaxBuilder.bop("chain.suffix.dot.index", null);
   }
-| LOOKAHEAD("." function())
-  "." function()
+| LOOKAHEAD(< DOT_OPERATOR > function())
+  < DOT_OPERATOR > function()
   {
     syntaxBuilder.bop("chain.suffix.dot.function", null);
   }
 | LOOKAHEAD(OfTheExpressionSuffix())
   OfTheExpressionSuffix()
-| LOOKAHEAD("." identifier())
-  "." identifier()
+| LOOKAHEAD(< DOT_OPERATOR > identifier())
+  < DOT_OPERATOR > identifier()
   {
     syntaxBuilder.bop("chain.suffix.dot.identifier", null);
   }
@@ -1263,7 +1270,7 @@ void ClassName() :
   }
   (
     LOOKAHEAD(2)
-    "." x2 = < IDENTIFIER >
+    < DOT_OPERATOR > x2 = < IDENTIFIER >
     {
       name = name + "." + token.image;
     }
