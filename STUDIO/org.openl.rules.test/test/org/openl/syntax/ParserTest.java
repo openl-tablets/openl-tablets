@@ -299,6 +299,9 @@ public class ParserTest extends TestCase {
         binaryNode = _testOperator("x is less than 3", "op.binary.lt");
         Assert.assertNotNull(binaryNode);
 
+        binaryNode = _testOperator("x is  less  than 3", "op.binary.lt");
+        Assert.assertNotNull(binaryNode);
+
         binaryNode = _testOperator("x or y", "op.binary.or");
         Assert.assertNotNull(binaryNode);
 

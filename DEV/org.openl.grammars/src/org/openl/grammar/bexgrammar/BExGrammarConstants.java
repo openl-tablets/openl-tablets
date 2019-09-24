@@ -207,47 +207,93 @@ public interface BExGrammarConstants {
   /** RegularExpression Id. */
   int STRING_NE_ALT = 103;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 104;
+  int DOES_NOT_EQUAL_TO = 104;
   /** RegularExpression Id. */
-  int DECIMAL_LITERAL = 105;
+  int IS_DIFFERENT_FROM = 105;
   /** RegularExpression Id. */
-  int HEX_LITERAL = 106;
+  int IS_LESS_THAN = 106;
   /** RegularExpression Id. */
-  int OCTAL_LITERAL = 107;
+  int IS_MORE_THAN = 107;
   /** RegularExpression Id. */
-  int FP_LITERAL1 = 108;
+  int IS_LESS_OR_EQUAL = 108;
   /** RegularExpression Id. */
-  int FP_LITERAL2 = 109;
+  int IS_NO_MORE_THAN = 109;
   /** RegularExpression Id. */
-  int FLOATING_POINT_LITERAL = 110;
+  int IS_IN = 110;
   /** RegularExpression Id. */
-  int BUSINESS_INTEGER_LITERAL = 111;
+  int IS_MORE_OR_EQUAL = 111;
   /** RegularExpression Id. */
-  int DATE_FORMAT_LITERAL_4_2_2 = 112;
+  int IS_NO_LESS_THAN = 112;
   /** RegularExpression Id. */
-  int TIME_FORMAT_LITERAL = 113;
+  int SELECT_ALL_HAVING = 113;
   /** RegularExpression Id. */
-  int PERCENT_LITERAL = 114;
+  int SELECT_ALL_WHERE = 114;
   /** RegularExpression Id. */
-  int EXPONENT = 115;
+  int SELECT_FIRST_HAVING = 115;
   /** RegularExpression Id. */
-  int CHARACTER_LITERAL = 116;
+  int SELECT_FIRST_WHERE = 116;
   /** RegularExpression Id. */
-  int STRING_LITERAL = 117;
+  int ORDER_BY = 117;
   /** RegularExpression Id. */
-  int IDENTIFIER = 118;
+  int ORDER_INCREASING_BY = 118;
   /** RegularExpression Id. */
-  int LETTER = 119;
+  int ORDER_DECREASING_BY = 119;
   /** RegularExpression Id. */
-  int DIGIT = 120;
+  int SPLIT_BY = 120;
   /** RegularExpression Id. */
-  int RANGE_VARIABLE = 121;
+  int TRANSFORM_TO = 121;
   /** RegularExpression Id. */
-  int SINGLE_LINE_COMMENT = 124;
+  int TRANSFORM_UNIQUE_TO = 122;
   /** RegularExpression Id. */
-  int FORMAL_COMMENT = 125;
+  int LESS_THAN = 123;
   /** RegularExpression Id. */
-  int MULTI_LINE_COMMENT = 126;
+  int MORE_THAN = 124;
+  /** RegularExpression Id. */
+  int OR_LESS = 125;
+  /** RegularExpression Id. */
+  int AND_MORE = 126;
+  /** RegularExpression Id. */
+  int INTEGER_LITERAL = 127;
+  /** RegularExpression Id. */
+  int DECIMAL_LITERAL = 128;
+  /** RegularExpression Id. */
+  int HEX_LITERAL = 129;
+  /** RegularExpression Id. */
+  int OCTAL_LITERAL = 130;
+  /** RegularExpression Id. */
+  int FP_LITERAL1 = 131;
+  /** RegularExpression Id. */
+  int FP_LITERAL2 = 132;
+  /** RegularExpression Id. */
+  int FLOATING_POINT_LITERAL = 133;
+  /** RegularExpression Id. */
+  int BUSINESS_INTEGER_LITERAL = 134;
+  /** RegularExpression Id. */
+  int DATE_FORMAT_LITERAL_4_2_2 = 135;
+  /** RegularExpression Id. */
+  int TIME_FORMAT_LITERAL = 136;
+  /** RegularExpression Id. */
+  int PERCENT_LITERAL = 137;
+  /** RegularExpression Id. */
+  int EXPONENT = 138;
+  /** RegularExpression Id. */
+  int CHARACTER_LITERAL = 139;
+  /** RegularExpression Id. */
+  int STRING_LITERAL = 140;
+  /** RegularExpression Id. */
+  int IDENTIFIER = 141;
+  /** RegularExpression Id. */
+  int LETTER = 142;
+  /** RegularExpression Id. */
+  int DIGIT = 143;
+  /** RegularExpression Id. */
+  int RANGE_VARIABLE = 144;
+  /** RegularExpression Id. */
+  int SINGLE_LINE_COMMENT = 147;
+  /** RegularExpression Id. */
+  int FORMAL_COMMENT = 148;
+  /** RegularExpression Id. */
+  int MULTI_LINE_COMMENT = 149;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -364,6 +410,29 @@ public interface BExGrammarConstants {
     "\"string==\"",
     "\"string!=\"",
     "\"string<>\"",
+    "<DOES_NOT_EQUAL_TO>",
+    "<IS_DIFFERENT_FROM>",
+    "<IS_LESS_THAN>",
+    "<IS_MORE_THAN>",
+    "<IS_LESS_OR_EQUAL>",
+    "<IS_NO_MORE_THAN>",
+    "<IS_IN>",
+    "<IS_MORE_OR_EQUAL>",
+    "<IS_NO_LESS_THAN>",
+    "<SELECT_ALL_HAVING>",
+    "<SELECT_ALL_WHERE>",
+    "<SELECT_FIRST_HAVING>",
+    "<SELECT_FIRST_WHERE>",
+    "<ORDER_BY>",
+    "<ORDER_INCREASING_BY>",
+    "<ORDER_DECREASING_BY>",
+    "<SPLIT_BY>",
+    "<TRANSFORM_TO>",
+    "<TRANSFORM_UNIQUE_TO>",
+    "<LESS_THAN>",
+    "<MORE_THAN>",
+    "<OR_LESS>",
+    "<AND_MORE>",
     "<INTEGER_LITERAL>",
     "<DECIMAL_LITERAL>",
     "<HEX_LITERAL>",
@@ -382,44 +451,21 @@ public interface BExGrammarConstants {
     "<LETTER>",
     "<DIGIT>",
     "<RANGE_VARIABLE>",
-    "<token of kind 122>",
+    "<token of kind 145>",
     "\"/*\"",
     "<SINGLE_LINE_COMMENT>",
     "\"*/\"",
     "\"*/\"",
-    "<token of kind 127>",
-    "\"does not equal to\"",
-    "\"is different from\"",
-    "\"is less than\"",
-    "\"is more than\"",
-    "\"is less or equal\"",
-    "\"is no more than\"",
-    "\"is in\"",
-    "\"is more or equal\"",
-    "\"is no less than\"",
+    "<token of kind 150>",
     "\"not \"",
     "\"@\"",
-    "\"select all having\"",
-    "\"select all where\"",
     "\"!@\"",
-    "\"select first having\"",
-    "\"select first where\"",
     "\"^@\"",
-    "\"order by\"",
-    "\"order increasing by\"",
     "\"v@\"",
-    "\"order decreasing by\"",
     "\"~@\"",
     "\"s@\"",
-    "\"split by\"",
     "\"*@\"",
-    "\"transform to\"",
     "\"*!@\"",
-    "\"transform unique to\"",
-    "\"less than\"",
-    "\"more than\"",
-    "\"or less\"",
-    "\"and more\"",
   };
 
 }

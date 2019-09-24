@@ -347,6 +347,32 @@ TOKEN :
 | < STRING_NE_ALT : "string<>" >
 }
 
+TOKEN : {
+  < DOES_NOT_EQUAL_TO : "does" (< _WHITESPACE>)+ "not" (<_WHITESPACE>)+ "equal" (<_WHITESPACE>)+ "to">
+  |< IS_DIFFERENT_FROM : "is" (< _WHITESPACE>)+ "different" (<_WHITESPACE>)+ "from">
+  |< IS_LESS_THAN : "is" (< _WHITESPACE>)+ "less" (<_WHITESPACE>)+ "than">
+  |< IS_MORE_THAN : "is" (< _WHITESPACE>)+ "more" (<_WHITESPACE>)+ "than">
+  |< IS_LESS_OR_EQUAL : "is" (< _WHITESPACE>)+ "less" (<_WHITESPACE>)+ "or" (<_WHITESPACE>)+ "equal">
+  |< IS_NO_MORE_THAN : "is" (< _WHITESPACE>)+ "no" (<_WHITESPACE>)+ "more" (<_WHITESPACE>)+ "than">
+  |< IS_IN : "is" (< _WHITESPACE>)+ "in">
+  |< IS_MORE_OR_EQUAL : "is" (< _WHITESPACE>)+ "more" (<_WHITESPACE>)+ "or" (<_WHITESPACE>)+ "equal">
+  |< IS_NO_LESS_THAN : "is" (< _WHITESPACE>)+ "no" (<_WHITESPACE>)+ "less" (<_WHITESPACE>)+ "than">
+  |< SELECT_ALL_HAVING : "select" (< _WHITESPACE>)+ "all" (<_WHITESPACE>)+ "having">
+  |< SELECT_ALL_WHERE : "select" (< _WHITESPACE>)+ "all" (<_WHITESPACE>)+ "where">
+  |< SELECT_FIRST_HAVING : "select" (< _WHITESPACE>)+ "first" (<_WHITESPACE>)+ "having">
+  |< SELECT_FIRST_WHERE : "select" (< _WHITESPACE>)+ "first" (<_WHITESPACE>)+ "where">
+  |< ORDER_BY : "order" (< _WHITESPACE>)+ "by">
+  |< ORDER_INCREASING_BY : "order" (< _WHITESPACE>)+ "increasing" (<_WHITESPACE>)+ "by">
+  |< ORDER_DECREASING_BY : "order" (< _WHITESPACE>)+ "decreasing" (<_WHITESPACE>)+ "by">
+  |< SPLIT_BY : "split" (< _WHITESPACE>)+ "by">
+  |< TRANSFORM_TO : "transform" (< _WHITESPACE>)+ "to">
+  |< TRANSFORM_UNIQUE_TO : "transform" (< _WHITESPACE>)+ "unique" (< _WHITESPACE>)+ "to">
+  |< LESS_THAN : "less" (< _WHITESPACE>)+ "than">
+  |< MORE_THAN : "more" (< _WHITESPACE>)+ "than">
+  |< OR_LESS : "or" (< _WHITESPACE>)+ "less">
+  |< AND_MORE : "and" (< _WHITESPACE>)+ "more">
+}
+
 /* JAVA LITERALS */
 
 TOKEN :
@@ -745,8 +771,8 @@ void EqualityExpression() :
       (
         x = < NE >
       | x = < NE_ALT >
-      | x = "does not equal to"
-      | x = "is different from"
+      | x = < DOES_NOT_EQUAL_TO >
+      | x = < IS_DIFFERENT_FROM >
       )
       {
         func = "op.binary.ne";
@@ -792,7 +818,7 @@ void RelationalExpression() :
       {
         func = "op.binary.lt";
       }
-    | x = "is less than"
+    | x = < IS_LESS_THAN >
       {
         func = "op.binary.lt";
       }
@@ -800,7 +826,7 @@ void RelationalExpression() :
       {
         func = "op.binary.gt";
       }
-    | x = "is more than"
+    | x = < IS_MORE_THAN >
       {
         func = "op.binary.gt";
       }
@@ -808,15 +834,15 @@ void RelationalExpression() :
       {
         func = "op.binary.le";
       }
-    | x = "is less or equal"
+    | x = < IS_LESS_OR_EQUAL >
       {
         func = "op.binary.le";
       }
-    | x = "is no more than"
+    | x = < IS_NO_MORE_THAN >
       {
         func = "op.binary.le";
       }
-    | x = "is in"
+    | x = < IS_IN >
       {
         func = "op.binary.le";
       }
@@ -824,11 +850,11 @@ void RelationalExpression() :
       {
         func = "op.binary.ge";
       }
-    | x = "is more or equal"
+    | x = < IS_MORE_OR_EQUAL >
       {
         func = "op.binary.ge";
       }
-    | x = "is no less than"
+    | x = < IS_NO_LESS_THAN >
       {
         func = "op.binary.ge";
       }
@@ -1468,8 +1494,8 @@ void IndexOperator() :
       (
         (
           "@"
-        | "select all having"
-        | "select all where"
+        | < SELECT_ALL_HAVING >
+        | < SELECT_ALL_WHERE >
         )
         {
           prefix = "selectall.index";
@@ -1477,8 +1503,8 @@ void IndexOperator() :
       |
         (
           "!@"
-        | "select first having"
-        | "select first where"
+        | < SELECT_FIRST_HAVING >
+        | < SELECT_FIRST_WHERE >
         )
         {
           prefix = "selectfirst.index";
@@ -1486,8 +1512,8 @@ void IndexOperator() :
       |
         (
           "^@"
-        | "order by"
-        | "order increasing by"
+        | < ORDER_BY >
+        | < ORDER_INCREASING_BY >
         )
         {
           prefix = "orderby.index";
@@ -1495,7 +1521,7 @@ void IndexOperator() :
       |
         (
           "v@"
-        | "order decreasing by"
+        | < ORDER_DECREASING_BY >
         )
         {
           prefix = "orderdecreasingby.index";
@@ -1504,7 +1530,7 @@ void IndexOperator() :
         (
           "~@"
         | "s@"
-        | "split by"
+        | < SPLIT_BY >
         )
         {
           prefix = "splitby.index";
@@ -1512,7 +1538,7 @@ void IndexOperator() :
       |
         (
           "*@"
-        | "transform to"
+        | < TRANSFORM_TO >
         )
         {
           prefix = "transform.index";
@@ -1520,7 +1546,7 @@ void IndexOperator() :
       |
         (
           "*!@"
-        | "transform unique to"
+        | < TRANSFORM_UNIQUE_TO >
         )
         {
           prefix = "transformunique.index";
@@ -1760,7 +1786,7 @@ void RangePrefix() :
     {
       op = "literal.range.unary.prefix.lt";
     }
-  | x = "less than"
+  | x = < LESS_THAN >
     {
       op = "literal.range.unary.prefix.lt";
     }
@@ -1772,7 +1798,7 @@ void RangePrefix() :
     {
       op = "literal.range.unary.prefix.gt";
     }
-  | x = "more than"
+  | x = < MORE_THAN >
     {
       op = "literal.range.unary.prefix.gt";
     }
@@ -1801,11 +1827,11 @@ void RangeSuffix() :
   | NegLiteralBI()
   )
   (
-    x = "or less"
+    x = < OR_LESS >
     {
       op = "literal.range.unary.suffix.or.less";
     }
-  | 	x = "and more"
+  | 	x = < AND_MORE >
     {
       op = "literal.range.unary.suffix.and.more";
     }
@@ -1916,7 +1942,7 @@ void rangeVerboseBounds() :
 }
 {
   (
-    x = "more than"
+    x = < MORE_THAN >
     {
       including = false;
     }
@@ -1929,7 +1955,7 @@ void rangeVerboseBounds() :
       LiteralBI()
     | NegLiteralBI()
     )
-    x = "and more"
+    x = < AND_MORE >
     {
       including = true;
     }
@@ -1938,7 +1964,7 @@ void rangeVerboseBounds() :
     syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
   }
   (
-    x = "less than"
+    x = < LESS_THAN >
     {
       including = false;
     }
@@ -1951,7 +1977,7 @@ void rangeVerboseBounds() :
       LiteralBI()
     | NegLiteralBI()
     )
-    x = "or less"
+    x = < OR_LESS >
     {
       including = true;
     }
@@ -1971,7 +1997,7 @@ void rangeInvertedVerboseBounds() :
 }
 {
   (
-    x = "less than"
+    x = < LESS_THAN >
     {
       including = false;
     }
@@ -1984,7 +2010,7 @@ void rangeInvertedVerboseBounds() :
       LiteralBI()
     | NegLiteralBI()
     )
-    x = "or less"
+    x = < OR_LESS >
     {
       including = true;
     }
@@ -1993,7 +2019,7 @@ void rangeInvertedVerboseBounds() :
     syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
   }
   (
-    x = "more than"
+    x = < MORE_THAN >
     {
       including = false;
     }
@@ -2006,7 +2032,7 @@ void rangeInvertedVerboseBounds() :
       LiteralBI()
     | NegLiteralBI()
     )
-    x = "and more"
+    x = < AND_MORE >
     {
       including = true;
     }
@@ -2166,7 +2192,7 @@ void RangePrefixFloat() :
     {
       op = "literal.range.unary.prefix.lt";
     }
-  | x = "less than"
+  | x = < LESS_THAN >
     {
       op = "literal.range.unary.prefix.lt";
     }
@@ -2178,7 +2204,7 @@ void RangePrefixFloat() :
     {
       op = "literal.range.unary.prefix.gt";
     }
-  | x = "more than"
+  | x = < MORE_THAN >
     {
       op = "literal.range.unary.prefix.gt";
     }
@@ -2207,11 +2233,11 @@ void RangeSuffixFloat() :
   | NegLiteralFloat()
   )
   (
-    x = "or less"
+    x = < OR_LESS >
     {
       op = "literal.range.unary.suffix.or.less";
     }
-  | x = "and more"
+  | x = < AND_MORE >
     {
       op = "literal.range.unary.suffix.and.more";
     }
@@ -2322,7 +2348,7 @@ void rangeVerboseBoundsFloat() :
 }
 {
   (
-    x = "more than"
+    x = < MORE_THAN >
     {
       including = false;
     }
@@ -2335,7 +2361,7 @@ void rangeVerboseBoundsFloat() :
       LiteralFloat()
     | NegLiteralFloat()
     )
-    x = "and more"
+    x = < AND_MORE >
     {
       including = true;
     }
@@ -2344,7 +2370,7 @@ void rangeVerboseBoundsFloat() :
     syntaxBuilder.literal("literal.bracket", pos(x), including ? "[" : "(");
   }
   (
-    x = "less than"
+    x = < LESS_THAN >
     {
       including = false;
     }
@@ -2357,7 +2383,7 @@ void rangeVerboseBoundsFloat() :
       LiteralFloat()
     | NegLiteralFloat()
     )
-    x = "or less"
+    x = < OR_LESS >
     {
       including = true;
     }
@@ -2377,7 +2403,7 @@ void rangeInvertedVerboseBoundsFloat() :
 }
 {
   (
-    x = "less than"
+    x = < LESS_THAN >
     {
       including = false;
     }
@@ -2390,7 +2416,7 @@ void rangeInvertedVerboseBoundsFloat() :
       LiteralFloat()
     | NegLiteralFloat()
     )
-    x = "or less"
+    x = < OR_LESS >
     {
       including = true;
     }
@@ -2399,7 +2425,7 @@ void rangeInvertedVerboseBoundsFloat() :
     syntaxBuilder.literal("literal.bracket", pos(x), including ? "]" : ")");
   }
   (
-    x = "more than"
+    x = < MORE_THAN >
     {
       including = false;
     }
@@ -2412,7 +2438,7 @@ void rangeInvertedVerboseBoundsFloat() :
       LiteralFloat()
     | NegLiteralFloat()
     )
-    x = "and more"
+    x = < AND_MORE >
     {
       including = true;
     }

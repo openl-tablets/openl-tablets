@@ -225,7 +225,7 @@ public class RunTest {
         assertEqual("1  equals  to  1", true);
 
         assertEqual("not false", true);
-        
+
         assertEqual("true and true", true);
         assertEqual("(true)and(true)", true);
         assertEqual("true and false", false);
@@ -234,7 +234,34 @@ public class RunTest {
         assertEqual("(true)or(false)", true);
         assertEqual("(false)or(false)", false);
         assertEqual("false or false", false);
-        
+
+        assertEqual("1 does not equal to 2", true);
+        assertEqual("2 does not \n     equal to 2", false);
+
+        assertEqual("1 is different from 2", true);
+        assertEqual("2 is different \n  from 2", false);
+
+        assertEqual("1 is less than 2", true);
+        assertEqual("2 is \n less    than 2", false);
+
+        assertEqual("2 is more than 1", true);
+        assertEqual("2 is \n more    than 2", false);
+
+        assertEqual("1 is less or equal 1", true);
+        assertEqual("2 is \n less or   equal 1", false);
+
+        assertEqual("1 is no more than 1", true);
+        assertEqual("2 is \n no more   than 1", false);
+
+        assertEqual("1 is in 1", true);
+        assertEqual("1 is \n     in 1", true);
+
+        assertEqual("1 is more or equal 1", true);
+        assertEqual("1 is \n more or   equal 2", false);
+
+        assertEqual("1 is no less than 1", true);
+        assertEqual("1 is \n no less     than 2", false);
+
     }
 
     @Test
@@ -331,6 +358,10 @@ public class RunTest {
 
         // Test spaces
         assertEqual("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba");
+        assertEqual("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      by toString() ][0]", "aaba");
+        assertEqual(
+            "String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      increasing by toString() ][0]",
+            "aaba");
         assertEqual("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[ !@ startsWith(\"d\") ]", "ddd");
     }
 
@@ -344,6 +375,13 @@ public class RunTest {
         assertEqual(
             "List list = new ArrayList(); list.add(\"bb\");list.add(\"aaaa\"); list[(String a) select all having a.startsWith(\"a\")][0].length()",
             4);
+        // Select all with spaces between words
+        assertEqual(
+            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n    having length() == 3]",
+            new String[] { "ddd", "aaa" });
+        assertEqual(
+            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n     where length() == 3]",
+            new String[] { "ddd", "aaa" });
     }
 
     @Test
@@ -355,6 +393,9 @@ public class RunTest {
         assertEqual(
             "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order decreasing by s]",
             new String[] { "ddd", "bb", "aaa" });
+        assertEqual(
+            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order \n     decreasing by s]",
+            new String[] { "ddd", "bb", "aaa" });
     }
 
     @Test
@@ -362,6 +403,12 @@ public class RunTest {
         // Transform to should return array
         assertEqual(
             "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to s + s.length()]",
+            new String[] { "bb2", "ddd3", "aaa3" });
+        assertEqual(
+            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     to s + s.length()]",
+            new String[] { "bb2", "ddd3", "aaa3" });
+        assertEqual(
+            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     unique to s + s.length()]",
             new String[] { "bb2", "ddd3", "aaa3" });
         // Transform String array to array of List
         assertEqual("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) transform to Arrays.asList(s)]",
@@ -397,6 +444,9 @@ public class RunTest {
     public void testArrayOfList() {
         // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
         assertEqual("List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",
+            new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
+        assertEqual(
+            "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split \n    by size()]",
             new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
     }
 
