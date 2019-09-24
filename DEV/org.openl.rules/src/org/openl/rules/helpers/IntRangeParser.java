@@ -3,15 +3,11 @@ package org.openl.rules.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openl.source.SourceType;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class IntRangeParser {
-    protected static final BExGrammarParser FALLBACK_PARSER = new BExGrammarParser(SourceType.INT_RANGE);
-
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
     private static final String INT_PATTERN = "\\$?(-?(?:\\d{1,19},){0,19}\\d{1,19})([KMB]?)";
@@ -46,12 +42,10 @@ public class IntRangeParser {
                     }
                 }
             } catch (RuntimeException e) {
-                // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
-                Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
-                log.error(e.getMessage(), e);
+                throw new OpenLRuntimeException("Failed to parse int range.", e);
             }
         }
-        return FALLBACK_PARSER.parse(range);
+        throw new OpenLRuntimeException("Failed to parse int range.");
     }
 
     private static final class NumberParser extends BaseRangeParser {
@@ -78,7 +72,9 @@ public class IntRangeParser {
 
     private static final class PrefixRangeParser extends BaseRangeParser {
         // <= 123M
-        private static final Pattern PATTERN = Pattern.compile("(<=?|>=?|less than|more than)\\s*" + INT_PATTERN);
+        private static final Pattern PATTERN = Pattern.compile("(<=?|>=?|less\\s+than|more\\s+than)\\s*" + INT_PATTERN);
+        private static final Pattern LESS_THAN_PATTERN = Pattern.compile("less\\s+than");
+        private static final Pattern MORE_THAN_PATTERN = Pattern.compile("more\\s+than");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -92,7 +88,7 @@ public class IntRangeParser {
             String multiplier = matcher.group(3);
             long value = parseIntWithMultiplier(number, multiplier);
 
-            if ("<".equals(prefix) || "less than".equals(prefix)) {
+            if ("<".equals(prefix) || LESS_THAN_PATTERN.matcher(prefix).matches()) {
                 maxNumber = number;
                 maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
@@ -106,7 +102,7 @@ public class IntRangeParser {
                     value,
                     RangeWithBounds.BoundType.INCLUDING,
                     RangeWithBounds.BoundType.INCLUDING);
-            } else if (">".equals(prefix) || "more than".equals(prefix)) {
+            } else if (">".equals(prefix) || MORE_THAN_PATTERN.matcher(prefix).matches()) {
                 minNumber = number;
                 minMultiplier = multiplier;
                 return new RangeWithBounds(value,
@@ -129,7 +125,8 @@ public class IntRangeParser {
 
     private static final class SuffixRangeParser extends BaseRangeParser {
         // 34+
-        private static final Pattern PATTERN = Pattern.compile(INT_PATTERN + "\\s*(\\+|and more|or less)");
+        private static final Pattern PATTERN = Pattern.compile(INT_PATTERN + "\\s*(\\+|and\\s+more|or\\s+less)");
+        private static final Pattern OR_LESS_PATTERN = Pattern.compile("or\\s+less");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -143,7 +140,7 @@ public class IntRangeParser {
             long value = parseIntWithMultiplier(number, multiplier);
 
             String suffix = matcher.group(3);
-            if ("or less".equals(suffix)) {
+            if (OR_LESS_PATTERN.matcher(suffix).matches()) {
                 maxNumber = number;
                 maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
@@ -172,7 +169,8 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
-            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            // TODO need to be refactored. Local variables has been created for thread safe, but they still need for
+            // TableEdiorController
             String group1 = matcher.group(1);
             String group2 = matcher.group(2);
             String group4 = matcher.group(4);
@@ -204,7 +202,8 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
-            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            // TODO need to be refactored. Local variables has been created for thread safe, but they still need for
+            // TableEdiorController
             String gruop2 = matcher.group(2);
             String gruop5 = matcher.group(5);
             String gruop3 = matcher.group(3);
@@ -237,7 +236,8 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
-            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            // TODO need to be refactored. Local variables has been created for thread safe, but they still need for
+            // TableEdiorController
             String group2 = matcher.group(2);
             String group5 = matcher.group(5);
             String group3 = matcher.group(3);
@@ -261,7 +261,7 @@ public class IntRangeParser {
     private static final class VerboseRangeParser extends BaseRangeParser {
         // more than 5 less than 100
         private static final Pattern PATTERN = Pattern.compile(
-            "(less than|more than)?\\s*" + INT_PATTERN + "\\s*(and more|or less)?\\s*(less than|more than)?\\s*" + INT_PATTERN + "\\s*(and more|or less)?");
+            "(less\\s+than|more\\s+than)?\\s*" + INT_PATTERN + "\\s*(and\\s+more|or\\s+less)?\\s*(less\\s+than|more\\s+than)?\\s*" + INT_PATTERN + "\\s*(and\\s+more|or\\s+less)?");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -269,7 +269,8 @@ public class IntRangeParser {
             if (!matcher.matches()) {
                 return null;
             }
-            //TODO need to be refactored. Local variables has been created for thread safe, but they still need for TableEdiorController
+            // TODO need to be refactored. Local variables has been created for thread safe, but they still need for
+            // TableEdiorController
             String group2 = matcher.group(2);
             String group6 = matcher.group(6);
             String group3 = matcher.group(3);
@@ -301,10 +302,10 @@ public class IntRangeParser {
         }
 
         private String replaceVerboseToSymbol(String bound) {
-            return bound.replace("less than", "<")
-                .replace("more than", ">")
-                .replace("or less", "<=")
-                .replace("and more", ">=");
+            return bound.replaceAll("less\\s+than", "<")
+                .replaceAll("more\\s+than", ">")
+                .replaceAll("or\\s+less", "<=")
+                .replaceAll("and\\s+more", ">=");
         }
 
         private String mergeBoundParts(String part1, String part2) {

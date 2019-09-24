@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.TestUtils;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
 public class IntRangeParsingTest {
 
@@ -73,11 +72,6 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(2, Long.MAX_VALUE), new IntRange("2   +"));
     }
 
-    @Test(expected = CompositeSyntaxNodeException.class)
-    public void testFailureParse() {
-        new IntRange("--1");
-    }
-
     @Test
     public void testJustNumber() {
         assertEquals(new IntRange(37, 37), new IntRange("37"));
@@ -86,8 +80,10 @@ public class IntRangeParsingTest {
     @Test
     public void testKMB() {
         assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("1M+"));
+        assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("  1M+  "));
         assertEquals(new IntRange(2000000000, 2000000000), new IntRange("2B"));
         assertEquals(new IntRange(1000, 36000000), new IntRange("1K .. 36M"));
+        assertEquals(new IntRange(1000, 36000000), new IntRange("  1K   ..   36M  "));
         assertEquals(new IntRange(Long.MIN_VALUE, 24000), new IntRange("<=24K"));
     }
 
@@ -96,10 +92,12 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(3, 15), new IntRange("3..15"));
         assertEquals(new IntRange(1, 2), new IntRange("1-2"));
         assertEquals(new IntRange(13, 200), new IntRange("13 .. 200"));
+        assertEquals(new IntRange(13, 200), new IntRange("  13   ..   200  "));
         assertEquals(new IntRange(14, 99), new IntRange("13 ... 100"));
         assertEquals(new IntRange(14, 99), new IntRange("13 … 100"));
         assertEquals(new IntRange(13, 19), new IntRange("[13 .. 20)"));
         assertEquals(new IntRange(14, 19), new IntRange("(13 .. 20)"));
+        assertEquals(new IntRange(14, 19), new IntRange("  (  13   ..   20  )  "));
     }
 
     @Test
@@ -141,20 +139,27 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(123456, 987653), new IntRange("[123,456 - 987,654)"));
         assertEquals(new IntRange(123456, 987654), new IntRange(">=123,456 <=987,654"));
         assertEquals(new IntRange(123456, 987654), new IntRange("123,456 and more 987,654 or less"));
+        assertEquals(new IntRange(123456, 987654), new IntRange("  123,456   and   more   987,654   or   less  "));
     }
 
     @Test
     public void testVerbal() {
         assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("-100 and more"));
+        assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("  -100   and   more  "));
         assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange("more than 2"));
+        assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange("  more   than   2  "));
         assertEquals(new IntRange(Long.MIN_VALUE, -11), new IntRange("less than -10"));
+        assertEquals(new IntRange(Long.MIN_VALUE, -11), new IntRange("  less   than   -10  "));
     }
 
     @Test
     public void testVerbalBothBounds() {
         assertEquals(new IntRange(-100, 499), new IntRange("-100 and more less than 500"));
+        assertEquals(new IntRange(-100, 499), new IntRange("  -100   and   more   less   than   500  "));
         assertEquals(new IntRange(3, 5), new IntRange("more than 2 5 or less"));
+        assertEquals(new IntRange(3, 5), new IntRange("  more   than   2   5   or   less  "));
         assertEquals(new IntRange(-19, -11), new IntRange("less than -10 more than -20"));
+        assertEquals(new IntRange(-19, -11), new IntRange("  less   than   -10   more   than   -20  "));
         // assertEquals(new IntRange(32, 41), new IntRange("41 or less and more than 31"));
     }
 

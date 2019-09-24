@@ -166,10 +166,20 @@ public class DoubleRangeParsingTest {
     public void testLiteralPreffixes() {
         assertEquals(new DoubleRange("less than 10"),
             new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.EXCLUDING));
+        assertEquals(new DoubleRange("  less   than   10  "),
+            new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.EXCLUDING));
+
         assertEquals(new DoubleRange("less than 5"), new DoubleRange("<5"));
+        assertEquals(new DoubleRange("  less   than   5"), new DoubleRange("<5"));
+        
         assertEquals(new DoubleRange("more than 10"),
             new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("  more   than   10  "),
+            new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING));
+
         assertEquals(new DoubleRange("more than 5"), new DoubleRange(">5"));
+        assertEquals(new DoubleRange("  more   than   5  "), new DoubleRange(">5"));
+        
         assertEquals(new DoubleRange("more \n    than 5"), new DoubleRange(">5"));
         assertEquals(new DoubleRange("less \n    than 10"),
             new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.EXCLUDING));
@@ -179,23 +189,42 @@ public class DoubleRangeParsingTest {
     public void testLiteralSuffixes() {
         assertEquals(new DoubleRange("10 or less"),
             new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("  10   or   less  "),
+            new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.INCLUDING));
+
         assertEquals(new DoubleRange("5 or less"), new DoubleRange("<=5"));
+        assertEquals(new DoubleRange("  5   or   less  "), new DoubleRange("<=5"));
+        
         assertEquals(new DoubleRange("5 or \n     less"), new DoubleRange("<=5"));
+
         assertEquals(new DoubleRange("10 and more"),
             new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("  10   and   more  "),
+            new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
+
         assertEquals(new DoubleRange("10 and \n      more"),
             new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
+        
         assertEquals(new DoubleRange("5 and more"), new DoubleRange(">=5"));
+        assertEquals(new DoubleRange("  5   and   more  "), new DoubleRange(">=5"));
     }
 
     @Test
     public void testVerbalBothBounds() {
         assertEquals(new DoubleRange(-100.1, 500.2, BoundType.INCLUDING, BoundType.EXCLUDING),
             new DoubleRange("-100.1 and more less than 500.2"));
+        assertEquals(new DoubleRange(-100.1, 500.2, BoundType.INCLUDING, BoundType.EXCLUDING),
+            new DoubleRange("  -100.1   and   more   less   than   500.2  "));
+
         assertEquals(new DoubleRange(2, 5, BoundType.EXCLUDING, BoundType.INCLUDING),
             new DoubleRange("more than 2 5 or less"));
+        assertEquals(new DoubleRange(2, 5, BoundType.EXCLUDING, BoundType.INCLUDING),
+            new DoubleRange("  more   than   2   5   or   less  "));
+
         assertEquals(new DoubleRange(-20.5, -10.5, BoundType.EXCLUDING, BoundType.EXCLUDING),
             new DoubleRange("less than -10.5 more than -20.5"));
+        assertEquals(new DoubleRange(-20.5, -10.5, BoundType.EXCLUDING, BoundType.EXCLUDING),
+            new DoubleRange("less   than   -10.5   more   than   -20.5  "));
     }
 
     @Test

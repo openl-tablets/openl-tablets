@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
-public class StringRangeTest {
+public class StringRangeParsingTest {
 
     @Test
     public void testToString() {
@@ -51,6 +51,51 @@ public class StringRangeTest {
 
         assertEquals("(AA; ZZ)", new StringRange(">AA <ZZ").toString());
         assertEquals("(AA; ZZ)", new StringRange("<ZZ >AA").toString());
+    }
+
+    @Test
+    public void testToStringWhitespaces() {
+        assertEquals("[B; B]", new StringRange("  B  ").toString());
+
+        assertEquals("[AA; ZZ]", new StringRange("  AA  -  ZZ  ").toString());
+        assertEquals("[AA; ZZ]", new StringRange("  AA  ..  ZZ  ").toString());
+        assertEquals("(AA; ZZ)", new StringRange("  AA   …   ZZ  ").toString());
+        assertEquals("(AA; ZZ)", new StringRange("  AA   ...   ZZ  ").toString());
+
+        assertEquals("[AA; ZZ]", new StringRange("  [AA  ;   ZZ  ]  ").toString());
+        assertEquals("(AA; ZZ]", new StringRange("  (AA  ;   ZZ  ]  ").toString());
+        assertEquals("[AA; ZZ)", new StringRange("  [AA  ;   ZZ  )  ").toString());
+        assertEquals("(AA; ZZ)", new StringRange("  (AA  ;   ZZ  )  ").toString());
+
+        assertEquals("(AA; ZZ)", new StringRange("  (  AA   ..   ZZ  )  ").toString());
+        assertEquals("[AA; ZZ]", new StringRange("  [  AA   ..   ZZ  ]  ").toString());
+        assertEquals("(AA; ZZ]", new StringRange("  (  AA   ..   ZZ  ]  ").toString());
+        assertEquals("[AA; ZZ)", new StringRange("  [  AA   ..   ZZ  )  ").toString());
+
+        assertEquals(">= AA", new StringRange("  AA   and   more  ").toString());
+        assertEquals("<= AA", new StringRange("  AA   or   less  ").toString());
+
+        assertEquals("> AA", new StringRange("  more   than   AA  ").toString());
+        assertEquals("< ZZ", new StringRange("  less   than   ZZ  ").toString());
+
+        assertEquals(">= AA", new StringRange("  >=   AA  ").toString());
+        assertEquals("<= AA", new StringRange("  <=   AA  ").toString());
+
+        assertEquals("> AA", new StringRange("  >   AA  ").toString());
+        assertEquals("< ZZ", new StringRange("  <   ZZ  ").toString());
+        assertEquals(">= AA", new StringRange("  AA+  ").toString());
+
+        assertEquals("[AA; ZZ]", new StringRange("  >=  AA   <=  ZZ  ").toString());
+        assertEquals("[AA; ZZ]", new StringRange("  <=  ZZ   >=  AA  ").toString());
+
+        assertEquals("[AA; ZZ)", new StringRange("  >=  AA   <  ZZ  ").toString());
+        assertEquals("[AA; ZZ)", new StringRange("  <  ZZ   >=  AA  ").toString());
+
+        assertEquals("(AA; ZZ]", new StringRange("  >  AA   <=  ZZ  ").toString());
+        assertEquals("(AA; ZZ]", new StringRange("  <=  ZZ   >  AA  ").toString());
+
+        assertEquals("(AA; ZZ)", new StringRange("  >  AA   <  ZZ  ").toString());
+        assertEquals("(AA; ZZ)", new StringRange("  <  ZZ   >  AA  ").toString());
     }
 
     @Test

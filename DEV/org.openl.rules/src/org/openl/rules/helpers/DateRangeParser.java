@@ -26,8 +26,8 @@ public class DateRangeParser extends ARangeParser<Long> {
 
     private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*(?:[-;…]|\\.{2,3})\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*([])])\\s*";
     private static final String MIN_MAX_PATTERN = "\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*([-…]|\\.{2,3})\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*";
-    private static final String VERBAL_PATTERN = "\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*(\\+|and more|or less)\\s*";
-    private static final String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than|more than)\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*";
+    private static final String VERBAL_PATTERN = "\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*(\\+|and\\s+more|or\\s+less)\\s*";
+    private static final String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less\\s+than|more\\s+than)\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*";
     private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*(<=?|>=?)\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*";
     private static final String SIMPLE_PATTERN = "\\s*((?:\\d{1,2}/){2}\\d+(?: (?:\\d{1,2}:){2}\\d{1,2})?)\\s*";
 

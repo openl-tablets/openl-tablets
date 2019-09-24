@@ -1,11 +1,10 @@
 package org.openl.rules.tableeditor.model;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.helpers.BaseRangeParser;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.RangeParser;
 import org.openl.util.RangeWithBounds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DetailedDoubleRangeParser extends DoubleRangeParser {
     private String min;
@@ -29,15 +28,9 @@ public class DetailedDoubleRangeParser extends DoubleRangeParser {
                 }
             }
         } catch (RuntimeException e) {
-            // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
-            Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
-            log.error(e.getMessage(), e);
+            throw new OpenLRuntimeException("Failed to parse double range.", e);
         }
-
-        RangeWithBounds parse = FALLBACK_PARSER.parse(range);
-        min = String.valueOf(parse.getMin());
-        max = String.valueOf(parse.getMax());
-        return parse;
+        throw new OpenLRuntimeException("Failed to parse double range.");
     }
 
     public String getMin() {

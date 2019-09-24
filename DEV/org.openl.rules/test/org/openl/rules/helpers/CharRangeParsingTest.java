@@ -21,7 +21,9 @@ public class CharRangeParsingTest {
     @Test
     public void testBrackets() {
         assertEquals(new CharRange('D', 'X'), new CharRange("[D; X]"));
+        assertEquals(new CharRange('D', 'X'), new CharRange("  [  D  ;   X  ]  "));
         assertEquals(new CharRange('E', 'W'), new CharRange("(D; X)"));
+        assertEquals(new CharRange('E', 'W'), new CharRange("  (  D  ;   X  )  "));
         assertEquals(new CharRange('E', 'X'), new CharRange("(D; X]"));
         assertEquals(new CharRange('D', 'W'), new CharRange("[D;X)"));
         assertEquals(new CharRange('D', 'X'), new CharRange("[D .. X]"));
@@ -33,19 +35,26 @@ public class CharRangeParsingTest {
     @Test
     public void testMinMaxFormat() {
         assertEquals(new CharRange('A', 'B'), new CharRange("A-B"));
+        assertEquals(new CharRange('A', 'B'), new CharRange("  A  -  B  "));
         assertEquals(new CharRange('a', 'z'), new CharRange("a-z"));
         assertEquals(new CharRange('H', 'Z'), new CharRange("H .. Z"));
+        assertEquals(new CharRange('H', 'Z'), new CharRange("  H   ..   Z  "));
         assertEquals(new CharRange('I', 'Y'), new CharRange("H ... Z"));
+        assertEquals(new CharRange('I', 'Y'), new CharRange("  H   ...   Z  "));
         assertEquals(new CharRange('I', 'Y'), new CharRange("H … Z"));
+        assertEquals(new CharRange('I', 'Y'), new CharRange("  H   …   Z  "));
     }
 
     @Test
     public void testMoreLessFormat() {
         assertEquals(new CharRange(Character.MIN_VALUE, 'x'), new CharRange("<y"));
+        assertEquals(new CharRange(Character.MIN_VALUE, 'x'), new CharRange("  <  y  "));
         assertEquals(new CharRange(Character.MIN_VALUE, 'y'), new CharRange("<=y"));
         assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange(">A"));
         assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange(">=A"));
+        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("  >=A  "));
         assertEquals(new CharRange('b', Character.MAX_VALUE), new CharRange("b+"));
+        assertEquals(new CharRange('b', Character.MAX_VALUE), new CharRange("  b+  "));
     }
 
     @Test
@@ -66,6 +75,10 @@ public class CharRangeParsingTest {
         assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("A and more"));
         assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("more than A"));
         assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("less than Y"));
+        
+        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("  A   and   more  "));
+        assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("  more   than   A  "));
+        assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("  less   than   Y  "));
     }
 
     @Test
@@ -80,7 +93,7 @@ public class CharRangeParsingTest {
             new CharRange(">=A >=Z");
             fail("Must be failed!");
         } catch (RuntimeException e) {
-            assertEquals("Invalid Range: >=A >=Z", e.getMessage());
+            assertEquals("Failed to parse a range: >=A >=Z", e.getMessage());
         }
     }
 

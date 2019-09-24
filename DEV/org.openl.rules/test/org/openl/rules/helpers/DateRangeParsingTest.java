@@ -10,7 +10,7 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-public class DateRangeTest {
+public class DateRangeParsingTest {
 
     @Test
     public void testToString() {
@@ -160,11 +160,24 @@ public class DateRangeTest {
                 ARangeParser.ParseStruct.BoundType.INCLUDING),
             new DateRange("03/12/2019 and more"));
         assertEquals(
+            new DateRange(toDate("03/12/2019 00:00:00"),
+                new Date(Long.MAX_VALUE),
+                ARangeParser.ParseStruct.BoundType.INCLUDING,
+                ARangeParser.ParseStruct.BoundType.INCLUDING),
+            new DateRange("  03/12/2019   and   more  "));
+        
+        assertEquals(
             new DateRange(new Date(Long.MIN_VALUE),
                 toDate("03/12/2019 00:00:00"),
                 ARangeParser.ParseStruct.BoundType.INCLUDING,
                 ARangeParser.ParseStruct.BoundType.INCLUDING),
             new DateRange("03/12/2019 or less"));
+        assertEquals(
+            new DateRange(new Date(Long.MIN_VALUE),
+                toDate("03/12/2019 00:00:00"),
+                ARangeParser.ParseStruct.BoundType.INCLUDING,
+                ARangeParser.ParseStruct.BoundType.INCLUDING),
+            new DateRange("  03/12/2019   or   less  "));
 
         assertEquals(
             new DateRange(toDate("03/12/2019 00:00:00"),
@@ -173,11 +186,24 @@ public class DateRangeTest {
                 ARangeParser.ParseStruct.BoundType.INCLUDING),
             new DateRange("more than 03/12/2019"));
         assertEquals(
+            new DateRange(toDate("03/12/2019 00:00:00"),
+                new Date(Long.MAX_VALUE),
+                ARangeParser.ParseStruct.BoundType.EXCLUDING,
+                ARangeParser.ParseStruct.BoundType.INCLUDING),
+            new DateRange("  more   than   03/12/2019  "));
+
+        assertEquals(
             new DateRange(new Date(Long.MIN_VALUE),
                 toDate("12/01/2019 00:00:00"),
                 ARangeParser.ParseStruct.BoundType.INCLUDING,
                 ARangeParser.ParseStruct.BoundType.EXCLUDING),
             new DateRange("less than 12/01/2019"));
+        assertEquals(
+            new DateRange(new Date(Long.MIN_VALUE),
+                toDate("12/01/2019 00:00:00"),
+                ARangeParser.ParseStruct.BoundType.INCLUDING,
+                ARangeParser.ParseStruct.BoundType.EXCLUDING),
+            new DateRange("  less   than   12/01/2019  "));
 
         assertEquals(
             new DateRange(toDate("03/12/2019 00:00:00"),
@@ -539,14 +565,14 @@ public class DateRangeTest {
             new DateRange("2/11/2020 99:99:99");
             fail("Must be failed!");
         } catch (RuntimeException e) {
-            assertEquals("Could not parse the range: 2/11/2020 99:99:99", e.getMessage());
+            assertEquals("Failed to parse a range: 2/11/2020 99:99:99", e.getMessage());
         }
 
         try {
             new DateRange("2/99/2020 12:1:1");
             fail("Must be failed!");
         } catch (RuntimeException e) {
-            assertEquals("Could not parse the range: 2/99/2020 12:1:1", e.getMessage());
+            assertEquals("Failed to parse a range: 2/99/2020 12:1:1", e.getMessage());
         }
     }
 
@@ -555,7 +581,7 @@ public class DateRangeTest {
             new DateRange(range);
             fail("Must be failed!");
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().startsWith("Invalid Range: "));
+            assertTrue(e.getMessage().startsWith("Failed to parse a range: "));
         }
     }
 

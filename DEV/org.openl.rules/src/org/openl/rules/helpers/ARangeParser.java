@@ -3,6 +3,7 @@ package org.openl.rules.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public abstract class ARangeParser<T> {
@@ -22,11 +23,11 @@ public abstract class ARangeParser<T> {
                         return res;
                     }
                 } catch (RuntimeException e) {
-                    throw new RuntimeException("Could not parse the range: " + range, e);
+                    throw new OpenLRuntimeException("Failed to parse a range: " + range, e);
                 }
             }
         }
-        throw new RuntimeException("Invalid Range: " + range);
+        throw new OpenLRuntimeException("Failed to parse a range: " + range);
     }
 
     static final class SimpleParser<T> extends AParser<T> {
@@ -87,6 +88,7 @@ public abstract class ARangeParser<T> {
     }
 
     static final class VerbalParser<T> extends AParser<T> {
+        private static final Pattern OR_LESS_PATTERN = Pattern.compile("or\\s+less");
 
         VerbalParser(Pattern pattern, RangeBoundAdapter<T> converter) {
             super(pattern, converter);
@@ -96,7 +98,7 @@ public abstract class ARangeParser<T> {
         public ParseStruct<T> doParse(Matcher m) {
             T s = adapter.adaptValue(m.group(1));
             String suffix = m.group(2);
-            if ("or less".equals(suffix)) {
+            if (OR_LESS_PATTERN.matcher(suffix).matches()) {
                 return new ParseStruct<>(adapter.getMinLeftBound(), s);
             }
             return new ParseStruct<>(s, adapter.getMaxRightBound());
@@ -104,6 +106,9 @@ public abstract class ARangeParser<T> {
     }
 
     static final class MoreLessParser<T> extends AParser<T> {
+
+        private static final Pattern LESS_THAN_PATTERN = Pattern.compile("less\\s+than");
+        private static final Pattern MORE_THAN_PATTERN = Pattern.compile("more\\s+than");
 
         MoreLessParser(Pattern pattern, RangeBoundAdapter<T> converter) {
             super(pattern, converter);
@@ -113,13 +118,13 @@ public abstract class ARangeParser<T> {
         public ParseStruct<T> doParse(Matcher m) {
             String q = m.group(1);
             T o = adapter.adaptValue(m.group(2));
-            if ("<".equals(q) || "less than".equals(q)) {
+            if ("<".equals(q) || LESS_THAN_PATTERN.matcher(q).matches()) {
                 return new ParseStruct<>(adapter.getMinLeftBound(), o, BoundType.INCLUDING, BoundType.EXCLUDING);
             }
             if (q.length() > 1 && q.charAt(0) == '<') {
                 return new ParseStruct<>(adapter.getMinLeftBound(), o);
             }
-            if (">".equals(q) || "more than".equals(q)) {
+            if (">".equals(q) || MORE_THAN_PATTERN.matcher(q).matches()) {
                 return new ParseStruct<>(o, adapter.getMaxRightBound(), BoundType.EXCLUDING, BoundType.INCLUDING);
             }
             if (q.length() > 1 && q.charAt(0) == '>') {
