@@ -271,9 +271,12 @@ TOKEN :
 {
   < EQ :
     "=="
-  | "equals" (< _WHITESPACE >)+ "to"
-  | "is" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as"
-  | "is" (< _WHITESPACE >)+ "the" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as" >
+  | < EQUALS_TO >
+  | < IS_SAME_AS >
+  | < IS_THE_SAME_AS > >
+| < #EQUALS_TO : "equals" (< _WHITESPACE >)+ "to" >
+| < #IS_SAME_AS : "is" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as" >
+| < #IS_THE_SAME_AS : "is" (< _WHITESPACE >)+ "the" (< _WHITESPACE >)+ "same" (< _WHITESPACE >)+ "as" >
 }
 
 TOKEN :
