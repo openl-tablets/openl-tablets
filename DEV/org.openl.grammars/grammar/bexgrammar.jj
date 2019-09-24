@@ -159,6 +159,7 @@ TOKEN_MGR_DECLS :
   } // CommonTokenAction
 } // TOKEN_MGR_DECLS
 
+<* >
 SKIP :
 {
   " "
@@ -247,10 +248,6 @@ TOKEN :
 TOKEN :
 {
   < OF_THE : "of" (< _WHITESPACE >)+ "the" >
-| < WHERE : "where" >
-| < IS : "is" >
-| < LESS : "less" >
-| < THAN : "than" >
 }
 
 /* SEPARATORS */
@@ -268,6 +265,11 @@ TOKEN :
 | < DDOT : ".." >
 | < TDOT : "..." >
 | < TDOT_UNICODE : "\u2026" > //"…"
+}
+
+TOKEN :
+{
+  < WHERE : "where" >
 }
 
 /* OPERATORS */
@@ -347,30 +349,31 @@ TOKEN :
 | < STRING_NE_ALT : "string<>" >
 }
 
-TOKEN : {
-  < DOES_NOT_EQUAL_TO : "does" (< _WHITESPACE>)+ "not" (<_WHITESPACE>)+ "equal" (<_WHITESPACE>)+ "to">
-  |< IS_DIFFERENT_FROM : "is" (< _WHITESPACE>)+ "different" (<_WHITESPACE>)+ "from">
-  |< IS_LESS_THAN : "is" (< _WHITESPACE>)+ "less" (<_WHITESPACE>)+ "than">
-  |< IS_MORE_THAN : "is" (< _WHITESPACE>)+ "more" (<_WHITESPACE>)+ "than">
-  |< IS_LESS_OR_EQUAL : "is" (< _WHITESPACE>)+ "less" (<_WHITESPACE>)+ "or" (<_WHITESPACE>)+ "equal">
-  |< IS_NO_MORE_THAN : "is" (< _WHITESPACE>)+ "no" (<_WHITESPACE>)+ "more" (<_WHITESPACE>)+ "than">
-  |< IS_IN : "is" (< _WHITESPACE>)+ "in">
-  |< IS_MORE_OR_EQUAL : "is" (< _WHITESPACE>)+ "more" (<_WHITESPACE>)+ "or" (<_WHITESPACE>)+ "equal">
-  |< IS_NO_LESS_THAN : "is" (< _WHITESPACE>)+ "no" (<_WHITESPACE>)+ "less" (<_WHITESPACE>)+ "than">
-  |< SELECT_ALL_HAVING : "select" (< _WHITESPACE>)+ "all" (<_WHITESPACE>)+ "having">
-  |< SELECT_ALL_WHERE : "select" (< _WHITESPACE>)+ "all" (<_WHITESPACE>)+ "where">
-  |< SELECT_FIRST_HAVING : "select" (< _WHITESPACE>)+ "first" (<_WHITESPACE>)+ "having">
-  |< SELECT_FIRST_WHERE : "select" (< _WHITESPACE>)+ "first" (<_WHITESPACE>)+ "where">
-  |< ORDER_BY : "order" (< _WHITESPACE>)+ "by">
-  |< ORDER_INCREASING_BY : "order" (< _WHITESPACE>)+ "increasing" (<_WHITESPACE>)+ "by">
-  |< ORDER_DECREASING_BY : "order" (< _WHITESPACE>)+ "decreasing" (<_WHITESPACE>)+ "by">
-  |< SPLIT_BY : "split" (< _WHITESPACE>)+ "by">
-  |< TRANSFORM_TO : "transform" (< _WHITESPACE>)+ "to">
-  |< TRANSFORM_UNIQUE_TO : "transform" (< _WHITESPACE>)+ "unique" (< _WHITESPACE>)+ "to">
-  |< LESS_THAN : "less" (< _WHITESPACE>)+ "than">
-  |< MORE_THAN : "more" (< _WHITESPACE>)+ "than">
-  |< OR_LESS : "or" (< _WHITESPACE>)+ "less">
-  |< AND_MORE : "and" (< _WHITESPACE>)+ "more">
+TOKEN :
+{
+  < DOES_NOT_EQUAL_TO : "does" (< _WHITESPACE >)+ "not" (< _WHITESPACE >)+ "equal" (< _WHITESPACE >)+ "to" >
+| < IS_DIFFERENT_FROM : "is" (< _WHITESPACE >)+ "different" (< _WHITESPACE >)+ "from" >
+| < IS_LESS_THAN : "is" (< _WHITESPACE >)+ "less" (< _WHITESPACE >)+ "than" >
+| < IS_MORE_THAN : "is" (< _WHITESPACE >)+ "more" (< _WHITESPACE >)+ "than" >
+| < IS_LESS_OR_EQUAL : "is" (< _WHITESPACE >)+ "less" (< _WHITESPACE >)+ "or" (< _WHITESPACE >)+ "equal" >
+| < IS_NO_MORE_THAN : "is" (< _WHITESPACE >)+ "no" (< _WHITESPACE >)+ "more" (< _WHITESPACE >)+ "than" >
+| < IS_IN : "is" (< _WHITESPACE >)+ "in" >
+| < IS_MORE_OR_EQUAL : "is" (< _WHITESPACE >)+ "more" (< _WHITESPACE >)+ "or" (< _WHITESPACE >)+ "equal" >
+| < IS_NO_LESS_THAN : "is" (< _WHITESPACE >)+ "no" (< _WHITESPACE >)+ "less" (< _WHITESPACE >)+ "than" >
+| < SELECT_ALL_HAVING : "select" (< _WHITESPACE >)+ "all" (< _WHITESPACE >)+ "having" >
+| < SELECT_ALL_WHERE : "select" (< _WHITESPACE >)+ "all" (< _WHITESPACE >)+ "where" >
+| < SELECT_FIRST_HAVING : "select" (< _WHITESPACE >)+ "first" (< _WHITESPACE >)+ "having" >
+| < SELECT_FIRST_WHERE : "select" (< _WHITESPACE >)+ "first" (< _WHITESPACE >)+ "where" >
+| < ORDER_BY : "order" (< _WHITESPACE >)+ "by" >
+| < ORDER_INCREASING_BY : "order" (< _WHITESPACE >)+ "increasing" (< _WHITESPACE >)+ "by" >
+| < ORDER_DECREASING_BY : "order" (< _WHITESPACE >)+ "decreasing" (< _WHITESPACE >)+ "by" >
+| < SPLIT_BY : "split" (< _WHITESPACE >)+ "by" >
+| < TRANSFORM_TO : "transform" (< _WHITESPACE >)+ "to" >
+| < TRANSFORM_UNIQUE_TO : "transform" (< _WHITESPACE >)+ "unique" (< _WHITESPACE >)+ "to" >
+| < LESS_THAN : "less" (< _WHITESPACE >)+ "than" >
+| < MORE_THAN : "more" (< _WHITESPACE >)+ "than" >
+| < OR_LESS : "or" (< _WHITESPACE >)+ "less" >
+| < AND_MORE : "and" (< _WHITESPACE >)+ "more" >
 }
 
 /* JAVA LITERALS */
@@ -378,7 +381,6 @@ TOKEN : {
 TOKEN :
 {
   < INTEGER_LITERAL :
-    //(["-","+"])? <DECIMAL_LITERAL> (["l","L"])?
     < DECIMAL_LITERAL > ([ "l", "L" ])?
   | < HEX_LITERAL > ([ "l", "L" ])?
   | < OCTAL_LITERAL > ([ "l", "L" ])? 
@@ -602,39 +604,39 @@ void Expression() :
   ConditionalTernaryExpression()
   [
     (
-      x = "="
+      x = < ASSIGN >
       {
         func = "op.assign";
       }
-    | x = "+="
+    | x = < PLUSASSIGN >
       {
         func = "op.assign.add";
       }
-    | x = "-="
+    | x = < MINUSASSIGN >
       {
         func = "op.assign.subtract";
       }
-    | x = "*="
+    | x = < STARASSIGN >
       {
         func = "op.assign.multiply";
       }
-    | x = "/="
+    | x = < SLASHASSIGN >
       {
         func = "op.assign.divide";
       }
-    | x = "&="
+    | x = < ANDASSIGN >
       {
         func = "op.assign.bitand";
       }
-    | x = "|="
+    | x = < ORASSIGN >
       {
         func = "op.assign.bitor";
       }
-    | x = "^="
+    | x = < XORASSIGN >
       {
         func = "op.assign.bitnot";
       }
-    | x = "%="
+    | x = < REMASSIGN >
       {
         func = "op.assign.rem";
       }
@@ -653,7 +655,7 @@ void ConditionalTernaryExpression() :
 {
   ConditionalImplExpression()
   [
-    x = "?" ConditionalTernaryExpression() ":" ConditionalTernaryExpression()
+    x = < HOOK > ConditionalTernaryExpression() < COLON > ConditionalTernaryExpression()
     {
       syntaxBuilder.nop("op.ternary.qmark", pos(x), 3);
     }
@@ -755,7 +757,7 @@ void BitwiseAndExpression() :
 void EqualityExpression() :
 {
   Token x;
-  String func = null;
+  String func;
 }
 {
   RelationalExpression()
@@ -1023,11 +1025,6 @@ void UnaryExpression() :
     syntaxBuilder.uop("op.unary.not", pos(x));
   }
 | 
-  x = "not " UnaryExpression()
-  {
-    syntaxBuilder.uop("op.unary.not", pos(x));
-  }
-| 
   PreIncrementExpression()
 | 
   PreDecrementExpression()
@@ -1036,17 +1033,6 @@ void UnaryExpression() :
   CastExpression()
 | 
   PostfixExpression()
-}
-
-void PreIncrementExpression() :
-{
-  Token x;
-}
-{
-  x = "++" PrimaryExpression()
-  {
-    syntaxBuilder.uop("op.prefix.inc", pos(x));
-  }
 }
 
 void OfTheExpressionSuffix() :
@@ -1060,12 +1046,23 @@ void OfTheExpressionSuffix() :
   }
 }
 
+void PreIncrementExpression() :
+{
+  Token x;
+}
+{
+  x = < INCR > PrimaryExpression()
+  {
+    syntaxBuilder.uop("op.prefix.inc", pos(x));
+  }
+}
+
 void PreDecrementExpression() :
 {
   Token x;
 }
 {
-  x = "--" PrimaryExpression()
+  x = < DECR > PrimaryExpression()
   {
     syntaxBuilder.uop("op.prefix.dec", pos(x));
   }
@@ -1078,11 +1075,11 @@ void PostfixExpression() :
 {
   PrimaryExpression()
   [
-    x = "++"
+    x = < INCR >
     {
       syntaxBuilder.uop("op.suffix.inc", pos(x));
     }
-  | x = "--"
+  | x = < DECR >
     {
       syntaxBuilder.uop("op.suffix.dec", pos(x));
     }
@@ -1132,36 +1129,38 @@ void PrimaryPrefix() :
 
 void IdentifierSequence() :
 {
-  Token x1;
+  Token x;
   int args = 1;
 }
 {
   (
-    x1 = < IDENTIFIER >
+    x = < IDENTIFIER >
     {
       syntaxBuilder.identifier("identifier", pos(token), token.image);
     }
   )
   (
-    x1 = < IDENTIFIER >
+    x = < IDENTIFIER >
     {
       syntaxBuilder.identifier("identifier.sequence.element", pos(token), token.image);
       ++args;
     }
   )*
   {
-    if (args > 1) 
-    syntaxBuilder.nop("identifier.sequence", null, args);
+    if (args > 1)
+    {
+      syntaxBuilder.nop("identifier.sequence", null, args);
+    }
   }		
 }
 
 void Word(String type) :
 {
-  Token x1;
+  Token x;
 }
 {
   (
-    x1 = < IDENTIFIER >
+    x = < IDENTIFIER >
     {
       syntaxBuilder.identifier(type, pos(token), token.image);
     }
@@ -1169,9 +1168,7 @@ void Word(String type) :
 }
 
 void PrimarySuffix() :
-{
-  Token x1;
-}
+{}
 {
   IndexOperator()
   {
@@ -1242,7 +1239,7 @@ void TypeDimension() :
   Token x1, x2;
 }
 {
-  x1 = "[" x2 = "]"
+  x1 = < LBRACKET > x2 = < RBRACKET >
   {
     syntaxBuilder.uop("type.index", pos(x1, x2));
   }
@@ -1277,7 +1274,7 @@ void Type() :
 void ResultType() :
 {}
 {
-  "void"
+  < VOID >
   {
     syntaxBuilder.identifier("type.name", pos(token), token.image);
     syntaxBuilder.uop("type.declaration", null);
@@ -1315,7 +1312,7 @@ void CommaSeparatedList() :
   int words = 0;
 }
 {
-  "["
+  < LBRACKET >
   {
     words = 0;
   }
@@ -1330,7 +1327,7 @@ void CommaSeparatedList() :
     ++elements;
   }
   (
-    ","
+    < COMMA >
     {
       words = 0;
     }
@@ -1345,7 +1342,7 @@ void CommaSeparatedList() :
       ++elements;
     }
   )*
-  "]"
+  < RBRACKET >
   {
     syntaxBuilder.nop("list", null, elements);
   }
@@ -1369,7 +1366,7 @@ void function() :
       args++;
     }
     (
-      "," VariableInitializer()
+      < COMMA > VariableInitializer()
       {
         args++;
       }
@@ -1388,7 +1385,7 @@ void AllocationExpression() :
   Token x1, x2;
 }
 {
-  x1 = "new" ClassName()
+  x1 = < NEW > ClassName()
   (
     < LPAREN >
     [
@@ -1397,7 +1394,7 @@ void AllocationExpression() :
         args++;
       }
       (
-        "," Expression()
+        < COMMA > Expression()
         {
           args++;
         }
@@ -1428,7 +1425,7 @@ void ArrayDimsAndInits() :
   LOOKAHEAD(2)
   (
     LOOKAHEAD(2)
-    x1 = "[" Expression() x2 = "]"
+    x1 = < LBRACKET > Expression() x2 = < RBRACKET >
     {
       syntaxBuilder.bop("array.index.expression", pos(x1, x2));
       cnt++;
@@ -1436,7 +1433,7 @@ void ArrayDimsAndInits() :
   )+
   (
     LOOKAHEAD(2)
-    x1 = "[" x2 = "]"
+    x1 = < LBRACKET > x2 = < RBRACKET >
     {
       syntaxBuilder.uop("array.index.empty", pos(x1, x2));
     }
@@ -1481,7 +1478,7 @@ void IndexOperator() :
 }
 {
   (
-    x1 = "["
+    x1 = < LBRACKET >
     [
       LOOKAHEAD(4)
 
@@ -1554,7 +1551,7 @@ void IndexOperator() :
       )
     ]
     Expression()
-    x2 = "]"
+    x2 = < RBRACKET >
     {
       if (hasTypeExpression)
       {
@@ -1835,7 +1832,7 @@ void RangeSuffix() :
     {
       op = "literal.range.unary.suffix.and.more";
     }
-  | 	x = "+"
+  | 	x = < PLUS >
     {
       op = "literal.range.unary.suffix.plus";
     }
@@ -2548,9 +2545,9 @@ void Block() :
   Token x1, x2;
 }
 {
-  x1 = "{" 
+  x1 = < LBRACE > 
   BlockStatementList() 
-  x2 = "}"
+  x2 = < RBRACE >
 }
 
 void BlockStatementList() :
@@ -2618,10 +2615,10 @@ void ExtendedWhereStatement() :
   int args = 1;	
 }
 {
-  "," "where" WhereVarExpalnation()
+  < COMMA > < WHERE > WhereVarExpalnation()
   (
     LOOKAHEAD(2)
-    "," WhereVarExpalnation()
+    < COMMA > WhereVarExpalnation()
     {
       ++args;
     }
@@ -2649,7 +2646,7 @@ void LabeledStatement() :
   {
     label = token.image;
   }
-  ":"
+  < COLON >
   {
     syntaxBuilder.notImplemented("startLabel(label)");
   }
@@ -2662,13 +2659,13 @@ void LabeledStatement() :
 void BlockStatement() :
 {}
 {
-  LOOKAHEAD(Type() < IDENTIFIER > "=")
+  LOOKAHEAD(Type() < IDENTIFIER > < ASSIGN >)
   LocalVariableDeclaration() SemiColon()
 | 
-  LOOKAHEAD(Type() < IDENTIFIER > ";")
+  LOOKAHEAD(Type() < IDENTIFIER > < SEMICOLON >)
   LocalVariableDeclaration() SemiColon()
 | 
-  LOOKAHEAD(Type() < IDENTIFIER > ",")
+  LOOKAHEAD(Type() < IDENTIFIER > < COMMA >)
   LocalVariableDeclaration() SemiColon()
 | 
   Statement()
@@ -2720,7 +2717,7 @@ void WhileStatement() :
   Token x;
 }
 {
-  x = "while" < LPAREN > Expression() < RPAREN > Statement()
+  x = < WHILE > < LPAREN > Expression() < RPAREN > Statement()
   {
     syntaxBuilder.bop("control.while", pos(x));
   }
@@ -2732,14 +2729,14 @@ void ReturnStatement() :
   Token x;
 }
 {
-  x = "return"
+  x = < RETURN >
   [
     VariableInitializer()
     {
       ++args;
     }
   ]
-  ";"
+  < SEMICOLON >
   {
     syntaxBuilder.nop("control.return", pos(x), args);
   }
@@ -2748,7 +2745,7 @@ void ReturnStatement() :
 void ThrowStatement() :
 {}
 {
-  "throw" Expression() ";"
+  < THROW > Expression() < SEMICOLON >
 }
 
 void DoStatement() :
@@ -2757,7 +2754,7 @@ void DoStatement() :
   {
     syntaxBuilder.notImplemented("startLabel(null)");
   } // anonymous label for cycles
-  "do" Statement() "while" < LPAREN > Expression() < RPAREN > OptionalSemiColon()
+  < DO > Statement() < WHILE > < LPAREN > Expression() < RPAREN > OptionalSemiColon()
   {
     syntaxBuilder.notImplemented("doStatement()");
   }
@@ -2776,7 +2773,7 @@ void LocalVariableDeclaration() :
     args++;
   }
   (
-    "," VariableDeclarator()
+    < COMMA > VariableDeclarator()
     {
       args++;
     }
@@ -2793,7 +2790,7 @@ void VariableDeclarator() :
 {
   VariableDeclaratorId()
   [
-    "=" VariableInitializer()
+    < ASSIGN > VariableInitializer()
     {
       withInitializer = true;
     }
@@ -2829,7 +2826,7 @@ void ArrayInitializer() :
   Token x1, x2;
 }
 {
-  x1 = "{"
+  x1 = < LBRACE >
   [
     VariableInitializer()
     {
@@ -2837,14 +2834,14 @@ void ArrayInitializer() :
     }
     (
       LOOKAHEAD(2)
-      "," VariableInitializer()
+      < COMMA > VariableInitializer()
       {
         args++;
       }
     )*
   ]
-  [ "," ] 
-  x2 = "}"
+  [ < COMMA > ] 
+  x2 = < RBRACE >
   {
     syntaxBuilder.nop("array.init", pos(x1, x2), args);
   }
@@ -2856,7 +2853,7 @@ void ForStatement() :
   Token x;
 }
 {
-  x = "for" < LPAREN >
+  x = < FOR > < LPAREN >
   [
     ForInit()
     {
@@ -2905,7 +2902,7 @@ void StatementExpressionList() :
     args++;
   }
   (
-    "," StatementExpression()
+    < COMMA > StatementExpression()
     {
       args++;
     }
@@ -2927,7 +2924,7 @@ void BreakStatement() :
   String label = null;
 }
 {
-  "break"
+  < BREAK >
   [
     < IDENTIFIER >
     {
@@ -2945,7 +2942,7 @@ void ContinueStatement() :
   String label = null;
 }
 {
-  "continue"
+  < CONTINUE >
   [
     < IDENTIFIER >
     {
@@ -2976,7 +2973,7 @@ void MethodDeclaration() :
     {
       syntaxBuilder.nop("method.declaration", null, 4);
     }
-  | ";"
+  | < SEMICOLON >
   )
 }
 
@@ -3005,7 +3002,7 @@ void FormalParameters() :
       ++args;
     }
     (
-      "," FormalParameter()
+      < COMMA > FormalParameter()
       {
         ++args;
       }
@@ -3029,7 +3026,7 @@ void FormalParameter() :
 void VarDeclaration() :
 {}
 {
-  LocalVariableDeclaration() ";"
+  LocalVariableDeclaration() < SEMICOLON >
   {
     syntaxBuilder.uop("var.declaration", null);
   }

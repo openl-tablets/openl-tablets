@@ -42,7 +42,7 @@ public abstract class ABoundNode implements IBoundNode {
             throw ore;
         } catch (ControlSignal controlSignal) {
             throw controlSignal;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new OpenLRuntimeException(t, this);
         }
     }
