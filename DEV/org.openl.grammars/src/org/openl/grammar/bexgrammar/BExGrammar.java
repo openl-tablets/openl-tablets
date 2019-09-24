@@ -4236,18 +4236,6 @@ syntaxBuilder.uop("block.top", null);
     finally { jj_save(44, xla); }
   }
 
-  private boolean jj_3R_343()
- {
-    if (jj_scan_token(STRING_EQ)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_159()
- {
-    if (jj_scan_token(GT)) return true;
-    return false;
-  }
-
   private boolean jj_3R_342()
  {
     if (jj_scan_token(STRICT_NE)) return true;
@@ -7598,6 +7586,18 @@ syntaxBuilder.uop("block.top", null);
   private boolean jj_3R_160()
  {
     if (jj_scan_token(GE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_343()
+ {
+    if (jj_scan_token(STRING_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_159()
+ {
+    if (jj_scan_token(GT)) return true;
     return false;
   }
 

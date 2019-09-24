@@ -510,7 +510,10 @@ TOKEN :
     "\u1040"-"\u1049" 
     ] 
   >
-| 
+}
+
+TOKEN :
+{
   < RANGE_VARIABLE : < IDENTIFIER > ":" < IDENTIFIER > >
 }
 
@@ -1088,7 +1091,7 @@ void PrimaryPrefix() :
 | 
   AbsExpression()
 | 
-  "(" Expression() ")"
+  < LPAREN > Expression() < RPAREN >
 | 
   AllocationExpression()
 | 
@@ -1167,7 +1170,7 @@ void CastExpression() :
   Token x1, x2;
 }
 {
-  x1 = "(" Type() x2 = ")" UnaryExpression()
+  x1 = < LPAREN > Type() x2 = < RPAREN > UnaryExpression()
   {
     syntaxBuilder.bop("type.cast", pos(x1, x2));
   }
@@ -1176,7 +1179,7 @@ void CastExpression() :
 void CastLookahead() :
 {}
 {
-  "(" Type() ")"
+  < LPAREN > Type() < RPAREN >
   (
     < PLUS >
   | < MINUS >
@@ -1333,7 +1336,7 @@ void function() :
   {
     funcname = token.image;
   }
-  "("
+  < LPAREN >
   [
     VariableInitializer()
     {
@@ -1346,7 +1349,7 @@ void function() :
       }
     )*
   ]
-  x2 = ")"
+  x2 = < RPAREN >
   {
     syntaxBuilder.identifier("funcname", pos(x1), funcname);
     syntaxBuilder.nop("function", pos(x1, x2), args + 1);
@@ -1361,7 +1364,7 @@ void AllocationExpression() :
 {
   x1 = "new" ClassName()
   (
-    "("
+    < LPAREN >
     [
       Expression()
       {
@@ -1374,7 +1377,7 @@ void AllocationExpression() :
         }
       )*
     ]
-    x2 = ")"
+    x2 = < RPAREN >
     {
       syntaxBuilder.nop("op.new.object", pos(x1, x2), args + 1);
     }
@@ -1429,7 +1432,7 @@ void IndexTypeExpression() :
 {
   LOOKAHEAD(3)
   (
-    x1 = "(" Type() VariableDeclaratorId() x2 = ")"
+    x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN >
     {
       syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 2);
     }
@@ -1437,7 +1440,7 @@ void IndexTypeExpression() :
 | 
   LOOKAHEAD(3)
   (
-    x1 = "(" VariableDeclaratorId() x2 = ")"
+    x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN >
     {
       syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 1);
     }
@@ -2673,7 +2676,7 @@ void IfStatement() :
   int nodes = 2;
 }
 {
-  x1 = < IF > "(" Expression() ")" Statement()
+  x1 = < IF > < LPAREN > Expression() < RPAREN > Statement()
   [
     LOOKAHEAD(1)
     < ELSE > Statement()
@@ -2691,7 +2694,7 @@ void WhileStatement() :
   Token x;
 }
 {
-  x = "while" "(" Expression() ")" Statement()
+  x = "while" < LPAREN > Expression() < RPAREN > Statement()
   {
     syntaxBuilder.bop("control.while", pos(x));
   }
@@ -2728,7 +2731,7 @@ void DoStatement() :
   {
     syntaxBuilder.notImplemented("startLabel(null)");
   } // anonymous label for cycles
-  "do" Statement() "while" "(" Expression() ")" OptionalSemiColon()
+  "do" Statement() "while" < LPAREN > Expression() < RPAREN > OptionalSemiColon()
   {
     syntaxBuilder.notImplemented("doStatement()");
   }
@@ -2827,7 +2830,7 @@ void ForStatement() :
   Token x;
 }
 {
-  x = "for" "("
+  x = "for" < LPAREN >
   [
     ForInit()
     {
@@ -2848,7 +2851,7 @@ void ForStatement() :
       bParts [ 2 ] = true;
     }
   ]
-  ")" Statement()
+  < RPAREN > Statement()
   {
     bParts [ 3 ] = true;
   }
@@ -2969,7 +2972,7 @@ void FormalParameters() :
   Token x1, x2;
 }
 {
-  x1 = "("
+  x1 = < LPAREN >
   [
     FormalParameter()
     {
@@ -2982,7 +2985,7 @@ void FormalParameters() :
       }
     )*
   ]
-  x2 = ")"
+  x2 = < RPAREN >
   {
     syntaxBuilder.nop("method.parameters", pos(x1, x2), args);
   }
