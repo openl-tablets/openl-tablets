@@ -17,10 +17,6 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                 parseModuleInternal();
             } else if (type.equals("type")) {
                 parseType();
-            } else if (type.equals("range.literal.real")) {
-                RangeLiteralFloat();
-            } else if (type.equals("range.literal")) {
-                RangeLiteral();
             }
         } catch (ParseException pe) {
 
