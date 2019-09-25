@@ -290,13 +290,13 @@ public interface BExGrammarConstants {
   int MULTI_LINE_COMMENT = 146;
 
   /** Lexical state. */
-  int IN_MULTI_LINE_COMMENT = 0;
+  int DEFAULT = 0;
   /** Lexical state. */
-  int IN_FORMAL_COMMENT = 1;
+  int REF_IDENTIFIER = 1;
   /** Lexical state. */
-  int REF_IDENTIFIER = 2;
+  int IN_MULTI_LINE_COMMENT = 2;
   /** Lexical state. */
-  int DEFAULT = 3;
+  int IN_FORMAL_COMMENT = 3;
 
   /** Literal token values. */
   String[] tokenImage = {
