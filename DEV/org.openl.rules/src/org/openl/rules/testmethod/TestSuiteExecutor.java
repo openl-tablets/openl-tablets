@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class TestSuiteExecutor {
     private static final int QUEUE_SIZE = 2000;
-    public static final int DEFAULT_THREAD_COUNT = 4;
 
     private final ThreadPoolExecutor executor;
     private final int threadCount;
