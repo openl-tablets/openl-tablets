@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.kafka;
+package org.openl.itest;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 
@@ -7,12 +7,24 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.openl.itest.core.JettyServer;
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 
-import net.mguenther.kafka.junit.*;
+import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
+import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
+import net.mguenther.kafka.junit.EmbeddedKafkaConfig;
+import net.mguenther.kafka.junit.KeyValue;
+import net.mguenther.kafka.junit.ObserveKeyValues;
+import net.mguenther.kafka.junit.SendKeyValues;
+import net.mguenther.kafka.junit.TopicConfig;
 
-public class KafkaRuleServicePublisherTest {
+public class RunITest {
     private static JettyServer server;
 
     @BeforeClass
@@ -40,41 +52,41 @@ public class KafkaRuleServicePublisherTest {
         KeyValue<String, String> record1 = new KeyValue<>(null, "5");
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt1 = ObserveKeyValues.on("hello-dlt-topic", 1).build();
-        List<String> observedValuesDlt1 = cluster.observeValues(observeRequestDlt1);
-        Assert.assertEquals(1, observedValuesDlt1.size());
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1).build();
+        List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
+        Assert.assertEquals(1, observedValuesDlt.size());
     }
 
     private void serviceSimpleOk() throws Exception {
         KeyValue<String, String> record2 = new KeyValue<>(null, "{\"hour\": 5}");
-        record2.addHeader("methodName", "Hello", Charset.forName("UTF8"));
+        record2.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record2)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest2 = ObserveKeyValues.on("hello-out-topic-2", 1).build();
-        List<String> observedValues2 = cluster.observeValues(observeRequest2);
-        Assert.assertEquals(1, observedValues2.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues2.get(0));
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1).build();
+        List<String> observedValues = cluster.observeValues(observeRequest);
+        Assert.assertEquals(1, observedValues.size());
+        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
 
     private void serviceSimpleFail() throws Exception {
         KeyValue<String, String> record3 = new KeyValue<>(null, "5");
-        record3.addHeader("methodName", "Hello", Charset.forName("UTF8"));
+        record3.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record3)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt3 = ObserveKeyValues.on("hello-dlt-topic-2", 1).build();
-        List<String> observedValuesDlt3 = cluster.observeValues(observeRequestDlt3);
-        Assert.assertEquals(1, observedValuesDlt3.size());
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1).build();
+        List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
+        Assert.assertEquals(1, observedValuesDlt.size());
     }
 
     private void methodSimpleOkWithReplyTopic() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
-        record.addHeader("kafka_replyTopic", "hello-reply-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest0 = ObserveKeyValues.on("hello-reply-topic", 1)
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
             .with("group.id", "junit")
             .build();
-        List<String> observedValues = cluster.observeValues(observeRequest0);
+        List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
@@ -89,8 +101,8 @@ public class KafkaRuleServicePublisherTest {
 
     private void serviceSimpleOkWithReplyTopic() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
-        record.addHeader("methodName", "Hello", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyTopic", "hello-reply-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
@@ -103,14 +115,14 @@ public class KafkaRuleServicePublisherTest {
 
     private void methodSimpleOkWithCorrelationId() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
-        record.addHeader("kafka_replyTopic", "hello-reply-topic", Charset.forName("UTF8"));
-        record.addHeader("kafka_correlationId", "42", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.CORRELATION_ID, "42", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
             .with("group.id", "junit")
-            .filterOnHeaders(e -> e.lastHeader("kafka_correlationId") != null && "42"
-                .equals(toString(e.lastHeader("kafka_correlationId").value())))
+            .filterOnHeaders(e -> e.lastHeader(KafkaHeaders.CORRELATION_ID) != null && "42"
+                .equals(toString(e.lastHeader(KafkaHeaders.CORRELATION_ID).value())))
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
@@ -119,15 +131,15 @@ public class KafkaRuleServicePublisherTest {
 
     private void serviceSimpleOkWithCorrelationId() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
-        record.addHeader("methodName", "Hello", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyTopic", "hello-reply-topic", Charset.forName("UTF8"));
-        record.addHeader("kafka_correlationId", "42", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.CORRELATION_ID, "42", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
             .with("group.id", "junit")
-            .filterOnHeaders(e -> e.lastHeader("kafka_correlationId") != null && "42"
-                .equals(toString(e.lastHeader("kafka_correlationId").value())))
+            .filterOnHeaders(e -> e.lastHeader(KafkaHeaders.CORRELATION_ID) != null && "42"
+                .equals(toString(e.lastHeader(KafkaHeaders.CORRELATION_ID).value())))
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
@@ -148,12 +160,12 @@ public class KafkaRuleServicePublisherTest {
         cluster.createTopic(TopicConfig.forTopic("hello-replydlt-topic").withNumberOfPartitions(10).build());
 
         KeyValue<String, String> record = new KeyValue<>(null, "5");
-        record.addHeader("methodName", "Hello", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyTopic", "hello-reply-topic", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyPartition", "891", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyDltTopic", "hello-replydlt-topic", Charset.forName("UTF8"));
-        record.addHeader("kafka_replyDltPartition", "5", Charset.forName("UTF8"));
-        record.addHeader("kafka_correlationId", "42", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_PARTITION, "891", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_DLT_TOPIC, "hello-replydlt-topic", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.REPLY_DLT_PARTITION, "5", Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.CORRELATION_ID, "42", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-replydlt-topic", 1)
@@ -166,17 +178,17 @@ public class KafkaRuleServicePublisherTest {
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals("5", v.getValue());
 
-        Assert.assertEquals("42", getHeaderValue(v, "kafka_correlationId"));
-        Assert.assertEquals("Hello", getHeaderValue(v, "methodName"));
-        Assert.assertEquals("hello-reply-topic", getHeaderValue(v, "kafka_replyTopic"));
-        Assert.assertEquals("891", getHeaderValue(v, "kafka_replyPartition"));
+        Assert.assertEquals("42", getHeaderValue(v, KafkaHeaders.CORRELATION_ID));
+        Assert.assertEquals("Hello", getHeaderValue(v, KafkaHeaders.METHOD_NAME));
+        Assert.assertEquals("hello-reply-topic", getHeaderValue(v, KafkaHeaders.REPLY_TOPIC));
+        Assert.assertEquals("891", getHeaderValue(v, KafkaHeaders.REPLY_PARTITION));
         Assert.assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
-            getHeaderValue(v, "kafka_dlt-exception-fqcn"));
-        Assert.assertEquals("Invalid message format.", getHeaderValue(v, "kafka_dlt-exception-message"));
-        Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-original-offset"));
-        Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-original-partition"));
-        Assert.assertNotNull(v.getHeaders().lastHeader("kafka_dlt-exception-stacktrace"));
-        Assert.assertEquals("hello-in-topic-2", getHeaderValue(v, "kafka_dlt-original-topic"));
+            getHeaderValue(v, KafkaHeaders.DLT_EXCEPTION_FQCN));
+        Assert.assertEquals("Invalid message format.", getHeaderValue(v, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
+        Assert.assertNotNull(v.getHeaders().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
+        Assert.assertNotNull(v.getHeaders().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
+        Assert.assertNotNull(v.getHeaders().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
+        Assert.assertEquals("hello-in-topic-2", getHeaderValue(v, KafkaHeaders.DLT_ORIGINAL_TOPIC));
     }
 
     @Test

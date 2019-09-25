@@ -10,9 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.kafka.smoke</artifactId>
+    <artifactId>itest.cassandra.storelogging</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - Kafka Smoke Test</name>
+    <name>ITEST - Cassandra Store Logging Test</name>
     <url>https://openl-tablets.org</url>
 
     <properties>
@@ -54,9 +54,16 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-mapping</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl.itest</groupId>
             <artifactId>server-core</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.mguenther.kafka</groupId>
@@ -71,6 +78,18 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility-proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

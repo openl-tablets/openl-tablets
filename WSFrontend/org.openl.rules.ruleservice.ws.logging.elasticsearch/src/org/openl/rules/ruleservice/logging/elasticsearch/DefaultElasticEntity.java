@@ -16,8 +16,8 @@ import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConver
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "logginghistory")
-public class ElasticStoreLoggingEntity {
+@Document(indexName = "openl_logging")
+public class DefaultElasticEntity {
     @WithStoreLoggingDataConvertor(convertor = RandomUUID.class)
     @Id
     private String id;
@@ -54,10 +54,10 @@ public class ElasticStoreLoggingEntity {
     @Url
     private String url;
 
-    public ElasticStoreLoggingEntity() {
+    public DefaultElasticEntity() {
     }
 
-    public ElasticStoreLoggingEntity(String id,
+    public DefaultElasticEntity(String id,
             Date incomingTime,
             Date outcomingTime,
             Object request,

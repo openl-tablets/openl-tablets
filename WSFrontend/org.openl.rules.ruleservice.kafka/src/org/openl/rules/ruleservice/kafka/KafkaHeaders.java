@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.kafka.publish;
+package org.openl.rules.ruleservice.kafka;
 
 public interface KafkaHeaders {
     String PREFIX = "kafka_";

@@ -97,6 +97,7 @@
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.19.v20190610</jetty.server.version>
+        <awaitility.version>3.1.6</awaitility.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -593,6 +594,18 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility-proxy</artifactId>
+                <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
@@ -1175,6 +1188,12 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>3.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cassandraunit</groupId>
+                <artifactId>cassandra-unit</artifactId>
+                <version>3.7.1.0</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>

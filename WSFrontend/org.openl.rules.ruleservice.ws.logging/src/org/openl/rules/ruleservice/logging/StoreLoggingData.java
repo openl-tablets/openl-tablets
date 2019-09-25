@@ -9,7 +9,7 @@ import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.kafka.publish.RequestMessage;
+import org.openl.rules.ruleservice.kafka.RequestMessage;
 
 /**
  * Bean for data for logging to external source feature.

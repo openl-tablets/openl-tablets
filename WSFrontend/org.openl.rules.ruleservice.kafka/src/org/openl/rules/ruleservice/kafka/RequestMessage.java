@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.kafka.publish;
+package org.openl.rules.ruleservice.kafka;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -22,6 +22,7 @@ public class RequestMessage {
     public RequestMessage(Method method, Exception exception, byte[] rawData, String encoding) {
         this(rawData, encoding);
         Objects.requireNonNull(exception, "exception can't be null");
+        this.method = method;
         this.exception = exception;
     }
 

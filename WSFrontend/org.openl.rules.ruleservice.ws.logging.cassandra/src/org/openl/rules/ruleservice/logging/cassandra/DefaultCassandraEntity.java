@@ -16,8 +16,8 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(name = "logginghistory")
-public class CassandraStoreLoggingEntity {
+@Table(name = "openl_logging")
+public class DefaultCassandraEntity {
     @PartitionKey(0)
     @WithStoreLoggingDataConvertor(convertor = TimeBasedUUID.class)
     private String id;
@@ -48,10 +48,10 @@ public class CassandraStoreLoggingEntity {
     @Publisher
     private String publisherType;
 
-    public CassandraStoreLoggingEntity() {
+    public DefaultCassandraEntity() {
     }
 
-    public CassandraStoreLoggingEntity(String id,
+    public DefaultCassandraEntity(String id,
             Date incomingTime,
             Date outcomingTime,
             String request,

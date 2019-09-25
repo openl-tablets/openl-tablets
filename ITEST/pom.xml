@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>itest.storelogging</module>
         <module>server-core</module>
         <module>itest.smoke</module>
         <module>itest.kafka.smoke</module>

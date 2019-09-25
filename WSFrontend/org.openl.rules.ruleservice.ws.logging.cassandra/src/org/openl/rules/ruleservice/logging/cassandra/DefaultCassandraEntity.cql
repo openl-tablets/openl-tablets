@@ -1,4 +1,4 @@
-CREATE TABLE logginghistory (
+CREATE TABLE openl_logging (
     id text,
     datevalue1 timestamp,
     datevalue2 timestamp,

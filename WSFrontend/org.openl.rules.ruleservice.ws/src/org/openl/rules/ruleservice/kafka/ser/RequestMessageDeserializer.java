@@ -17,9 +17,9 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.kafka.publish.KafkaHeaders;
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
+import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
-import org.openl.rules.ruleservice.kafka.publish.RequestMessage;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.util.ClassUtils;
 
@@ -118,9 +118,11 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
                 final String methodParameters = getStringFromHeaders(headers, KafkaHeaders.METHOD_PARAMETERS);
                 Entry entry = getCachedMethodParametersWrapperClassInfo(methodName, methodParameters);
                 if (entry == null) {
-                    Method m1 = KafkaHelpers.findMethodInService(service, methodName, methodParameters);
-                    entry = generateWrapperClass(m1);
+                    m = KafkaHelpers.findMethodInService(service, methodName, methodParameters);
+                    entry = generateWrapperClass(m);
                     putCachedMethodParametersWrapperClassInfo(methodName, methodParameters, entry);
+                } else {
+                    m = entry.getMethod();
                 }
                 return buildRequestMessage(entry, rawData);
             } catch (Exception e) {

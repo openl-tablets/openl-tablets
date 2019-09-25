@@ -26,6 +26,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
+import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataHolder;
@@ -212,6 +214,13 @@ public final class KafkaService implements Runnable {
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 RequestMessage requestMessage = consumerRecord.value();
+                                
+                                if (storeLoggingData != null) {
+                                    storeLoggingData.setServiceMethod(requestMessage.getMethod());
+                                    storeLoggingData.setInputName(requestMessage.getMethod().getName());
+                                    storeLoggingData.setParameters(requestMessage.getParameters());
+                                }
+                                
                                 Object result = requestMessage.getMethod()
                                     .invoke(service.getServiceBean(), requestMessage.getParameters());
                                 ProducerRecord<String, Object> producerRecord;
@@ -226,9 +235,6 @@ public final class KafkaService implements Runnable {
                                 forwardHeadersToOutput(consumerRecord, producerRecord);
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setOutcomingMessageTime(new Date());
-                                    storeLoggingData.setInputName(requestMessage.getMethod().getName());
-                                    storeLoggingData.setParameters(requestMessage.getParameters());
-                                    storeLoggingData.setServiceMethod(requestMessage.getMethod());
                                 }
                                 producer.send(producerRecord, (metadata, exception) -> {
                                     if (storeLoggingData != null) {

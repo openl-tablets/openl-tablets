@@ -31,6 +31,7 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.ClientIDGenerator;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;

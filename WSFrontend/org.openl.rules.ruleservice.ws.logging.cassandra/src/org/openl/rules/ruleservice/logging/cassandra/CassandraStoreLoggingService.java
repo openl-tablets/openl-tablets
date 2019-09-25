@@ -53,7 +53,7 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
         }
 
         if (cassandraEntity == null || cassandraEntity.value().length == 0) {
-            entities = new CassandraStoreLoggingEntity[] { new CassandraStoreLoggingEntity() };
+            entities = new DefaultCassandraEntity[] { new DefaultCassandraEntity() };
         } else {
             entities = new Object[cassandraEntity.value().length];
             int i = 0;
