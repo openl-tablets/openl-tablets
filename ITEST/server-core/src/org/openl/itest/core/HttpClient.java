@@ -39,6 +39,7 @@ import org.xmlunit.diff.ElementSelectors;
 public class HttpClient {
 
     private static final String ANY_BODY = "F0gupfmZFkK0RaK1NbnV";
+    private static final String NO_BODY = "JhSC9dXQ1dkqZ7qHP1qZ";
 
     private RestTemplate rest;
 
@@ -126,7 +127,7 @@ public class HttpClient {
     }
 
     public void get(String url, int status) {
-        send(HttpMethod.GET, url, null, status, null);
+        send(HttpMethod.GET, url, null, status, NO_BODY);
     }
 
     public void get(String url, int status, String responseFile) {
@@ -158,7 +159,7 @@ public class HttpClient {
     }
 
     public void put(String url, String requestFile, int status) {
-        send(HttpMethod.PUT, url, requestFile, status, null);
+        send(HttpMethod.PUT, url, requestFile, status, NO_BODY);
     }
 
     public <T> T put(String url, String requestFile, Class<T> clazz) {
@@ -166,7 +167,7 @@ public class HttpClient {
     }
 
     public void delete(String url) {
-        send(HttpMethod.DELETE, url, null, 200, (String) null);
+        send(HttpMethod.DELETE, url, null, 200, NO_BODY);
     }
 
     private <T> T request(HttpMethod method, String url, String requestFile, int status, Class<T> clazz) {
@@ -179,13 +180,18 @@ public class HttpClient {
         ResponseEntity<Resource> response = rest.exchange(url, method, file(requestFile, responseFile), Resource.class);
         assertEquals("URL :" + url, status, response.getStatusCodeValue());
         Resource body = response.getBody();
-        if (responseFile == null) {
-            assertNull("Expected empty body for URL :" + url, body);
-        } else if (ANY_BODY.equals(responseFile)) {
-        } else if (responseFile.endsWith(".xml")) {
-            compareXML(responseFile, body);
-        } else {
-            compareBinary(responseFile, body);
+        switch (responseFile.substring(responseFile.lastIndexOf('.') + 1)) {
+            case NO_BODY:
+                assertNull("Expected empty body for URL :" + url, body);
+                break;
+            case ANY_BODY:
+                // Skip checcking of a response body
+                break;
+            case "xml":
+                compareXML(responseFile, body);
+                break;
+            default:
+                compareBinary(responseFile, body);
         }
     }
 
