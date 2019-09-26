@@ -28,7 +28,6 @@ public class StoreLoggingData {
     private Date incomingMessageTime;
     private Date outcomingMessageTime;
 
-    private String inputName;
     private Object[] parameters;
 
     private String serviceName;
@@ -113,14 +112,6 @@ public class StoreLoggingData {
 
     public void setOutcomingMessageTime(Date outcomingMessageTime) {
         this.outcomingMessageTime = outcomingMessageTime;
-    }
-
-    public String getInputName() {
-        return inputName;
-    }
-
-    public void setInputName(String inputName) {
-        this.inputName = inputName;
     }
 
     public Object[] getParameters() {

@@ -40,8 +40,6 @@ public class StoreLoggingFeature extends AbstractFeature {
             storeLoggingOutInterceptor.setPrettyLogging(false);
             provider.getOutInterceptors().add(storeLoggingOutInterceptor);
             provider.getOutFaultInterceptors().add(storeLoggingOutInterceptor);
-
-            provider.getInInterceptors().add(new CollectInputDataInterceptor());
         }
     }
 

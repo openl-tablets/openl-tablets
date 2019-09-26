@@ -1,11 +1,13 @@
 package org.openl.rules.ruleservice.logging;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.openl.rules.ruleservice.logging.annotation.IgnoreStoreLogging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +24,20 @@ public final class SimpleStoreLoggingManager implements StoreLoggingManager {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
-    public void submit(StoreLoggingData storeLoggingData) {
-        executorService.submit(() -> {
-            for (StoreLoggingService storeLoggingService : storeLoggingServices) {
-                try {
-                    storeLoggingService.save(storeLoggingData);
-                } catch (Exception e) {
-                    log.error("Failed on save operation.", e);
-                }
+    public void store(StoreLoggingData storeLoggingData) {
+        if (!storeLoggingData.isIgnorable()) {
+            Method serviceMethod = storeLoggingData.getServiceMethod();
+            if (serviceMethod == null || !serviceMethod.isAnnotationPresent(IgnoreStoreLogging.class)) {
+                executorService.submit(() -> {
+                    for (StoreLoggingService storeLoggingService : storeLoggingServices) {
+                        try {
+                            storeLoggingService.save(storeLoggingData);
+                        } catch (Exception e) {
+                            log.error("Failed on save operation.", e);
+                        }
+                    }
+                });
             }
-        });
+        }
     }
 }

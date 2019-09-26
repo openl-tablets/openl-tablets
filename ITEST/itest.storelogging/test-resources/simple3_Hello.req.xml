@@ -1,0 +1,10 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:def="http://DefaultNamespace" xmlns:con="http://context.rules.openl.org">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <def:Hello>
+         <def:runtimeContext>
+         </def:runtimeContext>
+         <def:hour>5</def:hour>
+      </def:Hello>
+   </soapenv:Body>
+</soapenv:Envelope>

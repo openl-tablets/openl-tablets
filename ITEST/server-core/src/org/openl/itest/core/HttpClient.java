@@ -38,6 +38,8 @@ import org.xmlunit.diff.ElementSelectors;
  */
 public class HttpClient {
 
+    private static final String ANY_BODY = "F0gupfmZFkK0RaK1NbnV";
+
     private RestTemplate rest;
 
     private HttpClient(RestTemplate rest) {
@@ -116,7 +118,7 @@ public class HttpClient {
     }
 
     public void get(String url) {
-        send(HttpMethod.GET, url, null, 200, null);
+        send(HttpMethod.GET, url, null, 200, ANY_BODY);
     }
 
     public void get(String url, String responseFile) {
@@ -140,7 +142,7 @@ public class HttpClient {
     }
 
     public void post(String url, String requestFile, int status) {
-        send(HttpMethod.POST, url, requestFile, status, null);
+        send(HttpMethod.POST, url, requestFile, status, ANY_BODY);
     }
 
     public void post(String url, String requestFile, int status, String responseFile) {
@@ -179,6 +181,7 @@ public class HttpClient {
         Resource body = response.getBody();
         if (responseFile == null) {
             assertNull("Expected empty body for URL :" + url, body);
+        } else if (ANY_BODY.equals(responseFile)) {
         } else if (responseFile.endsWith(".xml")) {
             compareXML(responseFile, body);
         } else {

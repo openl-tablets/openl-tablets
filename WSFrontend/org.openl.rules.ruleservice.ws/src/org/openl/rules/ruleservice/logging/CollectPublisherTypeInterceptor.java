@@ -23,6 +23,15 @@ public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Me
 
     @Override
     public void handleMessage(Message message) throws Fault {
+        injectPublisherType(message);
+    }
+
+    @Override
+    public void handleFault(Message message) {
+        injectPublisherType(message);
+    }
+
+    private void injectPublisherType(Message message) {
         StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
         storeLoggingData.setPublisherType(publisherType);
     }

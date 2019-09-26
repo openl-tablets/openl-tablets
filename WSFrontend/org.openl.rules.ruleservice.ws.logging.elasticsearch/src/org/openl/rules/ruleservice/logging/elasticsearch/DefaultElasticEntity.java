@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 import java.util.Date;
 
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.MethodName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.PublisherType;
@@ -45,8 +45,8 @@ public class DefaultElasticEntity {
     @ServiceName
     private String serviceName;
 
-    @InputName
-    private String inputName;
+    @MethodName
+    private String methodName;
 
     @Publisher
     private String publisherType;
@@ -66,7 +66,7 @@ public class DefaultElasticEntity {
             String responseBody,
             String serviceName,
             String url,
-            String inputName,
+            String methodName,
             String publisherType) {
         super();
         this.id = id;
@@ -78,7 +78,7 @@ public class DefaultElasticEntity {
         this.responseBody = responseBody;
         this.serviceName = serviceName;
         this.url = url;
-        this.inputName = inputName;
+        this.methodName = methodName;
         this.publisherType = publisherType;
     }
 
@@ -106,8 +106,8 @@ public class DefaultElasticEntity {
         return outcomingTime;
     }
 
-    public String getInputName() {
-        return inputName;
+    public String getMethodName() {
+        return methodName;
     }
 
     public String getServiceName() {
@@ -158,8 +158,8 @@ public class DefaultElasticEntity {
         this.serviceName = serviceName;
     }
 
-    public void setInputName(String inputName) {
-        this.inputName = inputName;
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public void setPublisherType(String publisherType) {

@@ -143,6 +143,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.getInInterceptors()
                     .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
+
                 svrFactory.getInFaultInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                 svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));

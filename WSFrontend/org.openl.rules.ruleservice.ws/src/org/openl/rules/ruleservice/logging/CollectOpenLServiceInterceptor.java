@@ -29,6 +29,15 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
 
     @Override
     public void handleMessage(Message message) throws Fault {
+        injectServiceName(message);
+    }
+
+    @Override
+    public void handleFault(Message message) {
+        injectServiceName(message);
+    }
+
+    private void injectServiceName(Message message) {
         StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
         storeLoggingData.setServiceName(service.getName());
     }

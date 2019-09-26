@@ -4,10 +4,12 @@ import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.After;
@@ -16,6 +18,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.logging.annotation.PublisherType;
@@ -37,12 +40,14 @@ import net.mguenther.kafka.junit.SendKeyValues;
 
 public class RunITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
-    private static final int TIMEOUT = 30;
+    private static final int AWAIT_TIMEOUT = 30;
     private static final String KEYSPACE = "openl_ws_logging";
 
     private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(Table.class).name();
 
     private static JettyServer server;
+    private static HttpClient client;
+    private static String host;
 
     private static void createKeyspaceIfNotExists(Session session,
             String keyspaceName,
@@ -71,8 +76,9 @@ public class RunITest {
         createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
 
         server = new JettyServer();
-        server.start();
+        host = server.start();
 
+        client = server.client();
     }
 
     @Rule
@@ -89,7 +95,8 @@ public class RunITest {
         }
     }
 
-    private void testKafkaMethodServiceOk() throws Exception {
+    @Test
+    public void testKafkaMethodServiceOk() throws Exception {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "\"Good Morning\"";
 
@@ -106,7 +113,7 @@ public class RunITest {
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
             .await()
-            .atMost(TIMEOUT, TimeUnit.SECONDS)
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(() -> {
                 ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
@@ -119,7 +126,7 @@ public class RunITest {
                 Assert.assertNotNull(row.getString("id"));
                 Assert.assertEquals(REQUEST, row.getString("request"));
                 Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("inputName"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
                 Assert.assertEquals("simple1", row.getString("serviceName"));
                 Assert.assertNotNull(row.getTimestamp("incomingTime"));
                 Assert.assertNotNull(row.getTimestamp("outcomingTime"));
@@ -129,7 +136,8 @@ public class RunITest {
             }, equalTo(true));
     }
 
-    private void testKafkaMethodServiceFail() throws Exception {
+    @Test
+    public void testKafkaMethodServiceFail() throws Exception {
         final String REQUEST = "5";
         final String RESPONSE = REQUEST;
 
@@ -145,7 +153,7 @@ public class RunITest {
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
             .await()
-            .atMost(TIMEOUT, TimeUnit.SECONDS)
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(() -> {
                 ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
@@ -158,7 +166,7 @@ public class RunITest {
                 Assert.assertNotNull(row.getString("id"));
                 Assert.assertEquals(REQUEST, row.getString("request"));
                 Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("inputName"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
                 Assert.assertEquals("simple1", row.getString("serviceName"));
                 Assert.assertNotNull(row.getTimestamp("incomingTime"));
                 Assert.assertNotNull(row.getTimestamp("outcomingTime"));
@@ -167,7 +175,8 @@ public class RunITest {
             }, equalTo(true));
     }
 
-    private void testKafkaServiceOk() throws Exception {
+    @Test
+    public void testKafkaServiceOk() throws Exception {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "\"Good Morning\"";
 
@@ -187,7 +196,7 @@ public class RunITest {
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
             .await()
-            .atMost(TIMEOUT, TimeUnit.SECONDS)
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(() -> {
                 ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
@@ -200,7 +209,7 @@ public class RunITest {
                 Assert.assertNotNull(row.getString("id"));
                 Assert.assertEquals(REQUEST, row.getString("request"));
                 Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals(METHOD_NAME, row.getString("inputName"));
+                Assert.assertEquals(METHOD_NAME, row.getString("methodName"));
                 Assert.assertEquals("simple2", row.getString("serviceName"));
                 Assert.assertNotNull(row.getTimestamp("incomingTime"));
                 Assert.assertNotNull(row.getTimestamp("outcomingTime"));
@@ -210,7 +219,8 @@ public class RunITest {
             }, equalTo(true));
     }
 
-    private void testKafkaServiceFail() throws Exception {
+    @Test
+    public void testKafkaServiceFail() throws Exception {
         final String REQUEST = "5";
         final String RESPONSE = "5";
 
@@ -229,7 +239,7 @@ public class RunITest {
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
             .await()
-            .atMost(TIMEOUT, TimeUnit.SECONDS)
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(() -> {
                 ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
@@ -242,7 +252,7 @@ public class RunITest {
                 Assert.assertNotNull(row.getString("id"));
                 Assert.assertEquals(REQUEST, row.getString("request"));
                 Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals(METHOD_NAME, row.getString("inputName"));
+                Assert.assertEquals(METHOD_NAME, row.getString("methodName"));
                 Assert.assertEquals("simple2", row.getString("serviceName"));
                 Assert.assertNotNull(row.getTimestamp("incomingTime"));
                 Assert.assertNotNull(row.getTimestamp("outcomingTime"));
@@ -252,12 +262,149 @@ public class RunITest {
     }
 
     @Test
-    public void test() throws Exception {
-        testKafkaMethodServiceOk();
-        testKafkaMethodServiceFail();
+    public void testRestServiceOk() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.req.json"),
+            StandardCharsets.UTF_8);
+        final String RESPONSE = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.resp.json"),
+            StandardCharsets.UTF_8);
 
-        testKafkaServiceOk();
-        testKafkaServiceFail();
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+
+        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.json");
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertEquals(RESPONSE, row.getString("response"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
+                Assert.assertEquals("simple3", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testRestServiceFail() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello_fail.req.json"),
+            StandardCharsets.UTF_8);
+
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+
+        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello_fail.req.json", 400);
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertNotNull(row.getString("response"));
+                Assert.assertEquals("simple3", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testSoapServiceOk() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.req.xml"),
+            StandardCharsets.UTF_8);
+
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+
+        client.post("/deployment3/simple3", "/simple3_Hello.req.xml", "/simple3_Hello.resp.xml");
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertNotNull(row.getString("response"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
+                Assert.assertEquals("simple3", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testSoapServiceFail() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello_fail.req.xml"),
+            StandardCharsets.UTF_8);
+
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+
+        client.post("/deployment3/simple3", "/simple3_Hello_fail.req.xml", 200);
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertNotNull(row.getString("response"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
+                Assert.assertEquals("simple3", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+
+                return true;
+            }, equalTo(true));
     }
 
     @After

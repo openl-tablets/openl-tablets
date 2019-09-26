@@ -15,7 +15,7 @@ import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.MethodName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
@@ -105,7 +105,7 @@ public class StoreLoggingDataMapperTest {
     }
 
     @Test
-    public void testSimpleMapping() {
+    public void testSimpleMapping() throws Exception {
         StoreLoggingData storeLoggingData = new StoreLoggingData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
@@ -119,7 +119,7 @@ public class StoreLoggingDataMapperTest {
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);
-        final String inputName = RandomStringUtils.random(10);
+        storeLoggingData.setServiceMethod(StoreLoggingDataMapperTest.class.getMethod("testSimpleMapping"));
         final String url = RandomStringUtils.random(10);
         final PublisherType publisher = PublisherType.RESTFUL;
         final String serviceName = RandomStringUtils.random(10);
@@ -129,7 +129,6 @@ public class StoreLoggingDataMapperTest {
 
         storeLoggingData.setIncomingMessageTime(incomingMessageTime);
         storeLoggingData.setOutcomingMessageTime(outcomingMessageTime);
-        storeLoggingData.setInputName(inputName);
         storeLoggingData.setServiceName(serviceName);
         storeLoggingData.setPublisherType(publisher);
         LoggingMessage requestLoggingMessage = new LoggingMessage("", "");
@@ -149,7 +148,7 @@ public class StoreLoggingDataMapperTest {
 
         // validation
         Assert.assertEquals(SOME_VALUE, testEntity.getId());
-        Assert.assertEquals(inputName, testEntity.getInputName());
+        Assert.assertEquals("testSimpleMapping", testEntity.getMethodName());
         Assert.assertEquals(incomingMessageTime, testEntity.getIncomingTime());
         Assert.assertEquals(outcomingMessageTime, testEntity.getOutcomingTime());
         Assert.assertEquals(serviceName, testEntity.getServiceName());
@@ -191,8 +190,8 @@ public class StoreLoggingDataMapperTest {
         private String serviceName;
         @Url
         private String url;
-        @InputName
-        private String inputName;
+        @MethodName
+        private String methodName;
         private String publisherType;
         private String stringValue1;
         private String stringValue2;
@@ -270,12 +269,12 @@ public class StoreLoggingDataMapperTest {
             this.url = url;
         }
 
-        public String getInputName() {
-            return inputName;
+        public String getMethodName() {
+            return methodName;
         }
 
-        public void setInputName(String inputName) {
-            this.inputName = inputName;
+        public void setMethodName(String inputName) {
+            this.methodName = inputName;
         }
 
         public String getPublisherType() {

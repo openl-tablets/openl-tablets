@@ -1,0 +1,12 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <serviceName>simple3</serviceName>
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>org.openl.rules.calculation.result.convertor2.CodeStep
+            </string>
+        </entry>
+    </configuration>
+</rules-deploy>

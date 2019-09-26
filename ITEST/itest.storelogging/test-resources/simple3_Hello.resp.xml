@@ -1,0 +1,1 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ns1:HelloResponse xmlns:ns1="http://DefaultNamespace"><ns1:return>Good Morning</ns1:return></ns1:HelloResponse></soap:Body></soap:Envelope>

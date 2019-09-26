@@ -118,12 +118,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isStoreLoggingEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
+
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInInterceptors()
                         .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.WEBSERVICE));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
+
                     svrFactory.getInFaultInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));

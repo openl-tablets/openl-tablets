@@ -9,6 +9,6 @@ import org.openl.rules.ruleservice.logging.Convertor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
-public @interface InputName {
+public @interface MethodName {
     Class<? extends Convertor<Object, String>> convertor() default DefaultStringConvertor.class;
 }

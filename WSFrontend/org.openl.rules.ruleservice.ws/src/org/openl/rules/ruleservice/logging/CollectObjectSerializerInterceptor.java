@@ -28,6 +28,15 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
 
     @Override
     public void handleMessage(Message message) throws Fault {
+        injectObjectSerializer(message);
+    }
+
+    @Override
+    public void handleFault(Message message) {
+        injectObjectSerializer(message);
+    }
+
+    private void injectObjectSerializer(Message message) {
         StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
         storeLoggingData.setObjectSerializer(objectSerializer);
     }

@@ -40,16 +40,14 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
     @Override
     public void save(StoreLoggingData storeLoggingData) {
         Method serviceMethod = storeLoggingData.getServiceMethod();
-        if (serviceMethod == null) {
-            log.error("Service method has not been found! Please, see previous errors.");
-            return;
-        }
 
         Object[] entities = null;
-
-        CassandraEntity cassandraEntity = serviceMethod.getAnnotation(CassandraEntity.class);
-        if (cassandraEntity == null) {
-            cassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(CassandraEntity.class);
+        CassandraEntity cassandraEntity = null;
+        if (serviceMethod != null) {
+            cassandraEntity = serviceMethod.getAnnotation(CassandraEntity.class);
+            if (cassandraEntity == null) {
+                cassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(CassandraEntity.class);
+            }
         }
 
         if (cassandraEntity == null || cassandraEntity.value().length == 0) {

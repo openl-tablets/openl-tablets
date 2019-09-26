@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.logging.cassandra;
 import java.util.Date;
 
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
+import org.openl.rules.ruleservice.logging.annotation.MethodName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.Request;
@@ -41,8 +41,8 @@ public class DefaultCassandraEntity {
     @Url
     private String url;
 
-    @InputName
-    private String inputName;
+    @MethodName
+    private String methodName;
 
     @ClusteringColumn(0)
     @Publisher
@@ -58,7 +58,7 @@ public class DefaultCassandraEntity {
             String response,
             String serviceName,
             String url,
-            String inputName,
+            String methodName,
             String publisherType) {
         this.id = id;
         this.incomingTime = incomingTime;
@@ -67,7 +67,7 @@ public class DefaultCassandraEntity {
         this.response = response;
         this.serviceName = serviceName;
         this.url = url;
-        this.inputName = inputName;
+        this.methodName = methodName;
         this.publisherType = publisherType;
     }
 
@@ -127,14 +127,14 @@ public class DefaultCassandraEntity {
         this.url = url;
     }
 
-    public String getInputName() {
-        return inputName;
+    public String getMethodName() {
+        return methodName;
     }
-
-    public void setInputName(String inputName) {
-        this.inputName = inputName;
+    
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
-
+    
     public String getPublisherType() {
         return publisherType;
     }

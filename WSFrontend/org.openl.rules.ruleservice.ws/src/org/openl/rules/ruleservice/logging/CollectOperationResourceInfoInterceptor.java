@@ -11,7 +11,6 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.openl.rules.ruleservice.logging.annotation.IgnoreLogging;
 
 public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -26,14 +25,20 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
 
     @Override
     public void handleMessage(Message message) throws Fault {
+        injectServiceMethod(message);
+    }
+
+    @Override
+    public void handleFault(Message message) {
+        injectServiceMethod(message);
+    }
+
+    private void injectServiceMethod(Message message) {
         StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {
             Method serviceMethod = operationResourceInfo.getAnnotatedMethod();
             storeLoggingData.setServiceMethod(serviceMethod);
-            if (serviceMethod.isAnnotationPresent(IgnoreLogging.class)) {
-                storeLoggingData.setIgnorable(true);
-            }
         } else {
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             MethodDispatcher md = (MethodDispatcher) message.getExchange()

@@ -49,6 +49,15 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     @Override
     public void handleMessage(Message message) {
+        handleAnyMessage(message);
+    }
+
+    @Override
+    public void handleFault(Message message) {
+        handleAnyMessage(message);
+    }
+
+    private void handleAnyMessage(Message message) {
         final OutputStream os = message.getContent(OutputStream.class);
         final Writer iowriter = message.getContent(Writer.class);
         if (os == null && iowriter == null) {
@@ -183,14 +192,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
         final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        if (storeLoggingData.getServiceMethod() != null) {
+        try {
             storeLoggingData.setResponseMessage(message);
             storeLoggingData.setOutcomingMessageTime(new Date());
-            if (!storeLoggingData.isIgnorable()) {
-                getStoreLoggingManager().submit(storeLoggingData);
-            }
+            getStoreLoggingManager().store(storeLoggingData);
+        } finally {
+            StoreLoggingDataHolder.remove();
         }
-        StoreLoggingDataHolder.remove();
     }
 
     protected String formatLoggingMessage(LoggingMessage buffer) {

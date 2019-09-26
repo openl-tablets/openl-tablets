@@ -217,7 +217,6 @@ public final class KafkaService implements Runnable {
                                 
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setServiceMethod(requestMessage.getMethod());
-                                    storeLoggingData.setInputName(requestMessage.getMethod().getName());
                                     storeLoggingData.setParameters(requestMessage.getParameters());
                                 }
                                 
@@ -254,7 +253,7 @@ public final class KafkaService implements Runnable {
                                         }
                                         sendErrorToDlt(consumerRecord, exception, storeLoggingData);
                                     } else if (storeLoggingData != null) {
-                                        getStoreLoggingManager().submit(storeLoggingData);
+                                        getStoreLoggingManager().store(storeLoggingData);
                                     }
                                 });
                             } catch (Exception e) {
@@ -390,7 +389,7 @@ public final class KafkaService implements Runnable {
                         System.lineSeparator(),
                         record.value().asText()), exception);
                 } else if (storeLoggingData != null) {
-                    getStoreLoggingManager().submit(storeLoggingData);
+                    getStoreLoggingManager().store(storeLoggingData);
                 }
             });
         } catch (Exception e1) {

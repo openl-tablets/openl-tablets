@@ -25,8 +25,8 @@ import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
 import org.openl.rules.ruleservice.logging.annotation.KafkaMessageHeader;
+import org.openl.rules.ruleservice.logging.annotation.MethodName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.logging.annotation.Publisher;
 import org.openl.rules.ruleservice.logging.annotation.QualifyPublisherType;
@@ -55,7 +55,7 @@ public class StoreLoggingDataMapper {
         mappingAnnotations.add(Publisher.class);
         mappingAnnotations.add(IncomingTime.class);
         mappingAnnotations.add(OutcomingTime.class);
-        mappingAnnotations.add(InputName.class);
+        mappingAnnotations.add(MethodName.class);
         mappingAnnotations.add(Url.class);
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
@@ -105,8 +105,12 @@ public class StoreLoggingDataMapper {
                     annotation,
                     annotatedElement,
                     storeLoggingData.getOutcomingMessageTime());
-            } else if (annotation instanceof InputName) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getInputName());
+            } else if (annotation instanceof MethodName && storeLoggingData.getServiceMethod() != null) {
+                injectValue(storeLoggingData,
+                    target,
+                    annotation,
+                    annotatedElement,
+                    storeLoggingData.getServiceMethod().getName());
             } else if (annotation instanceof ServiceName) {
                 injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getServiceName());
             } else if (annotation instanceof Publisher) {

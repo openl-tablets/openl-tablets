@@ -4,7 +4,7 @@ CREATE TABLE openl_logging (
     datevalue2 timestamp,
     datevalue3 timestamp,
     incomingtime timestamp,
-    inputname text,
+    methodName text,
     numbervalue1 bigint,
     numbervalue2 bigint,
     numbervalue3 bigint,

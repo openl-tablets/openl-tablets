@@ -40,18 +40,15 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
     @Override
     public void save(StoreLoggingData storeLoggingData) {
         Method serviceMethod = storeLoggingData.getServiceMethod();
-        if (serviceMethod == null) {
-            log.error("Service method is not found! Please, see previous errors.");
-            return;
-        }
 
         IndexBuilder[] elasticsearchIndexBuilders = null;
-
-        ElasticsearchIndexBuilder elasticsearchIndexBuilderAnnotation = serviceMethod
-            .getAnnotation(ElasticsearchIndexBuilder.class);
-        if (elasticsearchIndexBuilderAnnotation == null) {
-            elasticsearchIndexBuilderAnnotation = serviceMethod.getDeclaringClass()
-                .getAnnotation(ElasticsearchIndexBuilder.class);
+        ElasticsearchIndexBuilder elasticsearchIndexBuilderAnnotation = null;
+        if (serviceMethod != null) {
+            elasticsearchIndexBuilderAnnotation = serviceMethod.getAnnotation(ElasticsearchIndexBuilder.class);
+            if (elasticsearchIndexBuilderAnnotation == null) {
+                elasticsearchIndexBuilderAnnotation = serviceMethod.getDeclaringClass()
+                    .getAnnotation(ElasticsearchIndexBuilder.class);
+            }
         }
         if (elasticsearchIndexBuilderAnnotation == null || elasticsearchIndexBuilderAnnotation.value().length == 0) {
             elasticsearchIndexBuilders = new IndexBuilder[] { new DefaultIndexBuilderImpl() };

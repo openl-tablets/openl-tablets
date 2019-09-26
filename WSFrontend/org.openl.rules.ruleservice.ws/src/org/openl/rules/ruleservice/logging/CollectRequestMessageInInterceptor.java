@@ -50,10 +50,15 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     public void handleMessage(Message message) {
-        store(message);
+        processMessage(message);
     }
 
-    protected void store(Message message) {
+    @Override
+    public void handleFault(Message message) {
+        processMessage(message);
+    }
+
+    protected void processMessage(Message message) {
         if (message.containsKey(ID_KEY)) {
             return;
         }
