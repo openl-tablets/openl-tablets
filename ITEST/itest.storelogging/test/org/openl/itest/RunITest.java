@@ -105,7 +105,9 @@ public class RunITest {
         KeyValue<String, String> record0 = new KeyValue<>(null, REQUEST);
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record0)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest0 = ObserveKeyValues.on("hello-out-topic", 1).build();
+        ObserveKeyValues<String, String> observeRequest0 = ObserveKeyValues.on("hello-out-topic", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValues = cluster.observeValues(observeRequest0);
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals(RESPONSE, observedValues.get(0));
@@ -146,7 +148,9 @@ public class RunITest {
         KeyValue<String, String> record1 = new KeyValue<>(null, REQUEST);
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1).build();
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         Assert.assertEquals(1, observedValuesDlt.size());
 
@@ -188,7 +192,9 @@ public class RunITest {
         record2.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record2)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest2 = ObserveKeyValues.on("hello-out-topic-2", 1).build();
+        ObserveKeyValues<String, String> observeRequest2 = ObserveKeyValues.on("hello-out-topic-2", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValues2 = cluster.observeValues(observeRequest2);
         Assert.assertEquals(1, observedValues2.size());
         Assert.assertEquals(RESPONSE, observedValues2.get(0));
@@ -232,7 +238,9 @@ public class RunITest {
         record.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt3 = ObserveKeyValues.on("hello-dlt-topic-2", 1).build();
+        ObserveKeyValues<String, String> observeRequestDlt3 = ObserveKeyValues.on("hello-dlt-topic-2", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValuesDlt3 = cluster.observeValues(observeRequestDlt3);
         Assert.assertEquals(1, observedValuesDlt3.size());
 

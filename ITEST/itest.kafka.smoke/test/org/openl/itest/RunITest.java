@@ -42,8 +42,10 @@ public class RunITest {
         KeyValue<String, String> record0 = new KeyValue<>(null, "{\"hour\": 5}");
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record0)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest0 = ObserveKeyValues.on("hello-out-topic", 1).build();
-        List<String> observedValues = cluster.observeValues(observeRequest0);
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
+        List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
@@ -52,7 +54,9 @@ public class RunITest {
         KeyValue<String, String> record1 = new KeyValue<>(null, "5");
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1).build();
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         Assert.assertEquals(1, observedValuesDlt.size());
     }
@@ -62,7 +66,9 @@ public class RunITest {
         record2.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record2)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1).build();
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
@@ -73,7 +79,9 @@ public class RunITest {
         record3.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record3)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1).build();
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         Assert.assertEquals(1, observedValuesDlt.size());
     }
@@ -84,6 +92,7 @@ public class RunITest {
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
+            .with("metadata.max.age.ms", 1000)
             .with("group.id", "junit")
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
@@ -106,6 +115,7 @@ public class RunITest {
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
+            .with("metadata.max.age.ms", 1000)
             .with("group.id", "junit")
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
@@ -120,6 +130,7 @@ public class RunITest {
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
+            .with("metadata.max.age.ms", 1000)
             .with("group.id", "junit")
             .filterOnHeaders(e -> e.lastHeader(KafkaHeaders.CORRELATION_ID) != null && "42"
                 .equals(toString(e.lastHeader(KafkaHeaders.CORRELATION_ID).value())))
@@ -137,6 +148,7 @@ public class RunITest {
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-reply-topic", 1)
+            .with("metadata.max.age.ms", 1000)
             .with("group.id", "junit")
             .filterOnHeaders(e -> e.lastHeader(KafkaHeaders.CORRELATION_ID) != null && "42"
                 .equals(toString(e.lastHeader(KafkaHeaders.CORRELATION_ID).value())))
@@ -169,6 +181,7 @@ public class RunITest {
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-replydlt-topic", 1)
+            .with("metadata.max.age.ms", 1000)
             .with("group.id", "junit")
             .with("auto.offset.reset", "earliest")
             .build();
