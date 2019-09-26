@@ -5,4 +5,7 @@
     <publishers>
         <publisher>kafka</publisher>
     </publishers>
+    <loggingStorages>
+        <storage>CASSANDRA</storage>
+    </loggingStorages>
 </rules-deploy>

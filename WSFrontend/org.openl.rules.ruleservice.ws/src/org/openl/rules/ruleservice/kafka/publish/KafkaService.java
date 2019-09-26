@@ -207,6 +207,7 @@ public final class KafkaService implements Runnable {
                             try {
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setServiceName(service.getName());
+                                    storeLoggingData.setLoggingStorages(service.getLoggingStorages());
                                     storeLoggingData.setIncomingMessageTime(incomingTime);
                                     storeLoggingData.setPublisherType(PublisherType.KAFKA);
                                     storeLoggingData.setObjectSerializer(getObjectSerializer());
@@ -214,12 +215,12 @@ public final class KafkaService implements Runnable {
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 RequestMessage requestMessage = consumerRecord.value();
-                                
+
                                 if (storeLoggingData != null) {
                                     storeLoggingData.setServiceMethod(requestMessage.getMethod());
                                     storeLoggingData.setParameters(requestMessage.getParameters());
                                 }
-                                
+
                                 Object result = requestMessage.getMethod()
                                     .invoke(service.getServiceBean(), requestMessage.getParameters());
                                 ProducerRecord<String, Object> producerRecord;
@@ -382,6 +383,7 @@ public final class KafkaService implements Runnable {
             dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLoggingData != null) {
                     storeLoggingData.setDltRecord(dltRecord);
+                    storeLoggingData.fault();
                 }
                 if (exception != null && log.isErrorEnabled()) {
                     log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",

@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.codec.language.bm.Rule;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
 import org.openl.rules.ruleservice.logging.StoreLoggingService;
@@ -39,6 +41,10 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
 
     @Override
     public void save(StoreLoggingData storeLoggingData) {
+        if (!storeLoggingData.getLoggingStorages().contains(RulesDeploy.LoggingStorageType.CASSANDRA.toString())) {
+            return;
+        }
+
         Method serviceMethod = storeLoggingData.getServiceMethod();
 
         Object[] entities = null;

@@ -55,6 +55,8 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     public void handleFault(Message message) {
+        final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        storeLoggingData.fault();
         processMessage(message);
     }
 

@@ -40,5 +40,6 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
     private void injectServiceName(Message message) {
         StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
         storeLoggingData.setServiceName(service.getName());
+        storeLoggingData.setLoggingStorages(service.getLoggingStorages());
     }
 }

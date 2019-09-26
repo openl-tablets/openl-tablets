@@ -21,6 +21,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.addPermission(NoTypePermission.NONE);
         xstream.allowTypeHierarchy(String.class);
         xstream.allowTypeHierarchy(RulesDeploy.PublisherType.class);
+        xstream.allowTypeHierarchy(RulesDeploy.LoggingStorageType.class);
         xstream.allowTypeHierarchy(RulesDeploy.class);
         xstream.allowTypeHierarchy(RulesDeploy.WildcardPattern.class);
 
@@ -30,6 +31,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.setMode(XStream.NO_REFERENCES);
 
         xstream.aliasType("publisher", RulesDeploy.PublisherType.class);
+        xstream.aliasType("storage", RulesDeploy.LoggingStorageType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy.class);
         xstream.aliasType(MODULE_NAME, RulesDeploy.WildcardPattern.class);
 

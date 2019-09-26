@@ -248,13 +248,15 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             .setProvideVariations(serviceDescription.isProvideVariations())
             .addModules(modules);
 
-        if (serviceDescription.getPublishers() != null) {
-            for (String key : serviceDescription.getPublishers()) {
-                builder.addPublisher(key);
-            }
+        for (String publisher : serviceDescription.getPublishers()) {
+            builder.addPublisher(publisher);
         }
 
-        final OpenLService openLService = builder.build(new AbstractOpenLServiceInitializer() {
+        for (String loggingStorage : serviceDescription.getLoggingStorages()) {
+            builder.addLoggingStorage(loggingStorage);
+        }
+
+        return builder.build(new AbstractOpenLServiceInitializer() {
             @Override
             public void init(OpenLService openLService) throws RuleServiceInstantiationException {
                 try {
@@ -268,7 +270,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 }
             }
         });
-        return openLService;
     }
 
     public RuleServiceLoader getRuleServiceLoader() {

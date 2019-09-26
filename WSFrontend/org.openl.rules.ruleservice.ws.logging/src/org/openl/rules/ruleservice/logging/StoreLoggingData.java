@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,8 @@ public class StoreLoggingData {
 
     private PublisherType publisherType;
 
+    private Collection<String> loggingStorages;
+
     private Method serviceMethod;
 
     private Map<String, Object> customValues = new HashMap<>();
@@ -41,6 +44,8 @@ public class StoreLoggingData {
     private ObjectSerializer objectSerializer;
 
     private boolean ignorable = false;
+
+    private boolean fault = true;
 
     public ProducerRecord<String, Object> getProducerRecord() {
         return producerRecord;
@@ -134,6 +139,14 @@ public class StoreLoggingData {
         this.serviceMethod = serviceMethod;
     }
 
+    public void setLoggingStorages(Collection<String> loggingStorages) {
+        this.loggingStorages = loggingStorages;
+    }
+
+    public Collection<String> getLoggingStorages() {
+        return loggingStorages;
+    }
+
     public boolean isIgnorable() {
         return ignorable;
     }
@@ -152,5 +165,17 @@ public class StoreLoggingData {
 
     public void setObjectSerializer(ObjectSerializer objectSerializer) {
         this.objectSerializer = objectSerializer;
+    }
+
+    public boolean isFault() {
+        return fault;
+    }
+
+    public void setFault(boolean fault) {
+        this.fault = fault;
+    }
+
+    public void fault() {
+        this.fault = true;
     }
 }

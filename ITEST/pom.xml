@@ -19,7 +19,6 @@
     </properties>
 
     <modules>
-        <module>itest.storelogging</module>
         <module>server-core</module>
         <module>itest.smoke</module>
         <module>itest.kafka.smoke</module>
@@ -36,6 +35,7 @@
         <module>itest.EPBDS-7654</module>
         <module>itest.EPBDS-7947</module>
         <module>itest.EPBDS-7721</module>
+        <module>itest.storelogging</module>
     </modules>
 
     <dependencyManagement>

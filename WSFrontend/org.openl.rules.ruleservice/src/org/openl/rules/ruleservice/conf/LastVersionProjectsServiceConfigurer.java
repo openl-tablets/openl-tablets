@@ -180,8 +180,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                     serviceDescriptionBuilder.setProvideVariations(rulesDeploy.isProvideVariations());
                                 }
                                 if (rulesDeploy.getPublishers() != null) {
-                                    for (RulesDeploy.PublisherType key : rulesDeploy.getPublishers()) {
-                                        serviceDescriptionBuilder.addPublisher(key.toString());
+                                    for (RulesDeploy.PublisherType publisher : rulesDeploy.getPublishers()) {
+                                        serviceDescriptionBuilder.addPublisher(publisher.toString());
+                                    }
+                                }
+                                if (rulesDeploy.getLoggingStorages() != null) {
+                                    for (RulesDeploy.LoggingStorageType loggingStorage : rulesDeploy
+                                        .getLoggingStorages()) {
+                                        serviceDescriptionBuilder.addLoggingStorages(loggingStorage.toString());
                                     }
                                 }
                                 if (rulesDeploy.getConfiguration() != null) {

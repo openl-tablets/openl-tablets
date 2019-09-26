@@ -26,6 +26,7 @@ public final class ServiceDescription {
     private Collection<Module> modules;
     private DeploymentDescription deployment;
     private String[] publishers;
+    private String[] loggingStorages;
     private ResourceLoader resourceLoader;
 
     /**
@@ -51,6 +52,7 @@ public final class ServiceDescription {
             DeploymentDescription deployment,
             Map<String, Object> configuration,
             String[] publishers,
+            String[] loggingStorages,
             ResourceLoader resourceLoader) {
         Objects.requireNonNull(name, "name arg must not be null.");
         Objects.requireNonNull(resourceLoader, "resourceLoader arg must not be null.");
@@ -75,6 +77,7 @@ public final class ServiceDescription {
         }
 
         this.publishers = publishers;
+        this.loggingStorages = loggingStorages;
         this.deployment = deployment;
         this.resourceLoader = resourceLoader;
     }
@@ -93,6 +96,7 @@ public final class ServiceDescription {
             builder.deployment,
             builder.configuration,
             builder.publishers.toArray(new String[] {}),
+            builder.loggingStorages.toArray(new String[] {}),
             builder.resourceLoader);
     }
 
@@ -210,7 +214,18 @@ public final class ServiceDescription {
     }
 
     public String[] getPublishers() {
+        if (publishers == null) {
+            return new String[] {};
+        }
         return publishers;
+    }
+
+    public String[] getLoggingStorages() {
+        if (loggingStorages == null) {
+            return new String[] {};
+        }
+
+        return loggingStorages;
     }
 
     /** {@inheritDoc} */
@@ -265,7 +280,14 @@ public final class ServiceDescription {
         private Collection<Module> modules;
         private DeploymentDescription deployment;
         private Set<String> publishers = new HashSet<>();
+        private Set<String> loggingStorages = new HashSet<>();
         private ResourceLoader resourceLoader;
+
+        public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
+            Objects.requireNonNull(resourceLoader, "resourceLoader argument must not be null.");
+            this.resourceLoader = resourceLoader;
+            return this;
+        }
 
         public ServiceDescriptionBuilder setPublishers(String[] publishers) {
             this.publishers = new HashSet<>();
@@ -277,18 +299,30 @@ public final class ServiceDescription {
             return this;
         }
 
-        public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
-            Objects.requireNonNull(resourceLoader, "resourceLoader argument must not be null.");
-            this.resourceLoader = resourceLoader;
-            return this;
-        }
-
-        public void addPublisher(String key) {
-            Objects.requireNonNull(key, "key argument must not be null.");
+        public void addPublisher(String publisher) {
+            Objects.requireNonNull(publisher, "publisher argument must not be null.");
             if (this.publishers == null) {
                 this.publishers = new HashSet<>();
             }
-            this.publishers.add(key.toUpperCase());
+            this.publishers.add(publisher.toUpperCase());
+        }
+
+        public ServiceDescriptionBuilder setLoggingStorages(String[] loggingStorages) {
+            this.loggingStorages = new HashSet<>();
+            if (loggingStorages != null) {
+                for (String loggingStorage : loggingStorages) {
+                    this.loggingStorages.add(loggingStorage);
+                }
+            }
+            return this;
+        }
+
+        public void addLoggingStorages(String loggingStorages) {
+            Objects.requireNonNull(loggingStorages, "loggingStorages argument must not be null.");
+            if (this.loggingStorages == null) {
+                this.loggingStorages = new HashSet<>();
+            }
+            this.loggingStorages.add(loggingStorages.toUpperCase());
         }
 
         /**

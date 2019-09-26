@@ -31,6 +31,7 @@ public final class OpenLService {
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Set<String> publishers;
+    private Set<String> loggingStorages;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
 
@@ -63,6 +64,7 @@ public final class OpenLService {
             boolean provideRuntimeContext,
             boolean provideVariations,
             Set<String> publishers,
+            Set<String> loggingStorages,
             Collection<Module> modules,
             ClassLoader classLoader,
             Class<?> serviceClass) {
@@ -85,6 +87,11 @@ public final class OpenLService {
         } else {
             this.publishers = Collections.emptySet();
         }
+        if (loggingStorages != null) {
+            this.loggingStorages = Collections.unmodifiableSet(loggingStorages);
+        } else {
+            this.loggingStorages = Collections.emptySet();
+        }
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
     }
@@ -99,6 +106,7 @@ public final class OpenLService {
             builder.provideRuntimeContext,
             builder.provideVariations,
             builder.publishers,
+            builder.loggingStorages,
             builder.modules,
             builder.classLoader,
             builder.serviceClass);
@@ -145,6 +153,18 @@ public final class OpenLService {
             return Collections.emptyList();
         }
         return publishers;
+    }
+
+    /**
+     * Returns service logging storages.
+     *
+     * @return service logging storages
+     */
+    public Collection<String> getLoggingStorages() {
+        if (loggingStorages == null) {
+            return Collections.emptyList();
+        }
+        return loggingStorages;
     }
 
     /**
@@ -330,6 +350,7 @@ public final class OpenLService {
         private boolean provideVariations = false;
         private Collection<Module> modules;
         private Set<String> publishers;
+        Set<String> loggingStorages;
         private ClassLoader classLoader;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
@@ -362,6 +383,35 @@ public final class OpenLService {
             }
             if (publisher != null) {
                 this.publishers.add(publisher);
+            }
+            return this;
+        }
+
+        public OpenLServiceBuilder setLoggingStorages(Set<String> loggingStorages) {
+            if (loggingStorages == null) {
+                this.loggingStorages = new HashSet<>(0);
+            } else {
+                this.loggingStorages = loggingStorages;
+            }
+            return this;
+        }
+
+        public OpenLServiceBuilder addLoggingStorages(Set<String> loggingStorages) {
+            if (this.loggingStorages == null) {
+                this.loggingStorages = new HashSet<>();
+            }
+            if (loggingStorages != null) {
+                this.loggingStorages.addAll(loggingStorages);
+            }
+            return this;
+        }
+
+        public OpenLServiceBuilder addLoggingStorage(String loggingStorage) {
+            if (this.loggingStorages == null) {
+                this.loggingStorages = new HashSet<>();
+            }
+            if (loggingStorage != null) {
+                this.loggingStorages.add(loggingStorage);
             }
             return this;
         }

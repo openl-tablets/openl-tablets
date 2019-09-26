@@ -1,5 +1,8 @@
 <rules-deploy>
-	<isProvideRuntimeContext>false</isProvideRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<url>simple</url>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <url>simple</url>
+    <loggingStorages>
+        <storage>CASSANDRA</storage>
+    </loggingStorages>
 </rules-deploy>

@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 import java.lang.reflect.Method;
 
 import org.openl.binding.MethodUtil;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.logging.StoreLoggingData;
 import org.openl.rules.ruleservice.logging.StoreLoggingService;
 import org.openl.rules.ruleservice.logging.elasticsearch.annotation.ElasticsearchIndexBuilder;
@@ -39,6 +40,10 @@ public class ElasticSearchStoreLoggingService implements StoreLoggingService {
 
     @Override
     public void save(StoreLoggingData storeLoggingData) {
+        if (!storeLoggingData.getLoggingStorages().contains(RulesDeploy.LoggingStorageType.ELASTICSEARCH.toString())) {
+            return;
+        }
+
         Method serviceMethod = storeLoggingData.getServiceMethod();
 
         IndexBuilder[] elasticsearchIndexBuilders = null;
