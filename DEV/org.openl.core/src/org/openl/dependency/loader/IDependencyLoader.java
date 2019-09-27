@@ -19,4 +19,8 @@ public interface IDependencyLoader {
      */
     CompiledDependency load(String dependencyName,
             IDependencyManager dependencyManager) throws OpenLCompilationException;
+    
+    boolean isProjectDependency(String dependencyName);
+    
+    boolean isModuleDependency(String dependencyName);
 }

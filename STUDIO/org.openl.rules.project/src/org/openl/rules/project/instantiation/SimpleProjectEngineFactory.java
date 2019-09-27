@@ -219,7 +219,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
-        SimpleProjectDependencyManager dependencyManager = new SimpleProjectDependencyManager(projectDescriptors,
+        SimpleDependencyManager dependencyManager = new SimpleDependencyManager(projectDescriptors,
             classLoader,
             isSingleModuleMode(),
             isExecutionMode());

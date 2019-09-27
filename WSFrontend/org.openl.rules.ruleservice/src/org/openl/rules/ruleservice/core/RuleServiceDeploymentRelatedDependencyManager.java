@@ -15,7 +15,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager implements CompilationTimeLoggingDependencyManager {
+public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDependencyManager implements CompilationTimeLoggingDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
@@ -63,7 +63,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
         return dependencyNames;
     }
 
-    private ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(Stack::new);
+    private ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
 
     private static class CompilationInfo {
         long time;
@@ -78,14 +78,14 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
         compilationInfo.time = System.currentTimeMillis();
         compilationInfo.dependencyLoader = dependencyLoader;
         compilationInfo.modules = Collections.unmodifiableCollection(modules);
-        Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+        Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
         compilationInfoStack.push(compilationInfo);
     }
 
     @Override
     public void compilationCompleted(IDependencyLoader dependencyLoader, boolean successed) {
+        Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
         try {
-            Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
             CompilationInfo compilationInfo = compilationInfoStack.pop();
             if (compilationInfo.dependencyLoader != dependencyLoader) {
                 throw new IllegalStateException("Illegal State!");
@@ -96,10 +96,12 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
             if (modules.size() == 1 && successed && (!(dependencyLoader instanceof LazyRuleServiceDependencyLoader))) {
                 Module module = modules.iterator().next();
-                log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.",
-                    module.getName(),
-                    module.getProject().getName(),
-                    String.valueOf((t - compilationInfo.embeddedTime))));
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.",
+                        module.getName(),
+                        module.getProject().getName(),
+                        String.valueOf((t - compilationInfo.embeddedTime))));
+                }
             }
 
             if (!compilationInfoStack.isEmpty()) {
@@ -108,6 +110,10 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             }
         } catch (Exception e) {
             log.error("Unexpected exception!", e);
+        } finally {
+            if (compilationInfoStack.isEmpty()) {
+                compliationInfoThreadLocal.remove(); // Clean a thread
+            }
         }
     }
 
@@ -122,8 +128,6 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             });
         } catch (OpenLCompilationException e) {
             throw e;
-        } catch (InterruptedException e) {
-            throw new OpenLCompilationException("Interrupted exception!", e);
         } catch (Exception e) {
             throw new OpenLCompilationException("Something wrong!", e);
         }

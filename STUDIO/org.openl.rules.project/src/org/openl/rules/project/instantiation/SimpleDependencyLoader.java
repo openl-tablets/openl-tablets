@@ -2,6 +2,7 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -15,16 +16,16 @@ import org.openl.rules.project.model.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleProjectDependencyLoader implements IDependencyLoader {
+public class SimpleDependencyLoader implements IDependencyLoader {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyLoader.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleDependencyLoader.class);
 
     protected final String dependencyName;
     protected final Collection<Module> modules;
     protected CompiledDependency compiledDependency = null;
     private boolean executionMode = false;
     private boolean singleModuleMode = false;
-    private final boolean isProject;
+    private final boolean projectDependency;
 
     protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
         Map<String, Object> params = dependencyManager.getExternalParameters();
@@ -47,83 +48,73 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         return executionMode;
     }
 
-    public SimpleProjectDependencyLoader(String dependencyName,
+    @Override
+    public boolean isProjectDependency(String dependencyName) {
+        return Objects.equals(this.dependencyName, dependencyName) && projectDependency;
+    }
+
+    @Override
+    public boolean isModuleDependency(String dependencyName) {
+        return Objects.equals(this.dependencyName, dependencyName) && !projectDependency;
+    }
+
+    public SimpleDependencyLoader(String dependencyName,
             Collection<Module> modules,
             boolean singleModuleMode,
             boolean executionMode,
-            boolean isProject) {
-        if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName arg must not be null!");
-        }
-        if (modules == null || modules.isEmpty()) {
-            throw new IllegalArgumentException("modules arg must not be null or empty!");
+            boolean projectDependency) {
+        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
+        Objects.requireNonNull(modules, "modules can't be null.");
+        if (modules.isEmpty()) {
+            throw new IllegalArgumentException("Collection of modules can't be empty.");
         }
         this.dependencyName = dependencyName;
         this.modules = modules;
         this.executionMode = executionMode;
         this.singleModuleMode = singleModuleMode;
-        this.isProject = isProject;
+        this.projectDependency = projectDependency;
     }
 
     @Override
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
-        AbstractProjectDependencyManager dependencyManager;
-        if (dm instanceof AbstractProjectDependencyManager) {
-            dependencyManager = (AbstractProjectDependencyManager) dm;
-        } else {
-            throw new IllegalStateException("This loader works only with AbstractProjectDependencyManager!");
-        }
-
-        if (this.dependencyName.equals(dependencyName)) {
-            boolean isCircularDependency = !isProject && dependencyManager.getCompilationStack()
-                .contains(dependencyName);
-            if (!isCircularDependency && !dependencyManager.getCompilationStack().isEmpty()) {
-                AbstractProjectDependencyManager.DependencyReference dr = new AbstractProjectDependencyManager.DependencyReference(
-                    dependencyManager.getCompilationStack().getLast(),
-                    dependencyName);
-                dependencyManager.getDependencyReferences().add(dr);
+        if (Objects.equals(this.dependencyName, dependencyName)) {
+            if (!(dm instanceof AbstractDependencyManager)) {
+                throw new IllegalStateException(
+                    "This loader works only with subclasses of " + AbstractDependencyManager.class
+                        .getTypeName() + ".");
             }
+
+            final AbstractDependencyManager dependencyManager = (AbstractDependencyManager) dm;
 
             if (compiledDependency != null) {
-                log.debug("Dependency for dependencyName = {} from cache has been returned.", dependencyName);
+                log.debug("Dependency '{}' has been used from cache.", dependencyName);
                 return compiledDependency;
             }
-
-            try {
-                if (isCircularDependency) {
-                    throw new OpenLCompilationException(
-                        "Circular dependency has been detected in module: " + dependencyName);
-                }
-
-                return compileDependency(dependencyName, dependencyManager);
-            } finally {
-                dependencyManager.getCompilationStack().pollLast();
-            }
+            log.debug("Dependency '{}' hasn't been found in cache.", dependencyName);
+            return compileDependency(dependencyName, dependencyManager);
         }
         return null;
     }
 
-    protected ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
+    protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
         return dependencyManager.getClassLoader(modules.iterator().next().getProject());
     }
 
     protected CompiledDependency compileDependency(String dependencyName,
-            AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         RulesInstantiationStrategy rulesInstantiationStrategy;
         ClassLoader classLoader = buildClassLoader(dependencyManager);
-        log.debug("Creating dependency for dependencyName = {}", dependencyName);
-        dependencyManager.getCompilationStack().add(dependencyName);
-        if (!isProject && modules.size() == 1) {
+        if (!projectDependency && modules.size() == 1) {
             rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(modules.iterator().next(), executionMode, dependencyManager, classLoader);
         } else {
-            if (isProject && !modules.isEmpty()) {
+            if (projectDependency && !modules.isEmpty()) {
                 rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
                     dependencyManager,
                     classLoader,
                     executionMode);
             } else {
-                throw new IllegalStateException("Modules collection must not be empty");
+                throw new IllegalStateException("Сollection of modules must not be empty.");
             }
         }
 
@@ -133,26 +124,25 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
         // interface
         // generation
-        boolean validationWasOn = OpenLValidationManager.isValidationEnabled();
+        boolean oldValidationState = OpenLValidationManager.isValidationEnabled();
         try {
             OpenLValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-            CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-            log.debug("Dependency for dependencyName = {} has been stored in cache.", dependencyName);
-            compiledDependency = cd;
+            compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
+            log.debug("Dependency '{}' has been saved in cache.", dependencyName);
             return compiledDependency;
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return onCompilationFailure(ex, dependencyManager);
         } finally {
-            if (validationWasOn) {
+            if (oldValidationState) {
                 OpenLValidationManager.turnOnValidation();
             }
         }
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,
-            AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
     }
 

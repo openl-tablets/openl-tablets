@@ -1,23 +1,17 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
 
-import org.apache.commons.lang3.reflect.MethodUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
-import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
@@ -173,21 +167,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertEquals(TUTORIAL4_INTERFACE, tutorial4ServiceClass.getName());
 
         Class<?> multiModuleServiceClass = publisher.getServiceByName(MULTI_MODULE).getServiceClass();
-        Collection<Module> modules = publisher.getServiceByName(MULTI_MODULE).getModules();
-        for (Module module : modules) {
-            RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
-            dependencyManager.setExecutionMode(true);
-            IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
-            dependencyManager.setDependencyLoaders(Arrays.asList(loader));
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory
-                .getStrategy(module, true, dependencyManager);
-            Class<?> moduleServiceClass = instantiationStrategy.getInstanceClass();
-            for (Method method : moduleServiceClass.getMethods()) {
-                assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass,
-                    method.getName(),
-                    method.getParameterTypes()));
-            }
-        }
+        assertNotNull(multiModuleServiceClass);
 
     }
 }

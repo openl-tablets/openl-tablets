@@ -9,9 +9,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleProjectDependencyManager extends AbstractProjectDependencyManager {
+public class SimpleDependencyManager extends AbstractDependencyManager {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(SimpleDependencyManager.class);
 
     private List<IDependencyLoader> dependencyLoaders;
 
@@ -31,14 +31,12 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
         return dependencyNames;
     }
 
-    public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects,
+    public SimpleDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
             boolean singleModuleMode,
             boolean executionMode) {
         super(rootClassLoader);
-        if (projects == null) {
-            throw new IllegalArgumentException("projects must not be null!");
-        }
+        Objects.requireNonNull(projects, "projects can't be null.");
         this.projects = projects;
         this.singleModuleMode = singleModuleMode;
         this.executionMode = executionMode;
@@ -70,7 +68,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                     Collection<Module> modulesOfProject = project.getModules();
                     if (!modulesOfProject.isEmpty()) {
                         for (final Module m : modulesOfProject) {
-                            dependencyLoaders.add(new SimpleProjectDependencyLoader(m
+                            dependencyLoaders.add(new SimpleDependencyLoader(m
                                 .getName(), Arrays.asList(m), singleModuleMode, executionMode, false));
                             dependencyNames.add(m.getName());
                         }
@@ -78,7 +76,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
                     String dependencyName = ProjectExternalDependenciesHelper
                         .buildDependencyNameForProjectName(project.getName());
-                    IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
+                    IDependencyLoader projectLoader = new SimpleDependencyLoader(dependencyName,
                         project.getModules(),
                         singleModuleMode,
                         executionMode,

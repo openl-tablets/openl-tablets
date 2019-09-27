@@ -1,0 +1,1 @@
+ERROR: Circular dependency is detected: 'A' -> 'B' -> 'C' -> 'A'.

@@ -6,14 +6,14 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectDependencyManager {
+public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);
 
@@ -50,7 +50,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     }
 
     @Override
-    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         return super.loadDependency(dependency);
     }
 

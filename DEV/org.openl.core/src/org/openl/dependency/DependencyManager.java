@@ -1,6 +1,5 @@
 package org.openl.dependency;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,40 +12,28 @@ public abstract class DependencyManager implements IDependencyManager {
     private boolean executionMode;
     private Map<String, Object> externalParameters;
 
-    private Map<String, CompiledDependency> compiledDependencies = new HashMap<>();
-
     @Override
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
 
         String dependencyName = dependency.getNode().getIdentifier();
 
-        if (compiledDependencies.containsKey(dependencyName)) {
-            return compiledDependencies.get(dependencyName);
-        }
-
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
 
         if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' hasn't been found",
-                dependencyName), null, dependency.getNode().getSourceLocation());
+            throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
+                null,
+                dependency.getNode().getSourceLocation());
         }
-
-        compiledDependencies.put(dependencyName, compiledDependency);
 
         return compiledDependency;
     }
 
     @Override
     public void reset(IDependency dependency) {
-        String dependencyName = dependency.getNode().getIdentifier();
-        if (compiledDependencies.containsKey(dependencyName)) {
-            compiledDependencies.remove(dependencyName);
-        }
     }
 
     @Override
     public void resetAll() {
-        compiledDependencies.clear();
     }
 
     /**
@@ -69,7 +56,7 @@ public abstract class DependencyManager implements IDependencyManager {
     /**
      * Handles loading dependent modules. This method should not cache dependencies (method
      * {@link #loadDependency(IDependency)} already uses caching) Default implementation uses dependency loaders to load
-     * the dependency. Can be overriden to redefine behavior.
+     * the dependency. Can be overridden to redefine behavior.
      *
      * @param dependency dependency to load
      * @return loaded and compiled dependency
@@ -81,22 +68,22 @@ public abstract class DependencyManager implements IDependencyManager {
     }
 
     private CompiledDependency loadDependency(String dependencyName,
-            List<IDependencyLoader> loaders) throws OpenLCompilationException {
-        CompiledDependency result = null;
-        for (IDependencyLoader loader : loaders) {
-            synchronized (loader) {
-                CompiledDependency dependency = loader.load(dependencyName, this);
+            List<IDependencyLoader> dependencyLoaders) throws OpenLCompilationException {
+        CompiledDependency loadedDependency = null;
+        for (IDependencyLoader dependencyLoader : dependencyLoaders) {
+            synchronized (dependencyLoader) {
+                CompiledDependency dependency = dependencyLoader.load(dependencyName, this);
                 if (dependency != null) {
-                    if (result != null) {
+                    if (loadedDependency != null) {
                         throw new OpenLCompilationException(
-                            String.format("Found more than one module with the same name '%s'", dependencyName));
+                            String.format("Multiple dependencies with the same name '%s' are found.", dependencyName));
                     }
-                    result = dependency;
+                    loadedDependency = dependency;
                 }
             }
         }
 
-        return result;
+        return loadedDependency;
     }
 
     @Override

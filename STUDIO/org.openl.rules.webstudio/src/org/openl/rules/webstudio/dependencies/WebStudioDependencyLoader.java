@@ -10,23 +10,23 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
-import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.NullOpenClass;
 
-final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
+final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
     WebStudioDependencyLoader(String dependencyName,
             Collection<Module> modules,
             boolean singleModuleMode,
-            boolean isProject) {
-        super(dependencyName, modules, singleModuleMode, false, isProject);
+            boolean projectDependency) {
+        super(dependencyName, modules, singleModuleMode, false, projectDependency);
     }
 
     @Override
-    protected ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
+    protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
         ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
         OpenLBundleClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(null);
         simpleBundleClassLoader.addClassLoader(projectClassLoader);
@@ -35,7 +35,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
 
     @Override
     protected CompiledDependency onCompilationFailure(Exception ex,
-            AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         ClassLoader classLoader = dependencyManager.getClassLoader(getModules().iterator().next().getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
     }

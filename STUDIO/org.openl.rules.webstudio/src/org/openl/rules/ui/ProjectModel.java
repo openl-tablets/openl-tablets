@@ -1010,7 +1010,7 @@ public class ProjectModel {
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
-        instantiationStrategy.setServiceClass(SimpleProjectDependencyLoader.EmptyInterface.class);
+        instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
         // If autoCompile is false we can't unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).

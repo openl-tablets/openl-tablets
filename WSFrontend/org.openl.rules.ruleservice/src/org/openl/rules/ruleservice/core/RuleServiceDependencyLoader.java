@@ -4,18 +4,18 @@ import java.util.Collection;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
-import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 
-final class RuleServiceDependencyLoader extends SimpleProjectDependencyLoader {
-    RuleServiceDependencyLoader(String dependencyName, Collection<Module> modules, boolean isProject) {
-        super(dependencyName, modules, false, true, isProject);
+final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
+    RuleServiceDependencyLoader(String dependencyName, Collection<Module> modules, boolean projectDependency) {
+        super(dependencyName, modules, false, true, projectDependency);
     }
 
     @Override
     protected CompiledDependency compileDependency(String dependencyName,
-            AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         if (dependencyManager instanceof CompilationTimeLoggingDependencyManager) {
             CompilationTimeLoggingDependencyManager compilationTimeLoggingDependencyManager = (CompilationTimeLoggingDependencyManager) dependencyManager;
             compilationTimeLoggingDependencyManager.compilationBegin(this, getModules());
