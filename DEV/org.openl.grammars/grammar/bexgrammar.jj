@@ -118,7 +118,7 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
 
 PARSER_END(BExGrammar)
 
-<* >
+< DEFAULT, REF_IDENTIFIER >
 SKIP :
 {
   " "
