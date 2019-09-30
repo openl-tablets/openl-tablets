@@ -37,6 +37,7 @@ import net.mguenther.kafka.junit.EmbeddedKafkaConfig;
 import net.mguenther.kafka.junit.KeyValue;
 import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
+import net.mguenther.kafka.junit.TopicConfig;
 
 public class RunITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
@@ -83,7 +84,9 @@ public class RunITest {
 
     @Rule
     public EmbeddedKafkaCluster cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-        .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
+        .provisionWith(EmbeddedKafkaConfig.create()
+            .with("listeners", "PLAINTEXT://:61099")
+            .build())
         .build());
 
     private boolean truncateTableIfExists(final String keyspace, final String table) {
@@ -102,13 +105,12 @@ public class RunITest {
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
 
-        KeyValue<String, String> record0 = new KeyValue<>(null, REQUEST);
-        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record0)).useDefaults());
-
-        ObserveKeyValues<String, String> observeRequest0 = ObserveKeyValues.on("hello-out-topic", 1)
+        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
+        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
             .with("metadata.max.age.ms", 1000)
             .build();
-        List<String> observedValues = cluster.observeValues(observeRequest0);
+        List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
         Assert.assertEquals(RESPONSE, observedValues.get(0));
 
@@ -188,16 +190,16 @@ public class RunITest {
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
 
-        KeyValue<String, String> record2 = new KeyValue<>(null, REQUEST);
-        record2.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
-        cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record2)).useDefaults());
+        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
+        record.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
+        cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequest2 = ObserveKeyValues.on("hello-out-topic-2", 1)
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1)
             .with("metadata.max.age.ms", 1000)
             .build();
-        List<String> observedValues2 = cluster.observeValues(observeRequest2);
-        Assert.assertEquals(1, observedValues2.size());
-        Assert.assertEquals(RESPONSE, observedValues2.get(0));
+        List<String> observedValues = cluster.observeValues(observeRequest);
+        Assert.assertEquals(1, observedValues.size());
+        Assert.assertEquals(RESPONSE, observedValues.get(0));
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -238,11 +240,11 @@ public class RunITest {
         record.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
-        ObserveKeyValues<String, String> observeRequestDlt3 = ObserveKeyValues.on("hello-dlt-topic-2", 1)
+        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1)
             .with("metadata.max.age.ms", 1000)
             .build();
-        List<String> observedValuesDlt3 = cluster.observeValues(observeRequestDlt3);
-        Assert.assertEquals(1, observedValuesDlt3.size());
+        List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
+        Assert.assertEquals(1, observedValuesDlt.size());
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -413,11 +415,6 @@ public class RunITest {
 
                 return true;
             }, equalTo(true));
-    }
-
-    @After
-    public void destroy() {
-        cluster.close();
     }
 
     @AfterClass

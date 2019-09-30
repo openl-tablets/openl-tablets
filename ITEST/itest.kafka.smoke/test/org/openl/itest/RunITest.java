@@ -219,11 +219,6 @@ public class RunITest {
         testDltHeaders();
     }
 
-    @After
-    public void destroy() {
-        cluster.close();
-    }
-
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
