@@ -2543,13 +2543,15 @@ public final class DecisionTableHelper {
         }
     }
 
-    public static Pair<Boolean, String[]> parsableAsArray(String src, Class<?> clazz, IBindingContext bindingContext) {
+    public static Pair<Boolean, String[]> parsableAsArray(String src,
+            Class<?> componentType,
+            IBindingContext bindingContext) {
         String[] values = StringTool.splitAndEscape(src,
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
             RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
         try {
             for (String value : values) {
-                String2DataConvertorFactory.parse(clazz, value, bindingContext);
+                String2DataConvertorFactory.parse(componentType, value, bindingContext);
             }
         } catch (Exception e) {
             return Pair.of(false, values);
@@ -2661,6 +2663,7 @@ public final class DecisionTableHelper {
         boolean isAllElementsLikelyNotRangeFlag = true;
         boolean isAllParsableAsSingleFlag = true;
         boolean isAllParsableAsDomainFlag = true;
+        boolean isAllParsableAsDomainArrayFlag = true;
         boolean isAllParsableAsArrayFlag = true;
         boolean arraySeparatorFoundFlag = false;
 
@@ -2757,7 +2760,7 @@ public final class DecisionTableHelper {
                     continue;
                 }
 
-                if (value.indexOf(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR) >= 0) {
+                if (!arraySeparatorFoundFlag && value.indexOf(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR) >= 0) {
                     arraySeparatorFoundFlag = true;
                 }
                 try {
@@ -2765,17 +2768,40 @@ public final class DecisionTableHelper {
                         type.getInstanceClass(),
                         bindingContext))) {
                         isAllParsableAsSingleFlag = false;
-                    } else if (isStringType && isAllParsableAsDomainFlag && (type
-                        .getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value))) {
-                        isAllParsableAsDomainFlag = false;
+                    } else if (isStringType) {
+                        if (isAllParsableAsDomainFlag && (type
+                            .getDomain() == null || !((IDomain<String>) type.getDomain()).selectObject(value))) {
+                            isAllParsableAsDomainFlag = false;
+                        }
+                        if (isAllParsableAsDomainArrayFlag) {
+                            if (type.getDomain() == null) {
+                                isAllParsableAsDomainArrayFlag = false;
+                            } else {
+                                Pair<Boolean, String[]> splited = parsableAsArray(value,
+                                    type.getInstanceClass(),
+                                    bindingContext);
+                                for (String s : splited.getRight()) {
+                                    if (!((IDomain<String>) type.getDomain()).selectObject(s)) {
+                                        isAllParsableAsDomainArrayFlag = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 } catch (Exception e2) {
                 }
             }
         }
 
-        if (canMadeDecisionAboutSingle && (((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag) || (isStringType && isAllParsableAsDomainFlag))) {
-            return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
+        if (canMadeDecisionAboutSingle) {
+            if ((((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag) || (isStringType && isAllParsableAsDomainFlag))) {
+                return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
+            }
+
+            if (isStringType && isAllParsableAsDomainArrayFlag) {
+                return buildTripleForConditionColumnWithSimpleType(condition, type, true, isMoreThanOneColumnIsUsed);
+            }
         }
 
         for (int valueNum = skip; valueNum < width; valueNum++) {
