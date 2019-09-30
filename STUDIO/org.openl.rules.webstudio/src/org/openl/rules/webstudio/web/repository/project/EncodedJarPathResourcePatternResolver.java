@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.project;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
@@ -28,7 +29,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
     private final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
 
     @Override
-    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
+    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource, URL rootDirURL,
             String subPattern) throws IOException {
         URLConnection con = rootDirResource.getURL().openConnection();
         JarFile jarFile;

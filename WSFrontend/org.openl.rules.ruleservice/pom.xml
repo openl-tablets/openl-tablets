@@ -92,7 +92,7 @@
             <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
+            <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>

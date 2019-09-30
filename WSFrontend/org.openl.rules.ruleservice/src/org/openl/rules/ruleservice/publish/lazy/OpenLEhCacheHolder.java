@@ -2,20 +2,23 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.io.IOException;
 
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.Configuration;
+import org.ehcache.core.EhcacheManager;
+import org.ehcache.xml.XmlConfiguration;
+import org.openl.CompiledOpenClass;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 
 public final class OpenLEhCacheHolder {
 
     private static final String CACHE_NAME = "modulesCache";
     private static final String OPENL_EHCACHE_FILE_NAME = "openl-ehcache.xml";
 
-    private volatile Cache modulesCache = null;
+    private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
 
     private OpenLEhCacheHolder() {
     }
@@ -33,13 +36,13 @@ public final class OpenLEhCacheHolder {
         return OpenLEhCacheHolderHolder.INSTANCE;
     }
 
-    public Cache getModulesCache() {
+    public Cache<Key, CompiledOpenClass> getModulesCache() {
         if (modulesCache == null) {
             synchronized (this) {
                 if (modulesCache == null) {
                     try {
                         CacheManager cacheManager = getCacheManager();
-                        modulesCache = cacheManager.getCache(CACHE_NAME);
+                        modulesCache = cacheManager.getCache(CACHE_NAME, Key.class, CompiledOpenClass.class);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -65,7 +68,9 @@ public final class OpenLEhCacheHolder {
                 throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " exist in classpath!");
             }
 
-            cacheManager = new CacheManager(resources[0].getURL());
+            Configuration config = new XmlConfiguration(resources[0].getURL());
+            cacheManager = new EhcacheManager(config);
+            cacheManager.init();
         }
         return cacheManager;
     }

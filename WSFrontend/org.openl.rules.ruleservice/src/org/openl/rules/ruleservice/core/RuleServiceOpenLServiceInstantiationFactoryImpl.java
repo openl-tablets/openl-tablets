@@ -27,7 +27,7 @@ import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 
 /**
  * Default implementation of RuleServiceOpenLServiceInstantiationFactory. Depend on RuleLoader.
@@ -45,7 +45,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<>();
 
-    private ObjectFactory<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
+    private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
 
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDeploymentRelatedDependencyManager dependencyManager,
@@ -296,18 +296,18 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {
         if (getServiceInvocationAdviceListeners() != null) {
-            return getServiceInvocationAdviceListeners().getObject();
+            return getServiceInvocationAdviceListeners().getIfAvailable();
         } else {
             return Collections.emptyList();
         }
     }
 
-    public ObjectFactory<Collection<ServiceInvocationAdviceListener>> getServiceInvocationAdviceListeners() {
+    public ObjectProvider<Collection<ServiceInvocationAdviceListener>> getServiceInvocationAdviceListeners() {
         return serviceInvocationAdviceListeners;
     }
 
     public void setServiceInvocationAdviceListeners(
-            ObjectFactory<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners) {
+            ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners) {
         this.serviceInvocationAdviceListeners = serviceInvocationAdviceListeners;
     }
 
