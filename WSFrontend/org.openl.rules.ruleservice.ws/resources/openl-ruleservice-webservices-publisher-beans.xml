@@ -1,51 +1,44 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
     <bean id="serviceConfigurationReadXsiTypesFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean"
-        scope="prototype" >
+          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegisdatabinding.readXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegisbinding.readXsiTypes}"/>
     </bean>
 
     <bean id="serviceConfigurationWriteXsiTypesFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean"
-        scope="prototype">
+          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
         <property name="propertyName" value="aegisdatabinding.writeXsiTypes"/>
         <property name="defaultValue" value="${ruleservice.aegisbinding.writeXsiTypes}"/>
     </bean>
-    
+
     <bean id="aegisDatabindingFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
-        scope="prototype">
-        <property name="readXsiTypes" ref="serviceConfigurationReadXsiTypesFactoryBean" />
-        <property name="writeXsiTypes" ref="serviceConfigurationWriteXsiTypesFactoryBean" />
+          class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
+          scope="prototype">
+        <property name="readXsiTypes" ref="serviceConfigurationReadXsiTypesFactoryBean"/>
+        <property name="writeXsiTypes" ref="serviceConfigurationWriteXsiTypesFactoryBean"/>
         <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
-        <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
+        <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
     </bean>
-    
-    <bean id="webServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
-        <property name="targetObject" ref="aegisDatabindingFactoryBean"/>
-        <property name="targetMethod" value="createAegisDatabinding"/>
-        <property name="singleton" value="false"/>
-    </bean>
-    
+
+    <bean id="webServicesDataBinding" factory-bean="aegisDatabindingFactoryBean" factory-method="createAegisDatabinding"
+          scope="prototype"/>
+
     <!-- Main description for the one WebService -->
     <!-- All configurations for server (like a data binding type and interceptors) 
         are represented there. ServerFactoryBean configuration is similar to a CXF 
         simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
         but without namespace "simple". -->
 
-    <bean id="webServicesServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean"
-        scope="prototype">
-        <property name="dataBinding" ref="webServicesDataBinding" />
+    <bean id="webServicesServerPrototype" class="org.apache.cxf.jaxws.JaxWsServerFactoryBean" scope="prototype">
+        <property name="dataBinding" ref="webServicesDataBinding"/>
         <property name="features">
             <list>
                 <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
-                    <property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
+                    <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
                 </bean>
             </list>
         </property>
@@ -56,8 +49,8 @@
         description and calls DeploymentAdmin to expose corresponding web service -->
     <!-- Exposes web services. -->
     <bean id="webServiceRuleServicePublisher"
-        class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
-        <property name="baseAddress" value="${ruleservice.baseAddress}" />
+          class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
+        <property name="baseAddress" value="${ruleservice.baseAddress}"/>
         <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}"/>
     </bean>
 </beans>
