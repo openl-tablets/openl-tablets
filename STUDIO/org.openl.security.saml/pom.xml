@@ -25,6 +25,10 @@
             <artifactId>spring-security-saml2-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>xmltooling</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>provided</scope>           

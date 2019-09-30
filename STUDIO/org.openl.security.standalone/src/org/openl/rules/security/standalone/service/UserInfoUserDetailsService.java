@@ -23,7 +23,7 @@ public interface UserInfoUserDetailsService extends UserDetailsService {
      * that is of a different case than what was actually requested..
      *
      * @param username the username presented to the
-     *            {@link oorg.springframework.security.authentication.dao.DaoAuthenticationProvider}
+     *            {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider}
      * @return a fully populated user record (never <code>null</code>)
      * @throws org.springframework.security.core.userdetails.UsernameNotFoundException if the
      *             user could not be found or the user has no GrantedAuthority
