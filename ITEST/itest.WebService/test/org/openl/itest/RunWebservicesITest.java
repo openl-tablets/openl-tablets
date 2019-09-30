@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-public class RunITest {
+public class RunWebservicesITest {
 
     private static JettyServer server;
     private static HttpClient client;
@@ -60,5 +60,10 @@ public class RunITest {
     @Test
     public void testSimple3_CSPR_Convert_2() {
         client.post("/deployment3/simple3", "/simple3_main.req.xml", "/simple3_main.resp.xml");
+    }
+    
+    @Test
+    public void testWadlSchemaSimple5() {
+        client.get("/REST/deployment5/simple5?_wadl", "/simple5_wadl.resp.xml");
     }
 }

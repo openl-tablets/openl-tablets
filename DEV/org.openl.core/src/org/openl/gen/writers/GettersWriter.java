@@ -1,6 +1,7 @@
 package org.openl.gen.writers;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class GettersWriter extends MethodWriter {
             String componentJavaType = javaType.replaceAll("\\[", "");
             String clsName = Type.getType(componentJavaType).getClassName();
             Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(clsName);
-            if (type.isInterface()) {
+            if (type.isInterface() && !Map.class.isAssignableFrom(type) && !Collection.class.isAssignableFrom(type)) {
                 int d = javaType.length() - componentJavaType.length();
                 Class<?> useType = Object.class;
                 if (d > 0) {

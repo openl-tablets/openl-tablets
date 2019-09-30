@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-public class RunITest {
+public class RunSpreadsheetResultITest {
 
     private static JettyServer server;
     private static HttpClient client;

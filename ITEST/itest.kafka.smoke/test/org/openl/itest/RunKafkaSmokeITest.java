@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -24,7 +23,7 @@ import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
 import net.mguenther.kafka.junit.TopicConfig;
 
-public class RunITest {
+public class RunKafkaSmokeITest {
     private static JettyServer server;
 
     @BeforeClass

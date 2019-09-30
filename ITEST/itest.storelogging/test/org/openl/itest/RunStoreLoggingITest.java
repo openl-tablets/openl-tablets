@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -37,9 +36,8 @@ import net.mguenther.kafka.junit.EmbeddedKafkaConfig;
 import net.mguenther.kafka.junit.KeyValue;
 import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
-import net.mguenther.kafka.junit.TopicConfig;
 
-public class RunITest {
+public class RunStoreLoggingITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
     private static final int AWAIT_TIMEOUT = 30;
     private static final String KEYSPACE = "openl_ws_logging";
