@@ -169,10 +169,6 @@ public class ParsedCell implements ICell {
         if (value instanceof Date) {
             return (Date) value;
         }
-        if (value instanceof Number) {
-            return DateUtil.getJavaDate(((Number) value).doubleValue(), grid.isUse1904Windowing());
-        }
-
         return null;
     }
 
