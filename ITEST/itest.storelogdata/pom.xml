@@ -90,7 +90,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
+            <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
         </dependency>
          <dependency>
             <groupId>org.openl.rules</groupId>

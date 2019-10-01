@@ -2,16 +2,16 @@ package org.openl.itest.cassandra;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.MethodName;
-import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.Publisher;
-import org.openl.rules.ruleservice.logging.annotation.Request;
-import org.openl.rules.ruleservice.logging.annotation.Response;
-import org.openl.rules.ruleservice.logging.annotation.ServiceName;
-import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.WithStoreLogDataConvertor;
-import org.openl.rules.ruleservice.logging.cassandra.TimeBasedUUID;
+import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
+import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.Request;
+import org.openl.rules.ruleservice.storelogdata.annotation.Response;
+import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
+import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConvertor;
+import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;

@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="cassandraOperations"
+		class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations">
+		<property name="contactpoints" value="${cassandra.contactpoints}" />
+		<property name="port" value="${cassandra.port}" />
+		<property name="keyspace" value="${cassandra.keyspace}" />
+		<property name="username" value="${cassandra.username}" />
+		<property name="password" value="${cassandra.password}" />
+		<property name="createShemaEnabled" value="${ruleservice.logging.store.type.cassandra.schema.create}"/>
+		<property name="protocolVersion" value="${ruleservice.logging.store.type.cassandra.protocol.version}"/>
+	</bean>
+
+	<bean class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
+		<property name="lazyBeanNames">
+			<list>
+				<value>cassandraOperations</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Cassandra logging store service bean. -->
+	<bean id="cassandraStoreLogDataService" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraStoreLogDataService" lazy-init="true">
+		<property name="cassandraOperations" ref="cassandraOperations"/>
+        <property name="enabled" value="${ruleservice.logging.store.cassandra.enabled}"/>
+	</bean>
+</beans>
+

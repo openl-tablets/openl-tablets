@@ -3,7 +3,7 @@ package org.openl.itest.serviceclass;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.ruleservice.logging.cassandra.annotation.CassandraEntity;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraEntity;
 
 public interface Simple4ServiceAnnotationTemplate {
 

@@ -37,7 +37,7 @@
         <property name="dataBinding" ref="webServicesDataBinding"/>
         <property name="features">
             <list>
-                <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
+                <bean id="webServicesLoggingFeature" class="org.openl.rules.ruleservice.storelogdata.LoggingFeature">
                     <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
                 </bean>
             </list>

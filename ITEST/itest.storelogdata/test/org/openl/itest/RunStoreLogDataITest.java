@@ -22,8 +22,8 @@ import org.openl.itest.cassandra.HelloEntity2;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
-import org.openl.rules.ruleservice.logging.annotation.PublisherType;
-import org.openl.rules.ruleservice.logging.cassandra.DefaultCassandraEntity;
+import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
+import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;

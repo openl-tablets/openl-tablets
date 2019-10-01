@@ -28,10 +28,10 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
-import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLogData;
-import org.openl.rules.ruleservice.logging.StoreLogDataHolder;
-import org.openl.rules.ruleservice.logging.StoreLogDataManager;
+import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
+import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

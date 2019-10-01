@@ -1772,27 +1772,27 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</artifactId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch</artifactId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</artifactId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

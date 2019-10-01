@@ -140,7 +140,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
+            <artifactId>org.openl.rules.ruleservice.ws.storelogdata</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

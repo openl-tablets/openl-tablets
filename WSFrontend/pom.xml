@@ -17,11 +17,11 @@
         <module>org.openl.rules.ruleservice.rmi</module>
         <module>org.openl.rules.ruleservice.kafka</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>
-        <module>org.openl.rules.ruleservice.ws.logging</module>
-        <module>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</module>
-        <module>org.openl.rules.ruleservice.ws.logging.cassandra</module>
-        <module>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</module>
-        <module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</module>
         <module>org.openl.rules.ruleservice.ws</module>
         <module>org.openl.rules.ruleservice.ws.full</module>
         <module>org.openl.rules.ruleservice.deployer</module>
