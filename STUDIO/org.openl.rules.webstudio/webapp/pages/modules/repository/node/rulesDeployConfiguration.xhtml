@@ -48,6 +48,14 @@
         </h:selectManyCheckbox>
         <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
       </h:panelGroup>
+      
+      <h:outputLabel for="#{prefix}storages" value="Log data storages:" rendered="#{repositoryProjectRulesDeployConfig.logStoragesSupported}"/>
+      <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.logStoragesSupported}">
+        <h:selectManyCheckbox id="#{prefix}storages" value="#{rulesDeploy.logStorages}" disabled="#{!openedForEditing}" layout="lineDirection">
+           <f:selectItems value="#{rulesDeploy.availableLogStorages}" var="storage" itemValue="#{storage}" itemLabel="#{msg['ws.deploy.storelogdata.'.concat(storage)]}" />
+        </h:selectManyCheckbox>
+        <h:message errorStyle="color:red; display:block" for="#{prefix}storages" />
+      </h:panelGroup>
 
       <h:outputLabel for="#{prefix}serviceName" value="Service name:"/>
       <h:panelGroup>

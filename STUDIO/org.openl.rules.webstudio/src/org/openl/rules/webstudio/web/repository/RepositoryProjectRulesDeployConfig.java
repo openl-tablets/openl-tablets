@@ -92,7 +92,7 @@ public class RepositoryProjectRulesDeployConfig {
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
             } catch (ProjectException e) {
-                FacesUtils.addErrorMessage("Cannot delete " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+                FacesUtils.addErrorMessage("Failed to delete '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
                 log.error(e.getMessage(), e);
             }
         }
@@ -116,7 +116,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset();
             }
         } catch (ProjectException e) {
-            FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+            FacesUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         }
     }
@@ -149,10 +149,10 @@ public class RepositoryProjectRulesDeployConfig {
             String sourceString = IOUtils.toStringAndClose(content);
             return serializer.deserialize(sourceString, getSupportedVersion(project));
         } catch (IOException | ProjectException e) {
-            FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+            FacesUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         } catch (XStreamException e) {
-            FacesUtils.addErrorMessage("Cannot parse " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
+            FacesUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
             log.error(e.getMessage(), e);
         }
 
@@ -181,6 +181,10 @@ public class RepositoryProjectRulesDeployConfig {
 
     public boolean isPublishersSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
+    }
+    
+    public boolean isLogStoragesSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isAnnotationTemplateClassNameSupported() {

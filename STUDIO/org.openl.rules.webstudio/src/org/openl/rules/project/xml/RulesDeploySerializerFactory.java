@@ -9,6 +9,7 @@ import org.openl.rules.project.xml.v5_14.XmlRulesDescriptorSerializer_v5_14;
 import org.openl.rules.project.xml.v5_15.XmlRulesDescriptorSerializer_v5_15;
 import org.openl.rules.project.xml.v5_16.XmlRulesDescriptorSerializer_v5_16;
 import org.openl.rules.project.xml.v5_17.XmlRulesDescriptorSerializer_v5_17;
+import org.openl.rules.project.xml.v5_23.XmlRulesDescriptorSerializer_v5_23;
 
 public class RulesDeploySerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
@@ -38,8 +39,15 @@ public class RulesDeploySerializerFactory {
             case V5_16:
                 return new XmlRulesDescriptorSerializer_v5_16();
             case V5_17:
-            default: // rules-deploy.xml isn't changed in newer versions of OpenL but rules.xml could
+            case V5_18:
+            case V5_19:
+            case V5_20:
+            case V5_21:
+            case V5_22:
                 return new XmlRulesDescriptorSerializer_v5_17();
+            case V5_23:
+            default: // rules-deploy.xml isn't changed in newer versions of OpenL but rules.xml could
+                return new XmlRulesDescriptorSerializer_v5_23();
         }
     }
 }

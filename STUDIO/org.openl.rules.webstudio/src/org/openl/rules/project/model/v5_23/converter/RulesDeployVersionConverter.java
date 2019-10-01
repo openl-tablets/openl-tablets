@@ -1,16 +1,16 @@
-package org.openl.rules.project.model.v5_17.converter;
+package org.openl.rules.project.model.v5_23.converter;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.v5_17.RulesDeploy_v5_17;
+import org.openl.rules.project.model.v5_23.RulesDeploy_v5_23;
 import org.openl.util.CollectionUtils;
 
-public class RulesDeployVersionConverter implements ObjectVersionConverter<RulesDeploy, RulesDeploy_v5_17> {
+public class RulesDeployVersionConverter implements ObjectVersionConverter<RulesDeploy, RulesDeploy_v5_23> {
     @Override
-    public RulesDeploy fromOldVersion(RulesDeploy_v5_17 oldVersion) {
+    public RulesDeploy fromOldVersion(RulesDeploy_v5_23 oldVersion) {
         RulesDeploy rulesDeploy = new RulesDeploy();
 
         rulesDeploy.setAnnotationTemplateClassName(oldVersion.getAnnotationTemplateClassName());
@@ -43,11 +43,31 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             return RulesDeploy.PublisherType.RESTFUL;
                         case RMI:
                             return RulesDeploy.PublisherType.RMI;
+                        case KAFKA:
+                            return RulesDeploy.PublisherType.KAFKA;
                         default:
                             throw new IllegalArgumentException();
                     }
                 });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
+        }
+
+        if (oldVersion.getLogStorages() != null) {
+            List<RulesDeploy.LogStorageType> logStorages = CollectionUtils
+                .map(Arrays.asList(oldVersion.getLogStorages()), e -> {
+                    if (e == null) {
+                        return null;
+                    }
+                    switch (e) {
+                        case CASSANDRA:
+                            return RulesDeploy.LogStorageType.CASSANDRA;
+                        case ELASTICSEARCH:
+                            return RulesDeploy.LogStorageType.ELASTICSEARCH;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                });
+            rulesDeploy.setLogStorages(logStorages.toArray(new RulesDeploy.LogStorageType[logStorages.size()]));
         }
 
         rulesDeploy.setRmiServiceClass(oldVersion.getRmiServiceClass());
@@ -60,44 +80,61 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
     }
 
     @Override
-    public RulesDeploy_v5_17 toOldVersion(RulesDeploy currentVersion) {
-        RulesDeploy_v5_17 rulesDeploy = new RulesDeploy_v5_17();
+    public RulesDeploy_v5_23 toOldVersion(RulesDeploy currentVersion) {
+        RulesDeploy_v5_23 rulesDeploy = new RulesDeploy_v5_23();
 
         rulesDeploy.setAnnotationTemplateClassName(currentVersion.getAnnotationTemplateClassName());
         rulesDeploy.setConfiguration(currentVersion.getConfiguration());
         rulesDeploy.setGroups(currentVersion.getGroups());
         rulesDeploy.setInterceptingTemplateClassName(currentVersion.getInterceptingTemplateClassName());
         if (currentVersion.getLazyModulesForCompilationPatterns() != null) {
-            List<RulesDeploy_v5_17.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
+            List<RulesDeploy_v5_23.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
                 Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
-                oldVersion -> oldVersion == null ? null : new RulesDeploy_v5_17.WildcardPattern(oldVersion.getValue()));
+                oldVersion -> oldVersion == null ? null : new RulesDeploy_v5_23.WildcardPattern(oldVersion.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy_v5_17.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
+                .toArray(new RulesDeploy_v5_23.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
         }
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
-            List<RulesDeploy_v5_17.PublisherType> publishers = CollectionUtils
+            List<RulesDeploy_v5_23.PublisherType> publishers = CollectionUtils
                 .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
                     if (oldVersion == null) {
                         return null;
                     }
-
                     switch (oldVersion) {
                         case WEBSERVICE:
-                            return RulesDeploy_v5_17.PublisherType.WEBSERVICE;
+                            return RulesDeploy_v5_23.PublisherType.WEBSERVICE;
                         case RESTFUL:
-                            return RulesDeploy_v5_17.PublisherType.RESTFUL;
+                            return RulesDeploy_v5_23.PublisherType.RESTFUL;
                         case RMI:
-                            return RulesDeploy_v5_17.PublisherType.RMI;
+                            return RulesDeploy_v5_23.PublisherType.RMI;
                         case KAFKA:
-                            throw new UnsupportedOperationException("KAFKA publisher isn't supported in old version.");
+                            return RulesDeploy_v5_23.PublisherType.KAFKA;
                         default:
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_17.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_23.PublisherType[publishers.size()]));
+        }
+
+        if (currentVersion.getLogStorages() != null) {
+            List<RulesDeploy_v5_23.LogStorageType> logStorages = CollectionUtils
+                .map(Arrays.asList(currentVersion.getLogStorages()), oldVersion -> {
+                    if (oldVersion == null) {
+                        return null;
+                    }
+                    switch (oldVersion) {
+                        case CASSANDRA:
+                            return RulesDeploy_v5_23.LogStorageType.CASSANDRA;
+                        case ELASTICSEARCH:
+                            return RulesDeploy_v5_23.LogStorageType.ELASTICSEARCH;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                });
+            rulesDeploy.setLogStorages(logStorages.toArray(new RulesDeploy_v5_23.LogStorageType[logStorages.size()]));
         }
 
         rulesDeploy.setRmiServiceClass(currentVersion.getRmiServiceClass());

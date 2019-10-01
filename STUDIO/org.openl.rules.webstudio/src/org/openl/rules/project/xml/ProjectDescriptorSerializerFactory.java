@@ -64,6 +64,13 @@ public class ProjectDescriptorSerializerFactory {
             case V5_15:
                 return new XmlProjectDescriptorSerializer_v5_13();
             case V5_16:
+            case V5_17:
+            case V5_18:
+            case V5_19:
+            case V5_20:
+            case V5_21:
+            case V5_22:
+            case V5_23:
             default: // rules.xml isn't changed in newer versions of OpenL but rules-deploy.xml could
                 return new XmlProjectDescriptorSerializer_v5_16();
         }
