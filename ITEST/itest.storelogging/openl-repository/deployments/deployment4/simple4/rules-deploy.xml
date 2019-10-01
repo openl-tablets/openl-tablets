@@ -1,0 +1,9 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <serviceName>simple4</serviceName>
+    <annotationTemplateClassName>org.openl.itest.serviceclass.Simple4ServiceAnnotationTemplate</annotationTemplateClassName>
+    <loggingStorages>
+        <storage>CASSANDRA</storage>
+    </loggingStorages>
+</rules-deploy>

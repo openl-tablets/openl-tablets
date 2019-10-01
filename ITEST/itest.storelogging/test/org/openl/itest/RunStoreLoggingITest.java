@@ -17,6 +17,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.openl.itest.cassandra.HelloEntity1;
+import org.openl.itest.cassandra.HelloEntity2;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
@@ -74,7 +76,7 @@ public class RunStoreLoggingITest {
 
         createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
 
-        server = new JettyServer();
+        server = new JettyServer(true);
         host = server.start();
 
         client = server.client();
@@ -82,9 +84,7 @@ public class RunStoreLoggingITest {
 
     @Rule
     public EmbeddedKafkaCluster cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-        .provisionWith(EmbeddedKafkaConfig.create()
-            .with("listeners", "PLAINTEXT://:61099")
-            .build())
+        .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
         .build());
 
     private boolean truncateTableIfExists(final String keyspace, final String table) {
@@ -410,6 +410,66 @@ public class RunStoreLoggingITest {
                 Assert.assertNotNull(row.getTimestamp("incomingTime"));
                 Assert.assertNotNull(row.getTimestamp("outcomingTime"));
                 Assert.assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testStoreLoggingAnnotations() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json"),
+            StandardCharsets.UTF_8);
+        final String RESPONSE = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.json"),
+            StandardCharsets.UTF_8);
+
+        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
+        final String helloEntity2TableName = HelloEntity2.class.getAnnotation(Table.class).name();
+
+        truncateTableIfExists(KEYSPACE, helloEntity1TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity2TableName);
+
+        client.post("/REST/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.json");
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity1TableName);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertEquals(RESPONSE, row.getString("response"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
+                Assert.assertEquals("simple4", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity2TableName);
+                rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                Assert.assertEquals(1, rows.size());
+                row = rows.iterator().next();
+                Assert.assertNotNull(row.getString("id"));
+                Assert.assertEquals(REQUEST, row.getString("request"));
+                Assert.assertEquals(RESPONSE, row.getString("response"));
+                Assert.assertEquals("Hello", row.getString("methodName"));
+                Assert.assertEquals("simple4", row.getString("serviceName"));
+                Assert.assertNotNull(row.getTimestamp("incomingTime"));
+                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
+                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));

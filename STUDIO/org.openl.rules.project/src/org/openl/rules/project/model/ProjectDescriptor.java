@@ -103,6 +103,7 @@ public class ProjectDescriptor {
 
     public void setModules(List<Module> modules) {
         this.modules = modules == null ? Collections.emptyList() : new ArrayList<>(modules);
+        Collections.sort(this.modules, Comparator.comparing(Module::getName));
     }
 
     public List<PathEntry> getClasspath() {
