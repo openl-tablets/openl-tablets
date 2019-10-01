@@ -39,7 +39,7 @@ import net.mguenther.kafka.junit.KeyValue;
 import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
 
-public class RunStoreLogStoringITest {
+public class RunStoreLogDataITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
     private static final int AWAIT_TIMEOUT = 30;
     private static final String KEYSPACE = "openl_ws_logging";
@@ -416,7 +416,7 @@ public class RunStoreLogStoringITest {
     }
 
     @Test
-    public void testLogDataAnnotations() throws Exception {
+    public void testStoreLogDataAnnotations() throws Exception {
         final String REQUEST = IOUtils.toString(
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json"),
             StandardCharsets.UTF_8);

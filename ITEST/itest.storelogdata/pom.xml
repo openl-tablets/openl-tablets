@@ -10,9 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.cassandra.storelogging</artifactId>
+    <artifactId>itest.cassandra.storelogdata</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - WS Store Logging Test</name>
+    <name>ITEST - WS Store Log Data Test</name>
     <url>https://openl-tablets.org</url>
 
     <properties>
