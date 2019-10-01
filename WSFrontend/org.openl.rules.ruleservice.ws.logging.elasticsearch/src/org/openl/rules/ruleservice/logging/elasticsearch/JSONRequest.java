@@ -1,14 +1,14 @@
 package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import org.eclipse.jetty.util.ajax.JSON;
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
+import org.openl.rules.ruleservice.logging.StoreLogData;
+import org.openl.rules.ruleservice.logging.StoreLogDataConvertor;
 
-public class JSONRequest implements StoreLoggingDataConvertor<Object> {
+public class JSONRequest implements StoreLogDataConvertor<Object> {
     @Override
-    public Object convert(StoreLoggingData storeLoggingData) {
-        if (storeLoggingData.getRequestMessage() != null && storeLoggingData.getRequestMessage().getPayload() != null) {
-            return JSON.parse(storeLoggingData.getRequestMessage().getPayload().toString());
+    public Object convert(StoreLogData storeLogData) {
+        if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage().getPayload() != null) {
+            return JSON.parse(storeLogData.getRequestMessage().getPayload().toString());
         }
         return null;
     }

@@ -37,7 +37,7 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
     }
 
     private void injectObjectSerializer(Message message) {
-        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.setObjectSerializer(objectSerializer);
+        StoreLogData storeLogData = StoreLogDataHolder.get();
+        storeLogData.setObjectSerializer(objectSerializer);
     }
 }

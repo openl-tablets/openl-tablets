@@ -10,7 +10,7 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLogDataConvertor;
 import org.openl.rules.ruleservice.logging.cassandra.TimeBasedUUID;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
@@ -20,7 +20,7 @@ import com.datastax.driver.mapping.annotations.Table;
 @Table(name = "openl_logging_hello_entity1")
 public class HelloEntity1 {
     @PartitionKey(0)
-    @WithStoreLoggingDataConvertor(convertor = TimeBasedUUID.class)
+    @WithStoreLogDataConvertor(convertor = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime

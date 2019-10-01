@@ -18,7 +18,7 @@ import org.openl.rules.ruleservice.kafka.RequestMessage;
  * @author Marat Kamalov
  *
  */
-public class StoreLoggingData {
+public class StoreLogData {
     private LoggingMessage requestMessage;
     private LoggingMessage responseMessage;
 

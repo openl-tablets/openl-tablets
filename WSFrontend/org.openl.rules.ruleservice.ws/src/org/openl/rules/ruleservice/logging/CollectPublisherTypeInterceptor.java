@@ -32,7 +32,7 @@ public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Me
     }
 
     private void injectPublisherType(Message message) {
-        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.setPublisherType(publisherType);
+        StoreLogData storeLogData = StoreLogDataHolder.get();
+        storeLogData.setPublisherType(publisherType);
     }
 }

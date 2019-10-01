@@ -7,13 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
-import org.openl.rules.ruleservice.logging.advice.StoreLoggingAdvice;
+import org.openl.rules.ruleservice.logging.advice.StoreLogDataAdvice;
 
-@Repeatable(StoreLoggings.class)
+@Repeatable(PrepareStoreLogDatas.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface StoreLogging {
-    Class<? extends StoreLoggingAdvice> value();
+public @interface PrepareStoreLogData {
+    Class<? extends StoreLogDataAdvice> value();
 
     Class<? extends ServiceMethodAdvice> bindToServiceMethodAdvice() default Default.class;
 

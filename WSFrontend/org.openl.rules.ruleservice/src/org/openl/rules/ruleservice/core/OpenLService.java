@@ -31,7 +31,7 @@ public final class OpenLService {
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Set<String> publishers;
-    private Set<String> loggingStorages;
+    private Set<String> logStorages;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
 
@@ -64,11 +64,11 @@ public final class OpenLService {
             boolean provideRuntimeContext,
             boolean provideVariations,
             Set<String> publishers,
-            Set<String> loggingStorages,
+            Set<String> logStorages,
             Collection<Module> modules,
             ClassLoader classLoader,
             Class<?> serviceClass) {
-        Objects.requireNonNull(name, "name arg must not be null.");
+        Objects.requireNonNull(name, "name can't be null.");
         this.name = name;
         this.url = url;
         this.servicePath = servicePath;
@@ -87,10 +87,10 @@ public final class OpenLService {
         } else {
             this.publishers = Collections.emptySet();
         }
-        if (loggingStorages != null) {
-            this.loggingStorages = Collections.unmodifiableSet(loggingStorages);
+        if (logStorages != null) {
+            this.logStorages = Collections.unmodifiableSet(logStorages);
         } else {
-            this.loggingStorages = Collections.emptySet();
+            this.logStorages = Collections.emptySet();
         }
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
@@ -106,7 +106,7 @@ public final class OpenLService {
             builder.provideRuntimeContext,
             builder.provideVariations,
             builder.publishers,
-            builder.loggingStorages,
+            builder.logStorages,
             builder.modules,
             builder.classLoader,
             builder.serviceClass);
@@ -160,11 +160,11 @@ public final class OpenLService {
      *
      * @return service logging storages
      */
-    public Collection<String> getLoggingStorages() {
-        if (loggingStorages == null) {
+    public Collection<String> getLogStorages() {
+        if (logStorages == null) {
             return Collections.emptyList();
         }
-        return loggingStorages;
+        return logStorages;
     }
 
     /**
@@ -350,7 +350,7 @@ public final class OpenLService {
         private boolean provideVariations = false;
         private Collection<Module> modules;
         private Set<String> publishers;
-        Set<String> loggingStorages;
+        Set<String> logStorages;
         private ClassLoader classLoader;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
@@ -387,31 +387,31 @@ public final class OpenLService {
             return this;
         }
 
-        public OpenLServiceBuilder setLoggingStorages(Set<String> loggingStorages) {
-            if (loggingStorages == null) {
-                this.loggingStorages = new HashSet<>(0);
+        public OpenLServiceBuilder setLogStorages(Set<String> logStorages) {
+            if (logStorages == null) {
+                this.logStorages = new HashSet<>(0);
             } else {
-                this.loggingStorages = loggingStorages;
+                this.logStorages = logStorages;
             }
             return this;
         }
 
-        public OpenLServiceBuilder addLoggingStorages(Set<String> loggingStorages) {
-            if (this.loggingStorages == null) {
-                this.loggingStorages = new HashSet<>();
+        public OpenLServiceBuilder addLogStorages(Set<String> logStorages) {
+            if (this.logStorages == null) {
+                this.logStorages = new HashSet<>();
             }
-            if (loggingStorages != null) {
-                this.loggingStorages.addAll(loggingStorages);
+            if (logStorages != null) {
+                this.logStorages.addAll(logStorages);
             }
             return this;
         }
 
-        public OpenLServiceBuilder addLoggingStorage(String loggingStorage) {
-            if (this.loggingStorages == null) {
-                this.loggingStorages = new HashSet<>();
+        public OpenLServiceBuilder addLogStorage(String logStorage) {
+            if (this.logStorages == null) {
+                this.logStorages = new HashSet<>();
             }
-            if (loggingStorage != null) {
-                this.loggingStorages.add(loggingStorage);
+            if (logStorage != null) {
+                this.logStorages.add(logStorage);
             }
             return this;
         }

@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLoggingFeature;
+import org.openl.rules.ruleservice.logging.StoreLogDataFeature;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.logging.AegisObjectSerializer;
@@ -48,23 +48,23 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
-    private boolean storeLoggingEnabled = false;
+    private boolean storeLogDataEnabled = false;
 
     @Autowired
     @Qualifier("webServicesServerPrototype")
     private ObjectFactory<ServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
-    private ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory;
+    private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
 
-    public boolean isStoreLoggingEnabled() {
-        return storeLoggingEnabled;
+    public boolean isStoreLogDataEnabled() {
+        return storeLogDataEnabled;
     }
-
-    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
-        this.storeLoggingEnabled = storeLoggingEnabled;
+    
+    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
+        this.storeLogDataEnabled = storeLogDataEnabled;
     }
-
+    
     public String getBaseAddress() {
         return baseAddress;
     }
@@ -81,12 +81,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
     }
 
-    public ObjectFactory<StoreLoggingFeature> getStoreLoggingFeatureObjectFactory() {
+    public ObjectFactory<StoreLogDataFeature> getStoreLoggingFeatureObjectFactory() {
         return storeLoggingFeatureObjectFactory;
     }
 
     public void setStoreLoggingFeatureObjectFactory(
-            ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory) {
+            ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory) {
         this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
     }
 
@@ -116,7 +116,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.setServiceBean(target);
 
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
-                if (isStoreLoggingEnabled()) {
+                if (isStoreLogDataEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
 
                     svrFactory.getInInterceptors()

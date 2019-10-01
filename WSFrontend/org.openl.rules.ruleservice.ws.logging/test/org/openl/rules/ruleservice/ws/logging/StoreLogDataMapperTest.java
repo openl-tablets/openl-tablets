@@ -11,9 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.logging.Convertor;
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataConvertor;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
+import org.openl.rules.ruleservice.logging.StoreLogData;
+import org.openl.rules.ruleservice.logging.StoreLogDataConvertor;
+import org.openl.rules.ruleservice.logging.StoreLogDataMapper;
 import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.MethodName;
 import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
@@ -24,9 +24,9 @@ import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
 import org.openl.rules.ruleservice.logging.annotation.Value;
-import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLogDataConvertor;
 
-public class StoreLoggingDataMapperTest {
+public class StoreLogDataMapperTest {
 
     private static final String SOME_VALUE = RandomStringUtils.random(10, true, true);
 
@@ -52,21 +52,21 @@ public class StoreLoggingDataMapperTest {
 
     @Test
     public void testPublisherFilteringMapping() {
-        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
+        StoreLogDataMapper mapper = new StoreLogDataMapper();
 
-        StoreLoggingData storeLoggingData = new StoreLoggingData();
+        StoreLogData storeLogData = new StoreLogData();
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
-        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        Map<String, Object> customValues = storeLogData.getCustomValues();
         customValues.put("customString1", customString1);
         customValues.put("customString2", customString2);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        storeLoggingData.setPublisherType(publisher1);
+        storeLogData.setPublisherType(publisher1);
 
         TestEntity testEntity1 = new TestEntity();
-        mapper.map(storeLoggingData, testEntity1);
+        mapper.map(storeLogData, testEntity1);
 
         // validation
         Assert.assertEquals(customString2, testEntity1.getValue2());
@@ -74,10 +74,10 @@ public class StoreLoggingDataMapperTest {
         Assert.assertEquals(null, testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
-        storeLoggingData.setPublisherType(publisher2);
+        storeLogData.setPublisherType(publisher2);
 
         TestEntity testEntity2 = new TestEntity();
-        mapper.map(storeLoggingData, testEntity2);
+        mapper.map(storeLogData, testEntity2);
 
         // validation
         Assert.assertEquals(null, testEntity2.getValue2());
@@ -86,19 +86,19 @@ public class StoreLoggingDataMapperTest {
 
     @Test
     public void testPublisherConvertorMapping() {
-        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
+        StoreLogDataMapper mapper = new StoreLogDataMapper();
 
-        StoreLoggingData storeLoggingData = new StoreLoggingData();
+        StoreLogData storeLogData = new StoreLogData();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
-        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        Map<String, Object> customValues = storeLogData.getCustomValues();
         customValues.put("customString1", " " + customString1 + " ");
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
-        storeLoggingData.setPublisherType(publisher1);
+        storeLogData.setPublisherType(publisher1);
 
         TestEntity testEntity = new TestEntity();
-        mapper.map(storeLoggingData, testEntity);
+        mapper.map(storeLogData, testEntity);
 
         // validation
         Assert.assertEquals(customString1, testEntity.getValue3());
@@ -106,20 +106,20 @@ public class StoreLoggingDataMapperTest {
 
     @Test
     public void testSimpleMapping() throws Exception {
-        StoreLoggingData storeLoggingData = new StoreLoggingData();
+        StoreLogData storeLogData = new StoreLogData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
 
-        Map<String, Object> customValues = storeLoggingData.getCustomValues();
+        Map<String, Object> customValues = storeLogData.getCustomValues();
         customValues.put("customString1", customString1);
         customValues.put("customString2", customString2);
         customValues.put("customString3", customString3);
 
         final String request = RandomStringUtils.random(10);
         final String response = RandomStringUtils.random(10);
-        storeLoggingData.setServiceMethod(StoreLoggingDataMapperTest.class.getMethod("testSimpleMapping"));
+        storeLogData.setServiceMethod(StoreLogDataMapperTest.class.getMethod("testSimpleMapping"));
         final String url = RandomStringUtils.random(10);
         final PublisherType publisher = PublisherType.RESTFUL;
         final String serviceName = RandomStringUtils.random(10);
@@ -127,24 +127,24 @@ public class StoreLoggingDataMapperTest {
         final Date incomingMessageTime = getRandomTimeBetweenTwoDates();
         final Date outcomingMessageTime = getRandomTimeBetweenTwoDates();
 
-        storeLoggingData.setIncomingMessageTime(incomingMessageTime);
-        storeLoggingData.setOutcomingMessageTime(outcomingMessageTime);
-        storeLoggingData.setServiceName(serviceName);
-        storeLoggingData.setPublisherType(publisher);
+        storeLogData.setIncomingMessageTime(incomingMessageTime);
+        storeLogData.setOutcomingMessageTime(outcomingMessageTime);
+        storeLogData.setServiceName(serviceName);
+        storeLogData.setPublisherType(publisher);
         LoggingMessage requestLoggingMessage = new LoggingMessage("", "");
         requestLoggingMessage.getPayload().append(request);
         requestLoggingMessage.getAddress().append(url);
-        storeLoggingData.setRequestMessage(requestLoggingMessage);
+        storeLogData.setRequestMessage(requestLoggingMessage);
 
         LoggingMessage responseLoggingMessage = new LoggingMessage("", "");
         responseLoggingMessage.getPayload().append(response);
         responseLoggingMessage.getAddress().append(url);
-        storeLoggingData.setResponseMessage(responseLoggingMessage);
+        storeLogData.setResponseMessage(responseLoggingMessage);
 
-        StoreLoggingDataMapper mapper = new StoreLoggingDataMapper();
+        StoreLogDataMapper mapper = new StoreLogDataMapper();
         TestEntity testEntity = new TestEntity();
 
-        mapper.map(storeLoggingData, testEntity);
+        mapper.map(storeLogData, testEntity);
 
         // validation
         Assert.assertEquals(SOME_VALUE, testEntity.getId());
@@ -164,9 +164,9 @@ public class StoreLoggingDataMapperTest {
         Assert.assertEquals(customString3, testEntity.getStringValue3());
     }
 
-    public static class SomeValueConvertor implements StoreLoggingDataConvertor<String> {
+    public static class SomeValueConvertor implements StoreLogDataConvertor<String> {
         @Override
-        public String convert(StoreLoggingData storeLoggingData) {
+        public String convert(StoreLogData storeLogData) {
             return SOME_VALUE;
         }
     }
@@ -211,7 +211,7 @@ public class StoreLoggingDataMapperTest {
             return id;
         }
 
-        @WithStoreLoggingDataConvertor(convertor = SomeValueConvertor.class)
+        @WithStoreLogDataConvertor(convertor = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }

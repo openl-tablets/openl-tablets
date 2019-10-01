@@ -11,7 +11,7 @@ public class RulesDeploy {
         KAFKA
     }
 
-    public enum LoggingStorageType {
+    public enum LogStorageType {
         CASSANDRA,
         ELASTICSEARCH
     }
@@ -36,7 +36,7 @@ public class RulesDeploy {
     private Boolean isProvideVariations;
     private String serviceName;
     private PublisherType[] publishers;
-    private LoggingStorageType[] loggingStorages;
+    private LogStorageType[] logStorages;
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
     private String serviceClass;
@@ -57,14 +57,14 @@ public class RulesDeploy {
         this.publishers = publishers;
     }
 
-    public LoggingStorageType[] getLoggingStorages() {
-        return loggingStorages;
+    public LogStorageType[] getLogStorages() {
+        return logStorages;
     }
-    
-    public void setLoggingStorages(LoggingStorageType[] loggingStorages) {
-        this.loggingStorages = loggingStorages;
+
+    public void setLogStorages(LogStorageType[] logStorages) {
+        this.logStorages = logStorages;
     }
-    
+
     public String getVersion() {
         return version;
     }

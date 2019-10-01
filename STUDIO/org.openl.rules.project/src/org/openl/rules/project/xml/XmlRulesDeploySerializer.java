@@ -10,9 +10,9 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.security.NoTypePermission;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
-    public final static String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
-    public final static String MODULE_NAME = "module";
-    public final static String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
+    public static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
+    public static final String MODULE_NAME = "module";
+    public static final String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
 
     private XStream xstream;
 
@@ -21,7 +21,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.addPermission(NoTypePermission.NONE);
         xstream.allowTypeHierarchy(String.class);
         xstream.allowTypeHierarchy(RulesDeploy.PublisherType.class);
-        xstream.allowTypeHierarchy(RulesDeploy.LoggingStorageType.class);
+        xstream.allowTypeHierarchy(RulesDeploy.LogStorageType.class);
         xstream.allowTypeHierarchy(RulesDeploy.class);
         xstream.allowTypeHierarchy(RulesDeploy.WildcardPattern.class);
 
@@ -31,7 +31,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         xstream.setMode(XStream.NO_REFERENCES);
 
         xstream.aliasType("publisher", RulesDeploy.PublisherType.class);
-        xstream.aliasType("storage", RulesDeploy.LoggingStorageType.class);
+        xstream.aliasType("storage", RulesDeploy.LogStorageType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy.class);
         xstream.aliasType(MODULE_NAME, RulesDeploy.WildcardPattern.class);
 

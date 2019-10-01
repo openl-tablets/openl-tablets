@@ -74,7 +74,7 @@
     <context-param>
         <description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:openl-ruleservice-beans.xml classpath:openl-ruleservice-logging-beans.xml classpath:openl-ruleservice-admin-beans.xml classpath:openl-ruleservice-override-beans.xml</param-value>
+        <param-value>classpath:openl-ruleservice-beans.xml classpath:openl-ruleservice-store-log-data-beans.xml classpath:openl-ruleservice-admin-beans.xml classpath:openl-ruleservice-override-beans.xml</param-value>
     </context-param>
 
     <listener>

@@ -55,8 +55,8 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     public void handleFault(Message message) {
-        final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.fault();
+        final StoreLogData storeLogData = StoreLogDataHolder.get();
+        storeLogData.fault();
         processMessage(message);
     }
 
@@ -139,9 +139,9 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.setRequestMessage(message);
-        storeLoggingData.setIncomingMessageTime(new Date());
+        StoreLogData storeLogData = StoreLogDataHolder.get();
+        storeLogData.setRequestMessage(message);
+        storeLogData.setIncomingMessageTime(new Date());
     }
 
     protected void logReader(Message message, Reader reader, LoggingMessage buffer) {

@@ -29,7 +29,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLoggingFeature;
+import org.openl.rules.ruleservice.logging.StoreLogDataFeature;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator;
 import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
@@ -58,7 +58,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private Map<OpenLService, Server> runningServices = new HashMap<>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<>();
-    private boolean storeLoggingEnabled = false;
+    private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
 
     @Autowired
@@ -69,14 +69,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
-    private ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory;
+    private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
 
-    public boolean isStoreLoggingEnabled() {
-        return storeLoggingEnabled;
+    public boolean isStoreLogDataEnabled() {
+        return storeLogDataEnabled;
     }
-
-    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
-        this.storeLoggingEnabled = storeLoggingEnabled;
+    
+    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
+        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     public String getBaseAddress() {
@@ -104,12 +104,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
     }
 
-    public ObjectFactory<StoreLoggingFeature> getStoreLoggingFeatureObjectFactory() {
+    public ObjectFactory<StoreLogDataFeature> getStoreLoggingFeatureObjectFactory() {
         return storeLoggingFeatureObjectFactory;
     }
 
     public void setStoreLoggingFeatureObjectFactory(
-            ObjectFactory<StoreLoggingFeature> storeLoggingFeatureObjectFactory) {
+            ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory) {
         this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
     }
 
@@ -135,7 +135,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 url = getBaseAddress() + url;
             }
             svrFactory.setAddress(url);
-            if (isStoreLoggingEnabled()) {
+            if (isStoreLogDataEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));

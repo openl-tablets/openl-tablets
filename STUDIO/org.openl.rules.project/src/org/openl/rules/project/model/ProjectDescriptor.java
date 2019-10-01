@@ -3,7 +3,12 @@ package org.openl.rules.project.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +37,7 @@ public class ProjectDescriptor {
     public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
         this.propertiesFileNamePattern = propertiesFileNamePattern;
     }
-    
+
     public String getPropertiesFileNameProcessor() {
         return propertiesFileNameProcessor;
     }
@@ -56,11 +61,11 @@ public class ProjectDescriptor {
     public void setProjectFolder(File projectRoot) {
         this.projectFolder = projectRoot;
     }
-    
+
     public String getCsrBeansPackage() {
         return csrBeansPackage;
     }
-    
+
     public void setCsrBeansPackage(String csrBeansPackage) {
         this.csrBeansPackage = csrBeansPackage;
     }
@@ -103,7 +108,6 @@ public class ProjectDescriptor {
 
     public void setModules(List<Module> modules) {
         this.modules = modules == null ? Collections.emptyList() : new ArrayList<>(modules);
-        Collections.sort(this.modules, Comparator.comparing(Module::getName));
     }
 
     public List<PathEntry> getClasspath() {

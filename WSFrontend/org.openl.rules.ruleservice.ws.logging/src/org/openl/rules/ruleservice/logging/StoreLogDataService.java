@@ -6,8 +6,8 @@ package org.openl.rules.ruleservice.logging;
  * @author Marat Kamalov.
  *
  */
-public interface StoreLoggingService {
-    void save(StoreLoggingData storeLoggingData);
+public interface StoreLogDataService {
+    void save(StoreLogData storeLogData);
 
     boolean isEnabled();
 }

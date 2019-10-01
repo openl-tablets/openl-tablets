@@ -34,18 +34,18 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
     }
 
     private void injectServiceMethod(Message message) {
-        StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        StoreLogData storeLogData = StoreLogDataHolder.get();
         OperationResourceInfo operationResourceInfo = message.getExchange().get(OperationResourceInfo.class);
         if (operationResourceInfo != null) {
             Method serviceMethod = operationResourceInfo.getAnnotatedMethod();
-            storeLoggingData.setServiceMethod(serviceMethod);
+            storeLogData.setServiceMethod(serviceMethod);
         } else {
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             MethodDispatcher md = (MethodDispatcher) message.getExchange()
                 .get(Service.class)
                 .get(MethodDispatcher.class.getName());
             Method method = md.getMethod(bop);
-            storeLoggingData.setServiceMethod(method);
+            storeLogData.setServiceMethod(method);
         }
     }
 }

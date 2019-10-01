@@ -114,7 +114,7 @@ public class CassandraOperations implements InitializingBean {
                         if (!alreadyCreatedTableNames.contains(tableName)) {
                             if (session.getCluster().getMetadata().getKeyspace(ksName).getTable(tableName) == null) {
                                 try {
-                                    String cqlQuery = extractCqlQueryForClass(entityClass);
+                                    String cqlQuery = extractCqlQueryForEntity(entityClass);
                                     String[] queries = cqlQuery.split(";");
                                     for (String q : queries) {
                                         session.execute(removeCommentsInStatement(q.trim()));
@@ -144,7 +144,7 @@ public class CassandraOperations implements InitializingBean {
         return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 
-    private String extractCqlQueryForClass(Class<?> entityClass) throws IOException {
+    private String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
             .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         if (inputStream == null) {

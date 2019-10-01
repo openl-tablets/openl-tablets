@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="JAXRSServicesLoggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
     </bean>
 
     <bean id="JAXRSserviceConfigurationDefaultTypingModeFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean"
-          scope="prototype">
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean" scope="prototype">
         <property name="defaultValue" value="SMART"/>
     </bean>
 
     <bean id="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean"
-          scope="prototype"/>
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean" scope="prototype"/>
 
     <bean id="JAXRSserviceConfigurationSerializationInclusionFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationSerializationInclusionFactoryBean"
-          scope="prototype">
-        <property name="defaultSerializationInclusion"
-                  value="${ruleservice.jackson.serializationInclusion}"/>
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationSerializationInclusionFactoryBean"
+        scope="prototype">
+        <property name="defaultSerializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
     </bean>
 
     <bean id="JAXRSJacksonDatabindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
-          scope="prototype">
+        class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
         <property name="defaultTypingMode" ref="JAXRSserviceConfigurationDefaultTypingModeFactoryBean"/>
         <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
@@ -35,11 +30,10 @@
     </bean>
 
     <bean id="JAXRSJacksonObjectMapper" factory-bean="JAXRSJacksonDatabindingFactoryBean"
-          factory-method="createJacksonObjectMapper" scope="prototype">
+        factory-method="createJacksonObjectMapper" scope="prototype">
     </bean>
 
-    <bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"
-          scope="prototype">
+    <bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
         <constructor-arg ref="JAXRSJacksonObjectMapper"/>
     </bean>
 
@@ -48,12 +42,12 @@
     </bean>
 
     <bean id="JAXRS200StatusOutInterceptor"
-          class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
+        class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
     </bean>
 
     <bean id="serviceConfigurationRootClasses"
-          class="org.openl.rules.ruleservice.databinding.SetToListOfClassesFactoryBean" scope="prototype">
+        class="org.openl.rules.ruleservice.databinding.SetToListOfClassesFactoryBean" scope="prototype">
         <property name="setOfClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
     </bean>
 
@@ -66,8 +60,7 @@
 
     <bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
 
-    <bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
-          scope="prototype">
+    <bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
         <property name="features">
             <list>
                 <ref bean="JAXRSServicesLoggingFeature"/>
@@ -94,15 +87,15 @@
     </bean>
 
     <bean id="swaggerInitializationBean"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
+        class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
 
-    <!-- Initializes OpenL Engine instances according to web services configuration 
-        description and calls RuleServicePublisher to expose corresponding web service -->
+    <!-- Initializes OpenL Engine instances according to web services configuration description and calls RuleServicePublisher 
+        to expose corresponding web service -->
     <!-- Exposes web services. -->
-    <bean id="JAXRSServicesRuleServicePublisher"
-          class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="swaggerInitializationBean">
+    <bean id="JAXRSServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"
+        depends-on="swaggerInitializationBean">
         <property name="baseAddress" value="${ruleservice.baseAddress}"/>
-        <property name="storeLoggingEnabled" value="${ruleservice.logging.store.enabled}"/>
+        <property name="storeLogDataEnabled" value="${ruleservice.logging.store.enabled}"/>
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>
 </beans>

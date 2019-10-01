@@ -8,9 +8,9 @@
   <publishers>
     <publisher>restful</publisher>
   </publishers>
-  <loggingStorages>
+  <logStorages>
     <storage>CASSANDRA</storage>
-  </loggingStorages>
+  </logStorages>
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
   <url>someURL</url>

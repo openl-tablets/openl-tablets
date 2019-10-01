@@ -12,13 +12,13 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLogDataConvertor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 @Document(indexName = "openl_logging")
 public class DefaultElasticEntity {
-    @WithStoreLoggingDataConvertor(convertor = RandomUUID.class)
+    @WithStoreLogDataConvertor(convertor = RandomUUID.class)
     @Id
     private String id;
 
@@ -34,11 +34,11 @@ public class DefaultElasticEntity {
     @Response
     private String responseBody;
 
-    @WithStoreLoggingDataConvertor(convertor = JSONRequest.class)
+    @WithStoreLogDataConvertor(convertor = JSONRequest.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object request;
 
-    @WithStoreLoggingDataConvertor(convertor = JSONResponse.class)
+    @WithStoreLogDataConvertor(convertor = JSONResponse.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object response;
 
@@ -172,6 +172,6 @@ public class DefaultElasticEntity {
 
     @Override
     public String toString() {
-        return "ElasticStoreLoggingEntity [id=" + id + "]";
+        return "DefaultElasticEntity [id=" + id + "]";
     }
 }

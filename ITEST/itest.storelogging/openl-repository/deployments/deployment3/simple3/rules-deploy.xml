@@ -9,7 +9,7 @@
             </string>
         </entry>
     </configuration>
-    <loggingStorages>
+    <logStorages>
         <storage>CASSANDRA</storage>
-    </loggingStorages>
+    </logStorages>
 </rules-deploy>

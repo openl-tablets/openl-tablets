@@ -5,7 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.openl.rules.ruleservice.logging.StoreLogDataConvertor;
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface IgnoreStoreLogging {
+@Target(value = { ElementType.FIELD, ElementType.METHOD })
+public @interface WithStoreLogDataConvertor {
+    Class<? extends StoreLogDataConvertor<?>> convertor();
 }

@@ -8,6 +8,6 @@ import java.util.Map;
  * @author Marat Kamalov
  *
  */
-public interface StoreLoggingAdvice {
-    void populateCustomData(Map<String, Object> customValues, Object[] args, Object result, Exception ex);
+public interface StoreLogDataAdvice {
+    void prepare(Map<String, Object> values, Object[] args, Object result, Exception ex);
 }

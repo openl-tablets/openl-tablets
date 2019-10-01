@@ -7,14 +7,14 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.logging.advice.ObjectSerializerAware;
-import org.openl.rules.ruleservice.logging.advice.StoreLoggingAdvice;
-import org.openl.rules.ruleservice.logging.annotation.StoreLogging;
-import org.openl.rules.ruleservice.logging.annotation.StoreLoggings;
+import org.openl.rules.ruleservice.logging.advice.StoreLogDataAdvice;
+import org.openl.rules.ruleservice.logging.annotation.PrepareStoreLogData;
+import org.openl.rules.ruleservice.logging.annotation.PrepareStoreLogDatas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
-    private final Logger log = LoggerFactory.getLogger(StoreLoggingsServiceInvocationAdviceListener.class);
+public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
+    private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
 
     private boolean storeLoggingEnabled = false;
 
@@ -30,39 +30,39 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
             Object[] args,
             Object result,
             Exception lastOccuredException,
-            Predicate<StoreLogging> predicate) {
-        StoreLoggings storeLoggings = interfaceMethod.getAnnotation(StoreLoggings.class);
+            Predicate<PrepareStoreLogData> predicate) {
+        PrepareStoreLogDatas storeLoggings = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
         if (storeLoggings != null) {
-            StoreLoggingData storeLoggingData = null;
-            for (StoreLogging storeLogging : storeLoggings.value()) {
+            StoreLogData storeLogData = null;
+            for (PrepareStoreLogData storeLogging : storeLoggings.value()) {
                 if (predicate.test(storeLogging)) {
-                    StoreLoggingAdvice storeLoggingAdvice = null;
+                    StoreLogDataAdvice storeLogDataAdvice = null;
                     try {
-                        storeLoggingAdvice = storeLogging.value().newInstance();
-                        if (storeLoggingAdvice instanceof ObjectSerializerAware) {
-                            ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLoggingAdvice;
-                            if (storeLoggingData == null) {
-                                storeLoggingData = StoreLoggingDataHolder.get(); // Lazy local
+                        storeLogDataAdvice = storeLogging.value().newInstance();
+                        if (storeLogDataAdvice instanceof ObjectSerializerAware) {
+                            ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
+                            if (storeLogData == null) {
+                                storeLogData = StoreLogDataHolder.get(); // Lazy local
                                                                                  // variable
                                 // initialization
                             }
-                            objectSerializerAware.setObjectSerializer(storeLoggingData.getObjectSerializer());
+                            objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
                         }
                     } catch (Exception e) {
                         String msg = String.format(
-                            "Failed to instantiate store logging advice for '%s' method. Please, check that '%s' class isn't abstact and has a default constructor.",
+                            "Failed to instantiate store log data advice for '%s' method. Please, check that '%s' class isn't abstact and has a default constructor.",
                             MethodUtil.printQualifiedMethodName(interfaceMethod),
                             storeLogging.value().getTypeName());
                         log.error(msg, e);
                     }
-                    if (storeLoggingAdvice != null) {
-                        if (storeLoggingData == null) {
-                            storeLoggingData = StoreLoggingDataHolder.get(); // Lazy local variable
+                    if (storeLogDataAdvice != null) {
+                        if (storeLogData == null) {
+                            storeLogData = StoreLogDataHolder.get(); // Lazy local variable
                                                                              // initialization
                         }
 
-                        storeLoggingAdvice
-                            .populateCustomData(storeLoggingData.getCustomValues(), args, result, lastOccuredException);
+                        storeLogDataAdvice
+                            .prepare(storeLogData.getCustomValues(), args, result, lastOccuredException);
                     }
                 }
             }
@@ -109,7 +109,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                 args,
                 result,
                 lastOccuredException,
-                e -> e.before() && e.bindToServiceMethodAdvice().equals(StoreLogging.Default.class));
+                e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
 
@@ -123,7 +123,7 @@ public class StoreLoggingsServiceInvocationAdviceListener implements ServiceInvo
                 args,
                 result,
                 lastOccuredException,
-                e -> !e.before() && e.bindToServiceMethodAdvice().equals(StoreLogging.Default.class));
+                e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
 

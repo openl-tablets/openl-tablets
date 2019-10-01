@@ -29,9 +29,9 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataHolder;
-import org.openl.rules.ruleservice.logging.StoreLoggingManager;
+import org.openl.rules.ruleservice.logging.StoreLogData;
+import org.openl.rules.ruleservice.logging.StoreLogDataHolder;
+import org.openl.rules.ruleservice.logging.StoreLogDataManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public final class KafkaService implements Runnable {
     private Thread loopRunningThread;
     private ObjectSerializer objectSerializer;
     private boolean storeLoggingEnabled;
-    private StoreLoggingManager storeLoggingManager;
+    private StoreLogDataManager storeLogDataManager;
 
     public static KafkaService createService(OpenLService service,
             String inTopic,
@@ -67,8 +67,8 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
-            StoreLoggingManager storeLoggingManager,
-            boolean storeLoggingEnabled) {
+            StoreLogDataManager storeLogDataManager,
+            boolean storeLogDataEnabled) {
         return new KafkaService(service,
             inTopic,
             outTopic,
@@ -77,8 +77,8 @@ public final class KafkaService implements Runnable {
             producer,
             dltProducer,
             objectSerializer,
-            storeLoggingManager,
-            storeLoggingEnabled);
+            storeLogDataManager,
+            storeLogDataEnabled);
     }
 
     private KafkaService(OpenLService service,
@@ -89,7 +89,7 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, Object> producer,
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
-            StoreLoggingManager storeLoggingManager,
+            StoreLogDataManager storeLogDataManager,
             boolean storeLoggingEnabled) {
         Objects.requireNonNull(service);
         Objects.requireNonNull(inTopic);
@@ -98,7 +98,7 @@ public final class KafkaService implements Runnable {
         Objects.requireNonNull(dltProducer);
         Objects.requireNonNull(objectSerializer);
         if (storeLoggingEnabled) {
-            Objects.requireNonNull(storeLoggingManager);
+            Objects.requireNonNull(storeLogDataManager);
         }
         this.service = service;
         this.inTopic = inTopic;
@@ -109,15 +109,15 @@ public final class KafkaService implements Runnable {
         this.dltProducer = dltProducer;
         this.objectSerializer = objectSerializer;
         this.storeLoggingEnabled = storeLoggingEnabled;
-        this.storeLoggingManager = storeLoggingManager;
+        this.storeLogDataManager = storeLogDataManager;
     }
 
-    public boolean isStoreLoggingEnabled() {
+    public boolean isStoreLogDataEnabled() {
         return storeLoggingEnabled;
     }
 
-    public StoreLoggingManager getStoreLoggingManager() {
-        return storeLoggingManager;
+    public StoreLogDataManager getStoreLogDataManager() {
+        return storeLogDataManager;
     }
 
     public OpenLService getService() {
@@ -202,23 +202,23 @@ public final class KafkaService implements Runnable {
                     Date incomingTime = new Date();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
-                            StoreLoggingData storeLoggingData = isStoreLoggingEnabled() ? StoreLoggingDataHolder.get()
+                            StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get()
                                                                                         : null;
                             try {
-                                if (storeLoggingData != null) {
-                                    storeLoggingData.setServiceName(service.getName());
-                                    storeLoggingData.setLoggingStorages(service.getLoggingStorages());
-                                    storeLoggingData.setIncomingMessageTime(incomingTime);
-                                    storeLoggingData.setPublisherType(PublisherType.KAFKA);
-                                    storeLoggingData.setObjectSerializer(getObjectSerializer());
-                                    storeLoggingData.setConsumerRecord(consumerRecord);
+                                if (storeLogData != null) {
+                                    storeLogData.setServiceName(service.getName());
+                                    storeLogData.setLoggingStorages(service.getLogStorages());
+                                    storeLogData.setIncomingMessageTime(incomingTime);
+                                    storeLogData.setPublisherType(PublisherType.KAFKA);
+                                    storeLogData.setObjectSerializer(getObjectSerializer());
+                                    storeLogData.setConsumerRecord(consumerRecord);
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 RequestMessage requestMessage = consumerRecord.value();
 
-                                if (storeLoggingData != null) {
-                                    storeLoggingData.setServiceMethod(requestMessage.getMethod());
-                                    storeLoggingData.setParameters(requestMessage.getParameters());
+                                if (storeLogData != null) {
+                                    storeLogData.setServiceMethod(requestMessage.getMethod());
+                                    storeLogData.setParameters(requestMessage.getParameters());
                                 }
 
                                 Object result = requestMessage.getMethod()
@@ -233,12 +233,12 @@ public final class KafkaService implements Runnable {
                                     producerRecord = new ProducerRecord<>(outputTopic, partition, null, result);
                                 }
                                 forwardHeadersToOutput(consumerRecord, producerRecord);
-                                if (storeLoggingData != null) {
-                                    storeLoggingData.setOutcomingMessageTime(new Date());
+                                if (storeLogData != null) {
+                                    storeLogData.setOutcomingMessageTime(new Date());
                                 }
                                 producer.send(producerRecord, (metadata, exception) -> {
-                                    if (storeLoggingData != null) {
-                                        storeLoggingData.setProducerRecord(producerRecord);
+                                    if (storeLogData != null) {
+                                        storeLogData.setProducerRecord(producerRecord);
                                     }
                                     if (exception != null) {
                                         try {
@@ -252,9 +252,9 @@ public final class KafkaService implements Runnable {
                                         } catch (Exception e) {
                                             log.error("Unexpected error.", e);
                                         }
-                                        sendErrorToDlt(consumerRecord, exception, storeLoggingData);
-                                    } else if (storeLoggingData != null) {
-                                        getStoreLoggingManager().store(storeLoggingData);
+                                        sendErrorToDlt(consumerRecord, exception, storeLogData);
+                                    } else if (storeLogData != null) {
+                                        getStoreLogDataManager().store(storeLogData);
                                     }
                                 });
                             } catch (Exception e) {
@@ -264,11 +264,11 @@ public final class KafkaService implements Runnable {
                                             getInTopic()),
                                         e);
                                 }
-                                sendErrorToDlt(consumerRecord, e, storeLoggingData);
+                                sendErrorToDlt(consumerRecord, e, storeLogData);
                             } finally {
                                 countDownLatch.countDown();
-                                if (isStoreLoggingEnabled()) {
-                                    StoreLoggingDataHolder.remove();
+                                if (isStoreLogDataEnabled()) {
+                                    StoreLogDataHolder.remove();
                                 }
                             }
                         });
@@ -354,7 +354,7 @@ public final class KafkaService implements Runnable {
 
     private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record,
             Exception e,
-            StoreLoggingData storeLoggingData) {
+            StoreLogData storeLogData) {
         final String dltTopic;
         try {
             dltTopic = getDltTopic(record);
@@ -377,21 +377,21 @@ public final class KafkaService implements Runnable {
             }
             forwardHeadersToDlt(record, dltRecord);
             setDltHeaders(record, dltRecord);
-            if (storeLoggingData != null) {
-                storeLoggingData.setOutcomingMessageTime(new Date());
+            if (storeLogData != null) {
+                storeLogData.setOutcomingMessageTime(new Date());
             }
             dltProducer.send(dltRecord, (metadata, exception) -> {
-                if (storeLoggingData != null) {
-                    storeLoggingData.setDltRecord(dltRecord);
-                    storeLoggingData.fault();
+                if (storeLogData != null) {
+                    storeLogData.setDltRecord(dltRecord);
+                    storeLogData.fault();
                 }
                 if (exception != null && log.isErrorEnabled()) {
                     log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",
                         dltTopic,
                         System.lineSeparator(),
                         record.value().asText()), exception);
-                } else if (storeLoggingData != null) {
-                    getStoreLoggingManager().store(storeLoggingData);
+                } else if (storeLogData != null) {
+                    getStoreLogDataManager().store(storeLogData);
                 }
             });
         } catch (Exception e1) {

@@ -4,63 +4,63 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
 
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
+import org.openl.rules.ruleservice.logging.StoreLogData;
+import org.openl.rules.ruleservice.logging.StoreLogDataMapper;
 
 public class DefaultIndexBuilderImpl implements IndexBuilder {
     private static final String ID = "DEFAULT_ELASTIC_SEARCH_INDEX_ID";
 
-    StoreLoggingDataMapper storeLoggingDataMapper = new StoreLoggingDataMapper();
+    StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
     @Override
-    public DefaultElasticEntity withObject(StoreLoggingData storeLoggingData) {
-        DefaultElasticEntity loggingRecord = new DefaultElasticEntity();
+    public DefaultElasticEntity withObject(StoreLogData storeLogData) {
+        DefaultElasticEntity entity = new DefaultElasticEntity();
 
-        storeLoggingDataMapper.map(storeLoggingData, loggingRecord);
+        storeLogDataMapper.map(storeLogData, entity);
 
-        return loggingRecord;
+        return entity;
     }
 
     @Override
-    public String withId(StoreLoggingData storeLoggingData) {
+    public String withId(StoreLogData storeLogData) {
         String id = null;
 
-        Object existingId = storeLoggingData.getCustomValues().get(ID);
+        Object existingId = storeLogData.getCustomValues().get(ID);
         if (existingId != null) {
             id = (String) existingId;
         } else {
             id = UUID.randomUUID().toString();
-            storeLoggingData.getCustomValues().put(ID, id);
+            storeLogData.getCustomValues().put(ID, id);
         }
         return id;
     }
 
     @Override
-    public String withIndexName(StoreLoggingData storeLoggingData) {
+    public String withIndexName(StoreLogData storeLogData) {
         try {
-            return URLEncoder.encode(storeLoggingData.getServiceName(), "UTF-8").toLowerCase();
+            return URLEncoder.encode(storeLogData.getServiceName(), "UTF-8").toLowerCase();
         } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
 
     @Override
-    public String withType(StoreLoggingData storeLoggingData) {
+    public String withType(StoreLogData storeLogData) {
         return null;
     }
 
     @Override
-    public String withSource(StoreLoggingData storeLoggingData) {
+    public String withSource(StoreLogData storeLogData) {
         return null;
     }
 
     @Override
-    public String withParentId(StoreLoggingData storeLoggingData) {
+    public String withParentId(StoreLogData storeLogData) {
         return null;
     }
 
     @Override
-    public Long withVersion(StoreLoggingData storeLoggingData) {
+    public Long withVersion(StoreLogData storeLogData) {
         return null;
     }
 }

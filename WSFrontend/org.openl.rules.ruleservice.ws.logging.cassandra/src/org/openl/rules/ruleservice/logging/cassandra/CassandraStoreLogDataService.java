@@ -2,23 +2,22 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.codec.language.bm.Rule;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
-import org.openl.rules.ruleservice.logging.StoreLoggingDataMapper;
-import org.openl.rules.ruleservice.logging.StoreLoggingService;
+import org.openl.rules.ruleservice.logging.StoreLogData;
+import org.openl.rules.ruleservice.logging.StoreLogDataMapper;
+import org.openl.rules.ruleservice.logging.StoreLogDataService;
 import org.openl.rules.ruleservice.logging.cassandra.annotation.CassandraEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CassandraStoreLoggingService implements StoreLoggingService {
+public class CassandraStoreLogDataService implements StoreLogDataService {
 
-    private final Logger log = LoggerFactory.getLogger(CassandraStoreLoggingService.class);
+    private final Logger log = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
     private CassandraOperations cassandraOperations;
 
-    private StoreLoggingDataMapper storeLoggingDataMapper = new StoreLoggingDataMapper();
+    private StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
     private boolean enabled = true;
 
@@ -40,12 +39,12 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
     }
 
     @Override
-    public void save(StoreLoggingData storeLoggingData) {
-        if (!storeLoggingData.getLoggingStorages().contains(RulesDeploy.LoggingStorageType.CASSANDRA.toString())) {
+    public void save(StoreLogData storeLogData) {
+        if (!storeLogData.getLoggingStorages().contains(RulesDeploy.LogStorageType.CASSANDRA.toString())) {
             return;
         }
 
-        Method serviceMethod = storeLoggingData.getServiceMethod();
+        Method serviceMethod = storeLogData.getServiceMethod();
 
         Object[] entities = null;
         CassandraEntity cassandraEntity = null;
@@ -77,7 +76,7 @@ public class CassandraStoreLoggingService implements StoreLoggingService {
         }
         for (Object entity : entities) {
             try {
-                storeLoggingDataMapper.map(storeLoggingData, entity);
+                storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format("Failed to map '%s' cassandra entity for '%s' method.",

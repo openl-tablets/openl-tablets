@@ -41,7 +41,7 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.logging.StoreLoggingManager;
+import org.openl.rules.ruleservice.logging.StoreLogDataManager;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
@@ -87,24 +87,24 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
 
     private Cloner cloner = new Cloner();
 
-    private StoreLoggingManager storeLoggingManager;
+    private StoreLogDataManager storeLogDataManager;
 
-    private boolean storeLoggingEnabled = false;
+    private boolean storeLogDataEnabled = false;
 
-    public void setStoreLoggingManager(StoreLoggingManager storeLoggingManager) {
-        this.storeLoggingManager = storeLoggingManager;
+    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
+        this.storeLogDataManager = storeLogDataManager;
     }
 
-    public StoreLoggingManager getStoreLoggingManager() {
-        return storeLoggingManager;
+    public StoreLogDataManager getStoreLogDataManager() {
+        return storeLogDataManager;
     }
 
-    public boolean isStoreLoggingEnabled() {
-        return storeLoggingEnabled;
+    public boolean isStoreLogDataEnabled() {
+        return storeLogDataEnabled;
     }
 
-    public void setStoreLoggingEnabled(boolean storeLoggingEnabled) {
-        this.storeLoggingEnabled = storeLoggingEnabled;
+    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
+        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     @Autowired
@@ -467,8 +467,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             producer,
             dltProducer,
             objectSerializer,
-            getStoreLoggingManager(),
-            isStoreLoggingEnabled());
+            getStoreLogDataManager(),
+            isStoreLogDataEnabled());
         kafkaServices.add(kafkaService);
 
         kafkaService.start();

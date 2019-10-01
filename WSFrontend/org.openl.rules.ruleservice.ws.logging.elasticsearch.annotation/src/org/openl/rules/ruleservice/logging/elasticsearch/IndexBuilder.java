@@ -1,19 +1,19 @@
 package org.openl.rules.ruleservice.logging.elasticsearch;
 
-import org.openl.rules.ruleservice.logging.StoreLoggingData;
+import org.openl.rules.ruleservice.logging.StoreLogData;
 
 public interface IndexBuilder {
-    Object withObject(StoreLoggingData storeLoggingData);
+    Object withObject(StoreLogData storeLogData);
 
-    String withSource(StoreLoggingData storeLoggingData);
+    String withSource(StoreLogData storeLogData);
 
-    String withId(StoreLoggingData storeLoggingData);
+    String withId(StoreLogData storeLogData);
 
-    String withParentId(StoreLoggingData storeLoggingData);
+    String withParentId(StoreLogData storeLogData);
 
-    String withIndexName(StoreLoggingData storeLoggingData);
+    String withIndexName(StoreLogData storeLogData);
 
-    String withType(StoreLoggingData storeLoggingData);
+    String withType(StoreLogData storeLogData);
 
-    Long withVersion(StoreLoggingData storeLoggingData);
+    Long withVersion(StoreLogData storeLogData);
 }

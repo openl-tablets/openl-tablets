@@ -26,23 +26,23 @@ import org.apache.cxf.phase.Phase;
 @NoJSR250Annotations
 public class CollectResponseMessageOutInterceptor extends AbstractProcessLoggingMessageInterceptor {
 
-    private StoreLoggingManager storeLoggingManager;
+    private StoreLogDataManager storeLoggingManager;
 
-    public StoreLoggingManager getStoreLoggingManager() {
+    public StoreLogDataManager getStoreLoggingManager() {
         return storeLoggingManager;
     }
 
-    public CollectResponseMessageOutInterceptor(String phase, StoreLoggingManager storeLoggingManager) {
+    public CollectResponseMessageOutInterceptor(String phase, StoreLogDataManager storeLoggingManager) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
         this.storeLoggingManager = storeLoggingManager;
     }
 
-    public CollectResponseMessageOutInterceptor(StoreLoggingManager storeLoggingManager) {
+    public CollectResponseMessageOutInterceptor(StoreLogDataManager storeLoggingManager) {
         this(Phase.PRE_STREAM, storeLoggingManager);
     }
 
-    public CollectResponseMessageOutInterceptor(int lim, StoreLoggingManager storeLoggingManager) {
+    public CollectResponseMessageOutInterceptor(int lim, StoreLogDataManager storeLoggingManager) {
         this(storeLoggingManager);
         limit = lim;
     }
@@ -54,8 +54,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     @Override
     public void handleFault(Message message) {
-        final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
-        storeLoggingData.fault();
+        final StoreLogData storeLogData = StoreLogDataHolder.get();
+        storeLogData.fault();
         handleAnyMessage(message);
     }
 
@@ -193,13 +193,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
     @Override
     protected void handleMessage(LoggingMessage message) throws Fault {
-        final StoreLoggingData storeLoggingData = StoreLoggingDataHolder.get();
+        final StoreLogData storeLogData = StoreLogDataHolder.get();
         try {
-            storeLoggingData.setResponseMessage(message);
-            storeLoggingData.setOutcomingMessageTime(new Date());
-            getStoreLoggingManager().store(storeLoggingData);
+            storeLogData.setResponseMessage(message);
+            storeLogData.setOutcomingMessageTime(new Date());
+            getStoreLoggingManager().store(storeLogData);
         } finally {
-            StoreLoggingDataHolder.remove();
+            StoreLogDataHolder.remove();
         }
     }
 

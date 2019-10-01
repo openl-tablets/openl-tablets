@@ -35,13 +35,13 @@ import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
 import org.openl.rules.ruleservice.logging.annotation.Value;
-import org.openl.rules.ruleservice.logging.annotation.WithStoreLoggingDataConvertor;
+import org.openl.rules.ruleservice.logging.annotation.WithStoreLogDataConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StoreLoggingDataMapper {
+public class StoreLogDataMapper {
 
-    private final Logger log = LoggerFactory.getLogger(StoreLoggingDataMapper.class);
+    private final Logger log = LoggerFactory.getLogger(StoreLogDataMapper.class);
 
     private static final Set<Class<? extends Annotation>> CUSTOM_ANNOTATIONS;
     private static final Set<Class<? extends Annotation>> MAPPING_ANNOTATIONS;
@@ -60,12 +60,12 @@ public class StoreLoggingDataMapper {
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(WithStoreLoggingDataConvertor.class);
+        mappingAnnotations.add(WithStoreLogDataConvertor.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
 
-    public void map(StoreLoggingData storeLoggingData, Object target) {
+    public void map(StoreLogData storeLogData, Object target) {
         if (target == null) {
             return;
         }
@@ -74,7 +74,7 @@ public class StoreLoggingDataMapper {
 
         QualifyPublisherType qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherTypeOnClass != null) {
-            matchPublisherType(qualifyPublisherTypeOnClass.value(), storeLoggingData.getPublisherType());
+            matchPublisherType(qualifyPublisherTypeOnClass.value(), storeLogData.getPublisherType());
         }
 
         Class<?> clazz = targetClass;
@@ -94,67 +94,58 @@ public class StoreLoggingDataMapper {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof IncomingTime) {
-                injectValue(storeLoggingData,
-                    target,
-                    annotation,
-                    annotatedElement,
-                    storeLoggingData.getIncomingMessageTime());
+                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getIncomingMessageTime());
             } else if (annotation instanceof OutcomingTime) {
-                injectValue(storeLoggingData,
+                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getOutcomingMessageTime());
+            } else if (annotation instanceof MethodName && storeLogData.getServiceMethod() != null) {
+                injectValue(storeLogData,
                     target,
                     annotation,
                     annotatedElement,
-                    storeLoggingData.getOutcomingMessageTime());
-            } else if (annotation instanceof MethodName && storeLoggingData.getServiceMethod() != null) {
-                injectValue(storeLoggingData,
-                    target,
-                    annotation,
-                    annotatedElement,
-                    storeLoggingData.getServiceMethod().getName());
+                    storeLogData.getServiceMethod().getName());
             } else if (annotation instanceof ServiceName) {
-                injectValue(storeLoggingData, target, annotation, annotatedElement, storeLoggingData.getServiceName());
+                injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getServiceName());
             } else if (annotation instanceof Publisher) {
-                injectValue(storeLoggingData,
+                injectValue(storeLogData,
                     target,
                     annotation,
                     annotatedElement,
-                    storeLoggingData.getPublisherType().toString());
+                    storeLogData.getPublisherType().toString());
             } else if (annotation instanceof Url) {
-                if (storeLoggingData.getRequestMessage() != null && storeLoggingData.getRequestMessage()
-                    .getAddress() != null) {
-                    injectValue(storeLoggingData,
+                if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage().getAddress() != null) {
+                    injectValue(storeLogData,
                         target,
                         annotation,
                         annotatedElement,
-                        storeLoggingData.getRequestMessage().getAddress().toString());
+                        storeLogData.getRequestMessage().getAddress().toString());
                 }
             } else if (annotation instanceof Request) {
                 String request = null;
-                switch (storeLoggingData.getPublisherType()) {
+                switch (storeLogData.getPublisherType()) {
                     case KAFKA:
-                        request = storeLoggingData.getConsumerRecord().value().asText();
+                        request = storeLogData.getConsumerRecord().value().asText();
                         break;
                     case RMI:
                         break;
                     case RESTFUL:
                     case WEBSERVICE:
-                        if (storeLoggingData.getRequestMessage() != null && storeLoggingData.getRequestMessage()
+                        if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
                             .getPayload() != null) {
-                            request = storeLoggingData.getRequestMessage().getPayload().toString();
+                            request = storeLogData.getRequestMessage().getPayload().toString();
                         }
                 }
-                injectValue(storeLoggingData, target, annotation, annotatedElement, request);
+                injectValue(storeLogData, target, annotation, annotatedElement, request);
             } else if (annotation instanceof Response) {
                 String response = null;
-                switch (storeLoggingData.getPublisherType()) {
+                switch (storeLogData.getPublisherType()) {
                     case KAFKA:
-                        if (storeLoggingData.getDltRecord() != null) {
-                            response = StringUtils.toEncodedString(storeLoggingData.getDltRecord().value(),
+                        if (storeLogData.getDltRecord() != null) {
+                            response = StringUtils.toEncodedString(storeLogData.getDltRecord().value(),
                                 StandardCharsets.UTF_8);
-                        } else if (storeLoggingData.getProducerRecord() != null) {
+                        } else if (storeLogData.getProducerRecord() != null) {
                             try {
-                                response = storeLoggingData.getObjectSerializer()
-                                    .writeValueAsString(storeLoggingData.getProducerRecord().value());
+                                response = storeLogData.getObjectSerializer()
+                                    .writeValueAsString(storeLogData.getProducerRecord().value());
                             } catch (ProcessingException e) {
                                 throw new RuleServiceRuntimeException(e);
                             }
@@ -164,39 +155,37 @@ public class StoreLoggingDataMapper {
                         break;
                     case RESTFUL:
                     case WEBSERVICE:
-                        if (storeLoggingData.getResponseMessage() != null && storeLoggingData.getResponseMessage()
+                        if (storeLogData.getResponseMessage() != null && storeLogData.getResponseMessage()
                             .getPayload() != null) {
-                            response = storeLoggingData.getResponseMessage().getPayload().toString();
+                            response = storeLogData.getResponseMessage().getPayload().toString();
                         }
                 }
-                injectValue(storeLoggingData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof WithStoreLoggingDataConvertor) {
-                withStoreLoggingDataInsertValue(storeLoggingData, target, annotation, annotatedElement);
+                injectValue(storeLogData, target, annotation, annotatedElement, response);
+            } else if (annotation instanceof WithStoreLogDataConvertor) {
+                withLogDataConvertorInsertValue(storeLogData, target, annotation, annotatedElement);
             } else if (annotation instanceof KafkaMessageHeader) {
                 KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
-                    if (storeLoggingData.getConsumerRecord() != null) {
-                        Header header = storeLoggingData.getConsumerRecord()
+                    if (storeLogData.getConsumerRecord() != null) {
+                        Header header = storeLogData.getConsumerRecord()
                             .headers()
                             .lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
-                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
                         }
                     }
                 } else {
-                    if (storeLoggingData.getProducerRecord() != null) {
-                        Header header = storeLoggingData.getProducerRecord()
+                    if (storeLogData.getProducerRecord() != null) {
+                        Header header = storeLogData.getProducerRecord()
                             .headers()
                             .lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
-                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
                         }
-                    } else if (storeLoggingData.getDltRecord() != null) {
-                        Header header = storeLoggingData.getDltRecord()
-                            .headers()
-                            .lastHeader(kafkaMessageHeader.value());
+                    } else if (storeLogData.getDltRecord() != null) {
+                        Header header = storeLogData.getDltRecord().headers().lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
-                            injectValue(storeLoggingData, target, annotation, annotatedElement, header.value());
+                            injectValue(storeLogData, target, annotation, annotatedElement, header.value());
                         }
                     }
                 }
@@ -211,11 +200,11 @@ public class StoreLoggingDataMapper {
             if (annotation instanceof Value) {
                 Value valueAnnotation = (Value) annotation;
                 String key = valueAnnotation.value();
-                injectValue(storeLoggingData,
+                injectValue(storeLogData,
                     target,
                     annotation,
                     annotatedElement,
-                    storeLoggingData.getCustomValues().get(key));
+                    storeLogData.getCustomValues().get(key));
             }
         }
     }
@@ -238,14 +227,14 @@ public class StoreLoggingDataMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private void injectValue(StoreLoggingData storeLoggingData,
+    private void injectValue(StoreLogData storeLogData,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement,
             Object value) {
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType != null && !matchPublisherType(qualifyPublisherType.value(),
-            storeLoggingData.getPublisherType())) {
+            storeLogData.getPublisherType())) {
             return;
         }
 
@@ -336,22 +325,22 @@ public class StoreLoggingDataMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private void withStoreLoggingDataInsertValue(StoreLoggingData storeLoggingData,
+    private void withLogDataConvertorInsertValue(StoreLogData storeLogData,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement) {
-        WithStoreLoggingDataConvertor withStoreLoggingDataConvertor = (WithStoreLoggingDataConvertor) annotation;
+        WithStoreLogDataConvertor withLogDataConvertor = (WithStoreLogDataConvertor) annotation;
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
-            storeLoggingData.getPublisherType())) {
-            Class<? extends StoreLoggingDataConvertor<?>> convertorClass = withStoreLoggingDataConvertor.convertor();
-            StoreLoggingDataConvertor<Object> convertor = null;
+            storeLogData.getPublisherType())) {
+            Class<? extends StoreLogDataConvertor<?>> convertorClass = withLogDataConvertor.convertor();
+            StoreLogDataConvertor<Object> convertor = null;
             try {
-                convertor = (StoreLoggingDataConvertor<Object>) convertorClass.newInstance();
+                convertor = (StoreLogDataConvertor<Object>) convertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "StoreLoggingConvertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
+                        "LogDataConvertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
                         convertorClass.getTypeName()), e);
                 }
                 return;
@@ -359,7 +348,7 @@ public class StoreLoggingDataMapper {
             if (convertor != null) {
                 Object convertedValue = null;
                 try {
-                    convertedValue = convertor.convert(storeLoggingData);
+                    convertedValue = convertor.convert(storeLogData);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(

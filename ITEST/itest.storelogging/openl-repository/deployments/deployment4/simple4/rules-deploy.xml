@@ -3,7 +3,7 @@
     <isProvideVariations>true</isProvideVariations>
     <serviceName>simple4</serviceName>
     <annotationTemplateClassName>org.openl.itest.serviceclass.Simple4ServiceAnnotationTemplate</annotationTemplateClassName>
-    <loggingStorages>
+    <logStorages>
         <storage>CASSANDRA</storage>
-    </loggingStorages>
+    </logStorages>
 </rules-deploy>
