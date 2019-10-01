@@ -79,6 +79,10 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
         permission java.io.FilePermission "${catalina.base}/logs", "read,write,delete";
 
+        //richfaces
+        permission java.io.FilePermission "${catalina.base}/-", "read";
+        permission java.io.FilePermission "${catalina.base}/", "read";
+
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";
 
