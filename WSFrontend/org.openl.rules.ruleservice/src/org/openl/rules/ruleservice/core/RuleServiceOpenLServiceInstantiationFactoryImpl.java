@@ -204,25 +204,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Class<?> processInterceptingTemplateClass(ServiceDescription serviceDescription,
             Class<?> serviceClass,
             ClassLoader classLoader) {
-        String clazzName = serviceDescription.getAnnotationTemplateClassName();
-        if (clazzName != null) {
+        String annotationTemplateClassName = serviceDescription.getAnnotationTemplateClassName();
+        if (annotationTemplateClassName != null) {
             try {
-                Class<?> annotationTemplateClass = classLoader.loadClass(clazzName.trim());
+                Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName.trim());
                 if (annotationTemplateClass.isInterface()) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, classLoader);
                     log.info("Interceptor template class '{}' has been used for service: {}.",
-                        clazzName,
+                        annotationTemplateClassName,
                         serviceDescription.getName());
                     return decoratedClass;
                 }
                 log.error(
                     "Interface is required! Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
-                    clazzName);
+                    annotationTemplateClassName);
             } catch (Exception | NoClassDefFoundError e) {
                 log.error(
                     "Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
-                    clazzName,
+                    annotationTemplateClassName,
                     e);
             }
         }

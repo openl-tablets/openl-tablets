@@ -2,13 +2,24 @@ package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DynamicInterfaceAnnotationEnhancerHelper {
 
@@ -19,11 +30,18 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
         private Class<?> templateClass;
+        private Set<Method> foundMethods = new HashSet<>();
 
         public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
             super(Opcodes.ASM5, arg0);
             this.templateClass = templateClass;
 
+        }
+
+        public Method[] getMissedMethods() {
+            Set<Method> tmp = new HashSet<>(Arrays.asList(templateClass.getMethods()));
+            tmp.removeAll(foundMethods);
+            return tmp.toArray(new Method[] {});
         }
 
         @Override
@@ -87,6 +105,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     }
                 }
                 if (templateMethod != null) {
+                    foundMethods.add(templateMethod);
                     MethodVisitor mv = super.visitMethod(arg0, arg1, arg2, arg3, arg4);
                     Annotation[] annotations = templateMethod.getAnnotations();
                     for (Annotation annotation : annotations) {
@@ -143,7 +162,19 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
+        logMissedMethods(dynamicInterfaceAnnotationEnhancerClassVisitor);
         return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+    }
+
+    private static void logMissedMethods(
+            DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassVisitor) {
+        final Logger log = LoggerFactory.getLogger(DynamicInterfaceAnnotationEnhancerHelper.class);
+        if (log.isWarnEnabled()) {
+            for (Method method : dynamicInterfaceAnnotationEnhancerClassVisitor.getMissedMethods()) {
+                log.warn("Annotation template method '{}' is not found in the service class.",
+                    MethodUtil.printQualifiedMethodName(method));
+            }
+        }
     }
 
     public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass) throws Exception {
