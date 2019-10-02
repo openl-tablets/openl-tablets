@@ -7,10 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
-import org.openl.rules.ruleservice.storelogdata.annotation.IgnoreStoreLogData;
-import org.openl.rules.ruleservice.storelogdata.annotation.OnlySuccessStoreLog;
+import org.openl.rules.ruleservice.storelogdata.annotation.SkipFaultStoreLogData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,25 +26,23 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     @Override
     public void store(StoreLogData storeLogData) {
         if (!storeLogData.isIgnorable()) {
-            Method serviceMethod = storeLogData.getServiceMethod();
-            if (serviceMethod == null || !serviceMethod.isAnnotationPresent(IgnoreStoreLogData.class)) {
-                if (!ignoreByFault(storeLogData, serviceMethod)) {
-                    executorService.submit(() -> {
-                        for (StoreLogDataService storeLoggingService : storeLogDataServices) {
-                            try {
-                                storeLoggingService.save(storeLogData);
-                            } catch (Exception e) {
-                                log.error("Failed on save operation.", e);
-                            }
+            if (!ignoreByFault(storeLogData)) {
+                executorService.submit(() -> {
+                    for (StoreLogDataService storeLoggingService : storeLogDataServices) {
+                        try {
+                            storeLoggingService.save(storeLogData);
+                        } catch (Exception e) {
+                            log.error("Failed on save operation.", e);
                         }
-                    });
-                }
+                    }
+                });
             }
         }
     }
 
-    private boolean ignoreByFault(StoreLogData storeLogData, Method serviceMethod) {
+    private boolean ignoreByFault(StoreLogData storeLogData) {
+        Method serviceMethod = storeLogData.getServiceMethod();
         return storeLogData.isFault() && serviceMethod != null && serviceMethod
-            .isAnnotationPresent(OnlySuccessStoreLog.class);
+            .isAnnotationPresent(SkipFaultStoreLogData.class);
     }
 }
