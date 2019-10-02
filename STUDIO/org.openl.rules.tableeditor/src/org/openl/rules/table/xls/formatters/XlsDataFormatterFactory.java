@@ -1,5 +1,9 @@
 package org.openl.rules.table.xls.formatters;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,7 +55,9 @@ public final class XlsDataFormatterFactory {
                 }
 
                 // Date
-            } else if (instanceClass == Date.class) {
+            } else if (Date.class.isAssignableFrom(instanceClass) || LocalDateTime.class
+                .isAssignableFrom(instanceClass) || LocalDate.class.isAssignableFrom(instanceClass) || LocalTime.class
+                    .isAssignableFrom(instanceClass) || ZonedDateTime.class.isAssignableFrom(instanceClass)) {
                 formatter = getDateFormatter(cell);
 
                 // Boolean

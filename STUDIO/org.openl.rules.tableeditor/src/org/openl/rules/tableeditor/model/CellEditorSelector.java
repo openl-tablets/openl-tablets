@@ -1,5 +1,9 @@
 package org.openl.rules.tableeditor.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.openl.domain.EnumDomain;
@@ -96,7 +100,9 @@ public class CellEditorSelector {
                 }
 
                 // Date
-            } else if (instanceClass == Date.class) {
+            } else if (Date.class.isAssignableFrom(instanceClass) || LocalDate.class.isAssignableFrom(
+                instanceClass) || LocalDateTime.class.isAssignableFrom(instanceClass) || LocalTime.class
+                    .isAssignableFrom(instanceClass) || ZonedDateTime.class.isAssignableFrom(instanceClass)) {
                 result = factory.makeDateEditor();
 
                 // Boolean
