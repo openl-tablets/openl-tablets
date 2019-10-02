@@ -34,6 +34,8 @@ public class StoreLogData {
 
     private PublisherType publisherType;
 
+    private Class<?> serviceClass;
+
     private Method serviceMethod;
 
     private Map<String, Object> customValues = new HashMap<>();
@@ -90,6 +92,14 @@ public class StoreLogData {
 
     public void setResponseMessage(LoggingMessage responseMessage) {
         this.responseMessage = responseMessage;
+    }
+
+    public Class<?> getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(Class<?> serviceClass) {
+        this.serviceClass = serviceClass;
     }
 
     public String getServiceName() {

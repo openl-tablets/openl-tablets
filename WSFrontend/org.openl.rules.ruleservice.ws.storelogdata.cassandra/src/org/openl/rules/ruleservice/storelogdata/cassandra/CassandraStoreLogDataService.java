@@ -39,15 +39,14 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        Method serviceMethod = storeLogData.getServiceMethod();
         Object[] entities = null;
-        StoreLogDataToCassandra storeLogDataToCassandraAnnotation = null;
-        if (serviceMethod != null) {
+
+        StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
+            .getAnnotation(StoreLogDataToCassandra.class);
+
+        Method serviceMethod = storeLogData.getServiceMethod();
+        if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToCassandra.class)) {
             storeLogDataToCassandraAnnotation = serviceMethod.getAnnotation(StoreLogDataToCassandra.class);
-            if (storeLogDataToCassandraAnnotation == null) {
-                storeLogDataToCassandraAnnotation = serviceMethod.getDeclaringClass()
-                    .getAnnotation(StoreLogDataToCassandra.class);
-            }
         }
 
         if (storeLogDataToCassandraAnnotation == null) {

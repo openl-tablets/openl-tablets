@@ -205,6 +205,7 @@ public final class KafkaService implements Runnable {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
                             try {
                                 if (storeLogData != null) {
+                                    storeLogData.setServiceClass(service.getServiceClass());
                                     storeLogData.setServiceName(service.getName());
                                     storeLogData.setIncomingMessageTime(incomingTime);
                                     storeLogData.setPublisherType(PublisherType.KAFKA);

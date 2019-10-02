@@ -10,4 +10,3 @@ public interface Simple4ServiceAnnotationTemplate {
     @StoreLogDataToCassandra({ HelloEntity1.class, HelloEntity2.class })
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 }
-

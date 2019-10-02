@@ -41,7 +41,7 @@ import net.mguenther.kafka.junit.SendKeyValues;
 
 public class RunStoreLogDataITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
-    private static final int AWAIT_TIMEOUT = 30;
+    private static final int AWAIT_TIMEOUT = 60;
     private static final String KEYSPACE = "openl_ws_logging";
 
     private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(Table.class).name();

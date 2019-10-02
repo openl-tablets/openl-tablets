@@ -39,16 +39,14 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        Method serviceMethod = storeLogData.getServiceMethod();
-
         IndexBuilder[] elasticsearchIndexBuilders = null;
-        StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = null;
-        if (serviceMethod != null) {
+
+        StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
+            .getAnnotation(StoreLogDataToElasticsearch.class);
+
+        Method serviceMethod = storeLogData.getServiceMethod();
+        if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToElasticsearch.class)) {
             storeLogDataToElasticsearchAnnotation = serviceMethod.getAnnotation(StoreLogDataToElasticsearch.class);
-            if (storeLogDataToElasticsearchAnnotation == null) {
-                storeLogDataToElasticsearchAnnotation = serviceMethod.getDeclaringClass()
-                    .getAnnotation(StoreLogDataToElasticsearch.class);
-            }
         }
         if (storeLogDataToElasticsearchAnnotation == null) {
             return;
