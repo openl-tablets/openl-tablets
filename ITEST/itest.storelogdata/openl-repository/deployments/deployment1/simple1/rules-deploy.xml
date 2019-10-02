@@ -2,10 +2,8 @@
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
     <serviceName>simple1</serviceName>
+    <annotationTemplateClassName>org.openl.itest.serviceclass.Simple1ServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
         <publisher>kafka</publisher>
     </publishers>
-    <logStorages>
-        <storage>CASSANDRA</storage>
-    </logStorages>
 </rules-deploy>

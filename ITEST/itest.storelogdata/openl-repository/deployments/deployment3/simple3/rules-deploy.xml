@@ -2,6 +2,7 @@
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
     <isProvideVariations>true</isProvideVariations>
     <serviceName>simple3</serviceName>
+    <annotationTemplateClassName>org.openl.itest.serviceclass.Simple3ServiceAnnotationTemplate</annotationTemplateClassName>
     <configuration>
         <entry>
             <string>rootClassNamesBinding</string>
@@ -9,7 +10,4 @@
             </string>
         </entry>
     </configuration>
-    <logStorages>
-        <storage>CASSANDRA</storage>
-    </logStorages>
 </rules-deploy>

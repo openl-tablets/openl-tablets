@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +33,6 @@ public class StoreLogData {
     private String serviceName;
 
     private PublisherType publisherType;
-
-    private Collection<String> loggingStorages;
 
     private Method serviceMethod;
 
@@ -137,14 +134,6 @@ public class StoreLogData {
 
     public void setServiceMethod(Method serviceMethod) {
         this.serviceMethod = serviceMethod;
-    }
-
-    public void setLoggingStorages(Collection<String> loggingStorages) {
-        this.loggingStorages = loggingStorages;
-    }
-
-    public Collection<String> getLoggingStorages() {
-        return loggingStorages;
     }
 
     public boolean isIgnorable() {

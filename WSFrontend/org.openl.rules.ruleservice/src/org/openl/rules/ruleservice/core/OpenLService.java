@@ -31,7 +31,6 @@ public final class OpenLService {
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Set<String> publishers;
-    private Set<String> logStorages;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
 
@@ -64,7 +63,6 @@ public final class OpenLService {
             boolean provideRuntimeContext,
             boolean provideVariations,
             Set<String> publishers,
-            Set<String> logStorages,
             Collection<Module> modules,
             ClassLoader classLoader,
             Class<?> serviceClass) {
@@ -87,11 +85,7 @@ public final class OpenLService {
         } else {
             this.publishers = Collections.emptySet();
         }
-        if (logStorages != null) {
-            this.logStorages = Collections.unmodifiableSet(logStorages);
-        } else {
-            this.logStorages = Collections.emptySet();
-        }
+
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
     }
@@ -106,7 +100,6 @@ public final class OpenLService {
             builder.provideRuntimeContext,
             builder.provideVariations,
             builder.publishers,
-            builder.logStorages,
             builder.modules,
             builder.classLoader,
             builder.serviceClass);
@@ -153,18 +146,6 @@ public final class OpenLService {
             return Collections.emptyList();
         }
         return publishers;
-    }
-
-    /**
-     * Returns service logging storages.
-     *
-     * @return service logging storages
-     */
-    public Collection<String> getLogStorages() {
-        if (logStorages == null) {
-            return Collections.emptyList();
-        }
-        return logStorages;
     }
 
     /**
@@ -350,7 +331,6 @@ public final class OpenLService {
         private boolean provideVariations = false;
         private Collection<Module> modules;
         private Set<String> publishers;
-        Set<String> logStorages;
         private ClassLoader classLoader;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
@@ -383,35 +363,6 @@ public final class OpenLService {
             }
             if (publisher != null) {
                 this.publishers.add(publisher);
-            }
-            return this;
-        }
-
-        public OpenLServiceBuilder setLogStorages(Set<String> logStorages) {
-            if (logStorages == null) {
-                this.logStorages = new HashSet<>(0);
-            } else {
-                this.logStorages = logStorages;
-            }
-            return this;
-        }
-
-        public OpenLServiceBuilder addLogStorages(Set<String> logStorages) {
-            if (this.logStorages == null) {
-                this.logStorages = new HashSet<>();
-            }
-            if (logStorages != null) {
-                this.logStorages.addAll(logStorages);
-            }
-            return this;
-        }
-
-        public OpenLServiceBuilder addLogStorage(String logStorage) {
-            if (this.logStorages == null) {
-                this.logStorages = new HashSet<>();
-            }
-            if (logStorage != null) {
-                this.logStorages.add(logStorage);
             }
             return this;
         }

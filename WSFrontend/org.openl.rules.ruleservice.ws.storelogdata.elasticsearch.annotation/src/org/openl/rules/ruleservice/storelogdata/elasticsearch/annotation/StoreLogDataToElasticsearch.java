@@ -9,6 +9,9 @@ import org.openl.rules.ruleservice.storelogdata.elasticsearch.IndexBuilder;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD, ElementType.TYPE })
-public @interface ElasticsearchIndexBuilder {
-    Class<? extends IndexBuilder>[] value();
+public @interface StoreLogDataToElasticsearch {
+    Class<? extends IndexBuilder>[] value() default DEFAULT.class;
+
+    public static interface DEFAULT extends IndexBuilder {
+    }
 }

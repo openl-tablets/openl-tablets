@@ -6,8 +6,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 /**
  * CXF interceptor for collecting service data for logging to external source feature.
@@ -42,6 +40,5 @@ public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Mes
     private void injectServiceName(Message message) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.setServiceName(service.getName());
-        storeLogData.setLoggingStorages(service.getLogStorages());
     }
 }

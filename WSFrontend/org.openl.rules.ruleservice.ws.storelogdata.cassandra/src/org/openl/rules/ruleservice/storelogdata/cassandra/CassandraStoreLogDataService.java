@@ -3,11 +3,10 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 import java.lang.reflect.Method;
 
 import org.openl.binding.MethodUtil;
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraEntity;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,38 +39,43 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        if (!storeLogData.getLoggingStorages().contains(RulesDeploy.LogStorageType.CASSANDRA.toString())) {
-            return;
-        }
-
         Method serviceMethod = storeLogData.getServiceMethod();
-
         Object[] entities = null;
-        CassandraEntity cassandraEntity = null;
+        StoreLogDataToCassandra storeLogDataToCassandraAnnotation = null;
         if (serviceMethod != null) {
-            cassandraEntity = serviceMethod.getAnnotation(CassandraEntity.class);
-            if (cassandraEntity == null) {
-                cassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(CassandraEntity.class);
+            storeLogDataToCassandraAnnotation = serviceMethod.getAnnotation(StoreLogDataToCassandra.class);
+            if (storeLogDataToCassandraAnnotation == null) {
+                storeLogDataToCassandraAnnotation = serviceMethod.getDeclaringClass()
+                    .getAnnotation(StoreLogDataToCassandra.class);
             }
         }
 
-        if (cassandraEntity == null || cassandraEntity.value().length == 0) {
+        if (storeLogDataToCassandraAnnotation == null) {
+            return;
+        }
+
+        if (storeLogDataToCassandraAnnotation.value().length == 0) {
             entities = new DefaultCassandraEntity[] { new DefaultCassandraEntity() };
         } else {
-            entities = new Object[cassandraEntity.value().length];
+            entities = new Object[storeLogDataToCassandraAnnotation.value().length];
             int i = 0;
-            for (Class<?> entityClass : cassandraEntity.value()) {
-                try {
-                    entities[i++] = entityClass.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format(
-                            "Failed to instantiate cassandra entity for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
-                            MethodUtil.printQualifiedMethodName(serviceMethod),
-                            entityClass.getTypeName()), e);
+            for (Class<?> entityClass : storeLogDataToCassandraAnnotation.value()) {
+                if (StoreLogDataToCassandra.DEFAULT.class.equals(entityClass)) {
+                    entities[i] = new DefaultCassandraEntity();
+                } else {
+                    try {
+                        entities[i] = entityClass.newInstance();
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        if (log.isErrorEnabled()) {
+                            log.error(String.format(
+                                "Failed to instantiate cassandra entity for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
+                                MethodUtil.printQualifiedMethodName(serviceMethod),
+                                entityClass.getTypeName()), e);
+                        }
+                        return;
                     }
-                    return;
                 }
+                i++;
             }
         }
         for (Object entity : entities) {

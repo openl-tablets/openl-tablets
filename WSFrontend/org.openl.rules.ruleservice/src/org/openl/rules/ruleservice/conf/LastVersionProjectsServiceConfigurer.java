@@ -184,11 +184,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                         serviceDescriptionBuilder.addPublisher(publisher.toString());
                                     }
                                 }
-                                if (rulesDeploy.getLogStorages() != null) {
-                                    for (RulesDeploy.LogStorageType logStorage : rulesDeploy.getLogStorages()) {
-                                        serviceDescriptionBuilder.addLogStorages(logStorage.toString());
-                                    }
-                                }
                                 if (rulesDeploy.getConfiguration() != null) {
                                     serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                                 }

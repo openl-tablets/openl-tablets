@@ -19,7 +19,6 @@ public class XmlRulesDescriptorSerializer_v5_23 extends BaseRulesDeploySerialize
         xstream.addPermission(NoTypePermission.NONE);
         xstream.allowTypeHierarchy(String.class);
         xstream.allowTypeHierarchy(RulesDeploy_v5_23.PublisherType.class);
-        xstream.allowTypeHierarchy(RulesDeploy_v5_23.LogStorageType.class);
         xstream.allowTypeHierarchy(RulesDeploy_v5_23.class);
         xstream.allowTypeHierarchy(RulesDeploy_v5_23.WildcardPattern.class);
 
@@ -29,7 +28,6 @@ public class XmlRulesDescriptorSerializer_v5_23 extends BaseRulesDeploySerialize
         xstream.setMode(XStream.NO_REFERENCES);
 
         xstream.aliasType("publisher", RulesDeploy_v5_23.PublisherType.class);
-        xstream.aliasType("storage", RulesDeploy_v5_23.LogStorageType.class);
         xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy_v5_23.class);
         xstream.aliasType(MODULE_NAME, RulesDeploy_v5_23.WildcardPattern.class);
 

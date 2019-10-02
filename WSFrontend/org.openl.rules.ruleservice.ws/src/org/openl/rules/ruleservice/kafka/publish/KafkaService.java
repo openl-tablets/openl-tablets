@@ -202,12 +202,10 @@ public final class KafkaService implements Runnable {
                     Date incomingTime = new Date();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
-                            StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get()
-                                                                                        : null;
+                            StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
                             try {
                                 if (storeLogData != null) {
                                     storeLogData.setServiceName(service.getName());
-                                    storeLogData.setLoggingStorages(service.getLogStorages());
                                     storeLogData.setIncomingMessageTime(incomingTime);
                                     storeLogData.setPublisherType(PublisherType.KAFKA);
                                     storeLogData.setObjectSerializer(getObjectSerializer());
@@ -352,9 +350,7 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record,
-            Exception e,
-            StoreLogData storeLogData) {
+    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData) {
         final String dltTopic;
         try {
             dltTopic = getDltTopic(record);

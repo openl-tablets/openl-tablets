@@ -52,24 +52,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
         }
 
-        if (oldVersion.getLogStorages() != null) {
-            List<RulesDeploy.LogStorageType> logStorages = CollectionUtils
-                .map(Arrays.asList(oldVersion.getLogStorages()), e -> {
-                    if (e == null) {
-                        return null;
-                    }
-                    switch (e) {
-                        case CASSANDRA:
-                            return RulesDeploy.LogStorageType.CASSANDRA;
-                        case ELASTICSEARCH:
-                            return RulesDeploy.LogStorageType.ELASTICSEARCH;
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                });
-            rulesDeploy.setLogStorages(logStorages.toArray(new RulesDeploy.LogStorageType[logStorages.size()]));
-        }
-
         rulesDeploy.setRmiServiceClass(oldVersion.getRmiServiceClass());
         rulesDeploy.setServiceClass(oldVersion.getServiceClass());
         rulesDeploy.setServiceName(oldVersion.getServiceName());
@@ -117,24 +99,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                     }
                 });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_23.PublisherType[publishers.size()]));
-        }
-
-        if (currentVersion.getLogStorages() != null) {
-            List<RulesDeploy_v5_23.LogStorageType> logStorages = CollectionUtils
-                .map(Arrays.asList(currentVersion.getLogStorages()), oldVersion -> {
-                    if (oldVersion == null) {
-                        return null;
-                    }
-                    switch (oldVersion) {
-                        case CASSANDRA:
-                            return RulesDeploy_v5_23.LogStorageType.CASSANDRA;
-                        case ELASTICSEARCH:
-                            return RulesDeploy_v5_23.LogStorageType.ELASTICSEARCH;
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                });
-            rulesDeploy.setLogStorages(logStorages.toArray(new RulesDeploy_v5_23.LogStorageType[logStorages.size()]));
         }
 
         rulesDeploy.setRmiServiceClass(currentVersion.getRmiServiceClass());

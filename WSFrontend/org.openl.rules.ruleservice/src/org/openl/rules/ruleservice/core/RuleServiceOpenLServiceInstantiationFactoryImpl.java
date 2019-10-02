@@ -252,10 +252,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             builder.addPublisher(publisher);
         }
 
-        for (String loggingStorage : serviceDescription.getLogStorages()) {
-            builder.addLogStorage(loggingStorage);
-        }
-
         return builder.build(new AbstractOpenLServiceInitializer() {
             @Override
             public void init(OpenLService openLService) throws RuleServiceInstantiationException {

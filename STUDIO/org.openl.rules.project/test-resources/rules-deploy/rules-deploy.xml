@@ -8,9 +8,6 @@
   <publishers>
     <publisher>restful</publisher>
   </publishers>
-  <logStorages>
-    <storage>CASSANDRA</storage>
-  </logStorages>
   <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
   <url>someURL</url>

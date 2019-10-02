@@ -1,15 +1,12 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeploy.LogStorageType;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.project.xml.SupportedVersion;
 
 public class RulesDeployGuiWrapper {
     private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.WEBSERVICE,
             PublisherType.RESTFUL };
-
-    private static final LogStorageType[] DEFAULT_LOG_STORAGES = new LogStorageType[] {};
 
     private final RulesDeploy rulesDeploy;
     private String configuration;
@@ -127,19 +124,6 @@ public class RulesDeployGuiWrapper {
         return publishers;
     }
 
-    public LogStorageType[] getLogStorages() {
-        LogStorageType[] storages = rulesDeploy.getLogStorages();
-        if (storages == null) {
-            // Set both services by default
-            storages = DEFAULT_LOG_STORAGES;
-        }
-        return storages;
-    }
-
-    public void setLogStorages(LogStorageType[] logStorages) {
-        rulesDeploy.setLogStorages(logStorages);
-    }
-
     public PublisherType[] getAvailablePublishers() {
         if (version.compareTo(SupportedVersion.V5_15) <= 0) {
             return new PublisherType[] { PublisherType.WEBSERVICE, PublisherType.RESTFUL };
@@ -150,14 +134,6 @@ public class RulesDeployGuiWrapper {
         }
 
         return PublisherType.values();
-    }
-
-    public LogStorageType[] getAvailableLogStorages() {
-        if (version.compareTo(SupportedVersion.V5_22) <= 0) {
-            return new LogStorageType[] {};
-        }
-
-        return LogStorageType.values();
     }
 
 }

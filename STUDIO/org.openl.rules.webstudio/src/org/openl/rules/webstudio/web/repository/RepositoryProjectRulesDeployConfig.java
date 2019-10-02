@@ -183,10 +183,6 @@ public class RepositoryProjectRulesDeployConfig {
         return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
     }
     
-    public boolean isLogStoragesSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
-    }
-
     public boolean isAnnotationTemplateClassNameSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
     }
