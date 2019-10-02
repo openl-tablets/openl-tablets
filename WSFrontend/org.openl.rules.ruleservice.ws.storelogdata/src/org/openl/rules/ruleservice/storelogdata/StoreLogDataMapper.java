@@ -192,9 +192,7 @@ public class StoreLogDataMapper {
             }
         }
 
-        for (
-
-        Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
+        for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
             Annotation annotation = entry.getKey();
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof Value) {

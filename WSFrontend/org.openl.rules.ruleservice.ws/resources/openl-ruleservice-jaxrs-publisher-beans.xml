@@ -95,7 +95,7 @@
     <bean id="JAXRSServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"
         depends-on="swaggerInitializationBean">
         <property name="baseAddress" value="${ruleservice.baseAddress}"/>
-        <property name="storeLogDataEnabled" value="${ruleservice.logging.store.enabled}"/>
+        <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>
 </beans>
