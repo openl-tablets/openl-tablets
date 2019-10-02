@@ -8,7 +8,17 @@ package org.openl.rules.convertor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -58,9 +68,12 @@ public class String2DataConvertorFactory {
         convertors.put(CharSequence.class, new String2StringConvertor());
         convertors.put(Boolean.class, new String2BooleanConvertor());
         convertors.put(Long.class, new String2LongConvertor());
-
         convertors.put(String.class, new String2StringConvertor());
         convertors.put(Date.class, new String2DateConvertor());
+        convertors.put(LocalDate.class, new String2LocalDateConvertor());
+        convertors.put(LocalDateTime.class, new String2LocalDateTimeConvertor());
+        convertors.put(LocalTime.class, new String2LocalTimeConvertor());
+        convertors.put(ZonedDateTime.class, new String2ZonedDateTimeConvertor());
         convertors.put(Calendar.class, new String2CalendarConvertor());
         convertors.put(Class.class, new String2ClassConvertor());
         convertors.put(IOpenClass.class, new String2OpenClassConvertor());
