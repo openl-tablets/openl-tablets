@@ -159,9 +159,10 @@ public final class KafkaService implements Runnable {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 if (log.isInfoEnabled()) {
-                    log.info("Lost partitions in rebalance. Commiting current offsets: " + currentOffsets);
+                    log.info("Lost partitions in rebalance. Commiting current offsets: {}", currentOffsets);
                 }
                 consumer.commitSync(currentOffsets);
+                currentOffsets.clear();
             }
 
             @Override
@@ -280,11 +281,11 @@ public final class KafkaService implements Runnable {
                     try {
                         consumer.commitSync(currentOffsets);
                         if (log.isDebugEnabled()) {
-                            log.debug("Current offsets have been commited: " + currentOffsets);
+                            log.debug("Current offsets have been commited: {}", currentOffsets);
                         }
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Failed to commit current offsets: " + currentOffsets);
+                            log.error("Failed to commit current offsets: {}", currentOffsets);
                         }
                     }
                 }
