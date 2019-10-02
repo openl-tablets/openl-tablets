@@ -2,6 +2,11 @@ package org.openl.gen.writers;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import org.objectweb.asm.ClassWriter;
@@ -19,8 +24,15 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static final Method DEF_CONSTR = Method.getMethod("void <init> ()");
     private static final Class<?>[] DEF_CONSTR_PARAMS = {};
 
-    public static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
+    private static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
     private static final Map<String, Class<?>> boxed = new HashMap<>(8);
+    private static final Method ZONE_ID_OF = Method.getMethod("java.time.ZoneId of(java.lang.String)");
+    private static final Method ZONED_DATETIME_OF = Method
+        .getMethod("java.time.ZonedDateTime of(int, int, int, int, int, int, int, java.time.ZoneId)");
+    private static final Method LOCAL_DATE_OF = Method.getMethod("java.time.LocalDate of(int, int, int)");
+    private static final Method LOCAL_TIME_OF = Method.getMethod("java.time.LocalTime of(int, int, int)");
+    private static final Method LOCAL_DATETIME_OF = Method
+        .getMethod("java.time.LocalDateTime of(int, int, int, int, int, int)");
 
     static {
         boxed.put(Byte.class.getName(), byte.class);
@@ -121,50 +133,120 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     private static void pushObject(GeneratorAdapter mg, Type type, Object value) {
         String className = type.getClassName();
+
         if (DefaultValue.DEFAULT.equals(value)) {
-            if (DEFAULT_COLLECTIONS_INTERFACES.containsKey(className)) {
-                // Collection, Map, SortedMap, List, Set
-                Class<?> defaultImpl = DEFAULT_COLLECTIONS_INTERFACES.get(className);
-                Type defaultImplType = Type.getType(defaultImpl);
-                mg.newInstance(defaultImplType);
-                mg.dup();
-                mg.invokeConstructor(defaultImplType, DEF_CONSTR);
-            } else {
-                // new SomeType()
-                validateConstructor(type.getClassName(), DEF_CONSTR_PARAMS);
-                mg.newInstance(type);
-                mg.dup();
-                mg.invokeConstructor(type, DEF_CONSTR);
-            }
+            pushDefault(mg, type, className);
         } else if (className.equals(String.class.getName())) {
             mg.push((String) value);
         } else if (className.equals(Date.class.getName())) {
-            // new Date("07/12/2017 12:00:00 AM")
-            mg.newInstance(type);
-            mg.dup();
-            // SimpleDateFormat is thread-unsafe
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.US);
-            mg.push(simpleDateFormat.format((Date) value));
-            mg.invokeConstructor(type, STR_CONSTR);
+            pushDate(mg, type, (Date) value);
+        } else if (className.equals(LocalDate.class.getName())) {
+            pushLocalDate(mg, type, (LocalDate) value);
+        } else if (className.equals(ZonedDateTime.class.getName())) {
+            pushZonedDateTime(mg, type, (ZonedDateTime) value);
+        } else if (className.equals(LocalDateTime.class.getName())) {
+            pushLocalDateTime(mg, type, (LocalDateTime) value);
+        } else if (className.equals(LocalTime.class.getName())) {
+            pushLocalTime(mg, type, (LocalTime) value);
         } else if (boxed.containsKey(className)) {
-            // Boxed.valueOf(value)
-            Class<?> prim = boxed.get(className);
-            Type primType = Type.getType(prim);
-            pushValue(mg, primType, value);
-            mg.valueOf(primType);
+            pushBoxed(mg, value, className);
         } else if (value.getClass().isEnum()) {
-            // SomeEnum.NAME
-            Class<?> enumClass = value.getClass();
-            Type enumType = Type.getType(enumClass);
-            mg.getStatic(enumType, ((Enum) value).name(), enumType);
+            pushEnum(mg, value);
         } else {
-            // new SomeType("value")
-            validateConstructor(type.getClassName(), STR_CONSTR_PARAMS);
+            pushString(mg, type, value);
+        }
+    }
+
+    private static void pushString(GeneratorAdapter mg, Type type, Object value) {
+        // new SomeType("value")
+        validateConstructor(type.getClassName(), STR_CONSTR_PARAMS);
+        mg.newInstance(type);
+        mg.dup();
+        mg.push(String.valueOf(value));
+        mg.invokeConstructor(type, STR_CONSTR);
+    }
+
+    private static void pushEnum(GeneratorAdapter mg, Object value) {
+        // SomeEnum.NAME
+        Class<?> enumClass = value.getClass();
+        Type enumType = Type.getType(enumClass);
+        mg.getStatic(enumType, ((Enum) value).name(), enumType);
+    }
+
+    private static void pushBoxed(GeneratorAdapter mg, Object value, String className) {
+        // Boxed.valueOf(value)
+        Class<?> prim = boxed.get(className);
+        Type primType = Type.getType(prim);
+        pushValue(mg, primType, value);
+        mg.valueOf(primType);
+    }
+
+    private static void pushDefault(GeneratorAdapter mg, Type type, String className) {
+        if (DEFAULT_COLLECTIONS_INTERFACES.containsKey(className)) {
+            // Collection, Map, SortedMap, List, Set
+            Class<?> defaultImpl = DEFAULT_COLLECTIONS_INTERFACES.get(className);
+            Type defaultImplType = Type.getType(defaultImpl);
+            mg.newInstance(defaultImplType);
+            mg.dup();
+            mg.invokeConstructor(defaultImplType, DEF_CONSTR);
+        } else {
+            // new SomeType()
+            validateConstructor(type.getClassName(), DEF_CONSTR_PARAMS);
             mg.newInstance(type);
             mg.dup();
-            mg.push(String.valueOf(value));
-            mg.invokeConstructor(type, STR_CONSTR);
+            mg.invokeConstructor(type, DEF_CONSTR);
         }
+    }
+
+    private static void pushDate(GeneratorAdapter mg, Type type, Date value) {
+        // new Date("07/12/2017 12:00:00 AM")
+        mg.newInstance(type);
+        mg.dup();
+        // SimpleDateFormat is thread-unsafe
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.US);
+        mg.push(simpleDateFormat.format(value));
+        mg.invokeConstructor(type, STR_CONSTR);
+    }
+
+    private static void pushLocalDate(GeneratorAdapter mg, Type type, LocalDate value) {
+        LocalDate ld = value;
+        mg.push(ld.getYear());
+        mg.push(ld.getMonthValue());
+        mg.push(ld.getDayOfMonth());
+        mg.invokeStatic(type, LOCAL_DATE_OF);
+    }
+
+    private static void pushZonedDateTime(GeneratorAdapter mg, Type type, ZonedDateTime value) {
+        ZonedDateTime zdt = value;
+        mg.push(zdt.getYear());
+        mg.push(zdt.getMonthValue());
+        mg.push(zdt.getDayOfMonth());
+        mg.push(zdt.getHour());
+        mg.push(zdt.getMinute());
+        mg.push(zdt.getSecond());
+        mg.push(zdt.getNano());
+        mg.push(zdt.getZone().getId());
+        mg.invokeStatic(Type.getType(ZoneId.class), ZONE_ID_OF);
+        mg.invokeStatic(type, ZONED_DATETIME_OF);
+    }
+
+    private static void pushLocalDateTime(GeneratorAdapter mg, Type type, LocalDateTime value) {
+        LocalDateTime ldt = value;
+        mg.push(ldt.getYear());
+        mg.push(ldt.getMonthValue());
+        mg.push(ldt.getDayOfMonth());
+        mg.push(ldt.getHour());
+        mg.push(ldt.getMinute());
+        mg.push(ldt.getSecond());
+        mg.invokeStatic(type, LOCAL_DATETIME_OF);
+    }
+
+    private static void pushLocalTime(GeneratorAdapter mg, Type type, LocalTime value) {
+        LocalTime lt = value;
+        mg.push(lt.getHour());
+        mg.push(lt.getMinute());
+        mg.push(lt.getSecond());
+        mg.invokeStatic(type, LOCAL_TIME_OF);
     }
 
     private static void validateConstructor(String className, Class<?>[] parameterTypes) {

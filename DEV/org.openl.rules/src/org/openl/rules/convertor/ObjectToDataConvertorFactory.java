@@ -5,6 +5,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -12,7 +18,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -158,10 +172,31 @@ public class ObjectToDataConvertorFactory {
                 return cal;
             });
 
-            convertors.put(new ClassCastPair(Date.class, Calendar.class), e -> {
-                Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
-                cal.setTime((Date) e);
-                return cal;
+            convertors.put(new ClassCastPair(Date.class, LocalDate.class), e -> {
+                LocalDate localDate = Instant.ofEpochMilli(((Date) e).getTime())
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+                return localDate;
+            });
+
+            convertors.put(new ClassCastPair(Date.class, ZonedDateTime.class), e -> {
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) e).getTime()),
+                    ZoneId.systemDefault());
+                return zonedDateTime;
+            });
+
+            convertors.put(new ClassCastPair(Date.class, LocalTime.class), e -> {
+                LocalTime localTime = Instant.ofEpochMilli(((Date) e).getTime())
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalTime();
+                return localTime;
+            });
+
+            convertors.put(new ClassCastPair(Date.class, LocalDateTime.class), e -> {
+                LocalDateTime localDateTime = Instant.ofEpochMilli(((Date) e).getTime())
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+                return localDateTime;
             });
 
             /*
