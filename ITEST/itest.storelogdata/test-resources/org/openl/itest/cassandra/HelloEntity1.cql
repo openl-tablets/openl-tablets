@@ -20,6 +20,9 @@ CREATE TABLE openl_logging_hello_entity1 (
     stringvalue3 text,
     stringvalue4 text,
     stringvalue5 text,
+    hour int,
+    value text,
+    result text,
     url text,
     PRIMARY KEY (id, publishertype, servicename)
 )

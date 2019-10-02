@@ -6,6 +6,8 @@ import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
+import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
 import org.openl.rules.ruleservice.storelogdata.annotation.Request;
 import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
@@ -18,8 +20,9 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(name = "openl_logging_hello_entity2")
-public class HelloEntity2 {
+@Table(name = "openl_logging_hello_entity4")
+@QualifyPublisherType(PublisherType.WEBSERVICE)
+public class HelloEntity4 {
     @PartitionKey(0)
     @WithStoreLogDataConvertor(convertor = TimeBasedUUID.class)
     private String id;
@@ -57,10 +60,10 @@ public class HelloEntity2 {
 
     private String result;
 
-    public HelloEntity2() {
+    public HelloEntity4() {
     }
 
-    public HelloEntity2(String id,
+    public HelloEntity4(String id,
             Date incomingTime,
             Date outcomingTime,
             String request,

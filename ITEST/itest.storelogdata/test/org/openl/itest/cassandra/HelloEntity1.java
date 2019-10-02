@@ -10,6 +10,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Request;
 import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConvertor;
 import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
 
@@ -42,12 +43,17 @@ public class HelloEntity1 {
     @Url
     private String url;
 
-    @MethodName
     private String methodName;
 
     @ClusteringColumn(0)
-    @Publisher
     private String publisherType;
+
+    private Integer hour;
+
+    private String value;
+    
+    @Value("result")
+    private String result;
 
     public HelloEntity1() {
     }
@@ -132,16 +138,44 @@ public class HelloEntity1 {
         return methodName;
     }
 
+    @MethodName
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 
+    @Publisher
     public String getPublisherType() {
         return publisherType;
     }
 
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
+    }
+
+    @Value("hour")
+    public void setHour(Integer hour) {
+        this.hour = hour;
+    }
+
+    public Integer getHour() {
+        return hour;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @Value("value1")
+    public void setValue(String value) {
+        this.value = value;
+    }
+    
+    public String getResult() {
+        return result;
+    }
+    
+    public void setResult(String result) {
+        this.result = result;
     }
 
     @Override

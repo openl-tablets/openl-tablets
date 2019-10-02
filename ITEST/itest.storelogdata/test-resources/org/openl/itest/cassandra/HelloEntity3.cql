@@ -1,4 +1,4 @@
-CREATE TABLE openl_logging_hello_entity2 (
+CREATE TABLE openl_logging_hello_entity3 (
     id text,
     datevalue1 timestamp,
     datevalue2 timestamp,
@@ -20,6 +20,9 @@ CREATE TABLE openl_logging_hello_entity2 (
     stringvalue3 text,
     stringvalue4 text,
     stringvalue5 text,
+    hour int,
+    value text,
+    result text,
     url text,
     PRIMARY KEY (id, publishertype, servicename)
 )

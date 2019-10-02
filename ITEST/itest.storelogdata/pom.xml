@@ -17,6 +17,7 @@
 
     <properties>
         <surefire.argLine>-Xms128m -Xmx512m</surefire.argLine>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <build>
@@ -99,4 +100,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>java11</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>

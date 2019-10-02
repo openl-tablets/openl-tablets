@@ -2,6 +2,9 @@ package org.openl.itest;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -13,12 +16,13 @@ import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
+import org.openl.itest.cassandra.HelloEntity3;
+import org.openl.itest.cassandra.HelloEntity4;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
@@ -109,8 +113,8 @@ public class RunStoreLogDataITest {
             .with("metadata.max.age.ms", 1000)
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
-        Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals(RESPONSE, observedValues.get(0));
+        assertEquals(1, observedValues.size());
+        assertEquals(RESPONSE, observedValues.get(0));
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -123,16 +127,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple1", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple1", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -152,7 +156,7 @@ public class RunStoreLogDataITest {
             .with("metadata.max.age.ms", 1000)
             .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
-        Assert.assertEquals(1, observedValuesDlt.size());
+        assertEquals(1, observedValuesDlt.size());
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -165,16 +169,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple1", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple1", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
                 return true;
             }, equalTo(true));
     }
@@ -196,8 +200,8 @@ public class RunStoreLogDataITest {
             .with("metadata.max.age.ms", 1000)
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
-        Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals(RESPONSE, observedValues.get(0));
+        assertEquals(1, observedValues.size());
+        assertEquals(RESPONSE, observedValues.get(0));
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -210,16 +214,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals(METHOD_NAME, row.getString("methodName"));
-                Assert.assertEquals("simple2", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals(METHOD_NAME, row.getString("methodName"));
+                assertEquals("simple2", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -242,7 +246,7 @@ public class RunStoreLogDataITest {
             .with("metadata.max.age.ms", 1000)
             .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
-        Assert.assertEquals(1, observedValuesDlt.size());
+        assertEquals(1, observedValuesDlt.size());
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -255,16 +259,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals(METHOD_NAME, row.getString("methodName"));
-                Assert.assertEquals("simple2", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals(METHOD_NAME, row.getString("methodName"));
+                assertEquals("simple2", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
                 return true;
             }, equalTo(true));
     }
@@ -293,16 +297,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple3", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple3", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -329,15 +333,15 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertNotNull(row.getString("response"));
-                Assert.assertEquals("simple3", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertNotNull(row.getString("response"));
+                assertEquals("simple3", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -364,16 +368,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertNotNull(row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple3", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertNotNull(row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple3", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -400,16 +404,16 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertNotNull(row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple3", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertNotNull(row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple3", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
 
                 return true;
             }, equalTo(true));
@@ -426,9 +430,13 @@ public class RunStoreLogDataITest {
 
         final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
         final String helloEntity2TableName = HelloEntity2.class.getAnnotation(Table.class).name();
+        final String helloEntity3TableName = HelloEntity3.class.getAnnotation(Table.class).name();
+        final String helloEntity4TableName = HelloEntity4.class.getAnnotation(Table.class).name();
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateTableIfExists(KEYSPACE, helloEntity2TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity3TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity4TableName);
 
         client.post("/REST/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.json");
 
@@ -443,16 +451,20 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 Row row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple4", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple4", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                assertEquals("value1", row.getString("value"));
+                assertEquals(5, row.getInt("hour"));
+                assertEquals("Good Morning", row.getString("result"));
 
                 resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity2TableName);
@@ -460,16 +472,45 @@ public class RunStoreLogDataITest {
                 if (rows.size() == 0) { // Table is created but row is not created
                     return false;
                 }
-                Assert.assertEquals(1, rows.size());
+                assertEquals(1, rows.size());
                 row = rows.iterator().next();
-                Assert.assertNotNull(row.getString("id"));
-                Assert.assertEquals(REQUEST, row.getString("request"));
-                Assert.assertEquals(RESPONSE, row.getString("response"));
-                Assert.assertEquals("Hello", row.getString("methodName"));
-                Assert.assertEquals("simple4", row.getString("serviceName"));
-                Assert.assertNotNull(row.getTimestamp("incomingTime"));
-                Assert.assertNotNull(row.getTimestamp("outcomingTime"));
-                Assert.assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello", row.getString("methodName"));
+                assertEquals("simple4", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                assertEquals("value1", row.getString("value"));
+                assertEquals(5, row.getInt("hour"));
+                assertEquals("Good Morning", row.getString("result"));
+
+                resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity3TableName);
+                rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                assertEquals(1, rows.size());
+                row = rows.iterator().next();
+                assertNotNull(row.getString("id"));
+                assertNull(row.getString("request"));
+                assertNull(row.getString("response"));
+                assertNull(row.getString("methodName"));
+                assertEquals("simple4", row.getString("serviceName"));
+                assertNull(row.getTimestamp("incomingTime"));
+                assertNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                assertNull(row.getString("value"));
+                assertNull(row.getString("result"));
+
+                assertNull(EmbeddedCassandraServerHelper.getCluster()
+                    .getMetadata()
+                    .getKeyspace(KEYSPACE)
+                    .getTable(helloEntity4TableName));
 
                 return true;
             }, equalTo(true));

@@ -6,6 +6,8 @@ import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
+import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
 import org.openl.rules.ruleservice.storelogdata.annotation.Request;
 import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
@@ -18,22 +20,26 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(name = "openl_logging_hello_entity2")
-public class HelloEntity2 {
+@Table(name = "openl_logging_hello_entity3")
+public class HelloEntity3 {
     @PartitionKey(0)
     @WithStoreLogDataConvertor(convertor = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime
+    @QualifyPublisherType(PublisherType.KAFKA)
     private Date incomingTime;
 
     @OutcomingTime
+    @QualifyPublisherType(PublisherType.WEBSERVICE)
     private Date outcomingTime;
 
     @Request
+    @QualifyPublisherType(PublisherType.KAFKA)
     private String request;
 
     @Response
+    @QualifyPublisherType(PublisherType.KAFKA)
     private String response;
 
     @ClusteringColumn(1)
@@ -41,9 +47,11 @@ public class HelloEntity2 {
     private String serviceName;
 
     @Url
+    @QualifyPublisherType(PublisherType.WEBSERVICE)
     private String url;
 
     @MethodName
+    @QualifyPublisherType(PublisherType.KAFKA)
     private String methodName;
 
     @ClusteringColumn(0)
@@ -51,16 +59,17 @@ public class HelloEntity2 {
     private String publisherType;
 
     @Value("hour")
+    @QualifyPublisherType(PublisherType.KAFKA)
     private Integer hour;
 
     private String value;
 
     private String result;
 
-    public HelloEntity2() {
+    public HelloEntity3() {
     }
 
-    public HelloEntity2(String id,
+    public HelloEntity3(String id,
             Date incomingTime,
             Date outcomingTime,
             String request,
@@ -165,11 +174,13 @@ public class HelloEntity2 {
     }
 
     @Value("value1")
+    @QualifyPublisherType(PublisherType.WEBSERVICE)
     public void setValue(String value) {
         this.value = value;
     }
 
     @Value("result")
+    @QualifyPublisherType(PublisherType.KAFKA)
     public String getResult() {
         return result;
     }
