@@ -16,7 +16,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConve
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "openl_logging")
+@Document(indexName = "openl_log_data")
 public class DefaultElasticEntity {
     @WithStoreLogDataConvertor(convertor = RandomUUID.class)
     @Id

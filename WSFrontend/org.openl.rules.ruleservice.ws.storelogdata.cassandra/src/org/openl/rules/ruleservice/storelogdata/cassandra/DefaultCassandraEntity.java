@@ -16,7 +16,7 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(name = "openl_logging")
+@Table(name = "openl_log_data")
 public class DefaultCassandraEntity {
     @PartitionKey(0)
     @WithStoreLogDataConvertor(convertor = TimeBasedUUID.class)
