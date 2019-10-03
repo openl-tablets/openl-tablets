@@ -13,5 +13,6 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(PrepareStoreLogDataValue.class)
     @PrepareStoreLogData(PrepareStoreLogDataArgs.class)
     @PrepareStoreLogData(PrepareStoreLogDataResult.class)
+    @PrepareStoreLogData(PrepareStoreLogDataObjectSerializerFound.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 }

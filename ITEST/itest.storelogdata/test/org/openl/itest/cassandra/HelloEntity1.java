@@ -51,9 +51,12 @@ public class HelloEntity1 {
     private Integer hour;
 
     private String value;
-    
+
     @Value("result")
     private String result;
+
+    @Value("objectSerializerFound")
+    private boolean objectSerializerFound;
 
     public HelloEntity1() {
     }
@@ -169,13 +172,21 @@ public class HelloEntity1 {
     public void setValue(String value) {
         this.value = value;
     }
-    
+
     public String getResult() {
         return result;
     }
-    
+
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public boolean isObjectSerializerFound() {
+        return objectSerializerFound;
+    }
+
+    public void setObjectSerializerFound(boolean objectSerializerFound) {
+        this.objectSerializerFound = objectSerializerFound;
     }
 
     @Override

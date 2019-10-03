@@ -23,6 +23,7 @@ CREATE TABLE openl_logging_hello_entity1 (
     hour int,
     value text,
     result text,
+    objectSerializerFound boolean,
     url text,
     PRIMARY KEY (id, publishertype, servicename)
 )

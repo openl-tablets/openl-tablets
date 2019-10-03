@@ -464,6 +464,7 @@ public class RunStoreLogDataITest {
                 assertEquals("value1", row.getString("value"));
                 assertEquals(5, row.getInt("hour"));
                 assertEquals("Good Morning", row.getString("result"));
+                assertEquals(true, row.getBool("objectSerializerFound"));
 
                 resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity2TableName);
@@ -520,7 +521,7 @@ public class RunStoreLogDataITest {
         // Thread.sleep(Long.MAX_VALUE);
 
         server.stop();
-        EmbeddedCassandraServerHelper.stopEmbeddedCassandra();
+        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
         cluster.stop();
     }
 
