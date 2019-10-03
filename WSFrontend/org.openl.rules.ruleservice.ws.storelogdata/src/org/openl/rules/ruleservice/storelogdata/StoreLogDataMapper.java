@@ -60,6 +60,7 @@ public class StoreLogDataMapper {
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
+        mappingAnnotations.add(KafkaMessageHeader.class);
         mappingAnnotations.add(WithStoreLogDataConverter.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
@@ -306,7 +307,9 @@ public class StoreLogDataMapper {
                 try {
                     Method m = method.getDeclaringClass()
                         .getMethod("set" + method.getName().substring(3), method.getReturnType());
-                    m.invoke(target, value);
+                    if (value != null || !m.getParameters()[0].getType().isPrimitive()) {
+                        m.invoke(target, value);
+                    }
                     return;
                 } catch (NoSuchMethodException e) {
                 }
@@ -315,8 +318,10 @@ public class StoreLogDataMapper {
             return;
         } else if (annotatedElement instanceof Field) {
             Field field = (Field) annotatedElement;
-            field.setAccessible(true);
-            field.set(target, value);
+            if (value != null || !field.getType().isPrimitive()) {
+                field.setAccessible(true);
+                field.set(target, value);
+            }
             return;
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported!");

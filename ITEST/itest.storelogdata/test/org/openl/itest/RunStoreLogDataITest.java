@@ -269,6 +269,7 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getTimestamp("incomingTime"));
                 assertNotNull(row.getTimestamp("outcomingTime"));
                 assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+
                 return true;
             }, equalTo(true));
     }
@@ -561,6 +562,70 @@ public class RunStoreLogDataITest {
                 assertEquals("Good Night", row.getString("stringValue2"));
                 assertEquals(RESPONSE, row.getString("stringValue3"));
                 assertTrue(row.getBool("boolValue1"));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testKafkaHeaderAnnotations() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json"),
+            StandardCharsets.UTF_8);
+        final String RESPONSE = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.json"),
+            StandardCharsets.UTF_8);
+
+        final String METHOD_NAME = "Hello";
+
+        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
+        final String helloEntity2TableName = HelloEntity2.class.getAnnotation(Table.class).name();
+        final String helloEntity3TableName = HelloEntity3.class.getAnnotation(Table.class).name();
+        final String helloEntity4TableName = HelloEntity4.class.getAnnotation(Table.class).name();
+
+        truncateTableIfExists(KEYSPACE, helloEntity1TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity2TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity3TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity4TableName);
+
+        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
+        record.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
+        record.addHeader(KafkaHeaders.METHOD_PARAMETERS, "*, *", Charset.forName("UTF8"));
+        record.addHeader("testHeader", "testHeaderValue", Charset.forName("UTF8"));
+        cluster.send(SendKeyValues.to("hello-in-topic-4", Collections.singletonList(record)).useDefaults());
+
+        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-4", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
+        List<String> observedValues = cluster.observeValues(observeRequest);
+        assertEquals(1, observedValues.size());
+        assertEquals("\"" + RESPONSE + "\"", observedValues.get(0)); // Need to fix different behaviour for REST and
+                                                                     // KAFKA
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity1TableName);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals("\"" + RESPONSE + "\"", row.getString("response"));
+                assertEquals(METHOD_NAME, row.getString("methodName"));
+                assertEquals("simple4", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+
+                assertEquals(METHOD_NAME, row.getString("header1"));
+                assertEquals("testHeaderValue", row.getString("header2"));
 
                 return true;
             }, equalTo(true));

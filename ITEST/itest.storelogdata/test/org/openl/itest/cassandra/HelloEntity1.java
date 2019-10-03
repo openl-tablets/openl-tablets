@@ -2,7 +2,9 @@ package org.openl.itest.cassandra;
 
 import java.util.Date;
 
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.KafkaMessageHeader;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
@@ -67,6 +69,9 @@ public class HelloEntity1 {
     @Value("boolValue1")
     private boolean boolValue1;
 
+    @Value("boolValue2")
+    private boolean boolValue2;
+
     @Value("objectSerializerFound")
     private boolean objectSerializerFound;
 
@@ -78,6 +83,12 @@ public class HelloEntity1 {
 
     @Value("stringValue3")
     private String stringValue3;
+
+    @KafkaMessageHeader(KafkaHeaders.METHOD_NAME)
+    private String header1;
+
+    @KafkaMessageHeader("testHeader")
+    private String header2;
 
     public HelloEntity1() {
     }
@@ -222,6 +233,14 @@ public class HelloEntity1 {
         this.boolValue1 = boolValue1;
     }
 
+    public boolean isBoolValue2() {
+        return boolValue2;
+    }
+
+    public void setBoolValue2(boolean boolValue2) {
+        this.boolValue2 = boolValue2;
+    }
+
     public String getStringValue1() {
         return stringValue1;
     }
@@ -244,6 +263,22 @@ public class HelloEntity1 {
 
     public void setStringValue3(String stringValue3) {
         this.stringValue3 = stringValue3;
+    }
+
+    public String getHeader1() {
+        return header1;
+    }
+
+    public void setHeader1(String header1) {
+        this.header1 = header1;
+    }
+
+    public String getHeader2() {
+        return header2;
+    }
+
+    public void setHeader2(String header2) {
+        this.header2 = header2;
     }
 
     @Override

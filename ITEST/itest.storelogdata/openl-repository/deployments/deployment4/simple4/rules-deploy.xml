@@ -3,4 +3,8 @@
     <isProvideVariations>true</isProvideVariations>
     <serviceName>simple4</serviceName>
     <annotationTemplateClassName>org.openl.itest.serviceclass.Simple4ServiceAnnotationTemplate</annotationTemplateClassName>
+    <publishers>
+        <publisher>kafka</publisher>
+        <publisher>restful</publisher>
+    </publishers>
 </rules-deploy>
