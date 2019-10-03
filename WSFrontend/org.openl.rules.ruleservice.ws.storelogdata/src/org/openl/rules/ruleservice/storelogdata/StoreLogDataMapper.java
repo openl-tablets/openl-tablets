@@ -20,10 +20,10 @@ import org.apache.kafka.common.header.Header;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultConvertor;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultDateConvertor;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultNumberConvertor;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultStringConvertor;
+import org.openl.rules.ruleservice.storelogdata.annotation.DefaultConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.DefaultDateConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.DefaultNumberConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.DefaultStringConverter;
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.KafkaMessageHeader;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
@@ -35,7 +35,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConvertor;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class StoreLogDataMapper {
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(WithStoreLogDataConvertor.class);
+        mappingAnnotations.add(WithStoreLogDataConverter.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
@@ -161,8 +161,8 @@ public class StoreLogDataMapper {
                         }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof WithStoreLogDataConvertor) {
-                withLogDataConvertorInsertValue(storeLogData, target, annotation, annotatedElement);
+            } else if (annotation instanceof WithStoreLogDataConverter) {
+                withLogDataConverterInsertValue(storeLogData, target, annotation, annotatedElement);
             } else if (annotation instanceof KafkaMessageHeader) {
                 KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
@@ -236,33 +236,33 @@ public class StoreLogDataMapper {
             return;
         }
 
-        Class<? extends Convertor<?, ?>> convertorClass = null;
+        Class<? extends Converter<?, ?>> converterClass = null;
         try {
-            Method convertorMethod = annotation.annotationType().getMethod("convertor");
-            convertorClass = (Class<? extends Convertor<?, ?>>) convertorMethod.invoke(annotation);
+            Method converterMethod = annotation.annotationType().getMethod("converter");
+            converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
-                String.format("Invalid annotation is used! Property 'convertor' is not found in '%s'!",
+                String.format("Invalid annotation is used! Property 'converter' is not found in '%s'!",
                     annotation.getClass().getTypeName()));
         }
 
-        if (!(DefaultConvertor.class.equals(convertorClass) || DefaultStringConvertor.class
-            .equals(convertorClass) || DefaultNumberConvertor.class
-                .equals(convertorClass) || DefaultDateConvertor.class.equals(convertorClass))) {
-            Convertor<Object, Object> convertor = null;
+        if (!(DefaultConverter.class.equals(converterClass) || DefaultStringConverter.class
+            .equals(converterClass) || DefaultNumberConverter.class
+                .equals(converterClass) || DefaultDateConverter.class.equals(converterClass))) {
+            Converter<Object, Object> converter = null;
             try {
-                convertor = (Convertor<Object, Object>) convertorClass.newInstance();
+                converter = (Converter<Object, Object>) converterClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
                         "Convertor class instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
-                        convertorClass.getTypeName()), e);
+                        converterClass.getTypeName()), e);
                 }
                 value = null;
             }
-            if (convertor != null) {
+            if (converter != null) {
                 try {
-                    value = convertor.convert(value);
+                    value = converter.apply(value);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(
@@ -323,30 +323,30 @@ public class StoreLogDataMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private void withLogDataConvertorInsertValue(StoreLogData storeLogData,
+    private void withLogDataConverterInsertValue(StoreLogData storeLogData,
             Object target,
             Annotation annotation,
             AnnotatedElement annotatedElement) {
-        WithStoreLogDataConvertor withLogDataConvertor = (WithStoreLogDataConvertor) annotation;
+        WithStoreLogDataConverter withLogDataConverter = (WithStoreLogDataConverter) annotation;
         QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
             storeLogData.getPublisherType())) {
-            Class<? extends StoreLogDataConvertor<?>> convertorClass = withLogDataConvertor.convertor();
-            StoreLogDataConvertor<Object> convertor = null;
+            Class<? extends StoreLogDataConverter<?>> converterClass = withLogDataConverter.converter();
+            StoreLogDataConverter<Object> converter = null;
             try {
-                convertor = (StoreLogDataConvertor<Object>) convertorClass.newInstance();
+                converter = (StoreLogDataConverter<Object>) converterClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "LogDataConvertor instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
-                        convertorClass.getTypeName()), e);
+                        "LogDataConverter instantiation is failed. Please, check that '%s' class isn't abstact and has a default constructor.",
+                        converterClass.getTypeName()), e);
                 }
                 return;
             }
-            if (convertor != null) {
+            if (converter != null) {
                 Object convertedValue = null;
                 try {
-                    convertedValue = convertor.convert(storeLogData);
+                    convertedValue = converter.convert(storeLogData);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(

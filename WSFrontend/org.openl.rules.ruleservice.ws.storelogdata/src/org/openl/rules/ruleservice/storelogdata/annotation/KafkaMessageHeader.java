@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.rules.ruleservice.storelogdata.Convertor;
+import org.openl.rules.ruleservice.storelogdata.Converter;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
@@ -14,7 +14,7 @@ public @interface KafkaMessageHeader {
 
     Type type() default Type.CONSUMER_RECORD;
 
-    Class<? extends Convertor<byte[], ?>> convertor() default ByteArrayToStringConvertor.class;
+    Class<? extends Converter<byte[], ?>> converter() default ByteArrayToStringConverter.class;
 
     public enum Type {
         PRODUCER_RECORD,

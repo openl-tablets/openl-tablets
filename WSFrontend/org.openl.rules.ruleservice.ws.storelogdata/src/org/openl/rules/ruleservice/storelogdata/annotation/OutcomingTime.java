@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Date;
 
-import org.openl.rules.ruleservice.storelogdata.Convertor;
+import org.openl.rules.ruleservice.storelogdata.Converter;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
 public @interface OutcomingTime {
-    Class<? extends Convertor<?, Date>> convertor() default DefaultDateConvertor.class;
+    Class<? extends Converter<?, Date>> converter() default DefaultDateConverter.class;
 }

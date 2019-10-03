@@ -13,7 +13,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConvertor;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
@@ -24,7 +24,7 @@ import com.datastax.driver.mapping.annotations.Table;
 @QualifyPublisherType(PublisherType.WEBSERVICE)
 public class HelloEntity4 {
     @PartitionKey(0)
-    @WithStoreLogDataConvertor(convertor = TimeBasedUUID.class)
+    @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime

@@ -1,5 +1,5 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-public interface StoreLogDataConvertor<T> {
+public interface StoreLogDataConverter<T> {
     T convert(StoreLogData storeLogData);
 }

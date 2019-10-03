@@ -10,9 +10,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.storelogdata.Convertor;
+import org.openl.rules.ruleservice.storelogdata.Converter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataConvertor;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConvertor;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
 
 public class StoreLogDataMapperTest {
 
@@ -164,16 +164,16 @@ public class StoreLogDataMapperTest {
         Assert.assertEquals(customString3, testEntity.getStringValue3());
     }
 
-    public static class SomeValueConvertor implements StoreLogDataConvertor<String> {
+    public static class SomeValueConvertor implements StoreLogDataConverter<String> {
         @Override
         public String convert(StoreLogData storeLogData) {
             return SOME_VALUE;
         }
     }
 
-    public static class TrimConvertor implements Convertor<String, String> {
+    public static class TrimConvertor implements Converter<String, String> {
         @Override
-        public String convert(String value) {
+        public String apply(String value) {
             if (value == null) {
                 return null;
             }
@@ -201,7 +201,7 @@ public class StoreLogDataMapperTest {
         @QualifyPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE)
         private String value1;
         private String value2;
-        @Value(value = "customString1", convertor = TrimConvertor.class)
+        @Value(value = "customString1", converter = TrimConvertor.class)
         private String value3;
 
         public TestEntity() {
@@ -211,7 +211,7 @@ public class StoreLogDataMapperTest {
             return id;
         }
 
-        @WithStoreLogDataConvertor(convertor = SomeValueConvertor.class)
+        @WithStoreLogDataConverter(converter = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }
