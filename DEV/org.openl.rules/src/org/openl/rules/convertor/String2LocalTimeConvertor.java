@@ -17,17 +17,9 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
 
     @Override
     public LocalTime parse(String data, String format) {
+        //format - ignore this parameter. TODO remove from method
         if (data == null) {
             return null;
-        }
-        if (format != null) {
-            DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
-            try {
-                return LocalTime.parse(data, df);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException(
-                    "Cannot convert \"" + data + "\" to LocalTime type using: \"" + format + "\" format");
-            }
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {

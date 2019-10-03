@@ -16,16 +16,9 @@ class String2LocalDateConvertor implements IString2DataConvertor<LocalDate> {
 
     @Override
     public LocalDate parse(String data, String format) {
+        //format - ignore this parameter. TODO remove from method
         if (data == null) {
             return null;
-        }
-        if (format != null) {
-            DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
-            try {
-                return LocalDate.parse(data, df);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Cannot convert \"" + data + "\" to LocalDate type using: \"" + format + "\" format");
-            }
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
