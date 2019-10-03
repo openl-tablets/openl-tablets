@@ -1,7 +1,6 @@
 package org.openl.itest;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
@@ -25,8 +24,28 @@ public class RunITest {
     }
 
     @Test
-    public void testSerializationInclusionConfiguration() {
-        client.get("/rules-serializationInclusion/getObject", "/serialization_inclusion.json");
+    public void testSerializationInclusionAlwaysConfiguration() {
+        client.get("/rules-serializationInclusionAlways/getObject", "/serialization_inclusion_always.json");
+    }
+
+    @Test
+    public void testSerializationInclusionNonAbsentConfiguration() {
+        client.get("/rules-serializationInclusionNonAbsent/getObject", "/serialization_inclusion_non_absent.json");
+    }
+
+    @Test
+    public void testSerializationInclusionNonDefaultConfiguration() {
+        client.get("/rules-serializationInclusionNonDefault/getObject", "/serialization_inclusion_non_default.json");
+    }
+
+    @Test
+    public void testSerializationInclusionNonEmptyConfiguration() {
+        client.get("/rules-serializationInclusionNonEmpty/getObject", "/serialization_inclusion_non_empty.json");
+    }
+
+    @Test
+    public void testSerializationInclusionNonNullConfiguration() {
+        client.get("/rules-serializationInclusionNonNull/getObject", "/serialization_inclusion_non_null.json");
     }
 
     @Test

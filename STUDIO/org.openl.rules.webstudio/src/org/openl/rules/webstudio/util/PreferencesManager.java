@@ -30,6 +30,14 @@ public enum PreferencesManager {
     public void setWebStudioHomeDir(String workingDir) {
         System.setProperty("webstudio.home", workingDir);
         writeValue(WEBSTUDIO_WORKING_DIR_KEY, workingDir);
+        setWebStudioHomeNotConfigured(workingDir);
+    }
+
+    private void setWebStudioHomeNotConfigured(String homePath) {
+        File configuredMarker = new File(homePath + File.separator + WEBSTUDIO_CONFIGURED_MARKER);
+        if (configuredMarker.exists()) {
+            configuredMarker.delete();
+        }
     }
 
     public void webStudioConfigured() {
