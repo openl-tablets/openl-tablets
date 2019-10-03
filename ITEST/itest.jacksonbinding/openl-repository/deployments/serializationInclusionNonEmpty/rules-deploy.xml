@@ -1,11 +1,11 @@
 <rules-deploy>
   <isProvideRuntimeContext>false</isProvideRuntimeContext>
   <isProvideVariations>false</isProvideVariations>
-  <serviceName>rules-serializationInclusion</serviceName>
+  <serviceName>rules-serializationInclusionNonEmpty</serviceName>
   <publishers>
     <publisher>RESTFUL</publisher>
   </publishers>
-  <url>rules-serializationInclusion</url>
+  <url>rules-serializationInclusionNonEmpty</url>
   <configuration>
     <entry>
       <string>jackson.serializationInclusion</string>

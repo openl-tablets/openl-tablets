@@ -1,0 +1,15 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>rules-serializationInclusionAlways</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>rules-serializationInclusionAlways</url>
+    <configuration>
+        <entry>
+            <string>jackson.serializationInclusion</string>
+            <string>ALWAYS</string>
+        </entry>
+    </configuration>
+</rules-deploy>
