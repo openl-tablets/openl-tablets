@@ -16,17 +16,9 @@ public class String2ZonedDateTimeConvertor implements IString2DataConvertor<Zone
 
     @Override
     public ZonedDateTime parse(String data, String format) {
+        //format - ignore this parameter. TODO remove from method
         if (data == null) {
             return null;
-        }
-        if (format != null) {
-            DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
-            try {
-                return ZonedDateTime.parse(data, df);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException(
-                    "Cannot convert \"" + data + "\" to ZonedDateTime type using: \"" + format + "\" format");
-            }
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
