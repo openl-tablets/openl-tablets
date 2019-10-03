@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -464,7 +465,7 @@ public class RunStoreLogDataITest {
                 assertEquals("value1", row.getString("value"));
                 assertEquals(5, row.getInt("hour"));
                 assertEquals("Good Morning", row.getString("result"));
-                assertEquals(true, row.getBool("objectSerializerFound"));
+                assertTrue(row.getBool("objectSerializerFound"));
 
                 resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity2TableName);
@@ -511,6 +512,55 @@ public class RunStoreLogDataITest {
                     .getMetadata()
                     .getKeyspace(KEYSPACE)
                     .getTable(helloEntity4TableName));
+
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testStoreLogDataAnnotationsAdvanced() throws Exception {
+        final String REQUEST = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.req.json"),
+            StandardCharsets.UTF_8);
+        final String RESPONSE = IOUtils.toString(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.resp.json"),
+            StandardCharsets.UTF_8);
+
+        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
+
+        truncateTableIfExists(KEYSPACE, helloEntity1TableName);
+
+        client.post("/REST/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.json");
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity1TableName);
+                List<Row> rows = resultSet.all();
+                if (rows.size() == 0) { // Table is created but row is not created
+                    return false;
+                }
+                assertEquals(1, rows.size());
+                Row row = rows.iterator().next();
+                assertNotNull(row.getString("id"));
+                assertEquals(REQUEST, row.getString("request"));
+                assertEquals(RESPONSE, row.getString("response"));
+                assertEquals("Hello2", row.getString("methodName"));
+                assertEquals("simple4", row.getString("serviceName"));
+                assertNotNull(row.getTimestamp("incomingTime"));
+                assertNotNull(row.getTimestamp("outcomingTime"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+
+                assertEquals(5, row.getInt("intValue1"));
+                assertEquals(22, row.getInt("intValue2"));
+                assertEquals(22, row.getInt("intValue3"));
+                assertEquals("Good Night", row.getString("stringValue1"));
+                assertEquals("Good Night", row.getString("stringValue2"));
+                assertEquals(RESPONSE, row.getString("stringValue3"));
+                assertTrue(row.getBool("boolValue1"));
 
                 return true;
             }, equalTo(true));

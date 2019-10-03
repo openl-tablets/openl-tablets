@@ -55,30 +55,31 @@ public class HelloEntity1 {
     @Value("result")
     private String result;
 
+    @Value("intValue1")
+    private Integer intValue1;
+
+    @Value("intValue2")
+    private Integer intValue2;
+
+    @Value("intValue3")
+    private Integer intValue3;
+
+    @Value("boolValue1")
+    private boolean boolValue1;
+
     @Value("objectSerializerFound")
     private boolean objectSerializerFound;
 
-    public HelloEntity1() {
-    }
+    @Value("stringValue1")
+    private String stringValue1;
 
-    public HelloEntity1(String id,
-            Date incomingTime,
-            Date outcomingTime,
-            String request,
-            String response,
-            String serviceName,
-            String url,
-            String methodName,
-            String publisherType) {
-        this.id = id;
-        this.incomingTime = incomingTime;
-        this.outcomingTime = outcomingTime;
-        this.request = request;
-        this.response = response;
-        this.serviceName = serviceName;
-        this.url = url;
-        this.methodName = methodName;
-        this.publisherType = publisherType;
+    @Value("stringValue2")
+    private String stringValue2;
+
+    @Value("stringValue3")
+    private String stringValue3;
+
+    public HelloEntity1() {
     }
 
     public String getId() {
@@ -187,6 +188,62 @@ public class HelloEntity1 {
 
     public void setObjectSerializerFound(boolean objectSerializerFound) {
         this.objectSerializerFound = objectSerializerFound;
+    }
+
+    public Integer getIntValue1() {
+        return intValue1;
+    }
+
+    public void setIntValue1(Integer intValue1) {
+        this.intValue1 = intValue1;
+    }
+
+    public Integer getIntValue2() {
+        return intValue2;
+    }
+
+    public void setIntValue2(Integer intValue2) {
+        this.intValue2 = intValue2;
+    }
+
+    public Integer getIntValue3() {
+        return intValue3;
+    }
+
+    public void setIntValue3(Integer intValue3) {
+        this.intValue3 = intValue3;
+    }
+
+    public boolean isBoolValue1() {
+        return boolValue1;
+    }
+
+    public void setBoolValue1(boolean boolValue1) {
+        this.boolValue1 = boolValue1;
+    }
+
+    public String getStringValue1() {
+        return stringValue1;
+    }
+
+    public void setStringValue1(String stringValue1) {
+        this.stringValue1 = stringValue1;
+    }
+
+    public String getStringValue2() {
+        return stringValue2;
+    }
+
+    public void setStringValue2(String stringValue2) {
+        this.stringValue2 = stringValue2;
+    }
+
+    public String getStringValue3() {
+        return stringValue3;
+    }
+
+    public void setStringValue3(String stringValue3) {
+        this.stringValue3 = stringValue3;
     }
 
     @Override

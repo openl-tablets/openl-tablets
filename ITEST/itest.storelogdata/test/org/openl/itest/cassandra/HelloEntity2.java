@@ -60,26 +60,6 @@ public class HelloEntity2 {
     public HelloEntity2() {
     }
 
-    public HelloEntity2(String id,
-            Date incomingTime,
-            Date outcomingTime,
-            String request,
-            String response,
-            String serviceName,
-            String url,
-            String methodName,
-            String publisherType) {
-        this.id = id;
-        this.incomingTime = incomingTime;
-        this.outcomingTime = outcomingTime;
-        this.request = request;
-        this.response = response;
-        this.serviceName = serviceName;
-        this.url = url;
-        this.methodName = methodName;
-        this.publisherType = publisherType;
-    }
-
     public String getId() {
         return id;
     }
