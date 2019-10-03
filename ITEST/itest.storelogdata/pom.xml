@@ -10,13 +10,13 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.cassandra.storelogdata</artifactId>
+    <artifactId>itest.storelogdata</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - WS Store Log Data Test</name>
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx512m</surefire.argLine>
+        <surefire.argLine>-Xms128m -Xmx2048m</surefire.argLine>
         <maven.test.skip>true</maven.test.skip>
     </properties>
 

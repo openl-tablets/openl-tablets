@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
@@ -25,19 +24,22 @@ import net.mguenther.kafka.junit.TopicConfig;
 
 public class RunKafkaSmokeITest {
     private static JettyServer server;
-
+    private static EmbeddedKafkaCluster cluster;
+    
     @BeforeClass
     public static void setUp() throws Exception {
+        cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
+            .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
+            .build());
+        
+        cluster.start();
+        
         server = new JettyServer();
         server.start();
     }
 
-    @Rule
-    public EmbeddedKafkaCluster cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-        .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
-        .build());
-
-    private void methodSimpleOk() throws Exception {
+    @Test
+    public void methodSimpleOk() throws Exception {
         KeyValue<String, String> record0 = new KeyValue<>(null, "{\"hour\": 5}");
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record0)).useDefaults());
 
@@ -49,7 +51,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
 
-    private void methodSimpleFail() throws Exception {
+    @Test
+    public void methodSimpleFail() throws Exception {
         KeyValue<String, String> record1 = new KeyValue<>(null, "5");
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
 
@@ -60,7 +63,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals(1, observedValuesDlt.size());
     }
 
-    private void serviceSimpleOk() throws Exception {
+    @Test
+    public void serviceSimpleOk() throws Exception {
         KeyValue<String, String> record2 = new KeyValue<>(null, "{\"hour\": 5}");
         record2.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record2)).useDefaults());
@@ -73,7 +77,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
 
-    private void serviceSimpleFail() throws Exception {
+    @Test
+    public void serviceSimpleFail() throws Exception {
         KeyValue<String, String> record3 = new KeyValue<>(null, "5");
         record3.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record3)).useDefaults());
@@ -85,7 +90,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals(1, observedValuesDlt.size());
     }
 
-    private void methodSimpleOkWithReplyTopic() throws Exception {
+    @Test
+    public void methodSimpleOkWithReplyTopic() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
         record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
@@ -107,7 +113,8 @@ public class RunKafkaSmokeITest {
         }
     }
 
-    private void serviceSimpleOkWithReplyTopic() throws Exception {
+    @Test
+    public void serviceSimpleOkWithReplyTopic() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
         record.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
@@ -122,7 +129,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
 
-    private void methodSimpleOkWithCorrelationId() throws Exception {
+    @Test
+    public void methodSimpleOkWithCorrelationId() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
         record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
         record.addHeader(KafkaHeaders.CORRELATION_ID, "42", Charset.forName("UTF8"));
@@ -139,7 +147,8 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
     }
 
-    private void serviceSimpleOkWithCorrelationId() throws Exception {
+    @Test
+    public void serviceSimpleOkWithCorrelationId() throws Exception {
         KeyValue<String, String> record = new KeyValue<>(null, "{\"hour\": 5}");
         record.addHeader(KafkaHeaders.METHOD_NAME, "Hello", Charset.forName("UTF8"));
         record.addHeader(KafkaHeaders.REPLY_TOPIC, "hello-reply-topic", Charset.forName("UTF8"));
@@ -167,7 +176,8 @@ public class RunKafkaSmokeITest {
         return null;
     }
 
-    private void testDltHeaders() throws Exception {
+    @Test
+    public void testDltHeaders() throws Exception {
         cluster.createTopic(TopicConfig.forTopic("hello-replydlt-topic").withNumberOfPartitions(10).build());
 
         KeyValue<String, String> record = new KeyValue<>(null, "5");
@@ -203,24 +213,10 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals("hello-in-topic-2", getHeaderValue(v, KafkaHeaders.DLT_ORIGINAL_TOPIC));
     }
 
-    @Test
-    public void test() throws Exception {
-        methodSimpleOk();
-        methodSimpleFail();
-        serviceSimpleOk();
-        serviceSimpleFail();
-        methodSimpleOkWithReplyTopic();
-        serviceSimpleOkWithReplyTopic();
-
-        methodSimpleOkWithCorrelationId();
-        serviceSimpleOkWithCorrelationId();
-
-        testDltHeaders();
-    }
-
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
+        cluster.stop();
     }
 
 }

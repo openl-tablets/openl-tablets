@@ -17,7 +17,6 @@ import org.awaitility.Awaitility;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
@@ -52,7 +51,7 @@ public class RunStoreLogDataITest {
 
     private static JettyServer server;
     private static HttpClient client;
-    private static String host;
+    private static EmbeddedKafkaCluster cluster;
 
     private static void createKeyspaceIfNotExists(Session session,
             String keyspaceName,
@@ -80,16 +79,16 @@ public class RunStoreLogDataITest {
 
         createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
 
+        cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
+            .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
+            .build());
+        cluster.start();
+
         server = new JettyServer(true);
-        host = server.start();
+        server.start();
 
         client = server.client();
     }
-
-    @Rule
-    public EmbeddedKafkaCluster cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-        .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
-        .build());
 
     private boolean truncateTableIfExists(final String keyspace, final String table) {
         try {
@@ -521,7 +520,8 @@ public class RunStoreLogDataITest {
         // Thread.sleep(Long.MAX_VALUE);
 
         server.stop();
-        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+        EmbeddedCassandraServerHelper.stopEmbeddedCassandra();
+        cluster.stop();
     }
 
 }
