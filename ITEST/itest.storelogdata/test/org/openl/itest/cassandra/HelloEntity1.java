@@ -32,17 +32,17 @@ public class HelloEntity1 {
     @OutcomingTime
     private Date outcomingTime;
 
-    @Request
+    @Request(converter = NoConvertorString.class)
     private String request;
 
-    @Response
+    @Response(converter = NoConvertorString.class)
     private String response;
 
     @ClusteringColumn(1)
-    @ServiceName
+    @ServiceName(converter = NoConvertorString.class)
     private String serviceName;
 
-    @Url
+    @Url(converter = NoConvertorString.class)
     private String url;
 
     private String methodName;
@@ -54,41 +54,44 @@ public class HelloEntity1 {
 
     private String value;
 
-    @Value("result")
+    @Value(value = "result", converter = NoConvertorString.class)
     private String result;
 
-    @Value("intValue1")
+    @Value(value = "intValue1")
     private Integer intValue1;
 
-    @Value("intValue2")
+    @Value(value = "intValue2")
     private Integer intValue2;
 
-    @Value("intValue3")
+    @Value(value = "intValue3")
     private Integer intValue3;
 
-    @Value("boolValue1")
+    @Value(value = "boolValue1")
     private boolean boolValue1;
 
-    @Value("boolValue2")
+    @Value(value = "boolValue2")
     private boolean boolValue2;
 
-    @Value("objectSerializerFound")
+    @Value(value = "objectSerializerFound")
     private boolean objectSerializerFound;
 
-    @Value("stringValue1")
+    @Value(value = "stringValue1", converter = NoConvertorString.class)
     private String stringValue1;
 
-    @Value("stringValue2")
+    @Value(value = "stringValue2", converter = NoConvertorString.class)
     private String stringValue2;
 
-    @Value("stringValue3")
+    @Value(value = "stringValue3", converter = NoConvertorString.class)
     private String stringValue3;
 
-    @KafkaMessageHeader(KafkaHeaders.METHOD_NAME)
+    @KafkaMessageHeader(value = KafkaHeaders.METHOD_NAME)
     private String header1;
 
-    @KafkaMessageHeader("testHeader")
+    @KafkaMessageHeader(value = "testHeader")
     private String header2;
+
+    @Value(value = "intValueToString", converter = IntToStringConvertor.class)
+    String intValueToString;
 
     public HelloEntity1() {
     }

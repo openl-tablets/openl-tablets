@@ -562,7 +562,7 @@ public class RunStoreLogDataITest {
                 assertEquals("Good Night", row.getString("stringValue2"));
                 assertEquals(RESPONSE, row.getString("stringValue3"));
                 assertTrue(row.getBool("boolValue1"));
-
+                assertEquals("22", row.getString("intValueToString"));
                 return true;
             }, equalTo(true));
     }
