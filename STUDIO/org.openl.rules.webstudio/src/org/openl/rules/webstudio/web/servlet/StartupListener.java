@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.io.File;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
