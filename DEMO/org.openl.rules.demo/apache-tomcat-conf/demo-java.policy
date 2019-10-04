@@ -52,6 +52,10 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         permission java.lang.RuntimePermission "reflectionFactoryAccess";
 
+        //HikariPool
+        //Permits an application to specify the maximum period a Connection or objects created from the Connection will wait for the database to reply to any one request.
+        permission java.sql.SQLPermission "setNetworkTimeout";
+
         //allows anyone to listen on dynamic ports (DB, LDAP, SSO...)
         permission java.net.SocketPermission "*", "accept,connect,listen,resolve";
 
