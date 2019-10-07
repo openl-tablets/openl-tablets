@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Body>
+      <ns1:CalcResponse xmlns:ns1="http://DefaultNamespace">
+         <ns1:return>92</ns1:return>
+      </ns1:CalcResponse>
+   </soap:Body>
+</soap:Envelope>

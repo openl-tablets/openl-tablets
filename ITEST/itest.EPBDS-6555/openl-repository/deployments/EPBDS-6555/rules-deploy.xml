@@ -1,0 +1,11 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
+    <serviceName>EPBDS-6555</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>EPBDS-6555</url>
+</rules-deploy>

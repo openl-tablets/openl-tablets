@@ -1,0 +1,33 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:def="http://DefaultNamespace" xmlns:con="http://context.rules.openl.org">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <def:Greeting>
+         <!--Optional:-->
+         <def:assert1>1</def:assert1>
+         <!--Optional:-->
+         <def:boolean1>2</def:boolean1>
+         <!--Optional:-->
+         <def:this1>3</def:this1>
+         <!--Optional:-->
+         <def:float1>4</def:float1>
+         <!--Optional:-->
+         <def:double1>5</def:double1>
+         <!--Optional:-->
+         <def:byte1>6</def:byte1>
+         <!--Optional:-->
+         <def:enum1>7</def:enum1>
+         <!--Optional:-->
+         <def:int1>8</def:int1>
+         <!--Optional:-->
+         <def:short1>9</def:short1>
+         <!--Optional:-->
+         <def:class1>10</def:class1>
+         <!--Optional:-->
+         <def:char1>11</def:char1>
+         <!--Optional:-->
+         <def:long1>12</def:long1>
+         <!--Optional:-->
+         <def:strictfp1>13</def:strictfp1>
+      </def:Greeting>
+   </soapenv:Body>
+</soapenv:Envelope>
