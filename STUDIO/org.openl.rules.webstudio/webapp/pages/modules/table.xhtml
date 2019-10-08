@@ -1,4 +1,4 @@
-<ui:composition                   
+<ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -389,8 +389,29 @@
                                         <span>Trace</span>
                                     </a>
                                 </c:if>
-                                <div id="inputArgsMenu" style="display: none">
-                                    <ui:include src="/pages/modules/test/inputTestCase.xhtml" />
+                                <div id="inputArgsMenu" style="display: none" >
+                                    <h:panelGroup id="inputTestCasePanelWrapper">
+                                        <h:selectOneRadio id="inputTestCaseType"
+                                                          value="#{inputArgsBean.inputTestCaseType}">
+                                            <f:selectItem itemValue="BEAN" itemLabel="Tree Form"/>
+                                            <f:selectItem itemValue="TEXT" itemLabel="JSON"/>
+                                            <f:ajax listener="#{runTestHelper.fillBean}"
+                                                    execute=":inputArgsForm:inputTestCasePanelWrapper"
+                                                    onerror="onInputTestCaseTypeChange"
+                                                    render=":inputArgsForm:inputTestCasePanelWrapper" />
+                                        </h:selectOneRadio>
+                                        <h:panelGroup id="inputTestCasePanel" layout="block"
+                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'TEXT'?'hidden':''}">
+                                            <ui:include src="/pages/modules/test/inputTestCase.xhtml"/>
+                                        </h:panelGroup>
+                                        <h:panelGroup id="inputTestCaseText" layout="block"
+                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'BEAN'?'hidden':''}">
+                                            <h:inputTextarea id="jsonInput" value="#{inputArgsBean.inputTextBean}"
+                                                             placeholder="Input JSON here"
+                                                             style="height:300px; width:500px">
+                                            </h:inputTextarea>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none" styleClass="manual-run"
                                             action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
@@ -842,7 +863,15 @@
                 }
             });
         });
-
+        
+        function onInputTestCaseTypeChange() {
+            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[0].checked;
+            if(beanSelected){
+                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['TEXT']);
+            }else{
+                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['BEAN']);
+            }
+        }
         //]]>
     </script>
 

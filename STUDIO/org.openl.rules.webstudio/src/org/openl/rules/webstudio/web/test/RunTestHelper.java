@@ -54,6 +54,10 @@ public final class RunTestHelper {
         this.params = ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).getParams();
     }
 
+    public void fillBean() {
+        ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).fillBean();
+    }
+
     public void catchParamsToDownload() {
         catchParams();
         Utils.saveTestToSession(FacesUtils.getSession(), getTestSuite());

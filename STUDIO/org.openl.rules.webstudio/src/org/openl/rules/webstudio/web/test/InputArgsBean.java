@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
@@ -27,6 +29,8 @@ import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+
 @ManagedBean
 @ViewScoped
 public class InputArgsBean {
@@ -38,6 +42,13 @@ public class InputArgsBean {
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
     private String className;
     private Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
+    private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
+    private String inputTextBean;
+
+    enum InputTestCaseType {
+        TEXT,
+        BEAN
+    }
 
     public String getClassName() {
         return className;
@@ -82,14 +93,45 @@ public class InputArgsBean {
         return (ParameterDeclarationTreeNode) currentTreeNode.getRowData();
     }
 
+    public void fillBean() {
+        if (StringUtils.isNotBlank(inputTextBean) && InputTestCaseType.BEAN
+            .equals(inputTestCaseType) && argumentTreeNodes != null) {
+            try {
+                Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
+                for (ParameterDeclarationTreeNode arg : argumentTreeNodes) {
+                    String field = stringStringMap.get(arg.getName());
+                    if (field != null) {
+                        arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass()));
+                    }
+                }
+            } catch (IOException e) {
+                throw new Message(constructJsonExceptionMessage(e));
+            }
+        }
+    }
+
     public Object[] getParams() {
         if (argumentTreeNodes == null) {
             return new Object[0];
         }
-        Object[] arguments = new Object[argumentTreeNodes.length];
+        Map<String, String> stringStringMap = null;
+        if (InputTestCaseType.TEXT.equals(inputTestCaseType) && StringUtils.isNotBlank(inputTextBean)) {
+            try {
+                stringStringMap = JsonUtils.splitJSON(inputTextBean);
+            } catch (IOException e) {
+                throw new Message(constructJsonExceptionMessage(e));
+            }
+        }
+        Object[] parsedArguments = new Object[argumentTreeNodes.length];
         try {
             for (int i = 0; i < argumentTreeNodes.length; i++) {
-                arguments[i] = argumentTreeNodes[i].getValueForced();
+                if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null && stringStringMap
+                    .containsKey(argumentTreeNodes[i].getName())) {
+                    String field = stringStringMap.get(argumentTreeNodes[i].getName());
+                    parsedArguments[i] = JsonUtils.fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass());
+                } else {
+                    parsedArguments[i] = argumentTreeNodes[i].getValueForced();
+                }
             }
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
@@ -97,8 +139,21 @@ public class InputArgsBean {
             } else {
                 throw e;
             }
+        } catch (IOException e) {
+            throw new Message(constructJsonExceptionMessage(e));
         }
-        return arguments;
+        return parsedArguments;
+    }
+
+    private String constructJsonExceptionMessage(IOException e) {
+        if (e.getClass().isAssignableFrom(JsonParseException.class)) {
+            return String.format("%s</br>[line: %s, column: %s]",
+                ((JsonParseException) e).getOriginalMessage(),
+                ((JsonParseException) e).getLocation().getLineNr(),
+                ((JsonParseException) e).getLocation().getColumnNr());
+        } else {
+            return "Input parameters are wrong.";
+        }
     }
 
     public void initObject() {
@@ -274,5 +329,21 @@ public class InputArgsBean {
                 }
             }
         }
+    }
+
+    public InputTestCaseType getInputTestCaseType() {
+        return inputTestCaseType;
+    }
+
+    public void setInputTestCaseType(InputTestCaseType inputTestCaseType) {
+        this.inputTestCaseType = inputTestCaseType;
+    }
+
+    public String getInputTextBean() {
+        return inputTextBean;
+    }
+
+    public void setInputTextBean(String inputTextBean) {
+        this.inputTextBean = inputTextBean;
     }
 }
