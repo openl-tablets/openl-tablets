@@ -34,9 +34,9 @@ public class Comparison {
 
     // Equals
     public static boolean eq(boolean x, boolean y) {
-        return x == y; 
+        return x == y;
     }
-    
+
     public static boolean eq(byte x, byte y) {
         return x == y;
     }
@@ -108,6 +108,10 @@ public class Comparison {
         return equals(x, y);
     }
 
+    public static <T extends Comparable<T>> boolean eq(T x, T y) {
+        return equals(x, y);
+    }
+
     public static <T> boolean eq(T[] x, T[] y) {
         return Arrays.deepEquals(x, y);
     }
@@ -161,6 +165,10 @@ public class Comparison {
         return !eq(x, y);
     }
 
+    public static <T extends Comparable<T>> boolean ne(T x, T y) {
+        return !eq(x, y);
+    }
+
     public static <T> boolean ne(T[] x, T[] y) {
         return !eq(x, y);
     }
@@ -177,7 +185,7 @@ public class Comparison {
     public static boolean gt(char x, char y) {
         return x > y;
     }
-    
+
     public static boolean gt(short x, short y) {
         return x > y;
     }
@@ -285,7 +293,7 @@ public class Comparison {
     public static boolean ge(char x, char y) {
         return x >= y;
     }
-    
+
     public static boolean ge(short x, short y) {
         return x >= y;
     }
@@ -597,8 +605,14 @@ public class Comparison {
         return res;
     }
 
+    private static <T extends Comparable<T>> boolean equals(T x, T y) {
+        return x == y || (x != null && y != null && x.compareTo(y) == 0);
+    }
+
+    // performance sensitive method. did not add type checking of compared objects
+    // there may be a problem with symmetry between child and parent
     private static <T> boolean equals(T x, T y) {
-        return x == y || x != null && y != null && x.equals(y);
+        return Objects.equals(x, y);
     }
 
 }
