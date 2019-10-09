@@ -118,6 +118,11 @@ public class HttpStatusITest {
     }
 
     @Test
+    public void test_rest_EMPTY_REQUEST() {
+        client.post("/REST/http-statuses-test/hello", "/statuses-empty.req.json", 200, "/statuses-empty-request.resp.txt");
+    }
+
+    @Test
     public void test_rest_NOT_ALLOWED() {
         client.post("/REST/http-statuses-test/throwNFE", "/statuses-405.resp.txt!", 405, "/statuses-405.resp.txt");
     }
