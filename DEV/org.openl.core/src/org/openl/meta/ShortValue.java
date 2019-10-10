@@ -615,7 +615,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
 
     @Override
     public int hashCode() {
-        return ((Short) value).hashCode();
+        return Short.hashCode(value);
     }
 
     private static Short[] unwrap(ShortValue[] values) {

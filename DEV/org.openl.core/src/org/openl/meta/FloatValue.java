@@ -45,7 +45,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     private final float value;
-    private final int hashCode;
 
     private static FloatValue instance(Float result, NumberOperations operation, FloatValue... values) {
         return result == null ? null : new FloatValue(new FloatValue(result), operation, values);
@@ -499,21 +498,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // Constructors
     public FloatValue(float value) {
         this.value = value;
-        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Formula constructor **/
     public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
-        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Cast constructor **/
     public FloatValue(float value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("FloatValue", autocast));
         this.value = value;
-        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /**
@@ -701,14 +697,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     public FloatValue(String valueString) {
         this.value = Float.parseFloat(valueString);
-        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Function constructor **/
     public FloatValue(FloatValue result, NumberOperations function, FloatValue... params) {
         super(function, params);
         this.value = result.floatValue();
-        this.hashCode = ((Float) this.value).hashCode();
     }
 
     @Override
@@ -738,7 +732,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     @Override
     public int hashCode() {
-        return hashCode;
+        return Float.hashCode(value);
     }
 
     private static Float[] unwrap(FloatValue[] values) {

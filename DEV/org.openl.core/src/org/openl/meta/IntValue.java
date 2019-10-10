@@ -622,7 +622,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     @Override
     public int hashCode() {
-        return ((Integer) value).hashCode();
+        return Integer.hashCode(value);
     }
 
     private static Integer[] unwrap(IntValue[] values) {

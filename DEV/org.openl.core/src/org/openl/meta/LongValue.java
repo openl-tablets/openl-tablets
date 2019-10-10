@@ -639,7 +639,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
 
     @Override
     public int hashCode() {
-        return ((Long) value).hashCode();
+        return Long.hashCode(value);
     }
 
     private static Long[] unwrap(LongValue[] values) {

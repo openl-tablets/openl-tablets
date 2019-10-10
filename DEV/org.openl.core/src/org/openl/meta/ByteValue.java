@@ -606,7 +606,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
 
     @Override
     public int hashCode() {
-        return ((Byte) value).hashCode();
+        return Byte.hashCode(value);
     }
 
     private static Byte[] unwrap(ByteValue[] values) {
