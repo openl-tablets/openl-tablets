@@ -77,14 +77,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
 
     private double value;
-    private int hashCode;
 
     /**
      * EPBDS-6107
      */
     public void setValue(double value) {
         this.value = value;
-        this.hashCode = ((Double) value).hashCode();
     }
 
     static DoubleValue instance(Double result, NumberOperations operation, DoubleValue... values) {
@@ -556,21 +554,18 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     // Constructors
     public DoubleValue(double value) {
         this.value = value;
-        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /** Formula constructor **/
     public DoubleValue(org.openl.meta.DoubleValue lv1, org.openl.meta.DoubleValue lv2, double value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
-        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /** Cast constructor **/
     public DoubleValue(double value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("DoubleValue", autocast));
         this.value = value;
-        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /**
@@ -787,14 +782,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     public DoubleValue(String valueString) {
         super();
         this.value = Double.parseDouble(valueString);
-        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /** Function constructor **/
     public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue... params) {
         super(function, params);
         this.value = result.doubleValue();
-        this.hashCode = ((Double) this.value).hashCode();
     }
 
     @Override
@@ -835,7 +828,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     @Override
     public int hashCode() {
-        return hashCode;
+        return Double.hashCode(value);
     }
 
     private static Double[] unwrap(DoubleValue[] values) {
