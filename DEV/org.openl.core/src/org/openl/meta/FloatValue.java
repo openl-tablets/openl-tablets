@@ -47,11 +47,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     private final float value;
 
     private static FloatValue instance(Float result, NumberOperations operation, FloatValue... values) {
-        return result == null ? null : new FloatValue(new FloatValue(result), operation, values);
+        return result == null ? null : new FloatValue(result, operation, values);
     }
 
     private static FloatValue instance(FloatValue result, NumberOperations operation, FloatValue... values) {
-        return result == null ? null : new FloatValue(result, operation, values);
+        return result == null ? null : new FloatValue(result.floatValue(), operation, values);
     }
 
     public static FloatValue max(FloatValue... values) {
@@ -167,7 +167,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value, NumberOperations.COPY, value);
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value.floatValue(), NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -319,8 +319,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      */
     public static org.openl.meta.FloatValue mod(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(
-                MathUtils.mod(number.getValue(), divisor.getValue()));
+            float result = MathUtils.mod(number.getValue(), divisor.getValue());
             return new org.openl.meta.FloatValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
@@ -367,8 +366,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(
-            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
+        return new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue()),
+            NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -383,7 +382,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return null;
         }
         // evaluate result
-        org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(Operators.abs(value.getValue()));
+        float result = Operators.abs(value.getValue());
         // create instance with information about last operation
         return new org.openl.meta.FloatValue(result, NumberOperations.ABS, value);
     }
@@ -671,8 +670,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         }
 
         float rounded = Round.round(value.value, 0);
-        FloatValue newValue = new FloatValue(rounded);
-        return new FloatValue(newValue, NumberOperations.ROUND, value);
+        return new FloatValue(rounded, NumberOperations.ROUND, value);
     }
 
     public static FloatValue round(FloatValue value, int scale) {
@@ -681,8 +679,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         }
 
         float rounded = Round.round(value.value, scale);
-        FloatValue newValue = new FloatValue(rounded);
-        return new FloatValue(newValue, NumberOperations.ROUND, value, new FloatValue(scale));
+        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
     }
 
     public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
@@ -691,8 +688,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         }
 
         float rounded = Round.round(value.value, scale, roundingMethod);
-        FloatValue newValue = new FloatValue(rounded);
-        return new FloatValue(newValue, NumberOperations.ROUND, value, new FloatValue(scale));
+        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
     }
 
     public FloatValue(String valueString) {
@@ -700,9 +696,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /** Function constructor **/
-    public FloatValue(FloatValue result, NumberOperations function, FloatValue... params) {
+    public FloatValue(float result, NumberOperations function, FloatValue... params) {
         super(function, params);
-        this.value = result.floatValue();
+        this.value = result;
     }
 
     @Override
