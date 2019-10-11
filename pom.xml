@@ -654,7 +654,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>1.9.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -667,6 +667,12 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>1.12</version>
+            </dependency>
+            <dependency>
+                <!-- poi-ooxml dependency -->
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.19</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
