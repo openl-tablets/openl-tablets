@@ -86,11 +86,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     static DoubleValue instance(Double result, NumberOperations operation, DoubleValue... values) {
-        return result == null ? null : new DoubleValue(new DoubleValue(result), operation, values);
+        return result == null ? null : new DoubleValue(result, operation, values);
     }
 
     private static DoubleValue instance(DoubleValue result, NumberOperations operation, DoubleValue... values) {
-        return result == null ? null : new DoubleValue(result, operation, values);
+        return result == null ? null : new DoubleValue(result.doubleValue(), operation, values);
     }
 
     public static DoubleValue max(DoubleValue... values) {
@@ -210,7 +210,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value, NumberOperations.COPY, value);
+            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value.doubleValue(), NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -364,8 +364,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     public static org.openl.meta.DoubleValue mod(org.openl.meta.DoubleValue number,
             org.openl.meta.DoubleValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(
-                MathUtils.mod(number.getValue(), divisor.getValue()));
+            double result = MathUtils.mod(number.getValue(), divisor.getValue());
             return new org.openl.meta.DoubleValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
@@ -412,8 +411,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return value1;
         }
 
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(
-            Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
+        return new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue()),
+            NumberOperations.POW, value1, value2);
     }
 
     /**
@@ -428,7 +427,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return null;
         }
         // evaluate result
-        org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(Operators.abs(value.getValue()));
+        double result = Operators.abs(value.getValue());
         // create instance with information about last operation
         return new org.openl.meta.DoubleValue(result, NumberOperations.ABS, value);
     }
@@ -726,8 +725,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         }
 
         double rounded = Round.round(value.value, 0);
-        DoubleValue newValue = new DoubleValue(rounded);
-        return new DoubleValue(newValue, NumberOperations.ROUND, value);
+        return new DoubleValue(rounded, NumberOperations.ROUND, value);
     }
 
     public static DoubleValue round(DoubleValue value, int scale) {
@@ -736,8 +734,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         }
 
         double rounded = Round.round(value.value, scale);
-        DoubleValue newValue = new DoubleValue(rounded);
-        return new DoubleValue(newValue, NumberOperations.ROUND, value, new DoubleValue(scale));
+        return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 
     public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
@@ -746,8 +743,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         }
 
         double rounded = Round.round(value.value, scale, roundingMethod);
-        DoubleValue newValue = new DoubleValue(rounded);
-        return new DoubleValue(newValue, NumberOperations.ROUND, value, new DoubleValue(scale));
+        return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 
     /**
@@ -776,7 +772,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
         double roundedValue = Round.round(preRoundedValue, scale, Round.HALF_UP);
 
-        return new DoubleValue(new DoubleValue(roundedValue), NumberOperations.ROUND, new DoubleValue[] { d, p });
+        return new DoubleValue(roundedValue, NumberOperations.ROUND, new DoubleValue[] { d, p });
     }
 
     public DoubleValue(String valueString) {
@@ -785,9 +781,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     /** Function constructor **/
-    public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue... params) {
+    public DoubleValue(double result, NumberOperations function, DoubleValue... params) {
         super(function, params);
-        this.value = result.doubleValue();
+        this.value = result;
     }
 
     @Override
