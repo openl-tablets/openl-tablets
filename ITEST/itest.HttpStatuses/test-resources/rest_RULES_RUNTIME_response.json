@@ -1,0 +1,1 @@
+{"message":"Failure in the method: public static java.lang.Double java.lang.Double.valueOf(java.lang.String) throws java.lang.NumberFormatException on the target: java.lang.Double with values: [sdsd]. Cause: For input string: \"sdsd\"","type":"RULES_RUNTIME","details":"***"}

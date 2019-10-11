@@ -73,7 +73,7 @@
                         <representation mediaType="application/json" element="prefix1:MixedCaseRequest"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -83,7 +83,7 @@
                         <representation mediaType="application/json" element="prefix1:UPCaseRequest"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -93,7 +93,7 @@
                         <representation mediaType="application/json" element="prefix1:EDGECaseRequest"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -103,14 +103,14 @@
                         <representation mediaType="application/json" element="prefix1:LowCaseRequest"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
             <resource path="overload">
                 <method name="GET">
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -120,7 +120,7 @@
                         <representation mediaType="application/json" element="prefix2:bean"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -129,7 +129,7 @@
                 <method name="GET">
                     <request></request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -139,7 +139,7 @@
                         <representation mediaType="application/json" element="prefix1:OverloadRequest3"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -149,7 +149,7 @@
                         <representation mediaType="application/json" element="prefix1:OverloadRequest4"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>

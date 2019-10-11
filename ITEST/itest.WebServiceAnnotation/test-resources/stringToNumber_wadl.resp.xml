@@ -47,12 +47,12 @@
             <resource path="notExcludedBecauseof_p_">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -61,26 +61,26 @@
                 <method name="GET">
                     <request></request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
             <resource path="parse1">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
             <resource path="parse2">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
@@ -92,24 +92,24 @@
             <resource path="parse5">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
             <resource path="parse6">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -151,19 +151,19 @@
                         <representation mediaType="application/json" element="prefix2:RuleType"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
             <resource path="virtual">
                 <method name="POST">
                     <request>
-                        <representation mediaType="application/json">
+                        <representation mediaType="text/plain">
                             <param name="request" style="plain" type="xs:string"/>
                         </representation>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>
@@ -173,7 +173,7 @@
                         <representation mediaType="application/json" element="prefix1:Virtual2Request"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>

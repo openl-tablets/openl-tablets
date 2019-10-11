@@ -30,7 +30,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() {
-        client.get("/admin/services", "/no_services.resp.json");
+        client.get("/admin/services", "/no_services.resp.txt");
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", 404, "/404.html");
         long createServiceTime = System.currentTimeMillis();
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
@@ -42,7 +42,7 @@ public class RunRestRulesDeploymentTest {
         checkServiceTime(service2Time, createServiceTime);
 
         client.get("/admin/read/deployed-rules", "/rules-to-deploy.zip");
-        client.get("/admin/services/deployed-rules/methods", "/deployed-rules_methods.resp.json");
+        client.get("/admin/services/deployed-rules/methods", "/deployed-rules_methods.resp.txt");
 
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
         // should not be updated
@@ -82,7 +82,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules_multipleDeployment() {
-        client.get("/admin/services", "/no_services.resp.json");
+        client.get("/admin/services", "/no_services.resp.txt");
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", 404, "/404.html");
 
         long createServiceTime = System.currentTimeMillis();
@@ -98,8 +98,8 @@ public class RunRestRulesDeploymentTest {
             "REST/yaml_project/project2");
         checkServiceTime(servicesInfo[1].getStartedTime().getTime(), createServiceTime);
 
-        client.get("/admin/services/project1/methods", "/project1_methods.resp.json");
-        client.get("/admin/services/yaml_project_project2/methods", "/yaml_project_project2_methods.resp.json");
+        client.get("/admin/services/project1/methods", "/project1_methods.resp.txt");
+        client.get("/admin/services/yaml_project_project2/methods", "/yaml_project_project2_methods.resp.txt");
 
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
 

@@ -3,14 +3,32 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
@@ -46,6 +64,14 @@ public final class JAXRSEnhancerHelper {
         private ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
+
+        private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet();
+        static{
+            TEXT_MEDIA_TYPE_SET.add(Number.class);
+            TEXT_MEDIA_TYPE_SET.add(Enum.class);
+            TEXT_MEDIA_TYPE_SET.add(String.class);
+            TEXT_MEDIA_TYPE_SET.add(Date.class);
+        }
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -260,9 +286,43 @@ public final class JAXRSEnhancerHelper {
                     throw new RuntimeException(e);
                 }
             }
-
+            addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
             addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
+        }
+
+        private boolean isTextMediaType(Class<?> type) {
+            if (type.isPrimitive()) {
+                return true;
+            }
+            for (Class<?> cl : TEXT_MEDIA_TYPE_SET) {
+                if (cl.isAssignableFrom(type)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void addConsumerProducesMethodAnnotations(MethodVisitor mv,
+                Class<?> returnType,
+                Class<?>[] originalParameterTypes,
+                Method originalMethod) {
+            if (returnType != null && isTextMediaType(returnType) && originalMethod
+                .getAnnotation(Produces.class) == null) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
+                AnnotationVisitor av2 = av.visitArray("value");
+                av2.visit(null, MediaType.TEXT_PLAIN);
+                av2.visitEnd();
+                av.visitEnd();
+            }
+            if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && originalMethod
+                .getAnnotation(Consumes.class) == null) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
+                AnnotationVisitor av2 = av.visitArray("value");
+                av2.visit(null, MediaType.TEXT_PLAIN);
+                av2.visitEnd();
+                av.visitEnd();
+            }
         }
 
         private String[] getPathParamValuesFromMethodParameters(Method originalMethod) {

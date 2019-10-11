@@ -33,6 +33,9 @@
         factory-method="createJacksonObjectMapper" scope="prototype">
     </bean>
 
+    <bean id="textPlainDateMapper" class="org.openl.rules.ruleservice.databinding.TextPlainDateMapper" scope="prototype">
+    </bean>
+
     <bean id="JAXRSJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
         <constructor-arg ref="JAXRSJacksonObjectMapper"/>
     </bean>
@@ -80,6 +83,7 @@
             <list>
                 <ref bean="JAXRSExceptionMapper"/>
                 <ref bean="JAXRSJSONProvider"/>
+                <ref bean="textPlainDateMapper"/>
                 <ref bean="JAXRSWebApplicationExceptionMapper"/>
             </list>
         </property>
@@ -98,4 +102,5 @@
         <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
     </bean>
+
 </beans>

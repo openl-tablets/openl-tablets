@@ -280,12 +280,12 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.req.json"),
             StandardCharsets.UTF_8);
         final String RESPONSE = IOUtils.toString(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.resp.json"),
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple3_Hello.resp.txt"),
             StandardCharsets.UTF_8);
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
 
-        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.json");
+        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.txt");
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -426,7 +426,7 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json"),
             StandardCharsets.UTF_8);
         final String RESPONSE = IOUtils.toString(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.json"),
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.txt"),
             StandardCharsets.UTF_8);
 
         final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
@@ -439,7 +439,7 @@ public class RunStoreLogDataITest {
         truncateTableIfExists(KEYSPACE, helloEntity3TableName);
         truncateTableIfExists(KEYSPACE, helloEntity4TableName);
 
-        client.post("/REST/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.json");
+        client.post("/REST/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -524,14 +524,14 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.req.json"),
             StandardCharsets.UTF_8);
         final String RESPONSE = IOUtils.toString(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.resp.json"),
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.resp.txt"),
             StandardCharsets.UTF_8);
 
         final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
 
-        client.post("/REST/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.json");
+        client.post("/REST/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -573,7 +573,7 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.req.json"),
             StandardCharsets.UTF_8);
         final String RESPONSE = IOUtils.toString(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.json"),
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.txt"),
             StandardCharsets.UTF_8);
 
         final String METHOD_NAME = "Hello";

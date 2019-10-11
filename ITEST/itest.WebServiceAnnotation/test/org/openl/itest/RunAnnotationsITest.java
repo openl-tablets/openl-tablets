@@ -71,21 +71,21 @@ public class RunAnnotationsITest {
     @Test
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_OK() {
         client.post("/REST/v1/string/toNumber/parseX",
-            "/stringToNumber_parseX.req.txt!",
+            "/stringToNumber_parseX.req.txt",
             "/stringToNumber_parseX.resp.xml");
     }
 
     @Test
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldReturnError_OK() {
         client.post("/REST/v1/string/toNumber/parseX",
-            "/stringToNumber_parseX_error.req.txt!",
+            "/stringToNumber_parseX_error.req.txt",
             "/stringToNumber_parseX_error.resp.xml");
     }
 
     @Test
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldThrowErrorInBeforeInterceptor_OK() {
         client.post("/REST/v1/string/toNumber/parseX",
-            "/stringToNumber_parseX_throwBeforeCall.req.txt!",
+            "/stringToNumber_parseX_throwBeforeCall.req.txt",
             "/stringToNumber_parseX_throwBeforeCall.resp.xml");
     }
 
@@ -159,7 +159,7 @@ public class RunAnnotationsITest {
 
     @Test
     public void test_doArray_REST() {
-        client.get("/REST/ws-serviceclass-positive/doArray", "/serviceclass-positive_doArray.resp.json");
+        client.get("/REST/ws-serviceclass-positive/doArray", "/serviceclass-positive_doArray.resp.txt");
     }
 
     @Test
