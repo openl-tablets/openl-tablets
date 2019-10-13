@@ -183,7 +183,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         if (e1 == null) {
             services.remove(serviceName);
         } else {
-            throw new RuleServiceUndeployException("Failed to undeploy service!", e1);
+            throw new RuleServiceUndeployException("Failed to undeploy a service!", e1);
         }
         fireUndeployListeners(serviceName);
     }

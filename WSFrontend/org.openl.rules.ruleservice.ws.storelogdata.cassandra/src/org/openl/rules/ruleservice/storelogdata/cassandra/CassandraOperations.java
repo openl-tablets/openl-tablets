@@ -3,18 +3,26 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.IOUtils;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.HostDistance;
+import com.datastax.driver.core.PoolingOptions;
+import com.datastax.driver.core.ProtocolVersion;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
@@ -23,7 +31,7 @@ import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Table;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class CassandraOperations implements InitializingBean {
+public class CassandraOperations implements InitializingBean, RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(CassandraOperations.class);
 
     private Cluster cluster;
@@ -60,7 +68,8 @@ public class CassandraOperations implements InitializingBean {
         return session;
     }
 
-    private Set<String> alreadyCreatedTableNames = new HashSet<>();
+    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
+        new HashSet<>());
 
     public void save(Object entity) {
         if (entity == null) {
@@ -72,11 +81,28 @@ public class CassandraOperations implements InitializingBean {
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
             mapper.save(entity);
         } catch (Exception e) {
-            log.error("Failed on cassandra entity save operation.", e);
+            log.error("Failed to save cassandra entity.", e);
         }
     }
 
     private ExecutorService singleThreadExecuror = Executors.newSingleThreadExecutor();
+
+    @Override
+    public void onDeploy(OpenLService service) {
+        //Only onUndeploy is used for clear used classes to prevent memory leak.
+    }
+
+    @Override
+    public void onUndeploy(String serviceName) {
+        synchronized (this) {
+            Set<Class<?>> current;
+            Set<Class<?>> next;
+            do {
+                current = entitiesWithAlreadyCreatedSchema.get();
+                next = new HashSet<>();
+            } while (!entitiesWithAlreadyCreatedSchema.compareAndSet(current, next));
+        }
+    }
 
     public void saveAsync(Object entity) {
         if (entity == null) {
@@ -91,27 +117,27 @@ public class CassandraOperations implements InitializingBean {
                 try {
                     listenableFuture.get();
                 } catch (Exception e) {
-                    log.error("Failed on cassandra entity save operation.", e);
+                    log.error("Failed to save cassandra entity.", e);
                 }
             }, singleThreadExecuror);
         } catch (Exception e) {
-            log.error("Failed on cassandra entity save operation.", e);
+            log.error("Failed to save cassandra entity.", e);
         }
     }
 
     public void createShemaIfMissed(Class<?> entityClass) {
-        if (isCreateShemaEnabled()) {
-            Table table = entityClass.getAnnotation(Table.class);
-            if (table != null) {
-                String tableName = table.caseSensitiveTable() ? table.name() : table.name().toLowerCase();
-                if (!alreadyCreatedTableNames.contains(tableName)) {
-                    synchronized (this) {
-                        String ksName = table.caseSensitiveKeyspace() ? table.keyspace()
-                                                                      : table.keyspace().toLowerCase();
-                        if (ksName == null || ksName.isEmpty()) {
-                            ksName = keyspace;
-                        }
-                        if (!alreadyCreatedTableNames.contains(tableName)) {
+        if (isCreateShemaEnabled() && !entitiesWithAlreadyCreatedSchema.get().contains(entityClass)) {
+            synchronized (this) {
+                if (!entitiesWithAlreadyCreatedSchema.get().contains(entityClass)) {
+                    try {
+                        Table table = entityClass.getAnnotation(Table.class);
+                        if (table != null) {
+                            String tableName = table.caseSensitiveTable() ? table.name() : table.name().toLowerCase();
+                            String ksName = table.caseSensitiveKeyspace() ? table.keyspace()
+                                                                          : table.keyspace().toLowerCase();
+                            if (ksName == null || ksName.isEmpty()) {
+                                ksName = keyspace;
+                            }
                             if (session.getCluster().getMetadata().getKeyspace(ksName).getTable(tableName) == null) {
                                 try {
                                     String cqlQuery = extractCqlQueryForEntity(entityClass);
@@ -121,7 +147,7 @@ public class CassandraOperations implements InitializingBean {
                                     }
                                 } catch (IOException e) {
                                     throw new SchemaCreationException(
-                                        String.format("Failed to extract a file with schema creation CQL query for '%s'.",
+                                        String.format("Failed to extract a file with schema creation CQL for '%s'.",
                                             entityClass.getTypeName()),
                                         e);
                                 } catch (QueryExecutionException | QueryValidationException
@@ -132,8 +158,19 @@ public class CassandraOperations implements InitializingBean {
                                         e);
                                 }
                             }
-                            alreadyCreatedTableNames.add(tableName);
+                        } else {
+                            throw new SchemaCreationException(
+                                String.format("Missed @Table annotation for '%s' cassandra entity class.",
+                                    entityClass.getTypeName()));
                         }
+                    } finally {
+                        Set<Class<?>> current;
+                        Set<Class<?>> next;
+                        do {
+                            current = entitiesWithAlreadyCreatedSchema.get();
+                            next = new HashSet<>(current);
+                            next.add(entityClass);
+                        } while (!entitiesWithAlreadyCreatedSchema.compareAndSet(current, next));
                     }
                 }
             }
@@ -150,7 +187,7 @@ public class CassandraOperations implements InitializingBean {
         if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         }
-        return IOUtils.toString(inputStream, "UTF-8");
+        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
     public ProtocolVersion getProtocolVersion() {
@@ -221,17 +258,17 @@ public class CassandraOperations implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         if (contactpoints == null || contactpoints.trim().isEmpty()) {
             throw new BeanInitializationException(
-                "Property 'contactpoints' is required. Please, check your configuration.");
+                "Property 'contactpoints' is mandatory. Please, check your configuration.");
         } else {
             contactpoints = contactpoints.trim();
         }
         if (port == null || port.trim().isEmpty()) {
-            throw new BeanInitializationException("Property 'port' is required. Please, check your configuration.");
+            throw new BeanInitializationException("Property 'port' is mandatory. Please, check your configuration.");
         } else {
             port = port.trim();
         }
         if (keyspace == null || keyspace.trim().isEmpty()) {
-            throw new BeanInitializationException("Property 'keyspace' is required! Please, check your configuration.");
+            throw new BeanInitializationException("Property 'keyspace' is mandatory! Please, check your configuration.");
         } else {
             keyspace = keyspace.trim();
         }
@@ -246,7 +283,6 @@ public class CassandraOperations implements InitializingBean {
         } catch (Exception e) {
             log.error("Cassandra initialization failure!", e);
             cluster.close();
-
         }
     }
 }
