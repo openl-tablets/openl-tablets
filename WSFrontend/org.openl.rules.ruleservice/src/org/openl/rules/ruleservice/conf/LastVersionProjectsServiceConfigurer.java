@@ -323,10 +323,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     }
 
     public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
-        if (rulesDeploySerializer == null) {
-            throw new IllegalArgumentException("rulesDeploySerializer arg must not be null.");
-        }
-        this.rulesDeploySerializer = rulesDeploySerializer;
+        this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer, "rulesDeploySerializer can't be null.");
     }
 
     public boolean isProvideRuntimeContext() {

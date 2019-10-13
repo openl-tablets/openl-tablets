@@ -52,9 +52,8 @@ public final class ServiceDescription {
             Map<String, Object> configuration,
             String[] publishers,
             ResourceLoader resourceLoader) {
-        Objects.requireNonNull(name, "name arg must not be null.");
-        Objects.requireNonNull(resourceLoader, "resourceLoader arg must not be null.");
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "name can't be null.");
+        this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader can't be null.");
         this.url = url;
         this.servicePath = servicePath;
         this.serviceClassName = serviceClassName;
@@ -76,7 +75,6 @@ public final class ServiceDescription {
 
         this.publishers = publishers;
         this.deployment = deployment;
-        this.resourceLoader = resourceLoader;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
@@ -271,8 +269,7 @@ public final class ServiceDescription {
         private ResourceLoader resourceLoader;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
-            Objects.requireNonNull(resourceLoader, "resourceLoader argument must not be null.");
-            this.resourceLoader = resourceLoader;
+            this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader can't be null.");
             return this;
         }
 
@@ -287,7 +284,7 @@ public final class ServiceDescription {
         }
 
         public void addPublisher(String publisher) {
-            Objects.requireNonNull(publisher, "publisher argument must not be null.");
+            Objects.requireNonNull(publisher, "publisher can't be null.");
             if (this.publishers == null) {
                 this.publishers = new HashSet<>();
             }
@@ -311,8 +308,7 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder setName(String name) {
-            Objects.requireNonNull(name, "name arg must not be null.");
-            this.name = name;
+            this.name = Objects.requireNonNull(name, "name can't be null.");
             return this;
         }
 
@@ -323,8 +319,7 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder setRmiName(String rmiName) {
-            Objects.requireNonNull(rmiName, "rmiName arg must not be null.");
-            this.rmiName = rmiName;
+            this.rmiName = Objects.requireNonNull(rmiName, "rmiName can't be null.");
             return this;
         }
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -44,10 +45,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     public void setRuleService(RuleService ruleService) {
-        if (ruleService == null) {
-            throw new IllegalArgumentException("ruleService must not be null!");
-        }
-        this.ruleService = ruleService;
+        this.ruleService = Objects.requireNonNull(ruleService, "ruleService can't be null.");
     }
 
     public ServiceConfigurer getServiceConfigurer() {
@@ -55,11 +53,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
-        if (serviceConfigurer == null) {
-            throw new IllegalArgumentException("serviceConfigurer must not be null!");
-        }
-
-        this.serviceConfigurer = serviceConfigurer;
+        this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer can't be null.");
     }
 
     /**

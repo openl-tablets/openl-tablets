@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -24,10 +25,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
     }
 
     public void addClassLoader(ClassLoader classLoader) {
-
-        if (classLoader == null) {
-            throw new IllegalArgumentException("Bundle class loader cannot be null");
-        }
+        Objects.requireNonNull(classLoader, "Bundle class loader cannot be null.");
 
         if (classLoader == this) {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
@@ -47,10 +45,9 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
         }
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            if (bundleClassLoader instanceof OpenLBundleClassLoader) {
-                if (((OpenLBundleClassLoader) bundleClassLoader).containsClassLoader(classLoader)) {
-                    return true;
-                }
+            if (bundleClassLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) bundleClassLoader)
+                .containsClassLoader(classLoader)) {
+                return true;
             }
         }
 

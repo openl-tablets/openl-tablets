@@ -479,7 +479,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -632,7 +632,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -664,7 +664,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't null.");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;
@@ -725,8 +725,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         }
 
         public void setDltProducer(KafkaProducer<String, byte[]> dltProducer) {
-            Objects.requireNonNull(dltProducer);
-            this.dltProducer = dltProducer;
+            this.dltProducer = Objects.requireNonNull(dltProducer);
         }
 
         public KafkaProducer<String, Object> getProducer() {
@@ -735,10 +734,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
 
         public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
                 ObjectSerializer objectSerializer) {
-            Objects.requireNonNull(producer);
-            Objects.requireNonNull(objectSerializer);
-            this.producer = producer;
-            this.objectSerializer = objectSerializer;
+            this.producer = Objects.requireNonNull(producer);
+            this.objectSerializer = Objects.requireNonNull(objectSerializer);
         }
 
         public ObjectSerializer getObjectSerializer() {

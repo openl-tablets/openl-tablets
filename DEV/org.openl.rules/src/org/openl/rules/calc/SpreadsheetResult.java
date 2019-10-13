@@ -70,10 +70,10 @@ public class SpreadsheetResult implements Serializable {
             String[] rowNamesMarkedWithAsterisk,
             String[] columnNamesMarkedWithAsterisk,
             Map<String, Point> fieldsCoordinates) {
-        Objects.requireNonNull(rowNames);
-        Objects.requireNonNull(columnNames);
-        Objects.requireNonNull(rowNamesMarkedWithAsterisk);
-        Objects.requireNonNull(columnNamesMarkedWithAsterisk);
+        this.rowNames = Objects.requireNonNull(rowNames);
+        this.columnNames = Objects.requireNonNull(columnNames);
+        this.rowNamesMarkedWithAsterisk = Objects.requireNonNull(rowNamesMarkedWithAsterisk);
+        this.columnNamesMarkedWithAsterisk = Objects.requireNonNull(columnNamesMarkedWithAsterisk);
         if (rowNames.length != rowNamesMarkedWithAsterisk.length) {
             throw new IllegalArgumentException(
                 "The length of rowNames is not equal to the lenght of rowNamesMarkedWithAsterisk.");
@@ -83,12 +83,6 @@ public class SpreadsheetResult implements Serializable {
                 "The length of columnNames is not equal to the lenght of columnNamesMarkedWithAsterisk.");
         }
         this.results = results;
-
-        this.columnNames = columnNames;
-        this.rowNames = rowNames;
-
-        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
-        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
 
         this.fieldsCoordinates = fieldsCoordinates;
     }

@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
@@ -32,14 +33,12 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
-        if (interfaceClassGenerator == null) {
-            throw new IllegalArgumentException("interfaceClassGenerator argument must not be null");
-        }
+        this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
+            "interfaceClassGenerator can't be null.");
         if (super.getInterfaceClass() != null) {
             log.warn(
                 "Rules engine factory has already had interface class. Interface class generator has been ignored!");
         }
-        this.interfaceClassGenerator = interfaceClassGenerator;
     }
 
     public InterfaceClassGenerator getInterfaceClassGenerator() {
@@ -87,9 +86,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, source);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface must not be null!");
-        }
+        Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
         super.setInterfaceClass(interfaceClass);
     }
 

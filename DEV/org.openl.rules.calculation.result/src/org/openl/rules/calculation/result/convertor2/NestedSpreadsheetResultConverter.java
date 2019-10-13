@@ -83,7 +83,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
             return steps;
         }
         if (log.isWarnEnabled()) {
-            log.warn("Spreadsheet result is null");
+            log.warn("Spreadsheet result is null.");
         }
         return steps;
     }

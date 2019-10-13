@@ -42,7 +42,7 @@ public abstract class ExcelReaderFactory {
             boolean useFile = fileName != null;
 
             if (useFile && is != null) {
-                throw new IllegalArgumentException("Only one argument can be non-null");
+                throw new IllegalArgumentException("Only one argument can be non-null.");
             }
 
             InputStream tempStream = null;

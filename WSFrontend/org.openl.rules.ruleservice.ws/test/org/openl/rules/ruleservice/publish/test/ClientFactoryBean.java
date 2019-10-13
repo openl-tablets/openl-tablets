@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish.test;
 
+import java.util.Objects;
+
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
@@ -43,10 +45,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
     }
 
     public void setTimeOut(Long timeOut) {
-        if (timeOut == null) {
-            throw new IllegalArgumentException("timeOut can't be null");
-        }
-        this.timeOut = timeOut;
+        this.timeOut = Objects.requireNonNull(timeOut, "timeOut can't be null.");
     }
 
     public ClientProxyFactoryBean getClientProxyFactoryBean() {
@@ -54,10 +53,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
     }
 
     public void setClientProxyFactoryBean(ClientProxyFactoryBean clientProxyFactoryBean) {
-        if (clientProxyFactoryBean == null) {
-            throw new IllegalArgumentException("clientProxyFactoryBean arg can't be null");
-        }
-        this.clientProxyFactoryBean = clientProxyFactoryBean;
+        this.clientProxyFactoryBean = Objects.requireNonNull(clientProxyFactoryBean, "clientProxyFactoryBean can't be null.");
     }
 
     @Override

@@ -356,9 +356,9 @@ public final class JAXRSEnhancerHelper {
 
     public static Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
-        Objects.requireNonNull(serviceClass, "Service class is null!");
+        Objects.requireNonNull(serviceClass, "Service class can't be null.");
         if (!serviceClass.isInterface()) {
-            throw new IllegalStateException("Service class must be an interface!");
+            throw new IllegalStateException("Service class is not an interface!");
         }
         ClassLoader classLoader = service.getClassLoader();
 

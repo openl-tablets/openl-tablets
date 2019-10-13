@@ -60,11 +60,11 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
     }
-    
+
     public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
         this.storeLogDataEnabled = storeLogDataEnabled;
     }
-    
+
     public String getBaseAddress() {
         return baseAddress;
     }
@@ -96,7 +96,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -164,7 +164,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;
@@ -175,10 +175,10 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
+            throw new RuleServiceUndeployException(String.format("There is no running service '%s'.", serviceName));
         }
         try {
             runningServices.get(service).getServer().destroy();
@@ -217,8 +217,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher, Availabl
         private DataBinding databinding;
 
         public ServiceServer(Server server, DataBinding dataBinding) {
-            Objects.requireNonNull(server, "server arg must not be null!");
-            this.server = server;
+            this.server = Objects.requireNonNull(server, "server can't be null.");
             this.databinding = dataBinding;
         }
 

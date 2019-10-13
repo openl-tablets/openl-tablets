@@ -17,13 +17,13 @@ public class MatchingExpressionsParser {
             int closeBracketIndex = matchingExpressionStr.lastIndexOf(")");
 
             if (openBracketIndex < 0 || closeBracketIndex < 0) {
-                throw new OpenLRuntimeException("Matching expression string is not valid");
+                throw new OpenLRuntimeException("Matching expression string is not valid.");
             }
 
             operationName = matchingExpressionStr.substring(0, openBracketIndex).toUpperCase();
             contextAttribute = matchingExpressionStr.substring(openBracketIndex + 1, closeBracketIndex);
         } else {
-            throw new OpenLRuntimeException("Matching expression string is null");
+            throw new OpenLRuntimeException("Matching expression string is null.");
         }
 
         if (StringUtils.isEmpty(operationName) || StringUtils.isEmpty(contextAttribute)) {

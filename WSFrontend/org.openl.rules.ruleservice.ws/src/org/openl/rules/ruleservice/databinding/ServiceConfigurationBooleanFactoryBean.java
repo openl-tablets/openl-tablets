@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.databinding;
 
+import java.util.Objects;
+
 import org.springframework.util.Assert;
 
 public class ServiceConfigurationBooleanFactoryBean extends ServiceConfigurationFactoryBean<Boolean> {
@@ -11,10 +13,7 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
     }
 
     public void setPropertyName(String propertyName) {
-        if (propertyName == null) {
-            throw new IllegalArgumentException("property name can't be null!");
-        }
-        this.propertyName = propertyName;
+        this.propertyName = Objects.requireNonNull(propertyName, "propertyName can't be null.");
     }
 
     @Override
@@ -58,7 +57,7 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName must be set!");
+        Assert.notNull(this.propertyName, "propertyName isn't set!");
     }
 
 }

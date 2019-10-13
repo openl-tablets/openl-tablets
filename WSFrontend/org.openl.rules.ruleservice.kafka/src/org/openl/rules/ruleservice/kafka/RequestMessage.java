@@ -13,17 +13,14 @@ public class RequestMessage {
 
     public RequestMessage(Method method, Object[] parameters, byte[] rawData, String encoding) {
         this(rawData, encoding);
-        Objects.requireNonNull(method, "method can't be null");
-        Objects.requireNonNull(parameters, "methodArgs can't be null");
-        this.method = method;
-        this.parameters = parameters;
+        this.method = Objects.requireNonNull(method, "method can't be null.");
+        this.parameters = Objects.requireNonNull(parameters, "methodArgs can't be null.");
     }
 
     public RequestMessage(Method method, Exception exception, byte[] rawData, String encoding) {
         this(rawData, encoding);
-        Objects.requireNonNull(exception, "exception can't be null");
+        this.exception = Objects.requireNonNull(exception, "exception can't be null.");
         this.method = method;
-        this.exception = exception;
     }
 
     private RequestMessage(byte[] rawData, String encoding) {

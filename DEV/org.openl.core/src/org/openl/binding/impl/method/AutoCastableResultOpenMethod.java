@@ -1,5 +1,7 @@
 package org.openl.binding.impl.method;
 
+import java.util.Objects;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -13,14 +15,8 @@ public final class AutoCastableResultOpenMethod extends AOpenMethodDelegator {
 
     public AutoCastableResultOpenMethod(IMethodCaller methodCaller, IOpenClass returnType, IOpenCast cast) {
         super(methodCaller.getMethod());
-        if (returnType == null) {
-            throw new IllegalArgumentException();
-        }
-        if (cast == null) {
-            throw new IllegalArgumentException();
-        }
-        this.returnType = returnType;
-        this.cast = cast;
+        this.returnType = Objects.requireNonNull(returnType, "returnType can't be null.");
+        this.cast = Objects.requireNonNull(cast, "cast can't be null.");
         this.methodCaller = methodCaller;
     }
 

@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.databinding;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -25,10 +26,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
     private Set<String> defaultAdditionalRootClassNames;
 
     public void setDefaultAdditionalRootClassNames(Set<String> defaultAdditionalRootClassNames) {
-        if (defaultAdditionalRootClassNames == null) {
-            throw new IllegalArgumentException("addtionalRootClassNames arg must be not null!");
-        }
-        this.defaultAdditionalRootClassNames = defaultAdditionalRootClassNames;
+        this.defaultAdditionalRootClassNames = Objects.requireNonNull(defaultAdditionalRootClassNames, "defaultAdditionalRootClassNames can't be null.");
     }
 
     public Set<String> getDefaultAdditionalRootClassNames() {

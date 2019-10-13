@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.ArrayTool;
@@ -12,20 +13,14 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     private Object value;
 
     public ObjectValue(Object value) {
-        if (value == null) {
-            throw new IllegalArgumentException(
-                "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value,
+            "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         metaInfo = new ValueMetaInfo();
     }
 
     public ObjectValue(Object value, String shortName, String fullName, IOpenSourceCodeModule source) {
-        if (value == null) {
-            throw new IllegalArgumentException(
-                "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value,
+            "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 

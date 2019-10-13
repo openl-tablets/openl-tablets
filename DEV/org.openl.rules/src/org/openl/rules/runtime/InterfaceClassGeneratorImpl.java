@@ -1,5 +1,7 @@
 package org.openl.rules.runtime;
 
+import java.util.Objects;
+
 import org.openl.types.IOpenClass;
 
 public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
@@ -19,14 +21,8 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
     }
 
     public InterfaceClassGeneratorImpl(String[] includes, String[] excludes) {
-        if (includes == null) {
-            throw new IllegalArgumentException("includes arg must not be null");
-        }
-        if (excludes == null) {
-            throw new IllegalArgumentException("excludes arg must not be null");
-        }
-        this.includes = includes;
-        this.excludes = excludes;
+        this.includes = Objects.requireNonNull(includes, "includes can't be null.");;
+        this.excludes = Objects.requireNonNull(excludes, "excludes can't be null.");;
     }
 
     @Override

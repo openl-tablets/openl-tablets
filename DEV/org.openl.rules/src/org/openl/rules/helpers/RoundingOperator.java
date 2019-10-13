@@ -3,6 +3,8 @@
  */
 package org.openl.rules.helpers;
 
+import java.util.Objects;
+
 /**
  * @author snshor
  *
@@ -65,10 +67,7 @@ public class RoundingOperator {
     IRoundingOperator operator;
 
     static IRoundingOperator findOperator(String op) {
-        if (op == null) {
-            throw new RuntimeException("RoundingOperator's name must not be null");
-        }
-
+        Objects.requireNonNull(op, "RoundingOperator's name must not be null.");
         for (int i = 0; i < OPERATORS.length; i++) {
 
             for (int j = 0; j < OPERATORS[i].getNames().length; j++) {
@@ -77,9 +76,7 @@ public class RoundingOperator {
                 }
             }
         }
-
         throw new RuntimeException("Unknown RoundingOperator name: " + op);
-
     }
 
     public RoundingOperator(String op) {

@@ -1,5 +1,7 @@
 package org.openl.rules.table.properties.expressions.match;
 
+import java.util.Objects;
+
 import org.openl.util.StringUtils;
 
 public abstract class AMatchingExpression implements IMatchingExpression {
@@ -15,29 +17,19 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     }
 
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
+        this.contextAttributeExpression = Objects.requireNonNull(matchingExpression,
+            "matchingExpression can't be null.");
         this.operationName = operationName;
-
-        if (matchingExpression == null) {
-            throw new IllegalArgumentException("Parameter 'contextAttributeExpression' can not be null");
-        }
-        this.contextAttributeExpression = matchingExpression;
     }
 
     public AMatchingExpression(String operationName, String operation, String contextAttribute) {
+        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute can't be null.");
         this.operationName = operationName;
         this.operation = operation;
-
-        if (contextAttribute == null) {
-            throw new IllegalArgumentException("Parameter 'contextAttribute' can not be null");
-        }
-        this.contextAttribute = contextAttribute;
     }
 
     public AMatchingExpression(String contextAttribute) {
-        if (contextAttribute == null) {
-            throw new IllegalArgumentException("Parameter 'contextAttribute' can not be null");
-        }
-        this.contextAttribute = contextAttribute;
+        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute can't be null.");
     }
 
     @Override

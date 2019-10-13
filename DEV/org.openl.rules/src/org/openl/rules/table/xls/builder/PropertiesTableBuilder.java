@@ -2,6 +2,7 @@ package org.openl.rules.table.xls.builder;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -32,9 +33,7 @@ public class PropertiesTableBuilder extends TableBuilder {
     }
 
     public void writeBody(Map<String, Object> properties, ICellStyle style) {
-        if (properties == null) {
-            throw new IllegalArgumentException("properties must be not null");
-        }
+        Objects.requireNonNull(properties, "properties can't be null.");
         if (getTableRegion() == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

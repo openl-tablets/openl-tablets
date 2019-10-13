@@ -1,5 +1,7 @@
 package org.openl.rules.helpers;
 
+import java.util.Objects;
+
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
@@ -15,9 +17,7 @@ public class CharRange extends IntRange {
 
     public CharRange(String range) {
         super(0, 0);
-        if (range == null) {
-            throw new NullPointerException("CharRange value can not be null");
-        }
+        Objects.requireNonNull(range, "CharRange value can't be null.");
 
         ParseStruct<Character> parsed = CharRangeParser.getInstance().parse(range);
         min = parsed.min;

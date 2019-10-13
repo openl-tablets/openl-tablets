@@ -1,15 +1,14 @@
 package org.openl.binding.impl.cast;
 
+import java.util.Objects;
+
 public final class CastsLinkageCast implements IOpenCast {
 
     private IOpenCast[] casts;
     private int distance = 0;
 
     public CastsLinkageCast(IOpenCast... casts) {
-        if (casts == null) {
-            throw new IllegalArgumentException();
-        }
-        this.casts = casts;
+        this.casts = Objects.requireNonNull(casts, "casts can't be null.");
         for (IOpenCast cast : casts) {
             int d = cast.getDistance();
             if (distance < d) {

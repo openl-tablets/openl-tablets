@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.conf.IUserContext;
@@ -60,50 +61,32 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
             IUserContext userContext,
             Class<T> interfaceClass) {
         super(openlName, sourceCode, userContext);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome, Class<T> interfaceClass) {
         super(openlName, sourceCode, userHome);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
         super(openlName, sourceCode);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public EngineFactory(String openlName, String sourceFile, String userHome, Class<T> interfaceClass) {
         super(openlName, sourceFile, userHome);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public EngineFactory(String openlName, String sourceFile, Class<T> interfaceClass) {
         super(openlName, sourceFile);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public EngineFactory(String openlName, URL source, Class<T> interfaceClass) {
         super(openlName, source);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
     }
 
     public Class<T> getInterfaceClass() {

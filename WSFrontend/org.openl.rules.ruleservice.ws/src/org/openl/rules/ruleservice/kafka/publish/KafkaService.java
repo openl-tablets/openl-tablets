@@ -91,25 +91,18 @@ public final class KafkaService implements Runnable {
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
             boolean storeLoggingEnabled) {
-        Objects.requireNonNull(service);
-        Objects.requireNonNull(inTopic);
-        Objects.requireNonNull(producer);
-        Objects.requireNonNull(consumer);
-        Objects.requireNonNull(dltProducer);
-        Objects.requireNonNull(objectSerializer);
+        this.service = Objects.requireNonNull(service);
+        this.inTopic = Objects.requireNonNull(inTopic);
+        this.producer = Objects.requireNonNull(producer);
+        this.consumer = Objects.requireNonNull(consumer);
+        this.dltProducer = Objects.requireNonNull(dltProducer);
+        this.objectSerializer = Objects.requireNonNull(objectSerializer);
         if (storeLoggingEnabled) {
-            Objects.requireNonNull(storeLogDataManager);
+            this.storeLogDataManager = Objects.requireNonNull(storeLogDataManager);
         }
-        this.service = service;
-        this.inTopic = inTopic;
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
-        this.consumer = consumer;
-        this.producer = producer;
-        this.dltProducer = dltProducer;
-        this.objectSerializer = objectSerializer;
         this.storeLoggingEnabled = storeLoggingEnabled;
-        this.storeLogDataManager = storeLogDataManager;
     }
 
     public boolean isStoreLogDataEnabled() {

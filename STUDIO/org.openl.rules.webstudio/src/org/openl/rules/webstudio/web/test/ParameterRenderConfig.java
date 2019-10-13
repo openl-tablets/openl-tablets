@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.Objects;
+
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -108,10 +110,7 @@ public class ParameterRenderConfig {
          * @see #getType()
          */
         public Builder(IOpenClass type, Object value) {
-            if (type == null) {
-                throw new IllegalArgumentException("Type can't be null");
-            }
-            this.type = type;
+            this.type = Objects.requireNonNull(type, "type can't be null.");;
             this.value = value;
         }
 

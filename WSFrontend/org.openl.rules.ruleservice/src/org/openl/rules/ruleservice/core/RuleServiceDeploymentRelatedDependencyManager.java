@@ -109,7 +109,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                 compilationInfoParent.embeddedTime = compilationInfoParent.embeddedTime + t;
             }
         } catch (Exception e) {
-            log.error("Unexpected exception!", e);
+            log.error("Unexpected exception.", e);
         } finally {
             if (compilationInfoStack.isEmpty()) {
                 compliationInfoThreadLocal.remove(); // Clean a thread
@@ -138,14 +138,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
             ClassLoader rootClassLoader,
             boolean lazy) {
         super(rootClassLoader);
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription must not be null!");
-        }
-        if (ruleServiceLoader == null) {
-            throw new IllegalArgumentException("ruleService must not be null!");
-        }
-        this.deploymentDescription = deploymentDescription;
-        this.ruleServiceLoader = ruleServiceLoader;
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
+        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService can't be null.");
         this.lazy = lazy;
         super.setExecutionMode(true);
     }

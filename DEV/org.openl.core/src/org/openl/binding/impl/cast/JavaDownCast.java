@@ -1,5 +1,7 @@
 package org.openl.binding.impl.cast;
 
+import java.util.Objects;
+
 import org.openl.binding.ICastFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -10,14 +12,8 @@ final class JavaDownCast implements IOpenCast {
     private ICastFactory castFactory;
 
     JavaDownCast(IOpenClass to, ICastFactory castFactory) {
-        if (to == null) {
-            throw new IllegalArgumentException("to arg can't be null!");
-        }
-        if (castFactory == null) {
-            throw new IllegalArgumentException("castFactory arg can't be null!");
-        }
-        this.to = to;
-        this.castFactory = castFactory;
+        this.to = Objects.requireNonNull(to, "to can't be null.");
+        this.castFactory = Objects.requireNonNull(castFactory, "castFactory can't be null.");
     }
 
     @Override

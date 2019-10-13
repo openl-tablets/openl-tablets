@@ -45,7 +45,7 @@ public class MockGridTable extends AGridTable {
                 }
                 if (cell == null) {
                     if (!notNullCell) {
-                        throw new IllegalArgumentException("There should be any not null value before the null");
+                        throw new IllegalArgumentException("There should be any not null value before the null.");
                     }
                     nullCell = true;
                 }

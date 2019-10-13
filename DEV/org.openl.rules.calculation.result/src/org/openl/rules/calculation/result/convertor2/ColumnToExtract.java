@@ -100,10 +100,10 @@ public class ColumnToExtract {
         int i = 0;
         for (String propertyName : propertyNames) {
             if (propertyName == null) {
-                throw new IllegalArgumentException("propertyName can't be null or empty!");
+                throw new IllegalArgumentException("propertyName can't be null or empty.");
             }
             if (expectedTypes[i] == null) {
-                throw new IllegalArgumentException("expectedType can't be null!");
+                throw new IllegalArgumentException("expectedType can't be null.");
             }
         }
         this.propertyNames = propertyNames;

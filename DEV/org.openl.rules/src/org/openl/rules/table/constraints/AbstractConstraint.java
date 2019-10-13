@@ -1,5 +1,7 @@
 package org.openl.rules.table.constraints;
 
+import java.util.Objects;
+
 /**
  * @author Andrei Astrouski
  */
@@ -8,10 +10,7 @@ public abstract class AbstractConstraint implements Constraint {
     private String value;
 
     public AbstractConstraint(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Param 'value' can not be null");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value, "value can't be null.");
     }
 
     @Override

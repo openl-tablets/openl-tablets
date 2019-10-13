@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.test;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.junit.Before;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -70,13 +71,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @throws MethodInvocationException exception on rule execution fail.
      */
     protected Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
-        if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
-        }
-
-        if (ruleName == null) {
-            throw new IllegalArgumentException("ruleName argument can't be null");
-        }
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(ruleName, "ruleName can't be null.");
         return getJavaClassRuleServicePublisher().getFrontend().execute(serviceName, ruleName, params);
     }
 
@@ -94,12 +90,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
             String ruleName,
             Class<?>[] inputParamsTypes,
             Object[] params) throws MethodInvocationException {
-        if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
-        }
-        if (ruleName == null) {
-            throw new IllegalArgumentException("ruleName argument can't be null");
-        }
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(ruleName, "ruleName can't be null.");
         return getJavaClassRuleServicePublisher().getFrontend()
             .execute(serviceName, ruleName, inputParamsTypes, params);
     }
@@ -113,13 +105,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @throws MethodInvocationException exception on rule execution fail.
      */
     protected Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
-        if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
-        }
-        if (fieldName == null) {
-            throw new IllegalArgumentException("fieldName argument can't be null");
-        }
-
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(fieldName, "fieldName can't be null.");
         return getJavaClassRuleServicePublisher().getFrontend().getValue(serviceName, fieldName);
     }
 

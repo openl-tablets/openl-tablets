@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish.rmi;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.runtime.IOpenLInvocationHandler;
 
@@ -21,14 +22,8 @@ class StaticRmiInvocationHandler implements IOpenLInvocationHandler<Method, Meth
     }
 
     public StaticRmiInvocationHandler(Object target, Map<Method, Method> methodMap) {
-        if (target == null) {
-            throw new IllegalArgumentException("target argument must not be null!");
-        }
-        if (methodMap == null) {
-            throw new IllegalArgumentException("methodMap argument must not be null!");
-        }
-        this.target = target;
-        this.methodMap = methodMap;
+        this.target = Objects.requireNonNull(target, "target can't be null.");
+        this.methodMap = Objects.requireNonNull(methodMap, "methodMap can't be null.");
     }
 
     @Override

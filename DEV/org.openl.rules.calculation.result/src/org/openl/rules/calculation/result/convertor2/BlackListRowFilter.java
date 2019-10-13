@@ -11,6 +11,7 @@ package org.openl.rules.calculation.result.convertor2;
  */
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 public final class BlackListRowFilter implements RowFilter {
@@ -27,10 +28,7 @@ public final class BlackListRowFilter implements RowFilter {
     }
 
     public static BlackListRowFilter buildBlackListRowFilter(Set<String> blackList) {
-        if (blackList == null) {
-            throw new IllegalArgumentException("blackList argument can't be null!");
-        }
-
+        Objects.requireNonNull(blackList, "blackList can't be null.");
         return new BlackListRowFilter(Collections.unmodifiableSet(blackList));
     }
 

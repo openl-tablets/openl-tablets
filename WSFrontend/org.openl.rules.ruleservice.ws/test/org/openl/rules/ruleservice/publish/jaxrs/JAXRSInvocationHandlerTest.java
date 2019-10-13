@@ -19,13 +19,13 @@ public class JAXRSInvocationHandlerTest {
         new JAXRSInvocationHandler(new Object(), new HashMap<Method, Method>());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void checkNullTargetConstructorArgument() {
         new JAXRSInvocationHandler(null, new HashMap<Method, Method>());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void checkNullMethodsConstructorArgumen() {
+    @Test(expected = NullPointerException.class)
+    public void checkNullMethodsConstructorArgument() {
         new JAXRSInvocationHandler(new Object(), null);
     }
 

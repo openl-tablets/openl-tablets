@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
@@ -70,13 +71,11 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
-        if (interfaceClassGenerator == null) {
-            throw new IllegalArgumentException("interfaceClassGenerator argument must not be null!");
-        }
+        this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
+            "interfaceClassGenerator can't be null.");
         if (interfaceClass != null) {
-            log.warn("Rules engine factory already has interface class. Interface class generator has been ignored!");
+            log.warn("Rules engine factory already has interface class. Interface class generator has been ignored.");
         }
-        this.interfaceClassGenerator = interfaceClassGenerator;
     }
 
     public InterfaceClassGenerator getInterfaceClassGenerator() {
@@ -91,10 +90,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
      */
     public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
-        if (deployment == null) {
-            throw new IllegalArgumentException("deployment must not be null!");
-        }
-        this.deployment = deployment;
+        this.deployment = Objects.requireNonNull(deployment, "deployment can't be null.");
         this.modules = modules;
     }
 
@@ -321,7 +317,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     @Override
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
         if (!(interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptor.class) || interfaceMethod
-                .isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
+            .isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
             super.validateReturnType(openMethod, interfaceMethod);
         }
     }

@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
@@ -22,18 +23,10 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
             IDependency dependency) {
         super(null, null, null, null);
-        if (lazyRuleServiceDependencyLoader == null) {
-            throw new IllegalArgumentException("lazyRuleServiceDependencyLoader must not be null!");
-        }
-        if (dependency == null) {
-            throw new IllegalArgumentException("dependency must not be null!");
-        }
-        if (dependencyManager == null) {
-            throw new IllegalArgumentException("dependencyManager must not be null!");
-        }
-        this.dependencyManager = dependencyManager;
-        this.lazyRuleServiceDependencyLoader = lazyRuleServiceDependencyLoader;
-        this.dependency = dependency;
+        this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager can't be null.");
+        this.lazyRuleServiceDependencyLoader = Objects.requireNonNull(lazyRuleServiceDependencyLoader,
+            "lazyRuleServiceDependencyLoader can't be null.");
+        this.dependency = Objects.requireNonNull(dependency, "dependency can't be null.");
     }
 
     protected CompiledOpenClass getCompiledOpenClass() {

@@ -11,6 +11,7 @@ package org.openl.rules.calculation.result.convertor2;
  */
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 public final class WhiteListRowFilter implements RowFilter {
@@ -27,10 +28,7 @@ public final class WhiteListRowFilter implements RowFilter {
     }
 
     public static WhiteListRowFilter buildWhiteListRowFilter(Set<String> whiteList) {
-        if (whiteList == null) {
-            throw new IllegalArgumentException("whiteList argument can't be null!");
-        }
-
+        Objects.requireNonNull(whiteList, "whiteList argument can't be null.");
         return new WhiteListRowFilter(Collections.unmodifiableSet(whiteList));
     }
 

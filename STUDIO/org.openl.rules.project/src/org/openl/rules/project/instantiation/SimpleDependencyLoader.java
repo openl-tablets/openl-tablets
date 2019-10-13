@@ -63,13 +63,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             boolean singleModuleMode,
             boolean executionMode,
             boolean projectDependency) {
-        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
-        Objects.requireNonNull(modules, "modules can't be null.");
-        if (modules.isEmpty()) {
+        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
+        this.modules = Objects.requireNonNull(modules, "modules can't be null.");
+        if (this.modules.isEmpty()) {
             throw new IllegalArgumentException("Collection of modules can't be empty.");
         }
-        this.dependencyName = dependencyName;
-        this.modules = modules;
         this.executionMode = executionMode;
         this.singleModuleMode = singleModuleMode;
         this.projectDependency = projectDependency;

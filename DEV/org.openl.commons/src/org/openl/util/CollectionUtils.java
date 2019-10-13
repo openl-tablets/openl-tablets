@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An util class for collections and arrays.
@@ -115,9 +116,7 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        if (mapper == null) {
-            throw new NullPointerException("The 'mapper' argument is NULL");
-        }
+        Objects.requireNonNull(mapper, "The 'mapper' argument is NULL.");
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<O> result = new ArrayList<>(size);
         for (I input : col) {
@@ -141,9 +140,7 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        if (predicate == null) {
-            throw new NullPointerException("The 'predicate' argument is NULL");
-        }
+        Objects.requireNonNull(predicate, "The 'predicate' argument is NULL.");
         for (final T item : col) {
             if (predicate.evaluate(item)) {
                 return item;
@@ -167,9 +164,8 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        if (predicate == null) {
-            throw new NullPointerException("The 'predicate' argument is NULL");
-        }
+        Objects.requireNonNull(predicate, "The 'predicate' argument is NULL.");
+
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<T> result = new ArrayList<>(size);
         for (final T item : col) {

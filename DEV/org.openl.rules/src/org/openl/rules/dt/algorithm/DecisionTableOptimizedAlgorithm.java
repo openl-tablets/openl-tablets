@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -534,10 +535,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         IConditionEvaluator decorate;
 
         public ConditionEvaluatorDecoratorAsNotIndexed(IConditionEvaluator decorate) {
-            if (decorate == null) {
-                throw new IllegalArgumentException("decorate arg can't be null!");
-            }
-            this.decorate = decorate;
+            this.decorate = Objects.requireNonNull(decorate, "decorate can't be null.");
         }
 
         @Override

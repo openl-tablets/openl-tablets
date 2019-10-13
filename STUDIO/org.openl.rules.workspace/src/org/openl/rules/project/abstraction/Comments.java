@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.util.StringUtils;
 
@@ -21,9 +22,7 @@ public final class Comments {
     private final String restoredFromTemplate;
 
     public Comments(Map<String, Object> properties, String prefix) {
-        if (prefix == null) {
-            throw new IllegalArgumentException("Prefix can't be null");
-        }
+        Objects.requireNonNull(prefix, "prefix can't be null.");
 
         saveProjectTemplate = properties.get(prefix + "comment-template.user-message.default.save").toString();
         createProjectTemplate = properties.get(prefix + "comment-template.user-message.default.create").toString();

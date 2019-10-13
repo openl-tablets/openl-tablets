@@ -66,17 +66,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             XlsModuleOpenClass module,
             boolean detailedPlainModel) {
         super(name, SpreadsheetResult.class);
-        Objects.requireNonNull(rowNames);
-        Objects.requireNonNull(columnNames);
-        Objects.requireNonNull(rowNamesMarkedWithAsterisk);
-        Objects.requireNonNull(columnNamesMarkedWithAsterisk);
-        Objects.requireNonNull(rowTitles);
-        Objects.requireNonNull(columnTitles);
-        Objects.requireNonNull(module);
-        this.rowNames = rowNames;
-        this.columnNames = columnNames;
-        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
-        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
+        this.rowNames = Objects.requireNonNull(rowNames);
+        this.columnNames = Objects.requireNonNull(columnNames);
+        this.rowNamesMarkedWithAsterisk = Objects.requireNonNull(rowNamesMarkedWithAsterisk);
+        this.columnNamesMarkedWithAsterisk = Objects.requireNonNull(columnNamesMarkedWithAsterisk);
 
         this.columnsWithAsteriskCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
         this.rowsWithAsteriskCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
@@ -88,10 +81,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.rowAndColumnNamesMarkedWithAsteriskHistory
             .add(Pair.of(this.columnNamesMarkedWithAsterisk, this.rowNamesMarkedWithAsterisk));
 
-        this.rowTitles = rowTitles;
-        this.columnTitles = columnTitles;
+        this.rowTitles = Objects.requireNonNull(rowTitles);
+        this.columnTitles = Objects.requireNonNull(columnTitles);
+        
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
-        this.module = module;
+        this.module = Objects.requireNonNull(module);
         this.detailedPlainModel = detailedPlainModel;
     }
 
@@ -614,12 +608,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private XlsModuleOpenClass module;
 
         private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
-            Objects.requireNonNull(module);
-            Objects.requireNonNull(field);
-            Objects.requireNonNull(openField);
-            this.field = field;
-            this.openField = openField;
-            this.module = module;
+            this.field = Objects.requireNonNull(field);
+            ;
+            this.openField = Objects.requireNonNull(openField);
+            ;
+            this.module = Objects.requireNonNull(module);
+            ;
             this.field.setAccessible(true);
         }
 
@@ -644,8 +638,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private Field field;
 
         public SpreadsheetResultColumnNamesSetter(Field field) {
-            Objects.requireNonNull(field);
-            this.field = field;
+            this.field = Objects.requireNonNull(field);
             this.field.setAccessible(true);
         }
 
@@ -662,8 +655,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private Field field;
 
         public SpreadsheetResultRowNamesSetter(Field field) {
-            Objects.requireNonNull(field);
-            this.field = field;
+            this.field = Objects.requireNonNull(field);
             this.field.setAccessible(true);
         }
 
@@ -681,10 +673,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         private Map<String, List<IOpenField>> beanFieldsMap;
 
         public SpreadsheetResultFieldNamesSetter(Field field, Map<String, List<IOpenField>> beanFieldsMap) {
-            Objects.requireNonNull(field);
-            Objects.requireNonNull(beanFieldsMap);
-            this.field = field;
-            this.beanFieldsMap = beanFieldsMap;
+            this.field = Objects.requireNonNull(field);
+            ;
+            this.beanFieldsMap = Objects.requireNonNull(beanFieldsMap);
             this.field.setAccessible(true);
         }
 

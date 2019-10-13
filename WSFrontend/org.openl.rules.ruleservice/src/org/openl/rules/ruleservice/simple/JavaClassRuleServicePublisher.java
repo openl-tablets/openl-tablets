@@ -1,6 +1,10 @@
 package org.openl.rules.ruleservice.simple;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -41,7 +45,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         return runningServices.get(serviceName);
     }
 
@@ -50,7 +54,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         try {
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
@@ -71,7 +75,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(String.format("Service '%s' hasn't been deployed.", serviceName));
@@ -80,8 +84,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     }
 
     public void setFrontend(RulesFrontend frontend) {
-        Objects.requireNonNull(frontend, "frontend arg must not be null!");
-        this.frontend = frontend;
+        this.frontend = Objects.requireNonNull(frontend, "frontend can't be null.");
     }
 
 }

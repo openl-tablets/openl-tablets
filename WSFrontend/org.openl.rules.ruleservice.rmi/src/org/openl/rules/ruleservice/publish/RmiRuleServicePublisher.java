@@ -1,12 +1,19 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -73,7 +80,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -108,7 +115,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;
@@ -119,7 +126,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -163,10 +170,8 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
         private Remote rmiHandler;
 
         public ServiceServer(String name, Remote rmiHandler) {
-            Objects.requireNonNull(name, "name arg must not be null!");
-            Objects.requireNonNull(rmiHandler, "rmiHandler must not be null!");
-            this.name = name;
-            this.rmiHandler = rmiHandler;
+            this.name = Objects.requireNonNull(name, "name can't be null.");
+            this.rmiHandler = Objects.requireNonNull(rmiHandler, "rmiHandler can't be null.");
         }
 
         public String getName() {

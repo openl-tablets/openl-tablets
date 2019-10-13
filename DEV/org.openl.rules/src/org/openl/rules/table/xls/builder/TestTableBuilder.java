@@ -3,6 +3,7 @@ package org.openl.rules.table.xls.builder;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.rules.annotations.Executable;
@@ -47,12 +48,10 @@ public class TestTableBuilder extends TableBuilder {
      * @return executable method from node
      */
     private static ExecutableMethod getExecutableMethod(TableSyntaxNode executableTsn) {
-        if (executableTsn == null) {
-            throw new IllegalArgumentException("Syntax node is null");
-        }
+        Objects.requireNonNull(executableTsn, "executableTsn can't be null.");
 
         if (!executableTsn.isExecutableNode()) {
-            throw new IllegalArgumentException("Syntax node is not executable node");
+            throw new IllegalArgumentException("Syntax node is not executable node.");
         }
         IOpenMember member = executableTsn.getMember();
         if (member != null) {
@@ -169,9 +168,7 @@ public class TestTableBuilder extends TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeParams(Map<String, String> params, String resultTitle) {
-        if (params == null) {
-            throw new IllegalArgumentException("params must be not null");
-        }
+        Objects.requireNonNull(params, "params can't be null.");
         if (getTableRegion() == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

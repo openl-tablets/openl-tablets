@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -61,9 +62,7 @@ public class FileSystemDataSource implements DataSource {
     }
 
     public FileSystemDataSource(File loadDeploymentsFromDirectory) {
-        if (loadDeploymentsFromDirectory == null) {
-            throw new IllegalArgumentException("loadDeploymentsFromDirectory argument can't be null");
-        }
+        Objects.requireNonNull(loadDeploymentsFromDirectory, "loadDeploymentsFromDirectory can't be null.");
         if (!loadDeploymentsFromDirectory.exists()) {
             if (!loadDeploymentsFromDirectory.mkdirs()) {
                 log.warn("Failed to create file system data source folder '{}'!", loadDeploymentsFromDirectory);
@@ -83,13 +82,8 @@ public class FileSystemDataSource implements DataSource {
      */
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument must not be null!");
-        }
-
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument must not be null!");
-        }
+        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
 
         if (!deploymentVersion.equals(FILESYSTEM_COMMON_VERSION) && !supportDeployments) {
             return null;

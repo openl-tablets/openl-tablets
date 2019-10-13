@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
+import java.util.Objects;
+
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 
 public class Key {
@@ -11,14 +13,8 @@ public class Key {
     }
 
     public Key(DeploymentDescription deploymentDescription, String dependencyName) {
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
-        }
-        if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName can't be null");
-        }
-        this.deploymentDescription = deploymentDescription;
-        this.dependencyName = dependencyName;
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
+        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
     }
 
     @Override

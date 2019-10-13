@@ -8,13 +8,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.rules.common.*;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.LockInfo;
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectDescriptorHelper;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.IOUtils;
@@ -269,16 +281,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
         private LockEngine lockEngine;
 
         public Builder(Repository repository, String folderPath) {
-            if (repository == null) {
-                throw new IllegalArgumentException("Repository must be not null");
-            }
-
-            if (folderPath == null) {
-                throw new IllegalArgumentException("folderPath must be not null");
-            }
-
-            this.repository = repository;
-            this.folderPath = folderPath;
+            this.repository = Objects.requireNonNull(repository, "repository can't be null.");
+            this.folderPath = Objects.requireNonNull(folderPath, "folderPath can't be null.");
         }
 
         public Builder version(String version) {
@@ -297,13 +301,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
         }
 
         public ADeploymentProject build() {
-            if (user == null) {
-                throw new IllegalArgumentException("user must be not null");
-            }
-            if (lockEngine == null) {
-                throw new IllegalArgumentException("lockEngine must be not null");
-            }
-
+            Objects.requireNonNull(user, "user can't be null.");
+            Objects.requireNonNull(lockEngine, "lockEngine can't be null.");
             return new ADeploymentProject(user, repository, folderPath, version, lockEngine);
         }
     }

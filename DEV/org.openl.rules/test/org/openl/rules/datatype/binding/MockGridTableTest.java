@@ -67,7 +67,7 @@ public class MockGridTableTest {
             new MockGridTable(mas);
             fail();
         } catch (IllegalArgumentException ex) {
-            assertEquals("There should be any not null value before the null", ex.getMessage());
+            assertEquals("There should be any not null value before the null.", ex.getMessage());
         }
     }
 

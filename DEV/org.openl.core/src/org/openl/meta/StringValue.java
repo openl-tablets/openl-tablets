@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -35,20 +36,14 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     public StringValue(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException(
-                "Error initializing StringValue class. Parameter \"value\" can't be null.");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value,
+            "Error initializing StringValue class. Parameter \"value\" can't be null.");
         metaInfo = new ValueMetaInfo();
     }
 
     public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
-        if (value == null) {
-            throw new IllegalArgumentException(
-                "Error initializing StringValue class. Parameter \"value\" can't be null.");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value,
+            "Error initializing StringValue class. Parameter \"value\" can't be null.");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 

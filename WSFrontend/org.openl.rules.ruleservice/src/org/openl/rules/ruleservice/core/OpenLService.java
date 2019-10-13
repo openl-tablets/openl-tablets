@@ -66,8 +66,7 @@ public final class OpenLService {
             Collection<Module> modules,
             ClassLoader classLoader,
             Class<?> serviceClass) {
-        Objects.requireNonNull(name, "name can't be null.");
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "name can't be null.");
         this.url = url;
         this.servicePath = servicePath;
         if (modules != null) {
@@ -103,10 +102,7 @@ public final class OpenLService {
             builder.modules,
             builder.classLoader,
             builder.serviceClass);
-        if (initializer == null) {
-            throw new NullPointerException("initializer can't be null!");
-        }
-        this.initializer = initializer;
+        this.initializer = Objects.requireNonNull(initializer, "initializer can't be null.");
     }
 
     /**
@@ -374,8 +370,7 @@ public final class OpenLService {
          * @return
          */
         public OpenLServiceBuilder setName(String name) {
-            Objects.requireNonNull(name, "name arg must not be null.");
-            this.name = name;
+            this.name = Objects.requireNonNull(name, "name can't be null.");
             return this;
         }
 

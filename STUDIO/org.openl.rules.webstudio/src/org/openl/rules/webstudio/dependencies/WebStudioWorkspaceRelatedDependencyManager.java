@@ -41,11 +41,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             ClassLoader rootClassLoader,
             boolean singleModuleMode) {
         super(rootClassLoader);
-        if (projects == null) {
-            throw new IllegalArgumentException("projects must not be null!");
-        }
-
-        this.projects = projects;
+        this.projects = Objects.requireNonNull(projects, "projects can't be null.");
         this.singleModuleMode = singleModuleMode;
     }
 

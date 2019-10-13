@@ -123,7 +123,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -227,7 +227,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;
@@ -238,11 +238,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", serviceName));
+                String.format("There is no running service with name '%s'.", serviceName));
         }
         try {
             SwaggerStaticFieldsWorkaround.reset();

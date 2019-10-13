@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -50,19 +51,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     public RuleServiceLoaderImpl(DataSource dataSource,
             LocalTemporaryDeploymentsStorage storage,
             ProjectResolver projectResolver) {
-        if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource argument must not be null!");
-        }
-        if (storage == null) {
-            throw new IllegalArgumentException("storage argument must not be null!");
-        }
-        if (projectResolver == null) {
-            throw new IllegalArgumentException("projectResolver argument must not be null!");
-        }
-
-        this.dataSource = dataSource;
-        this.storage = storage;
-        this.projectResolver = projectResolver;
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource can't be null.");
+        this.storage = Objects.requireNonNull(storage, "storage can't be null.");
+        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver can't be null.");
     }
 
     @Override
@@ -74,11 +65,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Sets data source.
      */
     public void setDataSource(DataSource dataSource) {
-        if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource argument must not be null!");
-        }
-
-        this.dataSource = dataSource;
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource can't be null.");
+        ;
     }
 
     /**
@@ -94,11 +82,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * @param projectResolver
      */
     public void setProjectResolver(ProjectResolver projectResolver) {
-        if (projectResolver == null) {
-            throw new IllegalArgumentException("projectResolver argument must not be null!");
-        }
-
-        this.projectResolver = projectResolver;
+        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver can't be null.");
     }
 
     /**
@@ -112,11 +96,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Sets storage. Spring bean configuration property.
      */
     public void setStorage(LocalTemporaryDeploymentsStorage storage) {
-        if (storage == null) {
-            throw new IllegalArgumentException("storage argument must not be null!");
-        }
-
-        this.storage = storage;
+        this.storage = Objects.requireNonNull(storage, "storage can't be null.");
     }
 
     /**
@@ -134,15 +114,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     public Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument must not be null!");
-        }
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument must not be null!");
-        }
-        if (projectName == null) {
-            throw new IllegalArgumentException("projectName argument must not be null!");
-        }
+        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
+        Objects.requireNonNull(projectName, "projectName can't be null.");
 
         log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
             deploymentName,

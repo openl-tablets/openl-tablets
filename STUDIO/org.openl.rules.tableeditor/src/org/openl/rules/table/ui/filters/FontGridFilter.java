@@ -1,5 +1,7 @@
 package org.openl.rules.table.ui.filters;
 
+import java.util.Objects;
+
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.IGridSelector;
@@ -137,20 +139,12 @@ public class FontGridFilter extends AGridFilter {
         private Boolean strikeout;
 
         public Builder setSelector(IGridSelector selector) {
-            if (selector == null) {
-                throw new IllegalArgumentException("selector can't be null");
-            }
-
-            this.selector = selector;
+            this.selector = Objects.requireNonNull(selector, "selector can't be null.");
             return this;
         }
 
         public Builder setFontColor(short[] fontColor) {
-            if (fontColor == null) {
-                throw new IllegalArgumentException("fontColor can't be null");
-            }
-
-            this.fontColor = fontColor;
+            this.fontColor = Objects.requireNonNull(fontColor, "fontColor can't be null.");
             return this;
         }
 
@@ -177,10 +171,7 @@ public class FontGridFilter extends AGridFilter {
         }
 
         public Builder setName(String name) {
-            if (name == null) {
-                throw new IllegalArgumentException("name can't be null");
-            }
-            this.name = name;
+            this.name = Objects.requireNonNull(name, "name can't be null.");
             return this;
         }
 

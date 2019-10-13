@@ -18,8 +18,8 @@ public class ArgumentCachingStorage {
     }
 
     public ArgumentCachingStorage(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
-        Objects.requireNonNull(simpleRulesRuntimeEnv, "simpleRulesRuntimeEnv can't be null!");
-        this.simpleRulesRuntimeEnv = simpleRulesRuntimeEnv;
+        this.simpleRulesRuntimeEnv = Objects.requireNonNull(simpleRulesRuntimeEnv,
+            "simpleRulesRuntimeEnv can't be null");
     }
 
     private Storage storage = new Storage();
@@ -61,10 +61,7 @@ public class ArgumentCachingStorage {
         private Object member;
 
         public CalculationStep(Object member) {
-            if (member == null) {
-                throw new IllegalArgumentException("Member can't be null");
-            }
-            this.member = member;
+            this.member = Objects.requireNonNull(member, "member can't be null.");
         }
 
         public Object getMember() {

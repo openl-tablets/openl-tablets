@@ -296,12 +296,8 @@ public final class PackageMojo extends BaseOpenLMojo {
      * @return the file to generate
      */
     private File getOutputFile(File basedir, String resultFinalName, String classifier, String format) {
-        if (basedir == null) {
-            throw new IllegalArgumentException("basedir is not allowed to be null");
-        }
-        if (resultFinalName == null) {
-            throw new IllegalArgumentException("finalName is not allowed to be null");
-        }
+        Objects.requireNonNull(basedir, "basedir is not allowed to be null.");
+        Objects.requireNonNull(resultFinalName, "finalName is not allowed to be null.");
 
         StringBuilder fileName = new StringBuilder(resultFinalName);
 

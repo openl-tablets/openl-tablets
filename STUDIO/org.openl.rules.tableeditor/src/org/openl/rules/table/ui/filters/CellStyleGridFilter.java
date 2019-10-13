@@ -1,5 +1,7 @@
 package org.openl.rules.table.ui.filters;
 
+import java.util.Objects;
+
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellStyle;
@@ -85,20 +87,12 @@ public class CellStyleGridFilter extends AGridFilter {
         private short[][] borderRGB;
 
         public Builder setSelector(IGridSelector selector) {
-            if (selector == null) {
-                throw new IllegalArgumentException("selector can't be null");
-            }
-
-            this.selector = selector;
+            this.selector = Objects.requireNonNull(selector, "selector can't be null.");
             return this;
         }
 
         public Builder setBorderStyle(BorderStyle[] borderStyle) {
-            if (borderStyle == null) {
-                throw new IllegalArgumentException("borderStyle can't be null");
-            }
-
-            this.borderStyle = borderStyle;
+            this.borderStyle = Objects.requireNonNull(borderStyle, "borderStyle can't be null.");
             return this;
         }
 
@@ -107,19 +101,12 @@ public class CellStyleGridFilter extends AGridFilter {
         }
 
         public Builder setBorderRGB(short[][] borderRGB) {
-            if (borderRGB == null) {
-                throw new IllegalArgumentException("borderRGB can't be null");
-            }
-
-            this.borderRGB = borderRGB;
+            this.borderRGB = Objects.requireNonNull(borderRGB, "borderRGB can't be null.");
             return this;
         }
 
         public Builder setBorderRGB(short[] rgb) {
-            if (rgb == null) {
-                throw new IllegalArgumentException("rgb can't be null");
-            }
-
+            Objects.requireNonNull(rgb, "rgb can't be null.");
             return setBorderRGB(createBorderRGB(rgb));
         }
 

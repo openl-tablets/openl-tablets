@@ -62,9 +62,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Check that IOpenMethod object is not null.
         //
-        if (delegate == null) {
-            throw new IllegalArgumentException("Method cannot be null");
-        }
+        Objects.requireNonNull(delegate, "Method can't be null.");
 
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.

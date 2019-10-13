@@ -1,5 +1,7 @@
 package org.openl.types.impl;
 
+import java.util.Objects;
+
 import org.openl.OpenL;
 import org.openl.binding.impl.BindingContext;
 import org.openl.engine.OpenLManager;
@@ -23,14 +25,8 @@ public class SourceCodeMethodCaller implements IMethodCaller {
     IOpenClass resultType;
 
     public SourceCodeMethodCaller(IMethodSignature signature, IOpenClass resultType, String sourceCode) {
-        if (signature == null) {
-            throw new IllegalArgumentException("signature can't be null!");
-        }
-        if (sourceCode == null) {
-            throw new IllegalArgumentException("sourceCode can't be null!");
-        }
-        this.signature = signature;
-        this.sourceCode = sourceCode;
+        this.signature = Objects.requireNonNull(signature, "signature can't be null.");
+        this.sourceCode = Objects.requireNonNull(sourceCode, "sourceCode can't be null.");
         this.resultType = resultType;
     }
 

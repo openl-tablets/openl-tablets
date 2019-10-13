@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
@@ -96,10 +97,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      * @param destinationDirectory
      */
     public void setDestinationDirectory(String destinationDirectory) {
-        if (destinationDirectory == null) {
-            throw new IllegalArgumentException("destinationDirectory argument must not be null!");
-        }
-        this.destinationDirectory = destinationDirectory;
+        this.destinationDirectory = Objects.requireNonNull(destinationDirectory, "destinationDirectory can't be null.");
     }
 
     public boolean isSupportDeploymentVersion() {

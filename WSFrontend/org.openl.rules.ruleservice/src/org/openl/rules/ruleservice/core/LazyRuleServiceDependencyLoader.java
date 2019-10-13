@@ -52,15 +52,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             Collection<Module> modules,
             boolean realCompileRequred,
             boolean projectDependency) {
-        Objects.requireNonNull(deployment, "deployment can't null.");
-        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
-        Objects.requireNonNull(modules, "modules can't be null.");
-        if (modules.isEmpty()) {
+        this.deployment = Objects.requireNonNull(deployment, "deployment can't null.");
+        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
+        this.modules = Objects.requireNonNull(modules, "modules can't be null.");
+        if (this.modules.isEmpty()) {
             throw new IllegalArgumentException("Collection of modules can't be empty.");
         }
-        this.dependencyName = dependencyName;
-        this.deployment = deployment;
-        this.modules = modules;
         this.realCompileRequred = realCompileRequred;
         this.projectDependency = projectDependency;
     }

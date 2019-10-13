@@ -1,6 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
+import java.util.Objects;
 
 import org.openl.types.IOpenClass;
 
@@ -11,13 +12,10 @@ final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
     private int distance;
 
     OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
-        if (to == null) {
-            throw new IllegalArgumentException("to arg can't be null!");
+        this.toComponentType = Objects.requireNonNull(to, "to can't be null.");
+        if (this.toComponentType.isArray()) {
+            throw new IllegalArgumentException("to can't be an array type.");
         }
-        if (to.isArray()) {
-            throw new IllegalArgumentException("to arg can't be array type!");
-        }
-        this.toComponentType = to;
         this.openCast = openCast;
         this.distance = CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();
     }

@@ -22,7 +22,7 @@ public class JavaInterfaceImplBuilder {
 
     public JavaInterfaceImplBuilder(Class<?> clazzInterface) {
         if (!clazzInterface.isInterface()) {
-            throw new IllegalArgumentException("Target class must be an interface!");
+            throw new IllegalArgumentException("Target class is not an interface.");
         }
         this.clazzInterface = clazzInterface;
         this.beanName = String.format(NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());

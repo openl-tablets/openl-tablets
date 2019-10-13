@@ -74,7 +74,10 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                         startedTime = newStartedTime;
                     }
 
-                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, urls, serviceInfo.getServicePath());
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime,
+                        serviceName,
+                        urls,
+                        serviceInfo.getServicePath());
                     servicesInfo.put(serviceName, newServiceInfo);
                 }
             }
@@ -87,9 +90,9 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         if (service != null) {
             try {
                 return Arrays.stream(service.getServiceClass().getMethods())
-                        .map(this::toDescriptor)
-                        .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
-                        .collect(Collectors.toList());
+                    .map(this::toDescriptor)
+                    .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
+                    .collect(Collectors.toList());
             } catch (RuleServiceInstantiationException ignore) {
                 // Ignore
             }
@@ -108,7 +111,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service argument must not be null!");
+        Objects.requireNonNull(service, "service can't be null.");
         final String serviceName = service.getName();
         Collection<String> sp = service.getPublishers();
         if (CollectionUtils.isEmpty(sp)) {
@@ -158,7 +161,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         return services.get(serviceName);
     }
 
@@ -169,7 +172,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
 
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName argument must not be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
             if (publisher.getServiceByName(serviceName) != null) {

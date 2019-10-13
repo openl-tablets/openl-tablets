@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -94,12 +95,8 @@ public class ProductionRepositoryDataSource implements DataSource {
      */
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument must not be null.");
-        }
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument must not be null.");
-        }
+        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
 
         log.debug("Getting deployement with name='{}' and version='{}'",
             deploymentName,

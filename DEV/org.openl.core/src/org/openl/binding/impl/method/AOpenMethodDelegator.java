@@ -1,5 +1,7 @@
 package org.openl.binding.impl.method;
 
+import java.util.Objects;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -10,10 +12,7 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
     private IOpenMethod delegate;
 
     public AOpenMethodDelegator(IOpenMethod delegate) {
-        if (delegate == null) {
-            throw new IllegalArgumentException();
-        }
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "delegate can't be null.");
     }
 
     public IOpenMethod getDelegate() {

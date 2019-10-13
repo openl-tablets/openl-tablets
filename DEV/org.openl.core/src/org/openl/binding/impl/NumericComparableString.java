@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,11 +33,8 @@ public class NumericComparableString implements Comparable<NumericComparableStri
     }
 
     private NumericComparableString(String value) {
-        if (value == null) {
-            throw new IllegalArgumentException(
-                "Error initializing StringRangeValue class. Parameter \"value\" can't be null.");
-        }
-        this.value = value;
+        this.value = Objects.requireNonNull(value,
+            "Error initializing StringRangeValue class. Parameter \"value\" can't be null.");
         splits = NUMBERS.split(value);
         splitsNumbers = new BigInteger[splits.length];
         initSplitsNumbers();

@@ -181,10 +181,10 @@ public final class JAXWSEnhancerHelper {
 
     public static Class<?> decorateServiceInterface(OpenLService service) throws Exception {
         if (service.getServiceClass() == null) {
-            throw new IllegalStateException("Service class is null!");
+            throw new IllegalStateException("Service class is null.");
         }
         if (!service.getServiceClass().isInterface()) {
-            throw new IllegalStateException("Service class must be an interface!");
+            throw new IllegalStateException("Service class isn't an interface.");
         }
         String enchancedClassName = service.getServiceClass()
             .getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;

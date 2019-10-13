@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.*;
@@ -61,10 +62,7 @@ public class TableBuilder {
     }
 
     public TableBuilder(XlsSheetGridModel gridModel, MetaInfoWriter metaInfoWriter) {
-        if (gridModel == null) {
-            throw new IllegalArgumentException("gridModel is null");
-        }
-        this.gridModel = gridModel;
+        this.gridModel = Objects.requireNonNull(gridModel, "gridModel can't be null.");
         style2style = new HashMap<>();
         this.metaInfoWriter = metaInfoWriter;
     }
@@ -373,9 +371,7 @@ public class TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeGridTable(IGridTable table) {
-        if (table == null) {
-            throw new IllegalArgumentException("table must be not null");
-        }
+        Objects.requireNonNull(table, "table can't be null.");
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
@@ -448,10 +444,7 @@ public class TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeProperties(Map<String, Object> properties, ICellStyle style) {
-        if (properties == null) {
-            throw new IllegalArgumentException("properties must be not null");
-        }
-
+        Objects.requireNonNull(properties, "properties can't be null.");
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

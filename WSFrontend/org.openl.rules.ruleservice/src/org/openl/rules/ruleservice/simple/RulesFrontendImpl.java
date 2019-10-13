@@ -33,9 +33,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     @Override
     public void registerService(OpenLService service) {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument must not be null!");
-        }
+        Objects.requireNonNull(service, "service can't be null.");
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
             log.warn("Service '{}' has already been registered. Replaced with new service bean.", service.getName());
@@ -47,7 +45,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     @Override
     public void unregisterService(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         runningServices.remove(serviceName);
     }
 
@@ -63,7 +61,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
     @Override
     public OpenLService findServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         return getService(serviceName);
     }
 
@@ -75,8 +73,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
             String ruleName,
             Class<?>[] inputParamsTypes,
             Object[] params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
-        Objects.requireNonNull(ruleName, "ruleName argument can't be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(ruleName, "ruleName can't be null.");
         OpenLService service = getService(serviceName);
         if (service == null) {
             throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
@@ -134,8 +132,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     @Override
     public Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
-        Objects.requireNonNull(ruleName, "ruleName argument can't be null!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(ruleName, "ruleName can't be null.");
 
         log.debug("Executing rule from service with name='{}', ruleName='{}'.", serviceName, ruleName);
 
@@ -155,8 +153,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     @Override
     public Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
-        Objects.requireNonNull(fieldName, "ieldName argument can't be null!!");
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(fieldName, "fieldName can't be null.");
 
         log.debug("Getting value from service with name='{}', fieldName='{}'.", serviceName, fieldName);
 

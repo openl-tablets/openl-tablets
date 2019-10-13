@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.servlet;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ServiceInfo {
     private final Date startedTime;
@@ -11,18 +12,15 @@ public class ServiceInfo {
     private final Map<String, String> urls = new HashMap<>(1);
 
     public ServiceInfo(Date startedTime, String name, String url, String urlName, String servicePath) {
-        if (startedTime == null || name == null) {
-            throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
-        }
-        this.startedTime = startedTime;
-        this.name = name;
+        this.startedTime = Objects.requireNonNull(startedTime, "startedTime can't be null.");
+        this.name = Objects.requireNonNull(name, "name can't be null.");
         this.servicePath = servicePath;
         urls.put(urlName, url);
     }
 
     public ServiceInfo(Date startedTime, String name, Map<String, String> urls, String servicePath) {
-        this.startedTime = startedTime;
-        this.name = name;
+        this.startedTime = Objects.requireNonNull(startedTime, "startedTime can't be null.");
+        this.name = Objects.requireNonNull(name, "name can't be null.");
         this.servicePath = servicePath;
         this.urls.putAll(urls);
     }

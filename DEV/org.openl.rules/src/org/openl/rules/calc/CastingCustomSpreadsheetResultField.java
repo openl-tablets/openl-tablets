@@ -20,12 +20,10 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             IOpenCast cast2,
             IOpenClass type) {
         super(declaringClass, name, type);
-        Objects.requireNonNull(field1);
-        Objects.requireNonNull(field2);
-        this.field1 = field1;
+        this.field1 = Objects.requireNonNull(field1);
         this.cast1 = cast1;
 
-        this.field2 = field2;
+        this.field2 = Objects.requireNonNull(field2);
         this.cast2 = cast2;
     }
 

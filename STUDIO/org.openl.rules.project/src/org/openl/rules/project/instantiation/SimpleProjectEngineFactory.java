@@ -46,7 +46,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project arg must not be null or empty!");
+                throw new IllegalArgumentException("project can't be null or empty!");
             }
             this.project = project;
             return this;
@@ -88,7 +88,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setModule(String module) {
             if (module == null || module.isEmpty()) {
-                throw new IllegalArgumentException("module arg must not be null or empty!");
+                throw new IllegalArgumentException("module can't be null or empty!");
             }
             this.module = module;
             return this;
@@ -96,7 +96,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setWorkspace(String workspace) {
             if (workspace == null || workspace.isEmpty()) {
-                throw new IllegalArgumentException("workspace arg must not be null or empty!");
+                throw new IllegalArgumentException("workspace can't be null or empty!");
             }
             this.workspace = workspace;
             return this;
@@ -104,7 +104,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactory<T> build() {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project must not be null or empty!");
+                throw new IllegalArgumentException("project can't be null or empty!");
             }
             File projectFile = new File(project);
             File workspaceFile = workspace == null ? null : new File(workspace);
@@ -130,13 +130,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             boolean provideRuntimeContext,
             boolean provideVariations,
             boolean executionMode) {
-        if (project == null) {
-            throw new IllegalArgumentException("project arg must not be null!");
-        }
+        this.project = Objects.requireNonNull(project, "project arg can't be null.");
         if (workspace != null && !workspace.isDirectory()) {
-            throw new IllegalArgumentException("workspace must be a directory with projects!");
+            throw new IllegalArgumentException("workspace is not a directory with projects.");
         }
-        this.project = project;
         this.workspace = workspace;
         this.classLoader = classLoader;
         this.interfaceClass = interfaceClass;

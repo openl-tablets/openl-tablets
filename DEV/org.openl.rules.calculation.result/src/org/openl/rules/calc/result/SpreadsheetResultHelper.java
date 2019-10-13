@@ -1,5 +1,7 @@
 package org.openl.rules.calc.result;
 
+import java.util.Objects;
+
 /*
  * #%L
  * OpenL - DEV - Rules - Calculation Result
@@ -15,14 +17,10 @@ public class SpreadsheetResultHelper {
     }
 
     public static int getColumnIndex(String columnName, String[] colNames) {
-        if (columnName == null) {
-            throw new IllegalArgumentException("columnName arg can't be null");
-        }
-        if (colNames == null) {
-            throw new IllegalArgumentException("colNames arg can't be null");
-        }
+        Objects.requireNonNull(columnName, "columnName can't be null.");
+        Objects.requireNonNull(colNames, "colNames can't be null.");
         if (!columnName.trim().equals(columnName)) {
-            throw new IllegalArgumentException("Invalid columnName format");
+            throw new IllegalArgumentException("Invalid columnName format.");
         }
         for (int index = 0; index < colNames.length; index++) {
             if (colNames[index] != null) {

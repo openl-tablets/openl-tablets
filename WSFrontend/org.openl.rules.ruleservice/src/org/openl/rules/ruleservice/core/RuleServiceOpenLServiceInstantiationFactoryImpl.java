@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -273,10 +274,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
-        if (ruleServiceLoader == null) {
-            throw new IllegalArgumentException("rulesLoader arg must not be null.");
-        }
-        this.ruleServiceLoader = ruleServiceLoader;
+        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader can't be null.");
     }
 
     public RuleServiceInstantiationStrategyFactory getInstantiationStrategyFactory() {
@@ -284,10 +282,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public void setInstantiationStrategyFactory(RuleServiceInstantiationStrategyFactory instantiationStrategyFactory) {
-        if (instantiationStrategyFactory == null) {
-            throw new IllegalArgumentException("instantiationStrategyFactory arg must not be null.");
-        }
-        this.instantiationStrategyFactory = instantiationStrategyFactory;
+        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory, "instantiationStrategyFactory can't be null.");;
     }
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {

@@ -19,8 +19,7 @@ public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, M
     }
 
     public JAXWSInvocationHandler(Object target) {
-        Objects.requireNonNull("target argument must not be null!");
-        this.target = target;
+        this.target = Objects.requireNonNull(target, "target can't be null.");
     }
 
     @Override
@@ -36,7 +35,7 @@ public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, M
 
             ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);
 
-            // Create a standart fault
+            // Create a standard fault
             SoapFault fault = new SoapFault(dto.getMessage(), Fault.FAULT_CODE_SERVER);
 
             // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>

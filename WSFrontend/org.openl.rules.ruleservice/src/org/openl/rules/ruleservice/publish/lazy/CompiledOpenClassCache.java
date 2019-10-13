@@ -59,8 +59,8 @@ public final class CompiledOpenClassCache {
     }
 
     public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
-        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
-        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
+        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         return cache.get(key);
@@ -69,8 +69,8 @@ public final class CompiledOpenClassCache {
     public void putToCache(DeploymentDescription deploymentDescription,
             String dependencyName,
             CompiledOpenClass compiledOpenClass) {
-        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
-        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
+        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         cache.put(key, compiledOpenClass);
@@ -79,8 +79,8 @@ public final class CompiledOpenClassCache {
     private Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
     public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
-        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
-        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
+        Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
         Key key = new Key(deploymentDescription, dependencyName);
         synchronized (eventsMap) {
             Collection<Event> events = eventsMap.computeIfAbsent(key, k -> new ArrayList<>());
@@ -89,9 +89,7 @@ public final class CompiledOpenClassCache {
     }
 
     public void removeAll(DeploymentDescription deploymentDescription) {
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription must not be null!");
-        }
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         Iterator<Entry<Key, CompiledOpenClass>> itr = cache.iterator();
         while (itr.hasNext()) {

@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -34,10 +35,8 @@ public class LocalTemporaryDeploymentsStorage {
      * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
      */
     public LocalTemporaryDeploymentsStorage(String directoryToLoadDeploymentsIn) {
-        if (directoryToLoadDeploymentsIn == null) {
-            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument must not be null.");
-        }
-        this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
+        this.directoryToLoadDeploymentsIn = Objects.requireNonNull(directoryToLoadDeploymentsIn,
+            "directoryToLoadDeploymentsIn can't be null.");
         File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
         folderToLoadDeploymentsIn.mkdirs();
         if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
@@ -93,9 +92,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @return loaded deployment
      */
     Deployment loadDeployment(Deployment deployment) {
-        if (deployment == null) {
-            throw new IllegalArgumentException("deployment argument must not be null.");
-        }
+        Objects.requireNonNull(deployment, "deployment can't be null.");
 
         String deploymentName = deployment.getDeploymentName();
         CommonVersion version = deployment.getCommonVersion();

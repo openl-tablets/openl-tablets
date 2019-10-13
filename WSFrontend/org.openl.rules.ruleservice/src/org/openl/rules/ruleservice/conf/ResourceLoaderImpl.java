@@ -16,8 +16,7 @@ class ResourceLoaderImpl implements ResourceLoader {
     private AProject project;
 
     public ResourceLoaderImpl(AProject project) {
-        Objects.requireNonNull(project, "project arg must not be null.");
-        this.project = project;
+        this.project = Objects.requireNonNull(project, "project can't be null.");
     }
 
     @Override

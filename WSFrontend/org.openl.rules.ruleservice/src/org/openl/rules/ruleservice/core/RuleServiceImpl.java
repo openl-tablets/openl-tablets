@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
@@ -64,9 +65,7 @@ public class RuleServiceImpl implements RuleService {
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName arg must not be null.");
-        }
+        Objects.requireNonNull(serviceName, "serviceName can't be null.");
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
@@ -149,16 +148,10 @@ public class RuleServiceImpl implements RuleService {
     }
 
     public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        if (ruleServiceManager == null) {
-            throw new IllegalArgumentException("ruleServiceManager arg must not be null.");
-        }
-        this.ruleServiceManager = ruleServiceManager;
+        this.ruleServiceManager = Objects.requireNonNull(ruleServiceManager, "ruleServiceManager can't be null.");
     }
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
-        if (ruleServiceInstantiationFactory == null) {
-            throw new IllegalArgumentException("ruleServiceInstantiationFactory arg must not be null.");
-        }
-        this.ruleServiceInstantiationFactory = ruleServiceInstantiationFactory;
+        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory, "ruleServiceInstantiationFactory can't be null.");
     }
 }
