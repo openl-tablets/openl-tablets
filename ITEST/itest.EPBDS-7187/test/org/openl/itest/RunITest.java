@@ -79,7 +79,7 @@ public class RunITest {
     public void testPost_eDGECase() {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("sTring", "d");
-        requestBody.put("NUMBer", Double.NaN);
+        requestBody.put("NUMBer", "NaN");
 
         assertReturnsTrue(requestBody, "/upcs/eDGECase");
     }
