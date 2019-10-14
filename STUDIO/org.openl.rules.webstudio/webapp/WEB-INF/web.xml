@@ -146,6 +146,20 @@
   </filter-mapping>
 
   <filter>
+    <filter-name>RedirectToInstallWizardFilter</filter-name>
+    <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
+    <init-param>
+      <param-name>redirectPage</param-name>
+      <param-value>/faces/pages/modules/install/step1.xhtml</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>RedirectToInstallWizardFilter</filter-name>
+    <url-pattern>/reconfigure</url-pattern>
+  </filter-mapping>
+
+  <filter>
     <filter-name>ThreadLocalFilter</filter-name>
     <filter-class>org.openl.rules.webstudio.filter.ThreadLocalFilter</filter-class>
   </filter>
