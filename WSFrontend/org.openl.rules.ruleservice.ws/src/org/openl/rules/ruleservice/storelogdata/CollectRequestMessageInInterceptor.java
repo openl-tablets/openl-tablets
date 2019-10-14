@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.SequenceInputStream;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.helpers.IOUtils;
@@ -141,7 +141,7 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
     protected void handleMessage(LoggingMessage message) throws Fault {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.setRequestMessage(message);
-        storeLogData.setIncomingMessageTime(new Date());
+        storeLogData.setIncomingMessageTime(ZonedDateTime.now());
     }
 
     protected void logReader(Message message, Reader reader, LoggingMessage buffer) {

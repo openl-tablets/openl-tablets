@@ -2,17 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.elasticsearch;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
-import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
-import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.Response;
-import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
-import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -22,10 +12,10 @@ public class DefaultElasticEntity {
     @Id
     private String id;
 
-    @IncomingTime
+    @IncomingTime(converter = ZonedDataTimeToDateConvertor.class)
     private Date incomingTime;
 
-    @OutcomingTime
+    @OutcomingTime(converter = ZonedDataTimeToDateConvertor.class)
     private Date outcomingTime;
 
     @Request

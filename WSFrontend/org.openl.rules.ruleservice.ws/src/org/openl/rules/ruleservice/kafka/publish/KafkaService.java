@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.kafka.publish;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -184,7 +185,7 @@ public final class KafkaService implements Runnable {
                 ConsumerRecords<String, RequestMessage> records = consumer.poll(Duration.ofMillis(100));
                 if (!records.isEmpty()) {
                     CountDownLatch countDownLatch = new CountDownLatch(records.count());
-                    Date incomingTime = new Date();
+                    ZonedDateTime incomingTime = ZonedDateTime.now();
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
@@ -218,7 +219,7 @@ public final class KafkaService implements Runnable {
                                 }
                                 forwardHeadersToOutput(consumerRecord, producerRecord);
                                 if (storeLogData != null) {
-                                    storeLogData.setOutcomingMessageTime(new Date());
+                                    storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                 }
                                 producer.send(producerRecord, (metadata, exception) -> {
                                     if (storeLogData != null) {
@@ -360,7 +361,7 @@ public final class KafkaService implements Runnable {
             forwardHeadersToDlt(record, dltRecord);
             setDltHeaders(record, dltRecord);
             if (storeLogData != null) {
-                storeLogData.setOutcomingMessageTime(new Date());
+                storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             }
             dltProducer.send(dltRecord, (metadata, exception) -> {
                 if (storeLogData != null) {

@@ -87,6 +87,9 @@
         <cglib.version>3.2.12</cglib.version>
         <kafka.version>2.3.0</kafka.version>
         <kafka-junit.version>2.3.0</kafka-junit.version>
+        <cassandra.driver.version>4.2.2</cassandra.driver.version>
+        <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
+        <cassandra.unit.driver.version>3.7.2</cassandra.unit.driver.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.2</org.apache.cxf.version>
         <org.slf4j.version>1.7.26</org.slf4j.version>
@@ -1231,20 +1234,32 @@
                 <version>2.4.0</version>
             </dependency>
             <dependency>
-                <groupId>com.datastax.cassandra</groupId>
-                <artifactId>cassandra-driver-core</artifactId>
-                <version>3.7.2</version>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-core-shaded</artifactId>
+                <version>${cassandra.driver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-mapper-processor</artifactId>
+                <version>${cassandra.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.cassandraunit</groupId>
                 <artifactId>cassandra-unit</artifactId>
-                <version>3.7.1.0</version>
+                <version>${cassandra.unit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${cassandra.unit.driver.version}</version>
+                <scope>test</scope> 
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-mapping</artifactId>
-                <version>3.7.2</version>
+                <version>${cassandra.unit.driver.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.jnr</groupId>

@@ -92,7 +92,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
-                    cassandraOperations.saveAsync(entity);
+                    cassandraOperations.save(entity);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
                     log.error("Failed on cassandra entity save operation.", e);

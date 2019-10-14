@@ -2,19 +2,19 @@ package org.openl.itest;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
 import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,21 +34,16 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
-import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
-import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
-import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
-import net.mguenther.kafka.junit.EmbeddedKafkaConfig;
-import net.mguenther.kafka.junit.KeyValue;
-import net.mguenther.kafka.junit.ObserveKeyValues;
-import net.mguenther.kafka.junit.SendKeyValues;
+import net.mguenther.kafka.junit.*;
 
 public class RunStoreLogDataITest {
     // private static final int TIMEOUT = Integer.MAX_VALUE;
     private static final int AWAIT_TIMEOUT = 60;
     private static final String KEYSPACE = "openl_ws_logging";
 
-    private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(Table.class).name();
+    private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(CqlName.class).value();
 
     private static JettyServer server;
     private static HttpClient client;
@@ -75,8 +70,9 @@ public class RunStoreLogDataITest {
         EmbeddedCassandraServerHelper.startEmbeddedCassandra(EmbeddedCassandraServerHelper.CASSANDRA_RNDPORT_YML_FILE);
         EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 
-        System.setProperty("cassandra.contactpoints", EmbeddedCassandraServerHelper.getHost());
-        System.setProperty("cassandra.port", String.valueOf(EmbeddedCassandraServerHelper.getNativeTransportPort()));
+        System.setProperty("datastax-java-driver.basic.contact-points.0",
+            EmbeddedCassandraServerHelper.getHost() + ":" + EmbeddedCassandraServerHelper.getNativeTransportPort());
+        System.setProperty("datastax-java-driver.basic.load-balancing-policy.local-datacenter", "datacenter1");
 
         createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
 
@@ -132,11 +128,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple1", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple1", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -174,11 +170,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple1", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple1", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisher_type"));
                 return true;
             }, equalTo(true));
     }
@@ -219,12 +215,42 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals(METHOD_NAME, row.getString("methodName"));
-                assertEquals("simple2", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertEquals(METHOD_NAME, row.getString("method_name"));
+                assertEquals("simple2", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisher_type"));
 
+                return true;
+            }, equalTo(true));
+    }
+
+    @Test
+    public void testKafkaServiceWithCassandra10000Ok() throws Exception {
+        final String REQUEST = "{\"hour\": 5}";
+        final String METHOD_NAME = "Hello";
+        final int COUNT_OF_RECORDS = 10000;
+
+        truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
+        List<KeyValue<String, String>> records = IntStream.range(0, COUNT_OF_RECORDS).mapToObj(e -> {
+            KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
+            record.addHeader(KafkaHeaders.METHOD_NAME, METHOD_NAME, Charset.forName("UTF8"));
+            return record;
+        }).collect(Collectors.toList());
+        cluster.send(SendKeyValues.to("hello-in-topic-2", records).useDefaults());
+
+        Awaitility.given()
+            .ignoreException(InvalidQueryException.class)
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .pollInterval(Duration.ONE_SECOND)
+            .until(() -> {
+                ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
+                    .execute("SELECT count(*) FROM " + KEYSPACE + "." + DEFAULT_TABLE_NAME);
+                Row row = resultSet.one();
+                if (row.getLong(0) != COUNT_OF_RECORDS) { // Table is created but rows is not created
+                    return false;
+                }
                 return true;
             }, equalTo(true));
     }
@@ -264,11 +290,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals(METHOD_NAME, row.getString("methodName"));
-                assertEquals("simple2", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertEquals(METHOD_NAME, row.getString("method_name"));
+                assertEquals("simple2", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -303,11 +329,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple3", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple3", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -339,10 +365,10 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertNotNull(row.getString("response"));
-                assertEquals("simple3", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertEquals("simple3", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -374,11 +400,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertNotNull(row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple3", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple3", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -410,11 +436,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertNotNull(row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple3", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple3", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.WEBSERVICE.toString(), row.getString("publisher_type"));
 
                 return true;
             }, equalTo(true));
@@ -429,10 +455,10 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello.resp.txt"),
             StandardCharsets.UTF_8);
 
-        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
-        final String helloEntity2TableName = HelloEntity2.class.getAnnotation(Table.class).name();
-        final String helloEntity3TableName = HelloEntity3.class.getAnnotation(Table.class).name();
-        final String helloEntity4TableName = HelloEntity4.class.getAnnotation(Table.class).name();
+        final String helloEntity1TableName = getTableName(HelloEntity1.class);
+        final String helloEntity2TableName = getTableName(HelloEntity2.class);
+        final String helloEntity3TableName = getTableName(HelloEntity3.class);
+        final String helloEntity4TableName = getTableName(HelloEntity4.class);
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateTableIfExists(KEYSPACE, helloEntity2TableName);
@@ -457,16 +483,16 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple4", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple4", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
                 assertEquals("value1", row.getString("value"));
                 assertEquals(5, row.getInt("hour"));
                 assertEquals("Good Morning", row.getString("result"));
-                assertTrue(row.getBool("objectSerializerFound"));
+                assertTrue(row.getBool("object_serializer_found"));
 
                 resultSet = EmbeddedCassandraServerHelper.getSession()
                     .execute("SELECT * FROM " + KEYSPACE + "." + helloEntity2TableName);
@@ -479,11 +505,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello", row.getString("methodName"));
-                assertEquals("simple4", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertEquals("Hello", row.getString("method_name"));
+                assertEquals("simple4", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
                 assertEquals("value1", row.getString("value"));
                 assertEquals(5, row.getInt("hour"));
@@ -500,11 +526,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertNull(row.getString("request"));
                 assertNull(row.getString("response"));
-                assertNull(row.getString("methodName"));
-                assertEquals("simple4", row.getString("serviceName"));
-                assertNull(row.getTimestamp("incomingTime"));
-                assertNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertNull(row.getString("method_name"));
+                assertEquals("simple4", row.getString("service_name"));
+                assertNull(row.getTimestamp("incoming_time"));
+                assertNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
                 assertNull(row.getString("value"));
                 assertNull(row.getString("result"));
@@ -527,7 +553,7 @@ public class RunStoreLogDataITest {
             Thread.currentThread().getContextClassLoader().getResourceAsStream("simple4_Hello2.resp.txt"),
             StandardCharsets.UTF_8);
 
-        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
+        final String helloEntity1TableName = getTableName(HelloEntity1.class);
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
 
@@ -549,22 +575,30 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals("Hello2", row.getString("methodName"));
-                assertEquals("simple4", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisherType"));
+                assertEquals("Hello2", row.getString("method_name"));
+                assertEquals("simple4", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.RESTFUL.toString(), row.getString("publisher_type"));
 
-                assertEquals(5, row.getInt("intValue1"));
-                assertEquals(22, row.getInt("intValue2"));
-                assertEquals(22, row.getInt("intValue3"));
-                assertEquals("Good Night", row.getString("stringValue1"));
-                assertEquals("Good Night", row.getString("stringValue2"));
-                assertEquals(RESPONSE, row.getString("stringValue3"));
-                assertTrue(row.getBool("boolValue1"));
-                assertEquals("22", row.getString("intValueToString"));
+                assertEquals(5, row.getInt("int_value1"));
+                assertEquals(22, row.getInt("int_value2"));
+                assertEquals(22, row.getInt("int_value3"));
+                assertEquals("Good Night", row.getString("string_value1"));
+                assertEquals("Good Night", row.getString("string_value2"));
+                assertEquals(RESPONSE, row.getString("string_value3"));
+                assertTrue(row.getBool("bool_value1"));
+                assertEquals("22", row.getString("int_value_to_string"));
                 return true;
             }, equalTo(true));
+    }
+
+    private static String getTableName(Class<?> entityClass) {
+        CqlName cqlName = entityClass.getAnnotation(CqlName.class);
+        if (cqlName != null) {
+            return cqlName.value();
+        }
+        throw new IllegalStateException("Only @CqlName annotated classes are supported.");
     }
 
     @Test
@@ -578,10 +612,10 @@ public class RunStoreLogDataITest {
 
         final String METHOD_NAME = "Hello";
 
-        final String helloEntity1TableName = HelloEntity1.class.getAnnotation(Table.class).name();
-        final String helloEntity2TableName = HelloEntity2.class.getAnnotation(Table.class).name();
-        final String helloEntity3TableName = HelloEntity3.class.getAnnotation(Table.class).name();
-        final String helloEntity4TableName = HelloEntity4.class.getAnnotation(Table.class).name();
+        final String helloEntity1TableName = getTableName(HelloEntity1.class);
+        final String helloEntity2TableName = getTableName(HelloEntity2.class);
+        final String helloEntity3TableName = getTableName(HelloEntity3.class);
+        final String helloEntity4TableName = getTableName(HelloEntity4.class);
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateTableIfExists(KEYSPACE, helloEntity2TableName);
@@ -617,11 +651,11 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
                 assertEquals(RESPONSE, row.getString("response"));
-                assertEquals(METHOD_NAME, row.getString("methodName"));
-                assertEquals("simple4", row.getString("serviceName"));
-                assertNotNull(row.getTimestamp("incomingTime"));
-                assertNotNull(row.getTimestamp("outcomingTime"));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisherType"));
+                assertEquals(METHOD_NAME, row.getString("method_name"));
+                assertEquals("simple4", row.getString("service_name"));
+                assertNotNull(row.getTimestamp("incoming_time"));
+                assertNotNull(row.getTimestamp("outcoming_time"));
+                assertEquals(PublisherType.KAFKA.toString(), row.getString("publisher_type"));
 
                 assertEquals(METHOD_NAME, row.getString("header1"));
                 assertEquals("testHeaderValue", row.getString("header2"));

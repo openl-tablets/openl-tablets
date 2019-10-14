@@ -24,7 +24,7 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>com.datastax.cassandra:*</include>
+        <include>com.datastax.oss:*</include>
       </includes>
       <excludes>
 	<exclude>org.slf4j:slf4j-api</exclude>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -20,7 +22,7 @@
 
     <modules>
         <module>server-core</module>
-        <module>itest.smoke</module>
+        <!--<module>itest.smoke</module>
         <module>itest.kafka.smoke</module>
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
@@ -34,7 +36,7 @@
         <module>itest.EPBDS-7187</module>
         <module>itest.EPBDS-7654</module>
         <module>itest.EPBDS-7947</module>
-        <module>itest.EPBDS-7721</module>
+        <module>itest.EPBDS-7721</module>-->
         <module>itest.storelogdata</module>
         <module>itest.EPBDS-6555</module>
         <module>itest.EPBDS-5057</module>
@@ -56,6 +58,18 @@
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.itest</groupId>
+                <artifactId>itest.shaded.embedded.cassandra</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.itest</groupId>
+                <artifactId>itest.shaded.embedded.kafka</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

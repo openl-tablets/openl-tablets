@@ -3,13 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations">
-        <property name="contactpoints" value="${cassandra.contactpoints}"/>
-        <property name="port" value="${cassandra.port}"/>
-        <property name="keyspace" value="${cassandra.keyspace}"/>
-        <property name="username" value="${cassandra.username}"/>
-        <property name="password" value="${cassandra.password}"/>
-        <property name="createShemaEnabled" value="${cassandra.schema.create}"/>
-        <property name="protocolVersion" value="${cassandra.protocol.version}"/>
+        <property name="createShemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
     </bean>
 
     <bean class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
