@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -238,21 +238,18 @@ public class MergeConflictBean {
                 ConflictResolution conflictResolution = entry.getValue();
 
                 FileItem file;
+                InputStream stream;
                 switch (conflictResolution.getResolutionType()) {
                     case YOURS:
                         String localName = name.substring(rulesLocation.length());
                         file = localRepository.read(localName);
-                        if (file == null) {
-                            throw new FileNotFoundException("File " + localName + " is not found");
-                        }
-                        resolvedFiles.add(new FileItem(name, file.getStream()));
+                        stream = file == null ? null : file.getStream();
+                        resolvedFiles.add(new FileItem(name, stream));
                         break;
                     case THEIRS:
                         file = designRepository.readHistory(name, mergeConflict.getException().getTheirCommit());
-                        if (file == null) {
-                            throw new FileNotFoundException("File '" + name + "' is not found");
-                        }
-                        resolvedFiles.add(new FileItem(name, file.getStream()));
+                        stream = file == null ? null : file.getStream();
+                        resolvedFiles.add(new FileItem(name, stream));
                         break;
                     case CUSTOM:
                         resolvedFiles.add(new FileItem(name, conflictResolution.getCustomResolutionFile().getInput()));
