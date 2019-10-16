@@ -140,7 +140,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(fileItem.getData(), false, commit);
-                addTagToCommit(commit);
+                addTagToCommit(commit, firstCommitId);
             }
             push();
         } catch (IOException e) {
@@ -572,7 +572,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             if (!shouldClone) {
                 try {
-                    doFastForward(fetchAll());
+                    FetchResult fetchResult = fetchAll();
+                    doFastForward(fetchResult);
+                    fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                     if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
@@ -766,6 +768,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             doFastForward(fetchResult);
+            fastForwardNotMergedCommits(fetchResult);
 
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
@@ -853,7 +856,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull() throws GitAPIException, IOException {
+    private void fastForwardNotMergedCommits(FetchResult fetchResult) throws IOException, GitAPIException {
+        // Support the case when for some reason commits were fetched but not merged to current branch earlier.
+        // In this case fetchResult.getTrackingRefUpdates() can be empty.
+        // If everything is merged into current branch, this method does nothing.
+        // Obviously this method isn't needed. It's invoked only to fix unexpected errors during work with repository.
+        Ref advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
+        Ref localRef = git.getRepository().findRef(branch);
+        if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
+            // Typically this shouldn't occur. But if found such case, should fast-forward local repository and write
+            // warning for future investigation.
+            log.warn("Found commits that aren't fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
+                branch,
+                localRef.getObjectId().name(),
+                advertisedRef.getObjectId().name());
+            git.checkout().setName(branch).call();
+            git.merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
+        }
+    }
+
+    private void pull(String commitToRevert) throws GitAPIException, IOException {
         FetchResult fetchResult;
         try {
             remoteRepoLock.lock();
@@ -862,21 +884,34 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             remoteRepoLock.unlock();
         }
 
-        Ref r = fetchResult.getAdvertisedRef(branch);
-        if (r == null) {
-            r = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
-        }
+        try {
+            Ref r = fetchResult.getAdvertisedRef(branch);
+            if (r == null) {
+                r = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
+            }
 
-        if (r == null) {
-            throw new RefNotAdvertisedException(
-                MessageFormat.format(JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME, branch));
-        }
+            if (r == null) {
+                throw new RefNotAdvertisedException(MessageFormat.format(JGitText.get().couldNotGetAdvertisedRef,
+                    Constants.DEFAULT_REMOTE_NAME,
+                    branch));
+            }
 
-        MergeResult mergeResult = git.merge().include(r.getObjectId()).setStrategy(MergeStrategy.RECURSIVE).call();
+            MergeResult mergeResult = git.merge().include(r.getObjectId()).setStrategy(MergeStrategy.RECURSIVE).call();
 
-        if (!mergeResult.getMergeStatus().isSuccessful()) {
-            validateMergeConflict(mergeResult, true);
-            throw new IOException("Can't merge: " + mergeResult.toString());
+            if (!mergeResult.getMergeStatus().isSuccessful()) {
+                validateMergeConflict(mergeResult, true);
+                throw new IOException("Can't merge: " + mergeResult.toString());
+            }
+        } catch (GitAPIException | IOException e) {
+            reset(commitToRevert);
+            throw e;
+        } finally {
+            try {
+                doFastForward(fetchResult);
+            } catch (Exception e) {
+                // Don't override exception thrown in catch block.
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -1122,13 +1157,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
      */
     private void reset(String commitToDiscard) {
         try {
-            ResetCommand resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
-            if (commitToDiscard != null) {
-                resetCommand.setRef(commitToDiscard + "^");
+            String fullBranch = git.getRepository().getFullBranch();
+            if (ObjectId.isId(fullBranch)) {
+                // Detached HEAD. Just checkout to current branch and reset working dir.
+                log.debug("Found detached HEAD: {}.", fullBranch);
+                git.checkout().setName(branch).setForced(true).call();
+            } else {
+                ResetCommand resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
+                // If commit isn't merged to our branch, it's detached - in this case no need to reset commit tree.
+                if (commitToDiscard != null && isCommitMerged(commitToDiscard)) {
+                    log.debug("Discard commit: {}.", commitToDiscard);
+                    resetCommand.setRef(commitToDiscard + "^");
+                }
+                resetCommand.call();
             }
-            resetCommand.call();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    private boolean isCommitMerged(String commitId) throws IOException {
+        Repository repository = git.getRepository();
+        try (RevWalk revWalk = new RevWalk( repository )) {
+            RevCommit branchHead = revWalk.parseCommit(repository.resolve(Constants.R_HEADS + branch));
+            RevCommit otherHead = revWalk.parseCommit(repository.resolve(commitId));
+            return revWalk.isMergedInto(otherHead, branchHead);
         }
     }
 
@@ -1182,7 +1235,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException, IOException {
-        pull();
+        addTagToCommit(commit, commit.getId().getName());
+    }
+
+    private void addTagToCommit(RevCommit commit, String commitToRevert) throws GitAPIException, IOException {
+        pull(commitToRevert);
 
         if (!tagPrefix.isEmpty()) {
             String tagName = tagPrefix + getNextTagId();
@@ -1238,7 +1295,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(folderItem.getData(), false, commit);
-                addTagToCommit(commit);
+                addTagToCommit(commit, firstCommitId);
             }
             push();
         } catch (IOException e) {
