@@ -90,9 +90,15 @@ public final class WebTool {
      *      post</a>
      */
     public static void setContentDisposition(HttpServletResponse response, String fileName) {
-        String encodedfileName = StringTool.encodeURL(fileName);
-        response.setHeader("Content-Disposition",
-            "attachment; filename=" + encodedfileName + "; filename*=UTF-8''" + encodedfileName);
+        response.setHeader("Content-Disposition", getContentDispositionValue(fileName));
+    }
+
+    /**
+     * @see #setContentDisposition(HttpServletResponse, String)
+     */
+    public static String getContentDispositionValue(String fileName) {
+        String encodedFileName = StringTool.encodeURL(fileName);
+        return "attachment; filename=" + encodedFileName + "; filename*=UTF-8''" + encodedFileName;
     }
 
 }

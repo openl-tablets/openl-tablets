@@ -15,6 +15,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -137,7 +138,7 @@ public class ConflictService {
             String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
             return Response.ok(streamingOutput)
                 .cookie(newCookie(cookieName, "success", request.getContextPath()))
-                .header("Content-Disposition", "attachment;filename=" + fileName)
+                .header("Content-Disposition", WebTool.getContentDispositionValue(fileName))
                 .build();
         } catch (Exception e) {
             String message = "Failed to download file.";
