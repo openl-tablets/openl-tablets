@@ -7,9 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import org.junit.AfterClass;
@@ -17,9 +15,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.generated.beans.Vehicle;
+import org.openl.itest.core.HttpClient;
+import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.core.SoapClientFactory;
-import org.openl.itest.core.JettyServer;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.itest.rules.Service;
@@ -27,23 +26,18 @@ import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.VariationException;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class RunITest {
-
-    private static final String CalVehicleYear_REQUEST = "{\"runtimeContext\": {}," + "\t\"v\": {\n" + "\t\t\"modelYear\": 2007,\n" + "\t\t\"vehEffectiveYear\": \"2016-12-31T22:00:00\"}}";
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
     private static final HttpHeaders DEF_HTTPHEADERS;
 
     private static JettyServer server;
+    private static HttpClient client;
     private static String baseURI;
 
     static {
@@ -65,6 +59,7 @@ public class RunITest {
 
         server = new JettyServer(true);
         baseURI = server.start();
+        client = server.client();
     }
 
     @AfterClass
@@ -94,59 +89,38 @@ public class RunITest {
 
     @Test
     public void testCalVehicleYear_StringRequest_JSON() {
-        HttpEntity<String> request = new HttpEntity<>(CalVehicleYear_REQUEST, DEF_HTTPHEADERS);
-
-        ResponseEntity<String> responseEntity = rest
-            .exchange(baseURI + "/REST/EPBDS-6437/calVehicleYear", HttpMethod.POST, request, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("9", responseEntity.getBody());
+        client.post("/REST/EPBDS-6437/calVehicleYear",
+            "/testCalVehicleYear_StringRequest_JSON_request.json",
+            "/testCalVehicleYear_StringRequest_JSON_response.txt");
     }
 
     @Test
     public void testCalVehicleYear_ObjectRequest_JSON() {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("runtimeContext", new DefaultRulesRuntimeContext());
-        requestBody.put("v", new Vehicle(2007, toDate(2016, 12, 31, 22, TimeZone.getDefault())));
+        client.post("/REST/EPBDS-6437/calVehicleYear",
+            "/testCalVehicleYear_ObjectRequest_JSON_request.json",
+            "/testCalVehicleYear_ObjectRequest_JSON_response.txt");
 
-        HttpEntity<?> request = new HttpEntity<>(requestBody, DEF_HTTPHEADERS);
-
-        ResponseEntity<String> responseEntity = rest
-            .exchange(baseURI + "/REST/EPBDS-6437/calVehicleYear", HttpMethod.POST, request, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("9", responseEntity.getBody());
     }
 
     @Test
     public void testCheckRulesModule_usingLocaleTimezone_JSON() {
-        IRulesRuntimeContext rulesRuntimeContext = new DefaultRulesRuntimeContext();
-        rulesRuntimeContext.setRequestDate(toDate(2017, 12, 31, 22, TimeZone.getDefault()));
-
-        HttpEntity<?> request = new HttpEntity<>(rulesRuntimeContext, DEF_HTTPHEADERS);
-
-        ResponseEntity<String> responseEntity = rest
-            .exchange(baseURI + "/REST/EPBDS-6437/checkRulesModule", HttpMethod.POST, request, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("20170101", responseEntity.getBody());
+        client.post("/REST/EPBDS-6437/checkRulesModule",
+            "/testCheckRulesModule_usingLocaleTimezone_JSON_request.json",
+            "/testCheckRulesModule_usingLocaleTimezone_JSON_response.txt");
     }
 
     @Test
     public void testCheckRulesModule_usingUTCTimezone_JSON() {
-        HttpEntity<?> request = new HttpEntity<>("{ \"requestDate\": \"2017-12-31T22:00:00Z\" }", DEF_HTTPHEADERS);
-
-        ResponseEntity<String> responseEntity = rest
-            .exchange(baseURI + "/REST/EPBDS-6437/checkRulesModule", HttpMethod.POST, request, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("20180101", responseEntity.getBody());
+        client.post("/REST/EPBDS-6437/checkRulesModule",
+            "/testCheckRulesModule_usingUTCTimestamp_JSON_request.json",
+            "/testCheckRulesModule_usingUTCTimestamp_JSON_response.txt");
     }
 
     @Test
     public void testCheckRulesModule_usingUTCTimestamp_JSON() {
-        HttpEntity<?> request = new HttpEntity<>("{ \"requestDate\": 1514757600000 }", DEF_HTTPHEADERS);
-
-        ResponseEntity<String> responseEntity = rest
-            .exchange(baseURI + "/REST/EPBDS-6437/checkRulesModule", HttpMethod.POST, request, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("20180101", responseEntity.getBody());
+        client.post("/REST/EPBDS-6437/checkRulesModule",
+            "/testCheckRulesModule_usingUTCTimestamp_JSON_request.json",
+            "/testCheckRulesModule_usingUTCTimestamp_JSON_response.txt");
     }
 
     @Test

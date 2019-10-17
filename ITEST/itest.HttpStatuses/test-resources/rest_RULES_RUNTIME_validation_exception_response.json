@@ -1,0 +1,1 @@
+{"message":"Object 'FOUR' is outside of valid domain 'StringType'. Valid values: [ONE, TWO, THREE]","type":"VALIDATION","details":null}

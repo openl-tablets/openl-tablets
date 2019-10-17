@@ -7,9 +7,11 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.JsonUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -30,6 +32,8 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
@@ -85,21 +89,18 @@ public class HttpClient {
             case "zip":
                 return "application/zip";
             case "json":
-                return "application/json";
+                return "application/json;q=1.0, */*;q=0.1";
             case "xml":
-                return "application/xml";
+                return "application/xml;q=1.0, */*;q=0.1";
             case "txt":
-                return "application/json"; // FIXME: EPBDS-8931 text/plain should be there
-            case "txt!": // FIXME: EPBDS-8931 remove txt! anywhere
-                return "text/plain";
+                return "text/plain;q=1.0, */*;q=0.1";
             default:
                 return null;
         }
     }
 
     private static HttpEntity<?> file(String requestFile, String responseFile) {
-        return new HttpEntity<>(
-            requestFile != null ? new ClassPathResource(requestFile.replaceAll("txt!", "txt")) : null,
+        return new HttpEntity<>(requestFile != null ? new ClassPathResource(requestFile) : null,
             getHeaders(requestFile, responseFile));
     }
 
@@ -190,6 +191,9 @@ public class HttpClient {
             case "xml":
                 compareXML(responseFile, body);
                 break;
+            case "json":
+                compareJson(responseFile, body);
+                break;
             default:
                 compareBinary(responseFile, body);
         }
@@ -214,6 +218,7 @@ public class HttpClient {
     }
 
     private void compareXML(String responseFile, Resource body) {
+
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
             DifferenceEvaluator evaluator = DifferenceEvaluators.chain(DifferenceEvaluators.Default, matchByPattern());
@@ -262,5 +267,49 @@ public class HttpClient {
             }
             return outcome;
         };
+    }
+
+    private void compareJson(String responseFile, Resource body) {
+        try (InputStream actual = body.getInputStream();
+                InputStream file = getClass().getResourceAsStream(responseFile)) {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
+            Map<String, Object> expectedMap = mapper.readValue(file, Map.class);
+            assertEquals(actualMap.keySet(), expectedMap.keySet());
+            for (String expectedKey : expectedMap.keySet()) {
+                compareJsonObjects(JsonUtils.toJSON(expectedMap.get(expectedKey)),
+                    JsonUtils.toJSON(actualMap.get(expectedKey)));
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void compareJsonObjects(String expectedJson, String actualJson) {
+        try {
+            Map<String, String> expectedJsonMap = JsonUtils.splitJSON(expectedJson);
+            Map<String, String> actualJsonMap = JsonUtils.splitJSON(actualJson);
+            assertEquals(expectedJsonMap.keySet(), actualJsonMap.keySet());
+            if (expectedJsonMap.keySet().size() == 0) {
+                String regExp = expectedJson.replaceAll("\\[", "\\\\[")
+                    .replaceAll("]", "\\\\]")
+                    .replaceAll("#+", "\"?\\\\d+\"?")
+                    .replaceAll("\"?@+\"?", "\"?[@\\\\w]+\"?")
+                    .replaceAll("\"?\\*+\"?", "[^\uFFFF]*");
+                String noSpacesActual = actualJson.replaceAll("\\s+", " ");
+                String noSpacesExpected = expectedJson.replaceAll("\\s+", " ");
+                boolean matches = noSpacesActual
+                    .equals(noSpacesExpected) || Pattern.compile(regExp).matcher(noSpacesActual).matches();
+                if (!matches) {
+                    fail("File: [" + expectedJson + "]\n" + noSpacesActual);
+                }
+            }
+            for (String expectedKey : expectedJsonMap.keySet()) {
+                compareJsonObjects(JsonUtils.toJSON(expectedJsonMap.get(expectedKey)),
+                    JsonUtils.toJSON(actualJsonMap.get(expectedKey)));
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

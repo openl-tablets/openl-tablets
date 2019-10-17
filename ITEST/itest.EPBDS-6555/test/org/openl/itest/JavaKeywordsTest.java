@@ -25,7 +25,7 @@ public class JavaKeywordsTest {
 
     @Test
     public void testRestGreeting() {
-        client.post("/REST/EPBDS-6555/Greeting", "/Greeting_Request.json", "/Greeting_Response.json");
+        client.post("/REST/EPBDS-6555/Greeting", "/Greeting_Request.json", "/Greeting_Response.txt");
     }
 
     @Test

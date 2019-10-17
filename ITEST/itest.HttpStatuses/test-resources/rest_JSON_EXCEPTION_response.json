@@ -1,0 +1,1 @@
+{"message":"JsonParseException: Unexpected character ('s' (code 115)): was expecting double-quote to start field name\n at [Source: (org.apache.cxf.transport.http.AbstractHTTPDestination$1); line: 1, column: 3]","type":"BAD_REQUEST","details":"***"}

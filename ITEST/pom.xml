@@ -51,7 +51,6 @@
                 <artifactId>jetty-webapp</artifactId>
                 <version>${jetty.server.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>

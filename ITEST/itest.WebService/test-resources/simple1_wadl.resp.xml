@@ -224,7 +224,7 @@
                         <representation mediaType="application/json" element="prefix1:HelloRequest"/>
                     </request>
                     <response>
-                        <representation mediaType="application/json"/>
+                        <representation mediaType="text/plain"/>
                     </response>
                 </method>
             </resource>

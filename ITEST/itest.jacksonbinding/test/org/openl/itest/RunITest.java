@@ -54,13 +54,12 @@ public class RunITest {
     }
 
     @Test
-    public void testDisableDefaultTyping() {
-        client.get("/rules-disabledefaulttyping/getObject", "/disable_default_typing.json");
-    }
-
-    @Test
     public void testSmartDefaultTyping() {
         client.get("/rules-smartdefaulttyping/myCat", "/smart_default_typing.json");
     }
 
+    @Test
+    public void testDisableDefaultTyping() {
+        client.get("/rules-disabledefaulttyping/getObject", "/disable_default_typing.json");
+    }
 }
