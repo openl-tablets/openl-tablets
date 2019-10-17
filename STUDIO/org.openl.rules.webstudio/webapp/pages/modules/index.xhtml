@@ -121,12 +121,14 @@
                     this.applyCurrentChanges = project.applyCurrentChanges || empty;
 
                     window.onbeforeunload = function (e) {
-                        var result = hasChanges() ? 'Table is not saved. If you leave this page, all changes will be lost.' : null;
+                        var changed = hasChanges();
                         for (var i = 0; i < afterUnloadActions.length; i++) {
                             afterUnloadActions[i](e);
                         }
                         afterUnloadActions = [];
-                        return result;
+                        if (changed) {
+                            return 'Table is not saved. If you leave this page, all changes will be lost.';
+                        }
                     };
                     hadChanges = hasChanges();
                 };
