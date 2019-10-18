@@ -25,22 +25,18 @@ public class ServiceConfigurationSerializationInclusionFactoryBean extends Servi
                         getServiceDescription().getName()), e);
                 }
             } else {
-                if (value != null) {
-                    throw new ServiceConfigurationException(
-                        String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                            SERIALIZATION_INCLUSION,
-                            getServiceDescription().getName()));
-                }
+                throw new ServiceConfigurationException(
+                    String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        SERIALIZATION_INCLUSION,
+                        getServiceDescription().getName()));
             }
-        } else {
-            try {
-                serializationInclusion = JsonInclude.Include.valueOf(defaultSerializationInclusion);
-                return serializationInclusion;
-            } catch (IllegalArgumentException e) {
-                throw new ServiceConfigurationException("Invalid serializationInclusion value", e);
-            }
+        } 
+        try {
+            serializationInclusion = JsonInclude.Include.valueOf(defaultSerializationInclusion);
+            return serializationInclusion;
+        } catch (IllegalArgumentException e) {
+            throw new ServiceConfigurationException("Invalid serializationInclusion value", e);
         }
-        return null;
     }
 
     @Override
