@@ -89,7 +89,7 @@
         <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
                      id="#{prependId}newBranchTemplate" rendered="#{isDesignRepo}"
                      validatorMessage="Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.">
-            <f:validateRegex pattern="^([\w\-\/]+|\{[012]\})+$" />
+            <f:validateRegex pattern="^([\w\-\/]+|\{[012]\})*$" />
         </h:inputText>             
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}newBranchTemplateShowInfo');return false;" title="Details" rendered="#{isDesignRepo}"/>
         
