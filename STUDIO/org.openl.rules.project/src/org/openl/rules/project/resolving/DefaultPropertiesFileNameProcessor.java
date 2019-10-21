@@ -3,7 +3,13 @@ package org.openl.rules.project.resolving;
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -235,11 +241,11 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             } else if (clazz.isArray()) {
                 Class<?> componentClass = clazz.getComponentType();
                 if (componentClass.isArray()) {
-                    throw new OpenlNotCheckedException("Two dim arrays are not supported!");
+                    throw new OpenlNotCheckedException("Two dim arrays are not supported.");
                 }
                 propValue = toArray(propertyName, value, componentClass);
             } else {
-                throw new OpenlNotCheckedException("Unsupported data type");
+                throw new OpenlNotCheckedException("Unsupported data type.");
             }
             return propValue;
         }

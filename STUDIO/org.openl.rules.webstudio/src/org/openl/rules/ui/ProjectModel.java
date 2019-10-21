@@ -1,10 +1,21 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.CREATE_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -18,8 +29,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -30,7 +45,11 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.*;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -43,7 +62,14 @@ import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.BaseTestUnit;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestRunner;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.benchmark.Benchmark;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
@@ -69,12 +95,15 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProjectModel {
+
+    private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
     /**
      * Compiled rules with errors. Representation of wrapper.
@@ -163,7 +192,7 @@ public class ProjectModel {
                 return new Benchmark().runUnit(bu, ms);
 
             } catch (Throwable t) {
-                Log.error("Run Error:", t);
+                log.error("Run error:", t);
                 return new BenchmarkInfo(t, bu, testSuite.getName());
             }
         } finally {
@@ -197,7 +226,7 @@ public class ProjectModel {
                     OpenLArgumentsCloner cloner = testSuite.getArgumentsCloner();
                     testRunner.runTest(test, target, env, cloner, times);
                 } catch (Throwable t) {
-                    Log.error("Error during Method run: ", t);
+                    log.error("Error during Method run: ", t);
                     throw RuntimeExceptionWrapper.wrap(t);
                 }
             }
@@ -1050,7 +1079,7 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
-            Log.error("Failed to load!", t);
+            log.error("Failed to load.", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
                 String message = String.format("Cannot load the module: %s", openLMessage.getSummary());

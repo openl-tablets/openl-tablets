@@ -56,31 +56,4 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return new HashSet<>(size);
     }
 
-    private static class CollectionIndex implements IOpenIndex {
-        @Override
-        public IOpenClass getElementType() {
-            return JavaOpenClass.OBJECT;
-        }
-
-        @Override
-        public IOpenClass getIndexType() {
-            return null;
-        }
-
-        @Override
-        public Object getValue(Object container, Object index) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isWritable() {
-            return true;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void setValue(Object container, Object index, Object value) {
-            ((Collection<Object>) container).add(value);
-        }
-    }
 }

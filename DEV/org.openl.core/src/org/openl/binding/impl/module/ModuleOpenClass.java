@@ -30,7 +30,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -40,6 +41,8 @@ import org.openl.util.Log;
  *
  */
 public class ModuleOpenClass extends ComponentOpenClass {
+
+    private final Logger log = LoggerFactory.getLogger(ModuleOpenClass.class);
 
     /**
      * Map of internal types. XLS document can have internal types defined using <code>Datatype</code> tables, e.g.
@@ -109,8 +112,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
                         addMethod(depMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
-                    if (Log.isDebugEnabled()) {
-                        Log.debug(e.getMessage(), e);
+                    if (log.isDebugEnabled()) {
+                        log.debug(e.getMessage(), e);
                     }
                     addError(e);
                 }
@@ -130,8 +133,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
                     addField(depField);
                 }
             } catch (OpenlNotCheckedException e) {
-                if (Log.isDebugEnabled()) {
-                    Log.debug(e.getMessage(), e);
+                if (log.isDebugEnabled()) {
+                    log.debug(e.getMessage(), e);
                 }
                 addError(e);
             }

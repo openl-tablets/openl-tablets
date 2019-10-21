@@ -1,6 +1,7 @@
 package org.openl.ie.tools;
 
-import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class should be used in methods which may cause exceptions as a result of programming error or system call
@@ -12,11 +13,11 @@ public class RTExceptionWrapper extends RuntimeException {
 
     Throwable _t;
 
-    static public RuntimeException wrap(String s, Throwable t) {
+    public static RuntimeException wrap(String s, Throwable t) {
         return wrap(s, t, false);
     }
 
-    static public RuntimeException wrap(String s, Throwable t, boolean always) {
+    public static RuntimeException wrap(String s, Throwable t, boolean always) {
         if (t instanceof RuntimeException) {
             if ((s == null || s.length() == 0) && !always) {
                 return (RuntimeException) t;
@@ -46,7 +47,8 @@ public class RTExceptionWrapper extends RuntimeException {
 
     @Override
     public void printStackTrace() {
-        Log.error(getMessage(), _t);
+        final Logger log = LoggerFactory.getLogger(RTExceptionWrapper.class);
+        log.error(getMessage(), _t);
     }
 
     @Override

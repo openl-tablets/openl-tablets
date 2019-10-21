@@ -40,7 +40,7 @@ abstract class OpenLLogger {
     }
 
     protected final void log(String text, String... args) {
-        logger.info(text, args);
+        logger.info(text, (Object[]) args);
     }
 
     protected final void log(String text, String arg1) {
@@ -84,6 +84,7 @@ abstract class OpenLLogger {
         logger.info(text, toString(arg1));
     }
 
+    @SuppressWarnings("rawtypes")
     private void logComplexObject(Object value) {
         if (value instanceof Map) {
             int i = 0;

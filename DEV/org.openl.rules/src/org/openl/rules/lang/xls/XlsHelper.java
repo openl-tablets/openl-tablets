@@ -18,12 +18,12 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.util.Log;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class XlsHelper {
-
     private XlsHelper() {
     }
 
@@ -91,7 +91,8 @@ public final class XlsHelper {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(uri)) {
                 return "VirtualModule";
             } else {
-                Log.error("Error URI to name conversion", e);
+                final Logger log = LoggerFactory.getLogger(XlsHelper.class);
+                log.error("Failed URI convertation to module name.", e);
                 return "UndefinedXlsType";
             }
         }

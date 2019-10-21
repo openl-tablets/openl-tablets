@@ -61,7 +61,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.ClassUtils;
-import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -601,9 +600,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);
                     } catch (OpenlNotCheckedException e) {
-                        if (Log.isDebugEnabled()) {
-                            Log.debug(e.getMessage(), e);
-                        }
                         addError(e);
                     }
                 }

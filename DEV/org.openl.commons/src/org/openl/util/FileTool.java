@@ -86,9 +86,8 @@ public final class FileTool {
             IOUtils.copyAndClose(source, new FileOutputStream(file));
         } catch (IOException e) {
             final Logger log = LoggerFactory.getLogger(FileTool.class);
-            log.error("Error when creating file: {}", fileName, e);
+            log.error("Failed to create a file: {}", fileName, e);
         }
         return file;
     }
-
 }

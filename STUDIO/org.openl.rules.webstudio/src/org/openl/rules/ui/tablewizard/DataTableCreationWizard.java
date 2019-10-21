@@ -18,10 +18,13 @@ import org.openl.rules.table.xls.builder.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.util.Log;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataTableCreationWizard extends TableCreationWizard {
+    private final Logger log = LoggerFactory.getLogger(DataTableCreationWizard.class);
+
     @NotBlank(message = "Cannot be empty")
     private String tableType;
 
@@ -131,7 +134,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         String s = super.next();
 
         // Switched to a next page
-        Log.debug("Go to page {0}", getStep());
+        log.debug("Go to page {0}", getStep());
 
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             initTree();
@@ -408,8 +411,8 @@ public class DataTableCreationWizard extends TableCreationWizard {
                     return page;
                 }
             }
-
-            Log.warn("There is no pageNum {0}", pageNum);
+            final Logger log = LoggerFactory.getLogger(Page.class);
+            log.warn("There is no pageNum {}.", pageNum);
 
             return NO_SUCH_PAGE;
         }

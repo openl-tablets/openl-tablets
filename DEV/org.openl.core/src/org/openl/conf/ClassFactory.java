@@ -11,14 +11,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.openl.binding.MethodUtil;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class ClassFactory extends AConfigurationElement {
+
+    private final Logger log = LoggerFactory.getLogger(ClassFactory.class);
 
     static final Class<?>[] NO_PARAMS = {};
     protected String className;
@@ -34,16 +37,19 @@ public class ClassFactory extends AConfigurationElement {
         } catch (ClassNotFoundException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
-            Log.debug("Potential problem loading class: {0}", ex, name);
+            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
+            log.debug("Potential problem loading class: {0}", ex, name);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
-            Log.error("Cannot load class '{0}' compiled using newer version of JDK than current JRE ({1})",
-                e,
+            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
+            log.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",
                 name,
-                System.getProperty("java.version"));
+                System.getProperty("java.version"),
+                e);
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Throwable t) {
-            Log.error(String.format("Failed to load class '%s'.", name), t);
+            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
+            log.error(String.format("Failed to load class '%s'.", name), t);
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }

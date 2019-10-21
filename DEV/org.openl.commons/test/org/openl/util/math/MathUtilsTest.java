@@ -409,7 +409,7 @@ public class MathUtilsTest {
             }
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array.", e.getMessage());
         }
 
         assertNull(smallMethod.invoke(null, null, 5));
@@ -422,7 +422,7 @@ public class MathUtilsTest {
             }
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array", e.getMessage());
+            assertEquals("There is no position '0' in the given array.", e.getMessage());
         }
 
     }
@@ -449,7 +449,7 @@ public class MathUtilsTest {
             }
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array.", e.getMessage());
         }
 
         assertNull(bigMethod.invoke(null, null, 5));
@@ -462,7 +462,7 @@ public class MathUtilsTest {
             }
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array", e.getMessage());
+            assertEquals("There is no position '0' in the given array.", e.getMessage());
         }
 
     }
@@ -516,7 +516,7 @@ public class MathUtilsTest {
             MathUtils.big(mas, 6);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array.", e.getMessage());
         }
 
         mas = null;
@@ -527,7 +527,7 @@ public class MathUtilsTest {
             MathUtils.big(mas, 0);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array", e.getMessage());
+            assertEquals("There is no position '0' in the given array.", e.getMessage());
         }
 
         mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L };
@@ -594,7 +594,7 @@ public class MathUtilsTest {
             MathUtils.small(mas, 6);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array.", e.getMessage());
         }
 
         mas = null;
@@ -605,7 +605,7 @@ public class MathUtilsTest {
             MathUtils.small(mas, 0);
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array", e.getMessage());
+            assertEquals("There is no position '0' in the given array.", e.getMessage());
         }
 
         mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L };

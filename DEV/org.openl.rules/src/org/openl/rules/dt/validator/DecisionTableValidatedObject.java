@@ -27,13 +27,16 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
+
+    private final Logger log = LoggerFactory.getLogger(DecisionTableValidatedObject.class);
 
     private IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
@@ -101,8 +104,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (domain != null) {
             return constrainer.addIntVar(domain.getMin(), domain.getMax(), parameterName);
         }
-
-        Log.warn("Parameter " + parameterName + " has no domain");
+        log.warn("Parameter '{}' has no domain.", parameterName);
 
         return null;
 

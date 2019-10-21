@@ -116,7 +116,7 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        Objects.requireNonNull(mapper, "The 'mapper' argument is NULL.");
+        Objects.requireNonNull(mapper, "mapper cannot be null");
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<O> result = new ArrayList<>(size);
         for (I input : col) {
@@ -140,7 +140,7 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        Objects.requireNonNull(predicate, "The 'predicate' argument is NULL.");
+        Objects.requireNonNull(predicate, "predicate cannot be null");
         for (final T item : col) {
             if (predicate.evaluate(item)) {
                 return item;
@@ -164,7 +164,7 @@ public class CollectionUtils {
         if (col == null) {
             return null;
         }
-        Objects.requireNonNull(predicate, "The 'predicate' argument is NULL.");
+        Objects.requireNonNull(predicate, "predicate cannot be null");
 
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<T> result = new ArrayList<>(size);

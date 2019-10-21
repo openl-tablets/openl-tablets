@@ -34,7 +34,7 @@ public class Uncovered {
     public HashMap getSolution() {
         HashMap map = new HashMap();
         for (int i = 0; i < _solutionNames.length; i++) {
-            map.put(_solutionNames[i], new Integer(_solutionValues[i]));
+            map.put(_solutionNames[i], _solutionValues[i]);
         }
         return map;
     }

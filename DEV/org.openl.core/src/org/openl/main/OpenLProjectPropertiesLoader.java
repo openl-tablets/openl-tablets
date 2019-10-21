@@ -4,18 +4,28 @@
  */
 package org.openl.main;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.openl.util.FileTool;
-import org.openl.util.Log;
 import org.openl.util.StringTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class OpenLProjectPropertiesLoader {
+
+    private final Logger log = LoggerFactory.getLogger(OpenLProjectPropertiesLoader.class);
 
     public static final String OPENL_PROPERTIES_FNAME = "openl.project.classpath.properties";
 
@@ -95,25 +105,14 @@ public class OpenLProjectPropertiesLoader {
     }
 
     public Properties loadProjectProperties(String projectHome) {
-        FileInputStream fis = null;
-        try {
+        try (FileInputStream fis = new FileInputStream(
+            new File(getOpenLPropertiesFolder(projectHome), OPENL_PROPERTIES_FNAME))) {
             Properties p = new Properties();
-            fis = new FileInputStream(new File(getOpenLPropertiesFolder(projectHome), OPENL_PROPERTIES_FNAME));
             p.load(fis);
-
             return p;
         } catch (Exception ex) {
             return null;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    Log.error(e);
-                }
-            }
         }
-
     }
 
     /**
@@ -147,21 +146,14 @@ public class OpenLProjectPropertiesLoader {
         String ecp = loadExistingClasspath(projectHome);
         if (ecp == null || !isTheSame(ecp, cp)) {
             String folder = getOpenLPropertiesFolder(projectHome);
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME));
+            try (FileWriter fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME))) {
                 fw.write(OPENL_CLASSPATH_PROPERTY + "=");
                 for (int i = 0; i < cp.length; i++) {
                     fw.write("\\\n" + cp[i] + File.pathSeparator);
                 }
             } catch (Exception ex) {
-                Log.error("Error writing " + folder + "/" + OPENL_PROPERTIES_FNAME, ex);
-            } finally {
-                if (fw != null) {
-                    fw.close();
-                }
+                log.error("Failed write to '{}'.", folder + "/" + OPENL_PROPERTIES_FNAME, ex);
             }
-
         }
     }
 
@@ -196,26 +188,13 @@ public class OpenLProjectPropertiesLoader {
      */
     public void writeProperties(String projectHome, Properties p) {
         String folder = getOpenLPropertiesFolder(projectHome);
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME));
-
+        try (FileWriter fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME))) {
             for (Map.Entry<Object, Object> element : p.entrySet()) {
                 writeSingleProperty(element, fw);
             }
-
         } catch (Exception ex) {
-            Log.error("Error writing " + folder + "/" + OPENL_PROPERTIES_FNAME, ex);
-        } finally {
-            if (fw != null) {
-                try {
-                    fw.close();
-                } catch (IOException e) {
-                    Log.error("Error writing " + folder + "/" + OPENL_PROPERTIES_FNAME, e);
-                }
-            }
+            log.error("Failed write to '{}'.", folder + "/" + OPENL_PROPERTIES_FNAME, ex);
         }
-
     }
 
     /**

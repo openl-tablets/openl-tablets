@@ -14,7 +14,8 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     private class RangeIterator extends AIntIterator {
-        private int current, step;
+        private int current;
+        private int step;
 
         RangeIterator(int step) {
             this.current = min;

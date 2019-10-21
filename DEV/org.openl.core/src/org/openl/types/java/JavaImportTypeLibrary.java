@@ -14,14 +14,17 @@ import java.util.Set;
 import org.openl.conf.ClassFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class JavaImportTypeLibrary implements ITypeLibrary {
+
+    private final Logger log = LoggerFactory.getLogger(JavaImportTypeLibrary.class);
 
     private Map<String, IOpenClass> aliases = new HashMap<>();
 
@@ -102,7 +105,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                     System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
-                Log.error("Cannot load class: " + name, t);
+                log.error("Cannot load class: " + name, t);
                 throw RuntimeExceptionWrapper.wrap(t);
             }
         }

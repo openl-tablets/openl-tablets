@@ -3,7 +3,10 @@ package org.openl.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnumUtils {
+public final class EnumUtils {
+
+    private EnumUtils() {
+    }
 
     public static String getName(Enum<?> constant) {
         return constant.name();
@@ -48,7 +51,8 @@ public class EnumUtils {
 
     public static Object[] getEnumConstants(Class<?> enumClass) {
         if (!enumClass.isEnum()) {
-            throw new IllegalArgumentException("The Class must be a enum");
+            throw new IllegalArgumentException(
+                String.format("The class '%s' must be an enum.", enumClass.getTypeName()));
         }
         return enumClass.getEnumConstants();
     }

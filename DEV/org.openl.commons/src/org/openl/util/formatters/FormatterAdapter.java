@@ -20,7 +20,7 @@ public class FormatterAdapter implements IFormatter {
     @Override
     public Object parse(String value) {
         throw new UnsupportedOperationException(
-            "Should not be called, this is only to implement IFormatter interface.");
+            "Should not be called, this is only used to implement IFormatter interface.");
     }
 
 }

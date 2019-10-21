@@ -11,6 +11,6 @@ public enum ReloadType {
     // class loader
     RELOAD, // Usual reload: reload wrapper but with using of old class loader
     // and clear all compiled wrappers from cache
-    FORCED, // Forced reloading with new class loader after reload and clear all
+    FORCED // Forced reloading with new class loader after reload and clear all
     // compiled wrappers from cache
 }

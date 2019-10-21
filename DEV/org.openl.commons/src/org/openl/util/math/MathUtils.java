@@ -85,92 +85,78 @@ public class MathUtils {
 
     // SMALL
     public static <T extends Comparable<T>> T small(T[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
+        int index = position - 1;
         values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        validateIndex(index < 0 || values.length <= index, position);
         T[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Byte small(byte[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         byte[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Short small(short[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         short[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Integer small(int[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         int[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Long small(long[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         long[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Float small(float[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         float[] v = values.clone();
         Arrays.sort(v);
         return v[index];
     }
 
     public static Double small(double[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         double[] v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -178,119 +164,91 @@ public class MathUtils {
 
     // BIG
     public static <T extends Comparable<T>> T big(T[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
+        int index = position - 1;
         values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        validateIndex(index < 0 || values.length <= index, position);
         T[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Byte big(byte[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         byte[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Short big(short[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         short[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Integer big(int[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         int[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Long big(long[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         long[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Float big(float[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         float[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
     public static Double big(double[] values, int position) {
-        int index = position - 1;
         if (values == null) {
             return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
+        int index = position - 1;
+        validateIndex(index < 0 || values.length <= index, position);
         double[] v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
+    private static void validateIndex(boolean throwException, int position) {
+        if (throwException) {
+            throw new IllegalArgumentException(
+                String.format("There is no position '%d' in the given array.", position));
+        }
+    }
+
     // SUM
-    private interface Adder<T extends Number> {
-        T add(T a, T b);
-
-        T zero();
-    }
-
-    private static <T extends Number> T sum(T[] values, Adder<T> adder) {
-        if (values == null) {
-            return null;
-        }
-        T sum = adder.zero();
-        boolean hasValues = false;
-        for (T value : values) {
-            if (value != null) {
-                sum = adder.add(sum, value);
-                hasValues = true;
-            }
-        }
-        return hasValues ? sum : null;
-    }
-
     public static Byte sum(byte[] values) {
         if (values == null) {
             return null;
@@ -535,42 +493,42 @@ public class MathUtils {
     // MOD for wrapper types
     public static Byte mod(Byte number, Byte divisor) {
         if (number == null || divisor == null) {
-            return Byte.valueOf("0");
+            return Byte.valueOf((byte) 0);
         }
         return mod((byte) number, (byte) divisor);
     }
 
     public static Short mod(Short number, Short divisor) {
         if (number == null || divisor == null) {
-            return Short.valueOf("0");
+            return Short.valueOf((short) 0);
         }
         return mod((short) number, (short) divisor);
     }
 
     public static Integer mod(Integer number, Integer divisor) {
         if (number == null || divisor == null) {
-            return Integer.valueOf("0");
+            return Integer.valueOf(0);
         }
         return mod((int) number, (int) divisor);
     }
 
     public static Long mod(Long number, Long divisor) {
         if (number == null || divisor == null) {
-            return Long.valueOf("0");
+            return Long.valueOf(0l);
         }
         return mod((long) number, (long) divisor);
     }
 
     public static Float mod(Float number, Float divisor) {
         if (number == null || divisor == null) {
-            return Float.valueOf("0");
+            return Float.valueOf(0f);
         }
         return mod((float) number, (float) divisor);
     }
 
     public static Double mod(Double number, Double divisor) {
         if (number == null || divisor == null) {
-            return Double.valueOf("0");
+            return Double.valueOf(0d);
         }
         return mod((double) number, (double) divisor);
     }

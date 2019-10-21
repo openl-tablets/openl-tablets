@@ -9,11 +9,14 @@ import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
+
+    private final Logger log = LoggerFactory.getLogger(AOpenLBuilder.class);
 
     @Override
     public OpenL build(String openl) {
@@ -58,8 +61,8 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
                 if (is != null) {
                     is.close();
                 }
-            } catch (Throwable t) {
-                Log.error("Error closing stream", t);
+            } catch (Exception t) {
+                log.error("Failed to close an input stream.", t);
             }
         }
 

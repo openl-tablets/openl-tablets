@@ -24,45 +24,43 @@ public class ClassUtils {
     static {
         ProtectionDomain pd;
         Method dc;
-        Throwable th = null;
+        Throwable ex = null;
         try {
-            pd = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
-                @Override
-                public Object run() {
-                    return ClassUtils.class.getProtectionDomain();
-                }
-            });
-
+            pd = (ProtectionDomain) AccessController
+                .doPrivileged((PrivilegedAction) () -> ClassUtils.class.getProtectionDomain());
             dc = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() throws Exception {
-                    Class loader = Class.forName("java.lang.ClassLoader");
+                    Class<?> loader = Class.forName("java.lang.ClassLoader");
                     Method defineClass = loader.getDeclaredMethod("defineClass",
-                        new Class[] { String.class, byte[].class, int.class, int.class, ProtectionDomain.class });
+                        String.class,
+                        byte[].class,
+                        int.class,
+                        int.class,
+                        ProtectionDomain.class);
                     defineClass.setAccessible(true);
                     return defineClass;
                 }
             });
-
-        } catch (Throwable e) {
-            th = e;
+        } catch (NoClassDefFoundError | Exception e) {
+            ex = e;
             dc = null;
             pd = null;
 
         }
         DEFINE_CLASS = dc;
         PROTECTION_DOMAIN = pd;
-        THROWABLE = th;
+        THROWABLE = ex;
     }
 
     /**
      * Loads bytecode and run static initializes.
      */
     public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
-        Class clazz;
+        Class<?> clazz;
         if (DEFINE_CLASS != null) {
-            Object[] args = new Object[] { className, b, new Integer(0), new Integer(b.length), PROTECTION_DOMAIN };
-            clazz = (Class) DEFINE_CLASS.invoke(loader, args);
+            Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
+            clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
         } else {
             throw new IllegalStateException(THROWABLE);
         }

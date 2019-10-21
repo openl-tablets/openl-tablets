@@ -13,7 +13,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class PropertyFileLoader loads a property file using the following algorithm:
@@ -30,6 +31,8 @@ import org.openl.util.Log;
  *
  */
 public class PropertyFileLoader {
+
+    private final Logger log = LoggerFactory.getLogger(PropertyFileLoader.class);
 
     public static final Properties NO_PROPERTIES = new Properties();
 
@@ -71,7 +74,7 @@ public class PropertyFileLoader {
 
         // is it valid URL?
 
-        Log.debug("Looking for " + propertiesFileName);
+        log.debug("Looking for '{}'.", propertiesFileName);
         if (!loadAsURL(propertiesFileName) && !loadAsResource(propertiesFileName) && !loadAsFile(propertiesFileName)) {
             properties = parent == null ? NO_PROPERTIES : parent.getProperties();
         }

@@ -17,9 +17,12 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
-import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestDescription {
+
+    private final Logger log = LoggerFactory.getLogger(TestDescription.class);
 
     private ParameterWithValueDeclaration[] executionParams;
     private IOpenMethod testedMethod;
@@ -87,7 +90,7 @@ public class TestDescription {
                 try {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
-                    Log.error("Failed to clone an argument '{0}'. Original argument will be used.",
+                    log.error("Failed to clone an argument '{0}'. Original argument will be used.",
                         executionParams[i].getName());
                     args[i] = value;
                 }
@@ -161,7 +164,7 @@ public class TestDescription {
         try {
             return cloner.deepClone(context);
         } catch (Exception e) {
-            Log.error("Failed to clone context. Original context will be used.");
+            log.error("Failed to clone context. Original context will be used.");
             return context;
         }
     }

@@ -6,12 +6,32 @@
 
 package org.openl.types.java;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
 import org.openl.gen.JavaInterfaceImplBuilder;
-import org.openl.types.*;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
@@ -25,15 +45,15 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenClass extends AOpenClass {
 
-    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, 0);
-    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, 0L);
-    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, 0.0);
-    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, 0.0f);
-    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, (short) 0);
-    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class, '\0');
-    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, (byte) 0);
-    public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
-    public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
+    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, 0);
+    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, 0L);
+    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, 0.0);
+    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, 0.0f);
+    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, (short) 0);
+    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, '\0');
+    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, (byte) 0);
+    public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.FALSE);
+    public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, null);
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, true);
     public static final JavaOpenClass OBJECT = new JavaOpenClass(Object.class, false);
     public static final JavaOpenClass CLASS = new JavaOpenClass(Class.class, true);
@@ -471,12 +491,10 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaPrimitiveClass extends JavaOpenClass {
-        private Class<?> wrapperClass;
         private Object nullObject;
 
-        public JavaPrimitiveClass(Class<?> instanceClass, Class<?> wrapperClass, Object nullObject) {
+        public JavaPrimitiveClass(Class<?> instanceClass, Object nullObject) {
             super(instanceClass, true);
-            this.wrapperClass = wrapperClass;
             this.nullObject = nullObject;
         }
 

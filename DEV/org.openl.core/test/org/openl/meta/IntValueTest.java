@@ -102,7 +102,7 @@ public class IntValueTest {
             assertEquals(0, IntValue.big(mas, 6));
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array", e.getMessage());
+            assertEquals("There is no position '6' in the given array.", e.getMessage());
         }
 
         mas = null;
@@ -113,7 +113,7 @@ public class IntValueTest {
             assertEquals(0, IntValue.big(mas, 5));
             fail();
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '5' in the given array", e.getMessage());
+            assertEquals("There is no position '5' in the given array.", e.getMessage());
         }
     }
 
