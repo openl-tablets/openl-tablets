@@ -5,11 +5,24 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
-import org.openl.excel.parser.*;
+import org.openl.excel.parser.AlignedValue;
+import org.openl.excel.parser.ExcelReader;
+import org.openl.excel.parser.ExcelReaderFactory;
+import org.openl.excel.parser.ExtendedValue;
+import org.openl.excel.parser.MergedCell;
+import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.table.*;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -147,9 +160,15 @@ public class ParsedGrid extends AGrid {
 
     private CellRowCol findTopLeft(int internalRow, int internalCol) {
         while (cells[internalRow][internalCol] == MergedCell.MERGE_WITH_LEFT) {
+            if (internalCol == 0) {
+                break;
+            }
             internalCol--;
         }
         while (cells[internalRow][internalCol] == MergedCell.MERGE_WITH_UP) {
+            if (internalRow == 0) {
+                break;
+            }
             internalRow--;
         }
         return new CellRowCol(internalRow, internalCol);

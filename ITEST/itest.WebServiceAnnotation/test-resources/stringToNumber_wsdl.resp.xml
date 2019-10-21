@@ -1,12 +1,6 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-                  xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-                  xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="String Parser(version=v1)"
-                  targetNamespace="http://DefaultNamespace">
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://DefaultNamespace" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="String Parser(version=v1)" targetNamespace="http://DefaultNamespace">
     <wsdl:types>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://internal.service.itest.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://internal.service.itest.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://internal.service.itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://internal.service.itest.openl.org">
             <xsd:complexType name="MyType">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="code" type="xsd:int"/>
@@ -14,25 +8,19 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://cxf.apache.org/arrays">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/arrays" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cxf.apache.org/arrays">
+            <xsd:complexType name="ArrayOfArrayOfAnyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true" type="tns:ArrayOfAnyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
             <xsd:complexType name="ArrayOfAnyType">
                 <xsd:sequence>
                     <xsd:element maxOccurs="unbounded" minOccurs="0" name="anyType" nillable="true" type="xsd:anyType"/>
                 </xsd:sequence>
             </xsd:complexType>
-            <xsd:complexType name="ArrayOfArrayOfAnyType">
-                <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="ArrayOfAnyType" nillable="true"
-                                 type="tns:ArrayOfAnyType"/>
-                </xsd:sequence>
-            </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace"
-                    xmlns:ns1="http://beans.generated.openl.org" xmlns:ns0="http://internal.service.itest.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://DefaultNamespace">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://DefaultNamespace" xmlns:ns1="http://beans.generated.openl.org" xmlns:ns0="http://internal.service.itest.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://DefaultNamespace">
             <xsd:import namespace="http://internal.service.itest.openl.org"/>
             <xsd:import namespace="http://beans.generated.openl.org"/>
             <xsd:complexType name="ArrayOfString">
@@ -89,6 +77,18 @@
                     <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>
+            <xsd:element name="parse4PathParam" type="tns:parse4PathParam"/>
+            <xsd:complexType name="parse4PathParam">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse4PathParamResponse" type="tns:parse4PathParamResponse"/>
+            <xsd:complexType name="parse4PathParamResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:anyType"/>
+                </xsd:sequence>
+            </xsd:complexType>
             <xsd:element name="parse4" type="tns:parse4"/>
             <xsd:complexType name="parse4">
                 <xsd:sequence>
@@ -123,6 +123,18 @@
             <xsd:complexType name="parse3Response">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse4QueryParam" type="tns:parse4QueryParam"/>
+            <xsd:complexType name="parse4QueryParam">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="str" nillable="true" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="parse4QueryParamResponse" type="tns:parse4QueryParamResponse"/>
+            <xsd:complexType name="parse4QueryParamResponse">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:anyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="parse6" type="tns:parse6"/>
@@ -187,19 +199,7 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://table.rules.openl.org">
-            <xsd:complexType name="Point">
-                <xsd:sequence>
-                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
-                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
-                </xsd:sequence>
-            </xsd:complexType>
-        </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://beans.generated.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://beans.generated.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.generated.openl.org">
             <xsd:complexType name="RuleType">
                 <xsd:sequence>
                     <xsd:element minOccurs="0" name="age" nillable="true" type="xsd:double"/>
@@ -207,10 +207,15 @@
                 </xsd:sequence>
             </xsd:complexType>
         </xsd:schema>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org"
-                    xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace"
-                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                    targetNamespace="http://calc.rules.openl.org">
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://table.rules.openl.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://table.rules.openl.org">
+            <xsd:complexType name="Point">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="column" type="xsd:int"/>
+                    <xsd:element minOccurs="0" name="row" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://calc.rules.openl.org" xmlns:ns1="http://cxf.apache.org/arrays" xmlns:ns0="http://DefaultNamespace" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://calc.rules.openl.org">
             <xsd:import namespace="http://DefaultNamespace"/>
             <xsd:import namespace="http://cxf.apache.org/arrays"/>
             <xsd:complexType name="SpreadsheetResult">
@@ -230,20 +235,8 @@
         <wsdl:part element="tns:parse6Response" name="parameters">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="process">
-        <wsdl:part element="tns:process" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
     <wsdl:message name="virtual">
         <wsdl:part element="tns:virtual" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="toStr">
-        <wsdl:part element="tns:toStr" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="parse2Response">
-        <wsdl:part element="tns:parse2Response" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="toStrResponse">
@@ -252,10 +245,6 @@
     </wsdl:message>
     <wsdl:message name="parse4">
         <wsdl:part element="tns:parse4" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="parse">
-        <wsdl:part element="tns:parse" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="parse3">
@@ -274,18 +263,6 @@
         <wsdl:part element="tns:parse5" name="parameters">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="parse2">
-        <wsdl:part element="tns:parse2" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="parse4Response">
-        <wsdl:part element="tns:parse4Response" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="parse3Response">
-        <wsdl:part element="tns:parse3Response" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
     <wsdl:message name="virtualResponse">
         <wsdl:part element="tns:virtualResponse" name="parameters">
         </wsdl:part>
@@ -294,20 +271,64 @@
         <wsdl:part element="tns:processResponse" name="parameters">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="notExcludedBecauseof_p_">
-        <wsdl:part element="tns:notExcludedBecauseof_p_" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="pingResponse">
-        <wsdl:part element="tns:pingResponse" name="parameters">
-        </wsdl:part>
-    </wsdl:message>
     <wsdl:message name="parseResponse">
         <wsdl:part element="tns:parseResponse" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="virtual2">
         <wsdl:part element="tns:virtual2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4PathParamResponse">
+        <wsdl:part element="tns:parse4PathParamResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="process">
+        <wsdl:part element="tns:process" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="toStr">
+        <wsdl:part element="tns:toStr" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse2Response">
+        <wsdl:part element="tns:parse2Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4PathParam">
+        <wsdl:part element="tns:parse4PathParam" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse">
+        <wsdl:part element="tns:parse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4QueryParam">
+        <wsdl:part element="tns:parse4QueryParam" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse2">
+        <wsdl:part element="tns:parse2" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4Response">
+        <wsdl:part element="tns:parse4Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse4QueryParamResponse">
+        <wsdl:part element="tns:parse4QueryParamResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="parse3Response">
+        <wsdl:part element="tns:parse3Response" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="notExcludedBecauseof_p_">
+        <wsdl:part element="tns:notExcludedBecauseof_p_" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="pingResponse">
+        <wsdl:part element="tns:pingResponse" name="parameters">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="parse5Response">
@@ -343,6 +364,12 @@
             <wsdl:output message="tns:toStrResponse" name="toStrResponse">
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="parse4PathParam">
+            <wsdl:input message="tns:parse4PathParam" name="parse4PathParam">
+            </wsdl:input>
+            <wsdl:output message="tns:parse4PathParamResponse" name="parse4PathParamResponse">
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="parse4">
             <wsdl:input message="tns:parse4" name="parse4">
             </wsdl:input>
@@ -359,6 +386,12 @@
             <wsdl:input message="tns:parse3" name="parse3">
             </wsdl:input>
             <wsdl:output message="tns:parse3Response" name="parse3Response">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse4QueryParam">
+            <wsdl:input message="tns:parse4QueryParam" name="parse4QueryParam">
+            </wsdl:input>
+            <wsdl:output message="tns:parse4QueryParamResponse" name="parse4QueryParamResponse">
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="parse6">
@@ -430,6 +463,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="parse4PathParam">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse4PathParam">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse4PathParamResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="parse4">
             <soap:operation soapAction="" style="document"/>
             <wsdl:input name="parse4">
@@ -454,6 +496,15 @@
                 <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output name="parse3Response">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="parse4QueryParam">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="parse4QueryParam">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="parse4QueryParamResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
