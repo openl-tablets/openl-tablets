@@ -331,7 +331,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             } else {
                 if (!artefact.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION)) {
                     throw new ProjectException(
-                        "Project ''{0}'' isn't marked for deletion. The method deleteHistory() in JCR Repository is supported only for undelete and erase.",
+                        "Project ''{0}'' is not marked for deletion. The method deleteHistory() in JCR Repository is supported only for undelete and erase.",
                         null,
                         name);
                 }

@@ -71,7 +71,7 @@ public class ProjectDescriptorSerializerFactory {
             case V5_21:
             case V5_22:
             case V5_23:
-            default: // rules.xml isn't changed in newer versions of OpenL but rules-deploy.xml could
+            default: // rules.xml is not changed in newer versions of OpenL but rules-deploy.xml could
                 return new XmlProjectDescriptorSerializer_v5_16();
         }
     }

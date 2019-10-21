@@ -14,13 +14,13 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     public ObjectValue(Object value) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing ObjectValue class. Parameter 'value' can't be null.");
+            "Error initializing ObjectValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo();
     }
 
     public ObjectValue(Object value, String shortName, String fullName, IOpenSourceCodeModule source) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing ObjectValue class. Parameter 'value' can't be null.");
+            "Error initializing ObjectValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 

@@ -29,7 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequestScoped
 public class UsersBean {
 
-    public static final String VALIDATION_EMPTY = "Can not be empty";
+    public static final String VALIDATION_EMPTY = "Cannot be empty";
     public static final String VALIDATION_MAX = "Must be less than 25";
     public static final String VALIDATION_USERNAME = "Invalid characters (valid: latin letters, numbers, _ and -)";
     public static final String VALIDATION_GROUPS = "Please select at least one group";

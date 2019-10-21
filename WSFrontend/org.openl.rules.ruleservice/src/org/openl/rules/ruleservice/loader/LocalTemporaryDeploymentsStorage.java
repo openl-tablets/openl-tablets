@@ -36,7 +36,7 @@ public class LocalTemporaryDeploymentsStorage {
      */
     public LocalTemporaryDeploymentsStorage(String directoryToLoadDeploymentsIn) {
         this.directoryToLoadDeploymentsIn = Objects.requireNonNull(directoryToLoadDeploymentsIn,
-            "directoryToLoadDeploymentsIn can't be null.");
+            "directoryToLoadDeploymentsIn cannot be null");
         File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
         folderToLoadDeploymentsIn.mkdirs();
         if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
@@ -76,7 +76,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets deployment from storage. If deployment doesn't exists in storage returns null.
+     * Gets deployment from storage. If deployment does not exists in storage returns null.
      *
      * @return deployment from storage or null if doens't exists
      */
@@ -92,7 +92,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @return loaded deployment
      */
     Deployment loadDeployment(Deployment deployment) {
-        Objects.requireNonNull(deployment, "deployment can't be null.");
+        Objects.requireNonNull(deployment, "deployment cannot be null");
 
         String deploymentName = deployment.getDeploymentName();
         CommonVersion version = deployment.getCommonVersion();

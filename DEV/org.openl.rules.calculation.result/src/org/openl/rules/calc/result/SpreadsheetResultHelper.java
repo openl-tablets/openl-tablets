@@ -17,8 +17,8 @@ public class SpreadsheetResultHelper {
     }
 
     public static int getColumnIndex(String columnName, String[] colNames) {
-        Objects.requireNonNull(columnName, "columnName can't be null.");
-        Objects.requireNonNull(colNames, "colNames can't be null.");
+        Objects.requireNonNull(columnName, "columnName cannot be null");
+        Objects.requireNonNull(colNames, "colNames cannot be null");
         if (!columnName.trim().equals(columnName)) {
             throw new IllegalArgumentException("Invalid columnName format.");
         }

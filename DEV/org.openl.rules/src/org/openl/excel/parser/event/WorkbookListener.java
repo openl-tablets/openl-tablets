@@ -167,7 +167,7 @@ public class WorkbookListener implements HSSFListener {
                 row = lsrec.getRow();
                 column = lsrec.getColumn();
                 if (sstRecord == null) {
-                    throw new IllegalStateException("No SST Record, can't identify string");
+                    throw new IllegalStateException("No SST Record, cannot identify string");
                 } else {
                     value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
                     indent = formatListener.getIndent(lsrec);

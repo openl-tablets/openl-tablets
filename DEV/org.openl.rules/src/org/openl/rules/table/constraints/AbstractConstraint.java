@@ -10,7 +10,7 @@ public abstract class AbstractConstraint implements Constraint {
     private String value;
 
     public AbstractConstraint(String value) {
-        this.value = Objects.requireNonNull(value, "value can't be null.");
+        this.value = Objects.requireNonNull(value, "value cannot be null");
     }
 
     @Override

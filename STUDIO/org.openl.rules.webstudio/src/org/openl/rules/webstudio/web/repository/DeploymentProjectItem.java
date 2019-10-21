@@ -12,7 +12,7 @@ public class DeploymentProjectItem extends AbstractItem {
     private boolean disabled;
 
     /**
-     * If false - can't deploy (for example, can't find some dependencies). Default value is true.
+     * If false - cannot deploy (for example, cannot find some dependencies). Default value is true.
      */
     private boolean canDeploy = true;
 

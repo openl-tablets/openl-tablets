@@ -278,7 +278,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void applyToDependentParsedCode(IParsedCode parsedCode) {
-        Objects.requireNonNull(parsedCode, "parsedCode can't be null.");
+        Objects.requireNonNull(parsedCode, "parsedCode cannot be null");
         if (parsedCode.getTopNode() instanceof XlsModuleSyntaxNode) {
             XlsModuleSyntaxNode xlsModuleSyntaxNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
             for (String value : getImports()) {
@@ -573,7 +573,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     CustomSpreadsheetResultOpenClass csrType = (CustomSpreadsheetResultOpenClass) t;
                     if (Objects.equals(csrType.getName(), type.getName()) && csrType.isBeanClassInitialized()) {
                         throw new IllegalStateException(String.format(
-                            "This module doesn't support adding '%s' custom spreadsheet result types. Bean class has already been initialized for this custom spreadsheet result type.",
+                            "This module does not support adding '%s' custom spreadsheet result types. Bean class has already been initialized for this custom spreadsheet result type.",
                             csrType.getName()));
                     }
                 }

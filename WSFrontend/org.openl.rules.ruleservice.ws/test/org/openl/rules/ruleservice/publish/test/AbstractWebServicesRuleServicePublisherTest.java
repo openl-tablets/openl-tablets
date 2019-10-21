@@ -77,7 +77,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected OpenLService getServiceByName(String serviceName) throws ServiceNotFoundException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = getRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             throw new ServiceNotFoundException(String.format("Service '%' is not found.", serviceName));
@@ -159,7 +159,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
             String address,
             Class<T> clazz,
             DataBinding dataBinding) throws ServiceNotFoundException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = getServiceByName(serviceName);
         DataBinding dataBindingForClient = null;
         Class<?> clazzForClient = null;
@@ -200,7 +200,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected Client getDynamicClientByServiceName(String serviceName) throws ServiceNotFoundException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = getServiceByName(serviceName);
 
         String wsdlLocation = buildWsdlLocation(getRuleServicePublisher().getBaseAddress(), service.getUrl());
@@ -218,7 +218,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @return
      */
     protected Client getDynamicClient(String wsdlLocation) {
-        Objects.requireNonNull(wsdlLocation, "wsdlLocation can't be null.");
+        Objects.requireNonNull(wsdlLocation, "wsdlLocation cannot be null");
         JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
         Client client = clientFactory.createClient(wsdlLocation);
         return client;

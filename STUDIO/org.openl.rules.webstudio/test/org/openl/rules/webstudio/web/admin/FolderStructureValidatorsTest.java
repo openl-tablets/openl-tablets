@@ -17,7 +17,7 @@ public class FolderStructureValidatorsTest {
         validators.pathInRepository(null, null, "");
         validators.pathInRepository(null, null, "DESIGN/rules");
         validators.pathInRepository(null, null, "DESIGN/rules/");
-        assertInvalid("Path in repository can't start with '/'",
+        assertInvalid("Path in repository cannot start with '/'",
             () -> validators.pathInRepository(null, null, "/my-folder"));
 
         assertInvalid(NameChecker.BAD_NAME_MSG, () -> validators.pathInRepository(null, null, "DESIGN/rules/path?"));
@@ -43,8 +43,8 @@ public class FolderStructureValidatorsTest {
         validators.folderConfigFile(null, null, "openl-projects.properties");
         validators.folderConfigFile(null, null, "folder/file.properties");
 
-        assertInvalid("Folder config file can not be empty", () -> validators.folderConfigFile(null, null, null));
-        assertInvalid("Folder config file can not be empty", () -> validators.folderConfigFile(null, null, ""));
+        assertInvalid("Folder config file cannot be empty", () -> validators.folderConfigFile(null, null, null));
+        assertInvalid("Folder config file cannot be empty", () -> validators.folderConfigFile(null, null, ""));
         assertInvalid(NameChecker.BAD_NAME_MSG, () -> validators.folderConfigFile(null, null, "c:\\file.properties"));
         assertInvalid("Invalid name '.git'", () -> validators.pathInRepository(null, null, ".git"));
         assertInvalid("'PRN' is a reserved word.", () -> validators.pathInRepository(null, null, "PRN"));

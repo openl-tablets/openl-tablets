@@ -67,7 +67,7 @@ public class TBasicVM {
     /**
      * Run sub-method of Algorithm. <code>TBasicVM</code> instance will execute the provided operations list. <br>
      * The sub-method can be called only within of execution of main Algorithm method. However, the implementation
-     * doesn't put any restrictions.
+     * does not put any restrictions.
      *
      * @param methodSteps The list of operations to run.
      * @param methodLabels The labels register for sub-method.

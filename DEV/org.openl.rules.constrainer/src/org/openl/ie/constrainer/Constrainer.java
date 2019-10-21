@@ -979,7 +979,7 @@ public final class Constrainer implements Serializable {
      * operates) instead it is just activated immediately.
      *
      * @param ct The constraint to be posted/executed.
-     * @throws Failure When the constraint can not be posted that is the constraint is incompatible with the previously
+     * @throws Failure When the constraint cannot be posted that is the constraint is incompatible with the previously
      *             activated ones.
      */
     public void postConstraint(Constraint ct) throws Failure {

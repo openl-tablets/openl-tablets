@@ -11,7 +11,7 @@ class TableSyntaxNodeCircularDependencyException extends OpenlNotCheckedExceptio
 
     public TableSyntaxNodeCircularDependencyException(TableSyntaxNode[] tableSyntaxNodes) {
         super(
-            "Сustom Spreadsheet Type can't be defined correctly with the circular reference in spreadsheet table headers. Please, define manually common SpreadsheetResult type in spreadhseet table header.");
+            "Сustom Spreadsheet Type cannot be defined correctly with the circular reference in spreadsheet table headers. Please, define manually common SpreadsheetResult type in spreadhseet table header.");
         this.tableSyntaxNodes = tableSyntaxNodes;
     }
 

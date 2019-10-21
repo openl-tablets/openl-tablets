@@ -406,7 +406,7 @@ public class RunTest {
         assertEquals(
             "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()]",
             new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
-        // Check array element type. It must be List, not Object (Object doesn't contain method size()).
+        // Check array element type. It must be List, not Object (Object does not contain method size()).
         assertEquals(
             "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()][0][1].size()",
             1);

@@ -54,7 +54,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
                 File fileToCompare = FileTool.toTempFile(uploadedFile.getInputStream(),
                     FileUtils.getName(uploadedFile.getName()));
                 filesToCompare.add(fileToCompare);
-                // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
+                // Files can be reloaded lazily later. We cannot delete them immediately. Instead delete them when Bean
                 // is destroyed (on session timeout) or before next comparison.
                 addTempFile(fileToCompare);
             }

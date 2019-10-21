@@ -41,7 +41,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
         return module;
     }
 
-    // Single module strategy doesn't compile dependencies. Exception not required.
+    // Single module strategy does not compile dependencies. Exception not required.
     @Override
     public ClassLoader getClassLoader() {
         if (classLoader == null) {

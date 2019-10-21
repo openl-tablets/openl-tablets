@@ -25,7 +25,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
     }
 
     public void addClassLoader(ClassLoader classLoader) {
-        Objects.requireNonNull(classLoader, "Bundle class loader cannot be null.");
+        Objects.requireNonNull(classLoader, "Bundle class loader cannot be null");
 
         if (classLoader == this) {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");

@@ -90,14 +90,14 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                             new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
                     } catch (SdkClientException e) {
                         // Possibly don't have permission
-                        String message = "Bucket versioning status: " + status + ". Can't enable versioning. Error message: " + e
+                        String message = "Bucket versioning status: " + status + ". Cannot enable versioning. Error message: " + e
                             .getMessage();
                         log.warn(message);
                     }
                 }
             } catch (SdkClientException e) {
                 // Possibly don't have permission
-                log.warn("Can't detect bucket versioning configuration.");
+                log.warn("Cannot detect bucket versioning configuration.");
             }
 
             // Check the connection

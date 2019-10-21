@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
-    protected static final String INVALID_NAME_MESSAGE = "Invalid name: only latin letters, numbers and _ are allowed, name can't begin with a number";
+    protected static final String INVALID_NAME_MESSAGE = "Invalid name: only latin letters, numbers and _ are allowed, name cannot begin with a number";
 
     private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
@@ -50,7 +50,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     private boolean newWorksheet;
     private boolean wizardFinished;
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     private String newWorksheetName;
 
     /**

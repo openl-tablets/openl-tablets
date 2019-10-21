@@ -98,7 +98,7 @@ public class TestDownloadService {
             return prepareResponse(request, cookieName, streamingOutput);
         }
 
-        String failure = "Test data isn't available anymore";
+        String failure = "Test data is not available anymore";
         return Response.status(Response.Status.NOT_FOUND)
             .entity("Input parameters not found")
             .cookie(newCookie(cookieName, failure, request.getContextPath()))

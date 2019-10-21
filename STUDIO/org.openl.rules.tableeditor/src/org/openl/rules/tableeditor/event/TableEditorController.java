@@ -46,8 +46,8 @@ public class TableEditorController extends BaseTableEditorController {
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
     private static final String ERROR_SAVE_TABLE = "Failed to save table.";
     private static final String ERROR_SET_STYLE = "Failed to set style.";
-    private static final String ERROR_INSERT_ROW = "Can not insert row.";
-    private static final String ERROR_INSERT_COLUMN = "Can not insert column.";
+    private static final String ERROR_INSERT_ROW = "Cannot insert row.";
+    private static final String ERROR_INSERT_COLUMN = "Cannot insert column.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE + " Please close module Excel file and try again.";
 
     public String insertRowBefore() {
@@ -545,7 +545,7 @@ public class TableEditorController extends BaseTableEditorController {
         }
         TableModificationResponse response = new TableModificationResponse(null, editorModel);
         if (hasEmptyRow(editorModel)) {
-            response.setMessage("Sorry! Can't save the table with empty row inside.");
+            response.setMessage("Sorry! Cannot save the table with empty row inside.");
         } else {
             try {
                 if (beforeSave()) {

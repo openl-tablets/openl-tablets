@@ -76,7 +76,7 @@ public class ColumnToExtract {
 
     /**
      * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for
-     * storing value into row instance. If value can't be stored in row instance next property name and expected type is
+     * storing value into row instance. If value cannot be stored in row instance next property name and expected type is
      * used.
      *
      * @param columnName column name
@@ -85,13 +85,13 @@ public class ColumnToExtract {
      */
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes) {
         if (columnName == null || columnName.isEmpty()) {
-            throw new IllegalArgumentException("columnName can't be null or empty!");
+            throw new IllegalArgumentException("columnName cannot be null or empty!");
         }
         if (propertyNames == null || propertyNames.length == 0) {
-            throw new IllegalArgumentException("propertyName can't be null or empty!");
+            throw new IllegalArgumentException("propertyName cannot be null or empty!");
         }
         if (expectedTypes == null || expectedTypes.length == 0) {
-            throw new IllegalArgumentException("expectedTypes can't be null or empty!");
+            throw new IllegalArgumentException("expectedTypes cannot be null or empty!");
         }
         if (expectedTypes.length != propertyNames.length) {
             throw new IllegalArgumentException("expectedTypes and propertyNames should be the same length!");
@@ -100,10 +100,10 @@ public class ColumnToExtract {
         int i = 0;
         for (String propertyName : propertyNames) {
             if (propertyName == null) {
-                throw new IllegalArgumentException("propertyName can't be null or empty.");
+                throw new IllegalArgumentException("propertyName cannot be null or empty.");
             }
             if (expectedTypes[i] == null) {
-                throw new IllegalArgumentException("expectedType can't be null.");
+                throw new IllegalArgumentException("expectedType cannot be null");
             }
         }
         this.propertyNames = propertyNames;

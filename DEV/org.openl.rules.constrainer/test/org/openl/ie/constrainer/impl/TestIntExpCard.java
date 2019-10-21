@@ -216,7 +216,7 @@ public class TestIntExpCard extends TestCase {
             fail("test failed");
         }
 
-        // all variables except those having been bounded doesn't have to
+        // all variables except those having been bounded does not have to
         // contain cardValue
         // in their domains
         for (int i = 0; i < array.size(); i++) {
@@ -246,7 +246,7 @@ public class TestIntExpCard extends TestCase {
         } catch (Failure f) {
             fail("test failed");
         }
-        // all variables except those their indices has been removed doesn't
+        // all variables except those their indices has been removed does not
         // have to contain cardValue
         for (int i = 0; i < array.size(); i++) {
             if ((i != indexToBeRemoved[0]) && (i != indexToBeRemoved[1])) {

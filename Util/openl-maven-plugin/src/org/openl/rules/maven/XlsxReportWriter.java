@@ -24,7 +24,7 @@ class XlsxReportWriter {
         String filename = "TEST-" + suitName + ".xlsx";
 
         if (!dir.mkdirs() && !dir.exists()) {
-            throw new IOException("Can't create folder '" + dir.getAbsolutePath() + "'.");
+            throw new IOException("Cannot create folder '" + dir.getAbsolutePath() + "'.");
         }
 
         File file = new File(dir, filename);

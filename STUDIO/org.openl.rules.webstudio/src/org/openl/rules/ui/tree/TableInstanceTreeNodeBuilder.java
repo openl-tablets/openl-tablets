@@ -87,9 +87,9 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         // tables
         // don't have
         // versions
-        // and can't
+        // and cannot
         // be grouped
-                || tsn.getMember() == null; // When table contains syntax errors and can't be grouped with other tables.
+                || tsn.getMember() == null; // When table contains syntax errors and cannot be grouped with other tables.
     }
 
     /**

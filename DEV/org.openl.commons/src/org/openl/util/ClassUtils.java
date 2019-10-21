@@ -233,7 +233,7 @@ public class ClassUtils {
         if (toClass == null) {
             return false;
         }
-        // have to check for null, as isAssignableFrom doesn't
+        // have to check for null, as isAssignableFrom does not
         if (cls == null) {
             return !toClass.isPrimitive();
         }

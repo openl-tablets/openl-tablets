@@ -36,21 +36,21 @@ public interface REntity {
     RVersion getActiveVersion();
 
     /**
-     * Gets effective date for rules entity. If effective date isn't set method returns <code>null</code>
+     * Gets effective date for rules entity. If effective date is not set method returns <code>null</code>
      *
      * @return effective date or <code>null</code>
      */
     Date getEffectiveDate();
 
     /**
-     * Gets expiration date for rules entity. If expiration date isn't set method returns <code>null</code>
+     * Gets expiration date for rules entity. If expiration date is not set method returns <code>null</code>
      *
      * @return expiration date or <code>null</code>
      */
     Date getExpirationDate();
 
     /**
-     * Gets line of business for rules entity. If line of business isn't set method returns <code>null</code>
+     * Gets line of business for rules entity. If line of business is not set method returns <code>null</code>
      *
      * @return line of business or <code>null</code>
      */

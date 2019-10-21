@@ -37,13 +37,13 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' can't be null.");
+            "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo();
     }
 
     public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' can't be null.");
+            "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 

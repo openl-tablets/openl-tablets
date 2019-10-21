@@ -38,7 +38,7 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         ICell firstCell = getTableSyntaxNode().getTableBody().getCell(0, 2);
         if (operationColumn == -1) {
-            log.error("Operation column isn't initialized");
+            log.error("Operation column is not initialized");
         } else {
             if (col == operationColumn) {
                 return firstCell.getAbsoluteRow() <= row ? AlgorithmBuilder.CELL_META_INFO : null;

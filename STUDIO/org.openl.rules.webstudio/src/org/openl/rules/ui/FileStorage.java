@@ -43,7 +43,7 @@ public class FileStorage {
             FileUtils.copyFile(srcFile, destFile);
             destFile.setLastModified(currentDate);
         } catch (Exception e) {
-            log.error("Can't add file {}", srcFile.getName(), e);
+            log.error("Cannot add file {}", srcFile.getName(), e);
         }
     }
 
@@ -58,7 +58,7 @@ public class FileStorage {
                 try {
                     FileUtils.deleteDirectory(file);
                 } catch (Exception e) {
-                    log.error("Can't delete folder {}", file.getName(), e);
+                    log.error("Cannot delete folder {}", file.getName(), e);
                 }
             }
         }

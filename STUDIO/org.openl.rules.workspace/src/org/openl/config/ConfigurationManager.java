@@ -109,12 +109,12 @@ public class ConfigurationManager implements PropertiesHolder {
                         configuration.setDelimiterParsingDisabled(true);
                         URL resource = ConfigurationManager.class.getClassLoader().getResource(configLocation);
                         if (resource == null) {
-                            // Configuration isn't found. Skip it
+                            // Configuration is not found. Skip it
                             return null;
                         }
                         configuration.load(resource);
                     } catch (Exception ignored) {
-                        // Configuration isn't found. Skip it
+                        // Configuration is not found. Skip it
                         return null;
                     }
                 }

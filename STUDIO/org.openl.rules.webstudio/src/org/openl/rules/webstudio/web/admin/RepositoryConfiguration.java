@@ -149,7 +149,7 @@ public class RepositoryConfiguration {
         RepositoryType newRepositoryType = RepositoryType.findByAccessType(accessType);
         if (repositoryType != newRepositoryType) {
             if (newRepositoryType == null) {
-                throw new IllegalArgumentException("Access type " + accessType + " isn't supported");
+                throw new IllegalArgumentException("Access type " + accessType + " is not supported");
             }
             repositoryType = newRepositoryType;
             RepositorySettings newSettings = createSettings(newRepositoryType);

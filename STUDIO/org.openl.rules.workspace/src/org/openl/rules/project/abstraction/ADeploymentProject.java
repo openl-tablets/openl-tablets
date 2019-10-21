@@ -281,8 +281,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
         private LockEngine lockEngine;
 
         public Builder(Repository repository, String folderPath) {
-            this.repository = Objects.requireNonNull(repository, "repository can't be null.");
-            this.folderPath = Objects.requireNonNull(folderPath, "folderPath can't be null.");
+            this.repository = Objects.requireNonNull(repository, "repository cannot be null");
+            this.folderPath = Objects.requireNonNull(folderPath, "folderPath cannot be null");
         }
 
         public Builder version(String version) {
@@ -301,8 +301,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
         }
 
         public ADeploymentProject build() {
-            Objects.requireNonNull(user, "user can't be null.");
-            Objects.requireNonNull(lockEngine, "lockEngine can't be null.");
+            Objects.requireNonNull(user, "user cannot be null");
+            Objects.requireNonNull(lockEngine, "lockEngine cannot be null");
             return new ADeploymentProject(user, repository, folderPath, version, lockEngine);
         }
     }

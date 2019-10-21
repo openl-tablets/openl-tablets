@@ -80,7 +80,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service can't be null.");
+        Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -115,7 +115,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;
@@ -126,7 +126,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
 
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -170,8 +170,8 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
         private Remote rmiHandler;
 
         public ServiceServer(String name, Remote rmiHandler) {
-            this.name = Objects.requireNonNull(name, "name can't be null.");
-            this.rmiHandler = Objects.requireNonNull(rmiHandler, "rmiHandler can't be null.");
+            this.name = Objects.requireNonNull(name, "name cannot be null");
+            this.rmiHandler = Objects.requireNonNull(rmiHandler, "rmiHandler cannot be null");
         }
 
         public String getName() {

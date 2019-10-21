@@ -20,7 +20,7 @@ public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
             Repository repository;
             String webDavUrl = this.uri;
             try {
-                // FIXME Doesn't work on the secure mode
+                // FIXME Does not work on the secure mode
                 repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(webDavUrl));
                 // repository = JcrUtils.getRepository(confWebdavUrl.getValue());
             } catch (Exception e) {

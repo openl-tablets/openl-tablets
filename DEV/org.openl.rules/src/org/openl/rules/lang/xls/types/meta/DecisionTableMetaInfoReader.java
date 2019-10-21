@@ -319,7 +319,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
-        // Lookup tables are transformed to Rules tables so we can't predict real column and row of a cell.
+        // Lookup tables are transformed to Rules tables so we cannot predict real column and row of a cell.
         // In current implementation we run through all of them and if it's current row and cell.
         for (int c = 0; c < funcRow.nValues(); c++) {
             // In the case of errors params will be null

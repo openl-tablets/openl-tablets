@@ -274,7 +274,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
-        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader can't be null.");
+        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader cannot be null");
     }
 
     public RuleServiceInstantiationStrategyFactory getInstantiationStrategyFactory() {
@@ -282,7 +282,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public void setInstantiationStrategyFactory(RuleServiceInstantiationStrategyFactory instantiationStrategyFactory) {
-        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory, "instantiationStrategyFactory can't be null.");;
+        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory, "instantiationStrategyFactory cannot be null");;
     }
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {

@@ -79,7 +79,7 @@ public class RepositoryInstatiator {
                                     // Found needed setter
                                     break;
                                 } catch (NoSuchMethodException | IllegalAccessException ignore) {
-                                    // Can't convert using this method. Skip.
+                                    // Cannot convert using this method. Skip.
                                 } catch (InvocationTargetException e1) {
                                     // The underlying method throws an exception
                                     throw new IllegalStateException(

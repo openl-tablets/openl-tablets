@@ -26,7 +26,7 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
     private Set<String> defaultAdditionalRootClassNames;
 
     public void setDefaultAdditionalRootClassNames(Set<String> defaultAdditionalRootClassNames) {
-        this.defaultAdditionalRootClassNames = Objects.requireNonNull(defaultAdditionalRootClassNames, "defaultAdditionalRootClassNames can't be null.");
+        this.defaultAdditionalRootClassNames = Objects.requireNonNull(defaultAdditionalRootClassNames, "defaultAdditionalRootClassNames cannot be null");
     }
 
     public Set<String> getDefaultAdditionalRootClassNames() {

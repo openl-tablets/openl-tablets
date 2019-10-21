@@ -13,7 +13,7 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
     }
 
     public void setPropertyName(String propertyName) {
-        this.propertyName = Objects.requireNonNull(propertyName, "propertyName can't be null.");
+        this.propertyName = Objects.requireNonNull(propertyName, "propertyName cannot be null");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ServiceConfigurationBooleanFactoryBean extends ServiceConfiguration
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName isn't set!");
+        Assert.notNull(this.propertyName, "propertyName is not set!");
     }
 
 }

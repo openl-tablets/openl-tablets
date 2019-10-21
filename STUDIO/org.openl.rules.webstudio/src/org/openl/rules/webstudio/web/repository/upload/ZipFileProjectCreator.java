@@ -47,7 +47,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
         charset = zipCharsetDetector.detectCharset(new ZipFromFile(uploadedFile));
         if (charset == null) {
-            throw new IOException("Can't detect a charset for the zip file");
+            throw new IOException("Cannot detect a charset for the zip file");
         }
 
         if (isEmptyZip(uploadedFile)) {
@@ -100,7 +100,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 ZipEntry item = items.nextElement();
                 sortedNames.add(item.getName());
             } catch (Exception e) {
-                log.warn("Can not extract zip entry.", e);
+                log.warn("Cannot extract zip entry.", e);
                 skipped = true;
             }
         }
@@ -136,7 +136,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 ZipEntry item = zipFile.getEntry(name);
 
                 if (item == null) {
-                    throw new ProjectException(String.format("Can't read zip entry '%s'. Possible broken zip.", name));
+                    throw new ProjectException(String.format("Cannot read zip entry '%s'. Possible broken zip.", name));
                 }
 
                 if (item.isDirectory()) {
@@ -176,7 +176,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             log.error(e.getMessage(), e);
         }
         if (!uploadedFile.delete()) {
-            log.warn("Can't delete the file {}", uploadedFile.getName());
+            log.warn("Cannot delete the file {}", uploadedFile.getName());
         }
     }
 
@@ -224,7 +224,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 }
 
             } catch (Exception e) {
-                log.warn("Can not extract zip entry.", e);
+                log.warn("Cannot extract zip entry.", e);
             }
         }
         return invalidNames;

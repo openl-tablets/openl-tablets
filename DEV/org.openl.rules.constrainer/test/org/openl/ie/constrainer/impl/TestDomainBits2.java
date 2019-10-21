@@ -128,7 +128,7 @@ public class TestDomainBits2 extends TestCase {
         boolean[] bits = new boolean[] { false, true, false, true, false, true };
         db.forceBits(bitsToBits2(bits));
         for (int i = 5; i <= _var.max(); i++) {
-            assertTrue("doesn't contain " + i, db.contains(i) == bits[i - 5]);
+            assertTrue("does not contain " + i, db.contains(i) == bits[i - 5]);
         }
     }
 
@@ -141,7 +141,7 @@ public class TestDomainBits2 extends TestCase {
         db.forceInsert(7);
         db.forceInsert(8);
         for (int i = 5; i <= 8; i++) {
-            assertTrue("doesn't contain " + i, db.contains(i));
+            assertTrue("does not contain " + i, db.contains(i));
         }
     }
 
@@ -223,7 +223,7 @@ public class TestDomainBits2 extends TestCase {
             fail("test failed");
         }
 
-        // intersection is a part of a domain (less than the whole) that doesn't
+        // intersection is a part of a domain (less than the whole) that does not
         // include
         // neither left nor right end of the domain
         newsize = newsize - ((newmax - 1) - (newmin + 1) + 1);

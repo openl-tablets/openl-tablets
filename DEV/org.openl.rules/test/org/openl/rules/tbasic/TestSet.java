@@ -21,7 +21,7 @@ public class TestSet {
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/tbasic1/SET_F4.xls", "Operation SET can not be multiline!");
+        TestUtils.assertEx("test/rules/tbasic1/SET_F4.xls", "Operation SET cannot be multiline!");
     }
 
     @Test

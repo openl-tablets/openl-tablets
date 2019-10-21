@@ -67,7 +67,7 @@ public class ShowTraceTableBean {
         }
 
         if (syntaxNode == null) {
-            // Default approach for TBasic nodes or if traced object doesn't have syntax node
+            // Default approach for TBasic nodes or if traced object does not have syntax node
             String uri = tto.getUri();
             return WebStudioUtils.getProjectModel().findNode(uri);
         } else {

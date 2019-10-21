@@ -104,7 +104,7 @@ public class LaunchFileServlet extends HttpServlet {
 
             log.debug("wbPath: {}, wbName: {}, wsName: {}, range: {}", wbPath, wbName, wsName, range);
         } catch (Exception e) {
-            log.error("Can't parse file uri", e);
+            log.error("Cannot parse file uri", e);
             return;
         }
 
@@ -120,7 +120,7 @@ public class LaunchFileServlet extends HttpServlet {
 
                 return;
             } catch (Exception e) {
-                log.info("Can't launch an excel file", e);
+                log.info("Cannot launch an excel file", e);
             }
         }
 

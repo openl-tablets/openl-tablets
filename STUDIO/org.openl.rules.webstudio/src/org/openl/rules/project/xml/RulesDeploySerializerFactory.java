@@ -46,7 +46,7 @@ public class RulesDeploySerializerFactory {
             case V5_22:
                 return new XmlRulesDescriptorSerializer_v5_17();
             case V5_23:
-            default: // rules-deploy.xml isn't changed in newer versions of OpenL but rules.xml could
+            default: // rules-deploy.xml is not changed in newer versions of OpenL but rules.xml could
                 return new XmlRulesDescriptorSerializer_v5_23();
         }
     }

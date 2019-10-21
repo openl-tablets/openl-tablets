@@ -69,7 +69,7 @@ public class JavaCodeGenController implements ICodeGenController {
         Processor p = map.get(c);
 
         if (p == null) {
-            throw new RuntimeException("Can not process literal class: " + c.getName());
+            throw new RuntimeException("Cannot process literal class: " + c.getName());
         }
 
         return p.processValue(value, gen, sb);

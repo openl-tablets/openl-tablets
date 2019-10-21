@@ -127,7 +127,7 @@ public class LocalUploadController {
     }
 
     /**
-     * EPBDS-8384: JSF beans discovery doesn't work if the bean contains static field with lambda expression. Possibly
+     * EPBDS-8384: JSF beans discovery does not work if the bean contains static field with lambda expression. Possibly
      * need to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
      */
     private static Comparator<File> fileNameComparator = new Comparator<File>() {

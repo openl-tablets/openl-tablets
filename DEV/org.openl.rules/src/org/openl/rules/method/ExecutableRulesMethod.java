@@ -39,7 +39,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     @Override
     public String getUri() {
         if (this.uri == null) {
-            throw new IllegalStateException("Table uri isn't defined in the method!");
+            throw new IllegalStateException("Table uri is not defined in the method!");
         }
         return uri;
     }

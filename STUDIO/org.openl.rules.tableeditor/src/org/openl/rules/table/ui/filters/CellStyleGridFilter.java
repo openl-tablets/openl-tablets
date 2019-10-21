@@ -87,12 +87,12 @@ public class CellStyleGridFilter extends AGridFilter {
         private short[][] borderRGB;
 
         public Builder setSelector(IGridSelector selector) {
-            this.selector = Objects.requireNonNull(selector, "selector can't be null.");
+            this.selector = Objects.requireNonNull(selector, "selector cannot be null");
             return this;
         }
 
         public Builder setBorderStyle(BorderStyle[] borderStyle) {
-            this.borderStyle = Objects.requireNonNull(borderStyle, "borderStyle can't be null.");
+            this.borderStyle = Objects.requireNonNull(borderStyle, "borderStyle cannot be null");
             return this;
         }
 
@@ -101,12 +101,12 @@ public class CellStyleGridFilter extends AGridFilter {
         }
 
         public Builder setBorderRGB(short[][] borderRGB) {
-            this.borderRGB = Objects.requireNonNull(borderRGB, "borderRGB can't be null.");
+            this.borderRGB = Objects.requireNonNull(borderRGB, "borderRGB cannot be null");
             return this;
         }
 
         public Builder setBorderRGB(short[] rgb) {
-            Objects.requireNonNull(rgb, "rgb can't be null.");
+            Objects.requireNonNull(rgb, "rgb cannot be null");
             return setBorderRGB(createBorderRGB(rgb));
         }
 

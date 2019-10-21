@@ -219,7 +219,7 @@ public class CopyBean {
             switchToNewBranch();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            errorMessage = "Can't copy the project: " + e.getMessage();
+            errorMessage = "Cannot copy the project: " + e.getMessage();
         }
     }
 
@@ -256,7 +256,7 @@ public class CopyBean {
             return;
         }
         String newProjectName = StringUtils.trim((String) value);
-        FacesUtils.validate(StringUtils.isNotBlank(newProjectName), "Can not be empty");
+        FacesUtils.validate(StringUtils.isNotBlank(newProjectName), "Cannot be empty");
         FacesUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
@@ -275,7 +275,7 @@ public class CopyBean {
         }
 
         String newBranchName = StringUtils.trim((String) value);
-        FacesUtils.validate(StringUtils.isNotBlank(newBranchName), "Can not be empty.");
+        FacesUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         FacesUtils.validate(newBranchName.matches("[\\w\\-/]+"),
             "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
 

@@ -19,14 +19,14 @@ public class FolderStructureValidators {
             return;
         }
 
-        FacesUtils.validate(!path.startsWith("/"), "Path in repository can't start with '/'");
+        FacesUtils.validate(!path.startsWith("/"), "Path in repository cannot start with '/'");
 
         validateGitPath(path);
     }
 
     public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {
         String filePath = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file can not be empty");
+        FacesUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
         validateGitPath(filePath);
     }
 

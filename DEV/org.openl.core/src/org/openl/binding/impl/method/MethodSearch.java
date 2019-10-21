@@ -469,7 +469,7 @@ public final class MethodSearch {
      *
      * @return The most specific method from matching methods collection.
      *
-     * @throws AmbiguousMethodException Exception will be thrown if most specific method can not be determined.
+     * @throws AmbiguousMethodException Exception will be thrown if most specific method cannot be determined.
      */
     private static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,

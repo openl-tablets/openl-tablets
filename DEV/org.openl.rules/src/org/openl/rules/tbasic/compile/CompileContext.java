@@ -75,7 +75,7 @@ public class CompileContext {
             localLabelsRegister.put(labelName, labeledOperation);
         } else {
             IOpenSourceCodeModule errorSource = labeledOperation.getSourceCode().getSourceModule();
-            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : '" + labelName + "'.",
+            throw SyntaxNodeExceptionUtils.createError("Such lablel is not declared : '" + labelName + "'.",
                 errorSource);
         }
     }

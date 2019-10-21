@@ -137,7 +137,7 @@ public class TestDomainImpl extends TestCase {
             fail("test failed");
         }
 
-        // intersection is a part of a domain (less than the whole) that doesn't
+        // intersection is a part of a domain (less than the whole) that does not
         // include
         // neither left nor right end of the domain
         try {

@@ -64,7 +64,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
+        throw new UnsupportedOperationException("Cannot write to spreadsheet cell result");
     }
 
     @Override

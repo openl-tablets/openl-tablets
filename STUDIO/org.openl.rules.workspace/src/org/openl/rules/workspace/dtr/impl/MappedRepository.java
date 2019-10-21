@@ -312,7 +312,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         if (folderItems.get(0).getData().getAdditionalData(FileMappingData.class) != null) {
-            throw new UnsupportedOperationException("File name mapping isn't supported.");
+            throw new UnsupportedOperationException("File name mapping is not supported.");
         }
         Map<String, String> mapping = getMappingForRead();
 

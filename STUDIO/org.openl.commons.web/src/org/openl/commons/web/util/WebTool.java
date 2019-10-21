@@ -78,7 +78,7 @@ public final class WebTool {
 
     /**
      * Set content disposition HTTP header with a given file name. To support non-ASCII symbols in filenames we must use
-     * RFC 2231 But old browsers and Safari still doesn't support it, so we mix old and new approach
+     * RFC 2231 But old browsers and Safari still does not support it, so we mix old and new approach
      *
      * @param response servlet response
      * @param fileName file name that can contain non-ascii symbols

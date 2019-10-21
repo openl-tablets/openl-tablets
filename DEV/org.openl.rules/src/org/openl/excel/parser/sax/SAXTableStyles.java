@@ -44,14 +44,14 @@ public class SAXTableStyles implements TableStyles {
     @Override
     public ICellStyle getStyle(int row, int column) {
         int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
-        // For XSSF workbook isn't needed
+        // For XSSF workbook is not needed
         return new XlsCellStyle(stylesTable.getStyleAt(index), null);
     }
 
     @Override
     public ICellFont getFont(int row, int column) {
         int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
-        // For XSSF workbook isn't needed
+        // For XSSF workbook is not needed
         return new XlsCellFont(stylesTable.getStyleAt(index).getFont(), null);
     }
 

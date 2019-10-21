@@ -78,7 +78,7 @@ class LazyFileData extends FileData {
                 fileId = null;
             } catch (IOException e) {
                 log.warn(e.getMessage(), e);
-                throw new IllegalStateException("Can't get file size: " + e.getMessage(), e);
+                throw new IllegalStateException("Cannot get file size: " + e.getMessage(), e);
             }
         }
 
@@ -165,7 +165,7 @@ class LazyFileData extends FileData {
                     log.error(e.getMessage(), e);
                 }
                 if (iterator == null || !iterator.hasNext()) {
-                    throw new IllegalStateException("Can't find revision for the file " + fullPath);
+                    throw new IllegalStateException("Cannot find revision for the file " + fullPath);
                 }
 
                 fileCommit = iterator.next();
@@ -197,9 +197,9 @@ class LazyFileData extends FileData {
             try {
                 version = GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
             } catch (GitAPIException e) {
-                throw new IllegalStateException("Can't get tags list: " + e.getMessage(), e);
+                throw new IllegalStateException("Cannot get tags list: " + e.getMessage(), e);
             } catch (IOException e) {
-                throw new IllegalStateException("Can't get version name: " + e.getMessage(), e);
+                throw new IllegalStateException("Cannot get version name: " + e.getMessage(), e);
             }
             super.setVersion(version);
 

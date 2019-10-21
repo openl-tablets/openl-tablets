@@ -27,11 +27,11 @@ public class ProjectDescriptorValidator {
     private void validateModule(Module module) throws ValidationException {
 
         if (module == null) {
-            throw new ValidationException("Project module isn't defined.");
+            throw new ValidationException("Project module is not defined.");
         }
 
         if (StringUtils.isEmpty(module.getName()) && !isModuleWithWildcard(module)) {
-            throw new ValidationException("Module name isn't defined.");
+            throw new ValidationException("Module name is not defined.");
         }
 
         if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {

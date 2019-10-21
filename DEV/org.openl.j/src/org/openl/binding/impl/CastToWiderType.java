@@ -27,7 +27,7 @@ public final class CastToWiderType {
     /**
      * The cast from type1 to {@link #widerType}
      *
-     * @return Type cast. Can be null if cast isn't needed
+     * @return Type cast. Can be null if cast is not needed
      */
     public IOpenCast getCast1() {
         return cast1;
@@ -36,7 +36,7 @@ public final class CastToWiderType {
     /**
      * The cast from type2 to {@link #widerType}
      *
-     * @return Type cast. Can be null if cast isn't needed
+     * @return Type cast. Can be null if cast is not needed
      */
     public IOpenCast getCast2() {
         return cast2;

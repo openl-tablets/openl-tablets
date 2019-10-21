@@ -19,7 +19,7 @@ public class ResultValue {
         if (openCast != null) {
             return (T) openCast.convert(value);
         } else {
-            throw new ResultValueConvertException(String.format("Can't convert from '%s' to '%s'!",
+            throw new ResultValueConvertException(String.format("Cannot convert from '%s' to '%s'!",
                 value.getClass().getCanonicalName(),
                 to.getCanonicalName()));
         }

@@ -18,7 +18,7 @@ import org.apache.commons.jxpath.Pointer;
 
 /**
  * Variation implementation using to find fields to modify JXpath (See {@link http://commons.apache.org/jxpath/}). Note:
- * path can not point on root object(path "."), only fields modifications supported. If you want to replace entire
+ * path cannot point on root object(path "."), only fields modifications supported. If you want to replace entire
  * argument you should use {@link ArgumentReplacementVariation}.
  *
  * @author PUdalau, Marat Kamalov

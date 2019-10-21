@@ -56,11 +56,11 @@ final class TypeToAliasCast implements IOpenCast {
         // true value
         // ill be returned; false - otherwise.
         // NOTE: EnumDomain implementation of IDomain (used by alias types)
-        // throws runtime exception if object doesn't belong to domain.
+        // throws runtime exception if object does not belong to domain.
         @SuppressWarnings("unchecked")
         boolean isInDomain = domain.selectObject(from);
 
-        // If object doesn't belong to domain throw runtime exception with
+        // If object does not belong to domain throw runtime exception with
         // appropriate message.
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(

@@ -25,8 +25,8 @@ public class SourceCodeMethodCaller implements IMethodCaller {
     IOpenClass resultType;
 
     public SourceCodeMethodCaller(IMethodSignature signature, IOpenClass resultType, String sourceCode) {
-        this.signature = Objects.requireNonNull(signature, "signature can't be null.");
-        this.sourceCode = Objects.requireNonNull(sourceCode, "sourceCode can't be null.");
+        this.signature = Objects.requireNonNull(signature, "signature cannot be null");
+        this.sourceCode = Objects.requireNonNull(sourceCode, "sourceCode cannot be null");
         this.resultType = resultType;
     }
 

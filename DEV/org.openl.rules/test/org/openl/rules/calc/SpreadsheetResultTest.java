@@ -17,7 +17,7 @@ public class SpreadsheetResultTest {
 
     @Test
     public void testComparable() {
-        // toPlain in SPR doesn't work with SortedSets
+        // toPlain in SPR does not work with SortedSets
         Assert.assertFalse(Comparable.class.isAssignableFrom(SpreadsheetResult.class));
     }
 }

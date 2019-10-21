@@ -38,7 +38,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
                 }
             }
         }
-        throw new ProjectException(String.format("Artefact with name '%s' is" + " not found", name));
+        throw new ProjectException(String.format("Artefact '%s' is not found.", name));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
     public LocalFolderAPI addFolder(String name) throws ProjectException {
         File newFolder = new File(source, name);
         if (!newFolder.mkdir() && !newFolder.exists()) {
-            throw new ProjectException(String.format("Can't create the folder '%s'", newFolder.getAbsolutePath()));
+            throw new ProjectException(String.format("Cannot create the folder: %s", newFolder.getAbsolutePath()));
         }
         LocalFolderAPI localFolder = new LocalFolderAPI(newFolder, path.withSegment(name), workspace);
         notifyModified();
@@ -83,7 +83,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
             notifyModified();
             return newResource;
         } catch (IOException e) {
-            throw new ProjectException("Failed to create resource", e);
+            throw new ProjectException("Failed to create a resource.", e);
         }
     }
 

@@ -71,7 +71,7 @@ public class ProjectDescriptor {
     }
 
     /**
-     * @deprecated Id isn't used anymore. Use {@link #getName()} instead.
+     * @deprecated Id is not used anymore. Use {@link #getName()} instead.
      */
     @Deprecated
     public String getId() {
@@ -79,7 +79,7 @@ public class ProjectDescriptor {
     }
 
     /**
-     * @deprecated Id isn't used anymore. Use {@link #setName(String)} instead.
+     * @deprecated Id is not used anymore. Use {@link #setName(String)} instead.
      */
     @Deprecated
     public void setId(String id) {

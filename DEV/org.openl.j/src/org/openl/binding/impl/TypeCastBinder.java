@@ -48,7 +48,7 @@ public class TypeCastBinder extends ANodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null) {
-            return makeErrorNode("Can not convert from '" + from.getName() + "' to '" + to.getName() + "'",
+            return makeErrorNode("Cannot convert from '" + from.getName() + "' to '" + to.getName() + "'",
                 node,
                 bindingContext);
         }

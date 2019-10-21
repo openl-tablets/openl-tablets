@@ -49,7 +49,7 @@ public class VariationsTest {
 
         // with wrong interface
         // we use simple api instantiation strategy because wrapper
-        // instantiation strategy always has service class that can not be
+        // instantiation strategy always has service class that cannot be
         // modified
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.resolve(folder);

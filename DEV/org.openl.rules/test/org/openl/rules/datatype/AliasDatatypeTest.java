@@ -56,7 +56,7 @@ public class AliasDatatypeTest {
     public void test2() {
 
         ITest instance = TestUtils.create(SRC, ITest.class);
-        instance.test1("Something that doesn't belong to domain");
+        instance.test1("Something that does not belong to domain");
     }
 
     @Test

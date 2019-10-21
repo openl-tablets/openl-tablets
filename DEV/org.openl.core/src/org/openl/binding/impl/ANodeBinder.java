@@ -102,7 +102,7 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         if (boundNodesCount != n) {
-            return new IBoundNode[] { makeErrorNode("Can not bind node", parentNode, bindingContext) };
+            return new IBoundNode[] { makeErrorNode("Cannot bind node", parentNode, bindingContext) };
         }
 
         return children;

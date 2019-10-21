@@ -151,7 +151,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             IBindingContext bindingContext) {
         if (beanClass != null) {
             throw new IllegalStateException(
-                "Bean class for custom spreadsheet result has already been generated. Spreasheet result can't be extended.");
+                "Bean class for custom spreadsheet result has already been generated. Spreasheet result cannot be extended.");
         }
 
         List<String> nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
@@ -266,7 +266,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
             IBindingContext bindingContext) {
         if (beanClass != null) {
-            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
+            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result cannot be extended.");
         }
         this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
             customSpreadsheetResultOpenClass.columnNames,
@@ -283,7 +283,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     public void fixCSRFields() {
         if (beanClass != null) {
-            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result can't be extended.");
+            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result cannot be extended.");
         }
         for (String fieldName : fieldMap().keySet()) {
             IOpenField openField = fieldMap().get(fieldName);

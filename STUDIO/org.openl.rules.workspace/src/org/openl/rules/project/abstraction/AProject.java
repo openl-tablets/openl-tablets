@@ -128,7 +128,7 @@ public class AProject extends AProjectFolder {
                 if (folderPath != null && isRepositoryVersionable()) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
-                    // File repository doesn't have versions
+                    // File repository does not have versions
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
@@ -146,7 +146,7 @@ public class AProject extends AProjectFolder {
             return 0;
         }
 
-        // In JCR repository first revision is "technical". It doesn't contain any file and comment.
+        // In JCR repository first revision is "technical". It does not contain any file and comment.
         // In this case first real revision is 1, not 0.
         // In other situations it's impossible to create empty project in repository.
         // In other repository types first revision is always 0.
@@ -173,7 +173,7 @@ public class AProject extends AProjectFolder {
         close(null);
         FileData fileData = getFileData();
         if (!getRepository().delete(fileData)) {
-            throw new ProjectException("Project is absent or can't be deleted");
+            throw new ProjectException("Project is absent or cannot be deleted");
         }
         setFileData(null);
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
@@ -194,7 +194,7 @@ public class AProject extends AProjectFolder {
         data.setAuthor(user.getUserName());
         data.setComment(comment);
         if (!getRepository().delete(data)) {
-            throw new ProjectException("Resource is absent or can't be deleted");
+            throw new ProjectException("Resource is absent or cannot be deleted");
         }
         setFileData(null);
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
@@ -212,7 +212,7 @@ public class AProject extends AProjectFolder {
         data.setAuthor(user.getUserName());
         data.setComment(comment);
         if (!getRepository().deleteHistory(data)) {
-            throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+            throw new ProjectException("Cannot erase project because it is absent or cannot be deleted");
         }
     }
 
@@ -259,7 +259,7 @@ public class AProject extends AProjectFolder {
         }
         AProjectArtefact artefact = getArtefactsInternal().get(path);
         if (artefact == null) {
-            // For backward compatibility throw exception if artefact isn't found
+            // For backward compatibility throw exception if artefact is not found
             throw new ProjectException("Cannot find project artefact ''{0}''", null, path);
         }
         return artefact;
@@ -320,7 +320,7 @@ public class AProject extends AProjectFolder {
     @Override
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         if (!(newFolder instanceof AProject)) {
-            throw new IllegalArgumentException("Can't update not from AProject");
+            throw new IllegalArgumentException("Cannot update not from AProject");
         }
 
         AProject projectFrom = (AProject) newFolder;
@@ -373,7 +373,7 @@ public class AProject extends AProjectFolder {
                         fileData.setAuthor(user == null ? null : user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
-                        throw new ProjectException("Can't update: " + ex.getMessage(), ex);
+                        throw new ProjectException("Cannot update: " + ex.getMessage(), ex);
                     } finally {
                         IOUtils.closeQuietly(stream);
                     }
@@ -429,7 +429,7 @@ public class AProject extends AProjectFolder {
             return ((FolderRepository) repositoryTo)
                 .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
-            throw new ProjectException("Can't update: " + e.getMessage(), e);
+            throw new ProjectException("Cannot update: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(stream);
         }

@@ -105,7 +105,7 @@ public class BetaRepositoryService {
     @Path("projects")
     public Response getProjects() throws WorkspaceException {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
@@ -133,7 +133,7 @@ public class BetaRepositoryService {
     @Path("branches/{name}")
     public Response getBranches(@PathParam("name") String name) throws Exception {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
         }
         Repository repository = getRepository();
         if (!repository.supports().branches()) {
@@ -158,11 +158,11 @@ public class BetaRepositoryService {
     public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
             }
             FileData fileData = getRepository().check(getFileName(name));
             if (fileData == null) {
-                throw new FileNotFoundException("Project '" + name + "' not found.");
+                throw new FileNotFoundException("Project '" + name + "' is not found.");
             }
 
             return getProject(name, fileData.getVersion());
@@ -185,7 +185,7 @@ public class BetaRepositoryService {
             @PathParam("rev") String rev) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
             }
 
             Repository repo = getRepository();
@@ -197,7 +197,7 @@ public class BetaRepositoryService {
 
                     FileData fileData = repo.check(getFileName(name));
                     if (fileData == null) {
-                        throw new FileNotFoundException("Project '" + name + "' not found.");
+                        throw new FileNotFoundException("Project '" + name + "' is not found.");
                     }
                     rev = fileData.getVersion();
                 }
@@ -211,7 +211,7 @@ public class BetaRepositoryService {
             if (repository.supports().folders()) {
                 FileData fileData = repository.check(getFileName(name));
                 if (fileData == null) {
-                    throw new FileNotFoundException("Project '" + name + "' not found.");
+                    throw new FileNotFoundException("Project '" + name + "' is not found.");
                 }
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
@@ -226,7 +226,7 @@ public class BetaRepositoryService {
                 final String projectPath = getFileName(name);
                 FileItem fileItem = repository.readHistory(projectPath, version);
                 if (fileItem == null) {
-                    throw new FileNotFoundException("File '" + name + "' not found.");
+                    throw new FileNotFoundException("File '" + name + "' is not found.");
                 }
 
                 entity = fileItem.getStream();
@@ -411,7 +411,7 @@ public class BetaRepositoryService {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+                    return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
                 RulesProject project = userWorkspace.getProject(name);
                 if (project.isLocked() && !project.isLockedByUser(getUser())) {
@@ -421,11 +421,11 @@ public class BetaRepositoryService {
                 project.lock();
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
+                    return Response.status(Status.FORBIDDEN).entity("Does not have CREATE PROJECTS privilege").build();
                 }
                 if (getRepository().supports().mappedFolders()) {
                     throw new UnsupportedOperationException(
-                        "Can't create a project for repository with non-flat folder structure");
+                        "Cannot create a project for repository with non-flat folder structure");
                 }
             }
 
@@ -518,7 +518,7 @@ public class BetaRepositoryService {
             @PathParam("branch") String branch) throws WorkspaceException, ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
         LockInfo lockInfo = lockEngine.getLockInfo(branch, name);
@@ -554,7 +554,7 @@ public class BetaRepositoryService {
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         LockEngine lockEngine = workspaceManager.getUserWorkspace(getUser()).getProjectsLockEngine();
         LockInfo lockInfo = lockEngine.getLockInfo(branch, name);

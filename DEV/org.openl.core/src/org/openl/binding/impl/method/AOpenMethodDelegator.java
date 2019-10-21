@@ -12,7 +12,7 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
     private IOpenMethod delegate;
 
     public AOpenMethodDelegator(IOpenMethod delegate) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate can't be null.");
+        this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 
     public IOpenMethod getDelegate() {

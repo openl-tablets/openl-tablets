@@ -21,8 +21,8 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
     }
 
     public InterfaceClassGeneratorImpl(String[] includes, String[] excludes) {
-        this.includes = Objects.requireNonNull(includes, "includes can't be null.");;
-        this.excludes = Objects.requireNonNull(excludes, "excludes can't be null.");;
+        this.includes = Objects.requireNonNull(includes, "includes cannot be null");;
+        this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");;
     }
 
     @Override

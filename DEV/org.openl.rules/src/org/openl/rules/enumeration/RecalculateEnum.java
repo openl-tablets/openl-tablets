@@ -8,7 +8,7 @@ public enum RecalculateEnum {
 
     private final String displayName;
 
-    private RecalculateEnum(String displayName) {
+    private RecalculateEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -24,6 +24,6 @@ public enum RecalculateEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

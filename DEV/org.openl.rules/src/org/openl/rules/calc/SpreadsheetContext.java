@@ -27,13 +27,13 @@ public class SpreadsheetContext extends ComponentBindingContext {
         IOpenField fstart = findVar(namespace, rangeStartName, true);
 
         if (fstart == null) {
-            throw new FieldNotFoundException("Can not find range start: ", rangeStartName, null);
+            throw new FieldNotFoundException("Cannot find range start: ", rangeStartName, null);
         }
 
         IOpenField fend = findVar(namespace, rangeEndName, true);
 
         if (fend == null) {
-            throw new FieldNotFoundException("Can not find range end: ", rangeEndName, null);
+            throw new FieldNotFoundException("Cannot find range end: ", rangeEndName, null);
         }
 
         if (!(fstart instanceof SpreadsheetCellField)) {
@@ -61,7 +61,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         if (castsCollector.isImplicitCastNotSupported()) {
             throw new OpenLCompilationException(
-                "Types in range " + rangeStartName + ":" + rangeEndName + " can't be implicit casted to '" + rangeType
+                "Types in range " + rangeStartName + ":" + rangeEndName + " cannot be implicit casted to '" + rangeType
                     .getDisplayName(0) + "'.");
         }
 

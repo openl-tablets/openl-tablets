@@ -130,7 +130,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     }
                 }
             } catch (RuntimeException e) {
-                String message = String.format("Can't parse cell value '%s'", value);
+                String message = String.format("Cannot parse cell value '%s'", value);
                 IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
 
                 if (e instanceof CompositeSyntaxNodeException) {

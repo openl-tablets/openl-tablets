@@ -10,7 +10,7 @@ public enum UsRegionsEnum {
 
     private final String displayName;
 
-    private UsRegionsEnum(String displayName) {
+    private UsRegionsEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -26,6 +26,6 @@ public enum UsRegionsEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

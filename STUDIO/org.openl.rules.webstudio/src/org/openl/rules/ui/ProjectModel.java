@@ -1012,7 +1012,7 @@ public class ProjectModel {
         instantiationStrategy.setExternalParameters(externalParameters);
         instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
-        // If autoCompile is false we can't unload workbook during editing because we must show to a user latest edited
+        // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
         boolean canUnload = studio.isAutoCompile();
         LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(canUnload);
@@ -1040,7 +1040,7 @@ public class ProjectModel {
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
-                // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode doesn't contain Virtual Module with dispatcher
+                // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
                 // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
@@ -1053,7 +1053,7 @@ public class ProjectModel {
             Log.error("Failed to load!", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
-                String message = String.format("Can't load the module: %s", openLMessage.getSummary());
+                String message = String.format("Cannot load the module: %s", openLMessage.getSummary());
                 messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
@@ -1257,7 +1257,7 @@ public class ProjectModel {
     }
 
     /**
-     * Returns true if both are true: 1) Old project version is opened and 2) project isn't modified yet.
+     * Returns true if both are true: 1) Old project version is opened and 2) project is not modified yet.
      *
      * Otherwise return false
      */

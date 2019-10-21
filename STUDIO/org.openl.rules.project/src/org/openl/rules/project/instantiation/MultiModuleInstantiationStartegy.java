@@ -95,7 +95,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         if (dm instanceof DependencyManager) {
             ((DependencyManager) dm).setExternalParameters(parameters);
         } else {
-            log.warn("Can't set external parameters to dependency manager {}", dm);
+            log.warn("Cannot set external parameters to dependency manager {}", dm);
         }
     }
 

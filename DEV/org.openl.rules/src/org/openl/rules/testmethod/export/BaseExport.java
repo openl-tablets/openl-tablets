@@ -69,7 +69,7 @@ public abstract class BaseExport {
             // Return key field for complex objects
             IOpenField keyField = parameter.getKeyField();
             if (keyField != null) {
-                // If key can't be found, return the object itself
+                // If key cannot be found, return the object itself
                 Object key = ExportUtils.fieldValue(simpleValue, keyField);
                 simpleValue = key == null ? simpleValue : key;
             }

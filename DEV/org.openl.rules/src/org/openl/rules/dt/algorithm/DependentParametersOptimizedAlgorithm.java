@@ -51,7 +51,7 @@ class DependentParametersOptimizedAlgorithm {
 
                 if (openCast == null) {
                     String message = String.format(
-                        "Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                        "Cannot convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                         paramType.getName(),
                         expressionType.getName(),
                         condition.getName());
@@ -95,7 +95,7 @@ class DependentParametersOptimizedAlgorithm {
                     IOpenCast cast = bindingContext.getCast(paramType0, expressionType);
                     if (cast == null) {
                         String message = String.format(
-                            "Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                            "Cannot convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                             paramType0.getName(),
                             expressionType.getName(),
                             condition.getName());
@@ -215,7 +215,7 @@ class DependentParametersOptimizedAlgorithm {
                 value = value + literalBoundNode.getValue().toString() + "]";
             }
         } else {
-            throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse array index", null, indexNode.getSyntaxNode());
         }
 
         if (indexNode.getTargetNode() != null) {
@@ -225,7 +225,7 @@ class DependentParametersOptimizedAlgorithm {
             if (indexNode.getTargetNode() instanceof IndexNode) {
                 return value + buildFieldName((IndexNode) indexNode.getTargetNode());
             }
-            throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse array index", null, indexNode.getSyntaxNode());
         }
         return value;
     }
@@ -239,7 +239,7 @@ class DependentParametersOptimizedAlgorithm {
             if (field.getTargetNode() instanceof IndexNode) {
                 return buildFieldName((IndexNode) field.getTargetNode()) + "." + value;
             }
-            throw new SyntaxNodeException("Can't parse field name", null, field.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse field name", null, field.getSyntaxNode());
         }
         return value;
     }

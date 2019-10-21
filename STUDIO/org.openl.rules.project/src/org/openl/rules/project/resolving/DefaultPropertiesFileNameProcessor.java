@@ -56,7 +56,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     props.setFieldValue(propertyName, value);
                 } catch (Exception e) {
                     throw new NoMatchFileNameException(
-                        "Module '" + fileName + "' doesn't match file name pattern!" + "\n File name pattern: " + fileNamePattern + ".\n Failed property: " + propertyName + ".\n Message:" + e
+                        "Module '" + fileName + "' does not match file name pattern!" + "\n File name pattern: " + fileNamePattern + ".\n Failed property: " + propertyName + ".\n Message:" + e
                             .getMessage());
                 }
             }
@@ -64,7 +64,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             return props;
         } else {
             throw new NoMatchFileNameException(
-                "Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
+                "Module '" + fileName + "' does not match file name pattern! File name pattern: " + fileNamePattern);
         }
     }
 

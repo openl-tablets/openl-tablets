@@ -45,7 +45,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     public void setRuleService(RuleService ruleService) {
-        this.ruleService = Objects.requireNonNull(ruleService, "ruleService can't be null.");
+        this.ruleService = Objects.requireNonNull(ruleService, "ruleService cannot be null");
     }
 
     public ServiceConfigurer getServiceConfigurer() {
@@ -53,7 +53,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
-        this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer can't be null.");
+        this.serviceConfigurer = Objects.requireNonNull(serviceConfigurer, "serviceConfigurer cannot be null");
     }
 
     /**

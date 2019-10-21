@@ -87,7 +87,7 @@ public class BranchesBean {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            FacesUtils.addErrorMessage("Can't copy the project: " + e.getMessage());
+            FacesUtils.addErrorMessage("Cannot copy the project: " + e.getMessage());
         }
     }
 

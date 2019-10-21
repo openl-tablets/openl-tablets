@@ -66,7 +66,7 @@ public class TableStyleListener implements HSSFListener {
 
             final StyleTrackingListener formatListener = new StyleTrackingListener(this);
 
-            // Default HSSFEventFactory doesn't include ContinueRecord items in the stream and it breaks Comments
+            // Default HSSFEventFactory does not include ContinueRecord items in the stream and it breaks Comments
             // parsing
             // for some cases. So we used to override processEvents() and initialize RecordFactoryInputStream
             // to include ContinueRecord items in the stream.
@@ -195,7 +195,7 @@ public class TableStyleListener implements HSSFListener {
                 String formula = HSSFFormulaParser.toFormulaString(null, formulaAggregate.getFormulaTokens());
                 formulas.put(new CellAddress(row, column), formula);
             } catch (Exception e) {
-                log.error("Can't read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
+                log.error("Cannot read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
             }
 
             currentFormula = null;

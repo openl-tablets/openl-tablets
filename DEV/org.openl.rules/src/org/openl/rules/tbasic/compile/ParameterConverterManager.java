@@ -51,7 +51,7 @@ public class ParameterConverterManager {
                 .getOperation()
                 .asSourceCodeModule();
             throw SyntaxNodeExceptionUtils.createError(String
-                .format("Compilation failure. Can't convert parameter %s to type %s", operationParam, clazz.toString()),
+                .format("Compilation failure. Cannot convert parameter %s to type %s", operationParam, clazz.toString()),
                 errorSource);
         }
 

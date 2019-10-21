@@ -35,10 +35,10 @@ public class ExpectedErrorTest {
         assertEquals("Expected Good Evening", TestStatus.TR_OK, testUnits.get(0).getResultStatus());
         assertEquals("Expected user error 'Incorrect argument'", TestStatus.TR_OK, testUnits.get(1).getResultStatus());
         assertEquals("Expected user error comparison failure", TestStatus.TR_NEQ, testUnits.get(2).getResultStatus());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error",
+        assertEquals("Unexpected exception must be thrown. It cannot be compared with user error",
             TestStatus.TR_NEQ,
             testUnits.get(3).getResultStatus());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error",
+        assertEquals("Unexpected exception must be thrown. It cannot be compared with user error",
             TestStatus.TR_NEQ,
             testUnits.get(4).getResultStatus());
     }

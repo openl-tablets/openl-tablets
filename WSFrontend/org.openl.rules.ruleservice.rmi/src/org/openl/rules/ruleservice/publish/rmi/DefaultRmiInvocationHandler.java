@@ -23,8 +23,8 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
     }
 
     public DefaultRmiInvocationHandler(Object target, Map<String, List<Method>> methodMap) {
-        this.target = Objects.requireNonNull(target, "target can't be null.");
-        this.methodMap = Objects.requireNonNull(methodMap, "methodMap can't be null.");
+        this.target = Objects.requireNonNull(target, "target cannot be null");
+        this.methodMap = Objects.requireNonNull(methodMap, "methodMap cannot be null");
     }
 
     @Override

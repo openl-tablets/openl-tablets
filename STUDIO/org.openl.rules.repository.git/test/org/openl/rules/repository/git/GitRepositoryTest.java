@@ -107,7 +107,7 @@ public class GitRepositoryTest {
     public static void clearTest() throws IOException {
         FileUtils.delete(template);
         if (template.exists()) {
-            fail("Can't delete folder " + template);
+            fail("Cannot delete folder " + template);
         }
     }
 
@@ -132,7 +132,7 @@ public class GitRepositoryTest {
         }
         FileUtils.delete(root);
         if (root.exists()) {
-            fail("Can't delete folder " + root);
+            fail("Cannot delete folder " + root);
         }
     }
 
@@ -340,7 +340,7 @@ public class GitRepositoryTest {
         assertTrue("'project1' wasn't deleted", repo.delete(projectData));
 
         FileData deletedProject = repo.check(projectPath);
-        assertTrue("'project1' isn't deleted", deletedProject.isDeleted());
+        assertTrue("'project1' is not deleted", deletedProject.isDeleted());
 
         // Restore the project
         FileData toDelete = new FileData();
@@ -349,7 +349,7 @@ public class GitRepositoryTest {
         toDelete.setComment("Delete project1.");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertFalse("'project1' isn't restored", deletedProject.isDeleted());
+        assertFalse("'project1' is not restored", deletedProject.isDeleted());
         assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
@@ -361,7 +361,7 @@ public class GitRepositoryTest {
         toDelete.setComment("Erase project1");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertNull("'project1' isn't erased", deletedProject);
+        assertNull("'project1' is not erased", deletedProject);
 
         // Life after erase
         List<FileData> versionsAfterErase = repo.listHistory(projectPath);
@@ -378,7 +378,7 @@ public class GitRepositoryTest {
         // manually add the file with name ".archived". It shouldn't prevent to delete the project
         repo.save(createFileData(projectPath + "/" + GitRepository.DELETED_MARKER_FILE, ""), IOUtils.toInputStream(""));
         assertTrue("'project1' wasn't deleted", repo.delete(projectData));
-        assertTrue("'project1' isn't deleted", repo.check(projectPath).isDeleted());
+        assertTrue("'project1' is not deleted", repo.check(projectPath).isDeleted());
     }
 
     @Test
@@ -483,10 +483,10 @@ public class GitRepositoryTest {
         File remote = new File(root, "remote");
         File local = new File(root, "local");
         FileUtils.deleteQuietly(local);
-        assertFalse("Can't delete repository. It shouldn't be locked.", local.exists());
+        assertFalse("Cannot delete repository. It shouldn't be locked.", local.exists());
 
         if (!local.mkdirs() && !local.exists()) {
-            fail("Can't create the folder for test");
+            fail("Cannot create the folder for test");
         }
 
         // Check that repo is cloned successfully
@@ -541,7 +541,7 @@ public class GitRepositoryTest {
                     IOUtils.toInputStream(text));
             }
 
-            // First user doesn't suspect that second user already committed his changes
+            // First user does not suspect that second user already committed his changes
             FileData saved1 = repository1.save(createFileData("rules/project-first/file1", text),
                 IOUtils.toInputStream(text));
 
@@ -1060,7 +1060,7 @@ public class GitRepositoryTest {
             }
         }
 
-        assertTrue("Files list doesn't contain the file '" + fileName + "'", contains);
+        assertTrue("Files list does not contain the file '" + fileName + "'", contains);
     }
 
     private FileData find(List<FileData> files, String fileName) {
@@ -1070,7 +1070,7 @@ public class GitRepositoryTest {
             }
         }
 
-        throw new IllegalArgumentException("File " + fileName + " not found");
+        throw new IllegalArgumentException("File '" + fileName + "' is not found");
     }
 
     private static class ChangesCounter implements Listener {

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author Aliaksandr Antonik.
  */
 public final class WizardUtils {
-    protected static final String INVALID_NAME_OF_PARAMETER_MESSAGE = "Invalid name for parameter: only latin letters, numbers and _ are allowed, name can't begin with a number";
+    protected static final String INVALID_NAME_OF_PARAMETER_MESSAGE = "Invalid name for parameter: only latin letters, numbers and _ are allowed, name cannot begin with a number";
 
     private static final Pattern REGEXP_PARAMETER = Pattern.compile("[a-zA-Z_][a-zA-Z_0-9]*");
 
@@ -40,7 +40,7 @@ public final class WizardUtils {
 
     public static String checkParameterName(String name) {
         if (StringUtils.isEmpty(name)) {
-            return "Parameter name can not be empty";
+            return "Parameter name cannot be empty";
         }
 
         if (!isValidParameter(name)) {
@@ -99,7 +99,7 @@ public final class WizardUtils {
                 } catch (Exception e) {
                     // For example NoClassDefFoundError when the class for some of the fields is absent.
                     final Logger log = LoggerFactory.getLogger(WizardUtils.class);
-                    log.debug("Can't load the class, skip it because it's not valid. Cause: {}", e.getMessage(), e);
+                    log.debug("Cannot load the class, skip it because it's not valid. Cause: {}", e.getMessage(), e);
                     continue;
                 }
                 if (!isValid(openType)) {
@@ -128,7 +128,7 @@ public final class WizardUtils {
         }
 
         Map<String, IOpenField> fields = openType.getFields();
-        // Every field has a "class" field. We skip a classes that doesn't
+        // Every field has a "class" field. We skip a classes that does not
         // have any other field.
         return fields.size() > 1;
 

@@ -47,7 +47,7 @@ public class Features {
     }
 
     /**
-     * If true, repository can have historic versions. If false, repository isn't versionable.
+     * If true, repository can have historic versions. If false, repository is not versionable.
      */
     public boolean versions() {
         return versions;

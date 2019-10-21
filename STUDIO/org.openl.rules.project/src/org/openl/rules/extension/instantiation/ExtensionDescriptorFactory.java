@@ -25,7 +25,7 @@ public final class ExtensionDescriptorFactory {
         } catch (ClassNotFoundException e) {
             Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
-            throw new ExtensionRuntimeException(String.format("Extension '%s' doesn't exist.", extension.getName()));
+            throw new ExtensionRuntimeException(String.format("Extension '%s' does not exist.", extension.getName()));
         } catch (InstantiationException e) {
             Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
@@ -34,7 +34,7 @@ public final class ExtensionDescriptorFactory {
         } catch (IllegalAccessException e) {
             Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
-            throw new ExtensionRuntimeException(String.format("Extension '%s' isn't accessible!", extension.getName()));
+            throw new ExtensionRuntimeException(String.format("Extension '%s' is not accessible!", extension.getName()));
         }
         return descriptor;
     }

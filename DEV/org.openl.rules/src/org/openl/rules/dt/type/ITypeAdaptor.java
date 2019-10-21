@@ -31,7 +31,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public String increment(String value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             int d = 1;
             StringBuilder sb = new StringBuilder();
             int i = value.length() - 1;
@@ -62,7 +62,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
         @Override
         public Byte increment(Byte value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Byte.MAX_VALUE)) {
                 return null;
             }
@@ -88,7 +88,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Byte increment(Byte value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Byte.MAX_VALUE)) {
                 return null;
             }
@@ -105,7 +105,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
         @Override
         public Short increment(Short value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Short.MAX_VALUE)) {
                 return null;
             }
@@ -130,7 +130,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Short increment(Short value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Short.MAX_VALUE)) {
                 return null;
             }
@@ -148,7 +148,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Long increment(Long value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Long.MAX_VALUE)) {
                 return null;
             }
@@ -174,7 +174,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Long increment(Long value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Long.MAX_VALUE)) {
                 return null;
             }
@@ -354,7 +354,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Integer.MAX_VALUE)) {
                 return null;
             }
@@ -380,7 +380,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value can't be null.");
+            Objects.requireNonNull(value, "value cannot be null");
             if (value.equals(Integer.MAX_VALUE)) {
                 return null;
             }

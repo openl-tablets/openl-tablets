@@ -27,7 +27,7 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
             if (syntaxNode != null) {
                 throw new OpenLRuntimeException(syntaxNode.getErrors()[0]);
             } else {
-                throw new OpenLRuntimeException("Method can't be invoked");
+                throw new OpenLRuntimeException("Method cannot be invoked");
             }
         } else {
             // simple run invoke

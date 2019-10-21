@@ -381,7 +381,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 engine.release();
             } else {
                 log.warn(
-                    "Service bean doesn't implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes!!!");
+                    "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes!!!");
             }
         }
     }

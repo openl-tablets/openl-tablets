@@ -62,7 +62,7 @@ public class HTMLRenderer {
         String mode = editor.getMode();
 
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId()
-            // Name of js variable can't contain ':' symbol
+            // Name of js variable cannot contain ':' symbol
             .replaceAll(":", "_");
 
         result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode));

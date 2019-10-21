@@ -13,7 +13,7 @@ public class ServiceConfigurationStringFactoryBean extends ServiceConfigurationF
     }
 
     public void setPropertyName(String propertyName) {
-        this.propertyName = Objects.requireNonNull(propertyName, "propertyName can't be null.");
+        this.propertyName = Objects.requireNonNull(propertyName, "propertyName cannot be null");
     }
 
     @Override

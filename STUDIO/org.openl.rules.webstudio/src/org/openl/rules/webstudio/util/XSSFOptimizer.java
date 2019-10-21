@@ -35,7 +35,7 @@ public final class XSSFOptimizer {
             List<CTXf> newStyleXfs = new ArrayList<>();
             List<CTCellStyle> newCellStyles = new ArrayList<>();
 
-            // TODO: Consider removing <xf> styles in <cellXfs> that isn't referenced from any cell's "s" attribute (<c
+            // TODO: Consider removing <xf> styles in <cellXfs> that is not referenced from any cell's "s" attribute (<c
             // s="33">)
 
             TreeSet<Integer> usedStyleXfs = new TreeSet<>();

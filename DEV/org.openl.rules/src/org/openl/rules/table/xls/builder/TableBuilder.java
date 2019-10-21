@@ -62,7 +62,7 @@ public class TableBuilder {
     }
 
     public TableBuilder(XlsSheetGridModel gridModel, MetaInfoWriter metaInfoWriter) {
-        this.gridModel = Objects.requireNonNull(gridModel, "gridModel can't be null.");
+        this.gridModel = Objects.requireNonNull(gridModel, "gridModel cannot be null");
         style2style = new HashMap<>();
         this.metaInfoWriter = metaInfoWriter;
     }
@@ -371,7 +371,7 @@ public class TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeGridTable(IGridTable table) {
-        Objects.requireNonNull(table, "table can't be null.");
+        Objects.requireNonNull(table, "table cannot be null");
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
@@ -444,7 +444,7 @@ public class TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeProperties(Map<String, Object> properties, ICellStyle style) {
-        Objects.requireNonNull(properties, "properties can't be null.");
+        Objects.requireNonNull(properties, "properties cannot be null");
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

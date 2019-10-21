@@ -72,7 +72,7 @@ public interface IntExp extends Expression {
      * Returns true if the domain of this expression contains the value.
      *
      * <code>NOTE: in some cases it is not possible (or feasible) to calculate <code>contains</code> with 100% accuracy.
-     * We also can not guarantee a consistency between <code>contains</code> and <code>size</code> method for all
+     * We also cannot guarantee a consistency between <code>contains</code> and <code>size</code> method for all
      * expressions. In other words if <code>contains(value)</code> returns <code>true</code> it might happen that value
      * does not belong to the expression's domain. The opposite (<code>false</code>) is always true :).
      *

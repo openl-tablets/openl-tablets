@@ -22,7 +22,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     private TableSyntaxNode tsn;
 
     public TableSyntaxNodeAdapter(TableSyntaxNode tsn) {
-        this.tsn = Objects.requireNonNull(tsn, "tsn can't be null.");
+        this.tsn = Objects.requireNonNull(tsn, "tsn cannot be null");
     }
 
     @Override

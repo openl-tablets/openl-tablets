@@ -113,7 +113,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         if (fileToRestore != null) {
             File currentSourceFile = projectModel.getSourceByName(fileToRestore.getName());
             if (currentSourceFile == null) {
-                // Module compilation error, can't find source by logical modules.
+                // Module compilation error, cannot find source by logical modules.
                 // Check current module's path (most often user restores only current module)
                 String path = projectModel.getModuleInfo().getRulesRootPath().getPath();
                 String[] pathElements = path.replace('\\', '/').split("/");
@@ -130,7 +130,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 projectModel.buildProjectTree();
                 log.info("Project was restored successfully");
             } catch (Exception e) {
-                log.error("Can't restore project at {}", new SimpleDateFormat().format(new Date(date)));
+                log.error("Cannot restore project at {}", new SimpleDateFormat().format(new Date(date)));
                 throw e;
             }
         }

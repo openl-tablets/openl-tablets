@@ -104,7 +104,7 @@ public class GenerateInterface {
             }
             File folder = new File(fileName).getParentFile();
             if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Can't create folder '" + folder.getAbsolutePath() + "'.");
+                throw new IOException("Cannot create folder '" + folder.getAbsolutePath() + "'.");
             }
             fw = new FileWriter(fileName);
             fw.write(content);
@@ -173,7 +173,7 @@ public class GenerateInterface {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log("Can't read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
+                log("Cannot read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
                     e,
                     MSG_ERR);
                 throw new IllegalStateException(e);
@@ -190,7 +190,7 @@ public class GenerateInterface {
             fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log("Can't write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
+            log("Cannot write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
                 e,
                 MSG_ERR);
         } finally {

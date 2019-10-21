@@ -118,7 +118,7 @@ public class SystemSettingsValidator {
         }
         if (!hasAccess) {
             FacesUtils.addErrorMessage(
-                "Can't get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
+                "Cannot get access to the folder ' " + folderPath + " '    Please, contact to your system administrator.");
         }
     }
 

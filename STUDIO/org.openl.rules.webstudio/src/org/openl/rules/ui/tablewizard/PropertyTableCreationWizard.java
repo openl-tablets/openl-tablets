@@ -28,7 +28,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     private PropertiesBean propertiesManager;
 
     private String scopeType;
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private String categoryName;
@@ -244,7 +244,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         String val = ((String) value).toUpperCase();
 
         if (val.isEmpty()) {
-            message.setDetail("Can not be empty");
+            message.setDetail("Cannot be empty");
             throw new ValidatorException(message);
         }
     }

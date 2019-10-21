@@ -17,7 +17,7 @@ public class CharRange extends IntRange {
 
     public CharRange(String range) {
         super(0, 0);
-        Objects.requireNonNull(range, "CharRange value can't be null.");
+        Objects.requireNonNull(range, "CharRange value cannot be null");
 
         ParseStruct<Character> parsed = CharRangeParser.getInstance().parse(range);
         min = parsed.min;

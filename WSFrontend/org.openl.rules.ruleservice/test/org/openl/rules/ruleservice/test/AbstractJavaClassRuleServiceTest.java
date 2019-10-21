@@ -71,8 +71,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @throws MethodInvocationException exception on rule execution fail.
      */
     protected Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
-        Objects.requireNonNull(ruleName, "ruleName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(ruleName, "ruleName cannot be null");
         return getJavaClassRuleServicePublisher().getFrontend().execute(serviceName, ruleName, params);
     }
 
@@ -90,8 +90,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
             String ruleName,
             Class<?>[] inputParamsTypes,
             Object[] params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
-        Objects.requireNonNull(ruleName, "ruleName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(ruleName, "ruleName cannot be null");
         return getJavaClassRuleServicePublisher().getFrontend()
             .execute(serviceName, ruleName, inputParamsTypes, params);
     }
@@ -105,8 +105,8 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @throws MethodInvocationException exception on rule execution fail.
      */
     protected Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
-        Objects.requireNonNull(fieldName, "fieldName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(fieldName, "fieldName cannot be null");
         return getJavaClassRuleServicePublisher().getFrontend().getValue(serviceName, fieldName);
     }
 

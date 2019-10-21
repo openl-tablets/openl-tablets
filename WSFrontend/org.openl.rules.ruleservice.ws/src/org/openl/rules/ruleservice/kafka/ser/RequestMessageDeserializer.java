@@ -36,8 +36,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     private String encoding = UTF8;
 
     public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
-        this.service = Objects.requireNonNull(service, "service can't be null.");
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper can't be null.");
+        this.service = Objects.requireNonNull(service, "service cannot be null");
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper cannot be null");
         if (method != null) {
             methodParametersWrapperClassInfo = generateWrapperClass(method);
             methodMap = null;

@@ -125,7 +125,7 @@ public class DecisionTableLoader {
                     .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils
-                    .createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+                    .createError("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
             }
         }
         ILogicalTable toParse = tableBody;
@@ -146,7 +146,7 @@ public class DecisionTableLoader {
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
-                throw SyntaxNodeExceptionUtils.createError("Can't convert table", e, tableSyntaxNode);
+                throw SyntaxNodeExceptionUtils.createError("Cannot convert table", e, tableSyntaxNode);
             }
 
         } else if (DecisionTableHelper.looksLikeVertical(tableBody)) {
@@ -273,7 +273,7 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             if (hasCollectReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
+                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' cannot be used together.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0,
@@ -285,7 +285,7 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidCRetHeader(header)) {
             if (hasReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
+                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' cannot be used together.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0,

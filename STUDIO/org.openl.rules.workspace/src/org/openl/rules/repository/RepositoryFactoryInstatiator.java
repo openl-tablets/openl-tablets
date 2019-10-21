@@ -54,7 +54,7 @@ public class RepositoryFactoryInstatiator {
         try {
             password = PassCoder.decode(password, privateKay);
         } catch (GeneralSecurityException e) {
-            throw new RRepositoryException("Can't decode the password", e);
+            throw new RRepositoryException("Cannot decode the password", e);
         } catch (UnsupportedEncodingException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }

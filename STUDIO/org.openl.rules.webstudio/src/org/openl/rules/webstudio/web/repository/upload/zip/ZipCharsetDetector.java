@@ -47,7 +47,7 @@ public class ZipCharsetDetector {
      * Detect charset for the given zip. File names will be compared with rules.xml if it exists.
      *
      * @param source source for zip.
-     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be
+     * @return Detected encoding. If null is returned then it means that charset is not UTF-8 but charset cannot be
      *         detected
      */
     public Charset detectCharset(ZipSource source) {
@@ -60,7 +60,7 @@ public class ZipCharsetDetector {
      *
      * @param source source for zip.
      * @param existingFiles Existing file names to check. Can be null.
-     * @return Detected encoding. If null is returned then it means that charset isn't UTF-8 but charset can't be
+     * @return Detected encoding. If null is returned then it means that charset is not UTF-8 but charset cannot be
      *         detected
      */
     public Charset detectCharset(ZipSource source, Collection<String> existingFiles) {
@@ -75,7 +75,7 @@ public class ZipCharsetDetector {
             // If there is no any error, zip can be decompressed using UTF-8
             return StandardCharsets.UTF_8;
         } catch (Exception e) {
-            log.debug("UTF-8 charset can't be used for zip decoding: {}", e.getMessage(), e);
+            log.debug("UTF-8 charset cannot be used for zip decoding: {}", e.getMessage(), e);
         }
 
         // Check other charsets
@@ -109,7 +109,7 @@ public class ZipCharsetDetector {
                     }
 
                     if (filesToCompare.isEmpty()) {
-                        // Can't figure out best charset. Use first applicable.
+                        // Cannot figure out best charset. Use first applicable.
                         break;
                     }
 
@@ -126,7 +126,7 @@ public class ZipCharsetDetector {
                     }
 
                 } catch (Exception e) {
-                    log.debug("Charset '{}' can't be used for zip decoding: {}", charset.name(), e.getMessage(), e);
+                    log.debug("Charset '{}' cannot be used for zip decoding: {}", charset.name(), e.getMessage(), e);
                 }
             }
 
@@ -169,7 +169,7 @@ public class ZipCharsetDetector {
                 }
             }
         } catch (Exception e) {
-            log.debug("Can't read project descriptor. Skip it. Cause: {}", e.getMessage(), e);
+            log.debug("Cannot read project descriptor. Skip it. Cause: {}", e.getMessage(), e);
         }
         return null;
     }
@@ -246,7 +246,7 @@ public class ZipCharsetDetector {
                 }
             }
         } catch (Exception e) {
-            log.debug("Charset '{}' can't be used for zip decoding: {}", charset.name(), e.getMessage(), e);
+            log.debug("Charset '{}' cannot be used for zip decoding: {}", charset.name(), e.getMessage(), e);
         }
         return entryNames;
     }
@@ -259,14 +259,14 @@ public class ZipCharsetDetector {
                 try {
                     available.add(Charset.forName(charsetName));
                 } catch (UnsupportedCharsetException e) {
-                    log.debug("Charset '{}' isn't supported: {}", charsetName, e.getMessage(), e);
+                    log.debug("Charset '{}' is not supported: {}", charsetName, e.getMessage(), e);
                 }
             }
 
         }
 
         if (available.isEmpty()) {
-            log.warn("Can't detect zip charset if it's compressed with any non-UTF-8 encoding");
+            log.warn("Cannot detect zip charset if it's compressed with any non-UTF-8 encoding");
         }
 
         return available.toArray(new Charset[0]);

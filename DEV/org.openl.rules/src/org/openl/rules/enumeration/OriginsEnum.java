@@ -7,7 +7,7 @@ public enum OriginsEnum {
 
     private final String displayName;
 
-    private OriginsEnum(String displayName) {
+    private OriginsEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -23,6 +23,6 @@ public enum OriginsEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

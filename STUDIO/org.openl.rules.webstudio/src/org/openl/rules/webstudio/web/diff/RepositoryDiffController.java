@@ -255,7 +255,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         if (StringUtils.isEmpty(selectedExcelFileUW) || StringUtils.isEmpty(selectedExcelFileRepo)) {
             return null;
         }
-        // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
+        // Files can be reloaded lazily later. We cannot delete them immediately. Instead delete them when Bean
         // is destroyed (on session timeout) or before next comparison.
         deleteTempFiles();
 
@@ -269,11 +269,11 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         try {
             if (excelFile1 == null) {
-                FacesUtils.addErrorMessage("Can't open the file " + selectedExcelFileUW);
+                FacesUtils.addErrorMessage("Cannot open the file " + selectedExcelFileUW);
                 return null;
             }
             if (excelFile2 == null) {
-                FacesUtils.addErrorMessage("Can't open the file " + selectedExcelFileRepo);
+                FacesUtils.addErrorMessage("Cannot open the file " + selectedExcelFileRepo);
                 return null;
             }
             // The Diff Tree can be huge. As far as we don't need the
@@ -288,7 +288,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (cause == null) {
                 cause = e;
             }
-            String message = "Can't compare the files '" + FileUtils
+            String message = "Cannot compare the files '" + FileUtils
                 .getName(selectedExcelFileUW) + "' and '" + FileUtils
                     .getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
             log.error(message, e);

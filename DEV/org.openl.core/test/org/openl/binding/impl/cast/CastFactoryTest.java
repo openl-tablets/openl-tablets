@@ -195,7 +195,7 @@ public class CastFactoryTest {
             JavaOpenClass.getOpenClass(Apple.class));
         assertNull(cast);
 
-        // should not allow downcast from List -> Integer when target class is final and doesn't implement source
+        // should not allow downcast from List -> Integer when target class is final and does not implement source
         cast = factory.getCast(JavaOpenClass.getOpenClass(List.class), JavaOpenClass.getOpenClass(Integer.class));
         assertNull(cast);
 

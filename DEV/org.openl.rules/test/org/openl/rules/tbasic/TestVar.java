@@ -11,7 +11,7 @@ public class TestVar {
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/tbasic1/VAR_F2.xls", "Operation VAR can not be multiline!");
+        TestUtils.assertEx("test/rules/tbasic1/VAR_F2.xls", "Operation VAR cannot be multiline!");
     }
 
     @Test

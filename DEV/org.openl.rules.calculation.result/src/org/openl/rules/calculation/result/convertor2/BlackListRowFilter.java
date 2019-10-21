@@ -28,7 +28,7 @@ public final class BlackListRowFilter implements RowFilter {
     }
 
     public static BlackListRowFilter buildBlackListRowFilter(Set<String> blackList) {
-        Objects.requireNonNull(blackList, "blackList can't be null.");
+        Objects.requireNonNull(blackList, "blackList cannot be null");
         return new BlackListRowFilter(Collections.unmodifiableSet(blackList));
     }
 

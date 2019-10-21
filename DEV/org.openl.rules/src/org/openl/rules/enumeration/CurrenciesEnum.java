@@ -75,7 +75,7 @@ public enum CurrenciesEnum {
 
     private final String displayName;
 
-    private CurrenciesEnum(String displayName) {
+    private CurrenciesEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -91,6 +91,6 @@ public enum CurrenciesEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

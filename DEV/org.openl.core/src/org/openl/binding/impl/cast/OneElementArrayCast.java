@@ -12,9 +12,9 @@ final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
     private int distance;
 
     OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
-        this.toComponentType = Objects.requireNonNull(to, "to can't be null.");
+        this.toComponentType = Objects.requireNonNull(to, "to cannot be null");
         if (this.toComponentType.isArray()) {
-            throw new IllegalArgumentException("to can't be an array type.");
+            throw new IllegalArgumentException("to cannot be an array type.");
         }
         this.openCast = openCast;
         this.distance = CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();

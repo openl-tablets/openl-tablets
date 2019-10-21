@@ -241,7 +241,7 @@ public class ParsedGrid extends AGrid {
                     styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
                 } catch (Exception e) {
                     // Fallback to empty style
-                    log.error("Can't read styles for sheet '{}'", sheetDescriptor.getName(), e);
+                    log.error("Cannot read styles for sheet '{}'", sheetDescriptor.getName(), e);
                     styles = new EmptyTableStyles(extendedRegion);
                 }
 

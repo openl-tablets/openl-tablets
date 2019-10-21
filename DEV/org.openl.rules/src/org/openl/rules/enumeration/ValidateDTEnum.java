@@ -7,7 +7,7 @@ public enum ValidateDTEnum {
 
     private final String displayName;
 
-    private ValidateDTEnum(String displayName) {
+    private ValidateDTEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -23,6 +23,6 @@ public enum ValidateDTEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

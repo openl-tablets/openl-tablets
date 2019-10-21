@@ -92,7 +92,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     /**
      * Load nested groups and primary group. If error is occurred return null.
      *
-     * @return Not null list if successful and null if can't load user authorities because of an error.
+     * @return Not null list if successful and null if cannot load user authorities because of an error.
      */
     private Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
             String username,
@@ -116,7 +116,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 new Object[] { bindPrincipal },
                 searchControls);
             if (!userSearch.hasMoreElements()) {
-                log.warn("Can't find account '" + username + "'. Skip nested groups and primary group search.");
+                log.warn("Cannot find account '" + username + "'. Skip nested groups and primary group search.");
                 return null;
             }
             String primaryGroupSid = getPrimaryGroupSid(userSearch.next().getAttributes());

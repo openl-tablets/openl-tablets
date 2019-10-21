@@ -46,7 +46,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     private final Logger log = LoggerFactory.getLogger(SimpleRulesCreationWizard.class);
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private SelectItem[] domainTypes;
@@ -445,7 +445,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     private void checkParameterName(String name) {
         if (StringUtils.isEmpty(name)) {
-            throw new ValidatorException(new FacesMessage("Can not be empty"));
+            throw new ValidatorException(new FacesMessage("Cannot be empty"));
         }
 
         if (!name.matches("([a-zA-Z_][a-zA-Z_0-9]*)?")) {

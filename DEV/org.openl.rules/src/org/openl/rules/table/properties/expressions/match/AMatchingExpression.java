@@ -18,18 +18,18 @@ public abstract class AMatchingExpression implements IMatchingExpression {
 
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
         this.contextAttributeExpression = Objects.requireNonNull(matchingExpression,
-            "matchingExpression can't be null.");
+            "matchingExpression cannot be null");
         this.operationName = operationName;
     }
 
     public AMatchingExpression(String operationName, String operation, String contextAttribute) {
-        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute can't be null.");
+        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute cannot be null");
         this.operationName = operationName;
         this.operation = operation;
     }
 
     public AMatchingExpression(String contextAttribute) {
-        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute can't be null.");
+        this.contextAttribute = Objects.requireNonNull(contextAttribute, "contextAttribute cannot be null");
     }
 
     @Override

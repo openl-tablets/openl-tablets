@@ -40,7 +40,7 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
     }
 
     /**
-     * Create new variable in context(if variable with specified name doesn't exist) and sets its value.
+     * Create new variable in context(if variable with specified name does not exist) and sets its value.
      *
      * @param variableName Name of variable to initiate.
      * @param value Initial value of new variable.

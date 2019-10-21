@@ -119,7 +119,7 @@ public final class OpenLTest {
         final File sourceDir = new File(folderName);
 
         if (!sourceDir.exists()) {
-            LOG.warn("Tests directory doesn't exist!");
+            LOG.warn("Tests directory does not exist!");
             return;
         }
 

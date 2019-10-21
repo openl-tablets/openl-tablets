@@ -40,7 +40,7 @@ public class StartupListener implements ServletContextListener {
 
         Boolean configured = PreferencesManager.INSTANCE.isAppConfigured();
 
-        // If webstudio.mode isn't defined, use either webstudio-beans.xml or installer-beans.xml.
+        // If webstudio.mode is not defined, use either webstudio-beans.xml or installer-beans.xml.
         // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
         String webStudioMode = System.getProperty("webstudio.mode");
         if (webStudioMode == null) {
@@ -60,7 +60,7 @@ public class StartupListener implements ServletContextListener {
         }
 
         // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
-        // If WebStudio isn't configured we must not set user mode globally. Instead the property must be loaded
+        // If WebStudio is not configured we must not set user mode globally. Instead the property must be loaded
         // directly
         // from property files and then redefine property if needed (in Install Wizard for example). It'll be set
         // globally

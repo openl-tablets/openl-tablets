@@ -607,7 +607,7 @@ public class WebStudio {
             Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
                 filesInProject);
             if (charset == null) {
-                throw new ValidationException("Can't detect a charset for the zip file");
+                throw new ValidationException("Cannot detect a charset for the zip file");
             }
 
             String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor, charset);
@@ -717,7 +717,7 @@ public class WebStudio {
 
         // Note that "newProjectDescriptor == null" is correct case too: it
         // means that it's not OpenL project anymore:
-        // newly updated project doesn't contain rules.xml nor xls file. Such
+        // newly updated project does not contain rules.xml nor xls file. Such
         // projects are not shown in Editor but
         // are shown in Repository.
         // In this case we must show the list of all projects in Editor.
@@ -1104,7 +1104,7 @@ public class WebStudio {
             return "#" + pageUrl;
         }
         if (StringUtils.isBlank(projectName)) {
-            return "#"; // Current project isn't selected. Show all projects
+            return "#"; // Current project is not selected. Show all projects
             // list.
         }
         if (StringUtils.isBlank(moduleName)) {

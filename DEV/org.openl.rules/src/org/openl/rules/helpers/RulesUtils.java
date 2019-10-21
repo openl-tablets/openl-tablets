@@ -4091,7 +4091,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4120,7 +4120,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4149,7 +4149,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4178,7 +4178,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4207,7 +4207,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4236,7 +4236,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4265,7 +4265,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4294,7 +4294,7 @@ public final class RulesUtils {
     /**
      * <p>
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array.
      * </p>
      * <p/>
@@ -4322,7 +4322,7 @@ public final class RulesUtils {
 
     /**
      * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
-     * shifted to the left (substracts one from their indices). If the array doesn't contains such an element, no
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
      * elements are removed from the array. <br />
      * <br />
      * <p/>

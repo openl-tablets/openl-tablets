@@ -54,7 +54,7 @@ public abstract class BaseTableWizardManager {
             if (table != null) {
                 tableUri = table.getUri();
             } else {
-                throw new Message("Table with id " + id + " doesn't exists");
+                throw new Message("Table with id " + id + " does not exists");
             }
         } else {
             tableUri = WebStudioUtils.getWebStudio().getTableUri();

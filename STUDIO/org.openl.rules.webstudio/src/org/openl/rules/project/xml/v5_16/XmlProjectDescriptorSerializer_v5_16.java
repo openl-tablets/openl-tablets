@@ -38,7 +38,7 @@ public class XmlProjectDescriptorSerializer_v5_16 extends BaseProjectDescriptorS
         xstream.omitField(ProjectDescriptor_v5_16.class, "classLoader");
         xstream.omitField(ProjectDescriptor_v5_16.class, "projectFolder");
         xstream.omitField(Module_v5_16.class, "type"); // type was deprecated in rules.xml
-        xstream.omitField(Module_v5_16.class, "properties"); // properties doesn't supported by rules.xml
+        xstream.omitField(Module_v5_16.class, "properties"); // properties does not supported by rules.xml
         xstream.omitField(Module_v5_16.class, "wildcardName"); // runtime properties
         xstream.omitField(Module_v5_16.class, "wildcardRulesRootPath"); // runtime properties
         xstream.omitField(Module_v5_16.class, "project"); // runtime properties

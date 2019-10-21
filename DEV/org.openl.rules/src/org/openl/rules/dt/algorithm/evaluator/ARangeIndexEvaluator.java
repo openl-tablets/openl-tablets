@@ -81,7 +81,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             }
 
             if (!(vFrom instanceof Long)) {
-                throw new DomainCanNotBeDefined("Domain can't be converted to Long", null);
+                throw new DomainCanNotBeDefined("Domain cannot be converted to Long", null);
             }
 
             min = Math.min(min, (Long) vFrom);
@@ -137,7 +137,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         @Override
         public Comparable<?> adaptValueType(Object value) {
             if (value == null) {
-                throw new IllegalArgumentException("Null values doesn't supported!");
+                throw new IllegalArgumentException("Null values does not supported!");
             }
             if (rangeAdaptor != null) {
                 value = rangeAdaptor.adaptValueType(value);

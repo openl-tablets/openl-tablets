@@ -121,7 +121,7 @@ public class String2DataConvertorFactory {
         IString2DataConvertor<T> convertor = null;
 
         // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference
-        // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
+        // to Class, so classloader for them cannot be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
             convertor = new String2EnumConvertor(clazz);
         } else if (clazz.isArray()) {

@@ -49,8 +49,8 @@ public class GoalSetValue extends GoalImpl {
      * Executes a goal
      *
      * @return Null if succeeded.
-     * @throws Failure if such a value is out of domain or doesn't satisfy to some of the constraints associated with a
-     *             given IntExp variable and so can't be assigned to it.
+     * @throws Failure if such a value is out of domain or does not satisfy to some of the constraints associated with a
+     *             given IntExp variable and so cannot be assigned to it.
      */
     @Override
     public Goal execute() throws Failure {

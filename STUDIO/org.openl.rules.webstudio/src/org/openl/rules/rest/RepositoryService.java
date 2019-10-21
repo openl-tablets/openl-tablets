@@ -79,7 +79,7 @@ public class RepositoryService {
     @Path("projects")
     public Response getProjects() throws WorkspaceException {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
@@ -103,11 +103,11 @@ public class RepositoryService {
     public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
             }
             FileData fileData = getRepository().check(getFileName(name));
             if (fileData == null) {
-                throw new FileNotFoundException("Project '" + name + "' not found.");
+                throw new FileNotFoundException("Project '" + name + "' is not found.");
             }
 
             return getProject(name, fileData.getVersion());
@@ -130,7 +130,7 @@ public class RepositoryService {
             @PathParam("version") final String version) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
             }
 
             final Repository repository = getRepository();
@@ -141,7 +141,7 @@ public class RepositoryService {
             if (repository.supports().folders()) {
                 FileData fileData = getRepository().check(getFileName(name));
                 if (fileData == null) {
-                    throw new FileNotFoundException("Project '" + name + "' not found.");
+                    throw new FileNotFoundException("Project '" + name + "' is not found.");
                 }
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
@@ -155,7 +155,7 @@ public class RepositoryService {
             } else {
                 FileItem fileItem = repository.readHistory(projectPath, version);
                 if (fileItem == null) {
-                    throw new FileNotFoundException("File '" + name + "' not found.");
+                    throw new FileNotFoundException("File '" + name + "' is not found.");
                 }
 
                 entity = fileItem.getStream();
@@ -288,7 +288,7 @@ public class RepositoryService {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+                    return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
                 }
                 RulesProject project = userWorkspace.getProject(name);
                 if (project.isLocked() && !project.isLockedByUser(getUser())) {
@@ -298,11 +298,11 @@ public class RepositoryService {
                 project.lock();
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
+                    return Response.status(Status.FORBIDDEN).entity("Does not have CREATE PROJECTS privilege").build();
                 }
                 if (getRepository().supports().mappedFolders()) {
                     throw new UnsupportedOperationException(
-                        "Can't create a project for repository with non-flat folder structure");
+                        "Cannot create a project for repository with non-flat folder structure");
                 }
             }
 
@@ -372,7 +372,7 @@ public class RepositoryService {
     public Response lockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
         if (project.isLocked()) {
@@ -395,7 +395,7 @@ public class RepositoryService {
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
         if (!project.isLocked()) {

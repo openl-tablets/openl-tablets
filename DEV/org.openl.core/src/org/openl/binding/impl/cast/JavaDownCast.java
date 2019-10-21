@@ -12,8 +12,8 @@ final class JavaDownCast implements IOpenCast {
     private ICastFactory castFactory;
 
     JavaDownCast(IOpenClass to, ICastFactory castFactory) {
-        this.to = Objects.requireNonNull(to, "to can't be null.");
-        this.castFactory = Objects.requireNonNull(castFactory, "castFactory can't be null.");
+        this.to = Objects.requireNonNull(to, "to cannot be null");
+        this.castFactory = Objects.requireNonNull(castFactory, "castFactory cannot be null");
     }
 
     @Override
@@ -33,7 +33,7 @@ final class JavaDownCast implements IOpenCast {
                     return openCast.convert(from);
                 }
                 throw new ClassCastException(
-                    "Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
+                    "Cannot cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
             }
         }
     }

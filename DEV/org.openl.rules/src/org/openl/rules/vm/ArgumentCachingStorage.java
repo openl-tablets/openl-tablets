@@ -19,7 +19,7 @@ public class ArgumentCachingStorage {
 
     public ArgumentCachingStorage(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
         this.simpleRulesRuntimeEnv = Objects.requireNonNull(simpleRulesRuntimeEnv,
-            "simpleRulesRuntimeEnv can't be null");
+            "simpleRulesRuntimeEnv cannot be null");
     }
 
     private Storage storage = new Storage();
@@ -61,7 +61,7 @@ public class ArgumentCachingStorage {
         private Object member;
 
         public CalculationStep(Object member) {
-            this.member = Objects.requireNonNull(member, "member can't be null.");
+            this.member = Objects.requireNonNull(member, "member cannot be null");
         }
 
         public Object getMember() {
@@ -118,7 +118,7 @@ public class ArgumentCachingStorage {
                 }
             }
         }
-        throw new IllegalStateException("Can't find result. Something wrong!!!");
+        throw new IllegalStateException("Cannot find result. Something wrong!!!");
     }
 
     public void makeForwardStepForOriginalCalculation(Object member) {

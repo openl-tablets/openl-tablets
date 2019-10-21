@@ -177,11 +177,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     log.debug("bean {} is using generated at runtime", beanName);
                 } catch (ByteCodeGenerationException genE) {
                     throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Can't generate a class for datatype %s. %s", beanName, genE.getMessage()),
+                        String.format("Cannot generate a class for datatype %s. %s", beanName, genE.getMessage()),
                         genE,
                         tableSyntaxNode);
                 } catch (Exception e2) {
-                    throw SyntaxNodeExceptionUtils.createError("Can't generate a class for datatype " + beanName,
+                    throw SyntaxNodeExceptionUtils.createError("Cannot generate a class for datatype " + beanName,
                         tableSyntaxNode);
                 }
             }
@@ -324,7 +324,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 GridCellSourceCodeModule cellSource = getCellSource(row, cxt, 0);
                 TextInterval location = LocationUtils.createTextInterval(cellSource.getCode());
 
-                String message = "Type " + getRootComponentClass(field.getType()).getName() + " isn't generated yet";
+                String message = "Type " + getRootComponentClass(field.getType()).getName() + " is not generated yet";
                 throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
             }
 
@@ -407,7 +407,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     try {
                         fieldDescription = fieldDescriptionBuilder.build();
                     } catch (RuntimeException e) {
-                        String message = String.format("Can't parse cell value '%s'", defaultValue);
+                        String message = String.format("Cannot parse cell value '%s'", defaultValue);
                         IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
 
                         if (e instanceof CompositeSyntaxNodeException) {

@@ -578,7 +578,7 @@ public class SpreadsheetComponentsBuilder {
                             .get(nonEmptySpreadsheetCells.size() - 1);
                         if (nonEmptySpreadsheetCell.getType() != null) {
                             throw SyntaxNodeExceptionUtils.createError(
-                                "Can not convert from " + nonEmptySpreadsheetCell.getType()
+                                "Cannot convert from " + nonEmptySpreadsheetCell.getType()
                                     .getName() + " to " + spreadsheet.getHeader().getType().getName(),
                                 symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
                         } else {

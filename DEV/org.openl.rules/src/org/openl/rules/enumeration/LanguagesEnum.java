@@ -44,7 +44,7 @@ public enum LanguagesEnum {
 
     private final String displayName;
 
-    private LanguagesEnum(String displayName) {
+    private LanguagesEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -60,6 +60,6 @@ public enum LanguagesEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

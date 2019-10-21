@@ -217,7 +217,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private GenerateInterface[] generateInterfaces;
 
     /**
-     * If true, rules.xml will be generated if it doesn't exist. If false, rules.xml will not be generated. Default
+     * If true, rules.xml will be generated if it does not exist. If false, rules.xml will not be generated. Default
      * value is "true".
      *
      * @see #overwriteProjectDescriptor

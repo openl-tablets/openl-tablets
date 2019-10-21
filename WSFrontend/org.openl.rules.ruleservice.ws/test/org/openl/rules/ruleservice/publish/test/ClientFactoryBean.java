@@ -45,7 +45,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
     }
 
     public void setTimeOut(Long timeOut) {
-        this.timeOut = Objects.requireNonNull(timeOut, "timeOut can't be null.");
+        this.timeOut = Objects.requireNonNull(timeOut, "timeOut cannot be null");
     }
 
     public ClientProxyFactoryBean getClientProxyFactoryBean() {
@@ -53,16 +53,16 @@ final class ClientFactoryBean implements FactoryBean<Object> {
     }
 
     public void setClientProxyFactoryBean(ClientProxyFactoryBean clientProxyFactoryBean) {
-        this.clientProxyFactoryBean = Objects.requireNonNull(clientProxyFactoryBean, "clientProxyFactoryBean can't be null.");
+        this.clientProxyFactoryBean = Objects.requireNonNull(clientProxyFactoryBean, "clientProxyFactoryBean cannot be null");
     }
 
     @Override
     public Class<?> getObjectType() {
         if (getClientProxyFactoryBean() == null) {
-            throw new IllegalStateException("clientProxyFactoryBean can't be null");
+            throw new IllegalStateException("clientProxyFactoryBean cannot be null");
         }
         if (getClientProxyFactoryBean().getServiceClass() == null) {
-            throw new IllegalStateException("clientProxyFactoryBean.serviceClass can't be null");
+            throw new IllegalStateException("clientProxyFactoryBean.serviceClass cannot be null");
         }
         return getClientProxyFactoryBean().getServiceClass();
     }
@@ -94,7 +94,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
 
     public Object create() {
         if (getClientProxyFactoryBean() == null) {
-            throw new IllegalStateException("clientProxyFactoryBean can't be null");
+            throw new IllegalStateException("clientProxyFactoryBean cannot be null");
         }
         final Object client = getClientProxyFactoryBean().create();
         prepare(client);

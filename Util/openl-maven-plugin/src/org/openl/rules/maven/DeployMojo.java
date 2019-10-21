@@ -55,7 +55,7 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Server server = settings.getServer(deployServer);
         if (server == null) {
-            throw new IllegalStateException("The server configuration with name " + deployServer + " doesn't exist");
+            throw new IllegalStateException("The server configuration with name " + deployServer + " does not exist");
         }
 
         Properties properties = new Properties();
@@ -80,7 +80,7 @@ public class DeployMojo extends BaseOpenLMojo {
             }
         });
         if (zipZiles == null) {
-            throw new IllegalStateException("Cannot deploy the rules project, as the zip file doesn't exist");
+            throw new IllegalStateException("Cannot deploy the rules project, as the zip file does not exist");
         }
         if (zipZiles.length > 1) {
             throw new IllegalStateException("There are more than 1 zip file in the target directory");

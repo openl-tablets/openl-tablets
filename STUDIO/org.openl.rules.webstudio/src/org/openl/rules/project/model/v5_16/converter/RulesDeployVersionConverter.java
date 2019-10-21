@@ -91,7 +91,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                         case RMI:
                             return RulesDeploy_v5_16.PublisherType.RMI;
                         case KAFKA:
-                            throw new UnsupportedOperationException("KAFKA publisher isn't supported in old version.");
+                            throw new UnsupportedOperationException("KAFKA publisher is not supported in old version.");
                         default:
                             throw new IllegalArgumentException();
                     }

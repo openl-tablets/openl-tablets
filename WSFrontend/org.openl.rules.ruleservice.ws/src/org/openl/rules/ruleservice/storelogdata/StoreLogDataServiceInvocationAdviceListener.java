@@ -52,7 +52,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         }
                     } catch (Exception e) {
                         String msg = String.format(
-                            "Failed to instantiate store log data advice for '%s' method. Please, check that '%s' class isn't abstact and has a default constructor.",
+                            "Failed to instantiate store log data advice for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
                             MethodUtil.printQualifiedMethodName(interfaceMethod),
                             storeLogging.value().getTypeName());
                         log.error(msg, e);

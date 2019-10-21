@@ -51,9 +51,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     public RuleServiceLoaderImpl(DataSource dataSource,
             LocalTemporaryDeploymentsStorage storage,
             ProjectResolver projectResolver) {
-        this.dataSource = Objects.requireNonNull(dataSource, "dataSource can't be null.");
-        this.storage = Objects.requireNonNull(storage, "storage can't be null.");
-        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver can't be null.");
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource cannot be null");
+        this.storage = Objects.requireNonNull(storage, "storage cannot be null");
+        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver cannot be null");
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Sets data source.
      */
     public void setDataSource(DataSource dataSource) {
-        this.dataSource = Objects.requireNonNull(dataSource, "dataSource can't be null.");
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource cannot be null");
         ;
     }
 
@@ -82,7 +82,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * @param projectResolver
      */
     public void setProjectResolver(ProjectResolver projectResolver) {
-        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver can't be null.");
+        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver cannot be null");
     }
 
     /**
@@ -96,7 +96,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Sets storage. Spring bean configuration property.
      */
     public void setStorage(LocalTemporaryDeploymentsStorage storage) {
-        this.storage = Objects.requireNonNull(storage, "storage can't be null.");
+        this.storage = Objects.requireNonNull(storage, "storage cannot be null");
     }
 
     /**
@@ -114,9 +114,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     public Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName) {
-        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
-        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
-        Objects.requireNonNull(projectName, "projectName can't be null.");
+        Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
+        Objects.requireNonNull(projectName, "projectName cannot be null");
 
         log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
             deploymentName,
@@ -127,7 +127,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                "Deployment '" + deploymentName + "' doesn't contain a project '" + projectName + "'!");
+                "Deployment '" + deploymentName + "' does not contain a project '" + projectName + "'!");
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);

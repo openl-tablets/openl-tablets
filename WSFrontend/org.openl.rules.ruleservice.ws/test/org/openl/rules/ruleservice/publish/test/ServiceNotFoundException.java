@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.publish.test;
 import org.openl.rules.ruleservice.core.RuleServiceException;
 
 /**
- * This exception occurs when service can't be found.
+ * This exception occurs when service cannot be found.
  *
  * @author Marat Kamalov
  *

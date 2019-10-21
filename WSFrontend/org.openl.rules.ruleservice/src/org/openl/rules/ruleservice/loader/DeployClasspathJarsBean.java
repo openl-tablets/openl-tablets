@@ -85,7 +85,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException(
-                        "Protocol for URL isn't supported! URL: " + resourceURL.toString());
+                        "Protocol for URL is not supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
                 log.error("Failed to load a resource!", e);

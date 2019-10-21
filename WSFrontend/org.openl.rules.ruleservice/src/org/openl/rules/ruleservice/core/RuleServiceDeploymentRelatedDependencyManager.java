@@ -138,15 +138,15 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
             ClassLoader rootClassLoader,
             boolean lazy) {
         super(rootClassLoader);
-        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
-        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService can't be null.");
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
+        this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService cannot be null");
         this.lazy = lazy;
         super.setExecutionMode(true);
     }
 
     @Override
     public void setExecutionMode(boolean executionMode) {
-        throw new UnsupportedOperationException("This dependency manager doesn't support executionMode=false!");
+        throw new UnsupportedOperationException("This dependency manager does not support executionMode=false!");
     }
 
     @Override

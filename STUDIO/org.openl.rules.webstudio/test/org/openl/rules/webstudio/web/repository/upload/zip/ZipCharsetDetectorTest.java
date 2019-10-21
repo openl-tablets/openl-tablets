@@ -61,7 +61,7 @@ public class ZipCharsetDetectorTest {
 
         // Still can detect files with UTF-8 encoding
         assertEquals(StandardCharsets.UTF_8, detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML_UTF_8))));
-        // Return null if can't detect charset
+        // Return null if cannot detect charset
         assertNull(detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML))));
     }
 
@@ -69,7 +69,7 @@ public class ZipCharsetDetectorTest {
     public void skipNotExistingCharset() throws Exception {
         assumeCharsetSupported("IBM437");
 
-        // If some charset doesn't exist in JVM, don't fail, just skip it.
+        // If some charset does not exist in JVM, don't fail, just skip it.
         String[] charsetNames = { "not-exist-in-current-jvm", "IBM437" };
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
         Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));

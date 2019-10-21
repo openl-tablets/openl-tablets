@@ -17,7 +17,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testHaveErrorAboveRunTable() {
         TableSyntaxNode table = findTable("Run DriverPremium5 DriverPremium5Run");
         assertNotNull("Table DriverPremium5Run not found", table);
-        assertContainsError("Property 'version' can't be defined in Run Table", table);
+        assertContainsError("Property 'version' cannot be defined in Run Table", table);
         assertEquals("Run Table node must contain only one error", 1, table.getErrors().length);
     }
 
@@ -25,7 +25,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testHaveErrorAboveTestTable() {
         TableSyntaxNode table = findTable("Test DriverPremium5 DriverPremium5Test");
         assertNotNull("Table DriverPremium5Test not found", table);
-        assertContainsError("Property 'active' can't be defined in Test Table", table);
+        assertContainsError("Property 'active' cannot be defined in Test Table", table);
         assertEquals("Test Table node must contain only one error", 1, table.getErrors().length);
     }
 
@@ -34,7 +34,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode table = findTable("Test DriverPremium5 DriverPremiumEmptyTest");
         assertNotNull("Table DriverPremiumEmptyTest not found", table);
         assertContainsError("There is no body in Data table.", table);
-        assertContainsError("Property 'id' can't be defined in Test Table", table);
+        assertContainsError("Property 'id' cannot be defined in Test Table", table);
         assertEquals("Test Table node must contain only 2 errors", 2, table.getErrors().length);
     }
 
@@ -52,13 +52,13 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertTrue("Message '" + message.getSummary() + "' doesn't have corresponding TableSyntaxNode", found);
+            assertTrue("Message '" + message.getSummary() + "' does not have corresponding TableSyntaxNode", found);
         }
     }
 
     private void assertContainsError(String error, TableSyntaxNode node) {
         if (!containsError(error, node)) {
-            fail("TableSyntaxNode doesn't contain error '" + error + "'");
+            fail("TableSyntaxNode does not contain error '" + error + "'");
         }
     }
 

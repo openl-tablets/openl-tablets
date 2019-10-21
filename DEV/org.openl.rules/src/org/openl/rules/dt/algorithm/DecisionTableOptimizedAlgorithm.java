@@ -102,7 +102,7 @@ import org.openl.vm.Tracer;
  * <h3>Explicit Indexing Optimization</h3>
  * <p>
  * Generally speaking, it would be nice to have system automatically apply optimizations, when appropriate, would not
- * it? In reality there are always the cases where one doesn't want optimization happen for some reason, for example
+ * it? In reality there are always the cases where one does not want optimization happen for some reason, for example
  * condition calls a function with side effects.. This would require us to provide some facility to suppress
  * optimization on column and/or table level, and this might unnecessary complicate DT structure.
  *
@@ -361,7 +361,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         String parametersString = StringUtils.join(names, ",");
 
-        String message = String.format("Can not make a Condition Evaluator for parameter %s and [%s]",
+        String message = String.format("Cannot make a Condition Evaluator for parameter %s and [%s]",
             methodType.getName(),
             parametersString);
 
@@ -535,7 +535,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         IConditionEvaluator decorate;
 
         public ConditionEvaluatorDecoratorAsNotIndexed(IConditionEvaluator decorate) {
-            this.decorate = Objects.requireNonNull(decorate, "decorate can't be null.");
+            this.decorate = Objects.requireNonNull(decorate, "decorate cannot be null");
         }
 
         @Override

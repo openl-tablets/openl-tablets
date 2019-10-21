@@ -48,7 +48,7 @@ public class TestTableBuilder extends TableBuilder {
      * @return executable method from node
      */
     private static ExecutableMethod getExecutableMethod(TableSyntaxNode executableTsn) {
-        Objects.requireNonNull(executableTsn, "executableTsn can't be null.");
+        Objects.requireNonNull(executableTsn, "executableTsn cannot be null");
 
         if (!executableTsn.isExecutableNode()) {
             throw new IllegalArgumentException("Syntax node is not executable node.");
@@ -168,7 +168,7 @@ public class TestTableBuilder extends TableBuilder {
      * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeParams(Map<String, String> params, String resultTitle) {
-        Objects.requireNonNull(params, "params can't be null.");
+        Objects.requireNonNull(params, "params cannot be null");
         if (getTableRegion() == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

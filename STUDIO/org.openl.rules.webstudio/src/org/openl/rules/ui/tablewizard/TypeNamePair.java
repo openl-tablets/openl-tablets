@@ -9,12 +9,12 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class TypeNamePair {
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     private String type;
 
     private boolean iterable;
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = WizardUtils.INVALID_NAME_OF_PARAMETER_MESSAGE)
     private String name;
 

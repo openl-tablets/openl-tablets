@@ -73,11 +73,11 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
                 }
             } else {
                 throw new OpenlNotCheckedException(
-                    "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!");
+                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy!");
             }
         } catch (ValidationServiceClassException e) {
             throw new OpenlNotCheckedException(
-                "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!",
+                "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy!",
                 e);
         }
     }

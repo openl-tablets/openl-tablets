@@ -72,7 +72,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
-            "interfaceClassGenerator can't be null.");
+            "interfaceClassGenerator cannot be null");
         if (interfaceClass != null) {
             log.warn("Rules engine factory already has interface class. Interface class generator has been ignored.");
         }
@@ -90,7 +90,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
      */
     public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
-        this.deployment = Objects.requireNonNull(deployment, "deployment can't be null.");
+        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
         this.modules = modules;
     }
 

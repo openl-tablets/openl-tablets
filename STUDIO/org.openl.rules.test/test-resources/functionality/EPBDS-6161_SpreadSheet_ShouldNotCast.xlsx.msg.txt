@@ -1,1 +1,1 @@
-ERROR: Can not convert from 'java.lang.String[]' to 'java.util.List'
+ERROR: Cannot convert from 'java.lang.String[]' to 'java.util.List'

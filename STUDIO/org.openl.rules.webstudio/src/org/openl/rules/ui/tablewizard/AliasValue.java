@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class AliasValue {
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     private String value;
     private String submittedValue;
 

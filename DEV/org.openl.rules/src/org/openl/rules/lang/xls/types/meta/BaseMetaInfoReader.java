@@ -58,7 +58,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
             }
 
             if (isHeaderRow(row)) {
-                // Header can be merged with several cells. First cell can contain meta info, others can't.
+                // Header can be merged with several cells. First cell can contain meta info, others cannot.
                 return isHeaderCell(row, col) ? getHeaderMetaInfo() : null;
             }
 

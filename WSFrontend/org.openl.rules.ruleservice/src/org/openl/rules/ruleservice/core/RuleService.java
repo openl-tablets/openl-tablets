@@ -45,7 +45,7 @@ public interface RuleService {
     Collection<? extends OpenLService> getServices();
 
     /**
-     * Finds and returns deployed OpenL service by name. Returns null if service with specified name isn't deployed.
+     * Finds and returns deployed OpenL service by name. Returns null if service with specified name is not deployed.
      *
      * @param serviceName service name
      * @return founded OpenL service

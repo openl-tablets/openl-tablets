@@ -239,7 +239,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 addTagToCommit(commit);
             } else {
-                // Files can't be archived. Only folders.
+                // Files cannot be archived. Only folders.
                 git.rm().addFilepattern(name).call();
                 RevCommit commit = git.commit()
                     .setMessage(formatComment(CommitType.ERASE, data))
@@ -373,7 +373,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 if (!fileData.isDeleted()) {
-                    // We can "delete" only archived versions. Other version can't be deleted.
+                    // We can "delete" only archived versions. Other version cannot be deleted.
                     return false;
                 }
 
@@ -507,7 +507,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         }
                         shouldClone = false;
                     } else {
-                        // Can't overwrite existing files that is definitely not git repository
+                        // Cannot overwrite existing files that is definitely not git repository
                         throw new IOException(
                             "Folder '" + local + "' already exists and is not empty. Delete it or choose another local path.");
                     }
@@ -716,7 +716,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private ObjectId resolveBranchId() throws IOException {
         ObjectId branchId = git.getRepository().resolve(branch);
         if (branchId == null) {
-            throw new IOException("Can't find branch '" + branch + "'");
+            throw new IOException("Cannot find branch '" + branch + "'");
         }
         return branchId;
     }
@@ -860,7 +860,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // Support the case when for some reason commits were fetched but not merged to current branch earlier.
         // In this case fetchResult.getTrackingRefUpdates() can be empty.
         // If everything is merged into current branch, this method does nothing.
-        // Obviously this method isn't needed. It's invoked only to fix unexpected errors during work with repository.
+        // Obviously this method is not needed. It's invoked only to fix unexpected errors during work with repository.
         Ref advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
         Ref localRef = git.getRepository().findRef(branch);
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
@@ -900,7 +900,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             if (!mergeResult.getMergeStatus().isSuccessful()) {
                 validateMergeConflict(mergeResult, true);
-                throw new IOException("Can't merge: " + mergeResult.toString());
+                throw new IOException("Cannot merge: " + mergeResult.toString());
             }
         } catch (GitAPIException | IOException e) {
             reset(commitToRevert);
@@ -1045,7 +1045,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             "Remote ref update was rejected, as it would cause non fast-forward update.");
                     case REJECTED_NODELETE:
                         throw new IOException(
-                            "Remote ref update was rejected, because remote side doesn't support/allow deleting refs.");
+                            "Remote ref update was rejected, because remote side does not support/allow deleting refs.");
                     case REJECTED_REMOTE_CHANGED:
                         throw new IOException(
                             "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
@@ -1164,7 +1164,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.checkout().setName(branch).setForced(true).call();
             } else {
                 ResetCommand resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
-                // If commit isn't merged to our branch, it's detached - in this case no need to reset commit tree.
+                // If commit is not merged to our branch, it's detached - in this case no need to reset commit tree.
                 if (commitToDiscard != null && isCommitMerged(commitToDiscard)) {
                     log.debug("Discard commit: {}.", commitToDiscard);
                     resetCommand.setRef(commitToDiscard + "^");
@@ -1195,7 +1195,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try {
                     num = Integer.parseInt(name.substring(tagPrefix.length()));
                 } catch (NumberFormatException e) {
-                    log.debug("Tag {} is skipped because it doesn't contain version number", name);
+                    log.debug("Tag {} is skipped because it does not contain version number", name);
                     continue;
                 }
                 if (num > maxId) {
@@ -1398,8 +1398,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (git.status().call().getUncommittedChanges().isEmpty()) {
             // For the cases:
             // 1) User modified a project, then manually reverted, then pressed save.
-            // 2) Copy project that doesn't have rules.xml, check "Copy old revisions". The last one commit should
-            // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are
+            // 2) Copy project that does not have rules.xml, check "Copy old revisions". The last one commit should
+            // have changed rules.xml with changed project name but the project does not have rules.xml so there are
             // no changes
             // 3) Try to deploy several times same deploy configuration. For example if we need to trigger
             // webservices redeployment without actually changing projects.
@@ -1513,7 +1513,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             reset();
 
-            // If newBranch doesn't exist, create it.
+            // If newBranch does not exist, create it.
             boolean branchAbsents = git.getRepository().findRef(newBranch) == null;
             if (branchAbsents) {
                 // Checkout existing branch
@@ -1573,7 +1573,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 saveBranches();
 
                 // Remove the branch from git itself.
-                // Can't delete checked out branch. So we check out another branch instead.
+                // Cannot delete checked out branch. So we check out another branch instead.
                 git.checkout().setName(baseBranch).call();
                 git.branchDelete().setBranchNames(branch).setForce(true).call();
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
@@ -1657,7 +1657,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 if (!branchExist) {
-                    throw new IOException("Can't find branch '" + branch + "'");
+                    throw new IOException("Cannot find branch '" + branch + "'");
                 }
             }
         } catch (GitAPIException e) {
@@ -1793,7 +1793,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
         File parent = new File(gitSettingsPath);
         if (!parent.mkdirs() && !parent.exists()) {
-            throw new FileNotFoundException("Can't create folder " + gitSettingsPath);
+            throw new FileNotFoundException("Cannot create folder " + gitSettingsPath);
         }
         File settings = new File(parent, "branches.properties");
         try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(settings), StandardCharsets.UTF_8)) {
@@ -1840,7 +1840,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void createParent(File file) throws FileNotFoundException {
         File parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
-            throw new FileNotFoundException("Can't create the folder " + parentFile.getAbsolutePath());
+            throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
         }
     }
 
@@ -1881,7 +1881,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return !baseVersion.equals(lastVersion);
             } else {
                 throw new FileNotFoundException(
-                    "Can't find commit for path '" + path + "' and version '" + baseVersion + "'");
+                    "Cannot find commit for path '" + path + "' and version '" + baseVersion + "'");
             }
         }
 
@@ -1905,7 +1905,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private CredentialsProvider getCredentialsProvider() throws IOException {
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
-            // We can't use this credentials provider anymore. If we continue, the server can lock us for brute forcing.
+            // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute forcing.
             throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
         }
         return credentialsProvider;

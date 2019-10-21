@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Variation for replacement of value of some argument.
  *
- * It was introduced because field modification variations can not modify root object(argument of method).
+ * It was introduced because field modification variations cannot modify root object(argument of method).
  *
  * @author PUdalau
  */

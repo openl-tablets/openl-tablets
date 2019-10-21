@@ -1,5 +1,5 @@
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
-        List<String> propNames = new ArrayList<String>();
+        List<String> propNames = new ArrayList<>();
 
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
         if (context.get$tool.formatAccessorName($tablePropertyDefinition.ContextVar)() != null) {

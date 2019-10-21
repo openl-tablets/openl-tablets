@@ -71,7 +71,7 @@ public class EnumDomain<T> implements IDomain<T> {
     void checkOperand(EnumDomain<T> sd) {
 
         if (sd.getEnum() != enumeration) {
-            throw new RuntimeException("Can not use subsets of different domains");
+            throw new RuntimeException("Cannot use subsets of different domains");
         }
 
     }

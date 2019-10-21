@@ -220,7 +220,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns an array of cardinalities for the expressions. If such an array doesn't exist it will be created using
+     * Returns an array of cardinalities for the expressions. If such an array does not exist it will be created using
      * invokation <code>IntArrayCards(this.constrainer(),this)</code>
      *
      * @see IntArrayCards

@@ -636,7 +636,7 @@ public class RepositoryTreeController {
             projectDescriptorArtifact = selectedProject
                 .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         } catch (ProjectException ex) {
-            // Project doesn't contain rules.xml file
+            // Project does not contain rules.xml file
             return;
         }
         Collection<String> modulePaths = new HashSet<>();
@@ -659,7 +659,7 @@ public class RepositoryTreeController {
             try {
                 projectDescriptor = serializer.deserialize(content);
             } catch (StreamException e) {
-                log.error("Broken rules.xml file. Can't remove modules from it", e);
+                log.error("Broken rules.xml file. Cannot remove modules from it", e);
                 return;
             } finally {
                 IOUtils.closeQuietly(content);
@@ -714,7 +714,7 @@ public class RepositoryTreeController {
             unregisterSelectedNodeInProjectDescriptor();
             if (projectArtefact instanceof RulesProject) {
                 if (projectArtefact.isLocked() && !((RulesProject) projectArtefact).isLockedByMe()) {
-                    FacesUtils.addErrorMessage("Project is locked by other user. Can't archive it.");
+                    FacesUtils.addErrorMessage("Project is locked by other user. Cannot archive it.");
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
@@ -881,7 +881,7 @@ public class RepositoryTreeController {
                                 fileData.setName(projectName);
                                 if (!repository.delete(fileData)) {
                                     if (repository.check(fileData.getName()) != null) {
-                                        log.warn("Can't close project because resource '" + fileData
+                                        log.warn("Cannot close project because resource '" + fileData
                                             .getName() + "' is used");
                                     }
                                 }
@@ -1270,7 +1270,7 @@ public class RepositoryTreeController {
             for (String dependency : getDependencies(getSelectedProject(), true)) {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency);
                 if (projectNode == null) {
-                    log.error("Can't find dependency {}", dependency);
+                    log.error("Cannot find dependency {}", dependency);
                     continue;
                 }
                 String physicalName = projectNode.getName();
@@ -1302,7 +1302,7 @@ public class RepositoryTreeController {
 
     private void closeProjectAndReleaseResources(UserWorkspaceProject repositoryProject) throws ProjectException {
         // We must release module info because it can hold jars.
-        // We can't rely on studio.getProject() to determine if closing project is compiled inside studio.getModel()
+        // We cannot rely on studio.getProject() to determine if closing project is compiled inside studio.getModel()
         // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
         // a dependency of other. That's why we must always clear moduleInfo when closing a project.
         studio.getModel().clearModuleInfo();
@@ -1359,7 +1359,7 @@ public class RepositoryTreeController {
                 Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
 
                 if (charset == null) {
-                    log.warn("Can't detect a charset for the zip file");
+                    log.warn("Cannot detect a charset for the zip file");
                     charset = StandardCharsets.UTF_8;
                 }
 
@@ -1690,7 +1690,7 @@ public class RepositoryTreeController {
                     Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile));
 
                     if (charset == null) {
-                        errorMessage = "Can't detect a charset for the zip file";
+                        errorMessage = "Cannot detect a charset for the zip file";
                         throw new IllegalArgumentException(errorMessage);
                     }
 
@@ -1812,7 +1812,7 @@ public class RepositoryTreeController {
             activeProjectNode = repositoryTreeState.getRulesRepository()
                 .getChild(RepositoryUtils.getTreeNodeId(projectName));
         } catch (Exception e) {
-            log.error("Can't delete rules project '{}'.", projectName, e);
+            log.error("Cannot delete rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
     }

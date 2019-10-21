@@ -70,14 +70,14 @@ public class RowParser implements IRowParser {
         if (foundButNotMatch) {
             String errorMessage;
             if (multiline) {
-                // If operation is used as multiline and it doesn't match the specification the error should be next
+                // If operation is used as multiline and it does not match the specification the error should be next
                 //
-                errorMessage = "Operation %s can not be multiline! Nested operations are not allowed here.";
+                errorMessage = "Operation %s cannot be multiline! Nested operations are not allowed here.";
             } else {
-                // If the operation is used as single line and it doesn't match the specification, the error should be
+                // If the operation is used as single line and it does not match the specification, the error should be
                 // next
                 //
-                errorMessage = "Operation %s can not be singleline!";
+                errorMessage = "Operation %s cannot be singleline!";
             }
             throw SyntaxNodeExceptionUtils.createError(String.format(errorMessage, operationName),
                 operation.asSourceCodeModule());
@@ -219,7 +219,7 @@ public class RowParser implements IRowParser {
         int indent = row.getOperationLevel();
         ValueNecessity specTopLevel = spec.getTopLevel();
         if (specTopLevel == ValueNecessity.PROHIBITED && indent == 0) {
-            throw SyntaxNodeExceptionUtils.createError("Operation can not be a top level element! It should be nested.",
+            throw SyntaxNodeExceptionUtils.createError("Operation cannot be a top level element! It should be nested.",
                 operation.asSourceCodeModule());
         }
         if (specTopLevel == ValueNecessity.REQUIRED && indent > 0) {

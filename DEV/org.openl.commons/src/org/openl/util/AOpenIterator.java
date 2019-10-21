@@ -179,7 +179,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     /**
      * Calculates the remaining size of iterated collection without destroying itself(const in c++ terminology), -1 if
-     * it can not be known in advance. Not every iterator is capable of doing it.
+     * it cannot be known in advance. Not every iterator is capable of doing it.
      *
      * @see count
      */

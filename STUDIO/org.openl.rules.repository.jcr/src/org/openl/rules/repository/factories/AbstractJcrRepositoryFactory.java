@@ -58,7 +58,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
                 // Does JCR know anything about OpenL?
                 ntm.getNodeType(JcrNT.NT_REPOSITORY);
             } catch (Exception e) {
-                // No, it doesn't.
+                // No, it does not.
                 initNodeTypes(ntm);
             }
         } finally {

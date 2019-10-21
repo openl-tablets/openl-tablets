@@ -15,8 +15,8 @@ public final class AutoCastableResultOpenMethod extends AOpenMethodDelegator {
 
     public AutoCastableResultOpenMethod(IMethodCaller methodCaller, IOpenClass returnType, IOpenCast cast) {
         super(methodCaller.getMethod());
-        this.returnType = Objects.requireNonNull(returnType, "returnType can't be null.");
-        this.cast = Objects.requireNonNull(cast, "cast can't be null.");
+        this.returnType = Objects.requireNonNull(returnType, "returnType cannot be null");
+        this.cast = Objects.requireNonNull(cast, "cast cannot be null");
         this.methodCaller = methodCaller;
     }
 

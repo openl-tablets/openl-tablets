@@ -13,8 +13,8 @@ public class Key {
     }
 
     public Key(DeploymentDescription deploymentDescription, String dependencyName) {
-        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription can't be null.");
-        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName can't be null.");
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
+        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
     }
 
     @Override

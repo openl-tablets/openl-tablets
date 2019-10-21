@@ -33,7 +33,7 @@ public class PropertiesTableBuilder extends TableBuilder {
     }
 
     public void writeBody(Map<String, Object> properties, ICellStyle style) {
-        Objects.requireNonNull(properties, "properties can't be null.");
+        Objects.requireNonNull(properties, "properties cannot be null");
         if (getTableRegion() == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }

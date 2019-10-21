@@ -62,7 +62,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Check that IOpenMethod object is not null.
         //
-        Objects.requireNonNull(delegate, "Method can't be null.");
+        Objects.requireNonNull(delegate, "Method cannot be null");
 
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.
@@ -141,7 +141,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * Gets <code>this</code>. The decorator can't resolve which overloaded method should be returned.
+     * Gets <code>this</code>. The decorator cannot resolve which overloaded method should be returned.
      */
     @Override
     public IOpenMethod getMethod() {

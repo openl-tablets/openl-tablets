@@ -479,7 +479,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service can't be null.");
+        Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -632,7 +632,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
@@ -664,7 +664,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
      */
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName can't null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot null.");
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(serviceName)) {
                 return service;

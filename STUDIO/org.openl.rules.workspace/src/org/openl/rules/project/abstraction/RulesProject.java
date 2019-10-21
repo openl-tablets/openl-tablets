@@ -108,7 +108,7 @@ public class RulesProject extends UserWorkspaceProject {
         setHistoryVersion(version);
 
         refresh();
-        // If there are additional commits (merge commits) we can't assume that their hash codes are same as for local
+        // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for local
         // files
         List<FileData> fileDatas = getHistoryFileDatas();
         boolean extraCommits = fileDatas
@@ -160,7 +160,7 @@ public class RulesProject extends UserWorkspaceProject {
                 if (!localRepository.delete(fileData)) {
                     if (localRepository.check(fileData.getName()) != null) {
                         throw new ProjectException(
-                            "Can't close project because resource '" + fileData.getName() + "' is used");
+                            "Cannot close project because resource '" + fileData.getName() + "' is used");
                     }
                 }
             }
@@ -182,7 +182,7 @@ public class RulesProject extends UserWorkspaceProject {
                 data.setAuthor(getUser().getUserName());
                 data.setComment(comment);
                 if (!designRepository.deleteHistory(data)) {
-                    throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+                    throw new ProjectException("Cannot erase project because it is absent or cannot be deleted");
                 }
             } else {
                 deleteFromLocalRepository();
@@ -211,10 +211,10 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     /**
-     * Try to lock the project if it's not locked already. Doesn't overwrite lock info if the user was locked already.
+     * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
      * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
-     * @throws ProjectException if can't lock the project
+     * @throws ProjectException if cannot lock the project
      */
     public boolean tryLock() throws ProjectException {
         if (isLocalOnly()) {
@@ -245,7 +245,7 @@ public class RulesProject extends UserWorkspaceProject {
                 if (designFolderName != null) {
                     historyFileDatas = designRepository.listHistory(designFolderName);
                 } else {
-                    // Local repository doesn't have versions
+                    // Local repository does not have versions
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {

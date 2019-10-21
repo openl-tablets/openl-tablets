@@ -88,7 +88,7 @@ class FieldDescriptor {
     /**
      * Returns leaf node count
      *
-     * @return the count of leaf node or 1 if the node doesn't contain children
+     * @return the count of leaf node or 1 if the node does not contain children
      */
     public int getLeafNodeCount() {
         if (children == null) {

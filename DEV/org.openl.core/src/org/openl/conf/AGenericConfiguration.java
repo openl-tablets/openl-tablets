@@ -152,7 +152,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
             try {
                 new URL(urlResource).openConnection();
             } catch (Throwable t) {
-                throw new OpenLConfigurationException("Can not connect to URL " + urlResource, getUri(), t);
+                throw new OpenLConfigurationException("Cannot connect to URL " + urlResource, getUri(), t);
             }
 
             ClassFactory.validateHasMethod(implementingClass, "setURL", new Class[] { URL.class }, getUri());

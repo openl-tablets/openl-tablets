@@ -41,7 +41,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
      */
     public void init() throws Exception {
         if (workspaceHome == null) {
-            log.warn("workspaceHome isn't initialized. Default value is used.");
+            log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
         if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {

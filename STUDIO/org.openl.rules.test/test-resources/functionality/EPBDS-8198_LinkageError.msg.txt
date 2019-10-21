@@ -1,4 +1,4 @@
 ERROR: Binding Error:
 ERROR: Binding Error:
 ERROR: Binding Error:
-ERROR: Can't load type 'org.openl.beans.BeanB'!
+ERROR: Cannot load type 'org.openl.beans.BeanB'!

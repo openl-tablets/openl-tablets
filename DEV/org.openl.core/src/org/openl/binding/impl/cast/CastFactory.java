@@ -206,7 +206,7 @@ public class CastFactory implements ICastFactory {
                             ret = openClass;
                         } else if (distance == backDistance) {
                             // We have a collision.
-                            String message = "Can't find closest cast: have two candidate classes with same cast distance: " + ret
+                            String message = "Cannot find closest cast: have two candidate classes with same cast distance: " + ret
                                 .getName() + " and " + openClass.getName();
                             throw new IllegalStateException(message);
                         } else {
@@ -225,8 +225,8 @@ public class CastFactory implements ICastFactory {
             newCandidates.addAll(notConvertible);
 
             if (newCandidates.size() == openClass1Candidates.size()) {
-                // Can't filter out classes to choose a closest. Prevent infinite recursion.
-                String message = "Can't find closest cast: have several candidate classes not convertible between each over: " + Arrays
+                // Cannot filter out classes to choose a closest. Prevent infinite recursion.
+                String message = "Cannot find closest cast: have several candidate classes not convertible between each over: " + Arrays
                     .toString(newCandidates.toArray());
                 throw new IllegalStateException(message);
             }

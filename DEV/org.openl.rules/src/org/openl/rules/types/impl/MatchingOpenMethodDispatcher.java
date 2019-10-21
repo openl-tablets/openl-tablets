@@ -316,7 +316,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     // <<< INSERT MatchingProperties >>>
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
-        List<String> propNames = new ArrayList<String>();
+        List<String> propNames = new ArrayList<>();
 
         if (context.getCurrentDate() != null) {
             propNames.add("effectiveDate");

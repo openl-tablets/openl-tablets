@@ -70,10 +70,10 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
                         String defaultMessage;
                         if (projectDescriptor.getPropertiesFileNamePattern() != null) {
-                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern! File name pattern is: " + projectDescriptor
+                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern! File name pattern is: " + projectDescriptor
                                 .getPropertiesFileNamePattern();
                         } else {
-                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern!";
+                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern!";
                         }
 
                         if (e.getMessage() == null) {
@@ -81,7 +81,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
                                 moduleWarnMessages.add(
-                                    "Module file name '" + moduleFileName + "' doesn't match to file name pattern! " + e
+                                    "Module file name '" + moduleFileName + "' does not match to file name pattern! " + e
                                         .getMessage());
                             } else {
                                 moduleWarnMessages.add(e.getMessage());

@@ -65,7 +65,7 @@ public class UserProfileBean extends UsersBean {
             try {
                 user = userManagementService.loadUserByUsername(getUsername());
             } catch (UsernameNotFoundException e) {
-                log.warn("User details for user '" + getUsername() + "' can't be retrieved.");
+                log.warn("User details for user '" + getUsername() + "' cannot be retrieved.");
                 user = new SimpleUser(null, null, getUsername(), null, Collections.<Privilege> emptyList());
             }
         }
@@ -142,7 +142,7 @@ public class UserProfileBean extends UsersBean {
     }
 
     /**
-     * Validates newPassword and confirmPassword on identity. If newPassword isEmty, then validation isn't needed
+     * Validates newPassword and confirmPassword on identity. If newPassword isEmty, then validation is not needed
      */
     public void passwordsValidator(FacesContext context, UIComponent component, Object value) {
         newPassword = (String) value;

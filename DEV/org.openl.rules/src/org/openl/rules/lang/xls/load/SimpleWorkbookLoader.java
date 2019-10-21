@@ -56,7 +56,7 @@ public class SimpleWorkbookLoader implements WorkbookLoader {
     /**
      * Has no effect because this implementation never unload previously loaded Workbook
      *
-     * @param canUnload the flag that this workbook can or can't be unloaded
+     * @param canUnload the flag that this workbook can or cannot be unloaded
      */
     @Override
     public void setCanUnload(boolean canUnload) {

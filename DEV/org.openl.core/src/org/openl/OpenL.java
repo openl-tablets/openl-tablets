@@ -92,7 +92,7 @@ public class OpenL {
      *
      * @param name IOpenL name
      * @param userContext user context
-     * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that doesn't exist
+     * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that does not exist
      * @return instance of IOpenL
      * @throws OpenLConfigurationException
      */

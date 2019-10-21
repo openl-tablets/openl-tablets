@@ -8,7 +8,7 @@ public final class CastsLinkageCast implements IOpenCast {
     private int distance = 0;
 
     public CastsLinkageCast(IOpenCast... casts) {
-        this.casts = Objects.requireNonNull(casts, "casts can't be null.");
+        this.casts = Objects.requireNonNull(casts, "casts cannot be null");
         for (IOpenCast cast : casts) {
             int d = cast.getDistance();
             if (distance < d) {

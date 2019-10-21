@@ -59,7 +59,7 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Table technical name
      */
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableTechnicalName;
 
@@ -457,7 +457,7 @@ public class TableCopier extends TableCreationWizard {
                 }
                 getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
             } catch (Exception e) {
-                log.error("Can not update table properties for original table", e);
+                log.error("Cannot update table properties for original table", e);
             }
         }
     }

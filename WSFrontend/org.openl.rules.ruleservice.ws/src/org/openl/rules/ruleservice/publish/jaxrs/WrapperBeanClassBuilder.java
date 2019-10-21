@@ -13,7 +13,7 @@ class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
         super(beanName);
         this.methodName = Objects.requireNonNull(methodName);
         if (StringUtils.isEmpty(this.methodName)) {
-            throw new IllegalArgumentException("Method name can't be empty.");
+            throw new IllegalArgumentException("Method name cannot be empty.");
         }
     }
 

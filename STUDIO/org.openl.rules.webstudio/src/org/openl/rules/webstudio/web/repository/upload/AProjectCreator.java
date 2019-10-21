@@ -81,7 +81,7 @@ public abstract class AProjectCreator {
 
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {
         if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
-            // Read the stream to memory and try to parse it and then change project name. If it can't be parsed return
+            // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
             // original rules.xml.
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             try {

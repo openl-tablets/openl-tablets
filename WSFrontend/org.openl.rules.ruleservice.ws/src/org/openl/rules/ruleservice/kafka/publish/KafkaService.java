@@ -127,7 +127,7 @@ public final class KafkaService implements Runnable {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
         if (outTopic == null) {
-            throw new UndefinedTopicException("Output topic isn't defined.");
+            throw new UndefinedTopicException("Output topic is not defined.");
         }
         return outTopic;
     }
@@ -142,7 +142,7 @@ public final class KafkaService implements Runnable {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
         if (dltTopic == null) {
-            throw new UndefinedTopicException("Dead letter queue topic isn't defined.");
+            throw new UndefinedTopicException("Dead letter queue topic is not defined.");
         }
         return dltTopic;
     }

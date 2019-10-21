@@ -28,7 +28,7 @@ public class ProjectDeleteTest {
 
     @Before
     public void init() throws Exception {
-        // FIXME Currently IBM implementation of java for version 1.6 isn't supported
+        // FIXME Currently IBM implementation of java for version 1.6 is not supported
         Assume.assumeFalse(System.getProperty("java.vendor")
             .startsWith("IBM") && System.getProperty("java.specification.version").equals("1.6"));
 
@@ -51,7 +51,7 @@ public class ProjectDeleteTest {
         try {
             FileUtils.delete(projectFolder);
         } catch (IOException e) {
-            fail("Project is locked and can't be deleted");
+            fail("Project is locked and cannot be deleted");
         }
     }
 
@@ -64,7 +64,7 @@ public class ProjectDeleteTest {
         try {
             FileUtils.delete(projectFolder);
         } catch (IOException e) {
-            fail("Project is locked and can't be deleted");
+            fail("Project is locked and cannot be deleted");
         }
     }
 
@@ -78,7 +78,7 @@ public class ProjectDeleteTest {
         try {
             FileUtils.delete(projectFolder);
         } catch (IOException e) {
-            fail("Project is locked and can't be deleted");
+            fail("Project is locked and cannot be deleted");
         }
     }
 

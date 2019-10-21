@@ -66,7 +66,7 @@ public class ProductionRepositoryDataSource implements DataSource {
                 } else {
                     commonVersion = null;
                     log.error(
-                        "WebServices are configured to include version in deployment name, but version isn't found in the name.");
+                        "WebServices are configured to include version in deployment name, but version is not found in the name.");
                 }
             } else {
                 String version = fileData.getVersion();
@@ -95,8 +95,8 @@ public class ProductionRepositoryDataSource implements DataSource {
      */
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
-        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
+        Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
 
         log.debug("Getting deployement with name='{}' and version='{}'",
             deploymentName,

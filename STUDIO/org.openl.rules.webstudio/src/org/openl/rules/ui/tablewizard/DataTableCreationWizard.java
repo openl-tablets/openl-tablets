@@ -22,10 +22,10 @@ import org.openl.util.Log;
 import org.openl.util.StringUtils;
 
 public class DataTableCreationWizard extends TableCreationWizard {
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     private String tableType;
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private IOpenClass tableOpenClass;

@@ -56,7 +56,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 continue;
             }
 
-            // Check that method with same property value doesn't exist. If
+            // Check that method with same property value does not exist. If
             // method with the same property value exists then create/add
             // validation error message else add current property value to list
             // of processed values.

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * The interface of the repository abstraction. It contains a minimal set of methods to be compatible with various of
  * internet storages like Amazon S3, Google Cloud Storage or Azure Storage. And to be simple to implement own storage
- * based on a Database or a File System. This repository doesn't assume that it should support transactions, sessions or
+ * based on a Database or a File System. This repository does not assume that it should support transactions, sessions or
  * concurrent access. This repository must support only the atomicity of file modification, so the file always contains
  * valid data.
  *

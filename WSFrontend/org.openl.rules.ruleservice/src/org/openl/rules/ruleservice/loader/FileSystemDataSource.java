@@ -62,7 +62,7 @@ public class FileSystemDataSource implements DataSource {
     }
 
     public FileSystemDataSource(File loadDeploymentsFromDirectory) {
-        Objects.requireNonNull(loadDeploymentsFromDirectory, "loadDeploymentsFromDirectory can't be null.");
+        Objects.requireNonNull(loadDeploymentsFromDirectory, "loadDeploymentsFromDirectory cannot be null");
         if (!loadDeploymentsFromDirectory.exists()) {
             if (!loadDeploymentsFromDirectory.mkdirs()) {
                 log.warn("Failed to create file system data source folder '{}'!", loadDeploymentsFromDirectory);
@@ -72,7 +72,7 @@ public class FileSystemDataSource implements DataSource {
         }
         if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
             throw new DataSourceException(
-                "File system data source folder '" + loadDeploymentsFromDirectory + "' doesn't exist");
+                "File system data source folder '" + loadDeploymentsFromDirectory + "' does not exist");
         }
         this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
     }
@@ -82,8 +82,8 @@ public class FileSystemDataSource implements DataSource {
      */
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        Objects.requireNonNull(deploymentName, "deploymentName can't be null.");
-        Objects.requireNonNull(deploymentVersion, "deploymentVersion can't be null.");
+        Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
+        Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
 
         if (!deploymentVersion.equals(FILESYSTEM_COMMON_VERSION) && !supportDeployments) {
             return null;

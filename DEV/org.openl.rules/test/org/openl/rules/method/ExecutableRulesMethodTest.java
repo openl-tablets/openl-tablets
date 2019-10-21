@@ -148,21 +148,21 @@ public class ExecutableRulesMethodTest {
                 ((SimpleRulesRuntimeEnv) env).setMethodArgumentsCacheEnable(enable);
                 return;
             }
-            throw new OpenlNotCheckedException("Runtime env doesn't support cache.");
+            throw new OpenlNotCheckedException("Runtime env does not support cache.");
         }
 
         private static boolean isMethodArgumentsCacheEnableEnv(IRuntimeEnv env) {
             if (isCacheSupportsEnv(env)) {
                 return ((SimpleRulesRuntimeEnv) env).isMethodArgumentsCacheEnable();
             }
-            throw new OpenlNotCheckedException("Runtime env doesn't support cache.");
+            throw new OpenlNotCheckedException("Runtime env does not support cache.");
         }
 
         private static CacheMode getMethodArgumentsCacheModeEnv(IRuntimeEnv env) {
             if (isCacheSupportsEnv(env)) {
                 return ((SimpleRulesRuntimeEnv) env).getCacheMode();
             }
-            throw new OpenlNotCheckedException("Runtime env doesn't support cache.");
+            throw new OpenlNotCheckedException("Runtime env does not support cache.");
         }
 
         private static void changeMethodArgumentsCacheEnv(IRuntimeEnv env, CacheMode cacheMode) {
@@ -170,7 +170,7 @@ public class ExecutableRulesMethodTest {
                 ((SimpleRulesRuntimeEnv) env).changeMethodArgumentsCacheMode(cacheMode);
                 return;
             }
-            throw new OpenlNotCheckedException("Runtime env doesn't support cache.");
+            throw new OpenlNotCheckedException("Runtime env does not support cache.");
         }
     }
 

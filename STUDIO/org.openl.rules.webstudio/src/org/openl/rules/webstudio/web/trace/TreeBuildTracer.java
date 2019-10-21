@@ -61,7 +61,7 @@ public final class TreeBuildTracer extends Tracer {
         if (current != null) {
             tree.set(current.getParent());
         } else {
-            log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
+            log.warn("Something is wrong. Current trace object is null. Cannot pop trace object.");
         }
     }
 

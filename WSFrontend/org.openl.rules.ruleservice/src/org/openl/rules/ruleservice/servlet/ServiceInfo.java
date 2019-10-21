@@ -12,15 +12,15 @@ public class ServiceInfo {
     private final Map<String, String> urls = new HashMap<>(1);
 
     public ServiceInfo(Date startedTime, String name, String url, String urlName, String servicePath) {
-        this.startedTime = Objects.requireNonNull(startedTime, "startedTime can't be null.");
-        this.name = Objects.requireNonNull(name, "name can't be null.");
+        this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
+        this.name = Objects.requireNonNull(name, "name cannot be null");
         this.servicePath = servicePath;
         urls.put(urlName, url);
     }
 
     public ServiceInfo(Date startedTime, String name, Map<String, String> urls, String servicePath) {
-        this.startedTime = Objects.requireNonNull(startedTime, "startedTime can't be null.");
-        this.name = Objects.requireNonNull(name, "name can't be null.");
+        this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
+        this.name = Objects.requireNonNull(name, "name cannot be null");
         this.servicePath = servicePath;
         this.urls.putAll(urls);
     }

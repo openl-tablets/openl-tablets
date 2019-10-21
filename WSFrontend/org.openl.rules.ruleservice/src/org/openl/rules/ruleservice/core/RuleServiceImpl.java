@@ -65,7 +65,7 @@ public class RuleServiceImpl implements RuleService {
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
@@ -148,10 +148,10 @@ public class RuleServiceImpl implements RuleService {
     }
 
     public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = Objects.requireNonNull(ruleServiceManager, "ruleServiceManager can't be null.");
+        this.ruleServiceManager = Objects.requireNonNull(ruleServiceManager, "ruleServiceManager cannot be null");
     }
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
-        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory, "ruleServiceInstantiationFactory can't be null.");
+        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory, "ruleServiceInstantiationFactory cannot be null");
     }
 }

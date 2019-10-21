@@ -40,7 +40,7 @@ public class PropertiesHelper {
                 return getTableProperties(methods.get(0));
             } else {
                 throw new IllegalArgumentException(
-                    "Dispatcher method with more than one candidate doesn't have properties!");
+                    "Dispatcher method with more than one candidate does not have properties!");
             }
         }
 

@@ -98,7 +98,7 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
 
     /**
      * Sets the domain of this expression based on isSubjectTrue()/isSubjectFalse(). Should be called from constructor
-     * to avoid failures. Note: doesn't use setMin/setMax because ctor should set _min/_max directly.
+     * to avoid failures. Note: does not use setMin/setMax because ctor should set _min/_max directly.
      */
     protected void setDomainMinMaxSafe() {
         if (isSubjectTrue()) {

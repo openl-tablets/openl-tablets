@@ -81,7 +81,7 @@ public class CommonVersionImpl implements CommonVersion {
             return Integer.parseInt(revision) - Integer.parseInt(otherRevision);
         }
 
-        // Can't be parsed as int. Compare as Strings.
+        // Cannot be parsed as int. Compare as Strings.
         return revision.compareTo(otherRevision);
     }
 

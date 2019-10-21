@@ -6,7 +6,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
 /**
- * The <code>PerformOperation</code> class describes simple class which calculates some statement, but doesn't requires
+ * The <code>PerformOperation</code> class describes simple class which calculates some statement, but does not requires
  * any return.
  *
  * @author User

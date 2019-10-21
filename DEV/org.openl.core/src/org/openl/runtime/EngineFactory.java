@@ -61,32 +61,32 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
             IUserContext userContext,
             Class<T> interfaceClass) {
         super(openlName, sourceCode, userContext);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome, Class<T> interfaceClass) {
         super(openlName, sourceCode, userHome);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
         super(openlName, sourceCode);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public EngineFactory(String openlName, String sourceFile, String userHome, Class<T> interfaceClass) {
         super(openlName, sourceFile, userHome);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public EngineFactory(String openlName, String sourceFile, Class<T> interfaceClass) {
         super(openlName, sourceFile);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public EngineFactory(String openlName, URL source, Class<T> interfaceClass) {
         super(openlName, source);
-        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
 
     public Class<T> getInterfaceClass() {

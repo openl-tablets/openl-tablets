@@ -46,7 +46,7 @@ public interface LocalWorkspace extends ProjectsContainer {
      * Removes a project from the workspace by name.
      *
      * @param name project name to be removed
-     * @throws ProjectException if project with given <code>name</code> does not exists or can not be removed
+     * @throws ProjectException if project with given <code>name</code> does not exists or cannot be removed
      */
     void removeProject(String name) throws ProjectException;
 

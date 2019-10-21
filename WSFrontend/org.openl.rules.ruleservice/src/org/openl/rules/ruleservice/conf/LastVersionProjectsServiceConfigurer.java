@@ -49,7 +49,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         for (Deployment deployment : deployments) {
             if (deployment.getCommonVersion() == null) {
                 throw new IllegalArgumentException(
-                    "Can't detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
+                    "Cannot detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
             }
             String deploymentName = deployment.getDeploymentName();
             Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
@@ -323,7 +323,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     }
 
     public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
-        this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer, "rulesDeploySerializer can't be null.");
+        this.rulesDeploySerializer = Objects.requireNonNull(rulesDeploySerializer, "rulesDeploySerializer cannot be null");
     }
 
     public boolean isProvideRuntimeContext() {

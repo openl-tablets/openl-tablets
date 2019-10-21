@@ -35,7 +35,7 @@ public class Tracer {
     /*
      * Overloaded put() methods.
      * Varargs method is not used to avoid unnecessary temporary array creation and primitives boxing. Trace methods are
-     * invoked multiple times during one request so we aim to reduce garbage when tracer isn't enabled.
+     * invoked multiple times during one request so we aim to reduce garbage when tracer is not enabled.
      */
 
     public static void put(Object source, String id, Object arg1) {

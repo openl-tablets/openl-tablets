@@ -48,7 +48,7 @@ final class DeploymentNameMatcher {
      * </pre>
      *
      * @param source name patterns with coma separator
-     * @return compiled RegEx pattern, {@code null} if source is empty or doesn't contain valid patterns
+     * @return compiled RegEx pattern, {@code null} if source is empty or does not contain valid patterns
      */
     private Pattern compilePattern(String source) {
         String[] patterns = source.split(",");

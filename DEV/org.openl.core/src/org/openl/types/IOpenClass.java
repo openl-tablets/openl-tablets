@@ -75,7 +75,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     // ********* instance related methods ***********//
 
     /**
-     * @return true if the instance of the class can not be created
+     * @return true if the instance of the class cannot be created
      */
     boolean isAbstract();
 

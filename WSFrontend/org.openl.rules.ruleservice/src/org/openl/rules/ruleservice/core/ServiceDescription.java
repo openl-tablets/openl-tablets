@@ -52,8 +52,8 @@ public final class ServiceDescription {
             Map<String, Object> configuration,
             String[] publishers,
             ResourceLoader resourceLoader) {
-        this.name = Objects.requireNonNull(name, "name can't be null.");
-        this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader can't be null.");
+        this.name = Objects.requireNonNull(name, "name cannot be null");
+        this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
         this.servicePath = servicePath;
         this.serviceClassName = serviceClassName;
@@ -269,7 +269,7 @@ public final class ServiceDescription {
         private ResourceLoader resourceLoader;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
-            this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader can't be null.");
+            this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
             return this;
         }
 
@@ -284,7 +284,7 @@ public final class ServiceDescription {
         }
 
         public void addPublisher(String publisher) {
-            Objects.requireNonNull(publisher, "publisher can't be null.");
+            Objects.requireNonNull(publisher, "publisher cannot be null");
             if (this.publishers == null) {
                 this.publishers = new HashSet<>();
             }
@@ -308,7 +308,7 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder setName(String name) {
-            this.name = Objects.requireNonNull(name, "name can't be null.");
+            this.name = Objects.requireNonNull(name, "name cannot be null");
             return this;
         }
 
@@ -319,7 +319,7 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder setRmiName(String rmiName) {
-            this.rmiName = Objects.requireNonNull(rmiName, "rmiName can't be null.");
+            this.rmiName = Objects.requireNonNull(rmiName, "rmiName cannot be null");
             return this;
         }
 

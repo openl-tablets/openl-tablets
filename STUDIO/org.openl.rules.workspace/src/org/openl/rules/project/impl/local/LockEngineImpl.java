@@ -52,7 +52,7 @@ public class LockEngineImpl implements LockEngine {
         File file = new File(branchFolder, projectName);
         File folder = file.getParentFile();
         if (folder != null && !folder.mkdirs() && !folder.exists()) {
-            throw new IllegalStateException("Can't create a folder for locks");
+            throw new IllegalStateException("Cannot create a folder for locks");
         }
 
         FileOutputStream os = null;
@@ -61,7 +61,7 @@ public class LockEngineImpl implements LockEngine {
             os = new FileOutputStream(file);
             properties.store(os, "Lock info");
         } catch (IOException e) {
-            throw new LockException("Can't lock the project " + projectName, e);
+            throw new LockException("Cannot lock the project " + projectName, e);
         } finally {
             IOUtils.closeQuietly(os);
         }
@@ -101,7 +101,7 @@ public class LockEngineImpl implements LockEngine {
     }
 
     /**
-     * If branch null, return the folder ".locks/no-branch". If branch isn't null, return the folder
+     * If branch null, return the folder ".locks/no-branch". If branch is not null, return the folder
      * .locks/branches/<project-name>/<branch-name>/
      *
      * @param branch branch name. Can be null

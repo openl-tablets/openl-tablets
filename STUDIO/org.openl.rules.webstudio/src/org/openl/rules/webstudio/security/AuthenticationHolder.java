@@ -10,9 +10,9 @@ import org.springframework.security.core.Authentication;
  * Difference from SecurityContextHolder:
  * <ul>
  * <li>SecurityContextHolder holds Authentication object only <strong>after</strong> successful authentication. In some
- * cases it doesn't contain password (for example in AD).</li>
+ * cases it does not contain password (for example in AD).</li>
  * <li>AuthenticationHolder holds Authentication object <strong>during</strong> authentication process, and after it
- * doesn't hold. Should contain password.</li>
+ * does not hold. Should contain password.</li>
  * </ul>
  * </p>
  *

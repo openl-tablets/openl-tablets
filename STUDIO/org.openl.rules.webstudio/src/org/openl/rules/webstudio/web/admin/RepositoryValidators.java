@@ -38,7 +38,7 @@ public final class RepositoryValidators {
     }
 
     /**
-     * Check that name, path are configured correctly and repository name doesn't have duplicates.
+     * Check that name, path are configured correctly and repository name does not have duplicates.
      *
      * @param prodConfig Repository configuration
      * @param productionRepositoryConfigurations list of all production configurations

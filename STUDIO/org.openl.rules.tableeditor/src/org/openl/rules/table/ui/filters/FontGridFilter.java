@@ -139,12 +139,12 @@ public class FontGridFilter extends AGridFilter {
         private Boolean strikeout;
 
         public Builder setSelector(IGridSelector selector) {
-            this.selector = Objects.requireNonNull(selector, "selector can't be null.");
+            this.selector = Objects.requireNonNull(selector, "selector cannot be null");
             return this;
         }
 
         public Builder setFontColor(short[] fontColor) {
-            this.fontColor = Objects.requireNonNull(fontColor, "fontColor can't be null.");
+            this.fontColor = Objects.requireNonNull(fontColor, "fontColor cannot be null");
             return this;
         }
 
@@ -171,7 +171,7 @@ public class FontGridFilter extends AGridFilter {
         }
 
         public Builder setName(String name) {
-            this.name = Objects.requireNonNull(name, "name can't be null.");
+            this.name = Objects.requireNonNull(name, "name cannot be null");
             return this;
         }
 

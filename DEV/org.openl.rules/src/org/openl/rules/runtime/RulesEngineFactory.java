@@ -34,7 +34,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
-            "interfaceClassGenerator can't be null.");
+            "interfaceClassGenerator cannot be null");
         if (super.getInterfaceClass() != null) {
             log.warn(
                 "Rules engine factory has already had interface class. Interface class generator has been ignored!");
@@ -86,7 +86,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, source);
-        Objects.requireNonNull(interfaceClass, "interfaceClass can't be null.");
+        Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
         super.setInterfaceClass(interfaceClass);
     }
 

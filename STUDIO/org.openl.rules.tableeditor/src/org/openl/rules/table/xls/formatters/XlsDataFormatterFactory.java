@@ -145,7 +145,7 @@ public final class XlsDataFormatterFactory {
 
             if (cellDataFormatter == null && value instanceof Date) {
                 // Cell type is unknown but in Excel it's stored as a Date.
-                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
+                // We cannot override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
                 // because they are also invoked when editing a cell. When editing cells with unknown type null must be
                 // returned to be able to edit such cell as if it can contain any text.
                 // But we can safely format it's value when just viewing it's value.

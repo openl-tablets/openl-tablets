@@ -223,7 +223,7 @@ public final class RuleRowHelper {
             } catch (Exception | LinkageError t) {
                 String message = t.getMessage();
                 if (message == null) {
-                    message = "Can't load cell value";
+                    message = "Cannot load cell value";
                 }
                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                 throw SyntaxNodeExceptionUtils.createError(message,
@@ -349,7 +349,7 @@ public final class RuleRowHelper {
             String source) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
-        // class doesn't know anything about Excel. Keep it storage format
+        // class does not know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
         if (source != null && (source = source.trim()).length() != 0) {

@@ -12,8 +12,8 @@ public abstract class AbstractRulesFrontend implements RulesFrontend {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader) {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
-        Objects.requireNonNull(proxyInterface, "proxyInterface can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(proxyInterface, "proxyInterface cannot be null");
         return (T) Proxy.newProxyInstance(classLoader,
             new Class[] { proxyInterface },
             new RulesFrontendProxyInvocationHandler(serviceName, this));

@@ -232,7 +232,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            log.warn("Can't find the project '{}' which version is '{}'.", name, repoVersion);
+                            log.warn("Cannot find the project '{}' which version is '{}'.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }

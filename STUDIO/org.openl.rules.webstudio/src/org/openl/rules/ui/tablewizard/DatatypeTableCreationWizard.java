@@ -32,7 +32,7 @@ import org.openl.util.StringUtils;
  */
 public class DatatypeTableCreationWizard extends TableCreationWizard {
 
-    @NotBlank(message = "Can not be empty")
+    @NotBlank(message = "Cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String technicalName;
 
@@ -194,7 +194,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     public void nameValidator(FacesContext context, UIComponent toValidate, Object value) {
         String text = (String) value;
         if (StringUtils.isBlank(text)) {
-            throw new ValidatorException(new FacesMessage("Can not be empty"));
+            throw new ValidatorException(new FacesMessage("Cannot be empty"));
         }
 
         String[] idParts = toValidate.getClientId().split(":");

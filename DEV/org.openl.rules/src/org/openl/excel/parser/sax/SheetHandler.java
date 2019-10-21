@@ -203,7 +203,7 @@ public class SheetHandler extends DefaultHandler {
                             }
                         }
                     } catch (NumberFormatException e) {
-                        throw new ExcelParseException("Can't get a number from string " + n, e);
+                        throw new ExcelParseException("Cannot get a number from string " + n, e);
                     }
                     break;
                 default:

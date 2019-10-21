@@ -18,7 +18,7 @@ public enum CaProvincesEnum {
 
     private final String displayName;
 
-    private CaProvincesEnum(String displayName) {
+    private CaProvincesEnum (String displayName) {
         this.displayName = displayName;
     }
 
@@ -34,6 +34,6 @@ public enum CaProvincesEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
     }
 }

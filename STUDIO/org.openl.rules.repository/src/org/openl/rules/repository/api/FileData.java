@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class FileData {
     /**
-     * If file size can't be determined in some rare cases this constant should be used.
+     * If file size cannot be determined in some rare cases this constant should be used.
      */
     public static final long UNDEFINED_SIZE = -1;
 
@@ -125,7 +125,7 @@ public class FileData {
     }
 
     /**
-     * Branch where the file can be found. If repository doesn't support branching, it will be null.
+     * Branch where the file can be found. If repository does not support branching, it will be null.
      *
      * @return branch name
      */

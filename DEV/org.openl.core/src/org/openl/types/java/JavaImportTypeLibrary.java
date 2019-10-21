@@ -75,13 +75,13 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 aliases.put(typename, oc);
                 return oc;
             } catch (ClassNotFoundException ignored) {
-                // Type isn't found in the package. Search in another.
+                // Type is not found in the package. Search in another.
             } catch (NoClassDefFoundError e) {
                 if (e.getCause() instanceof ClassNotFoundException) {
-                    // Type is found but can't be loaded because of absent dependent class.
+                    // Type is found but cannot be loaded because of absent dependent class.
                     String noClassMessage = e.getCause().getMessage();
                     String message = String
-                        .format("Can't load type '%s' because of absent type '%s'.", name, noClassMessage);
+                        .format("Cannot load type '%s' because of absent type '%s'.", name, noClassMessage);
                     throw RuntimeExceptionWrapper.wrap(message, e);
                 }
                 // NoClassDefFoundError can also be thrown in these cases:
@@ -97,12 +97,12 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
             } catch (UnsupportedClassVersionError e) {
                 // Type is found but it's compiled using newer version of JDK
                 String message = String.format(
-                    "Can't load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
+                    "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
                     name,
                     System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
-                Log.error("Can't load class: " + name, t);
+                Log.error("Cannot load class: " + name, t);
                 throw RuntimeExceptionWrapper.wrap(t);
             }
         }

@@ -105,12 +105,12 @@ public class ParameterRenderConfig {
         /**
          * Create new builder
          *
-         * @param type Parameter type. Can't be null.
+         * @param type Parameter type. Cannot be null.
          * @param value Parameter value.
          * @see #getType()
          */
         public Builder(IOpenClass type, Object value) {
-            this.type = Objects.requireNonNull(type, "type can't be null.");;
+            this.type = Objects.requireNonNull(type, "type cannot be null");;
             this.value = value;
         }
 

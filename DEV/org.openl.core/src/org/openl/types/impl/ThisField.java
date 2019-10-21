@@ -17,7 +17,7 @@ public class ThisField extends AOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Can not assign to 'this'");
+        throw new UnsupportedOperationException("Cannot assign to 'this'");
 
     }
 }

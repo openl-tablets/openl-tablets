@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Table Basic Algorithm component for internal subroutines and functions. It can be run only inside call hierarchy of
- * parent Algorithm. However, it doesn't have any links to parent Algorithm, but relies on invocation arguments.
+ * parent Algorithm. However, it does not have any links to parent Algorithm, but relies on invocation arguments.
  */
 public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 

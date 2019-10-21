@@ -256,7 +256,7 @@ public class MergeConflictBean {
                         break;
                     default:
                         throw new ValidationException(
-                            "Can't merge with resolution type " + conflictResolution.getResolutionType());
+                            "Cannot merge with resolution type " + conflictResolution.getResolutionType());
                 }
             }
 
@@ -321,7 +321,7 @@ public class MergeConflictBean {
                 return messageBuilder.toString();
             }
         } catch (Exception e) {
-            log.error("Can't generate merge message. Will use empty string.", e);
+            log.error("Cannot generate merge message. Will use empty string.", e);
         }
 
         return null;

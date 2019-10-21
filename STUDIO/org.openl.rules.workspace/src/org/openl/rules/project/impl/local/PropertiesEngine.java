@@ -25,13 +25,13 @@ class PropertiesEngine {
         try {
             File parent = properties.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
-                throw new IllegalStateException("Can't create the folder " + parent);
+                throw new IllegalStateException("Cannot create the folder " + parent);
             }
 
             properties.createNewFile();
             return properties;
         } catch (IOException e) {
-            throw new IllegalStateException("Can't create the file " + properties.getAbsolutePath(), e);
+            throw new IllegalStateException("Cannot create the file " + properties.getAbsolutePath(), e);
         }
     }
 
@@ -96,7 +96,7 @@ class PropertiesEngine {
             base = Paths.get(root.getAbsolutePath()).toRealPath();
             pathAbsolute = Paths.get(path).toRealPath();
         } catch (IOException e) {
-            throw new IllegalStateException("Can't determine properties folder: " + e.getMessage(), e);
+            throw new IllegalStateException("Cannot determine properties folder: " + e.getMessage(), e);
         }
         String relativePath = base.relativize(pathAbsolute).toString();
         log.debug("Relative: {}", relativePath);

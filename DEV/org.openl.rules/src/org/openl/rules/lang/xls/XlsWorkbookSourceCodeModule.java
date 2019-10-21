@@ -119,7 +119,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
                 URI uri = new URI(getUri());
                 sourceFile = new File(uri);
             } catch (URISyntaxException me) {
-                log.debug("Can not get source file", me);
+                log.debug("Cannot get source file", me);
             }
             return sourceFile;
         }

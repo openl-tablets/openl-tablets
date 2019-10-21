@@ -45,7 +45,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         return runningServices.get(serviceName);
     }
 
@@ -54,7 +54,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
-        Objects.requireNonNull(service, "service can't be null.");
+        Objects.requireNonNull(service, "service cannot be null");
         try {
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
@@ -75,7 +75,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      */
     @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName can't be null.");
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(String.format("Service '%s' hasn't been deployed.", serviceName));
@@ -84,7 +84,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     }
 
     public void setFrontend(RulesFrontend frontend) {
-        this.frontend = Objects.requireNonNull(frontend, "frontend can't be null.");
+        this.frontend = Objects.requireNonNull(frontend, "frontend cannot be null");
     }
 
 }

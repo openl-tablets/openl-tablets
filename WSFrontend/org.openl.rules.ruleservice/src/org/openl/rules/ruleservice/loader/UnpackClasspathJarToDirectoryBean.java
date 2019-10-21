@@ -97,7 +97,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      * @param destinationDirectory
      */
     public void setDestinationDirectory(String destinationDirectory) {
-        this.destinationDirectory = Objects.requireNonNull(destinationDirectory, "destinationDirectory can't be null.");
+        this.destinationDirectory = Objects.requireNonNull(destinationDirectory, "destinationDirectory cannot be null");
     }
 
     public boolean isSupportDeploymentVersion() {
@@ -195,11 +195,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
         if (!isCreateDestinationDirectory()) {
             if (!desFile.exists()) {
-                throw new IOException("Destination folder doesn't exist. Path: " + destDirectory);
+                throw new IOException("Destination folder does not exist. Path: " + destDirectory);
             }
 
             if (!desFile.isDirectory()) {
-                throw new IOException("Destination path isn't a directory on the file system. Path: " + destDirectory);
+                throw new IOException("Destination path is not a directory on the file system. Path: " + destDirectory);
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
@@ -232,7 +232,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException(
-                        "Protocol for URL isn't supported! URL: " + resourceURL.toString());
+                        "Protocol for URL is not supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
                 log.error("Failed to load a resource!", e);
@@ -276,7 +276,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                         continue;
                     } else {
                         throw new RuleServiceRuntimeException(
-                            "Protocol for URL isn't supported! URL: " + resourceURL.toString());
+                            "Protocol for URL is not supported! URL: " + resourceURL.toString());
                     }
                 } catch (Exception e) {
                     log.error("Failed to load a resource!", e);

@@ -13,7 +13,7 @@ import org.openl.rules.table.IGridTable;
  * This class should be used in edit actions only when meta info can be set to new cells etc
  */
 public class MetaInfoWriterImpl implements MetaInfoWriter {
-    // Rows/columns can be added. We can't use array with fixed size here.
+    // Rows/columns can be added. We cannot use array with fixed size here.
     private final Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<>();
 
     public MetaInfoWriterImpl(MetaInfoReader delegate, IGridTable gridTable) {

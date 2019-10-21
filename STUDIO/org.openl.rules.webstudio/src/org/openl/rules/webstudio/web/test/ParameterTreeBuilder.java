@@ -73,7 +73,7 @@ public class ParameterTreeBuilder {
                 config.getType(),
                 config.getParent());
             node.setWarnMessage(String.format(
-                "Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
+                "Cannot construct bean of type '%s'. Make sure that it has public constructor without parameters.",
                 config.getType().getDisplayName(INamedThing.SHORT)));
             return node;
         }

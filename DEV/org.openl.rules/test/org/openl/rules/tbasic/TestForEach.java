@@ -22,7 +22,7 @@ public class TestForEach {
 
     @Test
     public void test3() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F3.xls"), "Operation FOR EACH can not be singleline!");
+        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F3.xls"), "Operation FOR EACH cannot be singleline!");
     }
 
     @Test

@@ -119,7 +119,7 @@ public interface ITableProperties {
     boolean isPropertyAppliedByDefault(String propertyName);
 
     /**
-     * Checks that current table doesn't have properties.
+     * Checks that current table does not have properties.
      *
      * @return
      */

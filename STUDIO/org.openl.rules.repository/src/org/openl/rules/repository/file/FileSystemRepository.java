@@ -85,14 +85,14 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         File file = new File(root, name);
         file.getParentFile().mkdirs();
 
-        // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
+        // Close only output stream. This class is not responsible for input stream: stream must be closed in the
         // place where it was created.
         try (FileOutputStream output = new FileOutputStream(file)) {
             IOUtils.copy(stream, output);
         }
         if (data.getModifiedAt() != null) {
             if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                log.warn("Can't set modified time to file {}", name);
+                log.warn("Cannot set modified time to file {}", name);
             }
         }
 
@@ -304,7 +304,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 }
                 if (data.getModifiedAt() != null) {
                     if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                        log.warn("Can't set modified time to file {}", data.getName());
+                        log.warn("Cannot set modified time to file {}", data.getName());
                     }
                 }
             } else {
@@ -356,7 +356,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private void createParent(File file) throws FileNotFoundException {
         File parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
-            throw new FileNotFoundException("Can't create the folder " + parentFile.getAbsolutePath());
+            throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
         }
     }
 }

@@ -73,7 +73,7 @@ public class ThisCollectionElementField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String.format("Can not set [%s] field to 'null' object", this.getName()));
+            throw new OpenLRuntimeException(String.format("Cannot set [%s] field to 'null' object", this.getName()));
         }
         if (collectionType.isArray()) {
             setForArray(target, value, env);

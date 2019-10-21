@@ -233,7 +233,7 @@ public class TableEditorModel {
     }
 
     public MetaInfoReader getMetaInfoReader() {
-        // If metaInfoWriter isn't null, then currently we edit the table, so we must return metaInfoWriter to include
+        // If metaInfoWriter is not null, then currently we edit the table, so we must return metaInfoWriter to include
         // user changes when display the table to a user.
         return metaInfoWriter != null ? metaInfoWriter : table.getMetaInfoReader();
     }

@@ -162,7 +162,7 @@ public class ProjectBean {
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                FacesUtils.validate(processor != null, "Can't find class " + className);
+                FacesUtils.validate(processor != null, "Cannot find class " + className);
             } catch (InvalidFileNameProcessorException e) {
                 FacesUtils.throwValidationError(e.getMessage());
             } finally {
@@ -206,7 +206,7 @@ public class ProjectBean {
         toCheck.setRulesRootPath(new PathEntry(modulePath));
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
-            FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+            FacesUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
         }
 
         if (StringUtils.isBlank(oldName) // Add new Module
@@ -229,7 +229,7 @@ public class ProjectBean {
         toCheck.setRulesRootPath(new PathEntry(modulePath));
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
-            FacesUtils.validate(StringUtils.isNotBlank(newName), "Can not be empty");
+            FacesUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
         }
 
         if (StringUtils.isBlank(oldName) // Add new Module
@@ -246,19 +246,19 @@ public class ProjectBean {
     // TODO Move messages to ValidationMessages.properties
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
+        FacesUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
 
         if (!(path.contains("*") || path.contains("?"))) {
             File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-            FacesUtils.validate(moduleFile.exists(), "File with such path doesn't exist");
+            FacesUtils.validate(moduleFile.exists(), "File with such path does not exist");
         }
     }
 
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String path = FacesUtils.getRequestParameter("copyModuleForm:modulePath");
-        FacesUtils.validate(StringUtils.isNotBlank(path), "Can not be empty");
+        FacesUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
 
-        FacesUtils.validate(!(path.contains("*") || path.contains("?")), "Path can't contain wildcard symbols");
+        FacesUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
         File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
         FacesUtils.validate(!moduleFile.exists(), "File with such name already exists");
     }
@@ -416,7 +416,7 @@ public class ProjectBean {
                     if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
                         File file = new File(module.getRulesRootPath().getPath());
                         if (!file.delete() && file.exists()) {
-                            throw new Message("Can't delete the file " + file.getName());
+                            throw new Message("Cannot delete the file " + file.getName());
                         }
                     }
                 }
@@ -426,7 +426,7 @@ public class ProjectBean {
                     file = new File(projectFolder, removed.getRulesRootPath().getPath());
                 }
                 if (!file.delete() && file.exists()) {
-                    throw new Message("Can't delete the file " + file.getName());
+                    throw new Message("Cannot delete the file " + file.getName());
                 }
             }
             File rulesXmlFile = new File(projectFolder,
@@ -692,7 +692,7 @@ public class ProjectBean {
                 return "Description file " + fileName + " is absent";
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
-                return "Can't load the file " + fileName;
+                return "Cannot load the file " + fileName;
             }
         } catch (InvalidFileNameProcessorException e) {
             return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";
@@ -709,7 +709,7 @@ public class ProjectBean {
         try {
             processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
             if (!(processor instanceof FileNamePatternValidator)) {
-                return "Validation isn't supported";
+                return "Validation is not supported";
             }
         } catch (InvalidFileNameProcessorException ignored) {
         } finally {
@@ -845,9 +845,9 @@ public class ProjectBean {
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException ignored) {
-            // Can't check for name correctness
+            // Cannot check for name correctness
         } catch (InvalidFileNamePatternException e) {
-            // Invalid pattern, can't check for name correctness
+            // Invalid pattern, cannot check for name correctness
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
         }

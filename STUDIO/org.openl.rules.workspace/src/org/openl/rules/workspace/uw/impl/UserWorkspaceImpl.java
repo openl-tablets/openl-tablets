@@ -274,7 +274,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         ddp.getFileData(),
                         deploymentsLockEngine);
                     if (!userDProject.isOpened()) {
-                        // Closed project can't be locked.
+                        // Closed project cannot be locked.
                         // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can
                         // safely unlock it
                         if (userDProject.isLockedByMe()) {

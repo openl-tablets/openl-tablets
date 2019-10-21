@@ -184,7 +184,7 @@ public final class JAXWSEnhancerHelper {
             throw new IllegalStateException("Service class is null.");
         }
         if (!service.getServiceClass().isInterface()) {
-            throw new IllegalStateException("Service class isn't an interface.");
+            throw new IllegalStateException("Service class is not an interface.");
         }
         String enchancedClassName = service.getServiceClass()
             .getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;

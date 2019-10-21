@@ -140,7 +140,7 @@ public class LocalRepository extends FileSystemRepository {
                 return true;
             }
         } catch (NumberFormatException ignored) {
-            // Can't determine saved size. So treat it as modified file
+            // Cannot determine saved size. So treat it as modified file
             return true;
         }
 
@@ -148,7 +148,7 @@ public class LocalRepository extends FileSystemRepository {
             Date modifiedAt = new Date(Long.parseLong(properties.getProperty(MODIFIED_AT_LONG_PROPERTY)));
             return !modifiedAt.equals(fileData.getModifiedAt());
         } catch (NumberFormatException ignored) {
-            // Can't determine saved date. So treat it as modified file
+            // Cannot determine saved date. So treat it as modified file
             return true;
         }
     }
@@ -311,7 +311,7 @@ public class LocalRepository extends FileSystemRepository {
                     String comment = properties.getProperty(COMMENT_PROPERTY);
 
                     if (version == null || author == null || modifiedAt == null) {
-                        // Only partial information is available. Can't fill FileData. Must request from repository.
+                        // Only partial information is available. Cannot fill FileData. Must request from repository.
                         return null;
                     }
 

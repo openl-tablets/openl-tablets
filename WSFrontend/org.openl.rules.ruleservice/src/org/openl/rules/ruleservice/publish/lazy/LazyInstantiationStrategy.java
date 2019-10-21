@@ -42,14 +42,14 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                 add(module);
             }
         }, dependencyManager, true);
-        this.deployment = Objects.requireNonNull(deployment, "deployment can't be null.");
+        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
             Collection<Module> modules,
             IDependencyManager dependencyManager) {
         super(modules, dependencyManager, true);
-        this.deployment = Objects.requireNonNull(deployment, "deployment can't be null.");
+        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
@@ -57,7 +57,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader, true);
-        this.deployment = Objects.requireNonNull(deployment, "deployment can't be null.");
+        this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
     @Override

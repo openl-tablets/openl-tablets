@@ -363,7 +363,7 @@ public class ModuleTest extends TestCase {
         // to
         // know
         // expresion return type before we invoke it
-        // thats something we dont know (and can't) in BLS
+        // thats something we dont know (and cannot) in BLS
         double value = ((Double) obj).doubleValue();
         assertEquals(orderValue, value, 0.00001);
     }
@@ -380,7 +380,7 @@ public class ModuleTest extends TestCase {
         // we have
         // to know
         // expresion return type before we invoke it
-        // thats something we dont know (and can't) in BLS
+        // thats something we dont know (and cannot) in BLS
         double value = ((Double) obj).doubleValue();
         assertEquals(orderValue, value, 0.00001);
     }

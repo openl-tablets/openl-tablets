@@ -27,7 +27,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @RequestScoped
 public class GroupsBean {
 
-    public static final String VALIDATION_EMPTY = "Can not be empty";
+    public static final String VALIDATION_EMPTY = "Cannot be empty";
     public static final String VALIDATION_MAX = "Must be less than ";
 
     @NotBlank(message = VALIDATION_EMPTY)

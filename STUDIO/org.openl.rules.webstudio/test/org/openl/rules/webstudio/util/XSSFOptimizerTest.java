@@ -60,7 +60,7 @@ public class XSSFOptimizerTest {
                 break;
             }
         }
-        assertTrue("Style " + name + " not found", found);
+        assertTrue("Style '" + name + "' is not found", found);
     }
 
     private byte[] save(XSSFWorkbook workbook) throws IOException {

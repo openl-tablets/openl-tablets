@@ -67,7 +67,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                             .getRepositoryForVersion((FolderRepository) designRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
-                            log.warn("Can't find files in project {}", projectName);
+                            log.warn("Cannot find files in project {}", projectName);
                         }
                         return new FolderIterator(files);
                     } else {

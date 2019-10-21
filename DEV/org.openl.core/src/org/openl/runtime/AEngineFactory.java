@@ -130,8 +130,8 @@ public abstract class AEngineFactory {
                             //
                             continue;
                         } else {
-                            // If openClass doesn't have appropriate field
-                            // (field's type doesn't
+                            // If openClass does not have appropriate field
+                            // (field's type does not
                             // equal to method return type) then throw runtime
                             // exception.
                             //
@@ -145,7 +145,7 @@ public abstract class AEngineFactory {
                     }
                 }
 
-                // If openClass doesn't have appropriate method or field then
+                // If openClass does not have appropriate method or field then
                 // throw runtime exception.
                 //
                 String message = String.format("There is no implementation in rules for interface method '%s'",

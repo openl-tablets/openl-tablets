@@ -36,7 +36,7 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
             boolean singleModuleMode,
             boolean executionMode) {
         super(rootClassLoader);
-        this.projects = Objects.requireNonNull(projects, "projects can't be null.");
+        this.projects = Objects.requireNonNull(projects, "projects cannot be null");
         this.singleModuleMode = singleModuleMode;
         this.executionMode = executionMode;
     }

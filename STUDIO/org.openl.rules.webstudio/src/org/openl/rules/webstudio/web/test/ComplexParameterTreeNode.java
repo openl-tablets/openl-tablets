@@ -77,7 +77,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         fieldValue = field.get(getValue(), env);
                     } catch (RuntimeException e) {
                         // Usually this can happen only in cases when TestResult is a OpenLRuntimeException.
-                        // So this field usually doesn't have any useful information.
+                        // So this field usually does not have any useful information.
                         // For example, it can be NotSupportedOperationException in not implemented getters.
                         log.debug("Exception while trying to get a value of a field:", e);
                         fieldType = JavaOpenClass.getOpenClass(String.class);
@@ -146,7 +146,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                     try {
                         field.set(value, fieldEntry.getValue().getValueForced(), env);
                     } catch (Exception e) {
-                        // Can throw UnsupportedOperationException for example or doesn't accept nulls.
+                        // Can throw UnsupportedOperationException for example or does not accept nulls.
                         log.debug("Exception while trying to set a value of a field:", e);
                     }
                 }

@@ -37,7 +37,7 @@ public class XlsParser extends BaseParser {
 
     @Override
     protected IParsedCode getNotSupportedCode(IOpenSourceCodeModule source, String sourceType) {
-        String message = String.format(".xls files can not be parsed as %s", sourceType);
+        String message = String.format(".xls files cannot be parsed as %s", sourceType);
         return getInvalidCode(message, source);
     }
 }

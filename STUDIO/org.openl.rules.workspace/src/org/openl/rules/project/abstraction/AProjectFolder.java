@@ -243,7 +243,7 @@ public class AProjectFolder extends AProjectArtefact {
                 fileData.setAuthor(user == null ? null : user.getUserName());
                 setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
             } catch (IOException e) {
-                throw new ProjectException("Can't update: " + e.getMessage(), e);
+                throw new ProjectException("Cannot update: " + e.getMessage(), e);
             } finally {
                 for (FileItem change : changes) {
                     IOUtils.closeQuietly(change.getStream());
@@ -316,7 +316,7 @@ public class AProjectFolder extends AProjectArtefact {
                     fileDatas = ((FolderRepository) getRepository()).listFiles(folderPath, getFileData().getVersion());
                 } else {
                     throw new UnsupportedOperationException(
-                        "Can't get internal artifacts for historic project version");
+                        "Cannot get internal artifacts for historic project version");
                 }
             } else {
                 fileDatas = getRepository().list(folderPath);

@@ -55,11 +55,11 @@ public final class PropertiesChecker {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
                 String message = String
-                    .format("Property '%s' can't be defined in %s Table", propertyNameToCheck, typeName);
+                    .format("Property '%s' cannot be defined in %s Table", propertyNameToCheck, typeName);
 
                 addError(bindingContext, tableSyntaxNode, message);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-                String message = String.format("Property '%s' can't be defined on the '%s' level",
+                String message = String.format("Property '%s' cannot be defined on the '%s' level",
                     propertyNameToCheck,
                     level.getDisplayName());
 

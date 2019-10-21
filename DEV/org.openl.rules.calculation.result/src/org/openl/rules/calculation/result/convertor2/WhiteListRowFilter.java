@@ -28,7 +28,7 @@ public final class WhiteListRowFilter implements RowFilter {
     }
 
     public static WhiteListRowFilter buildWhiteListRowFilter(Set<String> whiteList) {
-        Objects.requireNonNull(whiteList, "whiteList argument can't be null.");
+        Objects.requireNonNull(whiteList, "whiteList argument cannot be null");
         return new WhiteListRowFilter(Collections.unmodifiableSet(whiteList));
     }
 

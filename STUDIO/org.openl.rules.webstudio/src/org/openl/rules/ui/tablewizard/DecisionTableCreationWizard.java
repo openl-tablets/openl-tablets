@@ -25,7 +25,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
 
-    @NotEmpty(message = "Technical name can not be empty")
+    @NotEmpty(message = "Technical name cannot be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid technical name")
     private String tableName;
 

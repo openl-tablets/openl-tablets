@@ -79,7 +79,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             if (varType != componentType) {
                 IOpenCast cast = bindingContext.getCast(componentType, varType);
                 if (cast == null) {
-                    return makeErrorNode("Can not cast " + componentType + " to " + varType, varNode, bindingContext);
+                    return makeErrorNode("Cannot cast " + componentType + " to " + varType, varNode, bindingContext);
                 }
             }
         }

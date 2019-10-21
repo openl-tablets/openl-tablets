@@ -58,7 +58,7 @@ public class AlgorithmCompilerTool {
                 .getOperation()
                 .asSourceCodeModule();
             throw SyntaxNodeExceptionUtils.createError(String
-                .format("Compilation failure. Can't find %s in operations sequence %s", operationName, candidateNodes),
+                .format("Compilation failure. Cannot find %s in operations sequence %s", operationName, candidateNodes),
                 errorSource);
         }
         return operationNode;
@@ -99,7 +99,7 @@ public class AlgorithmCompilerTool {
                 .getOperation()
                 .asSourceCodeModule();
             throw SyntaxNodeExceptionUtils
-                .createError(String.format("Compilation failure. Can't find '%s' field", fieldName), errorSource);
+                .createError(String.format("Compilation failure. Cannot find '%s' field", fieldName), errorSource);
         }
 
         // Get the operation node from the candidate nodes, that suits to the given instruction

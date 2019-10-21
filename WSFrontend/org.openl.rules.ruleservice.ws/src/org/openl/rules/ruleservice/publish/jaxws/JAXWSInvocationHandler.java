@@ -19,7 +19,7 @@ public class JAXWSInvocationHandler implements IOpenLInvocationHandler<Method, M
     }
 
     public JAXWSInvocationHandler(Object target) {
-        this.target = Objects.requireNonNull(target, "target can't be null.");
+        this.target = Objects.requireNonNull(target, "target cannot be null");
     }
 
     @Override

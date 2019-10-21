@@ -205,7 +205,7 @@ public class OpenLSourceManager extends OpenLHolder {
                     }
                 } else {
                     messages.add(OpenLMessagesUtils
-                        .newErrorMessage("Can't load dependencies. Dependency manager is not defined."));
+                        .newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
                 }
             }
 
@@ -232,7 +232,7 @@ public class OpenLSourceManager extends OpenLHolder {
             }
         }
 
-        // Requires to support java packages. BEX grammar doesn't support to use binding context to define java
+        // Requires to support java packages. BEX grammar does not support to use binding context to define java
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 

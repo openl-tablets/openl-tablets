@@ -123,7 +123,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
         } catch (Exception e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            String message = "Can't build repository tree. " + (rootCause == null ? e.getMessage()
+            String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
                                                                                   : rootCause.getMessage());
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
@@ -238,7 +238,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                             // Rebuild children for the node
                             currentNode.refresh();
                         } catch (ProjectException e) {
-                            log.error("Can't update selected node: {}", e.getMessage(), e);
+                            log.error("Cannot update selected node: {}", e.getMessage(), e);
                         }
                     }
                 }
@@ -392,10 +392,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 String name = project.getName();
                 try {
                     if (project instanceof RulesProject) {
-                        // We can't use hasProject() and then getProject(name) in multithreaded environment
+                        // We cannot use hasProject() and then getProject(name) in multithreaded environment
                         invalidateSelectionIfDeleted(name, userWorkspace.getProjects(false));
                     } else if (project instanceof ADeploymentProject) {
-                        // We can't use hasDDProject() and then getDDProject(name) in multithreaded environment
+                        // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
                         invalidateSelectionIfDeleted(name, userWorkspace.getDDProjects());
                     }
                 } catch (ProjectException e) {
@@ -588,7 +588,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     /**
-     * Returns true if both are true: 1) Old project version is opened and 2) project isn't modified yet.
+     * Returns true if both are true: 1) Old project version is opened and 2) project is not modified yet.
      *
      * Otherwise return false
      */

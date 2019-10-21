@@ -301,7 +301,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                     tCodeTable,
                                     cxt);
-                                throw SyntaxNodeExceptionUtils.createError("Title can't be empty.",
+                                throw SyntaxNodeExceptionUtils.createError("Title cannot be empty.",
                                     tGridCellSourceCodeModule);
                             }
                             title = OpenLFuzzyUtils.toTokenString(title1);
