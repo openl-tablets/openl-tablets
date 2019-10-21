@@ -589,7 +589,7 @@ public class DateRangeParsingTest {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertTrue(String.format("The range %s must include a date \"%s\"", range.toString(), s),
+            assertTrue(String.format("The range %s must include a date '%s'", range.toString(), s),
                 range.contains(toDate(s)));
         }
     }
@@ -598,7 +598,7 @@ public class DateRangeParsingTest {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertFalse(String.format("The range %s must not include a date \"%s\"", range.toString(), s),
+            assertFalse(String.format("The range %s must not include a date '%s'", range.toString(), s),
                 range.contains(toDate(s)));
         }
     }

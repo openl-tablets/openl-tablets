@@ -38,7 +38,7 @@ public class RowParser implements IRowParser {
             IOpenSourceCodeModule source = columnValue.asSourceCodeModule();
             if (source.getUri() == null) {
                 // Column <columnName> is absent. Point to <operation> cell instead.
-                String errMsg = String.format("%s is required for operation \"%s\"!", columnName, operation);
+                String errMsg = String.format("%s is required for operation '%s'!", columnName, operation);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
             } else {
                 // Column <columnName> exists but still is empty. Point to empty <columnValue> cell.

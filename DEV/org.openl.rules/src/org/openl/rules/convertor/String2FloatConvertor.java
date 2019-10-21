@@ -9,7 +9,7 @@ class String2FloatConvertor extends String2NumberConverter<Float> {
         float value = number.floatValue();
         double dValue = number.doubleValue();
         if (!Double.isInfinite(dValue) && Float.isInfinite(value)) {
-            throw new NumberFormatException("A number \"" + data + "\" is out of range.");
+            throw new NumberFormatException("A number '" + data + "' is out of range.");
         }
         return value;
     }

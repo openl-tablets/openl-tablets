@@ -126,7 +126,7 @@ public class ProjectDescriptor {
         try {
             projectUrl = projectFolder.toURI().toURL();
         } catch (MalformedURLException e) {
-            log.error("Bad URL for the project folder \"{}\"", projectFolder, e);
+            log.error("Bad URL for the project folder '{}'", projectFolder, e);
             return new URL[] {};
         }
         Set<String> classpaths = processClasspathPathPatterns();
@@ -141,7 +141,7 @@ public class ProjectDescriptor {
                 try {
                     url = new URL(projectUrl, clspth);
                 } catch (MalformedURLException e2) {
-                    log.error("Bad URL in classpath \"{}\"", clspth, e2);
+                    log.error("Bad URL in classpath '{}'", clspth, e2);
                     continue;
                 }
             }

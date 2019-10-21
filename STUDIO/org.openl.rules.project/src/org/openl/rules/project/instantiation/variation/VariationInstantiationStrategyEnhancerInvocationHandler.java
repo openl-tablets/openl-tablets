@@ -141,7 +141,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 Object result = member.invoke(serviceClassInstance, modifiedArguments);
                 variationsResults.registerResult(variation.getVariationID(), result);
             } catch (Exception e) {
-                log.warn("Failed to calculate \"{}\"", variation.getVariationID(), e);
+                log.warn("Failed to calculate '{}'", variation.getVariationID(), e);
                 Throwable e1 = e;
                 if (e instanceof InvocationTargetException && e.getCause() != null) {
                     e1 = e.getCause();
@@ -153,7 +153,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 try {
                     variation.revertModifications(modifiedArguments, currentValue);
                 } catch (Exception e) {
-                    log.error("Failed to revert modifications in variation \"{}\"", variation.getVariationID());
+                    log.error("Failed to revert modifications in variation '{}'", variation.getVariationID());
                 }
             }
         }

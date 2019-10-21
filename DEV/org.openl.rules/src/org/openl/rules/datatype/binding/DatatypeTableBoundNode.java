@@ -523,12 +523,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 // errors
                 if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
                     throw new OpenLCompilationException(
-                        String.format("Cannot inherit from final class \"%s\"", parentClassName));
+                        String.format("Cannot inherit from final class '%s'", parentClassName));
                 }
 
                 if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())) {
                     throw new OpenLCompilationException(
-                        String.format("Cannot inherit from abstract class \"%s\"", parentClassName));
+                        String.format("Cannot inherit from abstract class '%s'", parentClassName));
                 }
             }
 
@@ -556,12 +556,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         if (fieldInParent.getType()
                             .getInstanceClass()
                             .equals(field.getValue().getType().getInstanceClass())) {
-                            BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
+                            BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
                                 field.getKey(),
                                 fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                         } else {
                             throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Field [%s] has been already defined in class \"%s\" with another type",
+                                String.format("Field [%s] has been already defined in class '%s' with another type",
                                     field.getKey(),
                                     fieldInParent.getDeclaringClass().getDisplayName(0)),
                                 tableSyntaxNode);

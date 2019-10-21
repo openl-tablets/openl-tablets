@@ -146,7 +146,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             try {
                 projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
             } catch (Exception e) {
-                log.warn("Could not get project\"{}\" of version \"{}\"",
+                log.warn("Could not get project'{}' of version '{}'",
                     projectUW.getName(),
                     version.getVersionName(),
                     e);

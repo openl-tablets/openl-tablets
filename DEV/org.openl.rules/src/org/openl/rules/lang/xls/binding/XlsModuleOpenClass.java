@@ -413,7 +413,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             if (!existedMethod.getType().equals(method.getType())) {
                 String message = String.format(
-                    "Method \"%s\" with return type \"%s\" is already defined with another return type (\"%s\")",
+                    "Method '%s' with return type '%s' is already defined with another return type ('%s')",
                     method.getName(),
                     method.getType().getDisplayName(0),
                     existedMethod.getType().getDisplayName(0));

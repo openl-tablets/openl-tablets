@@ -88,7 +88,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
                 setValueForced(convertor.parse(value, null));
             } catch (Exception e) {
                 // TODO message on UI
-                log.warn("Failed to set \"{}\" value to field [{}]", value, getName(), e);
+                log.warn("Failed to set '{}' value to field [{}]", value, getName(), e);
             }
         }
     }

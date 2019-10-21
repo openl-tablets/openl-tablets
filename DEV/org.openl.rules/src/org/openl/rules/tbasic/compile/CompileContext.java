@@ -63,7 +63,7 @@ public class CompileContext {
     public void registerNewLabel(String labelName, AlgorithmTreeNode sourceNode) throws SyntaxNodeException {
         if (isLabelRegistered(labelName)) {
             IOpenSourceCodeModule errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError("Such label has been already declared : \"" + labelName + "\".",
+            throw SyntaxNodeExceptionUtils.createError("Such label has been already declared : '" + labelName + "'.",
                 errorSource);
         } else {
             existingLables.put(labelName, sourceNode);
@@ -75,7 +75,7 @@ public class CompileContext {
             localLabelsRegister.put(labelName, labeledOperation);
         } else {
             IOpenSourceCodeModule errorSource = labeledOperation.getSourceCode().getSourceModule();
-            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : \"" + labelName + "\".",
+            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : '" + labelName + "'.",
                 errorSource);
         }
     }

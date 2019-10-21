@@ -30,7 +30,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
             result = getMatchByDefaultCodeExpression(matchExpression) + matchExpression.getMatchExpression()
                 .getCodeExpression(parameterName);
         } else {
-            String message = String.format("Can`t create expression for \"%s\" property validation.", propertyName);
+            String message = String.format("Can`t create expression for '%s' property validation.", propertyName);
             throw new OpenlNotCheckedException(message);
         }
         return result;

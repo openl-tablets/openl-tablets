@@ -52,13 +52,13 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertTrue("Message \"" + message.getSummary() + "\" doesn't have corresponding TableSyntaxNode", found);
+            assertTrue("Message '" + message.getSummary() + "' doesn't have corresponding TableSyntaxNode", found);
         }
     }
 
     private void assertContainsError(String error, TableSyntaxNode node) {
         if (!containsError(error, node)) {
-            fail("TableSyntaxNode doesn't contain error \"" + error + "\"");
+            fail("TableSyntaxNode doesn't contain error '" + error + "'");
         }
     }
 

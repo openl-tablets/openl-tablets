@@ -31,7 +31,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
             throw new NumberFormatException("Cannot convert an empty String to numeric type");
         }
         if ("%".equals(data)) {
-            throw new NumberFormatException("Cannot convert \"%\" to numeric type");
+            throw new NumberFormatException("Cannot convert '%' to numeric type");
         }
         DecimalFormat df = getFormatter(format);
         if (data.endsWith("%")) {
@@ -43,7 +43,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         Number number = df.parse(data, position);
         int index = position.getIndex();
         if (index < data.length()) {
-            throw new NumberFormatException("Cannot convert \"" + data + "\" to numeric type");
+            throw new NumberFormatException("Cannot convert '" + data + "' to numeric type");
         }
         return convert(number, data);
     }

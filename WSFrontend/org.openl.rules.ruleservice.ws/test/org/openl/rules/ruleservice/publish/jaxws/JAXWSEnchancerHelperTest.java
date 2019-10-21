@@ -123,7 +123,7 @@ public class JAXWSEnchancerHelperTest {
                 i++;
                 Annotation webMethodAnnotation = method.getAnnotation(WebMethod.class);
                 Assert.assertNotNull("Expected @WebMethod annotation!", webMethodAnnotation);
-                Assert.assertEquals("Expected \"someMethod1\" operation name in annotation!",
+                Assert.assertEquals("Expected 'someMethod1' operation name in annotation!",
                     "someMethod1",
                     ((WebMethod) webMethodAnnotation).operationName());
             }
@@ -132,7 +132,7 @@ public class JAXWSEnchancerHelperTest {
                 Annotation webMethodAnnotation = method.getAnnotation(WebMethod.class);
                 Assert.assertNotNull("Expected @WebMethod annotation!", webMethodAnnotation);
 
-                Assert.assertEquals("Expected \"someMethod\" operation name in annotation!",
+                Assert.assertEquals("Expected 'someMethod' operation name in annotation!",
                     "someMethod",
                     ((WebMethod) webMethodAnnotation).operationName());
             }
@@ -141,7 +141,7 @@ public class JAXWSEnchancerHelperTest {
                 Annotation webMethodAnnotation = method.getAnnotation(WebMethod.class);
                 Assert.assertNotNull("Expected @WebMethod annotation!", webMethodAnnotation);
 
-                Assert.assertEquals("Expected \"someMethod2\" operation name in annotation!",
+                Assert.assertEquals("Expected 'someMethod2' operation name in annotation!",
                     "someMethod2",
                     ((WebMethod) webMethodAnnotation).operationName());
             }

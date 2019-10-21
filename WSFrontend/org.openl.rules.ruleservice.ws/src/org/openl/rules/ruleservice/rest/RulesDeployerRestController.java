@@ -77,7 +77,7 @@ public class RulesDeployerRestController {
         OpenLService service = ruleServiceManager.getServiceByName(serviceName);
         FileItem fileItem = rulesDeployerService.read(service.getServicePath());
         return Response.ok(fileItem.getStream())
-            .header("Content-Disposition", "attachment;filename=\"" + serviceName + ".zip\"")
+            .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
             .build();
     }
 

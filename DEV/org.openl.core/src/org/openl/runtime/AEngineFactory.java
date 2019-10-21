@@ -148,7 +148,7 @@ public abstract class AEngineFactory {
                 // If openClass doesn't have appropriate method or field then
                 // throw runtime exception.
                 //
-                String message = String.format("There is no implementation in rules for interface method \"%s\"",
+                String message = String.format("There is no implementation in rules for interface method '%s'",
                     interfaceMethod);
 
                 throw new OpenlNotCheckedException(message);

@@ -28,7 +28,7 @@ public class String2LocalDateTimeConvertor implements IString2DataConvertor<Loca
                 // Loop on
             }
         }
-        throw new IllegalArgumentException("Cannot convert \"" + data + "\" to LocalDateTime type");
+        throw new IllegalArgumentException("Cannot convert '" + data + "' to LocalDateTime type");
     }
 
 }

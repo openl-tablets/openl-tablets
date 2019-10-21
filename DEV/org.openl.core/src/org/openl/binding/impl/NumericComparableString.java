@@ -34,7 +34,7 @@ public class NumericComparableString implements Comparable<NumericComparableStri
 
     private NumericComparableString(String value) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringRangeValue class. Parameter \"value\" can't be null.");
+            "Error initializing StringRangeValue class. Parameter 'value' can't be null.");
         splits = NUMBERS.split(value);
         splitsNumbers = new BigInteger[splits.length];
         initSplitsNumbers();

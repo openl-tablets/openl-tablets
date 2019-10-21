@@ -33,11 +33,11 @@ public class TestConstraintExpLessExp extends TestCase {
             // decrease maximum of the greater variable
             var3.setMax(7);
             var3.propagate();
-            assertTrue("The greater variable \"setMax(int)\" wasn't traced", var.max() <= var3.max());
+            assertTrue("The greater variable 'setMax(int)' wasn't traced", var.max() <= var3.max());
             // increase minimum of the lesser variable
             var.setMin(3);
             var.propagate();
-            assertTrue("The greater variable \"setMin(int)\" wasn't traced", var.min() <= var3.min());
+            assertTrue("The greater variable 'setMin(int)' wasn't traced", var.min() <= var3.min());
         } catch (Failure f) {
             fail("test failed due to incorrect work of setMin(int) or setMax(int)");
         }

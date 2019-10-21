@@ -198,7 +198,7 @@ public class FontGridFilter extends AGridFilter {
         public FontGridFilter build() {
             if (size != null && incrementSize != null) {
                 throw new IllegalArgumentException(
-                    "Only one of \"size\" and \"incrementSize\" paremeters should be initialized");
+                    "Only one of 'size' and 'incrementSize' paremeters should be initialized");
             }
 
             return new FontGridFilter(this);

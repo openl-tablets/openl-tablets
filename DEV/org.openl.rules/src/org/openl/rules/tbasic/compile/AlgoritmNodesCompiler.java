@@ -273,7 +273,7 @@ public class AlgoritmNodesCompiler {
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
-                String errorMessage = String.format("Such label is not available from this place: \"%s\".", labelName);
+                String errorMessage = String.format("Such label is not available from this place: '%s'.", labelName);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, errorSource);
             }
             return null;

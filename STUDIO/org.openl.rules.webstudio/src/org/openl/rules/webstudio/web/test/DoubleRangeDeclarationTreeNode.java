@@ -25,7 +25,7 @@ public class DoubleRangeDeclarationTreeNode extends SimpleParameterTreeNode {
                 setValueForced(new DoubleRange(value));
             } catch (RuntimeException e) {
                 // TODO message on UI
-                log.warn("Failed to set \"{}\" value to field [{}]", value, getName(), e);
+                log.warn("Failed to set '{}' value to field [{}]", value, getName(), e);
             }
         }
     }

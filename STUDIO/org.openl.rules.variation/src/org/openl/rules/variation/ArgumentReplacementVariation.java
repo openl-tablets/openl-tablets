@@ -56,7 +56,7 @@ public class ArgumentReplacementVariation extends Variation {
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(
-                "Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
+                "Failed to apply variaion '" + getVariationID() + "'. Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
         }
         originalArguments[updatedArgumentIndex] = valueToSet;
         return originalArguments;

@@ -575,13 +575,13 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                         Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
-                    String message = String.format("Cannot parse field source \"%s\"", code);
+                    String message = String.format("Cannot parse field source '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(bindingContext, table, error);
                 }
 
                 if (contains(identifiers, fieldAccessorChainTokens)) {
-                    String message = String.format("Found duplicate of field \"%s\"", code);
+                    String message = String.format("Found duplicate of field '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(bindingContext, table, error);
                 } else {
@@ -698,7 +698,7 @@ public class DataTableBindHelper {
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         if (type == null) {
-            String message = String.format("Can't bind node: '%s'. Can't find type: '%s'.", identifierNode, typeName);
+            String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
             processError(bindingContext, table, error);
         }
@@ -939,11 +939,11 @@ public class DataTableBindHelper {
             if (loadedFieldType instanceof TestMethodOpenClass) {
                 StringBuilder sb = new StringBuilder();
                 MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
-                errorMessage = String.format("Found \"%s\", but expected one of the parameters from the method \"%s\".",
+                errorMessage = String.format("Found '%s', but expected one of the parameters from the method '%s'.",
                     fieldName,
                     sb.toString());
             } else {
-                errorMessage = String.format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
+                errorMessage = String.format("Field '%s' is not found in %s.", fieldName, loadedFieldType.getName());
             }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(bindingContext, table, error);
@@ -951,7 +951,7 @@ public class DataTableBindHelper {
         }
 
         if (!field.isWritable()) {
-            String message = String.format("Field '%s' is not writable in %s", fieldName, loadedFieldType.getName());
+            String message = String.format("Field '%s' is not writable in %s.", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
@@ -992,7 +992,7 @@ public class DataTableBindHelper {
         }
 
         if (field == null) {
-            String message = String.format("Field '%s' is not found!", name);
+            String message = String.format("Field '%s' is not found.", name);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
@@ -1002,7 +1002,7 @@ public class DataTableBindHelper {
             .isAssignableFrom(field.getType().getInstanceClass()) && !field.getType()
                 .isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
             String message = String
-                .format("Field '%s' isn't a collection! The field type is '%s'", name, field.getType().toString());
+                .format("Field '%s' is not a collection! The field type is '%s'.", name, field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
@@ -1071,7 +1071,7 @@ public class DataTableBindHelper {
             }
         }
         if (!collectionAccessField.isWritable()) {
-            String message = String.format("Field '%s' is not writable in %s", name, loadedFieldType.getName());
+            String message = String.format("Field '%s' is not writable in %s.", name, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;

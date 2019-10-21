@@ -40,7 +40,7 @@ public class RegexpPropertyValidator extends TablesValidator {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     SyntaxNodeException exception = SyntaxNodeExceptionUtils
-                        .createError(String.format("Incorrect value \"%s\" for property \"%s\"",
+                        .createError(String.format("Incorrect value '%s' for property '%s'",
                             propertyValue,
                             TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     tsn.addError(exception);

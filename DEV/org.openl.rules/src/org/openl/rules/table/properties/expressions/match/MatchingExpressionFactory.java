@@ -29,7 +29,7 @@ public class MatchingExpressionFactory {
         } else if (ContainsMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)) {
             matchExpression = new ContainsMatchingExpression(contextAttribute);
         } else {
-            throw new OpenLRuntimeException(String.format("Unknown match expression operation \"%s\"", operationName));
+            throw new OpenLRuntimeException(String.format("Unknown match expression operation '%s'", operationName));
         }
         return matchExpression;
     }

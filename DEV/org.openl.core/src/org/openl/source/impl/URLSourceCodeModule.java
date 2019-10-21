@@ -58,7 +58,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
 
             return lastModified;
         } catch (IOException e) {
-            log.warn("Failed to open connection for URL \"{}\"", url, e);
+            log.warn("Failed to open connection for URL '{}'", url, e);
             return -1;
         } finally {
             if (is != null) {
