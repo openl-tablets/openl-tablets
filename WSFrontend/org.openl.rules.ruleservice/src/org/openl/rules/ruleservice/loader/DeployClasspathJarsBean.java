@@ -92,7 +92,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("Failed to load a resource!", e);
             }
             if (!file.exists()) {
-                throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
+                throw new IOException("File has not been found. File: " + file.getAbsolutePath());
             }
 
             rulesDeployerService.deploy(FileUtils.getBaseName(file.getName()), new FileInputStream(file), false);

@@ -27,7 +27,7 @@ public class SetToListOfClassesFactoryBean extends AbstractFactoryBean<List<Clas
                     Class<?> cls = Thread.currentThread().getContextClassLoader().loadClass(clsName);
                     ret.add(cls);
                 } catch (ClassNotFoundException e) {
-                    log.warn(String.format("Failed to load '%s' class.", clsName));
+                    log.warn(String.format("Failed to load class '%s'.", clsName));
                 }
             }
         }

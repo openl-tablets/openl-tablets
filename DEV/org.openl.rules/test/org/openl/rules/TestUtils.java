@@ -13,7 +13,7 @@ import org.openl.rules.runtime.RulesEngineFactory;
 public class TestUtils {
     public static void assertEx(Exception ex, String... errorMessages) {
         if (ex == null) {
-            throw new RuntimeException("Exception is null! It works when should fail!!!");
+            throw new RuntimeException("Exception is null! It works when should fail.");
         }
 
         StringWriter sw = new StringWriter(1024);

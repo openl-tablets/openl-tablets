@@ -30,7 +30,7 @@ class StaticRmiInvocationHandler implements IOpenLInvocationHandler<Method, Meth
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method m = methodMap.get(method);
         if (m == null) {
-            throw new IllegalStateException("Method hasn't been found in methods map!");
+            throw new IllegalStateException("Method has not been found in methods map!");
         }
         return m.invoke(target, args);
     }

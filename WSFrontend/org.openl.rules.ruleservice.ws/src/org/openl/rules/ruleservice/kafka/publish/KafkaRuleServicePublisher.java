@@ -164,13 +164,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
         if (configs.containsKey(BOOTSTRAP_SERVERS)) {
             if (kafkaConfig instanceof KafkaMethodConfig) {
                 KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) kafkaConfig;
-                log.warn("{} '{}' property is overriden in '{}' service for method '{}'.",
+                log.warn("{} '{}' property is overriden in service '{}' for method '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
                     service.getName(),
                     kafkaMethodConfig.getMethodName());
             } else {
-                log.warn("{} '{}' property is overriden in '{}' service.",
+                log.warn("{} '{}' property is overriden in service '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
                     service.getName());
@@ -286,7 +286,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
             if (config instanceof KafkaMethodConfig) {
                 KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) config;
                 throw new KafkaServiceConfigurationException(
-                    String.format("Missed mandatory configs %s in '%s' method configuration.",
+                    String.format("Missed mandatory configs %s in method '%s' configuration.",
                         missedRequiredFieldsString,
                         kafkaMethodConfig.getMethodName()));
             } else {
@@ -544,7 +544,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Availabl
                 log.info("Service '{}' has been successfully deployed.", service.getName());
             } else {
                 throw new KafkaServiceConfigurationException(String.format(
-                    "Failed to deploy '%s' service. Kafka method configs are not found in the configuration.",
+                    "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
                     service.getName()));
             }
         } catch (Exception t) {

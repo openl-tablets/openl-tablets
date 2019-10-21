@@ -22,7 +22,6 @@ import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator;
@@ -74,7 +73,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
     }
-    
+
     public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
         this.storeLogDataEnabled = storeLogDataEnabled;
     }
@@ -249,7 +248,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
             runningServices.get(service).destroy();
             runningServices.remove(service);
             removeServiceInfo(serviceName);
-            log.info("Service '{}' has been succesfully undeployed.", serviceName);
+            log.info("Service '{}' has been undeployed succesfully.", serviceName);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
@@ -262,7 +261,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         return services;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
+    private ServiceInfo createServiceInfo(OpenLService service) {
         String url = URLHelper.processURL(service.getUrl());
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;

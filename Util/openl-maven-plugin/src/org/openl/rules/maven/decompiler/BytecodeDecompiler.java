@@ -33,7 +33,7 @@ public class BytecodeDecompiler {
         engine.getStructContext().addSpace(file, true);
         engine.decompileContext();
         if (!javaFilesSaver.isFileSaved()) {
-            throw new RuntimeException("Java file was not saved for class " + name);
+            throw new RuntimeException("Java file has not been saved for class " + name);
         }
     }
 

@@ -188,7 +188,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' hasn't been found",
+                    log.warn("Dependency '{}' for project '{}' is not found.",
                         dependencyDescriptor.getName(),
                         project.getName());
                 }
@@ -317,7 +317,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException("Module hasn't been found in project!");
+                    throw new RulesInstantiationException("Module has not been found in project!");
                 }
             }
 

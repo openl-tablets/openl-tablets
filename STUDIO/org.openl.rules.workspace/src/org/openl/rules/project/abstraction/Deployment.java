@@ -113,7 +113,7 @@ public class Deployment extends AProjectFolder {
             }
             return result;
         } else {
-            // In this case unpacked projects aren't supported. Projects should be archived to zip.
+            // In this case unpacked projects are not supported. Projects should be archived to zip.
             return super.createInternalArtefacts();
         }
     }

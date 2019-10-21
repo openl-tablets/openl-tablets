@@ -866,7 +866,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
             // Typically this shouldn't occur. But if found such case, should fast-forward local repository and write
             // warning for future investigation.
-            log.warn("Found commits that aren't fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
+            log.warn("Found commits that are not fast forwarded in branch '{}'. Current HEAD: {}, advertised ref: {}",
                 branch,
                 localRef.getObjectId().name(),
                 advertisedRef.getObjectId().name());

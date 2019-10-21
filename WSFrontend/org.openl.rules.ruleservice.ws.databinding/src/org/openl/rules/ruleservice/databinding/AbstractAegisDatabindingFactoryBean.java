@@ -197,7 +197,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         try {
             Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
-            log.warn("Class '{}' hasn't been found!", className, e);
+            log.warn("Class '{}' is not found.", className, e);
         }
     }
 

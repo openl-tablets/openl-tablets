@@ -7,7 +7,7 @@ import org.openl.rules.TestUtils;
 
 public class ReturnTypesProxyInterfacesTest {
 
-    private static final String EXP_MSG = "Expected '%s' for the return type of '%s' method, but found '%s' type.";
+    private static final String EXP_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
 
     private <T> T initInstance(Class<T> tClass) {
         return TestUtils.create("test/rules/runtime/ReturnTypeValidation.xlsx", tClass);

@@ -130,7 +130,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     interceptorClass.getTypeName()), e);
             }
@@ -150,7 +150,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -168,7 +168,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instante service method handler for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                    "Failed to instante service method handler for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     serviceExtraMethodHandlerClass.getTypeName()), e);
             }
@@ -188,7 +188,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instante 'afterReturning' interceptor for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                        "Failed to instante 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -214,7 +214,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         if (serviceExtraMethodHandler != null) {
             return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
         }
-        throw new OpenLRuntimeException("Service method advice hasn't been found!");
+        throw new OpenLRuntimeException("Service method advice is not found.");
     }
 
     protected Object afterInvocation(Method interfaceMethod,
@@ -381,7 +381,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 engine.release();
             } else {
                 log.warn(
-                    "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes!!!");
+                    "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
             }
         }
     }

@@ -37,7 +37,7 @@ public class MatchAlgorithmFactory {
         IMatchAlgorithmCompilerBuilder builder = null;
         if (nameOfAlgorithm == null) {
             if (defaultBuilder == null) {
-                throw new IllegalArgumentException("Default algorithm builder was not defined!");
+                throw new IllegalArgumentException("Default algorithm builder is not defined!");
             }
 
             builder = defaultBuilder;

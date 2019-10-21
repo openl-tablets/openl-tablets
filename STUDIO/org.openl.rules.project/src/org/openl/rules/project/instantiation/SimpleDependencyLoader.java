@@ -88,7 +88,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                 log.debug("Dependency '{}' has been used from cache.", dependencyName);
                 return compiledDependency;
             }
-            log.debug("Dependency '{}' hasn't been found in cache.", dependencyName);
+            log.debug("Dependency '{}' has not been found in cache.", dependencyName);
             return compileDependency(dependencyName, dependencyManager);
         }
         return null;

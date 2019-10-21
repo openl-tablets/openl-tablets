@@ -222,7 +222,7 @@ public class FileUtils {
      *
      * @param file file or directory to delete, must not be {@code null}
      * @throws NullPointerException if the directory is {@code null}
-     * @throws FileNotFoundException if the file was not found
+     * @throws FileNotFoundException if the file has not been found
      * @throws IOException in case deletion is unsuccessful
      */
     public static void delete(File file) throws IOException {

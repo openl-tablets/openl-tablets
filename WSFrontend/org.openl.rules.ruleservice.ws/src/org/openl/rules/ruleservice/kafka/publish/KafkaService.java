@@ -237,7 +237,7 @@ public final class KafkaService implements Runnable {
                                         try {
                                             if (log.isErrorEnabled()) {
                                                 log.error(String.format(
-                                                    "Failed to send a result message for '%s' method in '%s' service to '%s' output topic.",
+                                                    "Failed to send a result message for method '%s' in service '%s' to output topic '%s'.",
                                                     requestMessage.getMethod(),
                                                     getService().getName(),
                                                     getOutTopic(consumerRecord)), exception);
@@ -253,7 +253,7 @@ public final class KafkaService implements Runnable {
                             } catch (Exception e) {
                                 if (log.isErrorEnabled()) {
                                     log.error(
-                                        String.format("Failed to process a message from '%s' input topic.",
+                                        String.format("Failed to process a message from input topic '%s'.",
                                             getInTopic()),
                                         e);
                                 }
@@ -377,7 +377,7 @@ public final class KafkaService implements Runnable {
                     storeLogData.fault();
                 }
                 if (exception != null && log.isErrorEnabled()) {
-                    log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",
+                    log.error(String.format("Failed to send a message to dead letter queue topic '%s'.%sPayload: %s",
                         dltTopic,
                         System.lineSeparator(),
                         record.value().asText()), exception);
@@ -387,7 +387,7 @@ public final class KafkaService implements Runnable {
             });
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
-                log.error(String.format("Failed to send a message to '%s' dead letter queue topic.%sPayload: %s",
+                log.error(String.format("Failed to send a message to dead letter queue topic '%s'.%sPayload: %s",
                     dltTopic,
                     System.lineSeparator(),
                     record.value().asText()), e1);

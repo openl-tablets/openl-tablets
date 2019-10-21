@@ -49,7 +49,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         for (Deployment deployment : deployments) {
             if (deployment.getCommonVersion() == null) {
                 throw new IllegalArgumentException(
-                    "Cannot detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
+                    "Cannot detect deployment version. Please, check 'version in deployment name' parameter in the configuration.");
             }
             String deploymentName = deployment.getDeploymentName();
             Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
@@ -95,7 +95,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     }
                 } catch (Exception e) {
                     log.error(
-                        "Failed to load project from repository! Project '{}' in deployment '{}' has been skipped!",
+                        "Failed to load a project from the repository. Project '{}' in deployment '{}' has been skipped.",
                         project.getName(),
                         deployment.getDeploymentName(),
                         e);
@@ -239,7 +239,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     }
                 } catch (Exception e) {
                     log.error(
-                        "Failed to load project from repository! Project '{}' in deployment '{}' has been skipped!",
+                        "Failed to load a project from the repository. Project '{}' in deployment '{}' has been skipped.",
                         projectName,
                         deploymentName,
                         e);

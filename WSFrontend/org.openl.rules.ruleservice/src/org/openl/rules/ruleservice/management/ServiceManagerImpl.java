@@ -109,7 +109,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                     serviceDescriptions.remove(runningServiceName);
                     failedServiceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy '{}' service.", runningServiceName, e);
+                    log.error("Failed to undeploy service '{}'.", runningServiceName, e);
                 } finally {
                     ServiceDescriptionHolder.getInstance().remove();
                 }
@@ -149,9 +149,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                 }
             } catch (RuleServiceDeployException e) {
                 failedServiceDescriptions.put(serviceName, serviceDescription);
-                log.error("Failed to deploy '{}' service.", serviceName, e);
+                log.error("Failed to deploy service '{}'.", serviceName, e);
             } catch (RuleServiceUndeployException e) {
-                log.error("Failed to undeploy '{}' service.", serviceName, e);
+                log.error("Failed to undeploy service '{}'.", serviceName, e);
             } finally {
                 ServiceDescriptionHolder.getInstance().remove();
             }

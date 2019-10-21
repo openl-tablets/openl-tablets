@@ -1015,7 +1015,7 @@ public class RepositoryTreeController {
             facesContext.responseComplete();
 
             if (!zipFile.delete()) {
-                log.warn("Temporary zip file {} wasn't deleted", zipFile.getName());
+                log.warn("Temporary zip file {} has not been deleted", zipFile.getName());
             }
         }
         return null;

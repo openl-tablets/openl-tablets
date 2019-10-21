@@ -116,7 +116,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             try {
                 if (constantType.getName().startsWith("[[")) {
-                    throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
+                    throw new IllegalStateException("Multi-dimensional arrays are not supported!");
                 }
 
                 if (String.class.equals(constantType.getInstanceClass())) {

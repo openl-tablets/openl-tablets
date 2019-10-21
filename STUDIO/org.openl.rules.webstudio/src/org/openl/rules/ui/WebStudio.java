@@ -674,7 +674,7 @@ public class WebStudio {
 
         currentProject = resolveProject(projectDescriptor);
         if (currentProject == null) {
-            log.warn("The project hasn't been resolved after update.");
+            log.warn("The project has not been resolved after update.");
         }
 
         clearUploadedFiles();

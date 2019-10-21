@@ -49,7 +49,7 @@ public class Test0 {
     @Test
     public void test6() {
         MatchAlgorithmFactory.setDefaultBuilder(null);
-        assertEx("test/rules/cmatch0/match0-6.xls", "Default algorithm builder was not defined!", "range=B3:L7");
+        assertEx("test/rules/cmatch0/match0-6.xls", "Default algorithm builder is not defined!", "range=B3:L7");
     }
 
     @Test

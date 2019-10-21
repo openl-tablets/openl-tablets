@@ -149,7 +149,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                 try {
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);
-                    log.warn("Previously generated interface '{}' has been used as service class.", className);
+                    log.warn("Previously generated interface '{}' has been used as a service class.", className);
                     setInterfaceClass(interfaceClass);
                     return interfaceClass;
                 } catch (ClassNotFoundException e) {

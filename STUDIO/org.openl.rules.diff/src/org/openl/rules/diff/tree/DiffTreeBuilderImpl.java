@@ -24,7 +24,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
 
         if (projectionDiffer == null) {
-            throw new IllegalStateException("projectionDiffer was not set!");
+            throw new IllegalStateException("projectionDiffer has not been set!");
         }
 
         DiffTreeNodeImpl root = new DiffTreeNodeImpl();

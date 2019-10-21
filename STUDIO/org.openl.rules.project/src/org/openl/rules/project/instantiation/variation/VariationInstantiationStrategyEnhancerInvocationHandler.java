@@ -181,7 +181,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             } else {
                 if (!f) {
                     log.warn(
-                        "Variation features aren't supported for Wrapper classses. This functionality was depricated!");
+                        "Variation features are not supported for Wrapper classses. This functionality was depricated!");
                     f = true;
                 }
             }

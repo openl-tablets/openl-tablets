@@ -77,7 +77,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
         OpenLService service = getService(serviceName);
         if (service == null) {
-            throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
+            throw new MethodInvocationException("Service '" + serviceName + "' is not found.");
         }
         try {
             if (service.getServiceBean() != null) {
@@ -97,7 +97,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                     }
 
                     throw new MethodInvocationException("Method '" + ruleName + "(" + sb
-                        .toString() + ")' hasn't been found in service '" + serviceName + "'!");
+                        .toString() + ")' has not been found in service '" + serviceName + "'!");
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);
@@ -175,7 +175,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 }
             }
         } else {
-            throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
+            throw new MethodInvocationException("Service '" + serviceName + "' is not found.");
         }
 
         return result;

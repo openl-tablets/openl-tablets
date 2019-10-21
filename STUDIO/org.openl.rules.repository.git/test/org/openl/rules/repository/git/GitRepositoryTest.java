@@ -200,7 +200,7 @@ public class GitRepositoryTest {
         assertContains(files, "rules/project1/folder/file3");
 
         FileData file1Rev3 = find(files, "rules/project1/file1");
-        assertEquals("Rules_2", file1Rev3.getVersion()); // The file wasn't modified in second commit
+        assertEquals("Rules_2", file1Rev3.getVersion()); // The file has not been modified in second commit
 
         FileData file2Rev3 = find(files, "rules/project1/file2");
         assertEquals("Rules_3", file2Rev3.getVersion());
@@ -324,7 +324,7 @@ public class GitRepositoryTest {
         fileData.setComment("Delete file 2");
         fileData.setAuthor("John Smith");
         boolean deleted = repo.delete(fileData);
-        assertTrue("'file2' wasn't deleted", deleted);
+        assertTrue("'file2' has not been deleted", deleted);
 
         assertNull("'file2' still exists", repo.check("rules/project1/file2"));
 
@@ -337,7 +337,7 @@ public class GitRepositoryTest {
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
         projectData.setAuthor("John Smith");
-        assertTrue("'project1' wasn't deleted", repo.delete(projectData));
+        assertTrue("'project1' has not been deleted", repo.delete(projectData));
 
         FileData deletedProject = repo.check(projectPath);
         assertTrue("'project1' is not deleted", deletedProject.isDeleted());
@@ -377,7 +377,7 @@ public class GitRepositoryTest {
 
         // manually add the file with name ".archived". It shouldn't prevent to delete the project
         repo.save(createFileData(projectPath + "/" + GitRepository.DELETED_MARKER_FILE, ""), IOUtils.toInputStream(""));
-        assertTrue("'project1' wasn't deleted", repo.delete(projectData));
+        assertTrue("'project1' has not been deleted", repo.delete(projectData));
         assertTrue("'project1' is not deleted", repo.check(projectPath).isDeleted());
     }
 
@@ -620,7 +620,7 @@ public class GitRepositoryTest {
                 assertEquals(mergeMessage, remoteData.getComment());
 
                 // User modifies a file based on old version (baseCommit) and gets conflict.
-                // Expected: after conflict their conflicting changes in local repository aren't reverted.
+                // Expected: after conflict their conflicting changes in local repository are not reverted.
                 try {
                     String text3 = "test\nbaz";
                     FileData fileData3 = createFileData(filePath, text3);
@@ -778,7 +778,7 @@ public class GitRepositoryTest {
 
 
                 // User modifies a file based on old version (baseCommit) and gets conflict.
-                // Expected: after conflict their conflicting changes in local repository aren't reverted.
+                // Expected: after conflict their conflicting changes in local repository are not reverted.
                 try {
                     String text3 = "test\nbaz";
                     List<FileItem> changes3 = Arrays.asList(
@@ -890,7 +890,7 @@ public class GitRepositoryTest {
         assertFalse(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
 
-        // Test that forBranch() fetches new branch if it wasn't cloned before
+        // Test that forBranch() fetches new branch if it has not been cloned before
         File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository repository = createRepository(remote, temp, Constants.MASTER)) {

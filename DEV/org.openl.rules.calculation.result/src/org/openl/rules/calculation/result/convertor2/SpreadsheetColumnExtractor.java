@@ -101,7 +101,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             }
         } else {
             if (log.isWarnEnabled()) {
-                log.warn("Cannot find setter in {} class for [{}] column",
+                log.warn("Cannot find setter in class '{}' for [{}] column",
                     step.getClass().getName(),
                     column.getColumnName());
             }

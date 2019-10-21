@@ -102,7 +102,7 @@ public class BracketMatcher {
             return bso;
         }
 
-        throw new RuntimeException("Wrong bracket - cannot happen!!!");
+        throw new RuntimeException("Wrong bracket - cannot happen.");
 
     }
 

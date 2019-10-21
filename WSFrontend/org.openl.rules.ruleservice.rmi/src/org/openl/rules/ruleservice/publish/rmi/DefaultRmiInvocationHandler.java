@@ -51,7 +51,7 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
         }
         List<Method> methods = methodMap.get(ruleName);
         if (methods == null) {
-            throw new IllegalArgumentException("Method with requested ruleName hasn't been found!");
+            throw new IllegalArgumentException("Method with requested ruleName is not found.");
         }
 
         int match = 0;
@@ -82,7 +82,7 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
                 throw new IllegalArgumentException(
                     "More than one method has been found with requested ruleName and parameters.");
             } else {
-                throw new IllegalArgumentException("Method with requested ruleName and parameters hasn't been found.");
+                throw new IllegalArgumentException("Method with requested ruleName and parameters is not found.");
             }
         }
     }

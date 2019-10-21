@@ -367,7 +367,7 @@ public class RulesProject extends UserWorkspaceProject {
 
                             localRepository.updateFileProperties(localData);
                         } else {
-                            log.warn("Files in local repository for folder {} aren't found", localName);
+                            log.warn("Files in local repository for folder {} are not found", localName);
                         }
                     }
                 } catch (IOException e) {

@@ -41,7 +41,7 @@ public class TestBool {
             Goal searchGoal = new GoalGenerate(vars);
 
             if (!c.execute(searchGoal)) {
-                System.out.println("No solutions!!!");
+                System.out.println("No solutions.");
             }
 
             System.out.println(vars);

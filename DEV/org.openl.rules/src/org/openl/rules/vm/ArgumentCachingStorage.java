@@ -118,7 +118,7 @@ public class ArgumentCachingStorage {
                 }
             }
         }
-        throw new IllegalStateException("Cannot find result. Something wrong!!!");
+        throw new IllegalStateException("Cannot find a result. This should not happen.");
     }
 
     public void makeForwardStepForOriginalCalculation(Object member) {

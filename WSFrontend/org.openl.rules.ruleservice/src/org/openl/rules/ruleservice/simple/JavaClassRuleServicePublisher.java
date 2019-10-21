@@ -59,14 +59,13 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                    String.format("Service '%s' is already deployed. It has been replaced with new service.",
-                        service.getName()));
+                    String.format("Service '%s' is already deployed.", service.getName()));
             }
             frontend.registerService(service);
             runningServices.put(service.getName(), service);
-            log.info("Service '{}' has been succesfully deployed.", service.getName());
+            log.info("Service '{}' has been deployed succesfully.", service.getName());
         } catch (Exception e) {
-            throw new RuleServiceDeployException("Failed to deploy service.", e);
+            throw new RuleServiceDeployException("Failed to deploy a service.", e);
         }
     }
 
@@ -78,9 +77,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
-            throw new RuleServiceUndeployException(String.format("Service '%s' hasn't been deployed.", serviceName));
+            throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", serviceName));
         }
-        log.info("Service '{}' has been succesfully undeployed.", serviceName);
+        log.info("Service '{}' has been undeployed succesfully.", serviceName);
     }
 
     public void setFrontend(RulesFrontend frontend) {

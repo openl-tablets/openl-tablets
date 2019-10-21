@@ -186,7 +186,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             } else if (returnType.isArray()) {
                 Class<?> componentClass = returnType.getComponentType();
                 if (componentClass.isArray()) {
-                    throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
+                    throw new OpenlNotCheckedException("Two dim arrays are not supported!");
                 }
                 pattern = getPattern(propertyName, format, componentClass);
                 if (!DEFAULT_PATTERN.equals(pattern)) {
@@ -235,7 +235,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             } else if (clazz.isArray()) {
                 Class<?> componentClass = clazz.getComponentType();
                 if (componentClass.isArray()) {
-                    throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
+                    throw new OpenlNotCheckedException("Two dim arrays are not supported!");
                 }
                 propValue = toArray(propertyName, value, componentClass);
             } else {

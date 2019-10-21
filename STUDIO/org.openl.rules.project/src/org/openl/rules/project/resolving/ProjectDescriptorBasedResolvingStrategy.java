@@ -113,7 +113,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 ex);
         } catch (FileNotFoundException e) {
             throw new ProjectResolvingException(
-                "Project descriptor hasn't been found! Project must countain '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file.",
+                "Project descriptor has not been found! Project must countain '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file.",
                 e);
         } catch (Exception e) {
             throw new ProjectResolvingException("Failed to read project descriptor!", e);

@@ -95,7 +95,7 @@ public final class NameChecker {
     }
 
     /**
-     * Checks if the path is valid (cross-platform). Absolute paths aren't supported. Folders must be separated with
+     * Checks if the path is valid (cross-platform). Absolute paths are not supported. Folders must be separated with
      * '/'. Convert the path if you have Windows-specific path.
      *
      * @param path path where folder

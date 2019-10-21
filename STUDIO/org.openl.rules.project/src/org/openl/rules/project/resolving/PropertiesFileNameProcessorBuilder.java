@@ -37,14 +37,14 @@ public final class PropertiesFileNameProcessorBuilder {
             processor = (PropertiesFileNameProcessor) clazz.newInstance();
         } catch (ClassNotFoundException e) {
             String message = "Properties file name processor class '" + projectDescriptor
-                .getPropertiesFileNameProcessor() + "' wasn't found!";
+                .getPropertiesFileNameProcessor() + "' is not found.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
             String message = "Failed to instantiate default properties file name processor! Class should have default constructor and implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface!";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (NoClassDefFoundError e) {
             String message = "Properties file name processor class '" + projectDescriptor
-                .getPropertiesFileNameProcessor() + "' wasn't load!";
+                .getPropertiesFileNameProcessor() + "' has not been load!";
             throw new InvalidFileNameProcessorException(message, e);
         }
         return processor;

@@ -88,7 +88,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         try {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
             if (compilationInfo.dependencyLoader != dependencyLoader) {
-                throw new IllegalStateException("Illegal State!");
+                throw new IllegalStateException("This should not happen.");
             }
             Collection<Module> modules = compilationInfo.modules;
 
@@ -129,7 +129,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
-            throw new OpenLCompilationException("Something wrong!", e);
+            throw new OpenLCompilationException("Failed to compile.", e);
         }
     }
 

@@ -256,7 +256,7 @@ public class StoreLogDataMapper {
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "Convertor class instantiation is failed. Please, check that '%s' class is not abstact and has a default constructor.",
+                        "Convertor class instantiation is failed. Please, check that class '%s' is not abstact and has a default constructor.",
                         converterClass.getTypeName()), e);
                 }
                 value = null;
@@ -343,7 +343,7 @@ public class StoreLogDataMapper {
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "LogDataConverter instantiation is failed. Please, check that '%s' class is not abstact and has a default constructor.",
+                        "LogDataConverter instantiation is failed. Please, check that class '%s' is not abstact and has a default constructor.",
                         converterClass.getTypeName()), e);
                 }
                 return;

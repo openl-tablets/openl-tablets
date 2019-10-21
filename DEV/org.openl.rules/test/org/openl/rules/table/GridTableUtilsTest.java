@@ -68,7 +68,7 @@ public class GridTableUtilsTest {
     }
 
     @Test
-    @Ignore("ILogicalTable don't work with mixed merging of the cells")
+    @Ignore("ILogicalTable do not work with mixed merging of the cells")
     public void getGridRegionsMixedMerged() {
         String[][] arr = new String[2][3];
         arr[0][0] = "cell_0_0";

@@ -111,7 +111,7 @@ public class StyleIndexHandler extends DefaultHandler {
         Ptg[] convertedTokens = sf.convertSharedFormulas(parsedTokens,
             current.getRow() - ref.getFirstRow(),
             current.getColumn() - ref.getFirstColumn());
-        // Formulas with links to other workbooks aren't supported
+        // Formulas with links to other workbooks are not supported
         return FormulaRenderer.toFormulaString(null, convertedTokens);
     }
 

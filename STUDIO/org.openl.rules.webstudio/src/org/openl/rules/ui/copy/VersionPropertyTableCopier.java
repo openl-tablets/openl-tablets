@@ -32,7 +32,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         //
         Version tableVersion = getTableCurrentVersion();
         if (tableVersion == null) {
-            // specify first version if it was not previously defined
+            // specify first version if it has not been previously defined
             //
             tableVersion = Version.parseVersion(INIT_VERSION, 0, VERSION_DELIMETER);
         }

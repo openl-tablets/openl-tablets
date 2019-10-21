@@ -239,7 +239,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 throw new IOException("Failed to load a resource!", e);
             }
             if (!file.exists()) {
-                throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
+                throw new IOException("File has not been found. File: " + file.getAbsolutePath());
             }
 
             File d = desFile;
@@ -283,7 +283,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     throw new IOException("Failed to load a resource!", e);
                 }
                 if (!file.exists()) {
-                    throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
+                    throw new IOException("File has not been found. File: " + file.getAbsolutePath());
                 }
 
                 String folderName = FileUtils.getBaseName(file.getCanonicalPath());

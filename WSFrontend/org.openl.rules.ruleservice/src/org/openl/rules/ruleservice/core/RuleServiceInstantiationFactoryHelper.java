@@ -158,7 +158,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 Method method = entry.getKey();
                 if (method.getReturnType().isAssignableFrom(entry.getValue().getKey()) && log.isWarnEnabled()) {
                     log.warn(
-                        "Wrong return type for '{}' method in '{}' class is used. Return type is replaced to '{}'.",
+                        "Wrong return type for method '{}' in class '{}' is used. Return type is replaced to '{}'.",
                         MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
                         serviceClass.getName(),
                         entry.getValue().getKey().getTypeName());

@@ -46,7 +46,7 @@ public class RuleServiceImpl implements RuleService {
         }
         ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
         if (sd == null) {
-            throw new IllegalStateException("Invalid state!!!");
+            throw new IllegalStateException("Invalid state.");
         }
         if (sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
             Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
@@ -74,7 +74,7 @@ public class RuleServiceImpl implements RuleService {
             OpenLServiceHolder.getInstance().setOpenLService(service);
             ServiceDescription serviceDescription = serviceDescriptionMap.get(serviceName);
             if (serviceDescription == null) {
-                throw new IllegalStateException("Illegal State!!!");
+                throw new IllegalStateException("This should not happen.");
             }
             try {
                 ruleServiceManager.undeploy(serviceName);
@@ -134,11 +134,11 @@ public class RuleServiceImpl implements RuleService {
             OpenLServiceHolder.getInstance().setOpenLService(newService);
             ServiceDescription sd = serviceDescriptionMap.get(serviceDescription.getName());
             if (sd != null) {
-                throw new IllegalStateException("Illegal State!!");
+                throw new IllegalStateException("This should not happen.");
             }
             ruleServiceManager.deploy(newService);
             serviceDescriptionMap.put(serviceDescription.getName(), serviceDescription);
-            log.info("Service '{}' was deployed succesfully.", serviceDescription.getName());
+            log.info("Service '{}' has been deployed succesfully.", serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {

@@ -218,11 +218,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     return decoratedClass;
                 }
                 log.error(
-                    "Interface is required! Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
+                    "Interface is required! Intercepting template class has not been used! Failed to load or apply intercepting template class '{}'.",
                     annotationTemplateClassName);
             } catch (Exception | NoClassDefFoundError e) {
                 log.error(
-                    "Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
+                    "Intercepting template class has not been used! Failed to load or apply intercepting template class '{}'.",
                     annotationTemplateClassName,
                     e);
             }

@@ -67,7 +67,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
                     } catch (InstantiationException | IllegalAccessException e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
-                                "Failed to instantiate cassandra entity for '%s' method. Please, check that '%s' class is not abstact and has a default constructor.",
+                                "Failed to instantiate cassandra entity for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                                 MethodUtil.printQualifiedMethodName(serviceMethod),
                                 entityClass.getTypeName()), e);
                         }
@@ -82,7 +82,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error(String.format("Failed to map '%s' cassandra entity for '%s' method.",
+                    log.error(String.format("Failed to map '%s' cassandra entity for method '%s'.",
                         entity.getClass().getTypeName(),
                         MethodUtil.printQualifiedMethodName(serviceMethod)), e);
                 }

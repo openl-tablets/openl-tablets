@@ -18,7 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of '%s' method, but found '%s' type.";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected '%s' for the return type of method '%s', but found '%s' type.";
 
     /**
      * This method deprecated. Use newInstance method.

@@ -68,7 +68,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
                     } catch (InstantiationException | IllegalAccessException e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
-                                "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that '%s' class is not abstact and has a default constructor.",
+                                "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                                 MethodUtil.printQualifiedMethodName(serviceMethod),
                                 elasticSearchIndexBuilderClass.getTypeName()), e);
                         }

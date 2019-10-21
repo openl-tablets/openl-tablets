@@ -137,7 +137,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher, AvailableS
             UnicastRemoteObject.unexportObject(runningServices.get(service).getRmiHandler(), true);
             runningServices.remove(service);
             removeServiceInfo(serviceName);
-            log.info("Service '{}' has been succesfully undeployed.", serviceName);
+            log.info("Service '{}' has been undeployed succesfully.", serviceName);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }

@@ -54,7 +54,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Supports only interface classes!!!");
+            throw new IllegalArgumentException("Supports only interface classes.");
         }
 
         final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerHelper.class);

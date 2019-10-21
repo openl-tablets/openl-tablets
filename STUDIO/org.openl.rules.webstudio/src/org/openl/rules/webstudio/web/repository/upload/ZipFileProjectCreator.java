@@ -116,7 +116,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
-            FacesUtils.addErrorMessage("Project was not created. Zip file contains " + invalidNames
+            FacesUtils.addErrorMessage("Project has not been created. Zip file contains " + invalidNames
                 .size() + " files/folders with incorrect names:");
 
             /*

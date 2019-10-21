@@ -12,11 +12,11 @@ public class ProjectDescriptorValidator {
         }
 
         if (descriptor.getName() == null || descriptor.getName().trim().isEmpty()) {
-            throw new ValidationException("Project name aren't defined.");
+            throw new ValidationException("Project name are not defined.");
         }
 
         if (descriptor.getModules() == null || descriptor.getModules().isEmpty()) {
-            throw new ValidationException("Project modules aren't defined.");
+            throw new ValidationException("Project modules are not defined.");
         }
 
         for (Module module : descriptor.getModules()) {
@@ -35,7 +35,7 @@ public class ProjectDescriptorValidator {
         }
 
         if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {
-            throw new ValidationException("Module rules root aren't defined.");
+            throw new ValidationException("Module rules root are not defined.");
         }
     }
 

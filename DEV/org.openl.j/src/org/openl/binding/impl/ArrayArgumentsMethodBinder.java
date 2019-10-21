@@ -140,7 +140,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
                 indexesOfArrayArguments,
                 0);
         } else {
-            log.debug("There is no any array argument in signature for {} method", methodName);
+            log.debug("There is no any array argument in signature for method '{}'", methodName);
         }
         return null;
     }

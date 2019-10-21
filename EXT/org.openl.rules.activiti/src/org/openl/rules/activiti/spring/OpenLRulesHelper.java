@@ -83,7 +83,7 @@ public final class OpenLRulesHelper {
 
         DeploymentEntity deployment = deploymentEntityManager.findDeploymentById(deploymentId);
         if (deployment == null) {
-            throw new ActivitiObjectNotFoundException("Deployment with id '" + deploymentId + "' hasn't been found.",
+            throw new ActivitiObjectNotFoundException("Deployment with id '" + deploymentId + "' is not found.",
                 DeploymentEntity.class);
         }
 

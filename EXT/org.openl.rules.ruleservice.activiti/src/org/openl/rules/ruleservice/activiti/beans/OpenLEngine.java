@@ -24,7 +24,7 @@ public class OpenLEngine {
         OpenLService openLService = ruleServiceManager.getServiceByName(serviceName);
         if (openLService == null) {
             throw new OpenLServiceNotFoundException(
-                String.format("OpenL service '%s' hasn't been found!", serviceName));
+                String.format("OpenL service '%s' is not found.", serviceName));
         } else {
             Object serviceBean = openLService.getServiceBean();
             Class<?> serviceClass = openLService.getServiceClass();

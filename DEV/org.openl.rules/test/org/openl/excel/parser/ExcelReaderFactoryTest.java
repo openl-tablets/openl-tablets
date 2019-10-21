@@ -35,7 +35,7 @@ public class ExcelReaderFactoryTest {
                 SheetDescriptor lightSheet = lightReaderSheets.get(i);
 
                 assertEquals(fullSheet.getName(), lightSheet.getName());
-                assertArrayEquals("Cells aren't equal for sheet '" + fullSheet.getName() + "'",
+                assertArrayEquals("Cells are not equal for sheet '" + fullSheet.getName() + "'",
                     fullReader.getCells(fullSheet),
                     lightReader.getCells(lightSheet));
             }
