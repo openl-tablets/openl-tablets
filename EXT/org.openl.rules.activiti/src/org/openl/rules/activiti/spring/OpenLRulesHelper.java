@@ -121,11 +121,7 @@ public final class OpenLRulesHelper {
                 deploymentCache.add(resource, simpleProjectEngineFactory);
 
                 return simpleProjectEngineFactory;
-            } catch (IOException e) {
-                throw new ResourcePrepareException(
-                    "Preparing resource with name '" + resource + "' in deployment with id '" + deploymentId + "' has been failed!",
-                    e);
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 throw new ResourcePrepareException(
                     "Preparing resource with name '" + resource + "' in deployment with id '" + deploymentId + "' has been failed!",
                     e);
