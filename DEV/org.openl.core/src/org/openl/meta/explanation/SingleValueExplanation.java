@@ -74,7 +74,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
 
     @Override
     public Iterable<? extends ITreeElement<T>> getChildren() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

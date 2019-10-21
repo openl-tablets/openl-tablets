@@ -174,7 +174,6 @@ public class CastFactory implements ICastFactory {
         return ret;
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     private static IOpenClass chooseClosest(ICastFactory casts, Collection<IOpenClass> openClass1Candidates) {
         IOpenClass ret = null;
         Collection<IOpenClass> notConvertible = new LinkedHashSet<>();

@@ -105,7 +105,6 @@ public class ParsedCell implements ICell {
         return tableStyles == null ? null : tableStyles.getFormula(row, column);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getType() {
         Object value = getObjectValue();

@@ -58,7 +58,6 @@ public class OpenLArgumentsCloner extends Cloner {
         private final Objenesis objenesis = new ObjenesisStd();
 
         @Override
-        @SuppressWarnings("unchecked")
         public <T> T newInstance(Class<T> c) {
             return objenesis.newInstance(c);
         }

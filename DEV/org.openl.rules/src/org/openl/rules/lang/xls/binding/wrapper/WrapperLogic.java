@@ -125,13 +125,13 @@ public final class WrapperLogic {
                             IDynamicObject dynamicObject = (IDynamicObject) openlInstance;
                             typeClass = dynamicObject.getType();
                         } else {
-                            throw new IllegalStateException("Cannot define openl class from target object!");
+                            throw new IllegalStateException("Cannot define openl class from target object.");
                         }
                     } else {
-                        throw new IllegalStateException("Cannot define openl class from target object!");
+                        throw new IllegalStateException("Cannot define openl class from target object.");
                     }
                 } else {
-                    throw new IllegalStateException("Cannot define openl class from target object");
+                    throw new IllegalStateException("Cannot define openl class from target object.");
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());

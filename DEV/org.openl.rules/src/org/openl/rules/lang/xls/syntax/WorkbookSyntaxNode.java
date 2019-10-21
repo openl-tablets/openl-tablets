@@ -26,7 +26,6 @@ public class WorkbookSyntaxNode extends NaryNode {
         } else {
             int expectedSize = 0;
             for (WorksheetSyntaxNode sheetNode : getWorksheetSyntaxNodes()) {
-                TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
                 expectedSize = expectedSize + sheetNode.getTableSyntaxNodes().length;
             }
             expectedSize = expectedSize + mergedTableParts.length;
