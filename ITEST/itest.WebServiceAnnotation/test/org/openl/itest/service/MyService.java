@@ -6,6 +6,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -42,6 +43,22 @@ public interface MyService {
     @ServiceCallBeforeInterceptor({ InputInterceptor.class })
     @ServiceCallAfterInterceptor({ OutputInterceptor.class })
     MyType parse4(String num);
+
+    @GET
+    @Path("parseXQueryParam")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_XML)
+    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
+    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
+    MyType parse4QueryParam(@QueryParam("numParam") String num);
+
+    @GET
+    @Path("parseXPathParam/{num}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_XML)
+    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
+    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
+    MyType parse4PathParam(@PathParam("num") String num);
 
     @ServiceExtraMethod(VirtualMethodHandler.class)
     Double virtual(@Name("text") String num);

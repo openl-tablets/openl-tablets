@@ -76,6 +76,16 @@ public class RunAnnotationsITest {
     }
 
     @Test
+    public void call_parse4QueryParam_interfaceMethod_usingCustomEndpointAndHeaders_OK() {
+        client.get("/REST/v1/string/toNumber/parseXQueryParam?numParam=11", "/stringToNumber_parseX.resp.xml");
+    }
+
+    @Test
+    public void call_parse4PathParam_interfaceMethod_usingCustomEndpointAndHeaders_OK() {
+        client.get("/REST/v1/string/toNumber/parseXPathParam/11", "/stringToNumber_parseX.resp.xml");
+    }
+
+    @Test
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldReturnError_OK() {
         client.post("/REST/v1/string/toNumber/parseX",
             "/stringToNumber_parseX_error.req.txt",

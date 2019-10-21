@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,6 +20,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -66,7 +68,7 @@ public final class JAXRSEnhancerHelper {
         private Map<Method, String> methodRequests = null;
 
         private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet();
-        static{
+        static {
             TEXT_MEDIA_TYPE_SET.add(Number.class);
             TEXT_MEDIA_TYPE_SET.add(Enum.class);
             TEXT_MEDIA_TYPE_SET.add(String.class);
@@ -243,13 +245,15 @@ public final class JAXRSEnhancerHelper {
                 .getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
-                final String[] withPathParamValues = getPathParamValuesFromMethodParameters(originalMethod);
-
                 processAnnotationsOnMethodParameters(originalMethod, mv);
-                Set<String> usedValues = new HashSet<>(Arrays.asList(withPathParamValues));
+                List<ParamAnnotationValue> paramAnnotationsValues = getParamAnnotationsValue(originalMethod);
+                Set<String> usedValues = paramAnnotationsValues.stream()
+                    .filter(Objects::nonNull)
+                    .map(ParamAnnotationValue::getFieldName)
+                    .collect(Collectors.toSet());
                 int i = 0;
                 for (String paramName : parameterNames) {
-                    if (withPathParamValues[i] == null) {
+                    if (paramAnnotationsValues.get(i) == null) {
                         String p = paramName;
                         int j = 1;
                         while (usedValues.contains(p)) {
@@ -258,8 +262,8 @@ public final class JAXRSEnhancerHelper {
                         sb.append("/{").append(p).append(": .*}");
                         addPathParamAnnotation(mv, i, p);
                         usedValues.add(p);
-                    } else {
-                        sb.append("/{").append(withPathParamValues[i]).append(": .*}");
+                    } else if (paramAnnotationsValues.get(i).getAnnotationClass().isAssignableFrom(PathParam.class)) {
+                        sb.append("/{").append(paramAnnotationsValues.get(i).getFieldName()).append(": .*}");
                     }
                     i++;
                 }
@@ -289,6 +293,49 @@ public final class JAXRSEnhancerHelper {
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
             addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
+        }
+
+        private class ParamAnnotationValue {
+
+            private Class<?> annotationClass;
+            private String fieldName;
+
+            public ParamAnnotationValue(Class<?> withPathParamValues, String fieldName) {
+                this.annotationClass = withPathParamValues;
+                this.fieldName = fieldName;
+            }
+
+            public Class<?> getAnnotationClass() {
+                return annotationClass;
+            }
+
+            public String getFieldName() {
+                return fieldName;
+            }
+        }
+
+        private List<ParamAnnotationValue> getParamAnnotationsValue(Method originalMethod) {
+            final List<ParamAnnotationValue> values = new ArrayList(originalMethod.getParameterCount());
+            for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
+                if (annotations.length > 0) {
+                    for (Annotation annotation : annotations) {
+                        if (PathParam.class.equals(annotation.annotationType())) {
+                            values.add(new ParamAnnotationValue(PathParam.class, ((PathParam) annotation).value()));
+                            // it is possible that PathParam and QueryParam annotations will be indicated together for
+                            // one parameter
+                            break;
+                        } else if (QueryParam.class.equals(annotation.annotationType())) {
+                            values.add(new ParamAnnotationValue(QueryParam.class, ((QueryParam) annotation).value()));
+                            // it is possible that PathParam and QueryParam annotations will be indicated together for
+                            // one parameter
+                            break;
+                        }
+                    }
+                } else {
+                    values.add(null);
+                }
+            }
+            return values;
         }
 
         private boolean isTextMediaType(Class<?> type) {
@@ -323,21 +370,6 @@ public final class JAXRSEnhancerHelper {
                 av2.visitEnd();
                 av.visitEnd();
             }
-        }
-
-        private String[] getPathParamValuesFromMethodParameters(Method originalMethod) {
-            final String[] values = new String[originalMethod.getParameterCount()];
-
-            int index = 0;
-            for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
-                for (Annotation annotaton : annotatons) {
-                    if (PathParam.class.equals(annotaton.annotationType())) {
-                        values[index] = ((PathParam) annotaton).value();
-                    }
-                }
-                index++;
-            }
-            return values;
         }
 
         private void processAnnotationsOnMethodParameters(Method originalMethod, MethodVisitor mv) {
