@@ -453,7 +453,6 @@ public class Table implements ITable {
         }
     }
 
-    @SuppressWarnings("SuspiciousSystemArraycopy")
     private void parseRowsAndPopulateLiteral(Object literal,
             List<ColumnDescriptor> descriptors,
             OpenlToolAdaptor openlAdapter,
@@ -625,7 +624,7 @@ public class Table implements ITable {
         }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
-            throw new OpenLRuntimeException("Duplicated key: " + value + " in rows " + oldRow + " and " + row);
+            throw new OpenLRuntimeException(String.format("Duplicated key: %s in rows %s and %s.", value, oldRow, row));
         }
         primaryIndexMap.put(row, value);
     }

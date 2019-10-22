@@ -85,7 +85,8 @@ public final class OpenLRulesHelper {
 
         DeploymentEntity deployment = deploymentEntityManager.findDeploymentById(deploymentId);
         if (deployment == null) {
-            throw new ActivitiObjectNotFoundException("Deployment with id '" + deploymentId + "' is not found.",
+            throw new ActivitiObjectNotFoundException(
+                String.format("Deployment with id '%s' is not found.", deploymentId),
                 DeploymentEntity.class);
         }
 
@@ -124,7 +125,10 @@ public final class OpenLRulesHelper {
 
                 return simpleProjectEngineFactory;
             } catch (IOException | ClassNotFoundException e) {
-                throw new ResourcePrepareException(String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.", resource , deploymentId ),
+                throw new ResourcePrepareException(
+                    String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.",
+                        resource,
+                        deploymentId),
                     e);
             }
         }

@@ -29,7 +29,7 @@ public class CharRange extends IntRange {
             max -= 1;
         }
         if (min > max) {
-            throw new RuntimeException(parsed.max + " must be more or equal than " + parsed.min);
+            throw new RuntimeException(String.format("%s must be more or equal than %s", parsed.max, parsed.min));
         }
     }
 

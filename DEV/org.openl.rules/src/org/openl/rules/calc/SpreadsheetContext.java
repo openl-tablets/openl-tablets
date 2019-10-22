@@ -60,9 +60,10 @@ public class SpreadsheetContext extends ComponentBindingContext {
         iterateThroughTheRange(sx, sy, w, h, castsCollector);
 
         if (castsCollector.isImplicitCastNotSupported()) {
-            throw new OpenLCompilationException(
-                "Types in range " + rangeStartName + ":" + rangeEndName + " cannot be implicit casted to '" + rangeType
-                    .getDisplayName(0) + "'.");
+            throw new OpenLCompilationException(String.format("Types in range %s:%s cannot be implicit casted to '%s'.",
+                rangeStartName,
+                rangeEndName,
+                rangeType.getDisplayName(0)));
         }
 
         return new SpreadsheetRangeField(key,

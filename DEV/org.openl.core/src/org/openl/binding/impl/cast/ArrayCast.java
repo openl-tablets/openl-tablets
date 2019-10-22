@@ -25,7 +25,7 @@ final class ArrayCast implements IOpenCast {
         Class<?> toClass = toComponentType.getInstanceClass();
         if (!fromClass.isArray()) {
             throw new ClassCastException(
-                fromClass.getSimpleName() + " cannot be cast to " + toClass.getCanonicalName());
+                String.format("%s cannot be cast to %s.", fromClass.getTypeName(), toClass.getTypeName()));
         }
         int length = Array.getLength(from);
         Object convertedArray = Array.newInstance(toClass, length);

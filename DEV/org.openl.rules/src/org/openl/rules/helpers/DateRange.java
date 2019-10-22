@@ -44,7 +44,6 @@ public class DateRange {
         this.upperBound = localUpperBound;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public DateRange(String source) {
         ParseStruct<Long> range = DateRangeParser.getInstance().parse(source);
         this.lowerBoundType = range.leftBoundType;
@@ -59,7 +58,7 @@ public class DateRange {
             upperBound -= 1;
         }
         if (lowerBound > upperBound) {
-            throw new RuntimeException(range.max + " must be more or equal than " + range.min);
+            throw new RuntimeException(String.format("%s must be more or equal than %s", range.max, range.min));
         }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;

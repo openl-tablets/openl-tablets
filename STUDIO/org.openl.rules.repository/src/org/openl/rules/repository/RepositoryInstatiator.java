@@ -49,12 +49,14 @@ public class RepositoryInstatiator {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to instantiate a repository: " + factory, e);
         } catch (UnsupportedClassVersionError e) {
-            throw new IllegalStateException("Library was compiled using newer version of JDK", e);
+            throw new IllegalStateException("Library is compiled using newer version of JDK.", e);
         }
         try {
             return (Repository) instance;
         } catch (ClassCastException e) {
-            throw new IllegalStateException(instance.getClass() + " must implement " + Repository.class, e);
+            throw new IllegalStateException(String.format("%s must be an implementation of %s.",
+                instance.getClass().getTypeName(),
+                Repository.class.getTypeName()), e);
         }
     }
 
@@ -92,7 +94,9 @@ public class RepositoryInstatiator {
                     }
                     // Didn't find setter, skip this param. For example not always exists setUri(String).
                 } catch (Exception e) {
-                    throw new IllegalStateException("Failed to invoke " + setter + "(String) method in: " + clazz, e);
+                    throw new IllegalStateException(
+                        String.format("Failed to invoke %s(String) method in: %s.", setter, clazz.getTypeName()),
+                        e);
                 }
             }
         }

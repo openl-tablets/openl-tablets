@@ -56,7 +56,8 @@ public class FileUtils {
             doCopyDirectory(src, dest, looped);
         } else {
             if (destPath.startsWith(srcPath)) {
-                throw new IOException(String.format("Destination '%s' has the same path of the source '%s'", dest, src));
+                throw new IOException(
+                    String.format("Destination '%s' has the same path of the source '%s'", dest, src));
             }
             File destFile = dest;
             if (dest.isDirectory()) {
@@ -200,12 +201,14 @@ public class FileUtils {
         boolean rename = src.renameTo(dest);
         if (!rename) {
             if (src.isDirectory() && dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
-                throw new IOException("Cannot move directory: " + src + " to a subdirectory of itself: " + dest);
+                throw new IOException(
+                    String.format("Cannot move directory '%s' to a subdirectory of itself '%s'.", src, dest));
             }
             copy(src, dest);
             delete(src);
             if (src.exists()) {
-                throw new IOException(String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
+                throw new IOException(
+                    String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
             }
         }
     }

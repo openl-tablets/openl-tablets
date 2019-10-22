@@ -137,9 +137,8 @@ public abstract class AbstractDependencyManager extends DependencyManager {
             }
 
             if (isCircularDependency) {
-                throw new OpenLCompilationException(
-                    "Circular dependency is detected: " + extractCircularDependencyDetails(dependencyName,
-                        compilationStack) + ".");
+                throw new OpenLCompilationException(String.format("Circular dependency is detected: %s.",
+                    extractCircularDependencyDetails(dependencyName, compilationStack)));
             }
 
             CompiledDependency compiledDependency = null;

@@ -60,8 +60,11 @@ public class JXPathVariation extends Variation {
     @Override
     public Object currentValue(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new VariationRuntimeException(
-                "Failed to apply variaion '" + getVariationID() + "'. Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
+            throw new VariationRuntimeException(String.format(
+                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                getVariationID(),
+                updatedArgumentIndex,
+                originalArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -71,8 +74,11 @@ public class JXPathVariation extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new VariationRuntimeException(
-                "Failed to apply variaion '" + getVariationID() + "'. Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
+            throw new VariationRuntimeException(String.format(
+                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                getVariationID(),
+                updatedArgumentIndex,
+                originalArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -83,8 +89,11 @@ public class JXPathVariation extends Variation {
     @Override
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         if (updatedArgumentIndex >= modifiedArguments.length) {
-            throw new VariationRuntimeException(
-                "Failed to apply variaion '" + getVariationID() + "'. Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + modifiedArguments.length);
+            throw new VariationRuntimeException(String.format(
+                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                getVariationID(),
+                updatedArgumentIndex,
+                modifiedArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(modifiedArguments[updatedArgumentIndex]);
         compiledExpression.setValue(context, previousValue);

@@ -109,7 +109,8 @@ public class RulesProjectBuilder {
     private void checkName(String artefactName) throws ProjectException {
         if (!NameChecker.checkName(artefactName)) {
             throw new ProjectException(
-                "File or folder name '" + artefactName + "' is invalid. " + NameChecker.BAD_NAME_MSG);
+                String.format("File or folder name '%s' is invalid. %s", artefactName, NameChecker.BAD_NAME_MSG));
+
         }
     }
 

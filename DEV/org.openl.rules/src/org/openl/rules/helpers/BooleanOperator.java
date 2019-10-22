@@ -24,7 +24,7 @@ public class BooleanOperator {
         } else if (s.equals(">=")) {
             operator = GE;
         } else {
-            throw new RuntimeException("Operator " + s + " is not defined");
+            throw new RuntimeException(String.format("Operator %s is not defined.", s));
         }
     }
 

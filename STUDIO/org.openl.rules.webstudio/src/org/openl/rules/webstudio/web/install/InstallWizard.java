@@ -467,7 +467,7 @@ public class InstallWizard {
             }
         } catch (SQLException sqle) {
             int errorCode = sqle.getErrorCode();
-            log.error("Code: {}. {}", errorCode, sqle.getMessage(), sqle);
+            log.error("Code: {}. {}.", errorCode, sqle.getMessage(), sqle);
             final String SQL_ERRORS_FILE_PATH = "/sql-errors.properties";
             String errorMessage = null;
             try {
@@ -478,7 +478,7 @@ public class InstallWizard {
                 log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);
             }
             if (errorMessage == null) {
-                errorMessage = "Incorrect database URL, login or password";
+                errorMessage = "Incorrect database URL, login or password.";
             }
 
             throw new ValidatorException(FacesUtils.createErrorMessage(errorMessage));
@@ -496,11 +496,11 @@ public class InstallWizard {
 
         if (!USER_MODE_DEMO.equals(userMode)) {
             if (StringUtils.isEmpty(dbUrl)) {
-                throw new ValidatorException(FacesUtils.createErrorMessage("Database URL cannot be blank"));
+                throw new ValidatorException(FacesUtils.createErrorMessage("Database URL cannot be blank."));
             } else {
                 if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
                     throw new ValidatorException(
-                        FacesUtils.createErrorMessage("Username length must be less than 100"));
+                        FacesUtils.createErrorMessage("Username length must be less than 100."));
                 }
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
@@ -517,10 +517,10 @@ public class InstallWizard {
         String password = (String) ((UIInput) toValidate).getSubmittedValue();
 
         if (StringUtils.isBlank(domain)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory domain cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory domain cannot be blank."));
         }
         if (StringUtils.isBlank(url)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL cannot be blank."));
         }
 
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
@@ -550,16 +550,16 @@ public class InstallWizard {
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("CAS server url cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("CAS server url cannot be blank."));
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
             throw new ValidatorException(FacesUtils.createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected"));
+                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
 
@@ -583,50 +583,50 @@ public class InstallWizard {
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("SAML server metadata url cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("SAML server metadata url cannot be blank."));
         }
 
         if (StringUtils.isBlank(requestTimeout)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Request timeout cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Request timeout cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreFilePath)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore path cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore path cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystorePassword)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore password cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore password cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreSpAlias)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP alias cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP alias cannot be blank."));
         }
 
         if (StringUtils.isBlank(keystoreSpPassword)) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP password cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP password cannot be blank."));
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
             throw new ValidatorException(FacesUtils.createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected"));
+                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
 
     public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
         String admins = (String) value;
         if (StringUtils.isBlank(admins) || admins.trim().equals(",")) {
-            throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty."));
         }
 
         String[] allAdmins = StringUtils.split(admins, ',');
         for (String admin : allAdmins) {
             if (admin.length() > 50) {
                 throw new ValidatorException(
-                    FacesUtils.createErrorMessage("Administrator username length must be less than 50"));
+                    FacesUtils.createErrorMessage("Administrator username length must be less than 50."));
             }
         }
     }
@@ -671,11 +671,13 @@ public class InstallWizard {
                          */
                         validateIsWritable(studioDir);
                     } else {
-                        throw new ValidatorException(FacesUtils.createErrorMessage(
-                            "There is not enough access rights for installing WebStudio into the folder: '" + studioPath + "'"));
+                        throw new ValidatorException(FacesUtils.createErrorMessage(String.format(
+                            "There is not enough access rights for installing WebStudio into the folder: '%s'.",
+                            studioPath)));
                     }
                 } else {
-                    throw new ValidatorException(FacesUtils.createErrorMessage("'" + studioPath + "' is not a folder"));
+                    throw new ValidatorException(
+                        FacesUtils.createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
                 }
             } else {
                 File parentFolder = studioDir.getAbsoluteFile().getParentFile();
@@ -701,7 +703,7 @@ public class InstallWizard {
             }
 
         } else {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory cannot be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory cannot be blank."));
         }
     }
 
@@ -715,12 +717,12 @@ public class InstallWizard {
         try {
             File tmpFile = File.createTempFile("temp", null, file);
             if (!tmpFile.delete()) {
-                log.warn("Cannot delete temp file {}", tmpFile.getName());
+                log.warn("Cannot delete temp file {}.", tmpFile.getName());
             }
 
         } catch (IOException ioe) {
             throw new ValidatorException(
-                FacesUtils.createErrorMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
+                FacesUtils.createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
         }
     }
 
@@ -732,7 +734,7 @@ public class InstallWizard {
      */
     private void deleteFolder(File existingFolder, File studioFolder) {
         if (studioFolder.exists() && !studioFolder.delete()) {
-            log.warn("Cannot delete the folder {}", studioFolder.getName());
+            log.warn("Cannot delete the folder {}.", studioFolder.getName());
         }
 
         if (existingFolder == null) {
@@ -741,7 +743,7 @@ public class InstallWizard {
 
         while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
             if (studioFolder.exists() && !studioFolder.delete()) {
-                log.warn("Cannot delete the folder {}", studioFolder.getName());
+                log.warn("Cannot delete the folder {}.", studioFolder.getName());
             }
             studioFolder = studioFolder.getAbsoluteFile().getParentFile();
         }

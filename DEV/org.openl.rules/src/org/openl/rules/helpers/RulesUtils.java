@@ -1513,7 +1513,7 @@ public final class RulesUtils {
         try {
             stringDate = DateTool.dateToString(date, dateFormat);
         } catch (Exception e) {
-            throw new OpenLRuntimeException(stringDate + " '" + dateFormat + "'");
+            throw new OpenLRuntimeException(String.format("%s '%s'", stringDate, dateFormat));
         }
         return stringDate;
     }
