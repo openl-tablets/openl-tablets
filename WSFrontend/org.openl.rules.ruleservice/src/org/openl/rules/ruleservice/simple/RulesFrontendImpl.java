@@ -97,7 +97,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                     }
 
                     throw new MethodInvocationException("Method '" + ruleName + "(" + sb
-                        .toString() + ")' has not been found in service '" + serviceName + "'.");
+                        .toString() + ")' is not found in service '" + serviceName + "'.");
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);

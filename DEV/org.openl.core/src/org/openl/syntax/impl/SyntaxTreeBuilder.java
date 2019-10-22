@@ -107,7 +107,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     }
 
     public void notImplemented(String type) {
-        throw new RuntimeException(type + " has not been implemented yet");
+        throw new RuntimeException(type + " is not implemented yet");
     }
 
     public void uop(String type, TextInterval pos) {

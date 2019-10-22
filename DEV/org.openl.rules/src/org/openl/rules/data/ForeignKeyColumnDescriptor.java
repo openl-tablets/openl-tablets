@@ -233,7 +233,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            String message = "Column '" + columnName + "' is not found";
+            String message = "Column '" + columnName + "' is not found.";
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
@@ -320,7 +320,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
                 if (foreignKeyIndex == -1) {
-                    String message = "Column '" + foreignKey.getIdentifier() + "' is not found";
+                    String message = "Column '" + foreignKey.getIdentifier() + "' is not found.";
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
@@ -530,7 +530,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
         if (foreignTable == null) {
-            String message = String.format("Table '%s' is not found", foreignKeyTableName);
+            String message = String.format("Table '%s' is not found.", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
             String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);

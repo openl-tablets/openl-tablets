@@ -206,7 +206,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         for (String defPublisher : defaultRuleServicePublishers) {
             if (!supportedPublishers.containsKey(defPublisher)) {
                 throw new BeanInitializationException(
-                    "Default publisher with id=" + defPublisher + " has not been found in the map of supported publishers");
+                    "Default publisher with id=" + defPublisher + " is not found in the map of supported publishers");
             }
         }
     }

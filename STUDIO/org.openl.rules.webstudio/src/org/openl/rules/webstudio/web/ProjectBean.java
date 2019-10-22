@@ -685,7 +685,7 @@ public class ProjectBean {
             try {
                 InputStream inputStream = processorClass.getResourceAsStream(fileName);
                 if (inputStream == null) {
-                    throw new FileNotFoundException("File '" + fileName + "' is not found");
+                    throw new FileNotFoundException("File '" + fileName + "' is not found.");
                 }
                 return IOUtils.toStringAndClose(inputStream);
             } catch (FileNotFoundException e) {

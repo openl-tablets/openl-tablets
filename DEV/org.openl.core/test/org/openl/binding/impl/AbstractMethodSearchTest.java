@@ -1,6 +1,9 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Array;
 
@@ -69,10 +72,10 @@ public abstract class AbstractMethodSearchTest {
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
 
-        assertNotNull("Method " + methodDescriptor(methodName, openClasses) + " has not been matched", method);
+        assertNotNull("Method " + methodDescriptor(methodName, openClasses) + " has not been matched.", method);
         Object targetInstance = instance(target);
         Object result = method.invoke(targetInstance, args, null);
-        assertEquals("Method " + methodDescriptor(methodName, openClasses) + " has been matched", expected, result);
+        assertEquals("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", expected, result);
     }
 
     private IOpenClass[] toOpenClasses(Class<?>... classes) {
@@ -94,7 +97,7 @@ public abstract class AbstractMethodSearchTest {
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
 
-        assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched", method);
+        assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", method);
     }
 
     final void assertAmbigiouse(Class<?> target, String methodName, Class<?>... classes) {
@@ -144,8 +147,8 @@ public abstract class AbstractMethodSearchTest {
                 Object notExpected = ((Not) expected).notExpected;
                 assertInvoke(notExpected, target, methodName, classes);
                 IOpenClass[] openClasses = toOpenClasses(classes);
-                fail(
-                    "Not expected '" + notExpected + "' result for Metod " + methodDescriptor(methodName, openClasses));
+                fail("Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,
+                    openClasses) + ".");
             } catch (AssertionError ex) {
                 // It is expected an assertion error
             }

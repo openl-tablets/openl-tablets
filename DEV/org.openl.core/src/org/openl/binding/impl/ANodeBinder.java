@@ -262,7 +262,7 @@ public abstract class ANodeBinder implements INodeBinder {
             String typeName = node.getText();
             IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
             if (varType == null) {
-                throw new ClassNotFoundException("Type '" + typeName + "' is not found");
+                throw new ClassNotFoundException("Type '" + typeName + "' is not found.");
             }
             BindHelper.checkOnDeprecation(node, bindingContext, varType);
             return varType;

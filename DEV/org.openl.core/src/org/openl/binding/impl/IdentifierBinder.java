@@ -34,7 +34,7 @@ public class IdentifierBinder extends ANodeBinder {
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
-        assertNotNull(type, "Field '", fieldName, "' is not found");
+        assertNotNull(type, "Field '", fieldName, "' is not found.");
         BindHelper.checkOnDeprecation(node, bindingContext, type);
         return new TypeBoundNode(node, type);
     }

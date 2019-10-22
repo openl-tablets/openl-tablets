@@ -74,7 +74,7 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
             }
         }
         if (dataSource == null) {
-            throw new IllegalStateException("DataSource has not been found in JNDI context by 'uri' : " + uri);
+            throw new IllegalStateException("DataSource is not found in JNDI context by 'uri' : " + uri);
         }
     }
 

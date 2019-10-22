@@ -90,7 +90,7 @@ public class TestResultExportTest {
             }
         }
 
-        throw new IllegalArgumentException("Test '" + testName + "' is not found");
+        throw new IllegalArgumentException("Test '" + testName + "' is not found.");
     }
 
     @Test

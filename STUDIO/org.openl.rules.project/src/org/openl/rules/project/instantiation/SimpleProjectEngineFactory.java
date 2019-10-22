@@ -317,7 +317,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException("Module has not been found in project.");
+                    throw new RulesInstantiationException("Module is not found in project.");
                 }
             }
 

@@ -80,7 +80,7 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
         } else {
             if (match > 1) {
                 throw new IllegalArgumentException(
-                    "More than one method has been found with requested ruleName and parameters.");
+                    "More than one method is found with requested ruleName and parameters.");
             } else {
                 throw new IllegalArgumentException("Method with requested ruleName and parameters is not found.");
             }

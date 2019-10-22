@@ -46,7 +46,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
         }
 
         if (methodCount == 0) {
-            throw new MethodNotFoundException(String.format("Method '%s' is not found", methodValue));
+            throw new MethodNotFoundException(String.format("Method '%s' is not found.", methodValue));
         }
 
         if (methodCount > 1) {

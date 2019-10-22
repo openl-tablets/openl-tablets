@@ -27,7 +27,7 @@ public final class OpenLVersion {
             propertiesFile = OpenLVersion.class.getResourceAsStream("openl.version.properties");
             props.load(propertiesFile);
         } catch (Exception t) {
-            LoggerFactory.getLogger(OpenLVersion.class).warn("openl.version.properties is not found", t);
+            LoggerFactory.getLogger(OpenLVersion.class).warn("openl.version.properties is not found.", t);
         } finally {
             if (propertiesFile != null) {
                 IOUtils.closeQuietly(propertiesFile);

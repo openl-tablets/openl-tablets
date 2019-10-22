@@ -219,7 +219,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             return bestCaseTestMethodBoundNode;
         }
 
-        String message = String.format("Table '%s' is not found", methodName);
+        String message = String.format("Table '%s' is not found.", methodName);
         throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
     }
 

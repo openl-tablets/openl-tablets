@@ -1070,7 +1070,7 @@ public class GitRepositoryTest {
             }
         }
 
-        throw new IllegalArgumentException("File '" + fileName + "' is not found");
+        throw new IllegalArgumentException("File '" + fileName + "' is not found.");
     }
 
     private static class ChangesCounter implements Listener {

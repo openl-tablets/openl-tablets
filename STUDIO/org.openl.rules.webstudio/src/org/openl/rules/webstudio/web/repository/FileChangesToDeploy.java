@@ -75,7 +75,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
                             throw new FileNotFoundException(
-                                "File '" + rulesPath + projectName + "' for version " + version + " is not found");
+                                "File '" + rulesPath + projectName + "' for version " + version + " is not found.");
                         }
                         IOUtils.closeQuietly(openedStream);
                         ZipInputStream stream = new ZipInputStream(srcPrj.getStream());

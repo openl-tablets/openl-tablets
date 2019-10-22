@@ -349,7 +349,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             IMatcher matcher = MatcherFactory.getMatcher(operationName, arg.getType());
             if (matcher == null) {
-                String msg = "No matcher was found for operation " + operationName + " and type " + arg.getType();
+                String msg = "No matcher is found for operation " + operationName + " and type " + arg.getType();
                 throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
             }
 

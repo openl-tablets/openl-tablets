@@ -59,7 +59,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' is not found",
+                    log.warn("Dependency '{}' for project '{}' is not found.",
                         dependencyDescriptor.getName(),
                         project.getName());
                 }

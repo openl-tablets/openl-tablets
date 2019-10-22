@@ -67,7 +67,7 @@ public class ClassFinder {
                 if (locator != null) {
                     classes.addAll(locator.getClasses(resource, packageName, classLoader));
                 } else {
-                    log.warn("A ClassLocator for protocol '{}' is not found", protocol);
+                    log.warn("A ClassLocator for protocol '{}' is not found.", protocol);
                 }
             }
         }

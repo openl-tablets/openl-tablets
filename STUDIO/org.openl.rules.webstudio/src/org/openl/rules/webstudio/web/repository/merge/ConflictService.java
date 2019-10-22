@@ -59,7 +59,7 @@ public class ConflictService {
                     .getRepository()
                     .readHistory(name, version);
                 if (file == null) {
-                    throw new FileNotFoundException("File '" + name + "' is not found");
+                    throw new FileNotFoundException("File '" + name + "' is not found.");
                 }
 
                 stream = file.getStream();
@@ -92,7 +92,7 @@ public class ConflictService {
                 String localName = name.substring(rulesLocation.length());
                 FileItem file = userWorkspace.getLocalWorkspace().getRepository().read(localName);
                 if (file == null) {
-                    throw new FileNotFoundException("File " + localName + " is not found");
+                    throw new FileNotFoundException("File " + localName + " is not found.");
                 }
                 stream = file.getStream();
                 IOUtils.copy(stream, output);

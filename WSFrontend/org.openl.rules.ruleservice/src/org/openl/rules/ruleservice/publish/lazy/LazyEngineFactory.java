@@ -194,7 +194,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         if (module != null) {
             return module;
         }
-        throw new OpenlNotCheckedException("Module is not found");
+        throw new OpenlNotCheckedException("Module is not found.");
     }
 
     private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {

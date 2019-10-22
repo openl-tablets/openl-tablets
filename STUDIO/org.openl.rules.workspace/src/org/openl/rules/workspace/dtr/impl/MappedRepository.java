@@ -247,7 +247,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 // "external" is direct child of "path"
                 FileData data = delegate.check(entry.getValue());
                 if (data == null) {
-                    log.error("Project {} is not found", entry.getValue());
+                    log.error("Project {} is not found.", entry.getValue());
                 } else {
                     internal.add(data);
                 }
@@ -524,7 +524,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Map<String, String> externalToInternal = new HashMap<>();
         FileItem fileItem = delegate.read(configFile);
         if (fileItem == null) {
-            log.debug("Repository configuration file {} is not found", configFile);
+            log.debug("Repository configuration file {} is not found.", configFile);
             return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
         }
 

@@ -31,7 +31,7 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {
-            throw new IllegalArgumentException("Type " + data + " is not found");
+            throw new IllegalArgumentException("Type " + data + " is not found.");
         }
 
         Class<?> clazz = openClass.getInstanceClass();

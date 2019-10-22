@@ -209,7 +209,7 @@ public class XlsLoader {
             int i,
             String include,
             Exception t) {
-        SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found",
+        SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found.",
             t,
             LocationUtils.createTextInterval(include),
             new GridCellSourceCodeModule(table, 1, i, null));

@@ -65,7 +65,7 @@ public class DeepCloningVariation extends Variation {
             try {
                 clonedParams = cloner.deepClone(originalArguments);
             } catch (Exception ex) {
-                throw new VariationRuntimeException("Original arguments deep cloning was failure.", ex);
+                throw new VariationRuntimeException("Original arguments deep cloning is failed.", ex);
             }
         } else {
             clonedParams = new Object[0];
@@ -80,7 +80,7 @@ public class DeepCloningVariation extends Variation {
             try {
                 clonedParams = cloner.deepClone(originalArguments);
             } catch (Exception ex) {
-                throw new VariationRuntimeException("Original arguments deep cloning was failure.", ex);
+                throw new VariationRuntimeException("Original arguments deep cloning is failed.", ex);
             }
         } else {
             clonedParams = new Object[0];
