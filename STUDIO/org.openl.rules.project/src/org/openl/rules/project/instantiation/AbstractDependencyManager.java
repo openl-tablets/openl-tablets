@@ -143,7 +143,7 @@ public abstract class AbstractDependencyManager extends DependencyManager {
             boolean isCircularDependency = !isProjectDependency(dependency) && compilationStack
                 .contains(dependencyName);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
-                DependencyReference dr = new DependencyReference(getCompilationStack().getLast(), dependencyName);
+                DependencyReference dr = new DependencyReference(getCompilationStack().getFirst(), dependencyName);
                 this.addDependencyReference(dr);
             }
 
