@@ -10,13 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -276,7 +270,7 @@ public final class TestMojo extends BaseOpenLMojo {
             int i = 0;
             for (OpenLMessage message : errorMessages) {
                 String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();
-                error((i + 1) + ". '", message.getSummary(), "'", location);
+                error(i + 1 + ". '", message.getSummary(), "'", location);
                 i++;
             }
             error("");

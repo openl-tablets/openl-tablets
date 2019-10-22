@@ -105,7 +105,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
         double uniqueValues = info.getTotalNumberOfUniqueValues();
 
-        return (uniqueValues / size() < 0.7);
+        return uniqueValues / size() < 0.7;
     }
 
     @Override

@@ -16,9 +16,9 @@ public class TransparentColorFilter implements IColorFilter {
     public TransparentColorFilter(int color, double transparency) {
         this.transparency = transparency;
         filter = new short[3];
-        filter[0] = (short) ((color >> 16) & 0xff);
-        filter[1] = (short) ((color >> 8) & 0xff);
-        filter[2] = (short) ((color >> 0) & 0xff);
+        filter[0] = (short) (color >> 16 & 0xff);
+        filter[1] = (short) (color >> 8 & 0xff);
+        filter[2] = (short) (color >> 0 & 0xff);
     }
 
     public TransparentColorFilter(short[] filter, double transparency) {

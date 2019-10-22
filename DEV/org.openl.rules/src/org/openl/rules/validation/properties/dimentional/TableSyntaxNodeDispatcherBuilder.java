@@ -337,7 +337,9 @@ class TableSyntaxNodeDispatcherBuilder {
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
-        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), rulesModuleBindingContext, moduleOpenClass);
+        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(),
+            rulesModuleBindingContext,
+            moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
 
         setTableProperties(tsn);

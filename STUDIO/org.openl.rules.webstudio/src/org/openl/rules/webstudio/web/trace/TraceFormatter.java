@@ -76,7 +76,7 @@ public class TraceFormatter {
         return String.format("Step: row %d: %s %s %s %s",
             operationRow,
             operationName,
-            (nameForDebug != null ? nameForDebug : ""),
+            nameForDebug != null ? nameForDebug : "",
             resultValue,
             displayFieldFormatedValues);
     }
@@ -100,7 +100,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(DTRuleTraceObject dti) {
         int[] rules = dti.getRules();
-        IDecisionTable decisionTable = ((IDecisionTable) dti.getTraceObject());
+        IDecisionTable decisionTable = (IDecisionTable) dti.getTraceObject();
 
         String[] ruleNames = new String[rules.length];
         for (int i = 0; i < ruleNames.length; i++) {

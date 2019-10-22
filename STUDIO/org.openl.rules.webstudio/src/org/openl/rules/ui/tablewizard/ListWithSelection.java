@@ -25,7 +25,7 @@ public class ListWithSelection<T> extends ArrayList<T> {
 
     @Override
     public T remove(int index) {
-        if (index < selectedIndex || (index == selectedIndex && selectedIndex == size() - 1)) {
+        if (index < selectedIndex || index == selectedIndex && selectedIndex == size() - 1) {
             --selectedIndex;
         }
         return super.remove(index);

@@ -6,14 +6,7 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
@@ -99,7 +92,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
-            if (!(depMethod.isConstructor()) && !(depMethod instanceof GetOpenClass)) {
+            if (!depMethod.isConstructor() && !(depMethod instanceof GetOpenClass)) {
                 try {
                     // Workaround for set dependency names in method while compile
                     if (depMethod instanceof AMethod) {

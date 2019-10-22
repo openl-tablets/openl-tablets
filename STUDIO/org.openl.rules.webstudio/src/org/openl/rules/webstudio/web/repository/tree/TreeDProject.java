@@ -27,17 +27,17 @@ public class TreeDProject extends TreeFile {
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedAt() : null;
+        return vi != null ? vi.getCreatedAt() : null;
     }
 
     public String getCreatedBy() {
-        ProjectVersion projectVersion = (getProject()).getFirstVersion();
+        ProjectVersion projectVersion = getProject().getFirstVersion();
         if (projectVersion == null) {
             return null;
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedBy() : null;
+        return vi != null ? vi.getCreatedBy() : null;
     }
 
     public Date getModifiedAt() {
@@ -47,18 +47,18 @@ public class TreeDProject extends TreeFile {
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedAt() : null;
+        return vi != null ? vi.getCreatedAt() : null;
     }
 
     public String getModifiedBy() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
+        ProjectVersion projectVersion = getProject().getVersion();
         /* zero */
         if (projectVersion == null) {
             return null;
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedBy() : null;
+        return vi != null ? vi.getCreatedBy() : null;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class TreeDProject extends TreeFile {
     }
 
     public String getVersion() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
+        ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {
             return "unversioned";
         }

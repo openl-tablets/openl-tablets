@@ -680,7 +680,7 @@ public class RepositoryTreeController {
     }
 
     public String deleteElement() {
-        AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
+        repositoryTreeState.getSelectedNode().getData();
         String childName = FacesUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
             .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
@@ -743,8 +743,8 @@ public class RepositoryTreeController {
                 parent.refresh();
             }
             if (selectedNode != activeProjectNode) {
-                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT
-                    .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
+                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || UiConst.TYPE_PROJECT
+                    .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly();
                 if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                     repositoryTreeState.refreshSelectedNode();
                 } else {
@@ -1477,7 +1477,7 @@ public class RepositoryTreeController {
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
             resetStudioModel();
-            FacesUtils.addInfoMessage(("File was successfully updated."));
+            FacesUtils.addInfoMessage("File was successfully updated.");
         } else {
             FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
         }

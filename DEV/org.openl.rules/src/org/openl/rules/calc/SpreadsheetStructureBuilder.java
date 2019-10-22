@@ -318,8 +318,8 @@ public class SpreadsheetStructureBuilder {
             // add simplified field name
             String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
-            if (field1 == null || (field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
-                .isLastColumnRef())) {
+            if (field1 == null || field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
+                .isLastColumnRef()) {
                 SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
                     spreadsheetCell,
                     simplifiedFieldName,

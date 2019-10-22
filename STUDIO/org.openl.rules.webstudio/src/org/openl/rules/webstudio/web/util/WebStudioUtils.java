@@ -50,7 +50,7 @@ public abstract class WebStudioUtils {
     }
 
     public static WebStudio getWebStudio() {
-        return (WebStudio) (FacesUtils.getSessionParam(STUDIO_ATTR));
+        return (WebStudio) FacesUtils.getSessionParam(STUDIO_ATTR);
     }
 
     public static WebStudio getWebStudio(HttpSession session) {

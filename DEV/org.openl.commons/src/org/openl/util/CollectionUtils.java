@@ -1,11 +1,7 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * An util class for collections and arrays.
@@ -117,7 +113,7 @@ public class CollectionUtils {
             return null;
         }
         Objects.requireNonNull(mapper, "mapper cannot be null");
-        int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
+        int size = col instanceof Collection ? ((Collection) col).size() : 0;
         ArrayList<O> result = new ArrayList<>(size);
         for (I input : col) {
             O output = mapper.map(input);
@@ -166,7 +162,7 @@ public class CollectionUtils {
         }
         Objects.requireNonNull(predicate, "predicate cannot be null");
 
-        int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
+        int size = col instanceof Collection ? ((Collection) col).size() : 0;
         ArrayList<T> result = new ArrayList<>(size);
         for (final T item : col) {
             if (predicate.evaluate(item)) {

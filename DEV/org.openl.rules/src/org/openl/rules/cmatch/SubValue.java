@@ -11,7 +11,7 @@ public class SubValue {
 
     public SubValue(StringValue value, ICellStyle cellStyle) {
         this.value = value;
-        indent = (cellStyle == null) ? 0 : cellStyle.getIndent();
+        indent = cellStyle == null ? 0 : cellStyle.getIndent();
     }
 
     public IGridRegion getGridRegion() {

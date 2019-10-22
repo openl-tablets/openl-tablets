@@ -21,6 +21,6 @@ public class BigDecimalValueType extends BigDecimalType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         BigDecimal value = (BigDecimal) super.readObject(reader, context);
-        return (value == null) ? null : new BigDecimalValue(value);
+        return value == null ? null : new BigDecimalValue(value);
     }
 }

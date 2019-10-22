@@ -41,7 +41,7 @@ class TablePropertiesSelector extends ASelector<TableSyntaxNode> {
             }
         }
 
-        return (numMatch == properties.size() && numMatch > 0);
+        return numMatch == properties.size() && numMatch > 0;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -56,7 +56,7 @@ class TablePropertiesSelector extends ASelector<TableSyntaxNode> {
                 result = DateUtils.isSameDay((Date) searchValue, (Date) value);
 
             } else if (value instanceof Comparable<?>) {
-                result = (((Comparable) value).compareTo(searchValue) == 0);
+                result = ((Comparable) value).compareTo(searchValue) == 0;
 
             } else if (value.getClass().isArray()) {
                 List<Object> valueArray = Arrays.asList((Object[]) value);

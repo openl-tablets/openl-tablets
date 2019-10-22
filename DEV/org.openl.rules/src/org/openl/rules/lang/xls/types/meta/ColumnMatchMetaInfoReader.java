@@ -176,7 +176,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
 
     private int getSpecialRowCount(ColumnMatch columnMatch) {
         IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
-        String nameOfAlgorithm = (alg != null) ? alg.getCode() : null;
+        String nameOfAlgorithm = alg != null ? alg.getCode() : null;
         return "WEIGHTED".equals(nameOfAlgorithm) ? 3 : 1;
     }
 }

@@ -45,7 +45,7 @@ public class VariationsSupportTest implements ApplicationContextAware {
         assertNotNull(serviceManager);
 
         RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-                RuleServiceManager.class);
+            RuleServiceManager.class);
         assertNotNull(ruleServicePublisher);
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);

@@ -16,8 +16,8 @@ public final class OpenClassUtils {
         IOpenClass t1 = openClass1;
         IOpenClass t2 = openClass2;
         if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
-            if ((t1.getInstanceClass().isPrimitive() && !t2.getInstanceClass().isPrimitive()) || (!t1.getInstanceClass()
-                .isPrimitive() && t2.getInstanceClass().isPrimitive())) {
+            if (t1.getInstanceClass().isPrimitive() && !t2.getInstanceClass().isPrimitive() || !t1.getInstanceClass()
+                .isPrimitive() && t2.getInstanceClass().isPrimitive()) {
                 if (t1.getInstanceClass().isPrimitive()) {
                     t1 = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t1.getInstanceClass()));
                 }

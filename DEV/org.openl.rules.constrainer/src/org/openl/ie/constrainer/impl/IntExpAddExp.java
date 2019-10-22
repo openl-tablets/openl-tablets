@@ -174,7 +174,7 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public boolean isLinear() {
-        return (_exp1.isLinear() && _exp2.isLinear());
+        return _exp1.isLinear() && _exp2.isLinear();
     }
 
     @Override

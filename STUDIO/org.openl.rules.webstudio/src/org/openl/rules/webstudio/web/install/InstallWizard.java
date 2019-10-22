@@ -6,11 +6,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -33,24 +29,13 @@ import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.SimpleGroup;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
+import org.openl.rules.security.*;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.PreferencesManager;
-import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
-import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
-import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
-import org.openl.rules.webstudio.web.admin.RepositoryValidators;
+import org.openl.rules.webstudio.web.admin.*;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
@@ -62,7 +47,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -547,7 +531,7 @@ public class InstallWizard {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     username,
                     password);
-                Authentication authentication = ldapAuthenticationProvider.authenticate(authenticationToken);
+                ldapAuthenticationProvider.authenticate(authenticationToken);
             } catch (AuthenticationException e) {
                 throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
             } catch (RuntimeException e) {

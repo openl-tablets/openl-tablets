@@ -121,7 +121,7 @@ public class CellEditorSelector {
                 }
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass,
-                INumberRange.class) && (!instanceClass.equals(CharRange.class))) {
+                INumberRange.class) && !instanceClass.equals(CharRange.class)) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);

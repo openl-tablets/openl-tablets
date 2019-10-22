@@ -108,10 +108,13 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                     throw new MethodInvocationException(t.toString(), t);
                 }
             } else {
-                throw new MethodInvocationException(String.format("Service initialization '%s' has been failed.", serviceName));
+                throw new MethodInvocationException(
+                    String.format("Service initialization '%s' has been failed.", serviceName));
             }
         } catch (RuleServiceInstantiationException e) {
-            throw new MethodInvocationException(String.format("Service initialization '%s' has been failed.", serviceName),  e);
+            throw new MethodInvocationException(
+                String.format("Service initialization '%s' has been failed.", serviceName),
+                e);
         }
     }
 

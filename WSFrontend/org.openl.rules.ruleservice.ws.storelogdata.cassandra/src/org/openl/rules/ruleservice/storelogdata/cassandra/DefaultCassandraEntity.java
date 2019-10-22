@@ -2,15 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
-import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
-import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.Response;
-import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
-import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.*;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
@@ -130,11 +122,11 @@ public class DefaultCassandraEntity {
     public String getMethodName() {
         return methodName;
     }
-    
+
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
-    
+
     public String getPublisherType() {
         return publisherType;
     }

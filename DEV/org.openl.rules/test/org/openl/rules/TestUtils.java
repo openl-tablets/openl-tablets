@@ -25,7 +25,7 @@ public class TestUtils {
         String s = sw.toString();
         if (errorMessages.length == 1) {
             if (!s.contains(errorMessages[0])) {
-                throw new RuntimeException(String.format("Expect to see '%s' in stack trace.", errorMessages[0]),  ex);
+                throw new RuntimeException(String.format("Expect to see '%s' in stack trace.", errorMessages[0]), ex);
             }
         } else {
             boolean[] ok = new boolean[errorMessages.length];

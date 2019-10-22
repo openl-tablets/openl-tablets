@@ -935,10 +935,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallLong() {
-        java.lang.Long[] array = { java.lang.Long.valueOf(10),
-                java.lang.Long.valueOf(32),
-                java.lang.Long.valueOf(35),
-                java.lang.Long.valueOf(25) };
+        java.lang.Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
         assertTrue(instance.testLongSmall(array, 1) == java.lang.Long.valueOf(10));
         assertTrue(instance.testLongSmall(array, 2) == java.lang.Long.valueOf(25));
         assertTrue(instance.testLongSmall(array, 3) == java.lang.Long.valueOf(32));
@@ -949,10 +946,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallFloat() {
-        java.lang.Float[] array = { java.lang.Float.valueOf((float) 10.4),
-                java.lang.Float.valueOf((float) 32.1),
-                java.lang.Float.valueOf((float) 35.3),
-                java.lang.Float.valueOf((float) 25.7) };
+        java.lang.Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
         assertTrue(instance.testFloatSmall(array, 1).equals(java.lang.Float.valueOf((float) 10.4)));
         assertTrue(instance.testFloatSmall(array, 2).equals(java.lang.Float.valueOf((float) 25.7)));
         assertTrue(instance.testFloatSmall(array, 3).equals(java.lang.Float.valueOf((float) 32.1)));
@@ -963,10 +957,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallDouble() {
-        java.lang.Double[] array = { java.lang.Double.valueOf(10.4),
-                java.lang.Double.valueOf(32.2),
-                java.lang.Double.valueOf(35.6),
-                java.lang.Double.valueOf(25.2) };
+        java.lang.Double[] array = { 10.4, 32.2, 35.6, 25.2 };
         assertTrue(instance.testDoubleSmall(array, 1).equals(java.lang.Double.valueOf(10.4)));
         assertTrue(instance.testDoubleSmall(array, 2).equals(java.lang.Double.valueOf(25.2)));
         assertTrue(instance.testDoubleSmall(array, 3).equals(java.lang.Double.valueOf(32.2)));
@@ -1104,10 +1095,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigLong() {
-        java.lang.Long[] array = { java.lang.Long.valueOf(10),
-                java.lang.Long.valueOf(32),
-                java.lang.Long.valueOf(35),
-                java.lang.Long.valueOf(25) };
+        java.lang.Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
         assertTrue(instance.testLongBig(array, 4) == java.lang.Long.valueOf(10));
         assertTrue(instance.testLongBig(array, 3) == java.lang.Long.valueOf(25));
         assertTrue(instance.testLongBig(array, 2) == java.lang.Long.valueOf(32));
@@ -1118,10 +1106,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigFloat() {
-        java.lang.Float[] array = { java.lang.Float.valueOf((float) 10.4),
-                java.lang.Float.valueOf((float) 32.1),
-                java.lang.Float.valueOf((float) 35.3),
-                java.lang.Float.valueOf((float) 25.7) };
+        java.lang.Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
         assertTrue(instance.testFloatBig(array, 4).equals(java.lang.Float.valueOf((float) 10.4)));
         assertTrue(instance.testFloatBig(array, 3).equals(java.lang.Float.valueOf((float) 25.7)));
         assertTrue(instance.testFloatBig(array, 2).equals(java.lang.Float.valueOf((float) 32.1)));
@@ -1132,10 +1117,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigDouble() {
-        java.lang.Double[] array = { java.lang.Double.valueOf(10.4),
-                java.lang.Double.valueOf(32.2),
-                java.lang.Double.valueOf(35.6),
-                java.lang.Double.valueOf(25.2) };
+        java.lang.Double[] array = { 10.4, 32.2, 35.6, 25.2 };
         assertTrue(instance.testDoubleBig(array, 4).equals(java.lang.Double.valueOf(10.4)));
         assertTrue(instance.testDoubleBig(array, 3).equals(java.lang.Double.valueOf(25.2)));
         assertTrue(instance.testDoubleBig(array, 2).equals(java.lang.Double.valueOf(32.2)));
@@ -1235,34 +1217,32 @@ public class RulesUtilsTest {
 
     @Test
     public void testByteQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientByte(Byte.valueOf((byte) 25), Byte.valueOf((byte) 12)));
+        assertEquals(new LongValue(2), instance.testQuaotientByte((byte) 25, (byte) 12));
     }
 
     @Test
     public void testShortQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientShort(Short.valueOf((short) 25), Short.valueOf((short) 12)));
+        assertEquals(new LongValue(2), instance.testQuaotientShort((short) 25, (short) 12));
     }
 
     @Test
     public void testIntegerQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientInteger(Integer.valueOf(25), Integer.valueOf(12)));
+        assertEquals(new LongValue(2), instance.testQuaotientInteger(25, 12));
     }
 
     @Test
     public void testLongQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLong(Long.valueOf(25), Long.valueOf(12)));
+        assertEquals(new LongValue(2), instance.testQuaotientLong((long) 25, (long) 12));
     }
 
     @Test
     public void testFloatQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientFloat(Float.valueOf((float) 25.4), Float.valueOf((float) 12.2)));
+        assertEquals(new LongValue(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
     }
 
     @Test
     public void testDoubleQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientDouble(Double.valueOf(25.4), Double.valueOf(12.2)));
+        assertEquals(new LongValue(2), instance.testQuaotientDouble(25.4, 12.2));
     }
 
     @Test

@@ -23,7 +23,7 @@ public final class Product {
         return process(values, new Result<Double, Double>() {
             @Override
             public void processNonNull(Double value) {
-                result = result == null ? value : (result * value);
+                result = result == null ? value : result * value;
             }
         });
     }
@@ -35,7 +35,7 @@ public final class Product {
         return process(values, new Result<Long, Long>() {
             @Override
             public void processNonNull(Long value) {
-                result = result == null ? value : (result * value);
+                result = result == null ? value : result * value;
             }
         });
     }

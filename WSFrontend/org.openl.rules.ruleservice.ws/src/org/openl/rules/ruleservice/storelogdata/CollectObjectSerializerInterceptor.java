@@ -5,9 +5,6 @@ import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 /**
  * CXF interceptor for collecting object serializer.

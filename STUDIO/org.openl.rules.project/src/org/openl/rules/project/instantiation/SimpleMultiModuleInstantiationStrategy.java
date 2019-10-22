@@ -80,8 +80,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
             log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
-        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
-            .equals(serviceClass))) {
+        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
 

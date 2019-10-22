@@ -126,7 +126,7 @@ public class FloatDomainImpl implements FloatDomain {
      */
     @Override
     public String toString() {
-        return "[" + _min + ".." + _max + (_variable.bound() ? ("(" + (_min + _max) / 2 + ")") : "") + "]";
+        return "[" + _min + ".." + _max + (_variable.bound() ? "(" + (_min + _max) / 2 + ")" : "") + "]";
     }
 
     @Override

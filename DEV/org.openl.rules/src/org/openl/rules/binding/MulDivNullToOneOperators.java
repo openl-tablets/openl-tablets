@@ -91,44 +91,44 @@ public class MulDivNullToOneOperators {
         if (x == null && y == null) {
             return null;
         } else if (y == null) {
-            return Double.valueOf(x);
+            return (double) x;
         } else if (x == null) {
             x = 1;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Short x, Short y) {
         if (x == null && y == null) {
             return null;
         } else if (y == null) {
-            return Double.valueOf(x);
+            return (double) x;
         } else if (x == null) {
             x = 1;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Integer x, Integer y) {
         if (x == null && y == null) {
             return null;
         } else if (y == null) {
-            return Double.valueOf(x);
+            return (double) x;
         } else if (x == null) {
             x = 1;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Long x, Long y) {
         if (x == null && y == null) {
             return null;
         } else if (y == null) {
-            return Double.valueOf(x);
+            return (double) x;
         } else if (x == null) {
             x = 1l;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Float divide(Float x, Float y) {

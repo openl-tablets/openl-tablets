@@ -52,7 +52,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     @Override
     public boolean contains(int value) // better to be redefined in subclasses
     {
-        return (value >= min() && value <= max());
+        return value >= min() && value <= max();
     }
 
     @Override

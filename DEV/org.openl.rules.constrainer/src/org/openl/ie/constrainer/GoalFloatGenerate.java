@@ -50,7 +50,7 @@ public class GoalFloatGenerate extends GoalImpl {
 
         _vars = vars;
 
-        _var_selector = (var_selector != null ? var_selector : new FloatVarSelectorFirstUnbound(vars));
+        _var_selector = var_selector != null ? var_selector : new FloatVarSelectorFirstUnbound(vars);
 
         initGoals();
     }
@@ -66,7 +66,7 @@ public class GoalFloatGenerate extends GoalImpl {
             return null; // all vars are instantiated
         }
 
-        FloatExp var = _vars.elementAt(index);
+        _vars.elementAt(index);
 
         Goal search_goal = (Goal) _goals.elementAt(index);
 

@@ -49,7 +49,7 @@ public class IntVarSelectorMinSize implements IntVarSelector {
             int mini = vari.size();
 
             if (mini != 1) {
-                if ((min > mini) || min_var == -1) {
+                if (min > mini || min_var == -1) {
                     min = mini;
                     min_var = i;
                     if (min == 2) {

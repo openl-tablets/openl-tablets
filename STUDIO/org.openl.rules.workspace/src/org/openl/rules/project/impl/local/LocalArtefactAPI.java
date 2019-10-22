@@ -272,7 +272,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
                 for (Map.Entry<String, Object> entry : parentProp.entrySet()) {
                     InheritedProperty inhProp = new InheritedProperty(entry.getValue(),
-                        (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT),
+                        parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT,
                         parentArtefactAPI.getName());
                     inheritedProps.put(entry.getKey(), inhProp);
                 }

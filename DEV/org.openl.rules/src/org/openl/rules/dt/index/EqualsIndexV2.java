@@ -1,14 +1,14 @@
 package org.openl.rules.dt.index;
 
+import java.math.BigDecimal;
+import java.util.*;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.helpers.NumberUtils;
-
-import java.math.BigDecimal;
-import java.util.*;
 
 /**
  * A new implementation of Equals Index for decision tables.

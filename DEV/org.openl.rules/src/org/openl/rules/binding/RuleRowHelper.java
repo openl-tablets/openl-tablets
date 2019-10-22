@@ -32,13 +32,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.SingleCellGridTable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -241,7 +235,7 @@ public final class RuleRowHelper {
         if (table.getWidth() > 1 || table.getHeight() > 1) {
             for (int i = 0; i < table.getHeight(); i++) {
                 for (int j = 0; j < table.getWidth(); j++) {
-                    if ((!(i == 0 && j == 0))) {
+                    if (!(i == 0 && j == 0)) {
                         ICell cell = table.getCell(j, i);
                         if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
                             .getAbsoluteRegion()
@@ -284,7 +278,7 @@ public final class RuleRowHelper {
                         if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                             Date dateValue = cell.getNativeDate();
                             res = objectConvertor.convert(dateValue);
-                        } else if (((int) value) == value) {
+                        } else if ((int) value == value) {
                             objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
                             if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                                 res = objectConvertor.convert((int) value);

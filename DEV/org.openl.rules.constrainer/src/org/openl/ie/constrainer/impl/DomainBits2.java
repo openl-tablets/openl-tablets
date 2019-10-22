@@ -23,13 +23,13 @@ final class BitArray implements java.io.Serializable {
     boolean at(int index) {
         // return (_bits[index/BITS_PER_WORD] & (1 << index % BITS_PER_WORD)) !=
         // 0 ;
-        return (_bits[index / BITS_PER_WORD] & (1 << index)) != 0;
+        return (_bits[index / BITS_PER_WORD] & 1 << index) != 0;
     }
 
     void set(int index, boolean val) {
         if (val) {
             // _bits[index/BITS_PER_WORD] |= (1 << index % BITS_PER_WORD);
-            _bits[index / BITS_PER_WORD] |= (1 << index);
+            _bits[index / BITS_PER_WORD] |= 1 << index;
         } else {
             // _bits[index/BITS_PER_WORD] &= ~(1 << index % BITS_PER_WORD);
             _bits[index / BITS_PER_WORD] &= ~(1 << index);

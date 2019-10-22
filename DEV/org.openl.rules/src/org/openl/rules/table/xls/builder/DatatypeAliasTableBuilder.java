@@ -30,10 +30,10 @@ public class DatatypeAliasTableBuilder extends TableBuilder {
     public void writeHeader(String tableName, String aliasType, ICellStyle style) {
         String header = IXlsTableNames.DATATYPE_TABLE;
         if (StringUtils.isNotBlank(tableName)) {
-            header += (" " + tableName);
+            header += " " + tableName;
         }
         if (StringUtils.isNotBlank(aliasType)) {
-            header += (" <" + aliasType + ">");
+            header += " <" + aliasType + ">";
         }
         super.writeHeader(header, style);
     }

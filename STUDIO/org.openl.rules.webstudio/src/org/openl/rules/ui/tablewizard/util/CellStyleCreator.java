@@ -25,7 +25,7 @@ public class CellStyleCreator {
             if (workbook instanceof HSSFWorkbook) {
                 CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getBackgroundColor(style, workbook)));
+                cellStyle.setFillForegroundColor(HTMLToExcelStyleCoverter.getBackgroundColor(style, workbook));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getTopBorderColor(style, workbook));
@@ -45,8 +45,7 @@ public class CellStyleCreator {
                 XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle
-                    .setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook)));
+                cellStyle.setFillForegroundColor(HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getXSSFTopBorderColor(style, xssfWorkbook));

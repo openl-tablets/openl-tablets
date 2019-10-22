@@ -2,12 +2,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -214,12 +209,14 @@ public class MergeConflictBean {
         for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
             ConflictResolution resolution = entry.getValue();
             if (resolution.getResolutionType() == ResolutionType.UNRESOLVED) {
-                throw new ValidationException(String.format("You must resolve conflict for the file '%s'", entry.getKey()));
+                throw new ValidationException(
+                    String.format("You must resolve conflict for the file '%s'", entry.getKey()));
             }
 
             if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution
                 .getCustomResolutionFile() == null) {
-                throw new ValidationException(String.format("You must upload your version of the file '%s'", entry.getKey()));
+                throw new ValidationException(
+                    String.format("You must upload your version of the file '%s'", entry.getKey()));
             }
         }
 

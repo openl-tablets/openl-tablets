@@ -18,6 +18,6 @@ public class XlsProjectionDiffer extends ProjectionDifferImpl {
             selfEqual = false;
         }
 
-        return (super.compare(original, other) && selfEqual);
+        return super.compare(original, other) && selfEqual;
     }
 }

@@ -24,11 +24,11 @@ public class ClassMinMaxBuilder implements IMatcherBuilder {
 
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
-        return (clazz.equals(type.getInstanceClass())) ? matcher : null;
+        return clazz.equals(type.getInstanceClass()) ? matcher : null;
     }
 
     @Override
     public String getName() {
-        return (isMaxMode) ? OP_MAX : OP_MIN;
+        return isMaxMode ? OP_MAX : OP_MIN;
     }
 }

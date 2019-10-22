@@ -55,7 +55,7 @@ public class PropertiesTableBuilder extends TableBuilder {
     public void writeHeader(String tableName, ICellStyle style) {
         String header = IXlsTableNames.PROPERTY_TABLE;
         if (StringUtils.isNotBlank(tableName)) {
-            header += (" " + tableName);
+            header += " " + tableName;
         }
         super.writeHeader(header, style);
     }

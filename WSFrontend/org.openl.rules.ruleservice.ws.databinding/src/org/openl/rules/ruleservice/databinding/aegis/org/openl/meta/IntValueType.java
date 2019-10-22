@@ -19,6 +19,6 @@ public class IntValueType extends IntType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Integer value = (Integer) super.readObject(reader, context);
-        return (value == null) ? null : new IntValue(value);
+        return value == null ? null : new IntValue(value);
     }
 }

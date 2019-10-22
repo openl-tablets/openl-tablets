@@ -110,7 +110,8 @@ public class ExecutableRulesMethodTest {
                 }
                 return runtimeEnv;
             }
-            throw new OpenlNotCheckedException(String.format("Instance must implement %s.", IEngineWrapper.class.getCanonicalName()));
+            throw new OpenlNotCheckedException(
+                String.format("Instance must implement %s.", IEngineWrapper.class.getCanonicalName()));
         }
 
         public static boolean isMethodArgumentsCacheEnable(Object instance) {

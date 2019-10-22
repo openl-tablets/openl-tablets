@@ -55,7 +55,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertTrue(typeWitharray[0].getIntArray().length == 4);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
-            dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            dataList.add(typeWitharray[0].getIntArray()[i]);
         }
         assertTrue(dataList.contains(111));
         assertTrue(dataList.contains(23));
@@ -74,7 +74,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertTrue(typeWitharray[0].getIntArray().length == 5);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
-            dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            dataList.add(typeWitharray[0].getIntArray()[i]);
         }
         assertTrue(dataList.contains(12));
         assertTrue(dataList.contains(13));
@@ -94,7 +94,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertTrue(typeWitharray[0].getIntArray().length == 1);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
-            dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            dataList.add(typeWitharray[0].getIntArray()[i]);
         }
         assertTrue(dataList.contains(12));
     }
@@ -110,7 +110,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         assertTrue(typeWitharray[0].getIntArray().length == 5);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
-            dataList.add(Integer.valueOf(typeWitharray[0].getIntArray()[i]));
+            dataList.add(typeWitharray[0].getIntArray()[i]);
         }
         assertTrue(dataList.contains(1));
         assertTrue(dataList.contains(56));

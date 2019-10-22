@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 
 public class ValidateDTTest extends BaseOpenlBuilderHelper {
 

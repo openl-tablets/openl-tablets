@@ -7,7 +7,7 @@ public enum ValidateDTEnum {
 
     private final String displayName;
 
-    private ValidateDTEnum (String displayName) {
+    private ValidateDTEnum(String displayName) {
         this.displayName = displayName;
     }
 

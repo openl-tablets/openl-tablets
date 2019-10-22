@@ -16,7 +16,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
-import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -291,7 +290,7 @@ public class TableBean {
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils
                 .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
-            IDataBase db = Utils.getDb(WebStudioUtils.getProjectModel());
+            Utils.getDb(WebStudioUtils.getProjectModel());
             ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];

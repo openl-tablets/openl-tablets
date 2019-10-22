@@ -33,8 +33,8 @@ public class Explanation {
             return expandCast(value, level, indent);
         }
 
-        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || (value
-            .isFormula() && value.getFormula().isMultiplicative() != isMultiplicative)) {
+        if (value.isFunction() || value.isCast() || level >= MAX_LEVEL || value
+            .isFormula() && value.getFormula().isMultiplicative() != isMultiplicative) {
             return explain(value, indent);
         }
 
@@ -112,7 +112,7 @@ public class Explanation {
     private int counter = 0;
 
     private String explain(ExplanationNumberValue<?> explanationValue, int level) {
-        String id = "expl" + (counter++);
+        String id = "expl" + counter++;
         String formatted = getFormattedValue(explanationValue);
         String[] item = new String[4];
         result.add(item);

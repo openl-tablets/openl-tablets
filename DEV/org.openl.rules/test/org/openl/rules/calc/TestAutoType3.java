@@ -23,7 +23,6 @@ public class TestAutoType3 {
 
     @Test
     public void test1() {
-        TestUtils.assertEx("test/rules/calc/autotype/autotype-3.xls",
-            "Spreadsheet Expression Loop: [R1C1, R1C3]");
+        TestUtils.assertEx("test/rules/calc/autotype/autotype-3.xls", "Spreadsheet Expression Loop: [R1C1, R1C3]");
     }
 }

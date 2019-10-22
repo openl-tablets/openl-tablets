@@ -67,7 +67,7 @@ public class CellsHeaderExtractor {
     }
 
     public int getWidth() {
-        return (columnNamesTable == null) ? 0 : columnNamesTable.getWidth();
+        return columnNamesTable == null ? 0 : columnNamesTable.getWidth();
     }
 
     public ILogicalTable getRowNamesTable() {
@@ -75,7 +75,7 @@ public class CellsHeaderExtractor {
     }
 
     public int getHeight() {
-        return (rowNamesTable == null) ? 0 : rowNamesTable.getHeight();
+        return rowNamesTable == null ? 0 : rowNamesTable.getHeight();
     }
 
     public String[] getRowNames() {

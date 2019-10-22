@@ -153,7 +153,7 @@ public class DispatchingTest {
         context3.setLang(LanguagesEnum.GER);
         context3.setCurrency(CurrenciesEnum.USD);
 
-        long t1 = System.currentTimeMillis();
+        System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
             runtimeEnv.setContext(context1);
             instance.getPriority();
@@ -164,7 +164,7 @@ public class DispatchingTest {
             runtimeEnv.setContext(context3);
             instance.getPriority();
         }
-        long t2 = System.currentTimeMillis();
+        System.currentTimeMillis();
     }
 
     private void invokeAndCheckForAmbiguous(Method method) throws IllegalAccessException {

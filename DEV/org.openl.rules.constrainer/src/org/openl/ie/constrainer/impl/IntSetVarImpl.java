@@ -119,7 +119,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         }
         Iterator iter = anotherSet.iterator();
         while (iter.hasNext()) {
-            int val = ((Integer) iter.next()).intValue();
+            int val = ((Integer) iter.next());
             if (!possible(val)) {
                 return false;
             }
@@ -133,7 +133,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
     }
 
     private IntBoolVar hasElem(int i) {
-        int idx = ((Integer) _values2index.get(new Integer(i))).intValue();
+        int idx = ((Integer) _values2index.get(new Integer(i)));
         return (IntBoolVar) _set.get(idx);
     }
 
@@ -157,7 +157,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         while (iter.hasNext()) {
             Integer curValue = (Integer) iter.next();
             if (values2.contains(curValue)) {
-                tmp[counter++] = curValue.intValue();
+                tmp[counter++] = curValue;
             }
         }
         /** @todo add emptiness check */
@@ -177,7 +177,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     @Override
     public boolean possible(int value) {
-        return (hasElem(value).max() == 1);
+        return hasElem(value).max() == 1;
     }
 
     @Override
@@ -196,7 +196,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     @Override
     public boolean required(int value) {
-        return (hasElem(value).min() == 1);
+        return hasElem(value).min() == 1;
     }
 
     @Override
@@ -205,7 +205,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         Iterator iter = _values2index.keySet().iterator();
         while (iter.hasNext()) {
             Integer curValue = (Integer) iter.next();
-            if (hasElem(curValue.intValue()).min() == 1) {
+            if (hasElem(curValue).min() == 1) {
                 values.add(curValue);
             }
         }
@@ -229,13 +229,13 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         int counter = 0;
         Iterator iter = values1.iterator();
         while (iter.hasNext()) {
-            tmp[counter++] = ((Integer) iter.next()).intValue();
+            tmp[counter++] = ((Integer) iter.next());
         }
         iter = values2.iterator();
         while (iter.hasNext()) {
             Integer curValue = (Integer) iter.next();
             if (!values1.contains(curValue)) {
-                tmp[counter++] = (curValue).intValue();
+                tmp[counter++] = curValue;
             }
         }
 

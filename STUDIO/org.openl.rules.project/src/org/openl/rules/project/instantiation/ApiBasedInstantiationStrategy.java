@@ -89,8 +89,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             log.debug("Failed to get service class.", e);
             serviceClass = null;
         }
-        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
-            .equals(serviceClass))) {
+        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             if (getModule().getExtension() != null) {
                 IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
                     .getExtensionDescriptor(getModule().getExtension(), getClassLoader());

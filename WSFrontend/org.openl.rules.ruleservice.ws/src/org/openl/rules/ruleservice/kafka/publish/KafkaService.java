@@ -3,23 +3,14 @@ package org.openl.rules.ruleservice.kafka.publish;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -222,7 +213,7 @@ public final class KafkaService implements Runnable {
                                     producerRecord = new ProducerRecord<>(outputTopic, result);
                                 } else {
                                     Integer partition = Integer
-                                        .valueOf(new String(header.value(), StandardCharsets.UTF_8));
+                                        .parseInt(new String(header.value(), StandardCharsets.UTF_8));
                                     producerRecord = new ProducerRecord<>(outputTopic, partition, null, result);
                                 }
                                 forwardHeadersToOutput(consumerRecord, producerRecord);
@@ -363,7 +354,7 @@ public final class KafkaService implements Runnable {
             if (header == null) {
                 dltRecord = new ProducerRecord<>(dltTopic, record.value().getRawData());
             } else {
-                Integer partition = Integer.valueOf(new String(header.value(), StandardCharsets.UTF_8));
+                Integer partition = Integer.parseInt(new String(header.value(), StandardCharsets.UTF_8));
                 dltRecord = new ProducerRecord<>(dltTopic, partition, null, record.value().getRawData());
             }
             forwardHeadersToDlt(record, dltRecord);

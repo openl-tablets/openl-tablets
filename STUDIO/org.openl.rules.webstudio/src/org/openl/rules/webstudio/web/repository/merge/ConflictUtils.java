@@ -13,8 +13,8 @@ class ConflictUtils {
 
     static Map<String, ConflictResolution> getConflictsFromSession(HttpSession session) {
         @SuppressWarnings("unchecked")
-        Map<String, ConflictResolution> suite = (Map<String, ConflictResolution>) session.getAttribute(
-            CONFLICT_RESOLUTIONS_PARAMETER);
+        Map<String, ConflictResolution> suite = (Map<String, ConflictResolution>) session
+            .getAttribute(CONFLICT_RESOLUTIONS_PARAMETER);
         return suite;
     }
 

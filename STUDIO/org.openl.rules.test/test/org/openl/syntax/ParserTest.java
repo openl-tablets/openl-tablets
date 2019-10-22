@@ -34,7 +34,6 @@ import junit.framework.TestCase;
 public class ParserTest extends TestCase {
 
     private static ISyntaxNode search(ISyntaxNode topNode, String type) {
-        Class<?> c = null;
         if (topNode.getType().equals(type)) {
             return topNode;
         }

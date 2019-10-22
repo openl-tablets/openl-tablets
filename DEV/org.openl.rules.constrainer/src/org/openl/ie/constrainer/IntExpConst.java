@@ -55,7 +55,7 @@ public class IntExpConst extends IntExpImpl {
      */
     @Override
     final public boolean contains(int value) {
-        return (value == _const);
+        return value == _const;
     }
 
     /**

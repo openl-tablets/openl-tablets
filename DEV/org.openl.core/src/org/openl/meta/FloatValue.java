@@ -167,7 +167,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value.floatValue(), NumberOperations.COPY, value);
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value.floatValue(),
+                NumberOperations.COPY,
+                value);
             result.setName(name);
 
             return result;
@@ -367,7 +369,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         }
 
         return new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue()),
-            NumberOperations.POW, value1, value2);
+            NumberOperations.POW,
+            value1,
+            value2);
     }
 
     /**

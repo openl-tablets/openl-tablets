@@ -353,8 +353,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((openClass1 == null) ? 0 : openClass1.hashCode());
-            result = prime * result + ((openClass2 == null) ? 0 : openClass2.hashCode());
+            result = prime * result + (openClass1 == null ? 0 : openClass1.hashCode());
+            result = prime * result + (openClass2 == null ? 0 : openClass2.hashCode());
             return result;
         }
 

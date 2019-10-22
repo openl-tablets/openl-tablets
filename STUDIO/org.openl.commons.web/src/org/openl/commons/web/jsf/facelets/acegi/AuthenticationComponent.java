@@ -25,7 +25,7 @@ public class AuthenticationComponent extends UIComponentBase {
 
     @Override
     public void encodeBegin(FacesContext context) throws IOException {
-        if ((null == operation) || "".equals(operation)) {
+        if (null == operation || "".equals(operation)) {
             return;
         }
 

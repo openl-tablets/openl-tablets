@@ -23,7 +23,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IO
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
-    
+
     @Override
     public Method getTargetMember(Method key) {
         return methodsMap.get(key);

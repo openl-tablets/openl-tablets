@@ -56,26 +56,26 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         }
 
         if (getMtomUseXmime() != null) {
-            aegisDatabinding.setMtomUseXmime(getMtomUseXmime().booleanValue());
-            aegisContext.setMtomUseXmime(getMtomUseXmime().booleanValue());
+            aegisDatabinding.setMtomUseXmime(getMtomUseXmime());
+            aegisContext.setMtomUseXmime(getMtomUseXmime());
         }
 
         if (getMtomEnabled() != null) {
-            aegisDatabinding.setMtomEnabled(getMtomEnabled().booleanValue());
-            aegisContext.setMtomEnabled(getMtomEnabled().booleanValue());
+            aegisDatabinding.setMtomEnabled(getMtomEnabled());
+            aegisContext.setMtomEnabled(getMtomEnabled());
         }
 
         Set<String> rootClassNames = getOverrideTypesWithDefaultOpenLTypes();
         aegisDatabinding.setOverrideTypes(rootClassNames);
         aegisContext.setRootClassNames(rootClassNames);
         aegisContext.initialize();
-        
+
         if (getBus() != null) {
             aegisDatabinding.setBus(getBus());
         }
 
         if (getMtomThreshold() != null) {
-            aegisDatabinding.setMtomThreshold(getMtomThreshold().intValue());
+            aegisDatabinding.setMtomThreshold(getMtomThreshold());
         }
 
         if (getNamespaceMap() != null) {
@@ -87,11 +87,11 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         }
 
         if (getWriteXsiTypes() != null) {
-            aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes().booleanValue());
+            aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes());
         }
 
         if (getReadXsiTypes() != null) {
-            aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes().booleanValue());
+            aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes());
         }
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
@@ -115,7 +115,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         registerCustomJavaTypes(typeMapping);
 
         registerOpenLTypes(typeMapping);
-        
+
         return aegisDatabinding;
     }
 

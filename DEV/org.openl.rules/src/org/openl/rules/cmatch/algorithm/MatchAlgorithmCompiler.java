@@ -66,9 +66,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             if (indent == 0) {
                 rootNode.add(node);
             } else {
-                if (indent == (prevIndent + 1)) {
+                if (indent == prevIndent + 1) {
                     lastForIndent[prevIndent].add(node);
-                } else if (indent > (prevIndent + 1)) {
+                } else if (indent > prevIndent + 1) {
                     // can increase by +1 only
                     String msg = MessageFormat.format("Illegal indent. 0..{0} expected.", prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
@@ -91,7 +91,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         if (!colDef.isMultipleValueAllowed()) {
             // only 1
             if (values.length != 1) {
-                throw new IllegalArgumentException(String.format("Column %s can have single value only.", colDef.getName()));
+                throw new IllegalArgumentException(
+                    String.format("Column %s can have single value only.", colDef.getName()));
             }
         }
     }

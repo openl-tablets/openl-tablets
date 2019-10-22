@@ -1,11 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -282,7 +278,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public void setInstantiationStrategyFactory(RuleServiceInstantiationStrategyFactory instantiationStrategyFactory) {
-        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory, "instantiationStrategyFactory cannot be null");;
+        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory,
+            "instantiationStrategyFactory cannot be null");
+
     }
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {

@@ -79,7 +79,7 @@ public class NicePrinter {
 
         Integer existingID = printedObjects.get(obj);
         if (existingID != null) {
-            adaptor.printReference(obj, existingID.intValue(), this);
+            adaptor.printReference(obj, existingID, this);
             return;
         }
 

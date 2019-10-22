@@ -21,16 +21,18 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
     }
 
     public InterfaceClassGeneratorImpl(String[] includes, String[] excludes) {
-        this.includes = Objects.requireNonNull(includes, "includes cannot be null");;
-        this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");;
+        this.includes = Objects.requireNonNull(includes, "includes cannot be null");
+
+        this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");
+
     }
 
     @Override
     public Class<?> generateInterface(String className,
             IOpenClass openClass,
             ClassLoader classLoader) throws Exception {
-        boolean f1 = (includes == null) || (includes.length == 0);
-        boolean f2 = (excludes == null) || (excludes.length == 0);
+        boolean f1 = includes == null || includes.length == 0;
+        boolean f2 = excludes == null || excludes.length == 0;
         if (f1 && f2) {
             return InterfaceGenerator.generateInterface(className, openClass, classLoader);
         } else {

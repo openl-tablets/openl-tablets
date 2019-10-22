@@ -13,6 +13,6 @@ final class PoiUtils {
             return HSSFColor.HSSFColorPredefined.AUTOMATIC.getColor().getTriplet();
         }
         byte[] b = palette.getColor(index);
-        return (b == null) ? null : new short[] { (short) (b[0] & 0xff), (short) (b[1] & 0xff), (short) (b[2] & 0xff) };
+        return b == null ? null : new short[] { (short) (b[0] & 0xff), (short) (b[1] & 0xff), (short) (b[2] & 0xff) };
     }
 }

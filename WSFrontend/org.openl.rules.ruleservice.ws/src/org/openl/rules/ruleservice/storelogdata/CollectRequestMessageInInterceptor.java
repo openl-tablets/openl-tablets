@@ -14,8 +14,6 @@ import org.apache.cxf.io.CachedWriter;
 import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 /**
  * CXF interceptor for collecting request data for logging to external source feature.

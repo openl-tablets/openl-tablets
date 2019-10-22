@@ -65,7 +65,7 @@ public class DiffElementImpl implements DiffElement {
             throw new IllegalArgumentException("childrenEqual is 'true' while less strict hierarhyEqual is 'false'.");
         }
 
-        diffStatus = (childrenEqual && selfEqual) ? EQUALS : DIFFERS;
+        diffStatus = childrenEqual && selfEqual ? EQUALS : DIFFERS;
     }
 
     public void asOriginal(boolean exists) {
@@ -74,6 +74,6 @@ public class DiffElementImpl implements DiffElement {
         childrenEqual = exists;
         selfEqual = exists;
 
-        diffStatus = (exists) ? ORIGINAL : ORIGINAL_ABSENT;
+        diffStatus = exists ? ORIGINAL : ORIGINAL_ABSENT;
     }
 }

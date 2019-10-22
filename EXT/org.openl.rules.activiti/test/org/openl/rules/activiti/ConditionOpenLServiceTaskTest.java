@@ -47,7 +47,7 @@ public class ConditionOpenLServiceTaskTest {
 
         Double result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
+        Assert.assertEquals(500.0d, result, 1e-3);
         Assert.assertEquals("result task 1", task.getName());
 
         processEngine.getTaskService().complete(task.getId());
@@ -62,7 +62,7 @@ public class ConditionOpenLServiceTaskTest {
 
         result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(350.0d, result.doubleValue(), 1e-3);
+        Assert.assertEquals(350.0d, result, 1e-3);
         Assert.assertEquals("result task 2", task.getName());
 
         processEngine.getTaskService().complete(task.getId());

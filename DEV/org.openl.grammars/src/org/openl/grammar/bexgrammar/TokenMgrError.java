@@ -101,12 +101,12 @@ public class TokenMgrError extends BaseTokenMgrError {
             String errorAfter,
             int curChar) {
         char curChar1 = (char) curChar;
-        return ("Lexical error at line " + errorLine + ", column " + errorColumn + ".  Encountered: " + (EOFSeen ? "<EOF> "
-                                                                                                                 : ("\"" + addEscapes(
-                                                                                                                     String
-                                                                                                                         .valueOf(
-                                                                                                                             curChar1)) + "\"") + " (" + curChar + "), ") + "after : \"" + addEscapes(
-                                                                                                                                 errorAfter) + "\"");
+        return "Lexical error at line " + errorLine + ", column " + errorColumn + ".  Encountered: " + (EOFSeen ? "<EOF> "
+                                                                                                                : "\"" + addEscapes(
+                                                                                                                    String
+                                                                                                                        .valueOf(
+                                                                                                                            curChar1)) + "\"" + " (" + curChar + "), ") + "after : \"" + addEscapes(
+                                                                                                                                errorAfter) + "\"";
     }
 
     /**

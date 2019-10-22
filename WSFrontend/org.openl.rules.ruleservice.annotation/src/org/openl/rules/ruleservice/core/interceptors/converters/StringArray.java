@@ -17,7 +17,7 @@ public class StringArray {
     }
 
     public StringArray(Collection<String> collection) {
-        this.array = (collection != null) ? collection.toArray(new String[collection.size()]) : new String[0];
+        this.array = collection != null ? collection.toArray(new String[collection.size()]) : new String[0];
     }
 
     public void setArray(String[] array) {

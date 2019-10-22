@@ -35,10 +35,10 @@ public class DatatypeTableBuilder extends TableBuilder {
     public void writeHeader(String tableName, String parentType, ICellStyle style) {
         String header = IXlsTableNames.DATATYPE_TABLE;
         if (StringUtils.isNotBlank(tableName)) {
-            header += (" " + tableName);
+            header += " " + tableName;
         }
         if (StringUtils.isNotBlank(parentType)) {
-            header += (" extends " + parentType);
+            header += " extends " + parentType;
         }
         super.writeHeader(header, style);
     }

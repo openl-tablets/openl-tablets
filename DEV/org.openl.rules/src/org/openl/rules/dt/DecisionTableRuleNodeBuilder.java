@@ -16,7 +16,7 @@ public class DecisionTableRuleNodeBuilder {
     }
 
     public void addRule(int rule) {
-        rules.add(Integer.valueOf(rule));
+        rules.add(rule);
     }
 
     public DecisionTableRuleNode makeNode() {

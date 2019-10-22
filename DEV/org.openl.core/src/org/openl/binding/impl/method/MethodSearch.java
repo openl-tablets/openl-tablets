@@ -83,8 +83,8 @@ public final class MethodSearch {
                             } else {
                                 return NO_MATCH;
                             }
-                        } else if ((cast1 == null || !cast1.isImplicit())) {
-                        } else if ((cast2 == null || !cast2.isImplicit())) {
+                        } else if (cast1 == null || !cast1.isImplicit()) {
+                        } else if (cast2 == null || !cast2.isImplicit()) {
                             m.put(typeNames[i], t);
                         } else {
                             if (cast2.getDistance() < cast1.getDistance()) {
@@ -245,11 +245,11 @@ public final class MethodSearch {
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
 
         final int nParams = params.length;
-        Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod> emptyList()
-                                                           : CollectionUtils.findAll(methods,
-                                                               method -> method.getName()
-                                                                   .equals(name) && method.getSignature()
-                                                                       .getParameterTypes().length == nParams);
+        Iterable<IOpenMethod> filtered = methods == null ? Collections.<IOpenMethod> emptyList()
+                                                         : CollectionUtils.findAll(methods,
+                                                             method -> method.getName()
+                                                                 .equals(name) && method.getSignature()
+                                                                     .getParameterTypes().length == nParams);
 
         List<IOpenMethod> matchingMethods = new ArrayList<>();
         List<IOpenCast[]> matchingMethodsCastHolder = new ArrayList<>();
@@ -309,7 +309,7 @@ public final class MethodSearch {
                 return null;
             case 1:
                 IOpenMethod m = matchingMethods.get(0);
-                if (!(zeroCasts(bestMatch))) {
+                if (!zeroCasts(bestMatch)) {
                     CastingMethodCaller methodCaller = new CastingMethodCaller(m, matchingMethodsCastHolder.get(0));
                     return buildMethod(matchingMethodsReturnCast.get(0),
                         matchingMethodsReturnType.get(0),
@@ -365,15 +365,15 @@ public final class MethodSearch {
             IOpenClass[] params,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
-        Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod> emptyList()
-                                                           : CollectionUtils.findAll(methods,
-                                                               method -> method.getName()
-                                                                   .equals(name) && method.getSignature()
-                                                                       .getNumberOfParameters() > 0 && method
-                                                                           .getSignature()
-                                                                           .getParameterType(method.getSignature()
-                                                                               .getNumberOfParameters() - 1)
-                                                                           .isArray());
+        Iterable<IOpenMethod> filtered = methods == null ? Collections.<IOpenMethod> emptyList()
+                                                         : CollectionUtils.findAll(methods,
+                                                             method -> method.getName()
+                                                                 .equals(name) && method.getSignature()
+                                                                     .getNumberOfParameters() > 0 && method
+                                                                         .getSignature()
+                                                                         .getParameterType(method.getSignature()
+                                                                             .getNumberOfParameters() - 1)
+                                                                         .isArray());
         if (filtered.iterator().hasNext()) {
             for (int i = params.length - 1; i >= 0; i--) {
                 IOpenClass[] args = new IOpenClass[i + 1];

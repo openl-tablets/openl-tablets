@@ -74,7 +74,7 @@ public class SmartRedeployController {
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
-        if (project == null || project != currentProject || (isSupportsBranches() && project.getVersion() == null)) {
+        if (project == null || project != currentProject || isSupportsBranches() && project.getVersion() == null) {
             reset();
             return null;
         }

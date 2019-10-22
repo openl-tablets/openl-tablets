@@ -452,8 +452,6 @@ public final class IntExpElementAt extends IntExpImpl {
         int min = values[0];
         int max = values[values.length - 1];
         int size = values.length;
-        int nHoles = (max - min + 1) - size;
-
         // if (nHoles < 10) {
         // createElement1(values);
         // } else {
@@ -493,7 +491,7 @@ public final class IntExpElementAt extends IntExpImpl {
     }
 
     void createIndex() throws Failure {
-        boolean effectiveIndexExp = (_indexExp instanceof IntVar) && ((IntVar) _indexExp)
+        boolean effectiveIndexExp = _indexExp instanceof IntVar && ((IntVar) _indexExp)
             .domainType() != IntVar.DOMAIN_PLAIN;
         int max = _ary.size() - 1;
         if (effectiveIndexExp) {
@@ -524,7 +522,7 @@ public final class IntExpElementAt extends IntExpImpl {
     }
 
     void createMapping() {
-        int nHoles = (_element.max() - _element.min() + 1) - _element.size();
+        int nHoles = _element.max() - _element.min() + 1 - _element.size();
         if (_index.size() == _element.size() && nHoles < 2000) {
             _m = new OneToOneMapping(_index, _element, _ary);
         } else {

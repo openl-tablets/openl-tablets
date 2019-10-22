@@ -31,7 +31,7 @@ public class DoubleNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Double.valueOf(s.substring(0, len - 1)), JavaOpenClass.DOUBLE);
         }
 
-        Double doubleValue = Double.valueOf(s);
+        Double doubleValue = Double.parseDouble(s);
         if (!doubleValue.isInfinite() || doubleValue.toString().equals(s)) {
             return new LiteralBoundNode(node, doubleValue, JavaOpenClass.DOUBLE);
         }

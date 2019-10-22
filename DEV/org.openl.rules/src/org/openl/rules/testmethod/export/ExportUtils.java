@@ -42,7 +42,7 @@ final class ExportUtils {
                 result.add(null);
             } else {
                 if (element instanceof Collection) {
-                    for (Object o : ((Iterable) element)) {
+                    for (Object o : (Iterable) element) {
                         result.add(o);
                     }
                 } else if (!element.getClass().isArray()) {

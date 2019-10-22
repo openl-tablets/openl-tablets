@@ -357,19 +357,19 @@ public class Operators {
 
     // Divide
     public static double divide(byte x, byte y) {
-        return ((double) x) / y;
+        return (double) x / y;
     }
 
     public static double divide(short x, short y) {
-        return ((double) x) / y;
+        return (double) x / y;
     }
 
     public static double divide(int x, int y) {
-        return ((double) x) / y;
+        return (double) x / y;
     }
 
     public static double divide(long x, long y) {
-        return ((double) x) / y;
+        return (double) x / y;
     }
 
     public static float divide(float x, float y) {
@@ -384,28 +384,28 @@ public class Operators {
         if (x == null || y == null) {
             return null;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Short x, Short y) {
         if (x == null || y == null) {
             return null;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Integer x, Integer y) {
         if (x == null || y == null) {
             return null;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Double divide(Long x, Long y) {
         if (x == null || y == null) {
             return null;
         }
-        return ((double) x / y);
+        return (double) x / y;
     }
 
     public static Float divide(Float x, Float y) {
@@ -845,13 +845,12 @@ public class Operators {
 
     public static Boolean or(Boolean x, Boolean y) {
         return Boolean.TRUE.equals(
-            x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : (x == null || y == null) ? null : Boolean.FALSE;
+            x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : x == null || y == null ? null : Boolean.FALSE;
     }
 
     public static Boolean and(Boolean x, Boolean y) {
-        return Boolean.FALSE.equals(x) ? Boolean.FALSE
-                                       : Boolean.FALSE.equals(y) ? Boolean.FALSE
-                                                                 : (x == null || y == null) ? null : Boolean.TRUE;
+        return Boolean.FALSE.equals(
+            x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
     }
 
     public static int rshift(int x, int y) {

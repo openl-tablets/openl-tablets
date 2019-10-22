@@ -30,6 +30,6 @@ public class ClassMinMaxMatcher implements IMatcher {
 
         int result = c1.compareTo(c2);
 
-        return (isMaxMode) ? (result <= 0) : (result >= 0);
+        return isMaxMode ? result <= 0 : result >= 0;
     }
 }

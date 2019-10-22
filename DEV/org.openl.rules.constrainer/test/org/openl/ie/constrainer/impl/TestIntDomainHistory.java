@@ -161,7 +161,7 @@ public class TestIntDomainHistory extends TestCase {
                 for (int j = maxVals.length - 1; j > i; j--) {
                     // ensure that all removed values are available after
                     // restoration
-                    assertTrue((intvar.contains(maxVals[j])) && (intvar.contains(minVals[i])));
+                    assertTrue(intvar.contains(maxVals[j]) && intvar.contains(minVals[i]));
                 }
             }
         } catch (Failure f) {

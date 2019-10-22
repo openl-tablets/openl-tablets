@@ -1,11 +1,7 @@
 package org.openl.rules.table.xls.builder;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.poi.ss.usermodel.*;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -333,7 +329,7 @@ public class TableBuilder {
     }
 
     private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
-        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2
+        return cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2
             .getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1
                 .getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1
                     .getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1
@@ -346,9 +342,8 @@ public class TableBuilder {
                                                 .getRightBorderColor() == cs2.getRightBorderColor() && cs1
                                                     .getRotation() == cs2.getRotation() && cs1
                                                         .getTopBorderColor() == cs2.getTopBorderColor() && cs1
-                                                            .getVerticalAlignment() == cs2
-                                                                .getVerticalAlignment()) && cs1
-                                                                    .getDataFormat() == cs2.getDataFormat();
+                                                            .getVerticalAlignment() == cs2.getVerticalAlignment() && cs1
+                                                                .getDataFormat() == cs2.getDataFormat();
     }
 
     /**

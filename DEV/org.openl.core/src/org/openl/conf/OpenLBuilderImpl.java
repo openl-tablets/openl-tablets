@@ -39,7 +39,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         op.setExtendsCategory(extendsCategory);
         op.setCategory(category);
 
-        if (libraries != null && (libraries.length > 0)) {
+        if (libraries != null && libraries.length > 0) {
             LibraryFactoryConfiguration libraries = op.createLibraries();
             NameSpacedLibraryConfiguration thisNamespaceLibrary = new NameSpacedLibraryConfiguration();
             thisNamespaceLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
@@ -82,7 +82,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
          * </libraries>
          */
 
-        if ((packageImports != null && (packageImports.length > 0)) || (classImports != null && (classImports.length > 0))) {
+        if (packageImports != null && packageImports.length > 0 || classImports != null && classImports.length > 0) {
             TypeFactoryConfiguration types = op.createTypes();
             NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
             typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);

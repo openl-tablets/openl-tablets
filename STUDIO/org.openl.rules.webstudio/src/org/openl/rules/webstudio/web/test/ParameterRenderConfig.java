@@ -110,7 +110,8 @@ public class ParameterRenderConfig {
          * @see #getType()
          */
         public Builder(IOpenClass type, Object value) {
-            this.type = Objects.requireNonNull(type, "type cannot be null");;
+            this.type = Objects.requireNonNull(type, "type cannot be null");
+
             this.value = value;
         }
 

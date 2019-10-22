@@ -59,7 +59,7 @@ public class SimpleCharStream {
                 System.arraycopy(bufcolumn, 0, newbufcolumn, bufsize - tokenBegin, bufpos);
                 bufcolumn = newbufcolumn;
 
-                maxNextCharInd = (bufpos += (bufsize - tokenBegin));
+                maxNextCharInd = bufpos += bufsize - tokenBegin;
             } else {
                 System.arraycopy(buffer, tokenBegin, newbuffer, 0, bufsize - tokenBegin);
                 buffer = newbuffer;
@@ -70,7 +70,7 @@ public class SimpleCharStream {
                 System.arraycopy(bufcolumn, tokenBegin, newbufcolumn, 0, bufsize - tokenBegin);
                 bufcolumn = newbufcolumn;
 
-                maxNextCharInd = (bufpos -= tokenBegin);
+                maxNextCharInd = bufpos -= tokenBegin;
             }
         } catch (Throwable t) {
             throw new Error(t.getMessage());
@@ -94,7 +94,7 @@ public class SimpleCharStream {
                 }
             } else if (available > tokenBegin) {
                 available = bufsize;
-            } else if ((tokenBegin - available) < 2048) {
+            } else if (tokenBegin - available < 2048) {
                 ExpandBuff(true);
             } else {
                 available = tokenBegin;
@@ -134,13 +134,13 @@ public class SimpleCharStream {
 
         if (prevCharIsLF) {
             prevCharIsLF = false;
-            line += (column = 1);
+            line += column = 1;
         } else if (prevCharIsCR) {
             prevCharIsCR = false;
             if (c == '\n') {
                 prevCharIsLF = true;
             } else {
-                line += (column = 1);
+                line += column = 1;
             }
         }
 
@@ -153,7 +153,7 @@ public class SimpleCharStream {
                 break;
             case '\t':
                 column--;
-                column += (tabSize - (column % tabSize));
+                column += tabSize - column % tabSize;
                 break;
             default:
                 break;
@@ -378,7 +378,7 @@ public class SimpleCharStream {
     public char[] GetSuffix(int len) {
         char[] ret = new char[len];
 
-        if ((bufpos + 1) >= len) {
+        if (bufpos + 1 >= len) {
             System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
         } else {
             System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);

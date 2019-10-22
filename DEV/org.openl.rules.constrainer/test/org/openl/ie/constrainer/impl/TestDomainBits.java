@@ -176,7 +176,7 @@ public class TestDomainBits extends TestCase {
         // intersection is a part of a domain (less than the whole) that does not
         // include
         // neither left nor right end of the domain
-        newsize = newsize - ((newmax - 1) - (newmin + 1) + 1);
+        newsize = newsize - (newmax - 1 - (newmin + 1) + 1);
         try {
             assertTrue(di.removeRange(newmin + 1, newmax - 1));
             assertEquals(newmin, di.min());// hasn't changed
@@ -228,8 +228,8 @@ public class TestDomainBits extends TestCase {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
-        boolean[] oldbits = db.bits();
-        boolean[] newbits = new boolean[db.size()];
+        db.bits();
+        db.size();
         db.forceBits(new boolean[] { true, true, true, true, true, false, false, true, false, true, true });
         try {
             db.setMax(8);
@@ -254,8 +254,8 @@ public class TestDomainBits extends TestCase {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
-        boolean[] oldbits = db.bits();
-        boolean[] newbits = new boolean[db.size()];
+        db.bits();
+        db.size();
         db.forceBits(new boolean[] { true, false, true, true, true, true, false, true, true, true, true });
         try {
             db.setMin(6);

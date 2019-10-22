@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations;
 
 public class CassandraOperationsTest {
 

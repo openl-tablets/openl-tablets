@@ -43,7 +43,7 @@ public class TestDomainBits2 extends TestCase {
                     return bits2;
                 }
                 if (bits[idx]) {
-                    bits2[i] |= (1 << j);
+                    bits2[i] |= 1 << j;
                 }
             }
         }
@@ -115,7 +115,7 @@ public class TestDomainBits2 extends TestCase {
         }
         db2.forceBits(mask);
         for (int i = 0; i <= db2.size(); i++) {
-            if ((i % 32) == 0) {
+            if (i % 32 == 0) {
                 assertTrue(db2.contains(i));
             } else {
                 assertTrue(!db2.contains(i));
@@ -226,7 +226,7 @@ public class TestDomainBits2 extends TestCase {
         // intersection is a part of a domain (less than the whole) that does not
         // include
         // neither left nor right end of the domain
-        newsize = newsize - ((newmax - 1) - (newmin + 1) + 1);
+        newsize = newsize - (newmax - 1 - (newmin + 1) + 1);
         try {
             assertTrue(di.removeRange(newmin + 1, newmax - 1));
             assertEquals(newmin, di.min());// hasn't changed
@@ -278,8 +278,7 @@ public class TestDomainBits2 extends TestCase {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
-        // boolean[] oldbits = db.bits();
-        boolean[] newbits = new boolean[db.size()];
+        db.size();
         db.forceBits(
             bitsToBits2(new boolean[] { true, true, true, true, true, false, false, true, false, true, true }));
         try {
@@ -305,8 +304,7 @@ public class TestDomainBits2 extends TestCase {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
-        // boolean[] oldbits = db.bits();
-        boolean[] newbits = new boolean[db.size()];
+        db.size();
         db.forceBits(bitsToBits2(new boolean[] { true, false, true, true, true, true, false, true, true, true, true }));
         try {
             db.setMin(6);

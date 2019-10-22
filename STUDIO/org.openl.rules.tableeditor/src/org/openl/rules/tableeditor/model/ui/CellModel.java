@@ -86,7 +86,7 @@ public class CellModel implements ICellModel {
 
         String[] bwidth = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            int width = (borderStyle[i] == null) ? 0 : borderStyle[i].getWidth();
+            int width = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
             bwidth[i] = width + (width != 0 ? "px" : "");
         }
         String widthStr = boxCSStoString(bwidth);
@@ -98,7 +98,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             String style;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
-                style = (borderStyle[1] == null) ? "none" : borderStyle[1].getStyle();
+                style = borderStyle[1] == null ? "none" : borderStyle[1].getStyle();
             } else {
                 if (borderStyle[i] == null) {
                     style = "none";
@@ -117,7 +117,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < borderStyle.length; i++) {
             String color;
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
-                color = (borderStyle[1] == null) ? "#000" : toHexColor(borderStyle[1].getRgb());
+                color = borderStyle[1] == null ? "#000" : toHexColor(borderStyle[1].getRgb());
             } else {
                 if (borderStyle[i] == null) {
                     color = "#000";
@@ -141,7 +141,7 @@ public class CellModel implements ICellModel {
         for (int i = 0; i < content.length(); i++) {
             char ch = content.charAt(i);
 
-            if ((ch == ' ') && startLine) {
+            if (ch == ' ' && startLine) {
                 buf.append("&nbsp;");
                 continue;
             }
@@ -429,8 +429,8 @@ public class CellModel implements ICellModel {
         String hex2 = toHex(x[1]);
         String hex3 = toHex(x[2]);
 
-        boolean dig3hex = (hex1.charAt(0) == hex1.charAt(1)) && (hex2.charAt(0) == hex2.charAt(1)) && (hex3
-            .charAt(0) == hex3.charAt(1));
+        boolean dig3hex = hex1.charAt(0) == hex1.charAt(1) && hex2.charAt(0) == hex2.charAt(1) && hex3.charAt(0) == hex3
+            .charAt(1);
 
         return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0)
                                                                                                       : hex3);

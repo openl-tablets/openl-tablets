@@ -13,10 +13,10 @@ public class FormatterTest {
     @Test
     public void testMap() {
         Map<Integer, String> testMap = new HashMap<>();
-        testMap.put(Integer.valueOf(25), "yo265");
-        testMap.put(Integer.valueOf(1536), "abra");
-        testMap.put(Integer.valueOf(4657), "cadabra");
-        testMap.put(Integer.valueOf(985643), "matata");
+        testMap.put(25, "yo265");
+        testMap.put(1536, "abra");
+        testMap.put(4657, "cadabra");
+        testMap.put(985643, "matata");
 
         String busStr = printBusView(testMap);
 
@@ -26,7 +26,7 @@ public class FormatterTest {
         assertContains(busStr, "25 : yo265");
         assertContains(busStr, "1536 : abra");
 
-        testMap.put(Integer.valueOf(983), "acuna");
+        testMap.put(983, "acuna");
         String devStr = printDevView(testMap);
         assertContains(devStr, "HashMap<Integer,String>");
         assertContains(devStr, "... 2 more}");
@@ -67,9 +67,9 @@ public class FormatterTest {
     @Test
     public void testArray() {
         Integer[] intMas = new Integer[3];
-        intMas[0] = Integer.valueOf(345);
-        intMas[1] = Integer.valueOf(4567);
-        intMas[2] = Integer.valueOf(76442);
+        intMas[0] = 345;
+        intMas[1] = 4567;
+        intMas[2] = 76442;
 
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");

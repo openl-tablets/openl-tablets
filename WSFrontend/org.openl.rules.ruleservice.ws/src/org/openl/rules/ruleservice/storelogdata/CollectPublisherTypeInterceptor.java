@@ -6,8 +6,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Message> {
 

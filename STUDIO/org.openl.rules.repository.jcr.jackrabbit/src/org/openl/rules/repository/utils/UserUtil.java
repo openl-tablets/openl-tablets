@@ -42,7 +42,7 @@ public class UserUtil {
 
             /* Delete all priveleges from root node */
             for (AccessControlPolicy accessControlPolicy : accessControlPolicies) {
-                AccessControlList acl = ((AccessControlList) accessControlPolicy);
+                AccessControlList acl = (AccessControlList) accessControlPolicy;
 
                 for (AccessControlEntry ace : acl.getAccessControlEntries()) {
                     acl.removeAccessControlEntry(ace);
@@ -58,7 +58,7 @@ public class UserUtil {
 
             /* Set admin right of new user for root node */
             for (AccessControlPolicy accessControlPolicy : accessControlPolicies) {
-                AccessControlList acl = ((AccessControlList) accessControlPolicy);
+                AccessControlList acl = (AccessControlList) accessControlPolicy;
                 acl.addAccessControlEntry(new PrincipalImpl(name), privileges);
                 accessControlManager.setPolicy(session.getRootNode().getPath(), acl);
             }

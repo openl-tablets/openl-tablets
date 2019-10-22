@@ -165,7 +165,7 @@ public class DateRangeParsingTest {
                 ARangeParser.ParseStruct.BoundType.INCLUDING,
                 ARangeParser.ParseStruct.BoundType.INCLUDING),
             new DateRange("  03/12/2019   and   more  "));
-        
+
         assertEquals(
             new DateRange(new Date(Long.MIN_VALUE),
                 toDate("03/12/2019 00:00:00"),

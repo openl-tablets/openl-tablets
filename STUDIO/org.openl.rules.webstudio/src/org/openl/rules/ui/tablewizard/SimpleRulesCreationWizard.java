@@ -393,7 +393,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      * Validation for properties name
      */
     public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
-        String name = ((String) value);
+        String name = (String) value;
         int paramId = this.getParamId(toValidate.getClientId());
         checkParameterName(name);
 
@@ -409,7 +409,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      * Validation for table name
      */
     public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
-        String name = ((String) value);
+        String name = (String) value;
         checkParameterName(name);
     }
 

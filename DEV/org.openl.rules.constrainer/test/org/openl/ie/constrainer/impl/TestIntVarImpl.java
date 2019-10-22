@@ -45,7 +45,7 @@ public class TestIntVarImpl extends TestCase {
     }
 
     public void testA() {
-        IntVar intvar = new IntVarImpl(C, 0, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
+        new IntVarImpl(C, 0, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
 
     }
 

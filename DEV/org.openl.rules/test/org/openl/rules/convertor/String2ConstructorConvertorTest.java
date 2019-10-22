@@ -1,11 +1,10 @@
 package org.openl.rules.convertor;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class String2ConstructorConvertorTest {
     public void testParseParse() {
         String2ConstructorConvertor<LocalDate> converter = new String2ConstructorConvertor<>(LocalDate.class);
         LocalDate result = converter.parse("1980-07-12", null);
-        assertEquals(LocalDate.of(1980,7,12), result);
+        assertEquals(LocalDate.of(1980, 7, 12), result);
     }
 
     @Test

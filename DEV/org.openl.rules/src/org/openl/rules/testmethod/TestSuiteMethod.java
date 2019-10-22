@@ -242,7 +242,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         for (int i = 0; i < getNumberOfTestsCases(); i++) {
             if (getTest(i).isExpectedResultDefined() || getTest(i)
                 .isExpectedErrorDefined() || containsFieldsForSprCellTests(
-                    getTest(i).getTestObject().getFieldValues().keySet()) || (testedMethod instanceof Spreadsheet)) {
+                    getTest(i).getTestObject().getFieldValues().keySet()) || testedMethod instanceof Spreadsheet) {
                 return true;
             }
         }

@@ -9,11 +9,7 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.repository.api.AdditionalData;
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,7 +155,8 @@ public class RulesProject extends UserWorkspaceProject {
             for (FileData fileData : localRepository.list(localFolderName)) {
                 if (!localRepository.delete(fileData)) {
                     if (localRepository.check(fileData.getName()) != null) {
-                        throw new ProjectException(String.format("Cannot close project because resource '%s' is used", fileData.getName()));
+                        throw new ProjectException(
+                            String.format("Cannot close project because resource '%s' is used", fileData.getName()));
                     }
                 }
             }

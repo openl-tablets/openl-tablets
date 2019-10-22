@@ -162,7 +162,7 @@ public class ActionInvoker implements Invokable {
                             action.executeAction(rules[i], target, params, env);
                         }
                     }
-                    if (returnValue == null && (actionResult != null || (i < rules.length))) {
+                    if (returnValue == null && (actionResult != null || i < rules.length)) {
                         returnValue = actionResult;
                         isCollectReturn = false;
                     }

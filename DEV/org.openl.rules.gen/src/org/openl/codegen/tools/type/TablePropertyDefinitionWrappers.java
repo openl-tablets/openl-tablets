@@ -33,7 +33,7 @@ public class TablePropertyDefinitionWrappers {
 
         for (TablePropertyDefinitionWrapper wrapper : wrappers) {
 
-            if (wrapper.getDefinition().isDimensional() && (selector != null && selector.suits(wrapper))) {
+            if (wrapper.getDefinition().isDimensional() && selector != null && selector.suits(wrapper)) {
                 dimensionalTablePropertyDefinitions.add(wrapper);
             }
         }

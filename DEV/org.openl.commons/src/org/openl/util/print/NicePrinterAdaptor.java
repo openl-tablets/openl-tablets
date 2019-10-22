@@ -183,7 +183,7 @@ public class NicePrinterAdaptor {
 
     public void printPrimitive(Object obj, NicePrinter printer) {
         if (obj.getClass() == Double.class) {
-            printer.getBuffer().append(printDouble(((Double) obj).doubleValue()));
+            printer.getBuffer().append(printDouble(((Double) obj)));
         } else {
             printer.getBuffer().append(obj);
         }

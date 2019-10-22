@@ -448,9 +448,9 @@ public class TableEditorController extends BaseTableEditorController {
                 short[] color = parseColor(colorStr);
                 short[] currentColor = style != null ? style.getFillForegroundColor() : null;
 
-                if (color.length == 3 && (currentColor == null || (color[0] != currentColor[0] || // red
+                if (color.length == 3 && (currentColor == null || color[0] != currentColor[0] || // red
                         color[1] != currentColor[1] || // green
-                        color[2] != currentColor[2]))) { // blue
+                        color[2] != currentColor[2])) { // blue
                     try {
                         editorModel.setFillColor(row, col, color);
                     } catch (Exception e) {
@@ -478,9 +478,9 @@ public class TableEditorController extends BaseTableEditorController {
                 short[] color = parseColor(colorStr);
                 short[] currentColor = font != null ? font.getFontColor() : null;
 
-                if (color.length == 3 && (currentColor == null || (color[0] != currentColor[0] || // red
+                if (color.length == 3 && (currentColor == null || color[0] != currentColor[0] || // red
                         color[1] != currentColor[1] || // green
-                        color[2] != currentColor[2]))) { // blue
+                        color[2] != currentColor[2])) { // blue
                     try {
                         editorModel.setFontColor(row, col, color);
                     } catch (Exception e) {

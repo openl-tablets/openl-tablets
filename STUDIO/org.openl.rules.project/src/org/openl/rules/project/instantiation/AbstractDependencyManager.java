@@ -1,17 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -65,8 +54,8 @@ public abstract class AbstractDependencyManager extends DependencyManager {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((reference == null) ? 0 : reference.hashCode());
-            result = prime * result + ((dependency == null) ? 0 : dependency.hashCode());
+            result = prime * result + (reference == null ? 0 : reference.hashCode());
+            result = prime * result + (dependency == null ? 0 : dependency.hashCode());
             return result;
         }
 
@@ -280,7 +269,7 @@ public abstract class AbstractDependencyManager extends DependencyManager {
         }
 
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
-            SimpleDependencyLoader simpleProjectDependencyLoader = ((SimpleDependencyLoader) dependencyLoader);
+            SimpleDependencyLoader simpleProjectDependencyLoader = (SimpleDependencyLoader) dependencyLoader;
             if (simpleProjectDependencyLoader.getDependencyName().equals(dependencyName)) {
                 for (DependencyReference dependencyReference : dependenciesReferenciesToClear) {
                     dependencyReferences.remove(dependencyReference);

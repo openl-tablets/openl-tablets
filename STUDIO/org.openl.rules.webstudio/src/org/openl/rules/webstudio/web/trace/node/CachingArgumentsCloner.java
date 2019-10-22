@@ -10,8 +10,8 @@ import org.openl.rules.table.OpenLArgumentsCloner;
  *
  * If the object overrides hasCode() and equals() methods, it's clone will be reused if it's not changed. If the object
  * does not override hasCode() and equals() methods, then cloned object and original one always will be not equal. So
- * original object can be safely modified, it does not break logic. If equal object is not found in the cache then it will
- * be cloned and stored in the cache.
+ * original object can be safely modified, it does not break logic. If equal object is not found in the cache then it
+ * will be cloned and stored in the cache.
  *
  * If after clone() new instance is not created (for example, object is immutable), such object is not cached.
  *

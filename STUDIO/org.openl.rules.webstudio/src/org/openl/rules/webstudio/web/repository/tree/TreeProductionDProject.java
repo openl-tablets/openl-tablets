@@ -76,17 +76,17 @@ public class TreeProductionDProject extends TreeProductFolder {
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedAt() : null;
+        return vi != null ? vi.getCreatedAt() : null;
     }
 
     public String getCreatedBy() {
-        ProjectVersion projectVersion = (getProject()).getFirstVersion();
+        ProjectVersion projectVersion = getProject().getFirstVersion();
         if (projectVersion == null) {
             return null;
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedBy() : null;
+        return vi != null ? vi.getCreatedBy() : null;
     }
 
     public Date getModifiedAt() {
@@ -96,18 +96,18 @@ public class TreeProductionDProject extends TreeProductFolder {
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedAt() : null;
+        return vi != null ? vi.getCreatedAt() : null;
     }
 
     public String getModifiedBy() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
+        ProjectVersion projectVersion = getProject().getVersion();
         /* zero */
         if (projectVersion == null) {
             return null;
         }
 
         VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedBy() : null;
+        return vi != null ? vi.getCreatedBy() : null;
     }
 
     private AProjectFolder getProject() {

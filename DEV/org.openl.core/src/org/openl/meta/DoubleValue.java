@@ -210,7 +210,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value.doubleValue(), NumberOperations.COPY, value);
+            org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(value.doubleValue(),
+                NumberOperations.COPY,
+                value);
             result.setName(name);
 
             return result;
@@ -412,7 +414,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         }
 
         return new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue()),
-            NumberOperations.POW, value1, value2);
+            NumberOperations.POW,
+            value1,
+            value2);
     }
 
     /**
@@ -601,7 +605,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     public static boolean isNumeric(String str) {
         try {
-            double d = Double.parseDouble(str);
+            Double.parseDouble(str);
         } catch (NumberFormatException nfe) {
             return false;
         }

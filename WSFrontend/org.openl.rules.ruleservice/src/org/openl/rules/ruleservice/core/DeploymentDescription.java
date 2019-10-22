@@ -23,8 +23,8 @@ public class DeploymentDescription {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + (name == null ? 0 : name.hashCode());
+        result = prime * result + (version == null ? 0 : version.hashCode());
         return result;
     }
 

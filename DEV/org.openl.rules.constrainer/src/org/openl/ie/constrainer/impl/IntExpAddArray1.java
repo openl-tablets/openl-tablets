@@ -70,7 +70,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     public IntExpAddArray1(Constrainer constrainer, IntExpArray vars) {
         super(constrainer);
-        int size = vars.size();
+        vars.size();
         _vars = vars;
         _observer = new ExpAddVectorObserver();
 

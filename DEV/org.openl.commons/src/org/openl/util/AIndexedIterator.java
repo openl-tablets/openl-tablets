@@ -116,7 +116,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public final int size() {
-        return step > 0 ? (to - from) / step : (from - to) / (-step);
+        return step > 0 ? (to - from) / step : (from - to) / -step;
     }
 
 }

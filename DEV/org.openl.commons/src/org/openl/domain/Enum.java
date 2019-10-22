@@ -22,7 +22,7 @@ public class Enum<T> {
         indexMap = new HashMap<>(objs.length);
 
         for (int i = 0; i < objs.length; i++) {
-            indexMap.put(objs[i], Integer.valueOf(i));
+            indexMap.put(objs[i], i);
         }
     }
 
@@ -45,7 +45,7 @@ public class Enum<T> {
         if (idx == null) {
             throw new RuntimeException(String.format("Object '%s' is outside of a valid domain.", obj));
         }
-        return idx.intValue();
+        return idx;
     }
 
     /**

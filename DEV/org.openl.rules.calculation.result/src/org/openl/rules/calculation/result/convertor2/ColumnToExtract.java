@@ -76,8 +76,8 @@ public class ColumnToExtract {
 
     /**
      * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for
-     * storing value into row instance. If value cannot be stored in row instance next property name and expected type is
-     * used.
+     * storing value into row instance. If value cannot be stored in row instance next property name and expected type
+     * is used.
      *
      * @param columnName column name
      * @param propertyName property name
@@ -145,7 +145,7 @@ public class ColumnToExtract {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((columnName == null) ? 0 : columnName.hashCode());
+        result = prime * result + (columnName == null ? 0 : columnName.hashCode());
         return result;
     }
 

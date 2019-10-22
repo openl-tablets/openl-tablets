@@ -8,7 +8,7 @@ public enum RecalculateEnum {
 
     private final String displayName;
 
-    private RecalculateEnum (String displayName) {
+    private RecalculateEnum(String displayName) {
         this.displayName = displayName;
     }
 

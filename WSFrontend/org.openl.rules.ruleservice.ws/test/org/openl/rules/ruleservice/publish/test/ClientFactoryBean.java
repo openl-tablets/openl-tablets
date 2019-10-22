@@ -53,7 +53,8 @@ final class ClientFactoryBean implements FactoryBean<Object> {
     }
 
     public void setClientProxyFactoryBean(ClientProxyFactoryBean clientProxyFactoryBean) {
-        this.clientProxyFactoryBean = Objects.requireNonNull(clientProxyFactoryBean, "clientProxyFactoryBean cannot be null");
+        this.clientProxyFactoryBean = Objects.requireNonNull(clientProxyFactoryBean,
+            "clientProxyFactoryBean cannot be null");
     }
 
     @Override

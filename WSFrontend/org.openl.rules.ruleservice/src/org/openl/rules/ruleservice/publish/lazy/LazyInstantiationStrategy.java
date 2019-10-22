@@ -119,8 +119,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             log.debug("Failed to load service class.", e);
             serviceClass = null;
         }
-        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass()
-            .equals(serviceClass))) {
+        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
             engineFactory = new LazyEngineFactory(getDeployment(),
                 getModules(),
                 getDependencyManager(),

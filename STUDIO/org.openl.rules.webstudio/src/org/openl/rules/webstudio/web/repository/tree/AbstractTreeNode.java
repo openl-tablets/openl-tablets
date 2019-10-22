@@ -270,7 +270,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     public String getVersionName() {
         if (data instanceof AProject) {
             ProjectVersion version = data.getVersion();
-            return (version == null) ? null : version.getVersionName();
+            return version == null ? null : version.getVersionName();
         }
         return null;
     }

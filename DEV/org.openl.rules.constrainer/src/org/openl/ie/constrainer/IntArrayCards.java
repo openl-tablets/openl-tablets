@@ -107,7 +107,7 @@ public final class IntArrayCards extends Observer {
     }
 
     int getIndex(IntExp exp) {
-        return ((Integer) _index_map.get(exp)).intValue();
+        return ((Integer) _index_map.get(exp));
     }
 
     @Override

@@ -69,12 +69,14 @@ public final class ZipUtils {
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
         if (!sourceDirectory.exists()) {
-            throw new FileNotFoundException(String.format("File '%s' is not exist.", sourceDirectory.getAbsolutePath()));
+            throw new FileNotFoundException(
+                String.format("File '%s' is not exist.", sourceDirectory.getAbsolutePath()));
         }
         if (sourceDirectory.isDirectory()) {
             String[] list = sourceDirectory.list();
             if (list == null || list.length == 0) {
-                throw new FileNotFoundException(String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
+                throw new FileNotFoundException(
+                    String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
             }
         }
         try (OutputStream fos = new FileOutputStream(targetFile)) {

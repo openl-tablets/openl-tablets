@@ -51,7 +51,7 @@ final class DateIntervalImpl extends DateInterval {
 
     @Override
     public Double toWeeks(Scale scale) {
-        double result = ((double) endDate.daysDiff(startDate)) / DAYS_IN_WEEK;
+        double result = (double) endDate.daysDiff(startDate) / DAYS_IN_WEEK;
         if (Scale.FRAC == scale) {
             return toSignDouble(result);
         }

@@ -77,8 +77,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         if (Objects.equals(this.dependencyName, dependencyName)) {
             if (!(dm instanceof AbstractDependencyManager)) {
-                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.", AbstractDependencyManager.class
-                        .getTypeName() ));
+                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.",
+                    AbstractDependencyManager.class.getTypeName()));
             }
 
             final AbstractDependencyManager dependencyManager = (AbstractDependencyManager) dm;
@@ -140,7 +140,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected CompiledDependency onCompilationFailure(Exception ex,
             AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
-        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),  ex);
+        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
     }
 
     public String getDependencyName() {

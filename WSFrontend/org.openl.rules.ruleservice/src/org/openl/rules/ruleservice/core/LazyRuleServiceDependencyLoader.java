@@ -20,13 +20,8 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
-import org.openl.rules.ruleservice.publish.lazy.LazyBinderInvocationHandler;
-import org.openl.rules.ruleservice.publish.lazy.LazyCompiledOpenClass;
-import org.openl.rules.ruleservice.publish.lazy.LazyField;
-import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
+import org.openl.rules.ruleservice.publish.lazy.*;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
-import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -199,7 +194,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             }
             return lazyCompiledOpenClass;
         } catch (Exception ex) {
-            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),  ex);
+            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
         } finally {
             LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
         }
@@ -239,7 +234,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     deployment.getVersion().getVersionName(),
                     dependencyName);
             } catch (Exception ex) {
-                throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),  ex);
+                throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),
+                    ex);
             } finally {
                 LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
             }
@@ -253,8 +249,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         if (this.dependencyName.equals(dependencyName)) {
             if (!(dm instanceof RuleServiceDeploymentRelatedDependencyManager)) {
-                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.", RuleServiceDeploymentRelatedDependencyManager.class
-                        .getTypeName() ));
+                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.",
+                    RuleServiceDeploymentRelatedDependencyManager.class.getTypeName()));
             }
 
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;

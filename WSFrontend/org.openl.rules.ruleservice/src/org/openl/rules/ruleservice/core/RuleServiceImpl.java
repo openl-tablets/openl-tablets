@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
@@ -126,7 +122,8 @@ public class RuleServiceImpl implements RuleService {
     public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         OpenLService service = ruleServiceManager.getServiceByName(serviceDescription.getName());
         if (service != null) {
-            throw new RuleServiceDeployException(String.format("The service with name '%s' has already been deployed.", serviceDescription.getName()));
+            throw new RuleServiceDeployException(
+                String.format("The service with name '%s' has already been deployed.", serviceDescription.getName()));
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
@@ -151,6 +148,7 @@ public class RuleServiceImpl implements RuleService {
     }
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
-        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory, "ruleServiceInstantiationFactory cannot be null");
+        this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
+            "ruleServiceInstantiationFactory cannot be null");
     }
 }

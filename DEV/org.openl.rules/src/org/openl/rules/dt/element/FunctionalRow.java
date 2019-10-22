@@ -306,7 +306,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         String ruleName = null;
         if (!executionMode) {
-            ruleName = ruleRow == null ? ("R" + (ruleN + 1)) : ruleRow.getRuleName(ruleN);
+            ruleName = ruleRow == null ? "R" + (ruleN + 1) : ruleRow.getRuleName(ruleN);
         }
 
         for (int j = 0; j < paramDecl.length; j++) {
@@ -571,7 +571,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         for (int i = 0; i < n; i++) {
             Object p1 = getParamValue(i, rule1);
             Object p2 = getParamValue(i, rule2);
-            if ((p1 != p2) && (p1 != null && !p1.equals(p2))) {
+            if (p1 != p2 && p1 != null && !p1.equals(p2)) {
                 return false;
             }
         }

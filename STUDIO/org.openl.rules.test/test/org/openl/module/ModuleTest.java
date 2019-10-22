@@ -170,7 +170,7 @@ public class ModuleTest extends TestCase {
     private boolean executeBooleanOpenLExprression(Object context, String expr) {
         IOpenClass retType = JavaOpenClass.BOOLEAN;
         Boolean res = (Boolean) executeOpenLExprression(context, expr, retType);
-        return res.booleanValue();
+        return res;
     }
 
     /**
@@ -318,7 +318,7 @@ public class ModuleTest extends TestCase {
 
         long end = System.currentTimeMillis();
 
-        double run = ((double) (end - start)) / N;
+        double run = (double) (end - start) / N;
 
         System.out.println("Result:" + res + ". Invoke time = " + run + " ms");
 
@@ -364,7 +364,7 @@ public class ModuleTest extends TestCase {
         // know
         // expresion return type before we invoke it
         // thats something we dont know (and cannot) in BLS
-        double value = ((Double) obj).doubleValue();
+        double value = ((Double) obj);
         assertEquals(orderValue, value, 0.00001);
     }
 
@@ -381,7 +381,7 @@ public class ModuleTest extends TestCase {
         // to know
         // expresion return type before we invoke it
         // thats something we dont know (and cannot) in BLS
-        double value = ((Double) obj).doubleValue();
+        double value = ((Double) obj);
         assertEquals(orderValue, value, 0.00001);
     }
 

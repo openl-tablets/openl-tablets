@@ -18,11 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.HostDistance;
-import com.datastax.driver.core.PoolingOptions;
-import com.datastax.driver.core.ProtocolVersion;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.NoHostAvailableException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
@@ -68,8 +64,7 @@ public class CassandraOperations implements InitializingBean, RuleServicePublish
         return session;
     }
 
-    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        new HashSet<>());
+    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(new HashSet<>());
 
     public void save(Object entity) {
         if (entity == null) {
@@ -89,7 +84,7 @@ public class CassandraOperations implements InitializingBean, RuleServicePublish
 
     @Override
     public void onDeploy(OpenLService service) {
-        //Only onUndeploy is used for clear used classes to prevent memory leak.
+        // Only onUndeploy is used for clear used classes to prevent memory leak.
     }
 
     @Override
@@ -268,7 +263,8 @@ public class CassandraOperations implements InitializingBean, RuleServicePublish
             port = port.trim();
         }
         if (keyspace == null || keyspace.trim().isEmpty()) {
-            throw new BeanInitializationException("Property 'keyspace' is mandatory! Please, check your configuration.");
+            throw new BeanInitializationException(
+                "Property 'keyspace' is mandatory! Please, check your configuration.");
         } else {
             keyspace = keyspace.trim();
         }

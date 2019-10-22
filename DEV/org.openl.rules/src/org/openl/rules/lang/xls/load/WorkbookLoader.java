@@ -47,9 +47,9 @@ public interface WorkbookLoader {
     boolean isCanUnload();
 
     /**
-     * Set the flag that this workbook can or cannot be unloaded. If workbook cannot be unloaded (for example when we edit
-     * the workbook) internal implementation should always keep strong reference to workbook and {@link #getWorkbook()}
-     * always returns the same Workbook instance.
+     * Set the flag that this workbook can or cannot be unloaded. If workbook cannot be unloaded (for example when we
+     * edit the workbook) internal implementation should always keep strong reference to workbook and
+     * {@link #getWorkbook()} always returns the same Workbook instance.
      *
      * @param canUnload the flag that this workbook can or cannot be unloaded
      * @see #isCanUnload()

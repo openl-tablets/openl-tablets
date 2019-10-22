@@ -34,7 +34,8 @@ public final class ExtensionDescriptorFactory {
         } catch (IllegalAccessException e) {
             Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
-            throw new ExtensionRuntimeException(String.format("Extension '%s' is not accessible.", extension.getName()));
+            throw new ExtensionRuntimeException(
+                String.format("Extension '%s' is not accessible.", extension.getName()));
         }
         return descriptor;
     }

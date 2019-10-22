@@ -96,7 +96,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public boolean hasProject(String name) {
         synchronized (localProjects) {
-            return (localProjects.get(name.toLowerCase()) != null);
+            return localProjects.get(name.toLowerCase()) != null;
         }
     }
 

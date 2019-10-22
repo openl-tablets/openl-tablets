@@ -34,7 +34,7 @@ public final class RepositoryUtils {
             if (o1.isFolder() == o2.isFolder()) {
                 return o1.getName().compareTo(o2.getName());
             } else {
-                return (o1.isFolder() ? -1 : 1);
+                return o1.isFolder() ? -1 : 1;
             }
         }
     };

@@ -48,7 +48,7 @@ public class ConversionRulesController {
 
         for (ConversionRuleBean conversionRule : conversionRules) {
             if (conversionRule.getOperation()
-                .equals(operationGroupName) && (conversionRule.isMultiLine() == isMultilineOperation)) {
+                .equals(operationGroupName) && conversionRule.isMultiLine() == isMultilineOperation) {
                 return conversionRule;
             }
         }

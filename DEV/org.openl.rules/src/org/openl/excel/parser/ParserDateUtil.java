@@ -22,7 +22,7 @@ public final class ParserDateUtil {
             final int prime = 31;
             int result = 1;
             result = prime * result + formatIndex;
-            result = prime * result + ((formatString == null) ? 0 : formatString.hashCode());
+            result = prime * result + (formatString == null ? 0 : formatString.hashCode());
             return result;
         }
 

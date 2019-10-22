@@ -16,51 +16,51 @@ public class StringOperators {
     private static final int TYPE_TO_STRING_DISTANCE = 41;
 
     public static Byte add(Byte x, String y) {
-        return (byte) (x + Byte.valueOf(y));
+        return (byte) (x + Byte.parseByte(y));
     }
 
     public static Byte add(String x, Byte y) {
-        return (byte) (y + Byte.valueOf(x));
+        return (byte) (y + Byte.parseByte(x));
     }
 
     public static Short add(Short x, String y) {
-        return (short) (x + Short.valueOf(y));
+        return (short) (x + Short.parseShort(y));
     }
 
     public static Short add(String x, Short y) {
-        return (short) (y + Short.valueOf(x));
+        return (short) (y + Short.parseShort(x));
     }
 
     public static Integer add(Integer x, String y) {
-        return x + Integer.valueOf(y);
+        return x + Integer.parseInt(y);
     }
 
     public static Integer add(String x, Integer y) {
-        return y + Integer.valueOf(x);
+        return y + Integer.parseInt(x);
     }
 
     public static Long add(Long x, String y) {
-        return x + Long.valueOf(y);
+        return x + Long.parseLong(y);
     }
 
     public static Long add(String x, Long y) {
-        return y + Long.valueOf(x);
+        return y + Long.parseLong(x);
     }
 
     public static Float add(Float x, String y) {
-        return x + Float.valueOf(y);
+        return x + Float.parseFloat(y);
     }
 
     public static Float add(String x, Float y) {
-        return y + Float.valueOf(x);
+        return y + Float.parseFloat(x);
     }
 
     public static Double add(Double x, String y) {
-        return x + Double.valueOf(y);
+        return x + Double.parseDouble(y);
     }
 
     public static Double add(String x, Double y) {
-        return y + Double.valueOf(x);
+        return y + Double.parseDouble(x);
     }
 
     public static BigInteger add(String x, BigInteger y) {
@@ -86,10 +86,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new DoubleValue(Double.valueOf(value2));
+            return new DoubleValue(Double.parseDouble(value2));
         }
 
-        double v = Double.valueOf(value2);
+        double v = Double.parseDouble(value2);
 
         return new org.openl.meta.DoubleValue(value1,
             new DoubleValue(v),
@@ -103,10 +103,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new DoubleValue(Double.valueOf(value1));
+            return new DoubleValue(Double.parseDouble(value1));
         }
 
-        double v = Double.valueOf(value1);
+        double v = Double.parseDouble(value1);
 
         return new org.openl.meta.DoubleValue(new DoubleValue(v),
             value2,
@@ -120,10 +120,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new IntValue(Integer.valueOf(value2));
+            return new IntValue(Integer.parseInt(value2));
         }
 
-        int v = Integer.valueOf(value2);
+        int v = Integer.parseInt(value2);
 
         return new org.openl.meta.IntValue(value1, new IntValue(v), Operators.add(value1.getValue(), v), Formulas.ADD);
     }
@@ -134,10 +134,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new IntValue(Integer.valueOf(value1));
+            return new IntValue(Integer.parseInt(value1));
         }
 
-        int v = Integer.valueOf(value1);
+        int v = Integer.parseInt(value1);
 
         return new org.openl.meta.IntValue(new IntValue(v), value2, Operators.add(v, value2.getValue()), Formulas.ADD);
     }
@@ -216,10 +216,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new ByteValue(Byte.valueOf(value2));
+            return new ByteValue(Byte.parseByte(value2));
         }
 
-        byte v = Byte.valueOf(value2);
+        byte v = Byte.parseByte(value2);
 
         return new org.openl.meta.ByteValue(value1,
             new ByteValue(v),
@@ -233,10 +233,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new ByteValue(Byte.valueOf(value1));
+            return new ByteValue(Byte.parseByte(value1));
         }
 
-        byte v = Byte.valueOf(value1);
+        byte v = Byte.parseByte(value1);
 
         return new org.openl.meta.ByteValue(new ByteValue(v),
             value2,
@@ -284,10 +284,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new LongValue(Long.valueOf(value2));
+            return new LongValue(Long.parseLong(value2));
         }
 
-        long v = Long.valueOf(value2);
+        long v = Long.parseLong(value2);
 
         return new org.openl.meta.LongValue(value1,
             new LongValue(v),
@@ -301,10 +301,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new LongValue(Long.valueOf(value1));
+            return new LongValue(Long.parseLong(value1));
         }
 
-        long v = Long.valueOf(value1);
+        long v = Long.parseLong(value1);
 
         return new org.openl.meta.LongValue(new LongValue(v),
             value2,
@@ -318,10 +318,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new ShortValue(Short.valueOf(value2));
+            return new ShortValue(Short.parseShort(value2));
         }
 
-        short v = Short.valueOf(value2);
+        short v = Short.parseShort(value2);
 
         return new org.openl.meta.ShortValue(value1,
             new ShortValue(v),
@@ -335,10 +335,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new ShortValue(Short.valueOf(value1));
+            return new ShortValue(Short.parseShort(value1));
         }
 
-        short v = Short.valueOf(value1);
+        short v = Short.parseShort(value1);
 
         return new org.openl.meta.ShortValue(new ShortValue(v),
             value2,
@@ -356,7 +356,7 @@ public class StringOperators {
     }
 
     public static byte autocast(String x, byte y) {
-        return Byte.valueOf(x);
+        return Byte.parseByte(x);
     }
 
     public static Integer distance(String x, byte y) {
@@ -372,7 +372,7 @@ public class StringOperators {
     }
 
     public static short autocast(String x, short y) {
-        return Short.valueOf(x);
+        return Short.parseShort(x);
     }
 
     public static Integer distance(String x, short y) {
@@ -388,7 +388,7 @@ public class StringOperators {
     }
 
     public static int autocast(String x, int y) {
-        return Integer.valueOf(x);
+        return Integer.parseInt(x);
     }
 
     public static Integer distance(String x, int y) {
@@ -404,7 +404,7 @@ public class StringOperators {
     }
 
     public static long autocast(String x, long y) {
-        return Long.valueOf(x);
+        return Long.parseLong(x);
     }
 
     public static Integer distance(String x, long y) {
@@ -453,7 +453,7 @@ public class StringOperators {
     }
 
     public static Byte autocast(String x, Byte y) {
-        return x == null ? null : Byte.valueOf(x);
+        return x == null ? null : Byte.parseByte(x);
     }
 
     public static Integer distance(String x, Byte y) {
@@ -469,7 +469,7 @@ public class StringOperators {
     }
 
     public static short autocast(String x, Short y) {
-        return x == null ? null : Short.valueOf(x);
+        return x == null ? null : Short.parseShort(x);
     }
 
     public static Integer distance(String x, Short y) {
@@ -485,7 +485,7 @@ public class StringOperators {
     }
 
     public static Integer autocast(String x, Integer y) {
-        return x == null ? null : Integer.valueOf(x);
+        return x == null ? null : Integer.parseInt(x);
     }
 
     public static Integer distance(String x, Integer y) {
@@ -501,7 +501,7 @@ public class StringOperators {
     }
 
     public static Long autocast(String x, Long y) {
-        return x == null ? null : Long.valueOf(x);
+        return x == null ? null : Long.parseLong(x);
     }
 
     public static Integer distance(String x, Long y) {
@@ -517,7 +517,7 @@ public class StringOperators {
     }
 
     public static Float autocast(String x, Float y) {
-        return x == null ? null : Float.valueOf(x);
+        return x == null ? null : Float.parseFloat(x);
     }
 
     public static Integer distance(String x, Float y) {
@@ -533,7 +533,7 @@ public class StringOperators {
     }
 
     public static Double autocast(String x, Double y) {
-        return x == null ? null : Double.valueOf(x);
+        return x == null ? null : Double.parseDouble(x);
     }
 
     public static Integer distance(String x, Double y) {
@@ -589,7 +589,7 @@ public class StringOperators {
         if (x == null || "".equals(x)) {
             return null;
         }
-        return new DoubleValue(Double.valueOf(x));
+        return new DoubleValue(Double.parseDouble(x));
     }
 
     public static Integer distance(String x, DoubleValue y) {
@@ -655,7 +655,7 @@ public class StringOperators {
         if (x == null) {
             return null;
         }
-        return new ByteValue(Byte.valueOf(x));
+        return new ByteValue(Byte.parseByte(x));
     }
 
     public static Integer distance(String x, ByteValue y) {
@@ -699,7 +699,7 @@ public class StringOperators {
         if (x == null) {
             return null;
         }
-        return new IntValue(Integer.valueOf(x));
+        return new IntValue(Integer.parseInt(x));
     }
 
     public static Integer distance(String x, IntValue y) {
@@ -721,7 +721,7 @@ public class StringOperators {
         if (x == null) {
             return null;
         }
-        return new LongValue(Long.valueOf(x));
+        return new LongValue(Long.parseLong(x));
     }
 
     public static Integer distance(String x, LongValue y) {
@@ -743,7 +743,7 @@ public class StringOperators {
         if (x == null) {
             return null;
         }
-        return new ShortValue(Short.valueOf(x));
+        return new ShortValue(Short.parseShort(x));
     }
 
     public static Integer distance(String x, ShortValue y) {
@@ -751,23 +751,23 @@ public class StringOperators {
     }
 
     public static boolean gt(String x, Integer y) {
-        return x != null && y != null && Integer.valueOf(x) > y;
+        return x != null && y != null && Integer.parseInt(x) > y;
     }
 
     public static boolean ge(String x, Integer y) {
-        return x != null && y != null && Integer.valueOf(x) >= y;
+        return x != null && y != null && Integer.parseInt(x) >= y;
     }
 
     public static boolean lt(String x, Integer y) {
-        return x != null && y != null && Integer.valueOf(x) < y;
+        return x != null && y != null && Integer.parseInt(x) < y;
     }
 
     public static boolean le(String x, Integer y) {
-        return x != null && y != null && Integer.valueOf(x) <= y;
+        return x != null && y != null && Integer.parseInt(x) <= y;
     }
 
     public static boolean eq(String x, Integer y) {
-        return x == null && y == null || x != null && y != null && Integer.valueOf(x) == y;
+        return x == null && y == null || x != null && y != null && Integer.parseInt(x) == y;
     }
 
     public static boolean ne(String x, Integer y) {
@@ -775,19 +775,19 @@ public class StringOperators {
     }
 
     public static boolean gt(Integer x, String y) {
-        return x != null && y != null && Integer.valueOf(y) < x;
+        return x != null && y != null && Integer.parseInt(y) < x;
     }
 
     public static boolean ge(Integer x, String y) {
-        return x != null && y != null && Integer.valueOf(y) <= x;
+        return x != null && y != null && Integer.parseInt(y) <= x;
     }
 
     public static boolean lt(Integer x, String y) {
-        return x != null && y != null && Integer.valueOf(y) > x;
+        return x != null && y != null && Integer.parseInt(y) > x;
     }
 
     public static boolean le(Integer x, String y) {
-        return x != null && y != null && Integer.valueOf(y) >= x;
+        return x != null && y != null && Integer.parseInt(y) >= x;
     }
 
     public static boolean eq(Integer x, String y) {

@@ -50,9 +50,10 @@ public class ParameterConverterManager {
                 .getAlgorithmRow()
                 .getOperation()
                 .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String
-                .format("Compilation failure. Cannot convert parameter %s to type %s", operationParam, clazz.toString()),
-                errorSource);
+            throw SyntaxNodeExceptionUtils
+                .createError(String.format("Compilation failure. Cannot convert parameter %s to type %s",
+                    operationParam,
+                    clazz.toString()), errorSource);
         }
 
         return converter.convert(nodesToCompile, operationParam);

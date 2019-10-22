@@ -3,7 +3,6 @@ package org.openl.rules.convertor;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,7 +20,8 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             try {
                 return df.parse(data);
             } catch (ParseException e) {
-                throw new IllegalArgumentException(String.format("Cannot convert '%s' to date type using: '%s' format", data, format));
+                throw new IllegalArgumentException(
+                    String.format("Cannot convert '%s' to date type using: '%s' format", data, format));
             }
         }
 

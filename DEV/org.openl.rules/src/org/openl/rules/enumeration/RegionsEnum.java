@@ -9,7 +9,7 @@ public enum RegionsEnum {
 
     private final String displayName;
 
-    private RegionsEnum (String displayName) {
+    private RegionsEnum(String displayName) {
         this.displayName = displayName;
     }
 

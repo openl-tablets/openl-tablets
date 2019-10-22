@@ -103,7 +103,7 @@ public class RowParser implements IRowParser {
             AlgorithmRow nextRow = nextNode.getAlgorithmRow();
             int i2 = nextRow.getOperationLevel();
 
-            multilines[i] = (i1 < i2);
+            multilines[i] = i1 < i2;
         }
 
         return multilines;
@@ -135,8 +135,8 @@ public class RowParser implements IRowParser {
                 parentTree.clear();
             } else {
                 StringValue operation = row.getOperation();
-                if (indent > (prevIndent + 1)) {
-                    String errMsg = String.format("Incorrect operation indention! Expected %d.", (prevIndent + 1));
+                if (indent > prevIndent + 1) {
+                    String errMsg = String.format("Incorrect operation indention! Expected %d.", prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
                 }
                 if (parentTree.isEmpty()) {

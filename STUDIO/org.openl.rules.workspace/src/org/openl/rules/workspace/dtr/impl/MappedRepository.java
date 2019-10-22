@@ -536,7 +536,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         Set<String> processed = new HashSet<>();
         for (Object key : prop.keySet()) {
-            String propertyName = ((String) key);
+            String propertyName = (String) key;
 
             Matcher matcher = PROJECT_PROPERTY_PATTERN.matcher(propertyName);
             if (matcher.matches()) {

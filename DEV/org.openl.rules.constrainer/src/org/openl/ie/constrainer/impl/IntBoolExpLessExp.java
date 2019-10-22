@@ -53,7 +53,7 @@ public class IntBoolExpLessExp extends IntBoolExpForSubject {
 
     @Override
     public boolean isLinear() {
-        return (_left.isLinear() && _right.isLinear());
+        return _left.isLinear() && _right.isLinear();
     }
 
     @Override

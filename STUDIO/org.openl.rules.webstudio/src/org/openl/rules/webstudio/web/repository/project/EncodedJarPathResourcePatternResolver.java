@@ -29,7 +29,8 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
     private final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
 
     @Override
-    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource, URL rootDirURL,
+    protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
+            URL rootDirURL,
             String subPattern) throws IOException {
         URLConnection con = rootDirResource.getURL().openConnection();
         JarFile jarFile;
@@ -44,7 +45,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
             jarFile = jarCon.getJarFile();
             jarFileUrl = jarCon.getJarFileURL().toExternalForm();
             JarEntry jarEntry = jarCon.getJarEntry();
-            rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
+            rootEntryPath = jarEntry != null ? jarEntry.getName() : "";
         } else {
             // No JarURLConnection -> need to resort to URL file parsing.
             // We'll assume URLs of the format "jar:path!/entry", with the protocol

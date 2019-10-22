@@ -30,7 +30,7 @@ public class ServiceConfigurationSerializationInclusionFactoryBean extends Servi
                         SERIALIZATION_INCLUSION,
                         getServiceDescription().getName()));
             }
-        } 
+        }
         try {
             serializationInclusion = JsonInclude.Include.valueOf(defaultSerializationInclusion);
             return serializationInclusion;

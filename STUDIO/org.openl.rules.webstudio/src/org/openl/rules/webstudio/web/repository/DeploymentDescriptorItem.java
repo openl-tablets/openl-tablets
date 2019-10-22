@@ -53,7 +53,7 @@ public class DeploymentDescriptorItem extends AbstractItem {
     public int hashCode() {
         int result;
         result = getName().hashCode();
-        result = (31 * result) + version.hashCode();
+        result = 31 * result + version.hashCode();
         return result;
     }
 

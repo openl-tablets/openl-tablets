@@ -18,7 +18,7 @@ public enum CaProvincesEnum {
 
     private final String displayName;
 
-    private CaProvincesEnum (String displayName) {
+    private CaProvincesEnum(String displayName) {
         this.displayName = displayName;
     }
 

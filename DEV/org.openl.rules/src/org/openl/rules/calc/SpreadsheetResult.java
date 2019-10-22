@@ -2,15 +2,8 @@ package org.openl.rules.calc;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.SortedMap;
-import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -184,11 +177,11 @@ public class SpreadsheetResult implements Serializable {
     public boolean isDetailedPlainModel() {
         return detailedPlainModel;
     }
-    
+
     public void setDetailedPlainModel(boolean detailedPlainModel) {
         this.detailedPlainModel = detailedPlainModel;
     }
-    
+
     public Object getValue(int row, int column) {
         return results[row][column];
     }
@@ -290,8 +283,8 @@ public class SpreadsheetResult implements Serializable {
             for (int i1 = 0; i1 <= maxHeight; i1++) {
                 for (int j1 = 0; j1 <= maxWidth; j1++) {
                     width[j1] = Math.max(width[j1],
-                        i1 > 0 && j1 > 0 && (getValue(i1 - 1,
-                            j1 - 1) instanceof SpreadsheetResult) && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
+                        i1 > 0 && j1 > 0 && getValue(i1 - 1,
+                            j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
                                 .length() : truncateStringValue(getStringValue(j1, i1)).length());
                 }
             }
@@ -302,7 +295,7 @@ public class SpreadsheetResult implements Serializable {
                         sb.append(" | ");
                     }
                     String cell;
-                    if (i > 0 && j > 0 && (getValue(i - 1, j - 1) instanceof SpreadsheetResult) && d > MAX_DEPTH) {
+                    if (i > 0 && j > 0 && getValue(i - 1, j - 1) instanceof SpreadsheetResult && d > MAX_DEPTH) {
                         cell = "... TRUNCATED TABLE ...";
                     } else {
                         cell = truncateStringValue(getStringValue(j, i));

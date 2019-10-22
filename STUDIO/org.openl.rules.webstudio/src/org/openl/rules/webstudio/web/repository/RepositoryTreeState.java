@@ -124,7 +124,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
-                                                                                  : rootCause.getMessage());
+                                                                                   : rootCause.getMessage());
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
             setSelectedNode(rulesRepository);
@@ -222,7 +222,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
-        while ((currentNode != null) && it.hasNext()) {
+        while (currentNode != null && it.hasNext()) {
             String id = RepositoryUtils.getTreeNodeId(it.next());
             currentNode = (TreeNode) currentNode.getChild(id);
 
@@ -554,7 +554,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         String projectName = selectedArtefact.getProject().getName();
         String projectId = RepositoryUtils.getTreeNodeId(projectName);
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
-        return (project.isOpenedForEditing() && isGranted(EDIT_PROJECTS));
+        return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
     }
 
     // for deployment project

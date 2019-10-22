@@ -65,7 +65,7 @@ public abstract class AbstractDiffController {
                 Projection projection = elems[i].getProjection();
                 if (projection != null) {
                     String projType = projection.getType();
-                    if (projType.equalsIgnoreCase((XlsProjectionType.TABLE.name()))) {
+                    if (projType.equalsIgnoreCase(XlsProjectionType.TABLE.name())) {
                         return (XlsProjection) projection;
                     }
                 }

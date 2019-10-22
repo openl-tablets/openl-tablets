@@ -117,8 +117,8 @@ final class Styles {
     }
 
     static byte[] convertRGB(int rgb) {
-        byte red = (byte) ((rgb >> 16) & 0xFF);
-        byte green = (byte) ((rgb >> 8) & 0xFF);
+        byte red = (byte) (rgb >> 16 & 0xFF);
+        byte green = (byte) (rgb >> 8 & 0xFF);
         byte blue = (byte) (rgb & 0xFF);
         return new byte[] { red, green, blue };
     }

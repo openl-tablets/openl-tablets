@@ -179,7 +179,7 @@ public class TestIntExpCard extends TestCase {
         }
 
         for (int i = 0; i < array.size(); i++) {
-            if ((i != indexToBeRemoved[0]) && (i != indexToBeRemoved[1])) {
+            if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 try {
                     assertEquals(cardValue, array.get(i).value());
                 } catch (Failure f) {
@@ -220,7 +220,7 @@ public class TestIntExpCard extends TestCase {
         // contain cardValue
         // in their domains
         for (int i = 0; i < array.size(); i++) {
-            if ((i != indexToBeRemoved[0]) && (i != indexToBeRemoved[1])) {
+            if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 assertTrue(!array.get(i).contains(cardValue));
             } else {
                 assertTrue(array.get(i).contains(cardValue));
@@ -249,7 +249,7 @@ public class TestIntExpCard extends TestCase {
         // all variables except those their indices has been removed does not
         // have to contain cardValue
         for (int i = 0; i < array.size(); i++) {
-            if ((i != indexToBeRemoved[0]) && (i != indexToBeRemoved[1])) {
+            if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 assertTrue(!array.get(i).contains(cardValue));
             } else {
                 assertTrue(array.get(i).contains(cardValue));
@@ -260,11 +260,9 @@ public class TestIntExpCard extends TestCase {
 
     public void testSetValue() {
         final int cardValue = 5;
-        final int[] indexToBeRemoved = { 0, 1 };
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
-        IntExpCard card = null;
         try {
-            card = new IntExpCard(C, array, cardValue);
+            new IntExpCard(C, array, cardValue);
         } catch (Failure f) {
             fail("IntExpCard(Constrainer, IntExpArray, card_value) failed");
         }

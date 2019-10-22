@@ -9,7 +9,7 @@ package org.openl.rules.dt.type;
 public class BooleanTypeAdaptor {
 
     public boolean extractBooleanValue(Object target) {
-        return ((Boolean) target).booleanValue();
+        return (Boolean) target;
     }
 
 }

@@ -214,7 +214,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             }
             n.save();
         } catch (RepositoryException e) {
-            throw new RRepositoryException(String.format("Cannot set property %s.", propName),  e);
+            throw new RRepositoryException(String.format("Cannot set property %s.", propName), e);
         }
     }
 

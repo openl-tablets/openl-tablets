@@ -417,7 +417,7 @@ public class GridTool {
                         BorderStyle.NONE,
                         borderStyle[3] };
             }
-        } else if (borderStyle != null && (col - regionLeftCell == regionWidth - 1)) {
+        } else if (borderStyle != null && col - regionLeftCell == regionWidth - 1) {
             // Only right border will be set
             if (borderStyle.length == 4) {
                 borderStyle = new BorderStyle[] { BorderStyle.NONE,
@@ -481,7 +481,7 @@ public class GridTool {
         List<IUndoableGridTableAction> clearActions = new ArrayList<>();
         for (int i = startColumn; i < startColumn + nCols; i++) {
             for (int j = startRow; j < startRow + nRows; j++) {
-                if (!grid.isPartOfTheMergedRegion(i, j) || (grid.isTopLeftCellInMergedRegion(i, j))) {
+                if (!grid.isPartOfTheMergedRegion(i, j) || grid.isTopLeftCellInMergedRegion(i, j)) {
                     clearActions.add(new UndoableClearAction(i, j, metaInfoWriter));
                 }
             }
@@ -524,8 +524,8 @@ public class GridTool {
         } else {
             for (int column = startColumn - nCols; column < startColumn; column++) {
                 for (int row = region.getTop(); row <= region.getBottom(); row++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row) || (grid.isTopLeftCellInMergedRegion(column,
-                        row) && IGridRegion.Tool.width(grid.getRegionStartingAt(column, row)) <= nCols)) {
+                    if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.width(grid.getRegionStartingAt(column, row)) <= nCols) {
                         // Sense of the second check: if it was a merged
                         // cell then it can be removed or resized depending
                         // on count of columns deleted
@@ -581,8 +581,8 @@ public class GridTool {
         } else {
             for (int row = startRow - nRows; row < startRow; row++) {
                 for (int column = region.getLeft(); column <= region.getRight(); column++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row) || (grid.isTopLeftCellInMergedRegion(column,
-                        row) && IGridRegion.Tool.height(grid.getRegionStartingAt(column, row)) <= nRows)) {
+                    if (!grid.isPartOfTheMergedRegion(column, row) || grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.height(grid.getRegionStartingAt(column, row)) <= nRows) {
                         // Sense of the second check: if it was a merged
                         // cell then it can be removed or resized depending
                         // on count of rows deleted

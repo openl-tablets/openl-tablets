@@ -437,7 +437,7 @@ public class AProject extends AProjectFolder {
 
     private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws IOException,
                                                                                            ProjectException {
-        if ((artefact instanceof AProjectResource)) {
+        if (artefact instanceof AProjectResource) {
             AProjectResource resource = (AProjectResource) artefact;
             zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));
 

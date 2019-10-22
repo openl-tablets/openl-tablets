@@ -740,11 +740,11 @@ public final class DecisionTableHelper {
         validateCompoundReturnType(compoundReturnType);
 
         final List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
-            .filter(e -> (e instanceof FuzzyDTHeader) && e.isReturn())
+            .filter(e -> e instanceof FuzzyDTHeader && e.isReturn())
             .map(e -> (FuzzyDTHeader) e)
             .collect(toList());
 
-        assert (!fuzzyReturns.isEmpty());
+        assert !fuzzyReturns.isEmpty();
 
         StringBuilder sb = new StringBuilder();
         sb.append(compoundReturnType.getName())
@@ -911,7 +911,7 @@ public final class DecisionTableHelper {
                     boolean isKey = false;
                     String header;
                     if (isCollect && tableSyntaxNode.getHeader()
-                        .getCollectParameters().length > 1 && (i == 0) && Map.class
+                        .getCollectParameters().length > 1 && i == 0 && Map.class
                             .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
                         header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
                         isKey = true;
@@ -1196,7 +1196,7 @@ public final class DecisionTableHelper {
                                 decisionTable,
                                 column,
                                 header,
-                                (minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER),
+                                minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER,
                                 statement,
                                 new IOpenClass[] { type, type },
                                 null,
@@ -1262,7 +1262,7 @@ public final class DecisionTableHelper {
             IOpenClass[] typeOfColumns,
             String url,
             String additionalDetails) {
-        assert (header != null);
+        assert header != null;
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
@@ -1286,7 +1286,7 @@ public final class DecisionTableHelper {
             String conditionStatement,
             IOpenClass[] typeOfColumns,
             String url) {
-        assert (header != null);
+        assert header != null;
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
@@ -1664,9 +1664,9 @@ public final class DecisionTableHelper {
                     .openlFuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
-                    assert (methodChains != null);
+                    assert methodChains != null;
                     for (int j = 0; j < methodChains.length; j++) {
-                        assert (methodChains[j] != null);
+                        assert methodChains[j] != null;
                         dtHeaders.add(new FuzzyDTHeader(-1,
                             null,
                             sb.toString(),
@@ -1761,7 +1761,7 @@ public final class DecisionTableHelper {
             return false;
         }
 
-        if ((a instanceof FuzzyDTHeader) && b instanceof FuzzyDTHeader) {
+        if (a instanceof FuzzyDTHeader && b instanceof FuzzyDTHeader) {
             FuzzyDTHeader a1 = (FuzzyDTHeader) a;
             FuzzyDTHeader b1 = (FuzzyDTHeader) b;
             if (a1.isCondition() && b1
@@ -1774,7 +1774,7 @@ public final class DecisionTableHelper {
                 return false;
             }
         }
-        if ((a instanceof DeclaredDTHeader) && b instanceof DeclaredDTHeader) {
+        if (a instanceof DeclaredDTHeader && b instanceof DeclaredDTHeader) {
             DeclaredDTHeader a1 = (DeclaredDTHeader) a;
             DeclaredDTHeader b1 = (DeclaredDTHeader) b;
             if (a1.getMatchedDefinition()
@@ -2764,9 +2764,9 @@ public final class DecisionTableHelper {
                     arraySeparatorFoundFlag = true;
                 }
                 try {
-                    if ((isIntType || isDoubleType || isCharType) && (isAllParsableAsSingleFlag && !parsableAs(value,
+                    if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag && !parsableAs(value,
                         type.getInstanceClass(),
-                        bindingContext))) {
+                        bindingContext)) {
                         isAllParsableAsSingleFlag = false;
                     } else if (isStringType) {
                         if (isAllParsableAsDomainFlag && (type
@@ -2795,7 +2795,7 @@ public final class DecisionTableHelper {
         }
 
         if (canMadeDecisionAboutSingle) {
-            if ((((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag) || (isStringType && isAllParsableAsDomainFlag))) {
+            if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag || isStringType && isAllParsableAsDomainFlag) {
                 return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
             }
 
@@ -3062,7 +3062,7 @@ public final class DecisionTableHelper {
 
     public static XlsSheetGridModel createVirtualGrid(String poiSheetName, int numberOfColumns) {
         // Pre-2007 excel sheets had a limitation of 256 columns.
-        Workbook workbook = (numberOfColumns > 256) ? new XSSFWorkbook() : new HSSFWorkbook();
+        Workbook workbook = numberOfColumns > 256 ? new XSSFWorkbook() : new HSSFWorkbook();
         final Sheet sheet = workbook.createSheet(poiSheetName);
         return createVirtualGrid(sheet);
     }

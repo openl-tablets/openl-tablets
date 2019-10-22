@@ -66,7 +66,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             }
         }
 
-        return new MemberBlockNode(node, (boundNodes.toArray(new IBoundNode[boundNodes.size()])));
+        return new MemberBlockNode(node, boundNodes.toArray(new IBoundNode[boundNodes.size()]));
     }
 
 }

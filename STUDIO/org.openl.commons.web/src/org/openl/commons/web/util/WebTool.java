@@ -68,7 +68,7 @@ public final class WebTool {
         }
         try {
             InetAddress addr = InetAddress.getByName(ip);
-            return (addr != null) && addr.isLoopbackAddress();
+            return addr != null && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
             Logger log = LoggerFactory.getLogger(WebTool.class);
             log.info("Cannot check '{}'.", ip, e);

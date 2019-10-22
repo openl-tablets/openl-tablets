@@ -78,7 +78,7 @@ public class JcrLock implements RLock {
     @Override
     public boolean isLocked() {
         try {
-            return lockNode != null && (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY));
+            return lockNode != null && lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY);
         } catch (RepositoryException e) {
             log.info("isLocked", e);
             return false;

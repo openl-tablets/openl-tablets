@@ -45,7 +45,7 @@ public final class XlsProjectionBuilder {
             // deal with table
             IOpenLTable table = new TableSyntaxNodeAdapter(node);
             String header = table.getGridTable().getCell(0, 0).getStringValue();
-            String tableName = (header == null) ? "" : header;
+            String tableName = header == null ? "" : header;
             GridLocation location = node.getGridLocation();
             tableName += " (" + location.getStart() + ":" + location.getEnd() + ")";
             sheetProjection.addChild(buildTable(table, tableName));

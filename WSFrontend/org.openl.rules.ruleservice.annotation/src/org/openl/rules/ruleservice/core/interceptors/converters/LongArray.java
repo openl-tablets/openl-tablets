@@ -17,7 +17,7 @@ public class LongArray {
     }
 
     public LongArray(Collection<Long> collection) {
-        this.array = (collection != null) ? collection.toArray(new Long[collection.size()]) : new Long[0];
+        this.array = collection != null ? collection.toArray(new Long[collection.size()]) : new Long[0];
     }
 
     public void setArray(Long[] array) {

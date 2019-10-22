@@ -82,7 +82,7 @@ public class DateTool {
     public static Date firstDateOfQuarter(int absQuarter) {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
-        c.set(absQuarter / QUARTERS_IN_YEAR, (absQuarter % QUARTERS_IN_YEAR) * (QUARTERS_IN_YEAR - 1), 1, 0, 0, 0);
+        c.set(absQuarter / QUARTERS_IN_YEAR, absQuarter % QUARTERS_IN_YEAR * (QUARTERS_IN_YEAR - 1), 1, 0, 0, 0);
 
         return c.getTime();
     }
@@ -90,7 +90,7 @@ public class DateTool {
     public static Date lastDateOfQuarter(int absQuarter) {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
-        c.set(absQuarter / QUARTERS_IN_YEAR, (absQuarter % QUARTERS_IN_YEAR) * MONTHS_IN_QUARTER + 2, 1, 0, 0, 0);
+        c.set(absQuarter / QUARTERS_IN_YEAR, absQuarter % QUARTERS_IN_YEAR * MONTHS_IN_QUARTER + 2, 1, 0, 0, 0);
 
         int lastDay = getLastDayOfMonth(c.getTime());
 

@@ -11,8 +11,6 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterceptor<Message> {
 

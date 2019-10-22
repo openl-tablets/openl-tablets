@@ -175,7 +175,7 @@ public class DecisionTableValidationResult implements IValidationResult {
         }
 
         if (cnt > maxCounter) {
-            validationResultDetails.append(String.format("  %d more ...", (cnt - maxCounter)));
+            validationResultDetails.append(String.format("  %d more ...", cnt - maxCounter));
         }
 
         return validationResultDetails.toString();

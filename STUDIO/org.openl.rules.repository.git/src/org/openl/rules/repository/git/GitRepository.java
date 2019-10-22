@@ -25,12 +25,7 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.FetchResult;
-import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
-import org.eclipse.jgit.transport.TrackingRefUpdate;
+import org.eclipse.jgit.transport.*;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -500,14 +495,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 URI proposedUri = getUri(uri);
                                 URI savedUri = getUri(remoteUrl);
                                 if (!proposedUri.equals(savedUri)) {
-                                    throw new IOException(String.format("Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.", local, remoteUrl));
+                                    throw new IOException(String.format(
+                                        "Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                        local,
+                                        remoteUrl));
                                 }
                             }
                         }
                         shouldClone = false;
                     } else {
                         // Cannot overwrite existing files that is definitely not git repository
-                        throw new IOException(String.format("Folder '%s' already exists and is not empty. Delete it or choose another local path.", local));
+                        throw new IOException(String.format(
+                            "Folder '%s' already exists and is not empty. Delete it or choose another local path.",
+                            local));
                     }
                 } else {
                     shouldClone = true;
@@ -889,9 +889,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             if (r == null) {
-                throw new RefNotAdvertisedException(MessageFormat.format(JGitText.get().couldNotGetAdvertisedRef,
-                    Constants.DEFAULT_REMOTE_NAME,
-                    branch));
+                throw new RefNotAdvertisedException(MessageFormat
+                    .format(JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME, branch));
             }
 
             MergeResult mergeResult = git.merge().include(r.getObjectId()).setStrategy(MergeStrategy.RECURSIVE).call();
@@ -1176,7 +1175,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private boolean isCommitMerged(String commitId) throws IOException {
         Repository repository = git.getRepository();
-        try (RevWalk revWalk = new RevWalk( repository )) {
+        try (RevWalk revWalk = new RevWalk(repository)) {
             RevCommit branchHead = revWalk.parseCommit(repository.resolve(Constants.R_HEADS + branch));
             RevCommit otherHead = revWalk.parseCommit(repository.resolve(commitId));
             return revWalk.isMergedInto(otherHead, branchHead);
@@ -1878,7 +1877,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
                 return !baseVersion.equals(lastVersion);
             } else {
-                throw new FileNotFoundException(String.format("Cannot find commit for path '%s' and version '%s'", path, baseVersion));
+                throw new FileNotFoundException(
+                    String.format("Cannot find commit for path '%s' and version '%s'", path, baseVersion));
             }
         }
 
@@ -1902,7 +1902,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private CredentialsProvider getCredentialsProvider() throws IOException {
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
-            // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute forcing.
+            // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
+            // forcing.
             throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
         }
         return credentialsProvider;

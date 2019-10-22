@@ -105,7 +105,7 @@ public class DateRangeDomain implements IDomain<Date> {
     private static final long ONE_HOUR = 60 * 60 * 1000L;
 
     public static long daysBetween(Calendar d1, Calendar d2) {
-        return ((d2.getTimeInMillis() - d1.getTimeInMillis() + ONE_HOUR) / (ONE_HOUR * 24));
+        return (d2.getTimeInMillis() - d1.getTimeInMillis() + ONE_HOUR) / (ONE_HOUR * 24);
     }
 
     public int size() {

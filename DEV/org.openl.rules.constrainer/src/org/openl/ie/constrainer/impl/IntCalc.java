@@ -99,7 +99,7 @@ final class IntCalc {
         }
 
         // the condition "exact division is > 0"
-        boolean vIsPositive = ((x1 > 0 && x2 > 0) || (x1 < 0 && x2 < 0));
+        boolean vIsPositive = x1 > 0 && x2 > 0 || x1 < 0 && x2 < 0;
 
         // v is truncated to zero -> -inf when vIsPositive and +inf otherwise
         return vIsPositive ? v : v - 1;
@@ -117,7 +117,7 @@ final class IntCalc {
         }
 
         // the condition "exact division is > 0"
-        boolean vIsPositive = ((x1 > 0 && x2 > 0) || (x1 < 0 && x2 < 0));
+        boolean vIsPositive = x1 > 0 && x2 > 0 || x1 < 0 && x2 < 0;
 
         // v is truncated to zero -> -inf when vIsPositive and +inf otherwise
         return vIsPositive ? v + 1 : v;

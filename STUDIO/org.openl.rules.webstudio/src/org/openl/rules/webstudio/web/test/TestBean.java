@@ -101,8 +101,7 @@ public class TestBean {
         }
 
         if (ranResults != null && ranResults.length > 0) {
-            lastPage = testsPerPage == ALL ? DEFAULT_PAGE
-                                           : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+            lastPage = testsPerPage == ALL ? DEFAULT_PAGE : (int) Math.ceil((double) ranResults.length / testsPerPage);
         }
 
         int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);

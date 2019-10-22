@@ -59,7 +59,7 @@ public class IntBoolExpFloatEqExp extends IntBoolExpForSubject {
 
     @Override
     public boolean isLinear() {
-        return (_exp1.isLinear() && _exp2.isLinear());
+        return _exp1.isLinear() && _exp2.isLinear();
     }
 
     @Override

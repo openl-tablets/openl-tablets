@@ -193,7 +193,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IOpenCast cast = bindingContext.getCast(from, to);
 
-        if (cast == null || (implicitOnly && !cast.isImplicit())) {
+        if (cast == null || implicitOnly && !cast.isImplicit()) {
             if (!NullOpenClass.isAnyNull(from, to)) {
                 throw new TypeCastException(node.getSyntaxNode(), from, to);
             }

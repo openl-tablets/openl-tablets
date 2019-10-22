@@ -73,7 +73,8 @@ public class CommentsTest {
 
     @Test
     public void testParseSourceOfCopy() {
-        List<String> commentParts = comments.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
+        List<String> commentParts = comments
+            .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
         assertEquals(3, commentParts.size());
         assertEquals("Project {username} {", commentParts.get(0));
         assertEquals("myProjectName", commentParts.get(1));

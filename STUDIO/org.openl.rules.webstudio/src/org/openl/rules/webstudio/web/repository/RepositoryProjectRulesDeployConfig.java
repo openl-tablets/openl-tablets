@@ -182,7 +182,7 @@ public class RepositoryProjectRulesDeployConfig {
     public boolean isPublishersSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
     }
-    
+
     public boolean isAnnotationTemplateClassNameSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
     }

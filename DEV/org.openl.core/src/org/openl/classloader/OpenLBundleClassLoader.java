@@ -2,11 +2,7 @@ package org.openl.classloader;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
@@ -84,7 +80,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
                 //
                 Class<?> clazz = null;
                 if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
-                    OpenLBundleClassLoader sbc = ((OpenLBundleClassLoader) bundleClassLoader);
+                    OpenLBundleClassLoader sbc = (OpenLBundleClassLoader) bundleClassLoader;
                     clazz = sbc.findLoadedClass(name);
                     if (clazz == null) {
                         clazz = sbc.findClassInBundles(name, c);

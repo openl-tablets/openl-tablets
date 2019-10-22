@@ -282,8 +282,8 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
     @Override
     public Expression getExpression(Class clazz, Object[] args, Class[] types) {
-        ExpressionKey key = (_getFromCache || _putInCache ? new ExpressionKeyImpl(clazz, args) : null);
-        Expression exp = (_getFromCache ? findExpression(key) : null);
+        ExpressionKey key = _getFromCache || _putInCache ? new ExpressionKeyImpl(clazz, args) : null;
+        Expression exp = _getFromCache ? findExpression(key) : null;
 
         if (exp == null) {
             exp = createExpression(clazz, args, types);

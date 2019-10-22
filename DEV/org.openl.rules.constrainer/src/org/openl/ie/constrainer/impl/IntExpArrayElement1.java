@@ -101,7 +101,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         @Override
         public void arrayElementValue(int value, int idx) throws Failure {
             IntVar varCopy = (IntVar) copyOfAry.get(idx);
-            if ((value < _element.min()) || (value > _element.max())) {
+            if (value < _element.min() || value > _element.max()) {
                 _index.removeValue(idx);
             } else {
                 for (int i = varCopy.min(); i < value; i++) {
@@ -141,7 +141,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         }
 
         void decreaseUsageCounter(int val) throws Failure {
-            int idx = ((Integer) valueToArrayIdx.get(new Integer(val))).intValue();
+            int idx = ((Integer) valueToArrayIdx.get(new Integer(val)));
             int oldMax = _valuesUsed.get(idx).max();
             if (oldMax == 1) {
                 _element.removeValue(val);
@@ -172,7 +172,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         public void indexMax(int oldmax, int max) throws Failure {
             FindMinMaxIterator iter = FindMinMaxIterator.getIterator(_index, _ary);
             _index.iterateDomain(iter);
-            if ((iter.max < _element.max()) && (iter.min > _element.min())) {
+            if (iter.max < _element.max() && iter.min > _element.min()) {
                 _element.setMax(iter.max);
                 _element.setMin(iter.min);
             } else {
@@ -191,7 +191,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         public void indexMin(int oldmin, int min) throws Failure {
             FindMinMaxIterator iter = FindMinMaxIterator.getIterator(_index, _ary);
             _index.iterateDomain(iter);
-            if ((iter.max < _element.max()) || (iter.min > _element.min())) {
+            if (iter.max < _element.max() || iter.min > _element.min()) {
                 _element.setMax(iter.max);
                 _element.setMin(iter.min);
             } else {
@@ -225,7 +225,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _element.setMax(_ary.get(value).max());
 
             for (int i = 0; i < _ary.size(); i++) {
-                if (_copyOfIndex.contains(i) && (i != value)) {
+                if (_copyOfIndex.contains(i) && i != value) {
                     _ary.get(i).detachObserver(_observers[i]);
                 }
             }
@@ -717,7 +717,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         @Override
         public void arrayElementValue(int value, int idx) throws Failure {
-            if ((value > _element.max()) || (value < _element.min())) {
+            if (value > _element.max() || value < _element.min()) {
                 _index.removeValue(idx);
             }
         }
@@ -725,7 +725,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         @Override
         public void indexMax(int oldmax, int max) throws Failure {
             for (int i = oldmax; i > max; i--) {
-                if ((_observers[i] != null)) {
+                if (_observers[i] != null) {
                     _ary.get(i).detachObserver(_observers[i]);
                 }
             }
@@ -735,7 +735,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         @Override
         public void indexMin(int oldmin, int min) throws Failure {
             for (int i = oldmin; i < min; i++) {
-                if ((_observers[i] != null)) {
+                if (_observers[i] != null) {
                     _ary.get(i).detachObserver(_observers[i]);
                 }
             }
@@ -750,7 +750,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         @Override
         public void indexValue(int value) throws Failure {
             for (int i = 0; i < _ary.size(); i++) {
-                if ((_observers[i] != null) && (i != value)) {
+                if (_observers[i] != null && i != value) {
                     _ary.get(value).detachObserver(_observers[i]);
                 }
             }
@@ -911,7 +911,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         int min = values[0];
         int max = values[values.length - 1];
         int size = values.length;
-        int nHoles = (max - min + 1) - size;
+        int nHoles = max - min + 1 - size;
 
         if (nHoles < 10) {
             createElement1(values);
@@ -952,7 +952,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
     }
 
     void createIndex() throws Failure {
-        boolean effectiveIndexExp = (_indexExp instanceof IntVar) && ((IntVar) _indexExp)
+        boolean effectiveIndexExp = _indexExp instanceof IntVar && ((IntVar) _indexExp)
             .domainType() != IntVar.DOMAIN_PLAIN;
         int max = _ary.size() - 1;
         if (effectiveIndexExp) {

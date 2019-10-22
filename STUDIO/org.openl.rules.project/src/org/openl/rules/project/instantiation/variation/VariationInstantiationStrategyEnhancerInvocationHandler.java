@@ -173,7 +173,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                 final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy
                     .getInvocationHandler(serviceClassInstance);
                 handler.setRuntimeEnv(runtimeEnv);
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
                 simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
                 simpleRulesRuntimeEnv.setOriginalCalculation(false);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
@@ -222,7 +222,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
                         handler = (OpenLRulesInvocationHandler) Proxy.getInvocationHandler(serviceClassInstance);
                         handler.setRuntimeEnv(runtimeEnv);
                     }
-                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
                     simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
                     simpleRulesRuntimeEnv.setOriginalCalculation(false);
                     simpleRulesRuntimeEnv.setIgnoreRecalculate(true);

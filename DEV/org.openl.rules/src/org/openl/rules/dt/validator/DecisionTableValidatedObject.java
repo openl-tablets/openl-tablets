@@ -75,7 +75,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {
         IDomainAdaptor result = null;
         if (domain instanceof EnumDomain<?>) {
-            result = new EnumDomainAdaptor(((EnumDomain<?>) domain));
+            result = new EnumDomainAdaptor((EnumDomain<?>) domain);
         } else if (domain instanceof IntRangeDomain) {
             IntRangeDomain irange = (IntRangeDomain) domain;
             result = new IntRangeDomainAdaptor(irange);

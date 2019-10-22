@@ -164,7 +164,7 @@ public class DomainTree {
 
     private IOpenClass getComponentType(IOpenClass type) {
         if (isArrayType(type)) {
-            IOpenClass componentType = (type).getComponentClass();
+            IOpenClass componentType = type.getComponentClass();
             return componentType == null ? type : componentType;
         } else {
             return type;

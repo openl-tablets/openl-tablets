@@ -12,7 +12,7 @@ public class NumberComparatorTest {
 
         assertTrue(comp.isEqual(null, null));
 
-        Double value = Double.valueOf(10);
+        Double value = (double) 10;
 
         assertFalse(comp.isEqual(value, null));
 
@@ -21,9 +21,9 @@ public class NumberComparatorTest {
         assertTrue(comp.isEqual(value, value));
 
         // Tests with delta
-        Double value1 = Double.valueOf(590.4563546464);
-        Double value2 = Double.valueOf(590.456377867);
-        Double value3 = Double.valueOf(550.46);
+        Double value1 = 590.4563546464;
+        Double value2 = 590.456377867;
+        Double value3 = 550.46;
 
         assertFalse(new NumberComparator(null).isEqual(value2, value1));
         assertFalse(new NumberComparator(0.00001).isEqual(value2, value1));

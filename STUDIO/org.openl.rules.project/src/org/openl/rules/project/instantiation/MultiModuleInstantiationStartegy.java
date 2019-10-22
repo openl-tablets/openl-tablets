@@ -1,12 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -61,10 +55,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
             projects.add(module.getProject());
         }
 
-        return new SimpleDependencyManager(projects,
-            Thread.currentThread().getContextClassLoader(),
-            false,
-            true);
+        return new SimpleDependencyManager(projects, Thread.currentThread().getContextClassLoader(), false, true);
     }
 
     @Override

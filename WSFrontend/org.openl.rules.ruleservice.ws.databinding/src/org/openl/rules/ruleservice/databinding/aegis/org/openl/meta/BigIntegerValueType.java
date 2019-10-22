@@ -21,6 +21,6 @@ public class BigIntegerValueType extends BigIntegerType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         BigInteger value = (BigInteger) super.readObject(reader, context);
-        return (value == null) ? null : new BigIntegerValue(value);
+        return value == null ? null : new BigIntegerValue(value);
     }
 }

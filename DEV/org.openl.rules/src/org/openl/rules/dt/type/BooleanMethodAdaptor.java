@@ -12,7 +12,7 @@ public class BooleanMethodAdaptor extends BooleanTypeAdaptor {
 
     @Override
     public boolean extractBooleanValue(Object target) {
-        return ((Boolean) method.invoke(target, new Object[0], null)).booleanValue();
+        return (Boolean) method.invoke(target, new Object[0], null);
     }
 
 }

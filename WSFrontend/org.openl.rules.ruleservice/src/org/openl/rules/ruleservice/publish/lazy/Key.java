@@ -13,7 +13,8 @@ public class Key {
     }
 
     public Key(DeploymentDescription deploymentDescription, String dependencyName) {
-        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
+            "deploymentDescription cannot be null");
         this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
     }
 
@@ -21,8 +22,8 @@ public class Key {
     public int hashCode() {
         final int prime = 31;
         int result = 31;
-        result = prime * result + ((deploymentDescription == null) ? 0 : deploymentDescription.hashCode());
-        result = prime * result + ((dependencyName == null) ? 0 : dependencyName.hashCode());
+        result = prime * result + (deploymentDescription == null ? 0 : deploymentDescription.hashCode());
+        result = prime * result + (dependencyName == null ? 0 : dependencyName.hashCode());
         return result;
     }
 

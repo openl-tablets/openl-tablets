@@ -12,7 +12,7 @@ public class BooleanFieldAdaptor extends BooleanTypeAdaptor {
 
     @Override
     public boolean extractBooleanValue(Object target) {
-        return ((Boolean) field.get(target, null)).booleanValue();
+        return (Boolean) field.get(target, null);
     }
 
 }

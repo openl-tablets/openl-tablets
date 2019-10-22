@@ -19,6 +19,6 @@ public class LongValueType extends LongType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Long value = (Long) super.readObject(reader, context);
-        return (value == null) ? null : new LongValue(value);
+        return value == null ? null : new LongValue(value);
     }
 }

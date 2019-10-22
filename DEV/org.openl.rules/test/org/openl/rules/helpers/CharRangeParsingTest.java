@@ -75,7 +75,7 @@ public class CharRangeParsingTest {
         assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("A and more"));
         assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("more than A"));
         assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("less than Y"));
-        
+
         assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("  A   and   more  "));
         assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("  more   than   A  "));
         assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("  less   than   Y  "));

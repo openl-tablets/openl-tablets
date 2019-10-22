@@ -106,7 +106,7 @@ public class TestUtils {
 
         @Override
         public boolean isTrue(int i) {
-            return (i == _value);
+            return i == _value;
         }
     }
 
@@ -183,7 +183,7 @@ public class TestUtils {
     }
 
     static public int max(int[] arr) {
-        if ((arr == null) || (arr.length == 0)) {
+        if (arr == null || arr.length == 0) {
             throw new IllegalArgumentException();
         }
         int max = -Integer.MAX_VALUE;
@@ -196,7 +196,7 @@ public class TestUtils {
     }
 
     static public int min(int[] arr) {
-        if ((arr == null) || (arr.length == 0)) {
+        if (arr == null || arr.length == 0) {
             throw new IllegalArgumentException();
         }
         int min = Integer.MAX_VALUE;
@@ -211,7 +211,7 @@ public class TestUtils {
     static public int minGreaterThan(int[] array, int val) {
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < array.length; i++) {
-            if ((array[i] < min) && (array[i] > val)) {
+            if (array[i] < min && array[i] > val) {
                 min = array[i];
             }
         }

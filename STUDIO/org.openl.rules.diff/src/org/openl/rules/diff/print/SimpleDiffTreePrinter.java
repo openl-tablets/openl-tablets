@@ -40,7 +40,7 @@ public class SimpleDiffTreePrinter extends DiffTreePrinter {
 
             write(" ");
             Projection p = e.getProjection();
-            write((p == null) ? "---" : p.getType() + ":" + p.getName());
+            write(p == null ? "---" : p.getType() + ":" + p.getName());
             write("\t");
         }
         write("\n");

@@ -44,7 +44,7 @@ public class CompoundStepPostProcessor {
             }
             CalculationStep totalStep = nestedSteps.get(nestedSteps.size() - 1);
             if (totalStep instanceof SimpleStep) {
-                compoundStep.setFormula((totalStep).getFormula());
+                compoundStep.setFormula(totalStep.getFormula());
             }
         }
     }

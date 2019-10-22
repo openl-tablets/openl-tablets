@@ -493,8 +493,8 @@ public class DataTableBindHelper {
                         constructorField = true;
                     }
                 }
-                if (!constructorField && (!(fieldAccessorChainTokens.length == 1 && hasForeignKeysRow && CONSTRUCTOR_FIELD
-                    .equals(fieldAccessorChainTokens[0].getIdentifier())))) {
+                if (!constructorField && !(fieldAccessorChainTokens.length == 1 && hasForeignKeysRow && CONSTRUCTOR_FIELD
+                    .equals(fieldAccessorChainTokens[0].getIdentifier()))) {
                     descriptorField = processFieldsChain(bindingContext, table, type, fieldAccessorChainTokens);
                 }
 
@@ -733,8 +733,8 @@ public class DataTableBindHelper {
             String identifier = fieldNameNode.getIdentifier();
 
             IOpenField fieldInChain;
-            if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && identifier
-                .equals(FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
+            if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier
+                .equals(FPK) && fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField) { // Multi-rows
                 // support.
                 // PK
                 // for
@@ -754,7 +754,7 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN,
-                identifier) && (!(type instanceof TestMethodOpenClass)) && type.isArray()) {
+                identifier) && !(type instanceof TestMethodOpenClass) && type.isArray()) {
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     type.getComponentClass(),
                     CollectionType.ARRAY);
@@ -763,7 +763,7 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
-                identifier) && (!(type instanceof TestMethodOpenClass)) && List.class
+                identifier) && !(type instanceof TestMethodOpenClass) && List.class
                     .isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
@@ -774,7 +774,7 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
-                identifier) && (!(type instanceof TestMethodOpenClass)) && Map.class
+                identifier) && !(type instanceof TestMethodOpenClass) && Map.class
                     .isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
@@ -804,7 +804,7 @@ public class DataTableBindHelper {
             } else {
                 fieldInChain = getWritableField(bindingContext, fieldNameNode, table, loadedFieldType);
 
-                if ((fieldIndex != fieldAccessorChain.length - 1) && fieldInChain != null && (fieldInChain.getType()
+                if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && (fieldInChain.getType()
                     .isArray() || List.class.isAssignableFrom(fieldInChain.getType().getInstanceClass()))) {
                     fieldInChain = getWritableCollectionElement(bindingContext,
                         fieldNameNode,

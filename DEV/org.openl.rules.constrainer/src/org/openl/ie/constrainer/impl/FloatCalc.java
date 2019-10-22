@@ -80,7 +80,7 @@ public final class FloatCalc {
      * Returns true if the first number more than the second number with the precision
      */
     public static boolean gt(double d1, double d2) {
-        return (d1 - d2) > Constrainer.FLOAT_PRECISION;
+        return d1 - d2 > Constrainer.FLOAT_PRECISION;
     }
 
     /**

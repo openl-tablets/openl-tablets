@@ -158,7 +158,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);
-        Arrays.sort(tableItems, (o1, o2) -> (o1.getValue().toString()).compareTo(o2.getValue().toString()));
+        Arrays.sort(tableItems, (o1, o2) -> o1.getValue().toString().compareTo(o2.getValue().toString()));
     }
 
     private String getNodeName(TableSyntaxNode syntaxNode) {

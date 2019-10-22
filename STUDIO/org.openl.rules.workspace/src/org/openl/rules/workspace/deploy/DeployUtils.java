@@ -48,7 +48,7 @@ public final class DeployUtils {
             CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
+                version = Integer.parseInt(deploymentFolderName.substring(separatorPosition + 1));
                 commonVersion = new CommonVersionImpl(version);
             } else {
                 commonVersion = new CommonVersionImpl(fileData.getVersion());

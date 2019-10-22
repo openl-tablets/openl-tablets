@@ -23,7 +23,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         Object[] res = evaluateChildren(env);
-        return res == null ? null : (res.length == 0 ? null : res[res.length - 1]);
+        return res == null ? null : res.length == 0 ? null : res[res.length - 1];
     }
 
     /*
@@ -53,7 +53,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      */
     @Override
     public IOpenClass getType() {
-        return (children == null || children.length == 0) ? NullOpenClass.the : children[children.length - 1].getType();
+        return children == null || children.length == 0 ? NullOpenClass.the : children[children.length - 1].getType();
     }
 
 }

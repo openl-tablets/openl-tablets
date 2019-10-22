@@ -99,8 +99,8 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
      * <p>
      * Openl Code Fragment:<br>
      * =======================<br>
-     *  Double getRAWPremium(Policy p)<br>
-     *                       ^^^^^^<br>
+     * Double getRAWPremium(Policy p)<br>
+     * ^^^^^^<br>
      * =======================<br>
      * </p>
      *

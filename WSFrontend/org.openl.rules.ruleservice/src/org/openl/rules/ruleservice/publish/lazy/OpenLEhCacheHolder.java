@@ -65,7 +65,8 @@ public final class OpenLEhCacheHolder {
             if (resources == null || resources.length == 0) {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " is not found.");
             } else if (resources.length > 1) {
-                throw new IllegalStateException(String.format("Multiple %s exist in classpath.", OPENL_EHCACHE_FILE_NAME));
+                throw new IllegalStateException(
+                    String.format("Multiple %s exist in classpath.", OPENL_EHCACHE_FILE_NAME));
             }
 
             Configuration config = new XmlConfiguration(resources[0].getURL());

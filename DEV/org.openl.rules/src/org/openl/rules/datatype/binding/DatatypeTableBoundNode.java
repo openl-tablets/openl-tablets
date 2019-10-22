@@ -156,7 +156,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), cxt, fields, (index == 0)));
+            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), cxt, fields, index == 0));
         }
         syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(cxt));
 
@@ -276,7 +276,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             boolean found = false;
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
-                    if ((method.getParameterTypes().length == 1) && method.getParameterTypes()[0].getName()
+                    if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getName()
                         .equals(fieldDescription.getTypeName())) {
                         found = true;
                         break;

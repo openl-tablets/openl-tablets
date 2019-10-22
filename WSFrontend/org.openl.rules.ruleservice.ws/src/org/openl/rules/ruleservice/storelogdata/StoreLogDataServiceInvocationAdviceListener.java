@@ -6,8 +6,6 @@ import java.util.function.Predicate;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
@@ -45,7 +43,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                             ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
                             if (storeLogData == null) {
                                 storeLogData = StoreLogDataHolder.get(); // Lazy local
-                                                                                 // variable
+                                                                         // variable
                                 // initialization
                             }
                             objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
@@ -60,11 +58,10 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     if (storeLogDataAdvice != null) {
                         if (storeLogData == null) {
                             storeLogData = StoreLogDataHolder.get(); // Lazy local variable
-                                                                             // initialization
+                                                                     // initialization
                         }
 
-                        storeLogDataAdvice
-                            .prepare(storeLogData.getCustomValues(), args, result, lastOccuredException);
+                        storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccuredException);
                     }
                 }
             }

@@ -23,7 +23,7 @@ public abstract class AGrid implements IGrid {
         if (colStart == colEnd && rowStart == rowEnd) {
             ICell cell = getCell(colStart, rowStart);
             IGridRegion region = cell.getRegion();
-            if (region == null || (region.getRight() == region.getLeft() && region.getBottom() == region.getTop())) {
+            if (region == null || region.getRight() == region.getLeft() && region.getBottom() == region.getTop()) {
                 return getUri() + "&" + "cell=" + cell.getUri();
             } else {
                 String range = getCell(region.getLeft(), region.getTop())

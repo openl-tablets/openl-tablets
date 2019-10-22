@@ -62,9 +62,7 @@ public class OpenLErrorMessage extends OpenLMessage {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((error == null) ? 0
-                                                   : ((error.getMessage() == null) ? 0
-                                                                                   : error.getMessage().hashCode()));
+        result = prime * result + (error == null ? 0 : error.getMessage() == null ? 0 : error.getMessage().hashCode());
         if (error instanceof OpenLCompilationException) {
             String location = error.getSourceLocation();
             result = prime * result + Objects.hashCode(location);

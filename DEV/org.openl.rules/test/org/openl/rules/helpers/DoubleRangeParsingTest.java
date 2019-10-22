@@ -171,7 +171,7 @@ public class DoubleRangeParsingTest {
 
         assertEquals(new DoubleRange("less than 5"), new DoubleRange("<5"));
         assertEquals(new DoubleRange("  less   than   5"), new DoubleRange("<5"));
-        
+
         assertEquals(new DoubleRange("more than 10"),
             new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING));
         assertEquals(new DoubleRange("  more   than   10  "),
@@ -179,7 +179,7 @@ public class DoubleRangeParsingTest {
 
         assertEquals(new DoubleRange("more than 5"), new DoubleRange(">5"));
         assertEquals(new DoubleRange("  more   than   5  "), new DoubleRange(">5"));
-        
+
         assertEquals(new DoubleRange("more \n    than 5"), new DoubleRange(">5"));
         assertEquals(new DoubleRange("less \n    than 10"),
             new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.EXCLUDING));
@@ -194,7 +194,7 @@ public class DoubleRangeParsingTest {
 
         assertEquals(new DoubleRange("5 or less"), new DoubleRange("<=5"));
         assertEquals(new DoubleRange("  5   or   less  "), new DoubleRange("<=5"));
-        
+
         assertEquals(new DoubleRange("5 or \n     less"), new DoubleRange("<=5"));
 
         assertEquals(new DoubleRange("10 and more"),
@@ -204,7 +204,7 @@ public class DoubleRangeParsingTest {
 
         assertEquals(new DoubleRange("10 and \n      more"),
             new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
-        
+
         assertEquals(new DoubleRange("5 and more"), new DoubleRange(">=5"));
         assertEquals(new DoubleRange("  5   and   more  "), new DoubleRange(">=5"));
     }

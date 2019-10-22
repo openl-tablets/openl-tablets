@@ -23,7 +23,7 @@ public class XlsTable {
 
     public String getTableName() {
         String header = table.getGridTable().getCell(0, 0).getStringValue();
-        return (header == null) ? "" : header;
+        return header == null ? "" : header;
     }
 
     public GridLocation getLocation() {

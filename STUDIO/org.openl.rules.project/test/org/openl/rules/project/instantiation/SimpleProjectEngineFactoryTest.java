@@ -14,20 +14,14 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failureWorkspaceTest() throws Exception {
-        @SuppressWarnings("unused")
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/test1/third")
+        new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
             .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
             .build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failureProjectArgumentTest() throws Exception {
-        @SuppressWarnings("unused")
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject(null)
-            .setWorkspace("test-resources/test1")
-            .build();
+        new SimpleProjectEngineFactoryBuilder<>().setProject(null).setWorkspace("test-resources/test1").build();
     }
 
     @Test(expected = ProjectResolvingException.class)

@@ -44,7 +44,7 @@ public class TestDomainImpl extends TestCase {
         try {
             db.setValue(5);
             assertEquals(db.size(), 1);
-            assertTrue((db.max() == db.min()) && (db.min() == 5));
+            assertTrue(db.max() == db.min() && db.min() == 5);
         } catch (Failure f) {
             fail("test failed due to incorrect work of TestDomainImpl.setValue(int)");
         }

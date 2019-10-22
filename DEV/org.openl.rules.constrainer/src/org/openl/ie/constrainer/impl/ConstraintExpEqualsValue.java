@@ -59,8 +59,8 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
                 // Debug.on();Debug.print("ObserverEqualValue:
                 // "+interest);Debug.off();
                 IntEvent event = (IntEvent) interest;
-                if ((event.isValueEvent() && event.min() != _value) || (event
-                    .isMaxEvent() && event.max() < _value) || (event.isMinEvent() && event.min() > _value)) {
+                if (event.isValueEvent() && event.min() != _value || event.isMaxEvent() && event.max() < _value || event
+                    .isMinEvent() && event.min() > _value) {
                     exp.constrainer().fail("from ObserverEqualValue");
                 }
                 _exp.setValue(_value);

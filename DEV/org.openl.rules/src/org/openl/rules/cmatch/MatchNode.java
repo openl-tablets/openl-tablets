@@ -65,7 +65,7 @@ public class MatchNode {
     }
 
     public boolean isLeaf() {
-        return (children.isEmpty());
+        return children.isEmpty();
     }
 
     public void setArgument(Argument argument) {

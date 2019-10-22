@@ -48,7 +48,7 @@ public class DTRuleTraceObject extends ATableTracerNode {
             rules = ((DecisionTableRuleNode) args[1]).getRules();
             indexed = ((DecisionTableRuleNode) args[1]).hasIndex();
         } else {
-            rules = new int[] { ((Integer) args[1]) };
+            rules = new int[] { (Integer) args[1] };
         }
         if (CollectionUtils.isEmpty(rules)) {
             // Don't trace empty rules

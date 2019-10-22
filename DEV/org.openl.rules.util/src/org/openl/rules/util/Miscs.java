@@ -32,26 +32,26 @@ public final class Miscs {
     }
 
     public static boolean isNaN(Double num) {
-        return (num != null) && Double.isNaN(num);
+        return num != null && Double.isNaN(num);
     }
 
     public static Boolean isNaN(Float num) {
-        return (num != null) && Float.isNaN(num);
+        return num != null && Float.isNaN(num);
     }
 
     public static Boolean isInfinite(Double num) {
-        return (num != null) && Double.isInfinite(num);
+        return num != null && Double.isInfinite(num);
     }
 
     public static Boolean isInfinite(Float num) {
-        return (num != null) && Float.isInfinite(num);
+        return num != null && Float.isInfinite(num);
     }
 
     public static Boolean isInfinite(Long num) {
-        return (num != null) && (Long.MAX_VALUE == num || Long.MIN_VALUE == num);
+        return num != null && (Long.MAX_VALUE == num || Long.MIN_VALUE == num);
     }
 
     public static Boolean isInfinite(Integer num) {
-        return (num != null) && (Integer.MAX_VALUE == num || Integer.MIN_VALUE == num);
+        return num != null && (Integer.MAX_VALUE == num || Integer.MIN_VALUE == num);
     }
 }

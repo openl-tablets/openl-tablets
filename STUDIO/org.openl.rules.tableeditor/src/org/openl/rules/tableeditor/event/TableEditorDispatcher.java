@@ -31,7 +31,7 @@ public class TableEditorDispatcher implements PhaseListener {
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         ExternalContext extContext = event.getFacesContext().getExternalContext();
-        HttpServletRequest request = ((HttpServletRequest) extContext.getRequest());
+        HttpServletRequest request = (HttpServletRequest) extContext.getRequest();
         HttpServletResponse response = (HttpServletResponse) extContext.getResponse();
 
         String uri = request.getRequestURI();

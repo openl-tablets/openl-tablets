@@ -11,13 +11,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.variation.*;
 import org.openl.types.IOpenClass;
 
 public class ServiceConfigurationRootClassNamesBindingFactoryBean extends ServiceConfigurationFactoryBean<Set<String>> {
@@ -26,7 +20,8 @@ public class ServiceConfigurationRootClassNamesBindingFactoryBean extends Servic
     private Set<String> defaultAdditionalRootClassNames;
 
     public void setDefaultAdditionalRootClassNames(Set<String> defaultAdditionalRootClassNames) {
-        this.defaultAdditionalRootClassNames = Objects.requireNonNull(defaultAdditionalRootClassNames, "defaultAdditionalRootClassNames cannot be null");
+        this.defaultAdditionalRootClassNames = Objects.requireNonNull(defaultAdditionalRootClassNames,
+            "defaultAdditionalRootClassNames cannot be null");
     }
 
     public Set<String> getDefaultAdditionalRootClassNames() {

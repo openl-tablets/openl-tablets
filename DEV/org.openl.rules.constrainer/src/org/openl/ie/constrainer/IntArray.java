@@ -190,7 +190,7 @@ public final class IntArray extends ConstrainerObjectImpl {
         this(c, v.size());
 
         for (int i = 0; i < _data.length; ++i) {
-            _data[i] = ((Integer) v.elementAt(i)).intValue();
+            _data[i] = ((Integer) v.elementAt(i));
         }
     }
 

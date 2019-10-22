@@ -38,9 +38,6 @@ public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest interest) throws Failure {
-            // Debug.on();Debug.print("ObserverFloatEqual: "+_name+" Event:
-            // "+interest);Debug.off();
-            FloatEvent event = (FloatEvent) interest;
             // if (event.isRemoveEvent())
             // {
             // int max = event.numberOfRemoves();

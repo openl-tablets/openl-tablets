@@ -565,7 +565,7 @@ public final class Strings {
 
     public static Integer toInteger(String str) {
         try {
-            return isEmpty(str) ? null : Integer.valueOf(trim(str));
+            return isEmpty(str) ? null : Integer.parseInt(trim(str));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -573,7 +573,7 @@ public final class Strings {
 
     public static Double toDouble(String str) {
         try {
-            return isEmpty(str) ? null : Double.valueOf(str);
+            return isEmpty(str) ? null : Double.parseDouble(str);
         } catch (NumberFormatException e) {
             return null;
         }

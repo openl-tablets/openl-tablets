@@ -436,10 +436,10 @@ public final class IntExpMulExp extends IntExpImpl {
 
     @Override
     public boolean isLinear() {
-        if (!((_exp1.bound()) || (_exp2.bound()))) {
+        if (!(_exp1.bound() || _exp2.bound())) {
             return false;
         }
-        return (_exp1.isLinear() && _exp2.isLinear());
+        return _exp1.isLinear() && _exp2.isLinear();
     }
 
     @Override

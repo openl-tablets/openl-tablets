@@ -49,7 +49,7 @@ public final class JSFFunctions {
      * @return <tt>true</tt> if this map contains a mapping for the specified key.
      */
     public static boolean contains(Map<?, ?> map, Object key) {
-        return (map != null) && map.containsKey(key);
+        return map != null && map.containsKey(key);
     }
 
     public static boolean hasGlobalMessages() {
@@ -90,7 +90,7 @@ public final class JSFFunctions {
      * @return entry set
      */
     public static Set<?> mapEntrySet(Map<?, ?> map) {
-        return (map != null) ? map.entrySet() : Collections.EMPTY_SET;
+        return map != null ? map.entrySet() : Collections.EMPTY_SET;
     }
 
     public static String unescape(String string) {

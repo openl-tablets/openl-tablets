@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;

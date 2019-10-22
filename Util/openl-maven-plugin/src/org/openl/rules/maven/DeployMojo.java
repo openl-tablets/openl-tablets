@@ -1,5 +1,10 @@
 package org.openl.rules.maven;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.util.Properties;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -9,11 +14,6 @@ import org.apache.maven.settings.Settings;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.util.Properties;
 
 /**
  * Created by dl on 6/15/17.
@@ -55,7 +55,8 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Server server = settings.getServer(deployServer);
         if (server == null) {
-            throw new IllegalStateException(String.format("The server configuration with name %s does not exist", deployServer));
+            throw new IllegalStateException(
+                String.format("The server configuration with name %s does not exist", deployServer));
         }
 
         Properties properties = new Properties();

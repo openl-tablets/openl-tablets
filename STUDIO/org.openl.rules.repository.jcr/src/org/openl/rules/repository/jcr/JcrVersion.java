@@ -27,7 +27,7 @@ public class JcrVersion implements RVersion {
 
     protected static void create(Node node) throws RepositoryException {
         // node.setProperty(ArtefactProperties.PROP_VERSION, 0);
-        long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
+        long l = (MAX_MM_INT & 0x7FFF) << 16 | MAX_MM_INT & 0x7FFF;
         node.setProperty(ArtefactProperties.PROP_VERSION, l);
 
         node.setProperty(ArtefactProperties.PROP_REVISION, 0);
@@ -111,7 +111,7 @@ public class JcrVersion implements RVersion {
                 long l = node.getProperty(ArtefactProperties.PROP_VERSION).getLong();
                 int i = (int) l;
                 major = i >> 16;
-                minor = i & (0xFFFF);
+                minor = i & 0xFFFF;
             } else {
                 major = MAX_MM_INT;
                 minor = MAX_MM_INT;
@@ -157,7 +157,7 @@ public class JcrVersion implements RVersion {
 
     protected void updateVersion(Node node) throws RepositoryException {
         if (node.hasProperty(ArtefactProperties.PROP_VERSION)) {
-            long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
+            long l = (MAX_MM_INT & 0x7FFF) << 16 | MAX_MM_INT & 0x7FFF;
             node.setProperty(ArtefactProperties.PROP_VERSION, l);
         }
 

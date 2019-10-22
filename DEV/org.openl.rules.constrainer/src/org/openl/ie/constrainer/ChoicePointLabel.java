@@ -28,7 +28,7 @@ public class ChoicePointLabel implements java.io.Serializable {
     }
 
     public boolean equals(ChoicePointLabel cpl) {
-        return ((_label == cpl._label) && (_c == cpl._c));
+        return _label == cpl._label && _c == cpl._c;
     }
 
     @Override

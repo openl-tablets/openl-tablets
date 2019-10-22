@@ -71,8 +71,8 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
             String encoding,
             String contentType) throws Exception {
         // Just transform the XML message when the cos has content
-        if (isPrettyLogging() && (contentType != null && contentType.indexOf("xml") >= 0 && contentType.toLowerCase()
-            .indexOf("multipart/related") < 0) && cos.size() > 0) {
+        if (isPrettyLogging() && contentType != null && contentType.indexOf("xml") >= 0 && contentType.toLowerCase()
+            .indexOf("multipart/related") < 0 && cos.size() > 0) {
 
             StringWriter swriter = new StringWriter();
             XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);

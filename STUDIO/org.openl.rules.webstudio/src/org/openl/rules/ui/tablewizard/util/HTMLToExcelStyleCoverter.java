@@ -125,7 +125,7 @@ public class HTMLToExcelStyleCoverter {
                     fontHeight = Short.parseShort(fontSize);
 
                     // convert to px
-                    fontHeight = (short) ((fontHeight / 1.2) * 20);
+                    fontHeight = (short) (fontHeight / 1.2 * 20);
                 }
 
             }
@@ -344,7 +344,7 @@ public class HTMLToExcelStyleCoverter {
                     fontHeight = Short.parseShort(fontSize);
 
                     // convert to px
-                    fontHeight = (short) ((fontHeight / 1.2) * 20);
+                    fontHeight = (short) (fontHeight / 1.2 * 20);
                 }
 
             }

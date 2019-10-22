@@ -19,6 +19,6 @@ public class ShortValueType extends ShortType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Short value = (Short) super.readObject(reader, context);
-        return (value == null) ? null : new ShortValue(value);
+        return value == null ? null : new ShortValue(value);
     }
 }

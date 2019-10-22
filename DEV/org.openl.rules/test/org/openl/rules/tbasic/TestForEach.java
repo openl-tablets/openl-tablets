@@ -11,40 +11,40 @@ import org.openl.rules.TestUtils;
 public class TestForEach {
     @Test
     public void test1() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F1.xls"),
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F1.xls",
             "Compilation failure. The cell should be of the array type");
     }
 
     @Test
     public void test2() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F2.xls"), "Operation must have value in Condition.");
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F2.xls", "Operation must have value in Condition.");
     }
 
     @Test
     public void test3() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F3.xls"), "Operation FOR EACH cannot be singleline.");
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F3.xls", "Operation FOR EACH cannot be singleline.");
     }
 
     @Test
     public void test4() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F4.xls"), "Operation must have value in Action.");
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F4.xls", "Operation must have value in Action.");
     }
 
     @Test
     public void test5() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F5.xls"),
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F5.xls",
             "Compilation failure. The cell should be of the array type");
     }
 
     @Test
     public void test6() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F6.xls"),
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F6.xls",
             "Compilation failure. The cell should be of the array type");
     }
 
     @Test
     public void test7() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F7.xls"), "Variable 'el' has already been defined");
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F7.xls", "Variable 'el' has already been defined");
     }
 
     @Test

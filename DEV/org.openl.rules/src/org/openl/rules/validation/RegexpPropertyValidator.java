@@ -35,8 +35,8 @@ public class RegexpPropertyValidator extends TablesValidator {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (PropertiesChecker.isPropertySuitableForTableType(propertyName,
-                tsn.getType()) && (tsn.getTableProperties() != null && tsn.getTableProperties()
-                    .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
+                tsn.getType()) && tsn.getTableProperties() != null && tsn.getTableProperties()
+                    .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     SyntaxNodeException exception = SyntaxNodeExceptionUtils

@@ -17,7 +17,7 @@ public class IntegerArray {
     }
 
     public IntegerArray(Collection<Integer> collection) {
-        this.array = (collection != null) ? collection.toArray(new Integer[collection.size()]) : new Integer[0];
+        this.array = collection != null ? collection.toArray(new Integer[collection.size()]) : new Integer[0];
     }
 
     public void setArray(Integer[] array) {

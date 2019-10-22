@@ -65,7 +65,7 @@ public final class FieldUsageSearcher {
                 description = tableSyntaxNode.getHeaderLineValue().getValue();
                 uri = tableSyntaxNode.getUri();
             } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
-                ConstantOpenField constantOpenField = ((ConstantOpenField) boundField);
+                ConstantOpenField constantOpenField = (ConstantOpenField) boundField;
                 description = MethodUtil.printType(boundField.getType()) + " " + boundField
                     .getName() + " = " + constantOpenField.getValueAsString();
                 uri = constantOpenField.getMemberMetaInfo().getSourceUrl();

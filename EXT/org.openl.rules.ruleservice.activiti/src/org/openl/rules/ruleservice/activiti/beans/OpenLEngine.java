@@ -23,8 +23,7 @@ public class OpenLEngine {
     public ResultValue execute(String serviceName, String methodName, Object... args) throws Exception {
         OpenLService openLService = ruleServiceManager.getServiceByName(serviceName);
         if (openLService == null) {
-            throw new OpenLServiceNotFoundException(
-                String.format("OpenL service '%s' is not found.", serviceName));
+            throw new OpenLServiceNotFoundException(String.format("OpenL service '%s' is not found.", serviceName));
         } else {
             Object serviceBean = openLService.getServiceBean();
             Class<?> serviceClass = openLService.getServiceClass();

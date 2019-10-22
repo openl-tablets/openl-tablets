@@ -66,7 +66,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = Objects.requireNonNull(dataSource, "dataSource cannot be null");
-        ;
+
     }
 
     /**
@@ -126,7 +126,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
-            throw new RuleServiceRuntimeException(String.format("Deployment '%s' does not contain a project '%s'.", deploymentName, projectName));
+            throw new RuleServiceRuntimeException(
+                String.format("Deployment '%s' does not contain a project '%s'.", deploymentName, projectName));
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);

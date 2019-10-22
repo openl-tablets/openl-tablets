@@ -316,7 +316,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         try {
             VersionListing versionListing = null;
 
-            S3VersionSummary summary = null;
             do {
                 versionListing = versionListing == null ? s3.listVersions(bucketName, name)
                                                         : s3.listNextBatchOfVersions(versionListing);
@@ -338,7 +337,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         try {
             VersionListing versionListing = null;
 
-            S3VersionSummary summary = null;
             do {
                 versionListing = versionListing == null ? s3.listVersions(bucketName, name)
                                                         : s3.listNextBatchOfVersions(versionListing);

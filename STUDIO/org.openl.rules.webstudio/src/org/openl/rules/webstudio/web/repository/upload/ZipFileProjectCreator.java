@@ -122,7 +122,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             /*
              * Display first 20 files/folders with incorrect names
              */
-            for (int i = 0; i < (Math.min(invalidNames.size(), 20)); i++) {
+            for (int i = 0; i < Math.min(invalidNames.size(), 20); i++) {
                 FacesUtils.addErrorMessage(invalidNames.get(i));
             }
             throw new ProjectException(NameChecker.BAD_NAME_MSG);

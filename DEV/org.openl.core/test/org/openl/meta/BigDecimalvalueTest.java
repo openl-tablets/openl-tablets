@@ -50,8 +50,8 @@ public class BigDecimalvalueTest {
     public void testAutocastLong() {
         BigDecimalValue expectedResult = new BigDecimalValue("2000000000");
 
-        Long value = Long.valueOf("2000000000");
-        BigDecimalValue result = BigDecimalValue.autocast(value.longValue(), null);
+        Long value = Long.parseLong("2000000000");
+        BigDecimalValue result = BigDecimalValue.autocast(value, null);
 
         assertEquals(expectedResult, result);
     }

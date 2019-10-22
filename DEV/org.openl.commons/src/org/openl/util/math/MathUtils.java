@@ -371,7 +371,7 @@ public class MathUtils {
             return values[0];
         } else if (length == 2) {
             BigDecimal v = values[0].add(values[1]);
-            return (new BigDecimal("0.5")).multiply(v);
+            return new BigDecimal("0.5").multiply(v);
         }
         BigDecimal[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
@@ -381,7 +381,7 @@ public class MathUtils {
             return copy[index];
         } else {
             BigDecimal v = copy[index].add(copy[index + 1]);
-            return (new BigDecimal("0.5")).multiply(v);
+            return new BigDecimal("0.5").multiply(v);
         }
     }
 
@@ -493,42 +493,42 @@ public class MathUtils {
     // MOD for wrapper types
     public static Byte mod(Byte number, Byte divisor) {
         if (number == null || divisor == null) {
-            return Byte.valueOf((byte) 0);
+            return (byte) 0;
         }
         return mod((byte) number, (byte) divisor);
     }
 
     public static Short mod(Short number, Short divisor) {
         if (number == null || divisor == null) {
-            return Short.valueOf((short) 0);
+            return (short) 0;
         }
         return mod((short) number, (short) divisor);
     }
 
     public static Integer mod(Integer number, Integer divisor) {
         if (number == null || divisor == null) {
-            return Integer.valueOf(0);
+            return 0;
         }
         return mod((int) number, (int) divisor);
     }
 
     public static Long mod(Long number, Long divisor) {
         if (number == null || divisor == null) {
-            return Long.valueOf(0l);
+            return 0l;
         }
         return mod((long) number, (long) divisor);
     }
 
     public static Float mod(Float number, Float divisor) {
         if (number == null || divisor == null) {
-            return Float.valueOf(0f);
+            return 0f;
         }
         return mod((float) number, (float) divisor);
     }
 
     public static Double mod(Double number, Double divisor) {
         if (number == null || divisor == null) {
-            return Double.valueOf(0d);
+            return 0d;
         }
         return mod((double) number, (double) divisor);
     }

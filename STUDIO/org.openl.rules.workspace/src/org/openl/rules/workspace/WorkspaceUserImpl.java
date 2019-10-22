@@ -33,7 +33,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         }
 
         if (obj instanceof WorkspaceUser) {
-            return (0 == compareTo((WorkspaceUser) obj));
+            return 0 == compareTo((WorkspaceUser) obj);
         } else {
             return false;
         }

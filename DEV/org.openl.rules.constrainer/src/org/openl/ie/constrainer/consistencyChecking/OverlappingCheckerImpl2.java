@@ -53,7 +53,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     continue;
                 }
                 IntBoolExp rule = _dt.getRule(i);
-                if (rule.bound() && (rule.max() == 1)) {
+                if (rule.bound() && rule.max() == 1) {
                     over.addRule(i);
                 }
             }
@@ -88,7 +88,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                 ruleArray.set(rules[i], r++);
             }
         }
-        Constraint overlapping = (ruleArray.sum().gt(1)).asConstraint();
+        Constraint overlapping = ruleArray.sum().gt(1).asConstraint();
         Goal save = new GoalSaveSolutions(C, overlappingRules);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
@@ -151,7 +151,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
         Constrainer C = exp1.constrainer();
         int stackSize = C.getStackSize();
-        Constraint overlaps = (exp1.lt(exp2)).asConstraint();
+        Constraint overlaps = exp1.lt(exp2).asConstraint();
         // GoalCompare compare = new GoalCompare(C, exp1, exp2);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(overlaps, generate);

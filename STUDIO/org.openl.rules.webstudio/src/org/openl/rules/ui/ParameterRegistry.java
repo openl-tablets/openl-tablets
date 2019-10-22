@@ -24,7 +24,7 @@ public class ParameterRegistry extends ObjectRegistry<ParameterWithValueDeclarat
 
     public static ParameterWithValueDeclaration getParameter(String requestId, String rootID) {
         ParameterRegistry parameterRegistry = getCurrent(requestId);
-        return parameterRegistry == null ? null : parameterRegistry.getValue(Integer.valueOf(rootID));
+        return parameterRegistry == null ? null : parameterRegistry.getValue(Integer.parseInt(rootID));
     }
 
     public static void remove(String requestId) {

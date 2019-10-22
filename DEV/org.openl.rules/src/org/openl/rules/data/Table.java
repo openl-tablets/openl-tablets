@@ -401,7 +401,7 @@ public class Table implements ITable {
                         .getSubtable(0, 0, width, 1);
                     logicalTable = LogicalTableHelper.make1ColumnTable(logicalTable);
                     Object res = descriptor.parseCellValue(logicalTable, openlAdapter);
-                    if (!(descriptor.isSameValue(res, prevRes))) {
+                    if (!descriptor.isSameValue(res, prevRes)) {
                         rowValues[rowNum - startRow][colNum] = res;
                         prevRes = res;
                     }

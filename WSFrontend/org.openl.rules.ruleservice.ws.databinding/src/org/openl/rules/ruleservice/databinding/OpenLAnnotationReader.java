@@ -17,6 +17,7 @@ import org.apache.cxf.aegis.type.java5.AnnotationReader;
 
 public class OpenLAnnotationReader extends AnnotationReader {
 
+    @Override
     public Class<?> getType(AnnotatedElement element) {
         Class<?> type = super.getType(element);
         if (type == null || !AegisType.class.isAssignableFrom(type)) {

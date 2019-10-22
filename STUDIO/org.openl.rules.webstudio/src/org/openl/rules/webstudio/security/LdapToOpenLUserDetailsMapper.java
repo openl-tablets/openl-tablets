@@ -259,7 +259,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         final int firstByteIndex = 2;
         final int lastByteIndex = 7;
         for (int i = firstByteIndex; i <= lastByteIndex; i++) {
-            authority |= ((long) sid[i]) << (8 * (lastByteIndex - i));
+            authority |= (long) sid[i] << 8 * (lastByteIndex - i);
         }
         strSid.append("-");
         strSid.append(authority);
@@ -270,7 +270,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         for (int j = 0; j < subAuthoritiesCount; j++) {
             long subAuthority = 0;
             for (int k = 0; k < authSize; k++) {
-                subAuthority |= (long) (sid[offset + k] & 0xFF) << (8 * k);
+                subAuthority |= (long) (sid[offset + k] & 0xFF) << 8 * k;
             }
 
             strSid.append("-");

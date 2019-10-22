@@ -23,7 +23,7 @@ public final class Token {
         final int prime = 31;
         int result = 1;
         result = prime * result + distance;
-        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + (value == null ? 0 : value.hashCode());
         return result;
     }
 

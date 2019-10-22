@@ -44,7 +44,7 @@ public class ColumnMatchBuilder {
         columnMatch.setRows(rows);
 
         IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
-        String nameOfAlgorithm = (alg != null) ? alg.getCode() : null;
+        String nameOfAlgorithm = alg != null ? alg.getCode() : null;
         IMatchAlgorithmCompiler algorithm;
         try {
             algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
@@ -154,6 +154,6 @@ public class ColumnMatchBuilder {
         if (s == null) {
             return "";
         }
-        return (s.trim().toLowerCase());
+        return s.trim().toLowerCase();
     }
 }

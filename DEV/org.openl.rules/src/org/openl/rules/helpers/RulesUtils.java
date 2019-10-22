@@ -739,7 +739,7 @@ public final class RulesUtils {
         T[] sortedArray = null;
 
         if (values != null) {
-            sortedArray = ((T[]) Array.newInstance(values.getClass().getComponentType(), values.length));
+            sortedArray = (T[]) Array.newInstance(values.getClass().getComponentType(), values.length);
             T[] notNullArray = ArrayTool.removeNulls(values);
             if (notNullArray == values) {
                 notNullArray = values.clone();
@@ -4477,8 +4477,8 @@ public final class RulesUtils {
         }
 
         Class<?> clazz = origin.getClass();
-        if ((clazz.isArray() && Serializable.class
-            .isAssignableFrom(clazz.getComponentType())) || (!clazz.isArray() && origin instanceof Serializable)) {
+        if (clazz.isArray() && Serializable.class
+            .isAssignableFrom(clazz.getComponentType()) || !clazz.isArray() && origin instanceof Serializable) {
             ObjectOutputStream oos = null;
             ObjectInputStream ois = null;
             try {

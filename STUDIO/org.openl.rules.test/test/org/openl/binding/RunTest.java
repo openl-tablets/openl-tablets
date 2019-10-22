@@ -15,14 +15,9 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.helpers.DoubleRange;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.util.RangeWithBounds;
-import org.openl.util.RangeWithBounds.BoundType;
-
-import static org.junit.Assert.assertEquals;
 
 public class RunTest {
     private static Object runExpression(String expression, SourceType parseType) {
@@ -123,7 +118,8 @@ public class RunTest {
         assertEquals("String x=\"abc\"; x != null && x.length() < 10", true);
 
         assertEquals("int x = 5; x += 4", new Integer(9));
-        assertEquals("DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1.getValue()",
+        assertEquals(
+            "DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1.getValue()",
             new Double(9));
         assertEquals("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", new Integer(45));
 
@@ -330,7 +326,8 @@ public class RunTest {
 
         // Test spaces
         assertEquals("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba");
-        assertEquals("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      by toString() ][0]", "aaba");
+        assertEquals("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      by toString() ][0]",
+            "aaba");
         assertEquals(
             "String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      increasing by toString() ][0]",
             "aaba");

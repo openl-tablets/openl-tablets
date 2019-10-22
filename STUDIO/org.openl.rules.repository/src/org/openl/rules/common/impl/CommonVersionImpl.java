@@ -132,7 +132,7 @@ public class CommonVersionImpl implements CommonVersion {
 
     @Override
     public int hashCode() {
-        return (major << 22) ^ (minor << 11) ^ revision.hashCode();
+        return major << 22 ^ minor << 11 ^ revision.hashCode();
     }
 
     @Override

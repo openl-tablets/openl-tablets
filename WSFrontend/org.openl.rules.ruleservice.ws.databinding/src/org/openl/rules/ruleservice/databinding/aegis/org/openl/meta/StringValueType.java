@@ -19,6 +19,6 @@ public class StringValueType extends StringType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         String value = (String) super.readObject(reader, context);
-        return (value == null) ? null : new StringValue(value);
+        return value == null ? null : new StringValue(value);
     }
 }

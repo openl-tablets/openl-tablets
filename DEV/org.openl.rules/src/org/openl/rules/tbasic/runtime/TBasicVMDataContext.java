@@ -78,8 +78,8 @@ public class TBasicVMDataContext {
                 nextOperation = operations.get(indexOfNext);
             }
         } else {
-            throw AlgorithmErrorHelper.createExecutionException("Cannot find the next operation after the specified one",
-                operation);
+            throw AlgorithmErrorHelper
+                .createExecutionException("Cannot find the next operation after the specified one", operation);
         }
 
         return nextOperation;

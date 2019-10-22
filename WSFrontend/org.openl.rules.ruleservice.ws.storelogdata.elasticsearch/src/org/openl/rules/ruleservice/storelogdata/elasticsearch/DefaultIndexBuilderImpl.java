@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.IndexBuilder;
 
 public class DefaultIndexBuilderImpl implements IndexBuilder {
     private static final String ID = "DEFAULT_ELASTIC_SEARCH_INDEX_ID";

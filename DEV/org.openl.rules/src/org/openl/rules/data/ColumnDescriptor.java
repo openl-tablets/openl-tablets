@@ -308,13 +308,13 @@ public class ColumnDescriptor {
     private static boolean isSameArrayValue(Object res, Object prevRes) {
         boolean resIsEmpty = Array.getLength(res) == 0;
 
-        return (resIsEmpty && Array.getLength(prevRes) == 0) || (Arrays.deepEquals((Object[]) prevRes,
-            (Object[]) res)) || (prevRes != PREV_RES_EMPTY && resIsEmpty);
+        return resIsEmpty && Array.getLength(prevRes) == 0 || Arrays.deepEquals((Object[]) prevRes,
+            (Object[]) res) || prevRes != PREV_RES_EMPTY && resIsEmpty;
     }
 
     private boolean isSameSingleValue(Object res, Object prevRes) {
-        return (prevRes == null && res == null) || (prevRes != null && prevRes
-            .equals(res)) || (prevRes != PREV_RES_EMPTY && res == null);
+        return prevRes == null && res == null || prevRes != null && prevRes
+            .equals(res) || prevRes != PREV_RES_EMPTY && res == null;
     }
 
     public boolean isReference() {

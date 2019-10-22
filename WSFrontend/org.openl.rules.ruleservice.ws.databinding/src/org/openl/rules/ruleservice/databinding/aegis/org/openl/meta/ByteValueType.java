@@ -19,6 +19,6 @@ public class ByteValueType extends ByteType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Byte value = (Byte) super.readObject(reader, context);
-        return (value == null) ? null : new ByteValue(value);
+        return value == null ? null : new ByteValue(value);
     }
 }

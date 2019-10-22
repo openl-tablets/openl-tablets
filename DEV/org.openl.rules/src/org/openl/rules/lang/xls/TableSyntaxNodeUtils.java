@@ -43,7 +43,7 @@ public final class TableSyntaxNodeUtils {
             display = tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue();
         }
 
-        String sfx = (i < 2 ? "" : " (" + i + ")");
+        String sfx = i < 2 ? "" : " (" + i + ")";
         String dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode

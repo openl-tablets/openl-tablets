@@ -26,7 +26,7 @@ public class LabelManager {
 
             LabelType otherLabelType = (LabelType) other;
 
-            return name.equals(otherLabelType.name) && (loopLabel == otherLabelType.loopLabel);
+            return name.equals(otherLabelType.name) && loopLabel == otherLabelType.loopLabel;
         }
 
         /**
@@ -165,8 +165,8 @@ public class LabelManager {
 
         // label should contain 1 or 2 parts, first with label name, second with
         // loop keyword
-        if (instructionParts.length < 1 || instructionParts.length > 2 || (instructionParts.length == 2 && !loopKeyword
-            .equals(instructionParts[1]))) {
+        if (instructionParts.length < 1 || instructionParts.length > 2 || instructionParts.length == 2 && !loopKeyword
+            .equals(instructionParts[1])) {
             // FIXME
             throw new RuntimeException("Bad gen label instruction....");
         }

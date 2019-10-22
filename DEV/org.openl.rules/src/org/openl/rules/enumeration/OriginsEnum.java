@@ -7,7 +7,7 @@ public enum OriginsEnum {
 
     private final String displayName;
 
-    private OriginsEnum (String displayName) {
+    private OriginsEnum(String displayName) {
         this.displayName = displayName;
     }
 

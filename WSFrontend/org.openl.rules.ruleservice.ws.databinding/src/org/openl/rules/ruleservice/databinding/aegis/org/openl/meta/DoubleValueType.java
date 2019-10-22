@@ -20,6 +20,6 @@ public class DoubleValueType extends DoubleType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Double value = (Double) super.readObject(reader, context);
-        return (value == null) ? null : new DoubleValue(value);
+        return value == null ? null : new DoubleValue(value);
     }
 }

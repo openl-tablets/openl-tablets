@@ -28,7 +28,6 @@ public class DimensionPropertiesValidator extends TablesValidator {
     @SuppressWarnings("unused")
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        ValidationResult validationResult = null;
 
         // FIXME: currently validation of dispatcher tables is disabled
         // because of "match by default" case(when context value == null

@@ -28,14 +28,14 @@ public final class AcegiFunctions {
 
     public static String authentication(String operation) {
         final Logger log = LoggerFactory.getLogger(AcegiFunctions.class);
-        if ((operation == null)) {
+        if (operation == null) {
             log.debug("Operation is not provided. Empty result string will be returned.");
             return "";
         }
 
         SecurityContext ctx = SecurityContextHolder.getContext();
 
-        if ((ctx == null) || (ctx.getAuthentication() == null)) {
+        if (ctx == null || ctx.getAuthentication() == null) {
             log.debug("Failed to find security context or context has no authentication.");
             return "";
         }

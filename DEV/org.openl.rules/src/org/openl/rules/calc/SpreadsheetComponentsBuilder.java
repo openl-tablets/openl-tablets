@@ -44,11 +44,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
-import org.openl.util.text.AbsolutePosition;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.IPosition;
-import org.openl.util.text.TextInfo;
-import org.openl.util.text.TextInterval;
+import org.openl.util.text.*;
 
 import gcardone.junidecode.Junidecode;
 
@@ -423,9 +419,9 @@ public class SpreadsheetComponentsBuilder {
             .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
         } else if (spreadsheetHeaderType
-            .getAggregateInfo() == null || (spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
+            .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
                 .getAggregateInfo()
-                .getComponentType(spreadsheetHeaderType) == null)) {
+                .getComponentType(spreadsheetHeaderType) == null) {
             int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
             if (nonEmptyCellsCount == 1) {
                 headerDefinition.setType(spreadsheetHeaderType);

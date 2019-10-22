@@ -14,7 +14,7 @@ public class CollectionUtilsTest {
     private static final Predicate<Integer> isEven = new Predicate<Integer>() {
         @Override
         public boolean evaluate(Integer number) {
-            return (number % 2) == 0;
+            return number % 2 == 0;
         }
     };
 

@@ -32,7 +32,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
         this.conditionsWidth = entireTable.getWidth() - lookupValuesTableWidth;
         this.hConditionsCount = entireTable.getHeight() - lookupValuesTableHeight - HCONDITION_HEADERS_HEIGHT;
         this.retTableWidth = retTableWidth;
-        this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + (hConditionsCount - 1);
+        this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + hConditionsCount - 1;
     }
 
     int getRetTableWidth() {
@@ -70,7 +70,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
         } else {
             // getCoordinatesFromLookupValues
             int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
-            res = conditionsWidth + hConditionValueIndex + (col - conditionsWidth - hConditionsCount);
+            res = conditionsWidth + hConditionValueIndex + col - conditionsWidth - hConditionsCount;
         }
         return res;
     }

@@ -34,11 +34,11 @@ public final class NumberUtils {
     public static Double convertToDouble(Object object) {
 
         if (Float.class.equals(object.getClass())) {
-            return Double.valueOf(object.toString());
+            return Double.parseDouble(object.toString());
         }
 
         if (FloatValue.class.isAssignableFrom(object.getClass())) {
-            return Double.valueOf(object.toString());
+            return Double.parseDouble(object.toString());
         }
 
         if (Double.class.equals(object.getClass())) {
@@ -141,7 +141,7 @@ public final class NumberUtils {
     }
 
     public static int getScale(float value) {
-        return getScale(Double.valueOf(Float.toString(value)));
+        return getScale(Double.parseDouble(Float.toString(value)));
     }
 
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {

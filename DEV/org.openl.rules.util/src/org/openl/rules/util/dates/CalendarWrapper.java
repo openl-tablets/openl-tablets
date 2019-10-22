@@ -131,7 +131,7 @@ final class CalendarWrapper {
      * @return {@code true} if was complete, otherwise {@code false}
      */
     private boolean isCompleteLastYear(CalendarWrapper start) {
-        return month > start.month || (month == start.month && day >= start.day);
+        return month > start.month || month == start.month && day >= start.day;
     }
 
     /**

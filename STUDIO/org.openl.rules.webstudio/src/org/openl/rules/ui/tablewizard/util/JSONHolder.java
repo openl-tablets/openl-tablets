@@ -24,16 +24,16 @@ public class JSONHolder {
             for (int i = 0; i < inParam.length(); i++) {
                 JSONObject param = (JSONObject) inParam.get(i);
 
-                result.append((i > 0) ? ", " : "")
+                result.append(i > 0 ? ", " : "")
                     .append(param.getString("type"))
-                    .append((param.getBoolean("iterable")) ? "[]" : "")
+                    .append(param.getBoolean("iterable") ? "[]" : "")
                     .append(" ")
                     .append(param.getString("name"));
             }
 
             return returnObj.getString(
-                "type") + ((returnObj.getBoolean("iterable")) ? "[]"
-                                                              : "") + " " + tableName + "(" + result.toString() + ")";
+                "type") + (returnObj.getBoolean("iterable") ? "[]"
+                                                            : "") + " " + tableName + "(" + result.toString() + ")";
         } catch (Exception e) {
             return "";
         }
@@ -53,7 +53,7 @@ public class JSONHolder {
                     for (int j = 0; j < rowElements.length(); j++) {
                         Object value;
 
-                        JSONObject dataCell = ((JSONObject) rowElements.get(j));
+                        JSONObject dataCell = (JSONObject) rowElements.get(j);
                         if (dataCell.getString("valueType").equals("DATE")) {
                             String dateString = dataCell.getString("value");
                             String dateFormat = "yyyy-MM-dd'T'HH:mm:ss";

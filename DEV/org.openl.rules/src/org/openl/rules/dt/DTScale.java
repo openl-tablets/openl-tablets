@@ -71,7 +71,7 @@ public class DTScale {
 
         @Override
         public int getActualSize(int size) {
-            assert (size == vScale * hScale);
+            assert size == vScale * hScale;
             return vScale;
         }
 
@@ -101,7 +101,7 @@ public class DTScale {
 
         @Override
         public int getActualSize(int size) {
-            assert (size == vScale * hScale);
+            assert size == vScale * hScale;
             return hScale;
         }
 

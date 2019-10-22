@@ -41,6 +41,6 @@ public final class ConstraintConst extends ConstraintImpl {
 
     @Override
     public String toString() {
-        return (_flag ? "TRUE" : "FALSE");
+        return _flag ? "TRUE" : "FALSE";
     }
 }

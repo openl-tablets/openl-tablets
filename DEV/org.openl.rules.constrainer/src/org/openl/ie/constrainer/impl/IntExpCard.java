@@ -60,7 +60,6 @@ public final class IntExpCard extends IntExpImpl {
         _indexes = (IntVarImpl) constrainer()
             .addIntVarTraceInternal(0, size, "IX" + card_value, IntVar.DOMAIN_BIT_FAST, trace);
 
-        int possible_instances = 0;
         int required_instances = 0;
         for (int i = 0; i < size; i++) {
             IntExp exp = vars.get(i);

@@ -23,7 +23,7 @@ public final class Sum {
         return process(values, new Result<T, Double>() {
             @Override
             public void processNonNull(T value) {
-                result = result == null ? value.doubleValue() : (result + value.doubleValue());
+                result = result == null ? value.doubleValue() : result + value.doubleValue();
             }
         });
     }
@@ -35,7 +35,7 @@ public final class Sum {
         return process(values, new Result<Double, Double>() {
             @Override
             public void processNonNull(Double value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }
@@ -47,7 +47,7 @@ public final class Sum {
         return process(values, new Result<Float, Float>() {
             @Override
             public void processNonNull(Float value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }
@@ -59,7 +59,7 @@ public final class Sum {
         return process(values, new Result<Long, Long>() {
             @Override
             public void processNonNull(Long value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }
@@ -71,7 +71,7 @@ public final class Sum {
         return process(values, new Result<Integer, Integer>() {
             @Override
             public void processNonNull(Integer value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }
@@ -83,7 +83,7 @@ public final class Sum {
         return process(values, new Result<Short, Integer>() {
             @Override
             public void processNonNull(Short value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }
@@ -95,7 +95,7 @@ public final class Sum {
         return process(values, new Result<Byte, Integer>() {
             @Override
             public void processNonNull(Byte value) {
-                result = result == null ? value : (result + value);
+                result = result == null ? value : result + value;
             }
         });
     }

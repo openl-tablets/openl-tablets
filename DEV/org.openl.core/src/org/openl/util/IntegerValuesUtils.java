@@ -39,11 +39,11 @@ public final class IntegerValuesUtils {
         } else if (ByteValue.class.equals(clazz)) {
             return new org.openl.meta.ByteValue(value);
         } else if (ShortValue.class.equals(clazz)) {
-            return new org.openl.meta.ShortValue((Short.valueOf(value)));
+            return new org.openl.meta.ShortValue(Short.valueOf(value));
         } else if (IntValue.class.equals(clazz)) {
             return new org.openl.meta.IntValue(Integer.valueOf(value));
         } else if (LongValue.class.equals(clazz)) {
-            return new org.openl.meta.LongValue((Long.valueOf(value)));
+            return new org.openl.meta.LongValue(Long.valueOf(value));
         } else if (BigIntegerValue.class.equals(clazz)) {
             return new BigIntegerValue(value);
         }

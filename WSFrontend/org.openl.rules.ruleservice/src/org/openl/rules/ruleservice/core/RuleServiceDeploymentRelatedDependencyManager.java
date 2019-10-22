@@ -94,13 +94,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
 
             long t = System.currentTimeMillis() - compilationInfo.time;
 
-            if (modules.size() == 1 && successed && (!(dependencyLoader instanceof LazyRuleServiceDependencyLoader))) {
+            if (modules.size() == 1 && successed && !(dependencyLoader instanceof LazyRuleServiceDependencyLoader)) {
                 Module module = modules.iterator().next();
                 if (log.isInfoEnabled()) {
                     log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.",
                         module.getName(),
                         module.getProject().getName(),
-                        String.valueOf((t - compilationInfo.embeddedTime))));
+                        String.valueOf(t - compilationInfo.embeddedTime)));
                 }
             }
 
@@ -138,7 +138,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
             ClassLoader rootClassLoader,
             boolean lazy) {
         super(rootClassLoader);
-        this.deploymentDescription = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
+        this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
+            "deploymentDescription cannot be null");
         this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService cannot be null");
         this.lazy = lazy;
         super.setExecutionMode(true);

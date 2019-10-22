@@ -151,9 +151,9 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
 
             if (OverlapState.OVERLAP != overlapState) {
                 if (length1 < length2) {
-                    f2 = (d == length1);
+                    f2 = d == length1;
                 } else {
-                    f1 = (d == length2);
+                    f1 = d == length2;
                     if (length1 == length2) {
                         f2 = f1;
                     }

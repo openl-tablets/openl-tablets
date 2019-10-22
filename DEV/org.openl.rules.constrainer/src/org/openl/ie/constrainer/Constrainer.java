@@ -837,9 +837,9 @@ public final class Constrainer implements Serializable {
         }
         int validsCounter = 0;
         for (int i = 0; i < size; i++) {
-            Integer idx = (Integer) (map.get(floatVars[i]));
+            Integer idx = (Integer) map.get(floatVars[i]);
             if (idx != null) {
-                indices[validsCounter] = idx.intValue();
+                indices[validsCounter] = idx;
                 validsCounter++;
             }
         }
@@ -861,9 +861,9 @@ public final class Constrainer implements Serializable {
         }
         int validsCounter = 0;
         for (int i = 0; i < size; i++) {
-            Integer idx = (Integer) (map.get(intVars[i]));
+            Integer idx = (Integer) map.get(intVars[i]);
             if (idx != null) {
-                indices[validsCounter] = idx.intValue();
+                indices[validsCounter] = idx;
                 validsCounter++;
             }
         }

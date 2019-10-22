@@ -75,7 +75,7 @@ public enum CurrenciesEnum {
 
     private final String displayName;
 
-    private CurrenciesEnum (String displayName) {
+    private CurrenciesEnum(String displayName) {
         this.displayName = displayName;
     }
 

@@ -7,11 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
+import org.apache.commons.configuration.*;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +91,7 @@ public class ConfigurationManager implements PropertiesHolder {
         if (configLocation != null) {
             try {
                 String webHome = System.getProperty("webstudio.home");
-                if (createIfNotExist && (webHome != null && configLocation.contains(webHome))) {
+                if (createIfNotExist && webHome != null && configLocation.contains(webHome)) {
                     configuration = new PropertiesConfiguration();
                     configuration.setDelimiterParsingDisabled(true);
                     File file = new File(configLocation);

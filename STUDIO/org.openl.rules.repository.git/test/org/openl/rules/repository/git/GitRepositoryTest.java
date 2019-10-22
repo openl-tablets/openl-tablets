@@ -2,12 +2,7 @@ package org.openl.rules.repository.git;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -22,19 +17,8 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.ConflictResolveData;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.MergeConflictException;
+import org.junit.*;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -705,34 +689,34 @@ public class GitRepositoryTest {
                     new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
                     new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
                     new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
-    
+
                 FileData folderData1 = new FileData();
                 folderData1.setName("rules/project1");
                 folderData1.setAuthor("John Smith");
                 folderData1.setComment("Bulk change by John");
-    
+
                 FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
                 theirCommit = save1.getVersion();
-    
+
                 // Second user commit (our). Will merge with first user's change (their).
                 String text2 = "foo\nbaz";
                 List<FileItem> changes2 = Arrays.asList(
                     new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                     new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
-    
+
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
                 folderData2.setAuthor("Jane Smith");
                 folderData2.setComment("Bulk change by Jane");
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
-    
+
                 fail("MergeConflictException is expected");
             } catch (MergeConflictException e) {
                 Collection<String> conflictedFiles = e.getConflictedFiles();
-    
+
                 assertEquals(1, conflictedFiles.size());
                 assertEquals(conflictedFile, conflictedFiles.iterator().next());
-    
+
                 assertEquals(baseCommit, e.getBaseCommit());
                 assertEquals(theirCommit, e.getTheirCommit());
                 assertNotNull(e.getYourCommit());
@@ -775,7 +759,6 @@ public class GitRepositoryTest {
 
                 String file1Content = IOUtils.toStringAndClose(repository2.read("rules/project1/file1").getStream());
                 assertEquals("Other user's non-conflicting modification is absent.", "Modified", file1Content);
-
 
                 // User modifies a file based on old version (baseCommit) and gets conflict.
                 // Expected: after conflict their conflicting changes in local repository are not reverted.

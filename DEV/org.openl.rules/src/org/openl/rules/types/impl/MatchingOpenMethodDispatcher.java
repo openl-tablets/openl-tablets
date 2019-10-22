@@ -146,7 +146,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     }
                 }
             }
-            
+
             selected.removeAll(notPriorMethods);
             if (selected.size() > 1) {
                 notPriorMethods.clear();
@@ -186,7 +186,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                                 mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                             } else if (contains && !nested && mostPriority.size() == 1) {
                                 notPriorMethods.add(candidate);
-                                
+
                             } else {
                                 mostPriority.add(candidate);
                             }
@@ -364,5 +364,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }

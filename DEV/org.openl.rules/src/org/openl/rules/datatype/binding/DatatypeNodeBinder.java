@@ -124,9 +124,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             return new AliasDatatypeBoundNode(tsn, tableType, module);
         } else {
-            if (parsedHeader.length != 2 && parsedHeader.length != 4 || (parsedHeader.length == 4 && !parsedHeader[2]
+            if (parsedHeader.length != 2 && parsedHeader.length != 4 || parsedHeader.length == 4 && !parsedHeader[2]
                 .getIdentifier()
-                .equals("extends"))) {
+                .equals("extends")) {
 
                 String message = "Datatype table formats: [Datatype %typename%] or [Datatype %typename% extends %parentTypeName%] or [Datatype %typename% %<aliastype>%] ";
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);

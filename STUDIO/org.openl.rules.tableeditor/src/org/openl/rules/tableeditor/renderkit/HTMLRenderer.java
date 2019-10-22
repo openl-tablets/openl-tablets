@@ -344,7 +344,7 @@ public class HTMLRenderer {
     }
 
     protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
-        editor = (editor == null || editor.equals("")) ? "" : editor + ".";
+        editor = editor == null || editor.equals("") ? "" : editor + ".";
         StringBuilder result = new StringBuilder();
         result.append("<img id=\"")
             .append(itemId)

@@ -153,7 +153,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
     }
 
     private static boolean valueIsNested(Object value) {
-        return (value instanceof SpreadsheetResult) || (value instanceof SpreadsheetResult[]);
+        return value instanceof SpreadsheetResult || value instanceof SpreadsheetResult[];
     }
 
 }

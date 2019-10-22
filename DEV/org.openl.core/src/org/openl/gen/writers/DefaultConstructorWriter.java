@@ -2,11 +2,7 @@ package org.openl.gen.writers;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 import org.objectweb.asm.ClassWriter;
@@ -264,9 +260,10 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             if (parameterTypes.length == 0) {
                 throw new ByteCodeGenerationException("There is no default constructor for type: " + className);
             } else {
-                throw new ByteCodeGenerationException(String.format("%s does not have a constructor with parameters: %s",
-                    className,
-                    Arrays.toString(parameterTypes)));
+                throw new ByteCodeGenerationException(
+                    String.format("%s does not have a constructor with parameters: %s",
+                        className,
+                        Arrays.toString(parameterTypes)));
             }
         }
     }

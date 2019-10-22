@@ -181,8 +181,8 @@ public class IntRange implements INumberRange {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) (max ^ (max >>> 32));
-        result = prime * result + (int) (min ^ (min >>> 32));
+        result = prime * result + (int) (max ^ max >>> 32);
+        result = prime * result + (int) (min ^ min >>> 32);
         return result;
     }
 

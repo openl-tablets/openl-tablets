@@ -100,7 +100,6 @@ public final class DomainImplWithHoles extends DomainImpl {
                 } else if (value == interval.to) {
                     interval.to--;
                 } else {
-                    int from1 = interval.from;
                     int to1 = value - 1;
                     int from2 = value + 1;
                     int to2 = interval.to;
@@ -211,7 +210,7 @@ public final class DomainImplWithHoles extends DomainImpl {
         int s = 0;
         for (int i = 0; i < _values.size(); i++) {
             DomainInterval interval = (DomainInterval) _values.elementAt(i);
-            s += (interval.to - interval.from + 1);
+            s += interval.to - interval.from + 1;
         }
         return s;
     }

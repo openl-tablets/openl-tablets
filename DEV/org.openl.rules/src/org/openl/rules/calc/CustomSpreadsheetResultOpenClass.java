@@ -2,18 +2,8 @@ package org.openl.rules.calc;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -83,7 +73,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         this.rowTitles = Objects.requireNonNull(rowTitles);
         this.columnTitles = Objects.requireNonNull(columnTitles);
-        
+
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = Objects.requireNonNull(module);
         this.detailedPlainModel = detailedPlainModel;
@@ -609,14 +599,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         private SpreadsheetResultValueSetter(XlsModuleOpenClass module, Field field, IOpenField openField) {
             this.field = Objects.requireNonNull(field);
-            ;
+
             this.openField = Objects.requireNonNull(openField);
-            ;
+
             this.module = Objects.requireNonNull(module);
-            ;
+
             this.field.setAccessible(true);
         }
 
+        @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
             if (!spreadsheetResult.isMarkedWithAsteriskField(openField.getName())) {
@@ -642,6 +633,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             this.field.setAccessible(true);
         }
 
+        @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
             if (spreadsheetResult.isDetailedPlainModel()) {
@@ -659,6 +651,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             this.field.setAccessible(true);
         }
 
+        @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
             if (spreadsheetResult.isDetailedPlainModel()) {
@@ -674,11 +667,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
         public SpreadsheetResultFieldNamesSetter(Field field, Map<String, List<IOpenField>> beanFieldsMap) {
             this.field = Objects.requireNonNull(field);
-            ;
+
             this.beanFieldsMap = Objects.requireNonNull(beanFieldsMap);
             this.field.setAccessible(true);
         }
 
+        @Override
         public void set(SpreadsheetResult spreadsheetResult, Object target) throws IllegalAccessException,
                                                                             InstantiationException {
             if (spreadsheetResult.isDetailedPlainModel()) {

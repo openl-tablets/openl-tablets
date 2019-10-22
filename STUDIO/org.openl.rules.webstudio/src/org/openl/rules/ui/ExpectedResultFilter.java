@@ -27,7 +27,7 @@ class ExpectedResultFilter extends AGridFilter {
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
             ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);
             StringBuilder formattedValue = new StringBuilder(60);
-            boolean isOk = (result.getStatus() == TestStatus.TR_OK);
+            boolean isOk = result.getStatus() == TestStatus.TR_OK;
             if (isOk) {
                 formattedValue.append("<i class=\"case-success\"></i> ")
                     .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo()));

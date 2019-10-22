@@ -4,6 +4,7 @@ public enum SuitablityAsReturn {
     RETURN(2),
     SUITABLE(1),
     NONE(0);
+
     private int value;
 
     public static SuitablityAsReturn lessSuitable(SuitablityAsReturn first, SuitablityAsReturn second) {

@@ -86,9 +86,9 @@ public class GoalGenerate extends GoalImpl {
         _intvars = intvars;
         _dichotomize = dichotomize;
 
-        _var_selector = (var_selector != null ? var_selector : new IntVarSelectorFirstUnbound(intvars));
+        _var_selector = var_selector != null ? var_selector : new IntVarSelectorFirstUnbound(intvars);
 
-        _value_selector = (dichotomize ? null : value_selector != null ? value_selector : new IntValueSelectorMin());
+        _value_selector = dichotomize ? null : value_selector != null ? value_selector : new IntValueSelectorMin();
         initGoals();
     }
 

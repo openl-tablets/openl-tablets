@@ -17,13 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.PropertySources;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
+import org.springframework.core.env.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -329,7 +323,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             public String resolveStringValue(String strVal) {
                 String resolved = ignoreUnresolvablePlaceholders ? propertyResolver.resolvePlaceholders(strVal)
                                                                  : propertyResolver.resolveRequiredPlaceholders(strVal);
-                return (resolved.equals(nullValue) ? null : resolved);
+                return resolved.equals(nullValue) ? null : resolved;
             }
         };
 

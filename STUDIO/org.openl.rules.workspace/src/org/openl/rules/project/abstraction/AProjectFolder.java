@@ -2,22 +2,13 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +161,7 @@ public class AProjectFolder extends AProjectArtefact {
             try {
                 ChangesetType changesetType;
 
-                FolderRepository fromRepository = ((FolderRepository) from.getRepository());
+                FolderRepository fromRepository = (FolderRepository) from.getRepository();
                 FolderRepository toRepository = (FolderRepository) getRepository();
                 if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
                     changesetType = ChangesetType.DIFF;

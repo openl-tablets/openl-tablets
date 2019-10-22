@@ -19,6 +19,6 @@ public class FloatValueType extends FloatType {
     @Override
     public Object readObject(MessageReader reader, Context context) {
         Float value = (Float) super.readObject(reader, context);
-        return (value == null) ? null : new FloatValue(value);
+        return value == null ? null : new FloatValue(value);
     }
 }

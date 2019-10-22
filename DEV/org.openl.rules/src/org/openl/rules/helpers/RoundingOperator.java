@@ -39,7 +39,7 @@ public class RoundingOperator {
 
         @Override
         public double value(double value, double precision) {
-            return (Math.round(value / precision)) * precision;
+            return Math.round(value / precision) * precision;
         }
     }
 

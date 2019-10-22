@@ -14,8 +14,8 @@ public class ArrayToolTest {
         assertArrayEquals(emptyArray, ArrayTool.removeNulls(emptyArray));
         assertArrayEquals(emptyArray, ArrayTool.removeNulls(new Object[] { null }));
 
-        Integer value1 = Integer.valueOf(12);
-        Double value2 = Double.valueOf(11);
+        Integer value1 = 12;
+        Double value2 = (double) 11;
         Object[] array = new Object[] { value1, null, value2 };
 
         Object[] expected = new Object[] { value1, value2 };

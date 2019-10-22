@@ -35,7 +35,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public boolean contains(int value) {
-        return (value >= _min && value <= _max);
+        return value >= _min && value <= _max;
     }
 
     @Override
@@ -184,7 +184,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public int size() {
-        return (_max - _min + 1);
+        return _max - _min + 1;
     }
 
     /**
@@ -194,7 +194,7 @@ public class DomainImpl implements Domain {
      */
     @Override
     public String toString() {
-        return "[" + min() + ((size() == 1) ? "" : ";" + max()) + "]";
+        return "[" + min() + (size() == 1 ? "" : ";" + max()) + "]";
     }
 
     @Override

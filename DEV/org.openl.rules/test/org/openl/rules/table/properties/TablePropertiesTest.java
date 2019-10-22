@@ -105,7 +105,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         assertEquals("02/04/2237",
-            sdf.format(((Date) tsns[4].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE))));
+            sdf.format((Date) tsns[4].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE)));
     }
 
     @Test

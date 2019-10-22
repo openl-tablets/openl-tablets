@@ -61,7 +61,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             cast = bindingContext.getCast(rightType, leftType);
 
             // only implicit casts and explicit casts for literal are allowed for right part
-            if (cast == null || (!cast.isImplicit() && !(children[1] instanceof LiteralBoundNode))) {
+            if (cast == null || !cast.isImplicit() && !(children[1] instanceof LiteralBoundNode)) {
                 String message = "Cannot convert from '" + rightType.getName() + "' to '" + leftType.getName() + "'";
                 return makeErrorNode(message, node, bindingContext);
             }

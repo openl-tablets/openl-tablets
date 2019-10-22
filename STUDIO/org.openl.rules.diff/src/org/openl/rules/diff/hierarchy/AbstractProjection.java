@@ -53,7 +53,7 @@ public class AbstractProjection implements Projection {
     @Override
     public Object getPropertyValue(String propertyName) {
         ProjectionProperty p = properties.get(propertyName);
-        return (p == null) ? p : p.getRawValue();
+        return p == null ? p : p.getRawValue();
     }
 
     public void addChild(Projection child) {

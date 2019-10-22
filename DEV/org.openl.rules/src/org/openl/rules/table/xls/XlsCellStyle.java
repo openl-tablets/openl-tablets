@@ -35,7 +35,7 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     public boolean hasNoFill() {
-        return (getFillPattern() == FillPatternType.NO_FILL);
+        return getFillPattern() == FillPatternType.NO_FILL;
     }
 
     @Override

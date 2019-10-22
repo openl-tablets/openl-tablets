@@ -70,7 +70,7 @@ public abstract class EventOfInterest extends ReusableImpl implements EventOfInt
         String res = "(";
         boolean first = true;
         for (int i = 0; i < names.length; ++i) {
-            if ((type() & (1 << i)) != 0) {
+            if ((type() & 1 << i) != 0) {
                 if (!first) {
                     res += " | ";
                 }

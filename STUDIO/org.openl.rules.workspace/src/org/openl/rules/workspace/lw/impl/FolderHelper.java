@@ -106,6 +106,6 @@ public final class FolderHelper {
     }
 
     public static boolean isParent(File parent, File child) {
-        return (child != null) && (child.equals(parent) || isParent(parent, child.getParentFile()));
+        return child != null && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
 }

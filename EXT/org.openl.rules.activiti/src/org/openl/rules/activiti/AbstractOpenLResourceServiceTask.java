@@ -50,7 +50,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
                 isProvideRuntimeContext = Boolean.valueOf((String) isProvideRuntimeContextValue);
             }
             if (isProvideRuntimeContextValue instanceof Boolean) {
-                isProvideRuntimeContext = ((Boolean) isProvideRuntimeContextValue).booleanValue();
+                isProvideRuntimeContext = ((Boolean) isProvideRuntimeContextValue);
             }
         }
         return isProvideRuntimeContext;

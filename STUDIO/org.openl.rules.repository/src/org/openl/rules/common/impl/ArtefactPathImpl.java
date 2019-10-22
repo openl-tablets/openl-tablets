@@ -34,7 +34,7 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     public ArtefactPathImpl(String pathAsString) {
-        if ((pathAsString.length() > 0) && (pathAsString.charAt(0) == SEGMENT_DELIMITER)) {
+        if (pathAsString.length() > 0 && pathAsString.charAt(0) == SEGMENT_DELIMITER) {
             appendToSegments(pathAsString.substring(1));
         } else {
             appendToSegments(pathAsString);
