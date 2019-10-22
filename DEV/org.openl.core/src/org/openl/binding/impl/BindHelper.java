@@ -1,6 +1,10 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,13 +100,15 @@ public class BindHelper {
         if (caller instanceof JavaOpenMethod) {
             Method javaMethod = ((JavaOpenMethod) caller).getJavaMethod();
             if (isDeprecated(javaMethod)) {
-                String msg = "DEPRECATED '" + javaMethod.getName() + "' function will be removed in the next version!";
+                String msg = String.format("DEPRECATED '%s' function will be removed in the next version.",
+                    javaMethod.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof JavaOpenConstructor) {
             Constructor constr = ((JavaOpenConstructor) caller).getJavaConstructor();
             if (isDeprecated(constr)) {
-                String msg = "DEPRECATED '" + constr.getName() + "' constructor will be removed in the next version!";
+                String msg = String.format("DEPRECATED '%s' constructor will be removed in the next version.",
+                    constr.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof CastingMethodCaller) {
@@ -114,7 +120,8 @@ public class BindHelper {
         if (aClass instanceof JavaOpenClass) {
             Class<?> javaClass = ((JavaOpenClass) aClass).getInstanceClass();
             if (javaClass.isAnnotationPresent(Deprecated.class)) {
-                String msg = "DEPRECATED '" + javaClass.getName() + "' class will be removed in the next version!";
+                String msg = String.format("DEPRECATED '%s' class will be removed in the next version.",
+                    javaClass.getTypeName());
                 processWarn(msg, node, context);
             }
         } else if (aClass != null && aClass.isArray()) {
@@ -126,12 +133,13 @@ public class BindHelper {
         if (field instanceof JavaOpenField) {
             Field javaField = ((JavaOpenField) field).getJavaField();
             if (isDeprecated(javaField)) {
-                String msg = "DEPRECATED '" + javaField.getName() + "' field will be removed in the next version!";
+                String msg = String.format("DEPRECATED '%s' field will be removed in the next version.",
+                    javaField.getName());
                 processWarn(msg, node, context);
             }
         } else if (field instanceof ArrayLengthOpenField) {
             processWarn(
-                "DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!",
+                "DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead.",
                 node,
                 context);
         }
@@ -151,9 +159,9 @@ public class BindHelper {
                 String type = conditionNode.getSyntaxNode().getType();
 
                 if (EQUAL_OPERATORS.contains(type)) {
-                    BindHelper.processWarn("Condition is always true", conditionNode.getSyntaxNode(), bindingContext);
+                    BindHelper.processWarn("Condition is always true.", conditionNode.getSyntaxNode(), bindingContext);
                 } else if (NOT_EQUAL_OPERATORS.contains(type)) {
-                    BindHelper.processWarn("Condition is always false", conditionNode.getSyntaxNode(), bindingContext);
+                    BindHelper.processWarn("Condition is always false.", conditionNode.getSyntaxNode(), bindingContext);
                 }
             }
         }

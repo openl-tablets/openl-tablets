@@ -32,7 +32,7 @@ public class DefaultPropertyFileNameProcessorTest {
         try {
             new PatternModel("%unknownProperty%");
         } catch (InvalidFileNamePatternException e) {
-            assertEquals("Wrong file name pattern! Unknown property: unknownProperty", e.getMessage());
+            assertEquals("Found unsupported property 'unknownProperty' in file name pattern.", e.getMessage());
             return;
         }
         Assert.fail();

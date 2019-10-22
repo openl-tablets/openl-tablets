@@ -203,7 +203,7 @@ public class PropertiesLoader {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().keySet().contains(key)) {
                         bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage(
-                            "Property '" + key + "' has already defined via external properties! Remove it from module properties."));
+                            String.format("Property '%s' is already defined via external properties.", key)));
                     }
                 }
             }
