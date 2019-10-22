@@ -327,7 +327,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             }
 
         } catch (RRepositoryException e) {
-            log.error("Failed to get version history!", e);
+            log.error("Failed to get version history.", e);
             // TODO exception should be rethrown
         }
         return vers;
@@ -350,7 +350,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
             }
         } catch (Exception e) {
-            log.error("Failed to get version properties!", e);
+            log.error("Failed to get version properties.", e);
             // TODO exception should be rethrown
         }
 
@@ -362,7 +362,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         try {
             return getVersionHistory().size();
         } catch (RRepositoryException e) {
-            log.error("Failed to get version history!", e);
+            log.error("Failed to get version history.", e);
             // TODO exception should be rethrown
             return 0;
         }
@@ -410,7 +410,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 log.info("Saving... {}", n.getPath());
             }
         } catch (RepositoryException e) {
-            throw new ProjectException("Failed to check in artefact ''{0}''!", e, getPath());
+            throw new ProjectException("Failed to check in artefact ''{0}''.", e, getPath());
         }
     }
 

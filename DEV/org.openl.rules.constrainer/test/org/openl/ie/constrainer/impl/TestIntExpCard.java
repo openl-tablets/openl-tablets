@@ -69,7 +69,7 @@ public class TestIntExpCard extends TestCase {
             // observer2.update() hasn't to be invoked!
             assertEquals(1, observer2.updtCounter());
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
     } // end of testAttachDetachObserver
 
@@ -85,7 +85,7 @@ public class TestIntExpCard extends TestCase {
         try {
             card.bindAll();
         } catch (Failure f) {
-            fail("test of IntExpCard.bindAll() failed!");
+            fail("test of IntExpCard.bindAll() failed.");
         }
 
         for (int i = 0; i < array.size(); i++) {
@@ -146,7 +146,7 @@ public class TestIntExpCard extends TestCase {
             assertEquals(min_possible, card6.min());
 
         } catch (Failure f) {
-            fail("test failed due to some reason!");
+            fail("test failed due to some reason.");
         }
     }
 
@@ -175,7 +175,7 @@ public class TestIntExpCard extends TestCase {
         try {
             card.bindAll();
         } catch (Failure f) {
-            fail("test of IntExpCard.bindAll() failed!");
+            fail("test of IntExpCard.bindAll() failed.");
         }
 
         for (int i = 0; i < array.size(); i++) {

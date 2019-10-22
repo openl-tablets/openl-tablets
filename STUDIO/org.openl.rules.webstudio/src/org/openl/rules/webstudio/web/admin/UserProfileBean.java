@@ -165,7 +165,7 @@ public class UserProfileBean extends UsersBean {
             }
 
             if (!passwordEncoder.matches(passwordString, userPasswordHash)) {
-                throw new ValidatorException(new FacesMessage("Incorrect current password!"));
+                throw new ValidatorException(new FacesMessage("Incorrect current password."));
             }
         }
     }

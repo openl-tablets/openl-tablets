@@ -12,7 +12,7 @@ public class ClassMinMaxMatcher implements IMatcher {
         this.isMaxMode = isMaxMode;
 
         if (!Comparable.class.isAssignableFrom(clazz)) {
-            throw new IllegalArgumentException("Must implement Comparable!");
+            throw new IllegalArgumentException("Must implement Comparable.");
         }
     }
 

@@ -114,7 +114,7 @@ public class ParserTest extends TestCase {
         SyntaxNodeException[] errors = pc.getErrors();
 
         if (errors.length == 0) {
-            throw new RuntimeException("This expression must produce an error!");
+            throw new RuntimeException("This expression must produce an error.");
         }
 
         String message = errors[0].getMessage();

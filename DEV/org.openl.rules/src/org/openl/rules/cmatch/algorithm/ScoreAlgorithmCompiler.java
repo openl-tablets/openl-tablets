@@ -51,7 +51,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             if (indent == 0) {
                 rootNode.add(node);
             } else {
-                String msg = "Sub node are prohibited here!";
+                String msg = "Sub node are prohibited here.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
         }
@@ -81,7 +81,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
         IOpenClass retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
         if (!int.class.equals(retClass) && !Integer.class.equals(retClass)) {
-            String msg = "Score algorithm supports int or Integer return type only!";
+            String msg = "Score algorithm supports int or Integer return type only.";
             // String uri =
             // columnMatch.getTableSyntaxNode().getTableBody().getGridTable().getUri(0,
             // 0);
@@ -93,7 +93,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
         SubValue operationSV = scoreRow.get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty!";
+            String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty.";
             throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
 

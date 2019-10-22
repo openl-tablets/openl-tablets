@@ -263,7 +263,7 @@ public class SpreadsheetComponentsBuilder {
         String s = StringUtils.stripEnd(identifierNode.getIdentifier(), null);
         int d = s.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
         if (d != s.length() - 1) {
-            throw new IllegalStateException("Asterisk symbols is not found!");
+            throw new IllegalStateException("Asterisk symbols is not found.");
         }
         String v = StringUtils.stripEnd(identifierNode.getIdentifier().substring(0, d), null);
         int delta = identifierNode.getIdentifier().length() - v.length();

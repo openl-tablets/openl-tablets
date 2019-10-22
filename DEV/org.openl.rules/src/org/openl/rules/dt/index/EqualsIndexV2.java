@@ -165,7 +165,7 @@ public class EqualsIndexV2 implements IRuleIndex {
 
         public void putValueToRule(Object value, int ruleN) {
             if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
-                throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
+                throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
                 if (NumberUtils.isFloatPointNumber(value)) {

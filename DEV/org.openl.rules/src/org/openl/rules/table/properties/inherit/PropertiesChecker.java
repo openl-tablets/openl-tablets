@@ -86,7 +86,7 @@ public final class PropertiesChecker {
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition
                 .getDeprecation()
                 .isEmpty()) {
-                String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
+                String message = String.format("Property '%s' was deprecated. Please remove it.", propertyNameToCheck);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }

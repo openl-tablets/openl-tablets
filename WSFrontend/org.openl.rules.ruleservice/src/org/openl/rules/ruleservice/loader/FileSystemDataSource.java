@@ -65,9 +65,9 @@ public class FileSystemDataSource implements DataSource {
         Objects.requireNonNull(loadDeploymentsFromDirectory, "loadDeploymentsFromDirectory cannot be null");
         if (!loadDeploymentsFromDirectory.exists()) {
             if (!loadDeploymentsFromDirectory.mkdirs()) {
-                log.warn("Failed to create file system data source folder '{}'!", loadDeploymentsFromDirectory);
+                log.warn("Failed to create file system data source folder '{}'.", loadDeploymentsFromDirectory);
             } else {
-                log.info("File system data source '{}' has been created successfully!", loadDeploymentsFromDirectory);
+                log.info("File system data source '{}' has been created successfully.", loadDeploymentsFromDirectory);
             }
         }
         if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
@@ -146,7 +146,7 @@ public class FileSystemDataSource implements DataSource {
             Deployment deployment = getDeployment(deploymentFolder, deploymentName, commonVersion);
             if (deployment.getProjects().isEmpty()) {
                 log.warn(
-                    "Deployment of the file system data source '{}' does not contain projects. Make sure that you have specified correct folder!",
+                    "Deployment of the file system data source '{}' does not contain projects. Make sure that you have specified correct folder.",
                     deploymentFolder);
             }
             deployments.add(deployment);

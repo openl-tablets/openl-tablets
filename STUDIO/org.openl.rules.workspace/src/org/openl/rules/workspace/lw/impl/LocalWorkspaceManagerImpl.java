@@ -55,7 +55,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
         if (!FolderHelper.checkOrCreateFolder(userWorkspace)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!",
+            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace.",
                 null,
                 userWorkspace.getAbsolutePath());
         }

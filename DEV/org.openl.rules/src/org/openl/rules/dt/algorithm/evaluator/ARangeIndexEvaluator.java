@@ -137,7 +137,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         @Override
         public Comparable<?> adaptValueType(Object value) {
             if (value == null) {
-                throw new IllegalArgumentException("Null values does not supported!");
+                throw new IllegalArgumentException("Null values does not supported.");
             }
             if (rangeAdaptor != null) {
                 value = rangeAdaptor.adaptValueType(value);
@@ -147,17 +147,17 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
         @Override
         public Comparable<Object> getMax(IndexNode param) {
-            throw new UnsupportedOperationException("Operation not supported!");
+            throw new UnsupportedOperationException("Operation not supported.");
         }
 
         @Override
         public Comparable<Object> getMin(IndexNode param) {
-            throw new UnsupportedOperationException("Operation not supported!");
+            throw new UnsupportedOperationException("Operation not supported.");
         }
 
         @Override
         public boolean useOriginalSource() {
-            throw new UnsupportedOperationException("Operation not supported!");
+            throw new UnsupportedOperationException("Operation not supported.");
         }
 
     }

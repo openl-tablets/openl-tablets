@@ -79,7 +79,7 @@ public class AlgoritmNodesCompiler {
             syntaxNodeExceptionCollector.run(() -> emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile)));
         }
 
-        syntaxNodeExceptionCollector.throwIfAny("Compilation fails!");
+        syntaxNodeExceptionCollector.throwIfAny("Compilation fails.");
 
         return emittedOperations;
     }

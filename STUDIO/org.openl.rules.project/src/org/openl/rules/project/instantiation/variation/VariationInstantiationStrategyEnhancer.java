@@ -50,7 +50,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
             return true;
         } else {
             throw new ValidationServiceClassException(
-                "Variation result return type and variation pack parameter is required in each variation method!");
+                "Variation result return type and variation pack parameter is required in each variation method.");
         }
     }
 
@@ -97,7 +97,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
             } catch (Exception e) {
                 throw new RulesInstantiationException(
                     "Failed to find corresrponding method in original class for method '" + MethodUtil
-                        .printMethod(serviceMethod.getName() + "'!", serviceMethod.getParameterTypes()));
+                        .printMethod(serviceMethod.getName() + "'.", serviceMethod.getParameterTypes()));
             }
         }
 

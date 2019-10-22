@@ -112,14 +112,14 @@ public class CastFactoryTest {
                 JavaOpenClass.getOpenClass(int[][][][][].class));
             assertFalse(cast.isImplicit());
             y = (int[][][][]) cast.convert(x);
-            Assert.fail("ClassCastException was expected!");
+            Assert.fail("ClassCastException is expected.");
         } catch (ClassCastException e) {
         }
         try {
             cast = factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
                 JavaOpenClass.getOpenClass(int[][][][][].class));
             y = (int[][][][]) cast.convert(x);
-            Assert.fail("ClassCastException was expected!");
+            Assert.fail("ClassCastException is expected.");
         } catch (ClassCastException e) {
         }
 

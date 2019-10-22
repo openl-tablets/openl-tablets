@@ -298,7 +298,7 @@ class DependentParametersOptimizedAlgorithm {
             }
             return null;
         }
-        throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
+        throw new IllegalStateException("Condition method should be an instance of CompositeMethod.");
     }
 
     private static String[][] twoParameterExpressionParse(ICondition condition) throws SyntaxNodeException {
@@ -334,7 +334,7 @@ class DependentParametersOptimizedAlgorithm {
             }
             return null;
         }
-        throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
+        throw new IllegalStateException("Condition method should be an instance of CompositeMethod.");
     }
 
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,

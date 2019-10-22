@@ -6,22 +6,22 @@ import org.openl.rules.TestUtils;
 public class TestSet {
     @Test
     public void test1() {
-        TestUtils.assertEx("test/rules/tbasic1/SET_F1.xls", "Operation must not have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic1/SET_F1.xls", "Operation must not have value in Condition.");
     }
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/tbasic1/SET_F2.xls", "Operation must not have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic1/SET_F2.xls", "Operation must not have value in Condition.");
     }
 
     @Test
     public void test3() {
-        TestUtils.assertEx("test/rules/tbasic1/SET_F3.xls", "Operation must have value in Action!");
+        TestUtils.assertEx("test/rules/tbasic1/SET_F3.xls", "Operation must have value in Action.");
     }
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/tbasic1/SET_F4.xls", "Operation SET cannot be multiline!");
+        TestUtils.assertEx("test/rules/tbasic1/SET_F4.xls", "Operation SET cannot be multiline.");
     }
 
     @Test

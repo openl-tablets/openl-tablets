@@ -170,7 +170,7 @@ public class SmartRedeployController {
                     if (checker.check()) {
                         item.setMessages("This project revision is already deployed");
                     } else {
-                        item.setMessages("Dependent projects should be added to deploy configuration!");
+                        item.setMessages("Dependent projects should be added to deploy configuration.");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setStyleForName(UiConst.STYLE_ERROR);
                         item.setDisabled(true);
@@ -202,7 +202,7 @@ public class SmartRedeployController {
                             .getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
                     } else {
                         item.setMessages(
-                            "Project version will be updated. Dependent projects should be added to deploy configuration!");
+                            "Project version will be updated. Dependent projects should be added to deploy configuration.");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }

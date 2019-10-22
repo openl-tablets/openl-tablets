@@ -87,7 +87,7 @@ public class LocalUploadController {
                 try {
                     dtr = userRules.getUserWorkspace().getDesignTimeRepository();
                 } catch (Exception e) {
-                    log.error("Cannot get DTR!", e);
+                    log.error("Cannot get DTR.", e);
                     return null;
                 }
                 File workspace = new File(webStudio.getWorkspacePath());
@@ -105,7 +105,7 @@ public class LocalUploadController {
                             uploadBeans.add(new UploadBean(f.getName()));
                         }
                     } catch (Exception e) {
-                        log.error("Failed to list projects for upload!", e);
+                        log.error("Failed to list projects for upload.", e);
                         FacesUtils.addErrorMessage(e.getMessage());
                     }
                 }
@@ -172,7 +172,7 @@ public class LocalUploadController {
                                 msg = "Failed to create the project because some resources are used";
                             }
                         } else {
-                            msg = "Failed to create the project '" + bean.getProjectName() + "'!";
+                            msg = "Failed to create the project '" + bean.getProjectName() + "'.";
                             log.error(msg, e);
                         }
                         FacesUtils.addErrorMessage(msg);

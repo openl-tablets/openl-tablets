@@ -36,7 +36,7 @@ public final class ProjectExportHelper {
             throw e;
         } catch (Exception e) {
             FileUtils.deleteQuietly(zipFile);
-            throw new ProjectException("Failed to export project due I/O error!", e);
+            throw new ProjectException("Failed to export project due I/O error.", e);
         }
     }
 

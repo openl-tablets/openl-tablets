@@ -189,7 +189,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             if (!hasProject(name)) {
-                throw new RepositoryException("Cannot find project ''{0}''!", null, name);
+                throw new RepositoryException("Cannot find project ''{0}''.", null, name);
             }
 
             AProject cached = projects.get(name.toLowerCase());

@@ -30,7 +30,7 @@ public class DimentionalPropertyValidatorTest {
         assertEquals(startState, actual);
         for (String anActual : vResult) {
             if (anActual != null) {
-                fail("All elements must be null!");
+                fail("All elements must be null.");
             }
         }
     }
@@ -77,7 +77,7 @@ public class DimentionalPropertyValidatorTest {
         assertEquals(key, vResult[0]);
         for (int i = 1; i < 3; i++) {
             if (vResult[i] != null) {
-                fail("All elements must be null!");
+                fail("All elements must be null.");
             }
         }
     }
@@ -97,7 +97,7 @@ public class DimentionalPropertyValidatorTest {
         assertEquals(OverlapState.NOT_OVERLAP, actual);
         for (String anActual : vResult) {
             if (anActual != null) {
-                fail("All elements must be null!");
+                fail("All elements must be null.");
             }
         }
     }
@@ -108,7 +108,7 @@ public class DimentionalPropertyValidatorTest {
         assertEquals(OverlapState.OVERLAP, actual);
         for (int i = 0; i < 2; i++) {
             if (vResult[i] != null) {
-                fail("All elements must be null!");
+                fail("All elements must be null.");
             }
         }
     }

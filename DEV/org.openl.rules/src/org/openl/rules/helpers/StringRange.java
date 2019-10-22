@@ -41,13 +41,13 @@ public class StringRange {
 
     private void validate() {
         if (lowerBoundType == null || upperBoundType == null) {
-            throw new IllegalStateException("Bound types must be initialized!");
+            throw new IllegalStateException("Bound types must be initialized.");
         }
         if (lowerBound == null || upperBound == null) {
-            throw new IllegalStateException("All bounds must be initialized!");
+            throw new IllegalStateException("All bounds must be initialized.");
         }
         if (lowerBound.compareTo(upperBound) > 0) {
-            throw new IllegalStateException("Left bound must be lower than right!");
+            throw new IllegalStateException("Left bound must be lower than right.");
         }
     }
 

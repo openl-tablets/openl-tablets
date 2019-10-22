@@ -87,7 +87,7 @@ public final class MethodUtils {
                                     log.warn(
                                         "Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
                                             .getClass()
-                                            .getCanonicalName() + "#" + method.getName() + "' was skipped!");
+                                            .getCanonicalName() + "#" + method.getName() + "' has been skipped.");
                                 }
                             }
                         }

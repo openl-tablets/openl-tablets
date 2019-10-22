@@ -82,7 +82,7 @@ public class RmiEnhancerHelper {
             }
             if (!found) {
                 throw new RuleServiceRuntimeException(
-                    "Failed to create a proxy for service. RMI interface contains method that has not been found in service interface!");
+                    "Failed to create a proxy for service. RMI interface contains method that has not been found in service interface.");
             }
         }
 

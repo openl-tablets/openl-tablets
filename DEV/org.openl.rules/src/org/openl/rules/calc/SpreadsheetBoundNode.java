@@ -275,7 +275,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Table has no body! Try to merge header cell horizontally to identify table.",
+                "Table has no body. Try to merge header cell horizontally to identify table.",
                 getTableSyntaxNode());
         }
 

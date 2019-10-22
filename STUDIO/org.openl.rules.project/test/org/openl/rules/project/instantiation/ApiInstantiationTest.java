@@ -15,26 +15,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.runtime.IEngineWrapper;
 
 public class ApiInstantiationTest {
-    // @Test
-    // public void testClassLoaders(){
-    // ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
-    // File projectFolder = new File("test-resources/excel/");
-    // assertTrue(resolvingStrategy.isRulesProject(projectFolder));
-    // ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
-    // RulesInstantiationStrategy instantiationStrategyFirst =
-    // RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(0));
-    // RulesInstantiationStrategy instantiationStrategySecond =
-    // RulesInstantiationStrategyFactory.getStrategy(descriptor.getModules().get(1));
-    // assertTrue(instantiationStrategyFirst.getClassLoader().getParent() ==
-    // instantiationStrategySecond.getClassLoader().getParent());
-    // assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
-    // //reload parent class loader
-    // instantiationStrategyFirst.forcedReset();
-    // // parent class loader now also will be used in the second class loader
-    // assertTrue(instantiationStrategyFirst.getClassLoader().getParent() ==
-    // instantiationStrategySecond.getClassLoader().getParent());
-    // assertFalse(instantiationStrategyFirst.getClassLoader() == instantiationStrategySecond.getClassLoader());
-    // }
 
     @Test
     public void testXlsWithErrors() throws ClassNotFoundException {

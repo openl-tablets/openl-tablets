@@ -88,7 +88,7 @@ public class FieldDescriptionBuilder {
                     defaultValue = DefaultValue.DEFAULT;
                 } else {
                     if (typeName.startsWith("[[")) {
-                        throw new IllegalStateException("Multi-dimensional arrays are not supported!");
+                        throw new IllegalStateException("Multi-dimensional arrays are not supported.");
                     }
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
                     defaultValue = convertor.parse(defaultValueAsString, null);

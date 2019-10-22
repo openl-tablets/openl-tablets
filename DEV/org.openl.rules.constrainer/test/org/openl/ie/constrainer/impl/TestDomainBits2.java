@@ -254,7 +254,7 @@ public class TestDomainBits2 extends TestCase {
             try {
                 assertTrue(db.removeValue(i));
             } catch (Failure f) {
-                fail("test failed!");
+                fail("test failed.");
             } catch (Throwable ex) {
                 fail("Unexpected exception hasa been thrown");
             }
@@ -269,14 +269,14 @@ public class TestDomainBits2 extends TestCase {
         try {
             assertTrue(!db.setMax(_var.max() + 1));
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
         try {
             db.setMax(_var.min() - 1);
             fail("test of DomainBits2 failed due to incorrect work of setMax(int)");
         } catch (Failure f) {
         } catch (Throwable e) {
-            fail("Unexpected exception has been thrown!");
+            fail("Unexpected exception has been thrown.");
         }
         // boolean[] oldbits = db.bits();
         boolean[] newbits = new boolean[db.size()];
@@ -287,7 +287,7 @@ public class TestDomainBits2 extends TestCase {
             assertEquals(7, db.max());
             assertEquals(9, db.size());
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
     }
 
@@ -296,14 +296,14 @@ public class TestDomainBits2 extends TestCase {
         try {
             assertTrue(!db.setMin(_var.max() + 1));
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
         try {
             db.setMin(_var.min() - 1);
             fail("test of DomainBits2 failed due to incorrect work of setMax(int)");
         } catch (Failure f) {
         } catch (Throwable e) {
-            fail("Unexpected exception has been thrown!");
+            fail("Unexpected exception has been thrown.");
         }
         // boolean[] oldbits = db.bits();
         boolean[] newbits = new boolean[db.size()];
@@ -313,7 +313,7 @@ public class TestDomainBits2 extends TestCase {
             assertEquals(7, db.min());
             assertEquals(4, db.size());
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
 
     }

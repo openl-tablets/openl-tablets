@@ -248,7 +248,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                     throw new DuplicatedMethodException(message, existedMethod, newMethod);
                 }
             } else {
-                throw new IllegalStateException("Implementation supports only IUriMember!");
+                throw new IllegalStateException("Implementation supports only IUriMember.");
             }
         }
         return existedMethod;

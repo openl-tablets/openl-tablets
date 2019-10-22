@@ -152,7 +152,7 @@ public class SimpleVM implements IOpenVM {
                 return (IRuntimeContext) contextStack.peek();
             }
 
-            throw new IllegalStateException("Context stack is empty!");
+            throw new IllegalStateException("Context stack is empty.");
         }
 
         @Override

@@ -55,7 +55,7 @@ class ResourceLoaderImpl implements ResourceLoader {
 
         @Override
         public InputStream getResourceAsStream() throws IOException {
-            throw new IOException("Resource is not found!");
+            throw new IOException("Resource is not found.");
         }
     };
 }

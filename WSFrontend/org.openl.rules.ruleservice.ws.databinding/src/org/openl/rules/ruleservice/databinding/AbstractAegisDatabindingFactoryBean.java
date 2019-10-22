@@ -147,7 +147,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             AegisType aegisType = instatiateAegisType(clazz);
             typeMapping.register(aegisType);
         } catch (Exception e) {
-            log.warn("Aegis type '{}' registration failed!", aegisTypeClassName, e);
+            log.warn("Aegis type '{}' registration failed.", aegisTypeClassName, e);
         }
     }
 
@@ -164,7 +164,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             AegisType aegisType = instatiateAegisType(aegisTypeClass);
             typeMapping.register(aegisType);
         } catch (Exception e) {
-            log.warn("Aegis type '{}' registration failed!", aegisTypeClass.getName(), e);
+            log.warn("Aegis type '{}' registration failed.", aegisTypeClass.getName(), e);
         }
     }
 
@@ -177,7 +177,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             AegisType aegisType = instatiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
-            log.warn("Type '{}' registration failed!", typeClassName, e);
+            log.warn("Type '{}' registration failed.", typeClassName, e);
         }
     }
 
@@ -189,7 +189,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             AegisType aegisType = instatiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
-            log.warn("Type '{}' registration failed!", typeClazz.getName(), e);
+            log.warn("Type '{}' registration failed.", typeClazz.getName(), e);
         }
     }
 

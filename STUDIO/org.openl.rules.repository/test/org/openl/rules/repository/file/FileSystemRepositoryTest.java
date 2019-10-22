@@ -86,9 +86,9 @@ public class FileSystemRepositoryTest {
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
         FileItem result = repo.read(name);
-        assertNotNull("The file is not found!", result);
+        assertNotNull("The file is not found.", result);
         FileData data = result.getData();
-        assertNotNull("The file descriptor is missing!", data);
+        assertNotNull("The file descriptor is missing.", data);
         assertEquals("Wrong file name", name, data.getName());
         InputStream stream = result.getStream();
         String text = IOUtils.toStringAndClose(stream);

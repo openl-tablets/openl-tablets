@@ -221,7 +221,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 return false;
             }
             if (artefact.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION)) {
-                throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, path);
+                throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, path);
             }
             artefact.addProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION, ValueType.BOOLEAN, true);
 

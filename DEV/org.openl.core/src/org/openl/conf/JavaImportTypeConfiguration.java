@@ -27,7 +27,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
 
     public synchronized void addClassImport(String className) {
         if (library != null) {
-            throw new IllegalStateException("Library has already been initialized!");
+            throw new IllegalStateException("Library has already been initialized.");
         }
         if (StringUtils.isNotEmpty(className)) {
             classes.add(className);
@@ -36,7 +36,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
 
     public synchronized void addPackageImport(String packageName) {
         if (library != null) {
-            throw new IllegalStateException("Library has already been initialized!");
+            throw new IllegalStateException("Library has already been initialized.");
         }
         if (StringUtils.isNotEmpty(packageName)) {
             packages.add(packageName);

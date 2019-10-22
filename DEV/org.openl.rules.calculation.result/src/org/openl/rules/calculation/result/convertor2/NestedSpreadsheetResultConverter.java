@@ -103,7 +103,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
                 compoundColumns.add(column);
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("Column {} was skipped!", column.getColumnName());
+                    log.debug("Column {} has been skipped.", column.getColumnName());
                 }
             }
         }

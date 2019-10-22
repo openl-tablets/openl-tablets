@@ -54,7 +54,7 @@ public class MatcherFactory {
             matcherBuilders.put(operationName, builders);
         } else {
             if (builders.contains(builder)) {
-                throw new IllegalArgumentException("MatcherBuilder is registered already!");
+                throw new IllegalArgumentException("MatcherBuilder is registered already.");
             }
         }
 

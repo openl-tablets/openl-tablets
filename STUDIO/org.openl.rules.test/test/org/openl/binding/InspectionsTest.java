@@ -14,8 +14,8 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.ProcessedCode;
 
 public class InspectionsTest {
-    private static final String ALWAYS_TRUE = "Condition is always true";
-    private static final String ALWAYS_FALSE = "Condition is always false";
+    private static final String ALWAYS_TRUE = "Condition is always true.";
+    private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
     public void testConditionTypes() {

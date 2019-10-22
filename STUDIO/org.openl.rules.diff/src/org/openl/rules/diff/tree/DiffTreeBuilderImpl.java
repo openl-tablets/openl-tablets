@@ -20,11 +20,11 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
     @Override
     public DiffTreeNode compare(Projection[] projections) {
         if (projections.length < 2) {
-            throw new IllegalArgumentException("At least 2 elements are required!");
+            throw new IllegalArgumentException("At least 2 elements are required.");
         }
 
         if (projectionDiffer == null) {
-            throw new IllegalStateException("projectionDiffer has not been set!");
+            throw new IllegalStateException("projectionDiffer has not been set.");
         }
 
         DiffTreeNodeImpl root = new DiffTreeNodeImpl();

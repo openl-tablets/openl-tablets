@@ -165,7 +165,7 @@ public class TestIntDomainHistory extends TestCase {
                 }
             }
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
     }
 

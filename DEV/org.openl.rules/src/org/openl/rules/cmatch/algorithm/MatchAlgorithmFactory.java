@@ -37,7 +37,7 @@ public class MatchAlgorithmFactory {
         IMatchAlgorithmCompilerBuilder builder = null;
         if (nameOfAlgorithm == null) {
             if (defaultBuilder == null) {
-                throw new IllegalArgumentException("Default algorithm builder is not defined!");
+                throw new IllegalArgumentException("Default algorithm builder is not defined.");
             }
 
             builder = defaultBuilder;
@@ -46,7 +46,7 @@ public class MatchAlgorithmFactory {
         }
 
         if (builder == null) {
-            throw new IllegalArgumentException("Cannot find algorithm for name '" + nameOfAlgorithm + "'!");
+            throw new IllegalArgumentException("Cannot find algorithm for name '" + nameOfAlgorithm + "'.");
         }
 
         return builder.build();

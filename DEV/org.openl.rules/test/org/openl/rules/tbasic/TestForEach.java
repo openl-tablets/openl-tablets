@@ -17,17 +17,17 @@ public class TestForEach {
 
     @Test
     public void test2() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F2.xls"), "Operation must have value in Condition!");
+        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F2.xls"), "Operation must have value in Condition.");
     }
 
     @Test
     public void test3() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F3.xls"), "Operation FOR EACH cannot be singleline!");
+        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F3.xls"), "Operation FOR EACH cannot be singleline.");
     }
 
     @Test
     public void test4() {
-        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F4.xls"), "Operation must have value in Action!");
+        TestUtils.assertEx(("test/rules/tbasic1/FOR_EACH_F4.xls"), "Operation must have value in Action.");
     }
 
     @Test

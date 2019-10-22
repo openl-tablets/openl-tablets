@@ -55,7 +55,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             Arrays.stream(type2.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
 
         if (!type1.getModule().equals(type2.getModule())) {
-            throw new IllegalStateException("Both CSR types must be from the same module!");
+            throw new IllegalStateException("CSR types are from differnet modules.");
         }
 
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
@@ -99,12 +99,11 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
                 }
             }
         }
-        
+
         bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, mergedCustomSpreadsheetResultOpenClass);
 
         return mergedCustomSpreadsheetResultOpenClass;
     }
-    
 
     @Override
     protected IBoundNode buildIfElseNode(ISyntaxNode node,

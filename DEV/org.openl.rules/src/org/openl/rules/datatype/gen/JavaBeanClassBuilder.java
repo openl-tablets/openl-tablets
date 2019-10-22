@@ -27,14 +27,14 @@ public class JavaBeanClassBuilder {
     public void addParentField(String name, String type) {
         Object put = parentFields.put(name, new FieldDescription(type));
         if (put != null) {
-            throw new IllegalArgumentException("The same parent field '" + name + " has been put!");
+            throw new IllegalArgumentException("The same parent field '" + name + " has been put.");
         }
     }
 
     private void addField(String name, FieldDescription type) {
         Object put = fields.put(name, type);
         if (put != null) {
-            throw new IllegalArgumentException("The same parent field '" + name + " has been put!");
+            throw new IllegalArgumentException("The same parent field '" + name + " has been put.");
         }
     }
 

@@ -705,7 +705,7 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = selectedNode.getData();
         if (isSupportsBranches() && projectArtefact.getVersion() == null) {
             activeProjectNode = null;
-            FacesUtils.addErrorMessage("Failed to delete node. Project does not exits in the branch!");
+            FacesUtils.addErrorMessage("Failed to delete node. Project does not exits in the branch.");
             return null;
         }
         try {
@@ -925,7 +925,7 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
             FacesUtils.addErrorMessage(
-                "Cannot erase project '" + project.getName() + "'. It must be marked for deletion first!");
+                "Cannot erase project '" + project.getName() + "'. It must be marked for deletion first.");
             return null;
         }
 
@@ -987,7 +987,7 @@ public class RepositoryTreeController {
                 FileUtils.delete(dir);
             }
         } catch (Exception e) {
-            String msg = "Failed to clean history of project '" + projectName + "'!";
+            String msg = "Failed to clean history of project '" + projectName + "'.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
@@ -1894,7 +1894,7 @@ public class RepositoryTreeController {
             boolean exists = !repository.forBranch(branch)
                 .list(((RulesProject) selectedProject).getDesignFolderName())
                 .isEmpty();
-            FacesUtils.validate(exists, "Current project does not exist in this branch!");
+            FacesUtils.validate(exists, "Current project does not exist in this branch.");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }

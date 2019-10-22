@@ -146,7 +146,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
 
     @Override
     public void setExecutionMode(boolean executionMode) {
-        throw new UnsupportedOperationException("This dependency manager does not support executionMode=false!");
+        throw new UnsupportedOperationException("This dependency manager does not support executionMode=false.");
     }
 
     @Override
@@ -278,7 +278,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                                 dependencyLoaders.add(projectLoader);
                             }
                         } catch (Exception e) {
-                            log.error("Failed to build dependency manager loaders for project '{}' in deployment '{}'!",
+                            log.error("Failed to build dependency manager loaders for project '{}' in deployment '{}'.",
                                 projectName,
                                 deploymentName,
                                 e);

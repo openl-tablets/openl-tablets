@@ -37,7 +37,7 @@ public final class URLHelper {
             uri = uri.normalize();
             return uri.toString();
         } catch (URISyntaxException e) {
-            LoggerFactory.getLogger(URLHelper.class).error("URL processing has been failed!", e);
+            LoggerFactory.getLogger(URLHelper.class).error("URL processing has been failed.", e);
             return url;
         }
     }

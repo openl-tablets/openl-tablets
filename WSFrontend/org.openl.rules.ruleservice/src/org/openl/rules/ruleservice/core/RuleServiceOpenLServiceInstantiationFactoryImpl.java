@@ -191,7 +191,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             serviceClass,
             serviceClassLoader);
         if (annotatedClass == null) {
-            throw new IllegalStateException("It must not happen!");
+            throw new IllegalStateException("It must not happen.");
         }
         try {
             return RuleServiceInstantiationFactoryHelper

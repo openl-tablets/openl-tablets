@@ -53,7 +53,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             if (indent == 0) {
                 rootNode.add(node);
             } else {
-                String msg = "Sub node are prohibited here!";
+                String msg = "Sub node are prohibited here.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
         }
@@ -95,7 +95,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
         IMatcher totalScoreMatcher = MatcherFactory.getMatcher(operationSV.getString(),
             JavaOpenClass.getOpenClass(Integer.class));
         if (totalScoreMatcher == null) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined!";
+            String msg = "Column " + OPERATION + " of special row " + ROW_TOTAL_SCORE + " must be defined.";
             throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
         totalScore.setMatcher(totalScoreMatcher);
@@ -107,7 +107,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
         operationSV = scoreRow.get(OPERATION)[0];
         if (!"".equals(operationSV.getString())) {
-            String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty!";
+            String msg = "Column " + OPERATION + " of special row " + ROW_SCORE + " must be empty.";
             throw SyntaxNodeExceptionUtils.createError(msg, operationSV.getStringValue().asSourceCodeModule());
         }
 

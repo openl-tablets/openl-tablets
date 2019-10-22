@@ -219,7 +219,7 @@ public final class JAXRSEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
             if (originalMethod == null) {
-                throw new RuleServiceRuntimeException("Method is not found in the original class!");
+                throw new RuleServiceRuntimeException("Method is not found in the original class.");
             }
 
             MethodVisitor mv;
@@ -450,7 +450,7 @@ public final class JAXRSEnhancerHelper {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         if (!serviceClass.isInterface()) {
-            throw new IllegalStateException("Service class is not an interface!");
+            throw new IllegalStateException("Service class is not an interface.");
         }
         ClassLoader classLoader = service.getClassLoader();
 

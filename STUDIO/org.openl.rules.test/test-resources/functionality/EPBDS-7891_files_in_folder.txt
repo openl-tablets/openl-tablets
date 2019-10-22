@@ -1,5 +1,5 @@
-WARN: Module 'Not-versioned' does not match file name pattern!
-WARN: Module 'Not-versioned2' does not match file name pattern!
-WARN: Module 'Not-versioned' does not match file name pattern!
-WARN: Module 'Not-versioned2' does not match file name pattern!
-WARN: Module 'Test' does not match file name pattern! File name pattern: %lob%-%state%
+WARN: Module 'Not-versioned' does not match file name pattern.
+WARN: Module 'Not-versioned2' does not match file name pattern.
+WARN: Module 'Not-versioned' does not match file name pattern.
+WARN: Module 'Not-versioned2' does not match file name pattern.
+WARN: Module 'Test' does not match file name pattern. File name pattern: %lob%-%state%

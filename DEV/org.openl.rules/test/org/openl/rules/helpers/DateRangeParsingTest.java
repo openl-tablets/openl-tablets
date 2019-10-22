@@ -563,14 +563,14 @@ public class DateRangeParsingTest {
 
         try {
             new DateRange("2/11/2020 99:99:99");
-            fail("Must be failed!");
+            fail("Must be failed.");
         } catch (RuntimeException e) {
             assertEquals("Failed to parse a range: 2/11/2020 99:99:99", e.getMessage());
         }
 
         try {
             new DateRange("2/99/2020 12:1:1");
-            fail("Must be failed!");
+            fail("Must be failed.");
         } catch (RuntimeException e) {
             assertEquals("Failed to parse a range: 2/99/2020 12:1:1", e.getMessage());
         }
@@ -579,7 +579,7 @@ public class DateRangeParsingTest {
     private void assertParseException(String range) {
         try {
             new DateRange(range);
-            fail("Must be failed!");
+            fail("Must be failed.");
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().startsWith("Failed to parse a range: "));
         }

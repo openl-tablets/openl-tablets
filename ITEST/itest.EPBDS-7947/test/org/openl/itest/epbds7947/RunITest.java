@@ -135,7 +135,7 @@ public class RunITest {
         policy.setTransaction("WRONG");
         try {
             soapClient.checkValidation(policy);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'WRONG' is outside of valid domain 'TransanctionType'. Valid values: [NEW_BUSINESS, ENDORSMENT]",
@@ -160,7 +160,7 @@ public class RunITest {
         policy.getVehicles()[0].getCoverages()[3].setName("COV10");
         try {
             soapClient.checkValidation(policy);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'COV10' is outside of valid domain 'CoverageName'. Valid values: [COV1, COV2, COV3, COV4]",
@@ -177,7 +177,7 @@ public class RunITest {
         policy.getBrandCodes()[1] = 100;
         try {
             soapClient.checkValidation(policy);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object '100' is outside of valid domain 'BrandCode[]'. Valid values: [10, 20, 30, 40]",
@@ -193,7 +193,7 @@ public class RunITest {
             "/validation_getGender_shouldBeFailed_response.json");
         try {
             soapClient.getGender("WRONG");
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'WRONG' is outside of valid domain 'Gender'. Valid values: [male, female, other]",
@@ -215,7 +215,7 @@ public class RunITest {
 
         try {
             soapClient.checkArrayValidation(policies);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'NON' is outside of valid domain 'Gender'. Valid values: [male, female, other]",
@@ -224,7 +224,7 @@ public class RunITest {
 
         try {
             soapClient.checkArrayValidationFromParent(policies);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'NON' is outside of valid domain 'Gender'. Valid values: [male, female, other]",
@@ -241,7 +241,7 @@ public class RunITest {
         policy.getPaymentMatrix()[1][1].setName("OTHER");
         try {
             soapClient.checkValidation(policy);
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertSoapValidationFault(
                 "Object 'OTHER' is outside of valid domain 'PlanName'. Valid values: [ANNUAL, NONANNUAL]",

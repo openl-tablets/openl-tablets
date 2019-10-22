@@ -127,7 +127,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                "Deployment '" + deploymentName + "' does not contain a project '" + projectName + "'!");
+                "Deployment '" + deploymentName + "' does not contain a project '" + projectName + "'.");
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
@@ -139,7 +139,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 result = Collections.unmodifiableList(modules);
             }
         } catch (ProjectResolvingException e) {
-            log.error("Project resolving has been failed!", e);
+            log.error("Project resolving has been failed.", e);
         }
         return result;
     }

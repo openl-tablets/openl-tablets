@@ -336,7 +336,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
                 IOpenMember openMember = extractOpenMember(method, serviceTarget);
                 if (openMember == null) {
-                    throw new IllegalArgumentException("Open member is not found!");
+                    throw new IllegalArgumentException("Open member is not found.");
                 }
                 IOpenClass type = openMember.getType();
                 int dim = 0;

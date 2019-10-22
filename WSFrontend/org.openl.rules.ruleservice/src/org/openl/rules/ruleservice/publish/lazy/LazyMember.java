@@ -133,7 +133,7 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
             } catch (OpenLCompilationException e) {
                 throw e;
             } catch (InterruptedException e) {
-                throw new OpenLCompilationException("Interrupted exception!", e);
+                throw new OpenLCompilationException("Interrupted exception.", e);
             } catch (Exception e) {
                 throw new OpenLCompilationException("Failed to compile.", e);
             }

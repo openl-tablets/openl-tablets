@@ -38,7 +38,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
         }
 
         if (p1 < 0 || p1 > p2) {
-            throw SyntaxNodeExceptionUtils.createError("Illegal header format!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Illegal header format.", null, tsn);
         }
 
         return new SubTextSourceCodeModule(src, p1 + 1, p2);

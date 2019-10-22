@@ -85,7 +85,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
                     log.warn(
-                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
+                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration.",
                         serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);

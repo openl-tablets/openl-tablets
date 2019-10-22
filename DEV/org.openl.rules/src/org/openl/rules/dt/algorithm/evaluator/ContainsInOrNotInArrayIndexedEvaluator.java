@@ -86,7 +86,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 Object value = Array.get(valuesArray, j);
                 if (comparatorBasedSet) {
                     if (!(value instanceof Comparable<?>)) {
-                        throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
+                        throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
                     }
                 }
                 if (allValues == null) {

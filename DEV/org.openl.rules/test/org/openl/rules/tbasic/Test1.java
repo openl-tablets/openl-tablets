@@ -26,7 +26,7 @@ public class Test1 {
 
     @Test
     public void test5() {
-        TestUtils.assertEx("test/rules/tbasic0/Algorithm1-5.xls", "Unsufficient rows. Must be more than 2!");
+        TestUtils.assertEx("test/rules/tbasic0/Algorithm1-5.xls", "Unsufficient rows. Must be more than 2.");
     }
 
     @Test

@@ -46,7 +46,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project cannot be null or empty!");
+                throw new IllegalArgumentException("project cannot be null or empty.");
             }
             this.project = project;
             return this;
@@ -88,7 +88,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setModule(String module) {
             if (module == null || module.isEmpty()) {
-                throw new IllegalArgumentException("module cannot be null or empty!");
+                throw new IllegalArgumentException("module cannot be null or empty.");
             }
             this.module = module;
             return this;
@@ -96,7 +96,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setWorkspace(String workspace) {
             if (workspace == null || workspace.isEmpty()) {
-                throw new IllegalArgumentException("workspace cannot be null or empty!");
+                throw new IllegalArgumentException("workspace cannot be null or empty.");
             }
             this.workspace = workspace;
             return this;
@@ -104,7 +104,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactory<T> build() {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project cannot be null or empty!");
+                throw new IllegalArgumentException("project cannot be null or empty.");
             }
             File projectFile = new File(project);
             File workspaceFile = workspace == null ? null : new File(workspace);
@@ -317,7 +317,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException("Module has not been found in project!");
+                    throw new RulesInstantiationException("Module has not been found in project.");
                 }
             }
 

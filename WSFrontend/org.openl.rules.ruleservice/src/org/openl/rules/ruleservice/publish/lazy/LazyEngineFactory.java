@@ -183,7 +183,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                 runtimeEnv,
                 getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
-            String errorMessage = "Failed to instantiate engine instance!";
+            String errorMessage = "Failed to instantiate engine instance.";
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }

@@ -91,7 +91,7 @@ public class CharRangeParsingTest {
     public void testNegative() {
         try {
             new CharRange(">=A >=Z");
-            fail("Must be failed!");
+            fail("Must be failed.");
         } catch (RuntimeException e) {
             assertEquals("Failed to parse a range: >=A >=Z", e.getMessage());
         }

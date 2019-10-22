@@ -47,7 +47,7 @@ public final class FolderHelper {
             if (file.isFile()) {
                 if (!file.delete()) {
                     failures = true;
-                    log.debug("Failed to delete file ''{}''!", file.getAbsolutePath());
+                    log.debug("Failed to delete file ''{}''.", file.getAbsolutePath());
                 }
             } else {
                 if (!deleteFolder(file)) {
@@ -91,14 +91,14 @@ public final class FolderHelper {
                     // delete file
                     if (!f.delete()) {
                         failures = true;
-                        log.debug("Failed to delete file ''{}''!", f.getAbsolutePath());
+                        log.debug("Failed to delete file ''{}''.", f.getAbsolutePath());
                     }
                 }
             }
 
             if (!folder.delete()) {
                 failures = true;
-                log.debug("Failed to delete folder ''{}''!", folder.getAbsolutePath());
+                log.debug("Failed to delete folder ''{}''.", folder.getAbsolutePath());
             }
         }
 

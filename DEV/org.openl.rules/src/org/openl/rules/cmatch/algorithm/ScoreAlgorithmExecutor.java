@@ -18,7 +18,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
         // iterate over linearized nodes
         for (MatchNode node : checkTree.getChildren()) {
             if (!node.isLeaf()) {
-                throw new IllegalArgumentException("Sub node are prohibited here!");
+                throw new IllegalArgumentException("Sub node are prohibited here.");
             }
 
             Argument arg = node.getArgument();

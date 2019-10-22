@@ -83,7 +83,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor!", e);
+            log.error("Failed to add project descriptor.", e);
             FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
@@ -100,7 +100,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            log.error("Failed to add project descriptor!", e);
+            log.error("Failed to add project descriptor.", e);
             FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
@@ -151,7 +151,7 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to close!", e);
+            log.error("Failed to close.", e);
             FacesUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
@@ -165,7 +165,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            log.error("Failed to delete project descriptor!", e);
+            log.error("Failed to delete project descriptor.", e);
             FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
@@ -263,7 +263,7 @@ public class DeploymentController {
      *
      * List<SelectItem> selectItems = new ArrayList<SelectItem>(); for (ProjectVersion version. : versions) {
      * selectItems.add(new SelectItem(version.getVersionName())); } return selectItems.toArray(new
-     * SelectItem[selectItems.size()]); } catch (ProjectException e) { log.error("Failed to get project versions!", e);
+     * SelectItem[selectItems.size()]); } catch (ProjectException e) { log.error("Failed to get project versions.", e);
      * } } return new SelectItem[0]; }
      */
     public List<ProjectVersion> getProjectVersions() {
@@ -278,7 +278,7 @@ public class DeploymentController {
 
                 return versions;
             } catch (ProjectException e) {
-                log.error("Failed to get project versions!", e);
+                log.error("Failed to get project versions.", e);
             }
         }
 
@@ -310,7 +310,7 @@ public class DeploymentController {
                     repositoryTreeState.refreshNode(
                         repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (Exception e) {
-                    log.error("Failed to open project '{}'!", projectName, e);
+                    log.error("Failed to open project '{}'.", projectName, e);
                     FacesUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
                 }
             }

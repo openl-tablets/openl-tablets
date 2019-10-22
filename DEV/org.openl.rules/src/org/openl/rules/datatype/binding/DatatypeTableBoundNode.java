@@ -331,7 +331,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             FieldDescriptionBuilder fieldDescriptionBuilder;
             try {
                 if (fields.containsKey(fieldName)) {
-                    throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined!",
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined.",
                         fieldName), null, null, getCellSource(row, cxt, 1));
                 }
                 if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
@@ -344,7 +344,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         f = ClassUtils.capitalize(fieldName);
                     }
                     throw SyntaxNodeExceptionUtils.createError(
-                        String.format("Field '%s' conflicts with '%s' field!", fieldName, f),
+                        String.format("Field '%s' conflicts with '%s' field.", fieldName, f),
                         null,
                         null,
                         getCellSource(row, cxt, 1));

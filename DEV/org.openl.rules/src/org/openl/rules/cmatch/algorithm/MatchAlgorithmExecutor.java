@@ -19,7 +19,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
         // iterate over linearized nodes
         for (MatchNode line : checkTree.getChildren()) {
             if (line.getRowIndex() >= 0) {
-                throw new IllegalArgumentException("Linearized MatchNode tree expected!");
+                throw new IllegalArgumentException("Linearized MatchNode tree expected.");
             }
 
             // find matching result value from left to right

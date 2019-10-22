@@ -136,7 +136,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         if (getOriginal() instanceof IUriMember) {
             return ((IUriMember) getOriginal()).getUri();
         } else {
-            throw new IllegalStateException("Implementation does not support methods other than ExecutableRulesMethod!");
+            throw new IllegalStateException("Implementation does not support methods other than ExecutableRulesMethod.");
         }
     }
 

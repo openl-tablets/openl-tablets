@@ -58,7 +58,7 @@ public class RunITest {
 
         try {
             soapClient.getDayDiff("123");
-            fail("Oops... Must be failed!");
+            fail("Oops... Must be failed.");
         } catch (SoapFault e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getStatusCode());
             assertTrue(e.getMessage() != null && e.getMessage().contains("Cause: Unparseable date: \"123\""));

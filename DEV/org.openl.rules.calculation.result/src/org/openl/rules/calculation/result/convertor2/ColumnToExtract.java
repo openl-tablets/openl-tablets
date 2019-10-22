@@ -85,16 +85,16 @@ public class ColumnToExtract {
      */
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes) {
         if (columnName == null || columnName.isEmpty()) {
-            throw new IllegalArgumentException("columnName cannot be null or empty!");
+            throw new IllegalArgumentException("columnName cannot be null or empty.");
         }
         if (propertyNames == null || propertyNames.length == 0) {
-            throw new IllegalArgumentException("propertyName cannot be null or empty!");
+            throw new IllegalArgumentException("propertyName cannot be null or empty.");
         }
         if (expectedTypes == null || expectedTypes.length == 0) {
-            throw new IllegalArgumentException("expectedTypes cannot be null or empty!");
+            throw new IllegalArgumentException("expectedTypes cannot be null or empty.");
         }
         if (expectedTypes.length != propertyNames.length) {
-            throw new IllegalArgumentException("expectedTypes and propertyNames should be the same length!");
+            throw new IllegalArgumentException("expectedTypes and propertyNames should be the same length.");
         }
         this.columnName = columnName.split(":")[0].trim(); // Get the first part in case ColName:ColType is used
         int i = 0;

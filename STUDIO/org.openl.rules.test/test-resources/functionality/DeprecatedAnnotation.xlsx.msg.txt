@@ -1,11 +1,11 @@
-WARN: DEPRECATED 'parse' function will be removed in the next version!
-WARN: DEPRECATED 'isJavaLetter' function will be removed in the next version!
-WARN: DEPRECATED 'java.io.LineNumberInputStream' constructor will be removed in the next version!
-WARN: DEPRECATED 'java.io.StreamTokenizer' constructor will be removed in the next version!
-WARN: DEPRECATED 'toURL' function will be removed in the next version!
-WARN: DEPRECATED 'global' field will be removed in the next version!
-WARN: DEPRECATED 'java.security.Certificate' class will be removed in the next version!
-WARN: DEPRECATED 'java.security.Identity' class will be removed in the next version!
-WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version!
-WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version!
-WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!
+WARN: DEPRECATED 'parse' function will be removed in the next version.
+WARN: DEPRECATED 'isJavaLetter' function will be removed in the next version.
+WARN: DEPRECATED 'java.io.LineNumberInputStream' constructor will be removed in the next version.
+WARN: DEPRECATED 'java.io.StreamTokenizer' constructor will be removed in the next version.
+WARN: DEPRECATED 'toURL' function will be removed in the next version.
+WARN: DEPRECATED 'global' field will be removed in the next version.
+WARN: DEPRECATED 'java.security.Certificate' class will be removed in the next version.
+WARN: DEPRECATED 'java.security.Identity' class will be removed in the next version.
+WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version.
+WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version.
+WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead.

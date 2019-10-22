@@ -6,7 +6,7 @@ import org.openl.rules.TestUtils;
 public class Test3 {
     @Test
     public void test0() {
-        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-0.xls", "Unsufficient rows. Must be more than 2!");
+        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-0.xls", "Unsufficient rows. Must be more than 2.");
     }
 
     @Test
@@ -26,12 +26,12 @@ public class Test3 {
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-4.xls", "Operation must have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-4.xls", "Operation must have value in Condition.");
     }
 
     @Test
     public void test5() {
-        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-4.xls", "Operation must have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-4.xls", "Operation must have value in Condition.");
     }
 
     @Test

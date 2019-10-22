@@ -243,7 +243,7 @@ public class StoreLogDataMapper {
             converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
-                String.format("Invalid annotation is used! Property 'converter' is not found in '%s'!",
+                String.format("Invalid annotation is used! Property 'converter' is not found in '%s'.",
                     annotation.getClass().getTypeName()));
         }
 
@@ -267,7 +267,7 @@ public class StoreLogDataMapper {
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(
-                            "Failed on type convertation for annotated element '%s'! Null value is used as a result!",
+                            "Failed on type convertation for annotated element '%s'! Null value is used as a result.",
                             getAnnotatedElementRef(annotatedElement)), e);
                     }
                     value = null;
@@ -279,7 +279,7 @@ public class StoreLogDataMapper {
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(
-                    String.format("Failed on set a value! Please, check that the element '%s' is annotated correctly!",
+                    String.format("Failed on set a value! Please, check that the element '%s' is annotated correctly.",
                         getAnnotatedElementRef(annotatedElement)),
                     e);
             }
@@ -295,7 +295,7 @@ public class StoreLogDataMapper {
             Field field = (Field) annotatedElement;
             return field.getDeclaringClass().getTypeName() + "." + field.getName();
         }
-        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported!");
+        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
     }
 
     private void setValueWithAnnotatedElement(Object target,
@@ -324,7 +324,7 @@ public class StoreLogDataMapper {
             }
             return;
         }
-        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported!");
+        throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
     }
 
     @SuppressWarnings("unchecked")
@@ -355,7 +355,7 @@ public class StoreLogDataMapper {
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(
-                            "Failed on type convertation for annotated element '%s'! Null value is used as a result!",
+                            "Failed on type convertation for annotated element '%s'! Null value is used as a result.",
                             getAnnotatedElementRef(annotatedElement)), e);
                     }
                     convertedValue = null;
@@ -365,7 +365,7 @@ public class StoreLogDataMapper {
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(
-                            "Failed on set a value! Please, check that the element '%s' is annotated correctly!",
+                            "Failed on set a value! Please, check that the element '%s' is annotated correctly.",
                             getAnnotatedElementRef(annotatedElement)), e);
                     }
                 }

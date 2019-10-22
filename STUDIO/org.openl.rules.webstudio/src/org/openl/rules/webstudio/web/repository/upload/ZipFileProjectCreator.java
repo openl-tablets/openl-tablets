@@ -51,7 +51,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         }
 
         if (isEmptyZip(uploadedFile)) {
-            throw new IOException("Can`t create project from the given file. Zip file is empty!");
+            throw new IOException("Can`t create project from the given file. Zip file is empty.");
         }
 
         try {

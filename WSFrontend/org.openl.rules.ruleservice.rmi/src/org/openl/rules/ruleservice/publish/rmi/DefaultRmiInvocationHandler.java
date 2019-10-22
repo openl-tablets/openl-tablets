@@ -37,7 +37,7 @@ class DefaultRmiInvocationHandler implements IOpenLInvocationHandler<String, Lis
             inputParamsTypes = (Class<?>[]) args[1];
             params = (Object[]) args[2];
             if (inputParamsTypes.length != params.length) {
-                throw new IllegalArgumentException("inputParamTypes size must be equals to params size!");
+                throw new IllegalArgumentException("inputParamTypes size must be equals to params size.");
             }
         } else {
             strictMatch = false;

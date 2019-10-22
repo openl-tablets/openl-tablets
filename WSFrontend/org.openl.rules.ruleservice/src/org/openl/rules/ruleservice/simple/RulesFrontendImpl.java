@@ -97,7 +97,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                     }
 
                     throw new MethodInvocationException("Method '" + ruleName + "(" + sb
-                        .toString() + ")' has not been found in service '" + serviceName + "'!");
+                        .toString() + ")' has not been found in service '" + serviceName + "'.");
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);
@@ -141,7 +141,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
                 throw new MethodInvocationException(
-                    "One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method does not supports null params!");
+                    "One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method does not supports null params.");
             }
             paramTypes[i] = params[i].getClass();
         }

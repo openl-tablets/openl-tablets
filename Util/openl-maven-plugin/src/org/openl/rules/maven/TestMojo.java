@@ -49,8 +49,8 @@ import org.openl.util.FileUtils;
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 public final class TestMojo extends BaseOpenLMojo {
-    private static final String FAILURE = "<<< FAILURE!";
-    private static final String ERROR = "<<< ERROR!";
+    private static final String FAILURE = "<<< FAILURE";
+    private static final String ERROR = "<<< ERROR";
     /**
      * Set this to 'true' to skip running OpenL tests.
      */

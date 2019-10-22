@@ -181,7 +181,7 @@ public class AProject extends AProjectFolder {
 
     public void delete(CommonUser user, String comment) throws ProjectException {
         if (isDeleted()) {
-            throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
+            throw new ProjectException("Project ''{0}'' is already marked for deletion.", null, getName());
         }
 
         unlock();
@@ -228,7 +228,7 @@ public class AProject extends AProjectFolder {
     public void undelete(CommonUser user, String comment) throws ProjectException {
         try {
             if (!isDeleted()) {
-                throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
+                throw new ProjectException("Cannot undelete non-marked project ''{0}''.", null, getName());
             }
 
             Repository repository = getRepository();

@@ -20,13 +20,13 @@ public class Test3 {
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/cmatch1/match3-2.xls", "Sub node are prohibited here!", "cell=B10");
+        TestUtils.assertEx("test/rules/cmatch1/match3-2.xls", "Sub node are prohibited here.", "cell=B10");
     }
 
     @Test
     public void test3() {
         TestUtils.assertEx("test/rules/cmatch1/match3-3.xls",
-            "Column operation of special row Total Score must be defined!",
+            "Column operation of special row Total Score must be defined.",
             "cell=C7");
     }
 

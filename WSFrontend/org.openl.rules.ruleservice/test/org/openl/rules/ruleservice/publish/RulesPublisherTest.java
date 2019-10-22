@@ -97,7 +97,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
             openClassField.setAccessible(true);
             for (OpenLService service : publisher.getServices()) {
                 Object v = openClassField.get(service);
-                assertNull("OpenLService must be not compiled for java publisher if not used before!", v);
+                assertNull("OpenLService must be not compiled for java publisher if not used before.", v);
             }
         } finally {
             openClassField.setAccessible(accessible);

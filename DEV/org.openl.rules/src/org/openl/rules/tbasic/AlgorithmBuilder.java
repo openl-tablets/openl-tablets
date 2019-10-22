@@ -93,7 +93,7 @@ public class AlgorithmBuilder {
         }
 
         if (tableBody.getHeight() <= 2) {
-            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2.", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -177,7 +177,7 @@ public class AlgorithmBuilder {
 
             if (columns.get(id) != null) {
                 // duplicate ids
-                throw SyntaxNodeExceptionUtils.createError("Duplicate column '" + id + "'!", null, tsn);
+                throw SyntaxNodeExceptionUtils.createError("Duplicate column '" + id + "'.", null, tsn);
             }
 
             columns.put(id, new AlgorithmColumn(id, c));
@@ -208,7 +208,7 @@ public class AlgorithmBuilder {
         } else if (AFTER.equalsIgnoreCase(column)) {
             row.setAfter(sv);
         } else {
-            throw SyntaxNodeExceptionUtils.createError("Invalid column id '" + column + "'!", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Invalid column id '" + column + "'.", null, tsn);
         }
     }
 }

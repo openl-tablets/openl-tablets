@@ -80,7 +80,7 @@ public class ProjectsInHistoryController {
                         String projectPath = getProjectHistoryHome() + File.separator + bean.getProjectName();
                         FileUtils.delete(new File(projectPath));
                     } catch (Exception e) {
-                        msg = "Failed to clean history of project '" + bean.getProjectName() + "'!";
+                        msg = "Failed to clean history of project '" + bean.getProjectName() + "'.";
                         log.error(msg, e);
                         FacesUtils.addErrorMessage(msg, e.getMessage());
                     }

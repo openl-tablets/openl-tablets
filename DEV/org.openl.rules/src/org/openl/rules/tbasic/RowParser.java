@@ -38,17 +38,17 @@ public class RowParser implements IRowParser {
             IOpenSourceCodeModule source = columnValue.asSourceCodeModule();
             if (source.getUri() == null) {
                 // Column <columnName> is absent. Point to <operation> cell instead.
-                String errMsg = String.format("%s is required for operation '%s'!", columnName, operation);
+                String errMsg = String.format("%s is required for operation %s.", columnName, operation);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
             } else {
                 // Column <columnName> exists but still is empty. Point to empty <columnValue> cell.
-                String errMsg = String.format("Operation must have value in %s!", columnName);
+                String errMsg = String.format("Operation must have value in %s.", columnName);
                 throw SyntaxNodeExceptionUtils.createError(errMsg, source);
             }
         }
 
         if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
-            String errMsg = String.format("Operation must not have value in %s!", columnName);
+            String errMsg = String.format("Operation must not have value in %s.", columnName);
             throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
         }
     }
@@ -72,12 +72,12 @@ public class RowParser implements IRowParser {
             if (multiline) {
                 // If operation is used as multiline and it does not match the specification the error should be next
                 //
-                errorMessage = "Operation %s cannot be multiline! Nested operations are not allowed here.";
+                errorMessage = "Operation %s cannot be multiline. Nested operations are not allowed here.";
             } else {
                 // If the operation is used as single line and it does not match the specification, the error should be
                 // next
                 //
-                errorMessage = "Operation %s cannot be singleline!";
+                errorMessage = "Operation %s cannot be singleline.";
             }
             throw SyntaxNodeExceptionUtils.createError(String.format(errorMessage, operationName),
                 operation.asSourceCodeModule());
@@ -206,7 +206,7 @@ public class RowParser implements IRowParser {
 
         // check Label
         if (spec.getLabel() == ValueNecessity.REQUIRED && row.getLabel().isEmpty()) {
-            String errMsg = "Label is obligatory for this operation!";
+            String errMsg = "Label is obligatory for this operation.";
             throw SyntaxNodeExceptionUtils.createError(errMsg, row.getLabel().asSourceCodeModule());
         }
 
@@ -223,7 +223,7 @@ public class RowParser implements IRowParser {
                 operation.asSourceCodeModule());
         }
         if (specTopLevel == ValueNecessity.REQUIRED && indent > 0) {
-            throw SyntaxNodeExceptionUtils.createError("Operation can be a top level only!",
+            throw SyntaxNodeExceptionUtils.createError("Operation can be a top level only.",
                 operation.asSourceCodeModule());
         }
 

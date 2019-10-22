@@ -30,6 +30,6 @@ public class DuplicateDatatypesTest {
                 found = true;
             }
         }
-        assertTrue("Message not found!", found);
+        assertTrue("Message not found.", found);
     }
 }

@@ -21,7 +21,7 @@ public class Test4 {
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/cmatch1/match4-2.xls", "Sub node are prohibited here!", "cell=B8");
+        TestUtils.assertEx("test/rules/cmatch1/match4-2.xls", "Sub node are prohibited here.", "cell=B8");
     }
 
     @Test
@@ -33,7 +33,7 @@ public class Test4 {
     @Test
     public void test4() {
         TestUtils.assertEx("test/rules/cmatch1/match4-4.xls",
-            "Score algorithm supports int or Integer return type only!",
+            "Score algorithm supports int or Integer return type only.",
             "range=B3:M10");
     }
 

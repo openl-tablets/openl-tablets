@@ -6,12 +6,12 @@ import org.openl.rules.TestUtils;
 public class TestVar {
     @Test
     public void test1() {
-        TestUtils.assertEx("test/rules/tbasic1/VAR_F1.xls", "Operation must have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic1/VAR_F1.xls", "Operation must have value in Condition.");
     }
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/tbasic1/VAR_F2.xls", "Operation VAR cannot be multiline!");
+        TestUtils.assertEx("test/rules/tbasic1/VAR_F2.xls", "Operation VAR cannot be multiline.");
     }
 
     @Test

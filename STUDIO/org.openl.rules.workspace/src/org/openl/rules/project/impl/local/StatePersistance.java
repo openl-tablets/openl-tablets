@@ -53,7 +53,7 @@ public class StatePersistance {
 
             artefact.applyStateHolder(state);
         } catch (Exception e) {
-            log.error("Could not read state from file ''{}''!", sourceFile.getAbsolutePath(), e);
+            log.error("Could not read state from file ''{}''.", sourceFile.getAbsolutePath(), e);
         } finally {
             if (ois != null) {
                 try {
@@ -82,7 +82,7 @@ public class StatePersistance {
         File destFile = getPropertiesFile(artefact);
         File folder = destFile.getParentFile();
         if (!FolderHelper.checkOrCreateFolder(folder)) {
-            log.error("Could not create folder ''{}''!", folder.getAbsolutePath());
+            log.error("Could not create folder ''{}''.", folder.getAbsolutePath());
             return;
         }
 
@@ -94,7 +94,7 @@ public class StatePersistance {
             oos.writeObject(state);
             oos.flush();
         } catch (IOException e) {
-            log.error("Could not save state into file ''{}''!", destFile.getAbsolutePath(), e);
+            log.error("Could not save state into file ''{}''.", destFile.getAbsolutePath(), e);
         } finally {
             if (oos != null) {
                 try {

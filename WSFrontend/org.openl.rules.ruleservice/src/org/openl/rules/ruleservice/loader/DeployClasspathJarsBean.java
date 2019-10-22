@@ -59,7 +59,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
             rulesDeployerService.deploy(FileUtils.getBaseName(jarName), new FileInputStream(physicalFile), false);
         } else {
             throw new RuleServiceRuntimeException(
-                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
+                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
         }
     }
 
@@ -88,8 +88,8 @@ public class DeployClasspathJarsBean implements InitializingBean {
                         "Protocol for URL is not supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
-                log.error("Failed to load a resource!", e);
-                throw new IOException("Failed to load a resource!", e);
+                log.error("Failed to load a resource.", e);
+                throw new IOException("Failed to load a resource.", e);
             }
             if (!file.exists()) {
                 throw new IOException("File has not been found. File: " + file.getAbsolutePath());

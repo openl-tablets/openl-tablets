@@ -271,7 +271,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             try {
                 listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
             } catch (Exception e1) {
-                log.error("Exception occured!", e1);
+                log.error("Exception occured.", e1);
             }
         }
     }
@@ -285,7 +285,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             try {
                 listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
             } catch (Exception e1) {
-                log.error("Exception occured!", e1);
+                log.error("Exception occured.", e1);
             }
         }
     }
@@ -394,7 +394,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             try {
                 listener.afterMethodInvocation(interfaceMethod, args, result, e);
             } catch (Exception e1) {
-                log.error("Exception occured!", e1);
+                log.error("Exception occured.", e1);
             }
         }
     }
@@ -407,7 +407,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             try {
                 listener.beforeMethodInvocation(interfaceMethod, args, result, e);
             } catch (Exception e1) {
-                log.error("Exception occured!", e1);
+                log.error("Exception occured.", e1);
             }
         }
     }

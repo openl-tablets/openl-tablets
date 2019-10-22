@@ -185,7 +185,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
             if (signature.startsWith("(" + RUNTIME_CONTEXT)) {
                 return "(" + signature.substring(RUNTIME_CONTEXT.length() + 1);
             } else {
-                throw new IllegalArgumentException("IRulesRuntimeContext has been expected in signature!");
+                throw new IllegalArgumentException("IRulesRuntimeContext has been expected in signature.");
             }
         }
     }

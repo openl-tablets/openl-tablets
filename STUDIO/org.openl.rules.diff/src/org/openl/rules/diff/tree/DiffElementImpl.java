@@ -62,7 +62,7 @@ public class DiffElementImpl implements DiffElement {
         this.selfEqual = selfEqual;
 
         if (childrenEqual && !hierarhyEqual) {
-            throw new IllegalArgumentException("childrenEqual is 'true' while less strict hierarhyEqual is 'false'!");
+            throw new IllegalArgumentException("childrenEqual is 'true' while less strict hierarhyEqual is 'false'.");
         }
 
         diffStatus = (childrenEqual && selfEqual) ? EQUALS : DIFFERS;

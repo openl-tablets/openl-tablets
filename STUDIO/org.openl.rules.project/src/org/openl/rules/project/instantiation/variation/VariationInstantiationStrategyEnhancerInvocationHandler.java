@@ -181,7 +181,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
             } else {
                 if (!f) {
                     log.warn(
-                        "Variation features are not supported for Wrapper classses. This functionality was depricated!");
+                        "Variation features are not supported for Wrapper classses. This functionality was depricated.");
                     f = true;
                 }
             }
@@ -231,7 +231,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLI
 
                 return calculateSingleVariation(member, arguments, variation);
             } catch (Exception e) {
-                log.error("Failed to calculate variation!", e);
+                log.error("Failed to calculate variation.", e);
                 throw e;
             } finally {
                 if (handler != null) {

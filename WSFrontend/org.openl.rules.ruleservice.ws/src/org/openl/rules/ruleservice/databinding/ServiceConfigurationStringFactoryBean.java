@@ -40,7 +40,7 @@ public class ServiceConfigurationStringFactoryBean extends ServiceConfigurationF
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName must be set!");
+        Assert.notNull(this.propertyName, "propertyName must be set.");
     }
 
 }

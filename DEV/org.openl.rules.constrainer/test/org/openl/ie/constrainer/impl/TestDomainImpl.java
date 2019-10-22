@@ -160,7 +160,7 @@ public class TestDomainImpl extends TestCase {
             try {
                 assertTrue(db.removeValue(start_min + i));
             } catch (Failure f) {
-                fail("test failed!");
+                fail("test failed.");
             } catch (Throwable ex) {
                 fail("Unexpected exception has been thrown");
             }
@@ -182,14 +182,14 @@ public class TestDomainImpl extends TestCase {
         try {
             assertTrue(!db.setMax(_var.max() + 1));
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
         try {
             db.setMax(_var.min() - 1);
             fail("test of DomainImpl failed due to incorrect work of setMax(int)");
         } catch (Failure f) {
         } catch (Throwable e) {
-            fail("Unexpected exception has been thrown!");
+            fail("Unexpected exception has been thrown.");
         }
 
         try {
@@ -208,14 +208,14 @@ public class TestDomainImpl extends TestCase {
         try {
             assertTrue(!db.setMin(_var.min() - 1));
         } catch (Failure f) {
-            fail("test failed!");
+            fail("test failed.");
         }
         try {
             db.setMin(_var.max() + 1);
             fail("test of DomainImpl failed due to incorrect work of setMin(int)");
         } catch (Failure f) {
         } catch (Throwable e) {
-            fail("Unexpected exception has been thrown!");
+            fail("Unexpected exception has been thrown.");
         }
 
         try {

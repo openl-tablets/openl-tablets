@@ -221,7 +221,7 @@ public class SpreadsheetStructureBuilder {
                 ConstantOpenField constOpenField = (ConstantOpenField) openField;
                 spreadsheetCell.setValue(constOpenField.getValue());
             } catch (Exception e) {
-                String message = "Cannot parse cell!";
+                String message = "Cannot parse cell.";
                 addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {

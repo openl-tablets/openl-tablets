@@ -76,7 +76,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             lp = localProjects.get(name.toLowerCase());
         }
         if (lp == null) {
-            throw new ProjectException("Cannot find project ''{0}''!", null, name);
+            throw new ProjectException("Cannot find project ''{0}''.", null, name);
         }
 
         return lp;

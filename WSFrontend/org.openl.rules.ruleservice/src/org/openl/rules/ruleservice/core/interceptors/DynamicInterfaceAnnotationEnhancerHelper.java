@@ -98,7 +98,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                     templateMethod = method;
                                 } else {
                                     throw new RuleServiceRuntimeException(
-                                        "Template class is wrong. It is a non-obvious choice of method. Please, check the template class!");
+                                        "Template class is wrong. It is a non-obvious choice of method. Please, check the template class.");
                                 }
                             }
                         }
@@ -147,7 +147,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             Class<?> templateClass,
             ClassLoader classLoader) throws Exception {
         if (!templateClass.isInterface()) {
-            throw new RuleServiceRuntimeException("Interface is expected!");
+            throw new RuleServiceRuntimeException("Interface is expected.");
         }
 
         ClassWriter cw = new ClassWriter(0);

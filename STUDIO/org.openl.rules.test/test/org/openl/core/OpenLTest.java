@@ -119,7 +119,7 @@ public final class OpenLTest {
         final File sourceDir = new File(folderName);
 
         if (!sourceDir.exists()) {
-            LOG.warn("Tests directory does not exist!");
+            LOG.warn("Tests directory does not exist.");
             return;
         }
 
@@ -289,7 +289,7 @@ public final class OpenLTest {
             }
         }
 
-        assertFalse("Some tests have been failed!", hasErrors);
+        assertFalse("Some tests have been failed.", hasErrors);
     }
 
     private void ok(long startTime, String sourceFile) {

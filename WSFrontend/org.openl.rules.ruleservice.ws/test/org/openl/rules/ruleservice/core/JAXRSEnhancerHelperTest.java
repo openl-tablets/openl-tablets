@@ -62,24 +62,24 @@ public class JAXRSEnhancerHelperTest {
             if (annotation.annotationType().equals(Produces.class)) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertTrue("@Produces annotatoion requires values!", produces.value().length > 0);
+                Assert.assertTrue("@Produces annotatoion requires values.", produces.value().length > 0);
             }
             if (annotation.annotationType().equals(Consumes.class)) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertTrue("@Consumes annotatoion requires values!", consumes.value().length > 0);
+                Assert.assertTrue("@Consumes annotatoion requires values.", consumes.value().length > 0);
             }
         }
 
         if (!producesAnnotationExists) {
-            Assert.fail("@Produces annotation is required!");
+            Assert.fail("@Produces annotation is required.");
         }
         if (!consumesAnnotationExists) {
-            Assert.fail("@Consumes annotation is required!");
+            Assert.fail("@Consumes annotation is required.");
         }
 
         if (!f) {
-            Assert.fail("Enchanced interface should contains @Path annotation on class!");
+            Assert.fail("Enchanced interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
@@ -93,7 +93,7 @@ public class JAXRSEnhancerHelperTest {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.startsWith("/someMethod")) {
-                    Assert.fail("Generated method should contains @Path annotation on method with method name value!");
+                    Assert.fail("Generated method should contains @Path annotation on method with method name value.");
                 }
             }
             if (annotation.annotationType().equals(GET.class)) {
@@ -110,13 +110,13 @@ public class JAXRSEnhancerHelperTest {
             }
         }
         if (!pathParamAnnotationExists) {
-            Assert.fail("@PathParam annotation is required!");
+            Assert.fail("@PathParam annotation is required.");
         }
         if (!pathAnnotationExists) {
-            Assert.fail("@Path annotation is required!");
+            Assert.fail("@Path annotation is required.");
         }
         if (!getAnnotationExists) {
-            Assert.fail("@GET annotation is required!");
+            Assert.fail("@GET annotation is required.");
         }
     }
 
@@ -213,7 +213,7 @@ public class JAXRSEnhancerHelperTest {
         }
 
         if (!f) {
-            Assert.fail("Enchanced interface should contains @Path annotation on class!");
+            Assert.fail("Enchanced interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
@@ -229,7 +229,7 @@ public class JAXRSEnhancerHelperTest {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.equals("/someMethod/{arg}")) {
-                    Assert.fail("Generated method should contains @Path annotation on method with defined value!");
+                    Assert.fail("Generated method should contains @Path annotation on method with defined value.");
                 }
             }
             if (annotation.annotationType().equals(GET.class)) {
@@ -238,12 +238,12 @@ public class JAXRSEnhancerHelperTest {
             if (annotation.annotationType().equals(Produces.class)) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertEquals("@Produces annotatoion requires defined values!", 1, produces.value().length);
+                Assert.assertEquals("@Produces annotatoion requires defined values.", 1, produces.value().length);
             }
             if (annotation.annotationType().equals(Consumes.class)) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertEquals("@Consumes annotatoion requires defined values!", 1, consumes.value().length);
+                Assert.assertEquals("@Consumes annotatoion requires defined values.", 1, consumes.value().length);
             }
         }
         for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
@@ -256,19 +256,19 @@ public class JAXRSEnhancerHelperTest {
             }
         }
         if (!pathParamAnnotationExists) {
-            Assert.fail("@PathParam annotation is required!");
+            Assert.fail("@PathParam annotation is required.");
         }
         if (!pathAnnotationExists) {
-            Assert.fail("@Path annotation is required!");
+            Assert.fail("@Path annotation is required.");
         }
         if (!getAnnotationExists) {
-            Assert.fail("@GET annotation is required!");
+            Assert.fail("@GET annotation is required.");
         }
         if (!producesAnnotationExists) {
-            Assert.fail("@Produces annotation is required!");
+            Assert.fail("@Produces annotation is required.");
         }
         if (!consumesAnnotationExists) {
-            Assert.fail("@Consumes annotation is required!");
+            Assert.fail("@Consumes annotation is required.");
         }
     }
 
@@ -280,46 +280,46 @@ public class JAXRSEnhancerHelperTest {
             if ("someMethod".equals(method.getName())) {
                 i++;
                 Annotation postAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation!", postAnnotation);
+                Assert.assertNotNull("Expected POST annotation.", postAnnotation);
 
-                Assert.assertEquals("Expected only one parameter in method!", 1, method.getParameterTypes().length);
+                Assert.assertEquals("Expected only one parameter in method.", 1, method.getParameterTypes().length);
             }
             if ("someMethod4".equals(method.getName())) {
                 i++;
                 Annotation postAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation!", postAnnotation);
+                Assert.assertNotNull("Expected POST annotation.", postAnnotation);
 
-                Assert.assertEquals("Expected only one parameter in method!", 1, method.getParameterTypes().length);
+                Assert.assertEquals("Expected only one parameter in method.", 1, method.getParameterTypes().length);
             }
             if ("someMethod2".equals(method.getName())) {
                 i++;
                 Annotation getAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation!", getAnnotation);
+                Assert.assertNotNull("Expected POST annotation.", getAnnotation);
 
-                Assert.assertEquals("Expected one parameters in method!", 1, method.getParameterTypes().length);
+                Assert.assertEquals("Expected one parameters in method.", 1, method.getParameterTypes().length);
             }
             if ("someMethod3".equals(method.getName())) {
                 i++;
                 Annotation getAnnotation = method.getAnnotation(GET.class);
-                Assert.assertNotNull("Expected GET annotation!", getAnnotation);
+                Assert.assertNotNull("Expected GET annotation.", getAnnotation);
 
-                Assert.assertEquals("Expected no parameters in method!", 0, method.getParameterTypes().length);
+                Assert.assertEquals("Expected no parameters in method.", 0, method.getParameterTypes().length);
             }
         }
 
-        Assert.assertEquals("Method is not found!", 4, i);
+        Assert.assertEquals("Method is not found.", 4, i);
     }
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
         Class<?> enchancedClass = createService(TestMethodNameAndPath.class);
         Method[] methods = enchancedClass.getMethods();
-        Assert.assertEquals("Method is not found!", 3, methods.length);
+        Assert.assertEquals("Method is not found.", 3, methods.length);
 
         for (Method method : methods) {
             Assert.assertEquals("someMethod", method.getName());
             Annotation pathAnnotation = method.getAnnotation(Path.class);
-            Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
+            Assert.assertNotNull("Expected @Path annotation.", pathAnnotation);
 
             String path = null;
             switch (method.getParameterTypes().length) {

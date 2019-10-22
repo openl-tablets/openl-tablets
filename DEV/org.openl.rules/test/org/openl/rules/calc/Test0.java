@@ -25,7 +25,7 @@ public class Test0 {
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/calc0/calc0-2.xls", "Table has no body!");
+        TestUtils.assertEx("test/rules/calc0/calc0-2.xls", "Table has no body.");
     }
 
     @Test
@@ -39,7 +39,7 @@ public class Test0 {
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/calc0/calc0-4.xls", "Table has no body!", "merge header cell");
+        TestUtils.assertEx("test/rules/calc0/calc0-4.xls", "Table has no body.", "merge header cell");
     }
 
     @Test

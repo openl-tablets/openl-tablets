@@ -52,7 +52,7 @@ public final class NodeUtil {
             String type,
             boolean isVersionable) throws RepositoryException {
         if (parentNode.hasNode(name)) {
-            throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already!");
+            throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already.");
         }
 
         Node p = parentNode;
@@ -83,7 +83,7 @@ public final class NodeUtil {
                 .getProperty(ArtefactProperties.PROP_RES_DATA)
                 .getStream();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get Content!", e);
+            throw new RRepositoryException("Failed to get Content.", e);
         }
     }
 
@@ -125,7 +125,7 @@ public final class NodeUtil {
         }
 
         if (result == null) {
-            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'!");
+            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'.");
         }
 
         return result;

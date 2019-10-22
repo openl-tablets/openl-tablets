@@ -499,7 +499,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
         } else {
-            throw new IllegalStateException("Implementation supports only IUriMember!");
+            throw new IllegalStateException("Implementation supports only IUriMember.");
         }
     }
 

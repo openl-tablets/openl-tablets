@@ -70,7 +70,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     lastForIndent[prevIndent].add(node);
                 } else if (indent > (prevIndent + 1)) {
                     // can increase by +1 only
-                    String msg = MessageFormat.format("Illegal indent! 0..{0} expected.", prevIndent + 1);
+                    String msg = MessageFormat.format("Illegal indent. 0..{0} expected.", prevIndent + 1);
                     throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
                 } else {
                     // if (indent == prevIndent)
@@ -91,7 +91,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         if (!colDef.isMultipleValueAllowed()) {
             // only 1
             if (values.length != 1) {
-                throw new IllegalArgumentException("Column " + colDef.getName() + " can have single value only!");
+                throw new IllegalArgumentException("Column " + colDef.getName() + " can have single value only.");
             }
         }
     }
@@ -110,7 +110,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             }
 
             if (!exists) {
-                throw new IllegalArgumentException("Required column " + colDef.getName() + " is absent!");
+                throw new IllegalArgumentException("Required column " + colDef.getName() + " is absent.");
             }
         }
     }
@@ -118,7 +118,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     protected void checkRowName(TableRow row, String expectedName) throws SyntaxNodeException {
         SubValue sv = row.get(NAMES)[0];
         if (!expectedName.equalsIgnoreCase(sv.getString())) {
-            String msg = "Expects " + expectedName + " here!";
+            String msg = "Expects " + expectedName + " here.";
             throw SyntaxNodeExceptionUtils.createError(msg, sv.getStringValue().asSourceCodeModule());
         }
     }
@@ -156,7 +156,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 checkTreeChildren(child, rows);
             }
         } else {
-            String msg = "All sub nodes must be leaves! Sub nodes are allowed for single child only.";
+            String msg = "All sub nodes must be leaves. Sub nodes are allowed for single child only.";
             throw SyntaxNodeExceptionUtils.createError(msg,
                 rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue().asSourceCodeModule());
         }
@@ -166,7 +166,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
         int minRows = getSpecialRowCount() + 1;
         if (columnMatch.getRows().size() < minRows) {
-            String msg = "Expects at least " + minRows + " rows!";
+            String msg = "Expects at least " + minRows + " rows.";
             throw new IllegalArgumentException(msg);
         }
 
@@ -334,13 +334,13 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             String varName = nameSV.getString();
 
             if (varName.length() == 0) {
-                String msg = "Name cannot be empty!";
+                String msg = "Name cannot be empty.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 
             Argument arg = argumentsHelper.getTypeByName(varName);
             if (arg == null) {
-                String msg = "Failed to bind name '" + varName + "'!";
+                String msg = "Failed to bind name '" + varName + "'.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }
 

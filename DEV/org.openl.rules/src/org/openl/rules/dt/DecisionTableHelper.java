@@ -1034,7 +1034,7 @@ public final class DecisionTableHelper {
         int i = 0;
         for (DTHeader action : actions) {
             if (action.getColumn() >= originalTable.getSource().getWidth()) {
-                String message = "Wrong table structure: Wrong number of action columns!";
+                String message = "Wrong table structure: Wrong number of action columns.";
                 throw new OpenLCompilationException(message);
             }
 
@@ -2433,7 +2433,7 @@ public final class DecisionTableHelper {
             }
 
             if (k < numberOfHcondition) {
-                throw new OpenLCompilationException("No input parameter found for horizontal condition!");
+                throw new OpenLCompilationException("No input parameter found for horizontal condition.");
             }
 
             column = fit.stream()

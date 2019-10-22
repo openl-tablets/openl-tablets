@@ -84,7 +84,7 @@ public class OpenLEngine {
             }
         }
         if (bestMethod == null) {
-            throw new MethodNotFoundException(String.format("Method '%s' is not found!", methodName));
+            throw new MethodNotFoundException(String.format("Method '%s' is not found.", methodName));
         }
         Object[] params = new Object[args.length];
         for (int i = 0; i < bestOpenCasts.length; i++) {

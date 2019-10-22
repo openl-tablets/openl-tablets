@@ -83,7 +83,7 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                     projectDescriptors.add(project);
                     dependencyLoaders.add(projectLoader);
                 } catch (Exception e) {
-                    log.error("Failed to build dependency manager loaders for project '{}'!", project.getName(), e);
+                    log.error("Failed to build dependency manager loaders for project '{}'.", project.getName(), e);
                 }
             }
         }

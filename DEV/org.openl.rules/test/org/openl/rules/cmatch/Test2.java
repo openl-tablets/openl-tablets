@@ -60,17 +60,17 @@ public class Test2 {
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/cmatch1/match2-4.xls", "All sub nodes must be leaves!", "cell=B7");
+        TestUtils.assertEx("test/rules/cmatch1/match2-4.xls", "All sub nodes must be leaves.", "cell=B7");
     }
 
     @Test
     public void test5() {
-        TestUtils.assertEx("test/rules/cmatch1/match2-5.xls", "All sub nodes must be leaves!", "cell=B7");
+        TestUtils.assertEx("test/rules/cmatch1/match2-5.xls", "All sub nodes must be leaves.", "cell=B7");
     }
 
     @Test
     public void test6() {
-        TestUtils.assertEx("test/rules/cmatch1/match2-6.xls", "Illegal indent!", "cell=B10");
+        TestUtils.assertEx("test/rules/cmatch1/match2-6.xls", "Illegal indent.", "cell=B10");
     }
 
     public interface ITest2 {

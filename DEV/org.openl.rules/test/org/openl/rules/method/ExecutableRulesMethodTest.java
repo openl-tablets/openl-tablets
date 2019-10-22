@@ -111,7 +111,7 @@ public class ExecutableRulesMethodTest {
                 return runtimeEnv;
             }
             throw new OpenlNotCheckedException(
-                "Instance must implement " + IEngineWrapper.class.getCanonicalName() + "!");
+                "Instance must implement " + IEngineWrapper.class.getCanonicalName() + ".");
         }
 
         public static boolean isMethodArgumentsCacheEnable(Object instance) {

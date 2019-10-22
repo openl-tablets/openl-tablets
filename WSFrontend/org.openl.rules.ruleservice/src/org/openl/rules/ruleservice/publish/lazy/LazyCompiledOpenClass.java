@@ -33,7 +33,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
         try {
             return lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
         } catch (OpenLCompilationException e) {
-            throw new OpenlNotCheckedException("It must not happen! Compilation validated before!");
+            throw new OpenlNotCheckedException("It must not happen! Compilation validated before.");
         }
 
     }

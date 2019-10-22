@@ -144,11 +144,11 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
                     try {
                         publisher.undeploy(serviceName);
                     } catch (RuleServiceUndeployException e) {
-                        log.error("Failed to undeploy service '{}'!", serviceName, e);
+                        log.error("Failed to undeploy service '{}'.", serviceName, e);
                     }
                 }
             }
-            throw new RuleServiceDeployException("Failed to deploy service!", e1);
+            throw new RuleServiceDeployException("Failed to deploy service.", e1);
         }
         fireDeployListeners(service);
     }
@@ -186,7 +186,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
         if (e1 == null) {
             services.remove(serviceName);
         } else {
-            throw new RuleServiceUndeployException("Failed to undeploy a service!", e1);
+            throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
         }
         fireUndeployListeners(serviceName);
     }
@@ -200,7 +200,7 @@ public class RuleServiceManagerImpl implements RuleServiceManager, InitializingB
     @Override
     public void afterPropertiesSet() {
         if (CollectionUtils.isEmpty(supportedPublishers)) {
-            throw new BeanInitializationException("You must define at least one supported publisher!");
+            throw new BeanInitializationException("You must define at least one supported publisher.");
         }
 
         for (String defPublisher : defaultRuleServicePublishers) {

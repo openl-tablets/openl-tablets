@@ -9,27 +9,27 @@ import org.openl.rules.TestUtils;
 public class TestWhile {
     @Test
     public void test1() {
-        TestUtils.assertEx("test/rules/tbasic1/WHILE_F1.xls", "Operation must not have value in Action!");
+        TestUtils.assertEx("test/rules/tbasic1/WHILE_F1.xls", "Operation must not have value in Action.");
     }
 
     @Test
     public void test2() {
-        TestUtils.assertEx("test/rules/tbasic1/WHILE_F2.xls", "Operation must not have value in Action!");
+        TestUtils.assertEx("test/rules/tbasic1/WHILE_F2.xls", "Operation must not have value in Action.");
     }
 
     @Test
     public void test3() {
-        TestUtils.assertEx("test/rules/tbasic1/WHILE_F3.xls", "Operation must have value in Action!");
+        TestUtils.assertEx("test/rules/tbasic1/WHILE_F3.xls", "Operation must have value in Action.");
     }
 
     @Test
     public void test4() {
-        TestUtils.assertEx("test/rules/tbasic1/WHILE_F4.xls", "Operation must have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic1/WHILE_F4.xls", "Operation must have value in Condition.");
     }
 
     @Test
     public void test5() {
-        TestUtils.assertEx("test/rules/tbasic1/WHILE_F5.xls", "Operation must have value in Condition!");
+        TestUtils.assertEx("test/rules/tbasic1/WHILE_F5.xls", "Operation must have value in Condition.");
     }
 
     @Test

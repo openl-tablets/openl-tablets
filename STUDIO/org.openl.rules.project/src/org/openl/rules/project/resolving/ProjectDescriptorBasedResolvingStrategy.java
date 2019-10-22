@@ -73,7 +73,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                             defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern! File name pattern is: " + projectDescriptor
                                 .getPropertiesFileNamePattern();
                         } else {
-                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern!";
+                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern.";
                         }
 
                         if (e.getMessage() == null) {
@@ -89,7 +89,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         }
                     } catch (InvalidFileNamePatternException e) {
                         if (e.getMessage() == null) {
-                            moduleErrorMessages.add("Wrong file name pattern!");
+                            moduleErrorMessages.add("Wrong file name pattern.");
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
                                 moduleErrorMessages.add("Wrong file name pattern! " + e.getMessage());
@@ -98,8 +98,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                             }
                         }
                     } catch (Exception | LinkageError e) {
-                        LOG.warn("Failed to load custom file name processor!", e);
-                        moduleErrorMessages.add("Failed to load custom file name processor!");
+                        LOG.warn("Failed to load custom file name processor.", e);
+                        moduleErrorMessages.add("Failed to load custom file name processor.");
                     }
                     params.put(OpenLSourceManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
                     params.put(OpenLSourceManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
@@ -116,7 +116,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 "Project descriptor has not been found! Project must countain '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file.",
                 e);
         } catch (Exception e) {
-            throw new ProjectResolvingException("Failed to read project descriptor!", e);
+            throw new ProjectResolvingException("Failed to read project descriptor.", e);
         } finally {
             propertiesFileNameProcessorBuilder.destroy();
         }

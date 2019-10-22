@@ -71,8 +71,8 @@ public class GitRepositoryTest {
             git.checkout().setName(BRANCH).call();
 
             createNewFile(parent, "file-in-test", "root");
-            createNewFile(rulesFolder, "file1", "Hi!");
-            File file2 = createNewFile(rulesFolder, "file2", "Hello!");
+            createNewFile(rulesFolder, "file1", "Hi.");
+            File file2 = createNewFile(rulesFolder, "file2", "Hello.");
             git.add().addFilepattern(".").call();
             commit = git.commit()
                 .setMessage("Initial commit in test branch")
@@ -81,7 +81,7 @@ public class GitRepositoryTest {
             addTag(git, commit, 2);
 
             // create second commit
-            writeText(file2, "Hello World!");
+            writeText(file2, "Hello World.");
             createNewFile(new File(rulesFolder, "folder"), "file3", "In folder");
             git.add().addFilepattern(".").call();
             commit = git.commit()
@@ -242,8 +242,8 @@ public class GitRepositoryTest {
 
     @Test
     public void read() throws IOException {
-        assertEquals("Hi!", IOUtils.toStringAndClose(repo.read("rules/project1/file1").getStream()));
-        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.read("rules/project1/file2").getStream()));
+        assertEquals("Hi.", IOUtils.toStringAndClose(repo.read("rules/project1/file1").getStream()));
+        assertEquals("Hello World.", IOUtils.toStringAndClose(repo.read("rules/project1/file2").getStream()));
         assertEquals("In folder", IOUtils.toStringAndClose(repo.read("rules/project1/folder/file3").getStream()));
 
         assertEquals(0, changesCounter.getChanges());
@@ -415,9 +415,9 @@ public class GitRepositoryTest {
 
     @Test
     public void readHistory() throws IOException {
-        assertEquals("Hello!",
+        assertEquals("Hello.",
             IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_2").getStream()));
-        assertEquals("Hello World!",
+        assertEquals("Hello World.",
             IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_3").getStream()));
         assertNull(repo.readHistory("rules/project1/file2", "Rules_1"));
     }
@@ -436,7 +436,7 @@ public class GitRepositoryTest {
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(6, copy.getSize());
         assertEquals("Rules_5", copy.getVersion());
-        assertEquals("Hello!", IOUtils.toStringAndClose(repo.read("rules/project1/file2-copy").getStream()));
+        assertEquals("Hello.", IOUtils.toStringAndClose(repo.read("rules/project1/file2-copy").getStream()));
 
         FileData destProject = new FileData();
         destProject.setName("rules/project2");

@@ -281,7 +281,7 @@ public class CassandraOperations implements InitializingBean, RuleServicePublish
         try {
             init();
         } catch (Exception e) {
-            log.error("Cassandra initialization failure!", e);
+            log.error("Cassandra initialization failure.", e);
             cluster.close();
         }
     }
