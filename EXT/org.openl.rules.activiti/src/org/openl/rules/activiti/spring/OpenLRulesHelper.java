@@ -124,8 +124,7 @@ public final class OpenLRulesHelper {
 
                 return simpleProjectEngineFactory;
             } catch (IOException | ClassNotFoundException e) {
-                throw new ResourcePrepareException(
-                    "Preparing resource with name '" + resource + "' in deployment with id '" + deploymentId + "' has been failed.",
+                throw new ResourcePrepareException(String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.", resource , deploymentId ),
                     e);
             }
         }

@@ -695,8 +695,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         if (treeWalk == null) {
-            throw new FileNotFoundException(
-                "Did not find expected path '" + path + "' in tree '" + tree.getName() + "'");
+            throw new FileNotFoundException(String.format("Did not find expected path '%s' in tree '%s'", path , tree.getName() ));
         }
         return treeWalk;
     }

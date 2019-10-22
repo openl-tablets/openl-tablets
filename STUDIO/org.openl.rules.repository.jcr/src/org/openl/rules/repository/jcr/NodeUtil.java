@@ -52,7 +52,7 @@ public final class NodeUtil {
             String type,
             boolean isVersionable) throws RepositoryException {
         if (parentNode.hasNode(name)) {
-            throw new RepositoryException("Node '" + name + "' exists at '" + parentNode.getPath() + "' already.");
+            throw new RepositoryException(String.format("Node '%s' exists at '%s' already.", name , parentNode.getPath() ));
         }
 
         Node p = parentNode;

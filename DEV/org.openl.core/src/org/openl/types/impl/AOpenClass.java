@@ -333,9 +333,8 @@ public abstract class AOpenClass implements IOpenClass {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
-            throw new DuplicatedMethodException("Method '" + key + "' is already defined in class '" + getName() + "'",
-                existMethod,
-                method);
+            throw new DuplicatedMethodException(String
+                .format("Method '%s' is already defined in class '%s'", key, getName()), existMethod, method);
         }
         invalidateInternalData();
     }
@@ -344,10 +343,8 @@ public abstract class AOpenClass implements IOpenClass {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existCostructor = putConstructor(method);
         if (existCostructor != null) {
-            throw new DuplicatedMethodException(
-                "Constructor '" + key + "' is already defined in class '" + getName() + "'",
-                existCostructor,
-                method);
+            throw new DuplicatedMethodException(String
+                .format("Constructor '%s' is already defined in class '%s'", key, getName()), existCostructor, method);
         }
     }
 
@@ -355,7 +352,8 @@ public abstract class AOpenClass implements IOpenClass {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod == null) {
-            throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
+            throw new IllegalStateException(
+                String.format("Method '%s' is absent to override in class '%s'", key, getName()));
         }
         invalidateInternalData();
     }
