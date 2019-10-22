@@ -13,7 +13,7 @@ class String2BooleanConvertor implements IString2DataConvertor<Boolean> {
         Boolean boolValue = BooleanUtils.toBooleanObject(data);
 
         if (boolValue == null) {
-            throw new IllegalArgumentException("Cannon convert '" + data + "' to boolean type");
+            throw new IllegalArgumentException(String.format("Cannon convert '%s' to boolean type", data));
         }
 
         return boolValue;

@@ -142,7 +142,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
 
         if (fileResource != null) {
             if (!(new File(fileResource)).exists()) {
-                throw new OpenLConfigurationException("File " + fileResource + " does not exist", getUri(), null);
+                throw new OpenLConfigurationException(String.format("File %s does not exist", fileResource),  getUri(), null);
             }
 
             ClassFactory.validateHasMethod(implementingClass, "setFile", new Class[] { File.class }, getUri());

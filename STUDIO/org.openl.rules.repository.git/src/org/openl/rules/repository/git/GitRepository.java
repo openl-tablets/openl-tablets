@@ -485,7 +485,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } else {
                 File[] files = local.listFiles();
                 if (files == null) {
-                    throw new IOException("Folder '" + local + "' is not directory");
+                    throw new IOException(String.format("Folder '%s' is not directory", local));
                 }
 
                 if (files.length > 0) {
@@ -500,16 +500,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 URI proposedUri = getUri(uri);
                                 URI savedUri = getUri(remoteUrl);
                                 if (!proposedUri.equals(savedUri)) {
-                                    throw new IOException(
-                                        "Folder '" + local + "' already contains local git repository but is configured for different URI (" + remoteUrl + ").\nDelete it or choose another local path or set correct URL for repository.");
+                                    throw new IOException(String.format("Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.", local, remoteUrl));
                                 }
                             }
                         }
                         shouldClone = false;
                     } else {
                         // Cannot overwrite existing files that is definitely not git repository
-                        throw new IOException(
-                            "Folder '" + local + "' already exists and is not empty. Delete it or choose another local path.");
+                        throw new IOException(String.format("Folder '%s' already exists and is not empty. Delete it or choose another local path.", local));
                     }
                 } else {
                     shouldClone = true;
@@ -716,7 +714,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private ObjectId resolveBranchId() throws IOException {
         ObjectId branchId = git.getRepository().resolve(branch);
         if (branchId == null) {
-            throw new IOException("Cannot find branch '" + branch + "'");
+            throw new IOException(String.format("Cannot find branch '%s'", branch));
         }
         return branchId;
     }
@@ -1657,7 +1655,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 if (!branchExist) {
-                    throw new IOException("Cannot find branch '" + branch + "'");
+                    throw new IOException(String.format("Cannot find branch '%s'", branch));
                 }
             }
         } catch (GitAPIException e) {
@@ -1880,8 +1878,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 String lastVersion = getVersionName(git.getRepository(), tags, iterator.next());
                 return !baseVersion.equals(lastVersion);
             } else {
-                throw new FileNotFoundException(
-                    "Cannot find commit for path '" + path + "' and version '" + baseVersion + "'");
+                throw new FileNotFoundException(String.format("Cannot find commit for path '%s' and version '%s'", path, baseVersion));
             }
         }
 

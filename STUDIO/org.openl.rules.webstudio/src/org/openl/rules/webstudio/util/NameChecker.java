@@ -109,7 +109,7 @@ public final class NameChecker {
             }
 
             if (RESERVED_WORDS.contains(name)) {
-                throw new IOException("'" + name + "' is a reserved word.");
+                throw new IOException(String.format("'%s' is a reserved word.", name));
             }
         }
     }

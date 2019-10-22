@@ -214,12 +214,12 @@ public class MergeConflictBean {
         for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
             ConflictResolution resolution = entry.getValue();
             if (resolution.getResolutionType() == ResolutionType.UNRESOLVED) {
-                throw new ValidationException("You must resolve conflict for the file '" + entry.getKey() + "'");
+                throw new ValidationException(String.format("You must resolve conflict for the file '%s'", entry.getKey()));
             }
 
             if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution
                 .getCustomResolutionFile() == null) {
-                throw new ValidationException("You must upload your version of the file '" + entry.getKey() + "'");
+                throw new ValidationException(String.format("You must upload your version of the file '%s'", entry.getKey()));
             }
         }
 

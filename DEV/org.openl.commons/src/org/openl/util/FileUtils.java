@@ -43,12 +43,12 @@ public class FileUtils {
      */
     public static void copy(File src, File dest) throws IOException {
         if (!src.exists()) {
-            throw new FileNotFoundException("Source '" + src + "' does not exist");
+            throw new FileNotFoundException(String.format("Source '%s' does not exist", src));
         }
         final String srcPath = src.getCanonicalPath();
         final String destPath = dest.getCanonicalPath();
         if (srcPath.equals(destPath)) {
-            throw new IOException("Source '" + src + "' and destination '" + dest + "' are the same");
+            throw new IOException(String.format("Source '%s' and destination '%s' are the same", src, dest));
         }
 
         if (src.isDirectory()) {
@@ -56,7 +56,7 @@ public class FileUtils {
             doCopyDirectory(src, dest, looped);
         } else {
             if (destPath.startsWith(srcPath)) {
-                throw new IOException("Destination '" + dest + "' has the same path of the source '" + src + "'");
+                throw new IOException(String.format("Destination '%s' has the same path of the source '%s'", dest, src));
             }
             File destFile = dest;
             if (dest.isDirectory()) {
@@ -64,7 +64,7 @@ public class FileUtils {
             } else {
                 File parentFile = dest.getParentFile();
                 if (parentFile != null && !parentFile.mkdirs() && !parentFile.isDirectory()) {
-                    throw new IOException("Destination '" + parentFile + "' directory cannot be created");
+                    throw new IOException(String.format("Destination '%s' directory cannot be created", parentFile));
                 }
             }
             doCopyFile(src, destFile);
@@ -115,11 +115,11 @@ public class FileUtils {
         }
         if (destDir.exists()) {
             if (!destDir.isDirectory()) {
-                throw new IOException("Destination '" + destDir + "' exists but is not a directory");
+                throw new IOException(String.format("Destination '%s' exists but is not a directory", destDir));
             }
         } else {
             if (!destDir.mkdirs() && !destDir.isDirectory()) {
-                throw new IOException("Destination '" + destDir + "' directory cannot be created");
+                throw new IOException(String.format("Destination '%s' directory cannot be created", destDir));
             }
         }
 
@@ -148,7 +148,7 @@ public class FileUtils {
      */
     private static void doCopyFile(File srcFile, File destFile) throws IOException {
         if (destFile.exists() && destFile.isDirectory()) {
-            throw new IOException("Destination '" + destFile + "' exists but is a directory");
+            throw new IOException(String.format("Destination '%s' exists but is a directory", destFile));
         }
 
         FileInputStream fis = null;
@@ -173,7 +173,7 @@ public class FileUtils {
         }
 
         if (srcFile.length() != destFile.length()) {
-            throw new IOException("Failed to copy full contents from '" + srcFile + "' to '" + destFile + "'");
+            throw new IOException(String.format("Failed to copy full contents from '%s' to '%s'", srcFile, destFile));
         }
         // Try to preserve file date
         destFile.setLastModified(srcFile.lastModified());
@@ -192,10 +192,10 @@ public class FileUtils {
      */
     public static void move(File src, File dest) throws IOException {
         if (!src.exists()) {
-            throw new FileNotFoundException("Source '" + src + "' does not exist");
+            throw new FileNotFoundException(String.format("Source '%s' does not exist", src));
         }
         if (dest.exists()) {
-            throw new IOException("Destination '" + dest + "' already exists");
+            throw new IOException(String.format("Destination '%s' already exists", dest));
         }
         boolean rename = src.renameTo(dest);
         if (!rename) {
@@ -205,8 +205,7 @@ public class FileUtils {
             copy(src, dest);
             delete(src);
             if (src.exists()) {
-                throw new IOException(
-                    "Failed to delete original directory or file '" + src + "' after copy to '" + dest + "'");
+                throw new IOException(String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
             }
         }
     }

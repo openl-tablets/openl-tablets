@@ -199,7 +199,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             }
             return lazyCompiledOpenClass;
         } catch (Exception ex) {
-            throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
+            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),  ex);
         } finally {
             LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
         }
@@ -239,7 +239,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     deployment.getVersion().getVersionName(),
                     dependencyName);
             } catch (Exception ex) {
-                throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
+                throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName),  ex);
             } finally {
                 LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
             }
@@ -253,9 +253,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         if (this.dependencyName.equals(dependencyName)) {
             if (!(dm instanceof RuleServiceDeploymentRelatedDependencyManager)) {
-                throw new IllegalStateException(
-                    "This loader works only with subclasses of " + RuleServiceDeploymentRelatedDependencyManager.class
-                        .getTypeName() + ".");
+                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.", RuleServiceDeploymentRelatedDependencyManager.class
+                        .getTypeName() ));
             }
 
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;

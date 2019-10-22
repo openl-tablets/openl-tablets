@@ -55,7 +55,7 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Server server = settings.getServer(deployServer);
         if (server == null) {
-            throw new IllegalStateException("The server configuration with name " + deployServer + " does not exist");
+            throw new IllegalStateException(String.format("The server configuration with name %s does not exist", deployServer));
         }
 
         Properties properties = new Properties();

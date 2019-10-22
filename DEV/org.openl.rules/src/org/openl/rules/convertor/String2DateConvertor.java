@@ -21,8 +21,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             try {
                 return df.parse(data);
             } catch (ParseException e) {
-                throw new IllegalArgumentException(
-                    "Cannot convert '" + data + "' to date type using: '" + format + "' format");
+                throw new IllegalArgumentException(String.format("Cannot convert '%s' to date type using: '%s' format", data, format));
             }
         }
 
@@ -41,7 +40,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
                 // Loop on
             }
         }
-        throw new IllegalArgumentException("Cannot convert '" + data + "' to Date type");
+        throw new IllegalArgumentException(String.format("Cannot convert '%s' to Date type", data));
     }
 
 }

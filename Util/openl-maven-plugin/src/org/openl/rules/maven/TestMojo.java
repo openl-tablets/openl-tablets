@@ -484,7 +484,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     float multiplier = Float.parseFloat(threadCount.substring(0, threadCount.length() - 1));
                     threads = (int) (multiplier * Runtime.getRuntime().availableProcessors());
                 } else {
-                    throw new IllegalArgumentException("Incorrect thread count '" + threadCount + "'");
+                    throw new IllegalArgumentException(String.format("Incorrect thread count '%s'", threadCount));
                 }
                 break;
         }

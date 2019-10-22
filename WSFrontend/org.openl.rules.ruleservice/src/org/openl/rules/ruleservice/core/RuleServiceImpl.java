@@ -126,8 +126,7 @@ public class RuleServiceImpl implements RuleService {
     public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         OpenLService service = ruleServiceManager.getServiceByName(serviceDescription.getName());
         if (service != null) {
-            throw new RuleServiceDeployException(
-                "The service with name '" + serviceDescription.getName() + "' has already been deployed.");
+            throw new RuleServiceDeployException(String.format("The service with name '%s' has already been deployed.", serviceDescription.getName()));
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);

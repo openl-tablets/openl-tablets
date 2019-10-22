@@ -24,7 +24,7 @@ public class SampleFileNameProcessor implements PropertiesFileNameProcessor {
             props.setState(new UsStatesEnum[] { UsStatesEnum.valueOf(matcher.group(1)) });
             return props;
         }
-        throw new NoMatchFileNameException("Cannot extract properties from module '" + module.getName() + "'");
+        throw new NoMatchFileNameException(String.format("Cannot extract properties from module '%s'", module.getName()));
     }
 
 }

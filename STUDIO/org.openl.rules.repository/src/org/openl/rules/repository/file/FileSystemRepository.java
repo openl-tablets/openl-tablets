@@ -44,7 +44,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private void init() throws IOException {
         root.mkdirs();
         if (!root.exists() || !root.isDirectory()) {
-            throw new IOException("Failed to initialize the root directory: [" + root + "]");
+            throw new IOException(String.format("Failed to initialize the root directory: [%s]", root));
         }
         String rootPath = root.getCanonicalPath();
         rootPathLength = rootPath.length() + 1;
@@ -209,7 +209,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     protected FileData getFileData(File file) throws IOException {
         if (!file.exists()) {
-            throw new FileNotFoundException("File [" + file + "] does not exist.");
+            throw new FileNotFoundException(String.format("File [%s] does not exist.", file));
         }
         if (rootPathLength == 0) {
             init();

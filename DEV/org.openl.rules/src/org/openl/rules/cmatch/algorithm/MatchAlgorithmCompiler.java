@@ -91,7 +91,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         if (!colDef.isMultipleValueAllowed()) {
             // only 1
             if (values.length != 1) {
-                throw new IllegalArgumentException("Column " + colDef.getName() + " can have single value only.");
+                throw new IllegalArgumentException(String.format("Column %s can have single value only.", colDef.getName()));
             }
         }
     }
@@ -110,7 +110,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             }
 
             if (!exists) {
-                throw new IllegalArgumentException("Required column " + colDef.getName() + " is absent.");
+                throw new IllegalArgumentException(String.format("Required column %s is absent.", colDef.getName()));
             }
         }
     }

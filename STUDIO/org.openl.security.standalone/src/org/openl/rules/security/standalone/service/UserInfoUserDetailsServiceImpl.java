@@ -27,7 +27,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
             throws UsernameNotFoundException, DataAccessException {
         User user = userDao.getUserByName(name);
         if (user == null) {
-            throw new UsernameNotFoundException("Unknown user: '" + name + "'");
+            throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
         Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(user);

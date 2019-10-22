@@ -51,8 +51,7 @@ public final class OpenLRulesHelper {
             try {
                 instance = projectEngineFactory.newInstance();
             } catch (Exception e) {
-                throw new ResourceCompileException(
-                    "Resource with name '" + resource + "' in deployment with id '" + deploymentId + "' compilation has been failed");
+                throw new ResourceCompileException(String.format("Resource with name '%s' in deployment with id '%s' compilation has been failed", resource, deploymentId));
             }
             deploymentCache.add(resource, instance);
         }

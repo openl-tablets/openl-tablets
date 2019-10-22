@@ -34,7 +34,7 @@ public abstract class BaseRangeParser implements RangeParser {
         } else if ("B".equals(suffix)) {
             multiplier = 1000000000;
         } else {
-            throw new IllegalArgumentException("Suffix " + suffix + " is not supported in ranges");
+            throw new IllegalArgumentException(String.format("Suffix %s is not supported in ranges", suffix));
         }
         return multiplier;
     }

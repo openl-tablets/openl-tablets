@@ -107,7 +107,7 @@ public class RepositoryService {
             }
             FileData fileData = getRepository().check(getFileName(name));
             if (fileData == null) {
-                throw new FileNotFoundException("Project '" + name + "' is not found.");
+                throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
             }
 
             return getProject(name, fileData.getVersion());
@@ -141,7 +141,7 @@ public class RepositoryService {
             if (repository.supports().folders()) {
                 FileData fileData = getRepository().check(getFileName(name));
                 if (fileData == null) {
-                    throw new FileNotFoundException("Project '" + name + "' is not found.");
+                    throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
                 }
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
@@ -155,7 +155,7 @@ public class RepositoryService {
             } else {
                 FileItem fileItem = repository.readHistory(projectPath, version);
                 if (fileItem == null) {
-                    throw new FileNotFoundException("File '" + name + "' is not found.");
+                    throw new FileNotFoundException(String.format("File '%s' is not found.", name));
                 }
 
                 entity = fileItem.getStream();

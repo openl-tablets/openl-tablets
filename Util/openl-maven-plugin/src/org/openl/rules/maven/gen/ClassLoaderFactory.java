@@ -40,7 +40,7 @@ public class ClassLoaderFactory {
                 File f = makeFile(userHome, cp);
 
                 if (!f.exists()) {
-                    throw new IOException("File " + f.getPath() + " does not exist");
+                    throw new IOException(String.format("File %s does not exist", f.getPath()));
                 }
 
                 urls.add(f.toURI().toURL());

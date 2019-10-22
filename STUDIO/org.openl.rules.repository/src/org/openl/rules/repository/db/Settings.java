@@ -92,7 +92,7 @@ final class Settings {
 
         String value = queries.get(prop);
         if (value == null) {
-            throw new IllegalArgumentException("Cannot get value for " + prop + " property.");
+            throw new IllegalArgumentException(String.format("Cannot get value for %s property.", prop));
         }
         return value;
     }

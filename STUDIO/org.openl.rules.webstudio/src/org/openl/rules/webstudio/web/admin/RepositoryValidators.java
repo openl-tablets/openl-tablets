@@ -153,15 +153,15 @@ public final class RepositoryValidators {
 
                 if (resultException instanceof LoginException) {
                     if (!settings.isSecure()) {
-                        throw new RepositoryValidationException("Repository '" + repoConfig
-                            .getName() + "' : Connection is secure. Please, insert login and password");
+                        throw new RepositoryValidationException(String.format("Repository '%s' : Connection is secure. Please, insert login and password", repoConfig
+                            .getName() ));
                     } else {
-                        throw new RepositoryValidationException("Repository '" + repoConfig
-                            .getName() + "' : Invalid login or password. Please, check login and password");
+                        throw new RepositoryValidationException(String.format("Repository '%s' : Invalid login or password. Please, check login and password", repoConfig
+                            .getName() ));
                     }
                 } else if (resultException instanceof FailedLoginException) {
-                    throw new RepositoryValidationException("Repository '" + repoConfig
-                        .getName() + "' : Invalid login or password. Please, check login and password");
+                    throw new RepositoryValidationException(String.format("Repository '%s' : Invalid login or password. Please, check login and password", repoConfig
+                        .getName() ));
                 } else if (resultException instanceof ConnectException) {
                     throw new RepositoryValidationException("Connection refused. Please, check repository URL");
                 }

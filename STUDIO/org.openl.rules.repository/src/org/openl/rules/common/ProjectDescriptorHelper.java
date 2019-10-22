@@ -56,13 +56,11 @@ public class ProjectDescriptorHelper {
                         if (!"descriptor".equals(streamReader.getLocalName())) {
                             result = parseListOfDescripors(streamReader);
                         } else {
-                            throw new IllegalStateException(
-                                "An inappropriate element <" + streamReader.getLocalName() + ">");
+                            throw new IllegalStateException(String.format("An inappropriate element <%s>", streamReader.getLocalName()));
                         }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
-                        throw new IllegalStateException(
-                            "An inappropriate closing element </" + streamReader.getLocalName() + ">");
+                        throw new IllegalStateException(String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     case XMLStreamConstants.END_DOCUMENT:
                         return result;
 
@@ -86,14 +84,12 @@ public class ProjectDescriptorHelper {
                     if ("descriptor".equals(streamReader.getLocalName())) {
                         result.add(parseDescripor(streamReader));
                     } else {
-                        throw new IllegalStateException(
-                            "An inappropriate element <" + streamReader.getLocalName() + ">");
+                        throw new IllegalStateException(String.format("An inappropriate element <%s>", streamReader.getLocalName()));
                     }
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     if (!"descriptors".equals(streamReader.getLocalName())) {
-                        throw new IllegalStateException(
-                            "An inappropriate closing element </" + streamReader.getLocalName() + ">");
+                        throw new IllegalStateException(String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     }
                     return result;
             }
@@ -115,13 +111,12 @@ public class ProjectDescriptorHelper {
                     } else if ("projectVersion".equals(localName)) {
                         projectVersion = parseElementAsString("projectVersion", streamReader);
                     } else {
-                        throw new IllegalStateException("An inappropriate element <" + localName + ">");
+                        throw new IllegalStateException(String.format("An inappropriate element <%s>", localName));
                     }
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     if (!"descriptor".equals(streamReader.getLocalName())) {
-                        throw new IllegalStateException(
-                            "An inappropriate closing element </" + streamReader.getLocalName() + ">");
+                        throw new IllegalStateException(String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     }
                     CommonVersionImpl commonVersion = new CommonVersionImpl(projectVersion);
                     return new ProjectDescriptorImpl(projectName, commonVersion);
@@ -141,12 +136,11 @@ public class ProjectDescriptorHelper {
                     break;
                 case XMLStreamConstants.END_ELEMENT:
                     if (!element.equals(streamReader.getLocalName())) {
-                        throw new IllegalStateException(
-                            "An inappropriate closing element </" + streamReader.getLocalName() + ">");
+                        throw new IllegalStateException(String.format("An inappropriate closing element </%s>", streamReader.getLocalName()));
                     }
                     return result;
             }
         }
-        throw new IllegalStateException("<" + element + "> element has not found");
+        throw new IllegalStateException(String.format("<%s> element has not found", element));
     }
 }

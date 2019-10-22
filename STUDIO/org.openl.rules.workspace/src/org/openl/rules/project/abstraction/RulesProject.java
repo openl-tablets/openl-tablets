@@ -159,8 +159,7 @@ public class RulesProject extends UserWorkspaceProject {
             for (FileData fileData : localRepository.list(localFolderName)) {
                 if (!localRepository.delete(fileData)) {
                     if (localRepository.check(fileData.getName()) != null) {
-                        throw new ProjectException(
-                            "Cannot close project because resource '" + fileData.getName() + "' is used");
+                        throw new ProjectException(String.format("Cannot close project because resource '%s' is used", fileData.getName()));
                     }
                 }
             }

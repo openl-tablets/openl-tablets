@@ -28,7 +28,7 @@ class String2LocalDateConvertor implements IString2DataConvertor<LocalDate> {
                 // Loop on
             }
         }
-        throw new IllegalArgumentException("Cannot convert '" + data + "' to LocalDate type");
+        throw new IllegalArgumentException(String.format("Cannot convert '%s' to LocalDate type", data));
     }
 
 }

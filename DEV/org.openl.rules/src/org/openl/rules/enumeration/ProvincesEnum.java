@@ -34,6 +34,6 @@ public enum ProvincesEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+        throw new IllegalArgumentException(String.format("No constant with displayName %s found", displayName));
     }
 }

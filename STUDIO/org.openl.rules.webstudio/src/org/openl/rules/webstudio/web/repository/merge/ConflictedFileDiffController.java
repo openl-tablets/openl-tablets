@@ -100,7 +100,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         }
         File ourFile = FileTool.toTempFile(item.getStream(), FileUtils.getName(fullName));
         if (ourFile == null) {
-            throw new FileNotFoundException("Cannot create temp file for '" + fullName + "'");
+            throw new FileNotFoundException(String.format("Cannot create temp file for '%s'", fullName));
         }
         addTempFile(ourFile);
         return ourFile;

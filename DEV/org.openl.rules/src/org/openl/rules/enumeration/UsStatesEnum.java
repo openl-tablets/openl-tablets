@@ -73,6 +73,6 @@ public enum UsStatesEnum {
             }
         }
 
-        throw new IllegalArgumentException("No constant with displayName '" + displayName + "' is found.");
+        throw new IllegalArgumentException(String.format("No constant with displayName '%s' is found.", displayName));
     }
 }

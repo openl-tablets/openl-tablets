@@ -17,7 +17,7 @@ public final class KafkaDeployUtils {
         org.openl.rules.ruleservice.core.ResourceLoader resourceLoader = serviceDescription.getResourceLoader();
         org.openl.rules.ruleservice.core.Resource resource = resourceLoader.getResource(KAFKA_DEPLOY_FILE_NAME);
         if (!resource.exists()) {
-            throw new FileNotFoundException("File '" + KAFKA_DEPLOY_FILE_NAME + "' is not found.");
+            throw new FileNotFoundException(String.format("File '%s' is not found.", KAFKA_DEPLOY_FILE_NAME));
         }
         ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
         return mapper.readValue(resource.getResourceAsStream(), KafkaDeploy.class);

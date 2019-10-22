@@ -60,7 +60,7 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
         try {
             this.dataSource = (DataSource) initialContext.lookup(uri);
         } catch (Throwable e) {
-            exception = new IllegalStateException("Cannot determine JNDI [ " + uri + " ] name", e);
+            exception = new IllegalStateException(String.format("Cannot determine JNDI [ %s ] name", uri),  e);
             throw exception;
         } finally {
             if (exception != null) {

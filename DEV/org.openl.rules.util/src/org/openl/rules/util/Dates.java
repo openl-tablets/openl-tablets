@@ -99,7 +99,7 @@ public final class Dates {
     public static Double dateDif(Date startDate, Date endDate, String unitName) {
         Unit unit = Unit.getUnit(unitName);
         if (unit == null) {
-            throw new IllegalArgumentException("Unsupported unit '" + unitName + "'");
+            throw new IllegalArgumentException(String.format("Unsupported unit '%s'", unitName));
         }
         DateInterval interval = DateInterval.between(startDate, endDate);
         switch (unit) {
@@ -128,7 +128,7 @@ public final class Dates {
                 return interval.toMonthsExcludeYears(Scale.FRAC);
             default:
                 // should never be happened
-                throw new IllegalArgumentException("Unsupported unit '" + unitName + "'");
+                throw new IllegalArgumentException(String.format("Unsupported unit '%s'", unitName));
         }
     }
 

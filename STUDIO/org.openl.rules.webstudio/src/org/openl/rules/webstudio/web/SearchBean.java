@@ -161,7 +161,7 @@ public class SearchBean {
                 return property;
             }
         }
-        throw new IllegalArgumentException("Incorrect property '" + name + "'");
+        throw new IllegalArgumentException(String.format("Incorrect property '%s'", name));
     }
 
     private Map<String, Object> getSearchProperties() {

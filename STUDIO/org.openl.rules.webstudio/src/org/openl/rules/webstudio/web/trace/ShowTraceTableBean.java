@@ -48,7 +48,7 @@ public class ShowTraceTableBean {
         }
         tto = traceHelper.getTableTracer(traceElementId);
         if (tto == null) {
-            throw new NullPointerException("A trace object with ID=[" + traceElementIdParam + "] is absent.");
+            throw new NullPointerException(String.format("A trace object with ID=[%s] is absent.", traceElementIdParam));
         }
     }
 

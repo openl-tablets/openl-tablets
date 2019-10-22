@@ -71,8 +71,7 @@ public class FileSystemDataSource implements DataSource {
             }
         }
         if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
-            throw new DataSourceException(
-                "File system data source folder '" + loadDeploymentsFromDirectory + "' does not exist");
+            throw new DataSourceException(String.format("File system data source folder '%s' does not exist", loadDeploymentsFromDirectory));
         }
         this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
     }

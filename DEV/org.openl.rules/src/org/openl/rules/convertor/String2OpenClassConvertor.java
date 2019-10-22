@@ -29,7 +29,7 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {
-            throw new IllegalArgumentException("Type " + data + " is not found.");
+            throw new IllegalArgumentException(String.format("Type %s is not found.", data));
         }
 
         if (data.endsWith(ARRAY_SUFFIX)) {

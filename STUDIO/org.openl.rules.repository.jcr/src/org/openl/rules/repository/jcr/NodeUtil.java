@@ -125,7 +125,7 @@ public final class NodeUtil {
         }
 
         if (result == null) {
-            throw new RepositoryException("Cannot find version '" + version.getVersionName() + "'.");
+            throw new RepositoryException(String.format("Cannot find version '%s'.", version.getVersionName()));
         }
 
         return result;

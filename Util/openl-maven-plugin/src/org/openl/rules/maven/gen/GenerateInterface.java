@@ -104,7 +104,7 @@ public class GenerateInterface {
             }
             File folder = new File(fileName).getParentFile();
             if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Cannot create folder '" + folder.getAbsolutePath() + "'.");
+                throw new IOException(String.format("Cannot create folder '%s'.", folder.getAbsolutePath()));
             }
             fw = new FileWriter(fileName);
             fw.write(content);
