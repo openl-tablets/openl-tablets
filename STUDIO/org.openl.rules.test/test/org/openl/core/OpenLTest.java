@@ -294,13 +294,13 @@ public final class OpenLTest {
 
     private void ok(long startTime, String sourceFile) {
         final long ms = (System.nanoTime() - startTime) / 1000000;
-        LOG.info("OK in [{}] ({} ms).", sourceFile, ms);
+        LOG.info("SUCCESS - in [{}] ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
             final long ms = (System.nanoTime() - startTime) / 1000000;
-            LOG.error("ERROR in [{}] ({} ms).", sourceFile, ms);
+            LOG.error("FAILURE - in [{}] ({} ms)", sourceFile, ms);
         }
         LOG.error(msg, args);
     }
