@@ -4,8 +4,10 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.junit.Test;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
@@ -19,13 +21,19 @@ public class ApiInstantiationTest {
     @Test
     public void testXlsWithErrors() throws ClassNotFoundException {
         ProjectDescriptor project = new ProjectDescriptor();
+        project.setName("project1");
         project.setClasspath(new ArrayList<PathEntry>());
         project.setProjectFolder(new File("test-resources/excel/"));
         Module module = new Module();
+        module.setName("Rules2");
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test-resources/excel/Rules2.xls"));
+        project.setModules(Collections.singletonList(module));
 
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, true, false, null);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
+
         assertNull(strategy.getServiceClass());
         try {
             assertNotNull(strategy.compile());
@@ -37,13 +45,18 @@ public class ApiInstantiationTest {
     @Test
     public void testInterface() throws Exception {
         ProjectDescriptor project = new ProjectDescriptor();
+        project.setName("project1");
         project.setClasspath(new ArrayList<PathEntry>());
         project.setProjectFolder(new File("test-resources/excel/"));
         Module module = new Module();
+        module.setName("Rules");
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test-resources/excel/Rules.xls"));
+        project.setModules(Collections.singletonList(module));
 
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, true, false, null);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();
         assertNotNull(instance);

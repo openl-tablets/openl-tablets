@@ -24,6 +24,6 @@ public final class RulesInstantiationStrategyFactory {
             boolean executionMode,
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
-        return new ApiBasedInstantiationStrategy(moduleInfo, executionMode, dependencyManager, classLoader);
+        return new ApiBasedInstantiationStrategy(moduleInfo, dependencyManager, classLoader, executionMode);
     }
 }

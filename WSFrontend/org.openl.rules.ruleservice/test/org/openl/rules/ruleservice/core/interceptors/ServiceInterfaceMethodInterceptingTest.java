@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.dependency.IDependencyManager;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IntValue;
 import org.openl.rules.common.CommonVersion;
@@ -21,16 +23,11 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.SimpleDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.Resource;
-import org.openl.rules.ruleservice.core.ResourceLoader;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
-import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
-import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.*;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -211,8 +208,10 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void testServiceClassUndecorating() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .emptyList(), null, false, true, null);
         RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
-            .getStrategy(serviceDescription, null);
+            .getStrategy(serviceDescription, dependencyManager);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
             .getInterfaceForInstantiationStrategy(OverloadInterface.class, rulesInstantiationStrategy.getClassLoader());
         for (Method method : OverloadInterface.class.getMethods()) {

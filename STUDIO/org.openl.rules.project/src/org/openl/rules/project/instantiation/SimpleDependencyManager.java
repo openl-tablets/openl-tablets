@@ -1,91 +1,51 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleDependencyManager extends AbstractDependencyManager {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleDependencyManager.class);
-
-    private List<IDependencyLoader> dependencyLoaders;
-
     private Collection<ProjectDescriptor> projects;
-
-    private Collection<ProjectDescriptor> projectDescriptors;
-    private Collection<String> dependencyNames = null;
-
     private boolean singleModuleMode = false;
-    private boolean executionMode = true;
-
-    @Override
-    public Collection<String> getAllDependencies() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return dependencyNames;
-    }
 
     public SimpleDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
             boolean singleModuleMode,
-            boolean executionMode) {
-        super(rootClassLoader);
+            boolean executionMode,
+            Map<String, Object> externalParameters) {
+        super(rootClassLoader, executionMode, externalParameters);
         this.projects = Objects.requireNonNull(projects, "projects cannot be null");
         this.singleModuleMode = singleModuleMode;
-        this.executionMode = executionMode;
     }
 
     @Override
-    public Collection<ProjectDescriptor> getProjectDescriptors() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return projectDescriptors;
-    }
-
-    @Override
-    public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return dependencyLoaders;
-    }
-
-    private synchronized void initDependencyLoaders() {
-        if (projectDescriptors == null && dependencyLoaders == null) {
-            dependencyLoaders = new ArrayList<>();
-            projectDescriptors = new ArrayList<>();
-            dependencyNames = new HashSet<>();
-            for (ProjectDescriptor project : projects) {
-                try {
-                    Collection<Module> modulesOfProject = project.getModules();
-                    if (!modulesOfProject.isEmpty()) {
-                        for (final Module m : modulesOfProject) {
-                            dependencyLoaders.add(new SimpleDependencyLoader(m
-                                .getName(), Arrays.asList(m), singleModuleMode, executionMode, false));
-                            dependencyNames.add(m.getName());
-                        }
+    protected Map<String, IDependencyLoader> initDependencyLoaders() {
+        Map<String, IDependencyLoader> dependencyLoaders = new HashMap<>();
+        for (ProjectDescriptor project : projects) {
+            try {
+                Collection<Module> modulesOfProject = project.getModules();
+                if (!modulesOfProject.isEmpty()) {
+                    for (final Module m : modulesOfProject) {
+                        final SimpleDependencyLoader moduleDependencyLoader = SimpleDependencyLoader
+                            .forModule(m, singleModuleMode, executionMode, this);
+                        dependencyLoaders.put(moduleDependencyLoader.getDependencyName(), moduleDependencyLoader);
                     }
-
-                    String dependencyName = ProjectExternalDependenciesHelper
-                        .buildDependencyNameForProjectName(project.getName());
-                    IDependencyLoader projectLoader = new SimpleDependencyLoader(dependencyName,
-                        project.getModules(),
-                        singleModuleMode,
-                        executionMode,
-                        true);
-                    projectDescriptors.add(project);
-                    dependencyLoaders.add(projectLoader);
-                } catch (Exception e) {
-                    log.error("Failed to build dependency manager loaders for project '{}'.", project.getName(), e);
                 }
+
+                final SimpleDependencyLoader projectDependencyLoader = SimpleDependencyLoader
+                    .forProject(project, singleModuleMode, executionMode, this);
+                dependencyLoaders.put(projectDependencyLoader.getDependencyName(), projectDependencyLoader);
+            } catch (Exception e) {
+                throw new DependencyLoaderInitializationException(
+                    String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),
+                    e);
             }
         }
+        return dependencyLoaders;
     }
 }

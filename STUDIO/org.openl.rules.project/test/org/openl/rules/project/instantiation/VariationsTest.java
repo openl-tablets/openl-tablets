@@ -3,9 +3,11 @@ package org.openl.rules.project.instantiation;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.dependency.IDependencyManager;
 import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
 import org.openl.meta.DoubleValue;
@@ -25,7 +27,9 @@ public class VariationsTest {
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
         ProjectDescriptor project = projectResolver.resolve(tut4Folder);
-        instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, true, true, null);
+        instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), dependencyManager, true);
     }
 
     @Test
@@ -53,8 +57,10 @@ public class VariationsTest {
         // modified
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.resolve(folder);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, true, true, null);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
-            .get(0), true, null);
+            .get(0), dependencyManager, true);
         VariationInstantiationStrategyEnhancer variationsEnhancerWithWrongInterface = new VariationInstantiationStrategyEnhancer(
             instantiationStrategy);
         variationsEnhancerWithWrongInterface.setServiceClass(WrongEnhancedInterface.class);

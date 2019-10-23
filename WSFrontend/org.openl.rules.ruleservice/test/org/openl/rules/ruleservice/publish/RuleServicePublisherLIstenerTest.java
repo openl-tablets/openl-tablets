@@ -18,8 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesPublisherTest",
         "ruleservice.datasource.deploy.clean.datasource=false",
         "ruleservice.isProvideRuntimeContext=false" })
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherLIstenerTest.xml" })
-public class RuleServicePublisherLIstenerTest implements ApplicationContextAware {
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml" })
+public class RuleServicePublisherListenerTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
@@ -39,19 +39,19 @@ public class RuleServicePublisherLIstenerTest implements ApplicationContextAware
 
         OpenLService service = publisher.getServices().iterator().next();
 
-        Assert.assertEquals(2, RuleServicePublisherLIstenerTestListener.onDeployCount);
-        Assert.assertEquals(0, RuleServicePublisherLIstenerTestListener.onUndeployCount);
+        Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
+        Assert.assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);
 
         publisher.undeploy(service.getName());
         publisher.deploy(service);
 
-        Assert.assertEquals(3, RuleServicePublisherLIstenerTestListener.onDeployCount);
-        Assert.assertEquals(1, RuleServicePublisherLIstenerTestListener.onUndeployCount);
+        Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
+        Assert.assertEquals(1, RuleServicePublisherListenerTestListener.onUndeployCount);
 
         publisher.undeploy(service.getName());
 
-        Assert.assertEquals(3, RuleServicePublisherLIstenerTestListener.onDeployCount);
-        Assert.assertEquals(2, RuleServicePublisherLIstenerTestListener.onUndeployCount);
+        Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
+        Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onUndeployCount);
 
     }
 

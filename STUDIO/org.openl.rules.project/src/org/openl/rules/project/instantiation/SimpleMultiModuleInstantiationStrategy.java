@@ -35,10 +35,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         super(modules, dependencyManager, executionMode);
     }
 
-    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode) {
-        this(modules, null, executionMode);
-    }
-
     @Override
     public void reset() {
         super.reset();

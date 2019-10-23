@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.publish;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 
-public class RuleServicePublisherLIstenerTestListener implements RuleServicePublisherListener {
+public class RuleServicePublisherListenerTestListener implements RuleServicePublisherListener {
 
     public static volatile int onDeployCount = 0;
     public static volatile int onUndeployCount = 0;

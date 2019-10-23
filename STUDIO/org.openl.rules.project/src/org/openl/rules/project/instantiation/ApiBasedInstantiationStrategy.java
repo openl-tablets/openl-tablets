@@ -30,15 +30,15 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
      */
     private RulesEngineFactory<?> engineFactory;
 
-    public ApiBasedInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
-        super(module, executionMode, dependencyManager);
+    public ApiBasedInstantiationStrategy(Module module, IDependencyManager dependencyManager, boolean executionMode) {
+        super(module, dependencyManager, executionMode);
     }
 
     public ApiBasedInstantiationStrategy(Module module,
-            boolean executionMode,
             IDependencyManager dependencyManager,
-            ClassLoader classLoader) {
-        super(module, executionMode, dependencyManager, classLoader);
+            ClassLoader classLoader,
+            boolean executionMode) {
+        super(module, dependencyManager, classLoader, executionMode);
     }
 
     @Override

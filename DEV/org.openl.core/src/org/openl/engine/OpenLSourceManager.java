@@ -94,18 +94,11 @@ public class OpenLSourceManager extends OpenLHolder {
             return Arrays.asList(dependencies);
         }
         Set<String> dependencyNames = new HashSet<>();
-        try {
-            Collection<String> deps = dependencyManager.getAllDependencies();
-            if (deps.isEmpty()) {
-                return Arrays.asList(dependencies);
-            } else {
-                dependencyNames.addAll(deps);
-            }
-        } catch (Exception e) {
-            Logger log = LoggerFactory.getLogger(OpenLSourceManager.class);
-            log.warn(e.getMessage(), e);
-            // It's expected that returned collection is modifiable.
+        Collection<String> deps = dependencyManager.getAllDependencies();
+        if (deps.isEmpty()) {
             return Arrays.asList(dependencies);
+        } else {
+            dependencyNames.addAll(deps);
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();

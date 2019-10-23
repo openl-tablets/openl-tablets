@@ -3,6 +3,9 @@ package org.openl.rules.ruleservice.publish.lazy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -22,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class LazyCompilationTest {
 
-    private static final int MAX_THREADS = 8;
+    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
 
     private static final String SERVICE_NAME = "LazyCompilationTest_multimodule";
 
@@ -44,13 +47,13 @@ public class LazyCompilationTest {
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
         Thread[] threads = new Thread[MAX_THREADS];
+        CountDownLatch countDownLatch = new CountDownLatch(2000);
         for (int i = 0; i < MAX_THREADS; i++) {
-            threads[i] = new Thread(new LazyCompilationTestRunnable(frontend));
+            threads[i] = new Thread(new LazyCompilationTestRunnable(frontend, countDownLatch));
             threads[i].start();
         }
 
-        Thread.sleep(10000);
-
+        countDownLatch.await();
         running = false;
         for (int i = 0; i < MAX_THREADS; i++) {
             threads[i].join();
@@ -60,23 +63,22 @@ public class LazyCompilationTest {
 
     public class LazyCompilationTestRunnable implements Runnable {
         private RulesFrontend frontend;
+        private CountDownLatch countDownLatch;
 
-        public LazyCompilationTestRunnable(RulesFrontend frontend) {
+        public LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
             this.frontend = frontend;
+            this.countDownLatch = countDownLatch;
         }
 
         @Override
         public void run() {
-            int i = 0;
+            Random rnd = new Random();
             while (running) {
-                i++;
-                if (i == 10) {
-                    i = 1;
-                }
+                int n = rnd.nextInt(9) + 1;
                 try {
                     IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-                    cxt.setLob("module" + i);
-                    if (!("module" + i).equals(frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }))) {
+                    cxt.setLob("module" + n);
+                    if (!("module" + n).equals(frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }))) {
                         failed = true;
                         running = false;
                     }
@@ -84,6 +86,7 @@ public class LazyCompilationTest {
                     failed = true;
                     running = false;
                 }
+                countDownLatch.countDown();
             }
         }
     }

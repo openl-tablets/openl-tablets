@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.openl.dependency.IDependencyManager;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -29,7 +30,11 @@ public class MultiModuleInstantiationTest {
             modules.addAll(project.getModules());
         }
 
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
+
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
+            dependencyManager,
+            true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
             strategy);
@@ -46,10 +51,12 @@ public class MultiModuleInstantiationTest {
         assertEquals(new DoubleValue(400), result);
     }
 
-    private List<Module> listModulesInFolder(File root) {
+    private List<ProjectDescriptor> listProjectsInFolder(File root) {
         ProjectResolver projectResolver = ProjectResolver.instance();
-        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
+        return projectResolver.resolve(root.listFiles());
+    }
 
+    private List<Module> listModules(List<ProjectDescriptor> projects) {
         List<Module> modules = new ArrayList<>();
         for (ProjectDescriptor project : projects) {
             for (Module module : project.getModules()) {
@@ -63,10 +70,12 @@ public class MultiModuleInstantiationTest {
     public void test2() throws Exception {
 
         File root = new File("test-resources/multi-module-support/test2");
+        List<ProjectDescriptor> projects = listProjectsInFolder(root);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModulesInFolder(root),
-            null,
+            listModules(projects),
+            dependencyManager,
             true);
 
         Class<?> serviceClass = strategy.getInstanceClass();
@@ -98,10 +107,11 @@ public class MultiModuleInstantiationTest {
     @Test
     public void testServiceClass() throws Exception {
         File root = new File("test-resources/multi-module-support/test2");
-
+        List<ProjectDescriptor> projects = listProjectsInFolder(root);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModulesInFolder(root),
-            null,
+            listModules(projects),
+            dependencyManager,
             true);
         strategy.setServiceClass(MultimoduleInterface.class);
         Object instantiate = strategy.instantiate();
@@ -120,8 +130,11 @@ public class MultiModuleInstantiationTest {
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
 
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules, true);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
+            dependencyManager,
+            true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
             strategy);

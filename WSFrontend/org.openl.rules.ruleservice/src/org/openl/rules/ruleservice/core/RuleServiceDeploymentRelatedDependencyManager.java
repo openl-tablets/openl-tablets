@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.*;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -14,8 +13,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
+import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
@@ -34,36 +34,19 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
     private RuleServiceLoader ruleServiceLoader;
-
-    private DeploymentDescription deploymentDescription;
-
-    private Collection<ProjectDescriptor> projectDescriptors = null;
-    List<IDependencyLoader> dependencyLoaders = null;
-    Collection<String> dependencyNames = null;
-
+    private DeploymentDescription deployment;
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-
-    private boolean lazy;
-
+    private boolean lazyCompilation;
     private PathMatcher wildcardPatternMatcher = new AntPathMatcher();
+    private ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
 
-    public boolean isLazy() {
-        return lazy;
+    public boolean isLazyCompilation() {
+        return lazyCompilation;
     }
 
     public RuleServiceLoader getRuleServiceLoader() {
         return ruleServiceLoader;
     }
-
-    @Override
-    public Collection<String> getAllDependencies() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return dependencyNames;
-    }
-
-    private ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
 
     private static class CompilationInfo {
         long time;
@@ -136,44 +119,22 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
             RuleServiceLoader ruleServiceLoader,
             ClassLoader rootClassLoader,
-            boolean lazy) {
-        super(rootClassLoader);
-        this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
-            "deploymentDescription cannot be null");
+            boolean lazyCompilation,
+            Map<String, Object> externalParameters) {
+        super(rootClassLoader, true, externalParameters);
+        this.deployment = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService cannot be null");
-        this.lazy = lazy;
-        super.setExecutionMode(true);
+        this.lazyCompilation = lazyCompilation;
     }
 
     @Override
-    public void setExecutionMode(boolean executionMode) {
-        throw new UnsupportedOperationException("This dependency manager does not support executionMode=false.");
-    }
-
-    @Override
-    public void reset(IDependency dependency) {
+    public synchronized void reset(IDependency dependency) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void resetAll() {
+    public synchronized void resetAll() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<ProjectDescriptor> getProjectDescriptors() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return projectDescriptors;
-    }
-
-    @Override
-    public List<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders == null) {
-            initDependencyLoaders();
-        }
-        return dependencyLoaders;
     }
 
     private boolean compilationAfterLazyCompilationRequred(Set<String> wildcardPatterns, String moduleName) {
@@ -189,103 +150,88 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         return rulesDeploySerializer;
     }
 
-    private synchronized void initDependencyLoaders() {
-        if (projectDescriptors == null && dependencyLoaders == null) {
-            dependencyLoaders = new ArrayList<>();
-            projectDescriptors = new ArrayList<>();
-            dependencyNames = new HashSet<>();
-            Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
-            for (Deployment deployment : deployments) {
-                String deploymentName = deployment.getDeploymentName();
-                CommonVersion deploymentVersion = deployment.getCommonVersion();
-                if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
-                    .equals(deploymentVersion)) {
-                    for (AProject project : deployment.getProjects()) {
-                        String projectName = project.getName();
-                        try {
-                            Collection<Module> modulesOfProject = ruleServiceLoader
-                                .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
-                            ProjectDescriptor projectDescriptor = null;
-                            Set<String> wildcardPatterns = new HashSet<>();
-                            if (!modulesOfProject.isEmpty()) {
-                                Module firstModule = modulesOfProject.iterator().next();
-                                projectDescriptor = firstModule.getProject();
+    @Override
+    protected Map<String, IDependencyLoader> initDependencyLoaders() {
+        Map<String, IDependencyLoader> dependencyLoaders = new HashMap<>();
+        Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
+        for (Deployment rslDeployment : deployments) {
+            String deploymentName = rslDeployment.getDeploymentName();
+            CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
+            if (deployment.getName().equals(deploymentName) && deployment.getVersion().equals(deploymentVersion)) {
+                for (AProject aProject : rslDeployment.getProjects()) {
+                    String projectName = aProject.getName();
+                    try {
+                        Collection<Module> modules = ruleServiceLoader
+                            .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
+                        ProjectDescriptor project = null;
+                        Set<String> wildcardPatterns = new HashSet<>();
+                        if (!modules.isEmpty()) {
+                            project = modules.iterator().next().getProject();
 
-                                InputStream content = null;
-                                RulesDeploy rulesDeploy = null;
-                                try {
-                                    AProjectArtefact artifact = project
-                                        .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
-                                    if (artifact instanceof AProjectResource) {
-                                        AProjectResource resource = (AProjectResource) artifact;
-                                        content = resource.getContent();
-                                        rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                                        RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy
-                                            .getLazyModulesForCompilationPatterns();
-                                        if (compilationPatterns != null) {
-                                            for (RulesDeploy.WildcardPattern wp : compilationPatterns) {
-                                                wildcardPatterns.add(wp.getValue());
-                                            }
-                                        }
-                                    }
-                                } catch (ProjectException e) {
-                                } finally {
-                                    if (content != null) {
-                                        try {
-                                            content.close();
-                                        } catch (IOException e) {
-                                            log.error(e.getMessage(), e);
+                            InputStream content = null;
+                            RulesDeploy rulesDeploy = null;
+                            try {
+                                AProjectArtefact artifact = aProject
+                                    .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
+                                if (artifact instanceof AProjectResource) {
+                                    AProjectResource resource = (AProjectResource) artifact;
+                                    content = resource.getContent();
+                                    rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                                    RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy
+                                        .getLazyModulesForCompilationPatterns();
+                                    if (compilationPatterns != null) {
+                                        for (RulesDeploy.WildcardPattern wp : compilationPatterns) {
+                                            wildcardPatterns.add(wp.getValue());
                                         }
                                     }
                                 }
-
-                                for (Module m : modulesOfProject) {
-                                    IDependencyLoader moduleLoader;
-                                    String moduleName = m.getName();
-                                    List<Module> module = Arrays.asList(m);
-                                    if (isLazy()) {
-                                        boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequred(
-                                            wildcardPatterns,
-                                            moduleName);
-                                        moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                            moduleName,
-                                            module,
-                                            compileAfterLazyCompilation,
-                                            false);
-                                    } else {
-                                        moduleLoader = new RuleServiceDependencyLoader(moduleName, module, false);
-                                    }
-                                    dependencyLoaders.add(moduleLoader);
-                                    dependencyNames.add(moduleName);
-                                }
+                            } catch (ProjectException e) {
+                                //Occurs if rules-deploy.xml file is not present in the project.
+                            } finally {
+                                closeRuleDeployContent(content);
                             }
-                            if (projectDescriptor != null) {
-                                IDependencyLoader projectLoader;
-                                if (isLazy()) {
-                                    projectLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
-                                        ProjectExternalDependenciesHelper
-                                            .buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                        projectDescriptor.getModules(),
-                                        false,
-                                        true);
+
+                            for (Module m : modules) {
+                                IDependencyLoader moduleLoader;
+                                if (isLazyCompilation()) {
+                                    boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequred(
+                                        wildcardPatterns,
+                                        m.getName());
+                                    moduleLoader = LazyRuleServiceDependencyLoader
+                                        .forModule(deployment, m, compileAfterLazyCompilation, this);
                                 } else {
-                                    projectLoader = new RuleServiceDependencyLoader(
-                                        ProjectExternalDependenciesHelper
-                                            .buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                        projectDescriptor.getModules(),
-                                        true);
+                                    moduleLoader = RuleServiceDependencyLoader.forModule(m, this);
                                 }
-                                projectDescriptors.add(projectDescriptor);
-                                dependencyLoaders.add(projectLoader);
+                                dependencyLoaders.put(moduleLoader.getDependencyName(), moduleLoader);
                             }
-                        } catch (Exception e) {
-                            log.error("Failed to build dependency manager loaders for project '{}' in deployment '{}'.",
-                                projectName,
-                                deploymentName,
-                                e);
                         }
+                        if (project != null) {
+                            IDependencyLoader projectLoader;
+                            if (isLazyCompilation()) {
+                                projectLoader = LazyRuleServiceDependencyLoader.forProject(deployment, project, this);
+                            } else {
+                                projectLoader = RuleServiceDependencyLoader.forProject(project, this);
+                            }
+                            dependencyLoaders.put(projectLoader.getDependencyName(), projectLoader);
+                        }
+                    } catch (Exception e) {
+                        throw new DependencyLoaderInitializationException(String.format(
+                            "Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                            projectName,
+                            deploymentName), e);
                     }
                 }
+            }
+        }
+        return dependencyLoaders;
+    }
+
+    private void closeRuleDeployContent(InputStream content) {
+        if (content != null) {
+            try {
+                content.close();
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
             }
         }
     }

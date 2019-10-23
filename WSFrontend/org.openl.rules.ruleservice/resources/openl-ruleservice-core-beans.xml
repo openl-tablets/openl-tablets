@@ -6,7 +6,7 @@
 	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
 	<bean id="instantiationStrategyFactory"
 		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
-		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}"/>
+		<property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
 	</bean>
 
 	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

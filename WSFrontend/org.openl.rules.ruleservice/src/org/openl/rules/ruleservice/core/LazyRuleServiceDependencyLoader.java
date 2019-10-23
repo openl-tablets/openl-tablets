@@ -1,25 +1,22 @@
 package org.openl.rules.ruleservice.core;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.IDependencyManager;
-import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.publish.lazy.*;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
 import org.openl.syntax.code.Dependency;
@@ -35,18 +32,20 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     private final Logger log = LoggerFactory.getLogger(LazyRuleServiceDependencyLoader.class);
 
+    private RuleServiceDeploymentRelatedDependencyManager dependencyManager;
     private final String dependencyName;
     private final DeploymentDescription deployment;
     private final Collection<Module> modules;
     private final boolean realCompileRequred;
     private CompiledOpenClass lazyCompiledOpenClass;
-    private final boolean projectDependency;
+    private final ProjectDescriptor project;
 
-    LazyRuleServiceDependencyLoader(DeploymentDescription deployment,
+    private LazyRuleServiceDependencyLoader(DeploymentDescription deployment,
             String dependencyName,
             Collection<Module> modules,
+            ProjectDescriptor project,
             boolean realCompileRequred,
-            boolean projectDependency) {
+            RuleServiceDeploymentRelatedDependencyManager dependencyManager) {
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot null.");
         this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         this.modules = Objects.requireNonNull(modules, "modules cannot be null");
@@ -54,17 +53,45 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             throw new IllegalArgumentException("Collection of modules cannot be empty.");
         }
         this.realCompileRequred = realCompileRequred;
-        this.projectDependency = projectDependency;
+        this.project = project;
+        this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
+    }
+
+    public static LazyRuleServiceDependencyLoader forModule(DeploymentDescription deployment,
+            Module module,
+            boolean realCompileRequred,
+            RuleServiceDeploymentRelatedDependencyManager dependencyManager) {
+        return new LazyRuleServiceDependencyLoader(deployment,
+            module.getName(),
+            Collections.singletonList(module),
+            null,
+            realCompileRequred,
+            dependencyManager);
+    }
+
+    public static LazyRuleServiceDependencyLoader forProject(DeploymentDescription deployment,
+            ProjectDescriptor project,
+            RuleServiceDeploymentRelatedDependencyManager dependencyManager) {
+        return new LazyRuleServiceDependencyLoader(deployment,
+            ProjectExternalDependenciesHelper.buildDependencyNameForProject(project.getName()),
+            project.getModules(),
+            project,
+            false,
+            dependencyManager);
     }
 
     @Override
-    public boolean isProjectDependency(String dependencyName) {
-        return Objects.equals(this.dependencyName, dependencyName) && projectDependency;
+    public boolean isProject() {
+        return project != null;
     }
 
     @Override
-    public boolean isModuleDependency(String dependencyName) {
-        return Objects.equals(this.dependencyName, dependencyName) && !projectDependency;
+    public ProjectDescriptor getProject() {
+        return project;
+    }
+
+    public String getDependencyName() {
+        return dependencyName;
     }
 
     private ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
@@ -84,7 +111,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
         final ClassLoader classLoader = buildClassLoader(dependencyManager);
         RulesInstantiationStrategy rulesInstantiationStrategy = null;
-        if (projectDependency) {
+        if (isProject()) {
             rulesInstantiationStrategy = new LazyInstantiationStrategy(deployment,
                 modules,
                 dependencyManager,
@@ -185,7 +212,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     dependencyManager.compilationCompleted(this, false);
                 }
             }
-            if (modules.size() == 1 && realCompileRequred && lazyCompiledOpenClass != null) {
+            if (!isProject() && realCompileRequred && lazyCompiledOpenClass != null) {
                 compileAfterLazyCompile(lazyCompiledOpenClass,
                     dependencyName,
                     dependencyManager,
@@ -246,28 +273,23 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     private CompiledDependency lazyCompiledDependency = null;
 
     @Override
-    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
-        if (this.dependencyName.equals(dependencyName)) {
-            if (!(dm instanceof RuleServiceDeploymentRelatedDependencyManager)) {
-                throw new IllegalStateException(String.format("This loader works only with subclasses of %s.",
-                    RuleServiceDeploymentRelatedDependencyManager.class.getTypeName()));
-            }
-
-            final RuleServiceDeploymentRelatedDependencyManager dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;
-
-            if (!isCompiledBefore) {
-                compile(dependencyName, dependencyManager);
-                isCompiledBefore = true;
-            }
-            if (lazyCompiledDependency == null) {
-                CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager,
-                    this,
-                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)));
-                lazyCompiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
-            }
-            return lazyCompiledDependency;
+    public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
+        if (!isCompiledBefore) {
+            compile(dependencyName, dependencyManager);
+            isCompiledBefore = true;
         }
-        return null;
+        if (lazyCompiledDependency == null) {
+            CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager,
+                this,
+                new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)));
+            lazyCompiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
+        }
+        return lazyCompiledDependency;
+    }
+
+    @Override
+    public void reset() {
+        // Nothing to reset
     }
 
     public interface LazyRuleServiceDependencyLoaderInterface {

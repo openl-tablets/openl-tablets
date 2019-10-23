@@ -5,20 +5,16 @@ import java.util.*;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSourceManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Instantiation strategy that combines several modules into single rules module.
@@ -28,7 +24,6 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
-    private final Logger log = LoggerFactory.getLogger(MultiModuleInstantiationStartegy.class);
 
     private Collection<Module> modules;
 
@@ -43,19 +38,8 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
             ClassLoader classLoader,
             boolean executionMode) {
         // multimodule is only available for execution(execution mode == true)
-        super(executionMode,
-            dependencyManager != null ? dependencyManager : createDependencyManager(modules),
-            classLoader);
+        super(executionMode, dependencyManager, classLoader);
         this.modules = modules;
-    }
-
-    private static IDependencyManager createDependencyManager(Collection<Module> modules) {
-        Set<ProjectDescriptor> projects = new HashSet<>();
-        for (Module module : modules) {
-            projects.add(module.getProject());
-        }
-
-        return new SimpleDependencyManager(projects, Thread.currentThread().getContextClassLoader(), false, true);
     }
 
     @Override
@@ -77,17 +61,6 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
             }
         }
         return classLoader;
-    }
-
-    @Override
-    public void setExternalParameters(Map<String, Object> parameters) {
-        super.setExternalParameters(parameters);
-        IDependencyManager dm = getDependencyManager();
-        if (dm instanceof DependencyManager) {
-            ((DependencyManager) dm).setExternalParameters(parameters);
-        } else {
-            log.warn("Cannot set external parameters to dependency manager {}", dm);
-        }
     }
 
     /**

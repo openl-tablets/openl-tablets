@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -36,10 +37,8 @@ public class MessagesDelegatingTest {
     public void init() throws Exception {
         File rulesFolder = new File("test-resources/modules_with_errors/");
         project = ProjectResolver.instance().resolve(rulesFolder);
-        dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            Thread.currentThread().getContextClassLoader(),
-            false,
-            false);
+        dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), Thread.currentThread().getContextClassLoader(), false, false, null);
     }
 
     private Module findModuleByName(String moduleName) {
@@ -82,7 +81,11 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping, true);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, false, true, null);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
+            dependencyManager,
+            true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
@@ -100,7 +103,11 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules2"));
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules6"));
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping, true);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
+            .singletonList(project), null, false, true, null);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
+            dependencyManager,
+            true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());

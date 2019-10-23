@@ -127,7 +127,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                String.format("Deployment '%s' does not contain a project '%s'.", deploymentName, projectName));
+                String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);

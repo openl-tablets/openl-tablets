@@ -23,15 +23,16 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
-    private boolean lazy = true;
     private final Logger log = LoggerFactory.getLogger(RuleServiceInstantiationStrategyFactoryImpl.class);
 
-    public void setLazy(boolean lazy) {
-        this.lazy = lazy;
+    private boolean lazyCompilation = true;
+
+    public void setLazyCompilation(boolean lazyCompilation) {
+        this.lazyCompilation = lazyCompilation;
     }
 
-    public boolean isLazy() {
-        return lazy;
+    public boolean isLazyCompilation() {
+        return lazyCompilation;
     }
 
     /** {@inheritDoc} */
@@ -45,7 +46,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         }
         String serviceName = serviceDescription.getName();
 
-        if (isLazy()) {
+        if (isLazyCompilation()) {
             log.debug("Lazy loading strategy has been used for service: '{}'.", serviceName);
             return new LazyInstantiationStrategy(serviceDescription.getDeployment(), modules, dependencyManager);
         }

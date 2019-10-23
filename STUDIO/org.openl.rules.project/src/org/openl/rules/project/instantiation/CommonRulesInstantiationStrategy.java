@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -52,8 +53,8 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public CommonRulesInstantiationStrategy(boolean executionMode,
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
+        this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.executionMode = executionMode;
-        this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
     }
 

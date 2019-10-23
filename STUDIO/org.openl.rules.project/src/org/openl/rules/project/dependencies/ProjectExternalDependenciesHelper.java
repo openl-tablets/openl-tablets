@@ -19,20 +19,8 @@ public final class ProjectExternalDependenciesHelper {
     private ProjectExternalDependenciesHelper() {
     }
 
-    public static String buildDependencyNameForProjectName(String projectName) {
+    public static String buildDependencyNameForProject(String projectName) {
         return VIRTUAL_MODULE_PREFIX + projectName + VIRTUAL_MODULE_SUFFIX;
-    }
-
-    public static boolean isProject(String dependencyName) {
-        return dependencyName.indexOf(VIRTUAL_MODULE_PREFIX) == 0 && dependencyName
-            .lastIndexOf(VIRTUAL_MODULE_SUFFIX) == dependencyName.length() - 1;
-    }
-
-    public static String getProjectName(String dependencyName) {
-        if (isProject(dependencyName)) {
-            return dependencyName.substring(VIRTUAL_MODULE_PREFIX.length(), dependencyName.length() - 1);
-        }
-        return null;
     }
 
     public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
@@ -51,7 +39,7 @@ public final class ProjectExternalDependenciesHelper {
             if (projectDescriptor.getDependencies() != null) {
                 for (ProjectDependencyDescriptor dependency : projectDescriptor.getDependencies()) {
                     if (dependency.isAutoIncluded()) {
-                        virtualModules.add(buildDependencyNameForProjectName(dependency.getName()));
+                        virtualModules.add(buildDependencyNameForProject(dependency.getName()));
                     }
                 }
             }

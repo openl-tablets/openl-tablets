@@ -219,8 +219,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         SimpleDependencyManager dependencyManager = new SimpleDependencyManager(projectDescriptors,
             classLoader,
             isSingleModuleMode(),
-            isExecutionMode());
-        dependencyManager.setExternalParameters(getExternalParameters());
+            isExecutionMode(),
+            getExternalParameters());
         return dependencyManager;
     }
 
@@ -329,10 +329,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
 
-            Map<String, Object> parameters = new HashMap<>(externalParameters);
+            Map<String, Object> parameters = new HashMap<>(getExternalParameters());
             if (!isSingleModuleMode()) {
                 parameters = ProjectExternalDependenciesHelper
-                    .getExternalParamsWithProjectDependencies(externalParameters, getProjectDescriptor().getModules());
+                    .getExternalParamsWithProjectDependencies(getExternalParameters(), getProjectDescriptor().getModules());
             }
             instantiationStrategy.setExternalParameters(parameters);
             try {

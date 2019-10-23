@@ -1,8 +1,8 @@
-package org.openl.dependency.loader;
+package org.openl.rules.project.instantiation;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Common interface for all dependency loaders.<br>
@@ -17,10 +17,14 @@ public interface IDependencyLoader {
      * @param dependencyManager is used to load child dependencies for given one.
      * @return {@link CompiledDependency}
      */
-    CompiledDependency load(String dependencyName,
-            IDependencyManager dependencyManager) throws OpenLCompilationException;
+    CompiledDependency getCompiledDependency() throws OpenLCompilationException;
 
-    boolean isProjectDependency(String dependencyName);
+    String getDependencyName();
 
-    boolean isModuleDependency(String dependencyName);
+    ProjectDescriptor getProject();
+
+    boolean isProject();
+
+    void reset();
+
 }
