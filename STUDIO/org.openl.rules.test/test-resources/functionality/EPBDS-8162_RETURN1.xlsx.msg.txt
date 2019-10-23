@@ -1,1 +1,1 @@
-ERROR: Cannot convert from org.openl.rules.calc.SpreadsheetResult to myDatatype
+ERROR: Cannot convert from 'org.openl.rules.calc.SpreadsheetResult' to 'myDatatype'.

@@ -138,7 +138,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                     type.getName());
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = String.format("Cannot define type %s", spreadsheet.getName());
+                String message = String.format("Cannot define type '%s'.", spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(error);
                 bindingContext.addError(error);
@@ -233,7 +233,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
         if (header.getType() == JavaOpenClass.VOID) {
-            throw SyntaxNodeExceptionUtils.createError("Spreadsheet cannot return 'void' type", tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError("Spreadsheet cannot return 'void' type.", tableSyntaxNode);
         }
         this.bindingContext = bindingContext;
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
