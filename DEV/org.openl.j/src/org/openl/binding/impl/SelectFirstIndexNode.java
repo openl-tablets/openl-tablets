@@ -24,8 +24,12 @@ class SelectFirstIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object target = targetNode.evaluate(env);
+        if (target == null) {
+            return null;
+        }
         IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(targetNode.evaluate(env));
+        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
             if (element == null) {

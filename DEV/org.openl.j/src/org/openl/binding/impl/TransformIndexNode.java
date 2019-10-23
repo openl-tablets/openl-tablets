@@ -29,9 +29,11 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Iterator<Object> elementsIterator = targetNode.getType()
-            .getAggregateInfo()
-            .getIterator(targetNode.evaluate(env));
+        Object target = targetNode.evaluate(env);
+        if (target == null) {
+            return null;
+        }
+        Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(target);
         ArrayList<Object> result = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();

@@ -37,10 +37,13 @@ class OrderByIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Object container = targetNode.evaluate(env);
+        Object target = targetNode.evaluate(env);
+        if (target == null) {
+            return null;
+        }
 
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
+        IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
+        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
 
         TreeMap<Comparable<Object>, Object> map = new TreeMap<>(isDecreasing ? DESC : ASC);
 

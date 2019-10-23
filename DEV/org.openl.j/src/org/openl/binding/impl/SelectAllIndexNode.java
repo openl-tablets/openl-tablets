@@ -28,8 +28,12 @@ class SelectAllIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object target = targetNode.evaluate(env);
+        if (target == null) {
+            return null;
+        }
         IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(targetNode.evaluate(env));
+        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
         List<Object> firedElements = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();

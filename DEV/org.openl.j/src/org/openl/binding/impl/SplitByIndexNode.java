@@ -28,11 +28,14 @@ class SplitByIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object target = targetNode.evaluate(env);
+        if (target == null) {
+            return null;
+        }
+
         IOpenClass containerType = targetNode.getType();
         IAggregateInfo aggregateInfo = containerType.getAggregateInfo();
-        Object container = targetNode.evaluate(env);
-
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
+        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
 
         Object tempKey = new Object();
 
