@@ -68,8 +68,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 typeName,
                 spreadsheet.getRowNames(),
                 spreadsheet.getColumnNames(),
-                spreadsheet.getRowNamesMarkedWithAsterisk(),
-                spreadsheet.getColumnNamesMarkedWithAsterisk(),
+                spreadsheet.getRowNamesForModel(),
+                spreadsheet.getColumnNamesForModel(),
                 spreadsheet.getRowTitles(),
                 spreadsheet.getColumnTitles(),
                 getModule(),
@@ -115,8 +115,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowNames(componentsBuilder.getRowNames());
         spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
 
-        spreadsheet.setRowNamesMarkedWithAsterisk(componentsBuilder.getRowNamesMarkedWithAsterisk());
-        spreadsheet.setColumnNamesMarkedWithAsterisk(componentsBuilder.getColumnNamesMarkedWithAsterisk());
+        spreadsheet.setRowNamesForModel(componentsBuilder.getRowNamesForModel());
+        spreadsheet.setColumnNamesForModel(componentsBuilder.getColumnNamesForModel());
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
@@ -126,7 +126,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         if (getHeader().getType().getInstanceClass() != null && SpreadsheetResult.class
             .isAssignableFrom(getHeader().getType().getInstanceClass())) {
-            validateRowsColumnsWithAsterisks(spreadsheet);
+            validateRowsColumnsForModel(spreadsheet);
         }
 
         if (spreadsheet.isCustomSpreadsheet()) {
@@ -150,21 +150,19 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return spreadsheet;
     }
 
-    public void validateRowsColumnsWithAsterisks(Spreadsheet spreadsheet) {
-        long columnsWithAsteriskCount = Arrays.stream(spreadsheet.getColumnNamesMarkedWithAsterisk())
+    public void validateRowsColumnsForModel(Spreadsheet spreadsheet) {
+        long columnsForModelCount = Arrays.stream(spreadsheet.getColumnNamesForModel())
             .filter(Objects::nonNull)
             .count();
-        long rowsWithAsteriskCount = Arrays.stream(spreadsheet.getRowNamesMarkedWithAsterisk())
-            .filter(Objects::nonNull)
-            .count();
+        long rowsForModelCount = Arrays.stream(spreadsheet.getRowNamesForModel()).filter(Objects::nonNull).count();
 
         Map<String, String> fNames = new HashMap<>();
         int warnCnt = 0;
-        for (int i = 0; i < spreadsheet.getRowNamesMarkedWithAsterisk().length; i++) {
-            for (int j = 0; j < spreadsheet.getColumnNamesMarkedWithAsterisk().length; j++) {
-                if (spreadsheet.getColumnNamesMarkedWithAsterisk()[j] != null && spreadsheet
-                    .getRowNamesMarkedWithAsterisk()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
-                                                                                   // messages
+        for (int i = 0; i < spreadsheet.getRowNamesForModel().length; i++) {
+            for (int j = 0; j < spreadsheet.getColumnNamesForModel().length; j++) {
+                if (spreadsheet.getColumnNamesForModel()[j] != null && spreadsheet
+                    .getRowNamesForModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
+                                                                         // messages
                     String fieldName = SpreadsheetStructureBuilder
                         .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
 
@@ -188,23 +186,23 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
                     if (f) {
                         String refName;
-                        if (columnsWithAsteriskCount == 1) {
+                        if (columnsForModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
-                        } else if (rowsWithAsteriskCount == 1) {
+                        } else if (rowsForModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
                         } else {
                             refName = fieldName;
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        if (columnsWithAsteriskCount == 1) {
-                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
-                        } else if (rowsWithAsteriskCount == 1) {
-                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                        if (columnsForModelCount == 1) {
+                            sb.append(spreadsheet.getRowNamesForModel()[i]);
+                        } else if (rowsForModelCount == 1) {
+                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
                         } else {
-                            sb.append(spreadsheet.getColumnNamesMarkedWithAsterisk()[j]);
+                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
                             sb.append("_");
-                            sb.append(spreadsheet.getRowNamesMarkedWithAsterisk()[i]);
+                            sb.append(spreadsheet.getRowNamesForModel()[i]);
                         }
                         String fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {

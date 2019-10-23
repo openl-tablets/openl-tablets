@@ -33,8 +33,8 @@ public class SpreadsheetResult implements Serializable {
     Object[][] results;
     String[] columnNames;
     String[] rowNames;
-    transient String[] rowNamesMarkedWithAsterisk;
-    transient String[] columnNamesMarkedWithAsterisk;
+    transient String[] rowNamesForModel;
+    transient String[] columnNamesForModel;
     transient Map<String, Point> fieldsCoordinates;
 
     boolean detailedPlainModel;
@@ -60,31 +60,30 @@ public class SpreadsheetResult implements Serializable {
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
             String[] columnNames,
-            String[] rowNamesMarkedWithAsterisk,
-            String[] columnNamesMarkedWithAsterisk,
+            String[] rowNamesForModel,
+            String[] columnNamesForModel,
             Map<String, Point> fieldsCoordinates) {
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
-        this.rowNamesMarkedWithAsterisk = Objects.requireNonNull(rowNamesMarkedWithAsterisk);
-        this.columnNamesMarkedWithAsterisk = Objects.requireNonNull(columnNamesMarkedWithAsterisk);
-        if (rowNames.length != rowNamesMarkedWithAsterisk.length) {
+        this.rowNamesForModel = Objects.requireNonNull(rowNamesForModel);
+        this.columnNamesForModel = Objects.requireNonNull(columnNamesForModel);
+        if (rowNames.length != rowNamesForModel.length) {
             throw new IllegalArgumentException(
-                "The length of rowNames is not equal to the lenght of rowNamesMarkedWithAsterisk.");
+                "The length of rowNames is not equal to the lenght of rowNamesForModel.");
         }
-        if (columnNames.length != columnNamesMarkedWithAsterisk.length) {
+        if (columnNames.length != columnNamesForModel.length) {
             throw new IllegalArgumentException(
-                "The length of columnNames is not equal to the lenght of columnNamesMarkedWithAsterisk.");
+                "The length of columnNames is not equal to the lenght of columnNamesForModel.");
         }
         this.results = results;
 
         this.fieldsCoordinates = fieldsCoordinates;
     }
 
-    public boolean isMarkedWithAsteriskField(String fieldName) {
+    public boolean isFieldUsedInModel(String fieldName) {
         Point point = fieldsCoordinates.get(fieldName);
         if (point != null) {
-            return columnNamesMarkedWithAsterisk[point.getColumn()] != null && rowNamesMarkedWithAsterisk[point
-                .getRow()] != null;
+            return columnNamesForModel[point.getColumn()] != null && rowNamesForModel[point.getRow()] != null;
         }
         return false;
     }
@@ -156,21 +155,21 @@ public class SpreadsheetResult implements Serializable {
     }
 
     @XmlTransient
-    public String[] getRowNamesMarkedWithAsterisk() {
-        return rowNamesMarkedWithAsterisk.clone();
+    public String[] getRowNamesForModel() {
+        return rowNamesForModel.clone();
     }
 
-    public void setRowNamesMarkedWithAsterisk(String[] rowNamesMarkedWithAsterisk) {
-        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
+    public void setRowNamesForModel(String[] rowNamesForModel) {
+        this.rowNamesForModel = rowNamesForModel;
     }
 
     @XmlTransient
-    public String[] getColumnNamesMarkedWithAsterisk() {
-        return columnNamesMarkedWithAsterisk.clone();
+    public String[] getColumnNamesForModel() {
+        return columnNamesForModel.clone();
     }
 
-    public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
-        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
+    public void setColumnNamesForModel(String[] columnNamesForModel) {
+        this.columnNamesForModel = columnNamesForModel;
     }
 
     @XmlTransient
@@ -382,8 +381,8 @@ public class SpreadsheetResult implements Serializable {
     public Map<String, Object> toMap(XlsModuleOpenClass module) throws InstantiationException, IllegalAccessException {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
-            long nonNullsColumnsCount = Arrays.stream(columnNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
-            long nonNullsRowsCount = Arrays.stream(rowNamesMarkedWithAsterisk).filter(Objects::nonNull).count();
+            long nonNullsColumnsCount = Arrays.stream(columnNamesForModel).filter(Objects::nonNull).count();
+            long nonNullsRowsCount = Arrays.stream(rowNamesForModel).filter(Objects::nonNull).count();
             String[][] fieldNames = detailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
@@ -397,8 +396,8 @@ public class SpreadsheetResult implements Serializable {
                     List<IOpenField> openFields = e.getValue();
                     for (IOpenField openField : openFields) {
                         Point p = fieldsCoordinates.get(openField.getName());
-                        if (p != null && columnNamesMarkedWithAsterisk[p
-                            .getColumn()] != null && rowNamesMarkedWithAsterisk[p.getRow()] != null) {
+                        if (p != null && columnNamesForModel[p.getColumn()] != null && rowNamesForModel[p
+                            .getRow()] != null) {
                             values.put(e.getKey(),
                                 convertSpreadsheetResults(module, getValue(p.getRow(), p.getColumn())));
                             if (detailedPlainModel) {
@@ -408,19 +407,17 @@ public class SpreadsheetResult implements Serializable {
                     }
                 }
             } else {
-                for (int i = 0; i < rowNamesMarkedWithAsterisk.length; i++) {
-                    for (int j = 0; j < columnNamesMarkedWithAsterisk.length; j++) {
-                        if (columnNamesMarkedWithAsterisk[j] != null && rowNamesMarkedWithAsterisk[i] != null) {
+                for (int i = 0; i < rowNamesForModel.length; i++) {
+                    for (int j = 0; j < columnNamesForModel.length; j++) {
+                        if (columnNamesForModel[j] != null && rowNamesForModel[i] != null) {
                             String fName = null;
                             if (nonNullsColumnsCount == 1) {
-                                fName = rowNamesMarkedWithAsterisk[i];
+                                fName = rowNamesForModel[i];
                             } else if (nonNullsRowsCount == 1) {
-                                fName = columnNamesMarkedWithAsterisk[j];
+                                fName = columnNamesForModel[j];
                             } else {
                                 StringBuilder sb = new StringBuilder();
-                                sb.append(columnNamesMarkedWithAsterisk[j])
-                                    .append("_")
-                                    .append(rowNamesMarkedWithAsterisk[i]);
+                                sb.append(columnNamesForModel[j]).append("_").append(rowNamesForModel[i]);
                                 fName = sb.toString();
                             }
                             values.put(fName, convertSpreadsheetResults(module, getValue(i, j)));

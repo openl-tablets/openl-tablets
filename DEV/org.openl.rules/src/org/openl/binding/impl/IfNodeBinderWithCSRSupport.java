@@ -38,17 +38,17 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         columnNames.addAll(Arrays.stream(type1.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
         columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> rowNamesMarkedWithAsterisk = new LinkedHashSet<>();
-        rowNamesMarkedWithAsterisk.addAll(
-            Arrays.stream(type1.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
-        rowNamesMarkedWithAsterisk.addAll(
-            Arrays.stream(type2.getRowNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        Set<String> rowNamesForModel = new LinkedHashSet<>();
+        rowNamesForModel.addAll(
+            Arrays.stream(type1.getRowNamesForModel()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesForModel.addAll(
+            Arrays.stream(type2.getRowNamesForModel()).collect(Collectors.toCollection(HashSet::new)));
 
-        Set<String> columnNamesMarkedWithAsterisk = new LinkedHashSet<>();
-        columnNamesMarkedWithAsterisk.addAll(
-            Arrays.stream(type1.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
-        columnNamesMarkedWithAsterisk.addAll(
-            Arrays.stream(type2.getColumnNamesMarkedWithAsterisk()).collect(Collectors.toCollection(HashSet::new)));
+        Set<String> columnNamesForModel = new LinkedHashSet<>();
+        columnNamesForModel.addAll(
+            Arrays.stream(type1.getColumnNamesForModel()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesForModel.addAll(
+            Arrays.stream(type2.getColumnNamesForModel()).collect(Collectors.toCollection(HashSet::new)));
 
         if (!type1.getModule().equals(type2.getModule())) {
             throw new IllegalStateException("CSR types are from differnet modules.");
@@ -58,8 +58,8 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             getIfCSRTypeName(type1, type2),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
-            rowNamesMarkedWithAsterisk.toArray(new String[] {}),
-            columnNamesMarkedWithAsterisk.toArray(new String[] {}),
+            rowNamesForModel.toArray(new String[] {}),
+            columnNamesForModel.toArray(new String[] {}),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
             type1.getModule(),

@@ -6,8 +6,8 @@
     <property name="columnTitles" ignore="true"/>
     <property name="rowTitles" ignore="true"/>
     <property name="fieldsCoordinates" ignore="true"/>
-    <property name="rowNamesMarkedWithAsterisk" ignore="true"/>
-    <property name="columnNamesMarkedWithAsterisk" ignore="true"/>
+    <property name="rowNamesForModel" ignore="true"/>
+    <property name="columnNamesForModel" ignore="true"/>
     <property name="detailedPlainModel" ignore="true"/>
  </mapping>
 </mappings>

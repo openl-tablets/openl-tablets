@@ -107,15 +107,15 @@ public class SpreadsheetComponentsBuilder {
         return s;
     }
 
-    public String[] getRowNamesMarkedWithAsterisk() {
-        final long rowsMarkedWithAsteriskCount = rowHeaders.entrySet()
+    public String[] getRowNamesForModel() {
+        final long rowsForModelCount = rowHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
             .count();
 
         String[] ret = buildArrayForHeaders(rowHeaders,
             cellsHeaderExtractor.getHeight(),
-            e -> rowsMarkedWithAsteriskCount == 0 || e.getDefinition().isMarkedWithAsterisk());
+            e -> rowsForModelCount == 0 || e.getDefinition().isMarkedWithAsterisk());
 
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
@@ -123,7 +123,7 @@ public class SpreadsheetComponentsBuilder {
         return ret;
     }
 
-    public String[] getColumnNamesMarkedWithAsterisk() {
+    public String[] getColumnNamesForModel() {
         final long columnsMarkedWithAsterisk = columnHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())

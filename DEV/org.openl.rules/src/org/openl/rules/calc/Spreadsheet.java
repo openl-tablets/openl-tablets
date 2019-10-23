@@ -35,9 +35,9 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private String[] columnNames;
 
-    private String[] rowNamesMarkedWithAsterisk;
+    private String[] rowNamesForModel;
 
-    private String[] columnNamesMarkedWithAsterisk;
+    private String[] columnNamesForModel;
 
     private String[] rowTitles;
 
@@ -148,20 +148,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.rowTitles = rowTitles;
     }
 
-    public String[] getRowNamesMarkedWithAsterisk() {
-        return rowNamesMarkedWithAsterisk;
+    public String[] getRowNamesForModel() {
+        return rowNamesForModel;
     }
 
-    public void setRowNamesMarkedWithAsterisk(String[] rowNamesMarkedWithAsterisk) {
-        this.rowNamesMarkedWithAsterisk = rowNamesMarkedWithAsterisk;
+    public void setRowNamesForModel(String[] rowNamesForModel) {
+        this.rowNamesForModel = rowNamesForModel;
     }
 
-    public String[] getColumnNamesMarkedWithAsterisk() {
-        return columnNamesMarkedWithAsterisk;
+    public String[] getColumnNamesForModel() {
+        return columnNamesForModel;
     }
 
-    public void setColumnNamesMarkedWithAsterisk(String[] columnNamesMarkedWithAsterisk) {
-        this.columnNamesMarkedWithAsterisk = columnNamesMarkedWithAsterisk;
+    public void setColumnNamesForModel(String[] columnNamesForModel) {
+        this.columnNamesForModel = columnNamesForModel;
     }
 
     public String[] getRowTitles() {
