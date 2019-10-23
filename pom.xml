@@ -1452,6 +1452,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <!-- update Hibernate dependency on Javassist
+                        to 3.23.1 for Java 11 compatibility -->
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.23.1-GA</version>
+            </dependency>
             <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate</groupId>
