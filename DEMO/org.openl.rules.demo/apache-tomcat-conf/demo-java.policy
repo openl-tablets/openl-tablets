@@ -26,11 +26,17 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "accessClassInPackage.jdk.*";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.*";
 
+
         //ClassLoaders
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.lang.RuntimePermission "closeClassLoader";
+        permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.loader";
+
+        //appeared in Java 9+
+        //ex:springframework
+        permission java.lang.RuntimePermission "defineClass";
 
         //Modification of threads
         //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
