@@ -198,19 +198,21 @@ public class RepositoryTreeController {
                             errorMessage = e.getMessage();
                         }
                     } else {
-                        errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_EXISTS;
+                        errorMessage = String
+                            .format("Folder name '%s' is invalid. %s", folderName, NameChecker.FOLDER_EXISTS);
                     }
                 } else {
-
-                    errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+                    errorMessage = String
+                        .format("Folder name '%s' is invalid. %s", folderName, NameChecker.BAD_NAME_MSG);
                 }
             } else {
-                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_NAME_EMPTY;
+                errorMessage = String
+                    .format("Folder name '%s' is invalid. %s", folderName, NameChecker.FOLDER_NAME_EMPTY);
             }
         }
 
         if (errorMessage != null) {
-            FacesUtils.addErrorMessage("Failed to create folder.", errorMessage);
+            FacesUtils.addErrorMessage("Failed to create a folder.", errorMessage);
         }
         return null;
     }
@@ -415,9 +417,9 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty.";
         } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+            errorMessage = String.format("Project name '%s' is invalid. %s", projectName, NameChecker.BAD_NAME_MSG);
         } else if (userWorkspace.hasDDProject(newProjectName)) {
-            errorMessage = "Deployment project '" + newProjectName + "' already exists.";
+            errorMessage = String.format("Deployment project '%s' already exists.", newProjectName);
         }
 
         if (errorMessage != null) {
@@ -447,7 +449,7 @@ public class RepositoryTreeController {
             }
             if (!NameChecker.checkName(projectName)) {
                 FacesUtils.addErrorMessage(
-                    "Specified name is not a valid Deploy Configuration name." + " " + NameChecker.BAD_NAME_MSG);
+                    "Specified name is not a valid Deploy Configuration name. " + NameChecker.BAD_NAME_MSG);
                 return null;
             }
             if (userWorkspace.hasDDProject(projectName)) {
@@ -467,9 +469,9 @@ public class RepositoryTreeController {
             createdProject.save();
             createdProject.open();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
-            FacesUtils.addInfoMessage(String.format("Deploy configuration '%s' is successfully created", projectName));
+            FacesUtils.addInfoMessage(String.format("Deploy Configuration '%s' is successfully created.", projectName));
         } catch (Exception e) {
-            String msg = "Failed to create deploy configuration '" + projectName + "'.";
+            String msg = String.format("Failed to create Deploy Configuration '%s'.", projectName);
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }

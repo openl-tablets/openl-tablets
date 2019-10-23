@@ -123,7 +123,7 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
                             }
                             return compiledOpenClass;
                         } catch (Exception ex) {
-                            log.error("Failed to load dependency '" + getModule().getName() + "'.", ex);
+                            log.error("Failed to load dependency '{}'.", getModule().getName(), ex);
                             return compiledOpenClass;
                         } finally {
                             LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
