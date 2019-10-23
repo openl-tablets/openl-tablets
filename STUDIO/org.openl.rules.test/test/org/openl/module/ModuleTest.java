@@ -19,6 +19,8 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -27,6 +29,7 @@ import junit.framework.TestCase;
  *
  */
 public class ModuleTest extends TestCase {
+    private final Logger log = LoggerFactory.getLogger(ModuleTest.class);
 
     /**
      * Attributes of this class are referenced in expressions from Person context
@@ -320,7 +323,7 @@ public class ModuleTest extends TestCase {
 
         double run = (double) (end - start) / N;
 
-        System.out.println("Result:" + res + ". Invoke time = " + run + " ms");
+        log.info("TestModule: Result: {}. Elapsed time = {}.", res, run);
 
     }
 
@@ -335,7 +338,7 @@ public class ModuleTest extends TestCase {
 
         b = executeBooleanOpenLExprression(data, NEG_OPENL_EXPR);
         assertTrue(b);
-        System.out.println(System.currentTimeMillis() - t);
+        log.info("TestOpenL: Elapsed time = {}.", System.currentTimeMillis() - t);
     }
 
     /**

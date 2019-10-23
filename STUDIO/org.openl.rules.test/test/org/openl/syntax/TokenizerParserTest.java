@@ -10,6 +10,8 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -18,6 +20,8 @@ import junit.framework.TestCase;
  *
  */
 public class TokenizerParserTest extends TestCase {
+
+    private final Logger log = LoggerFactory.getLogger(TokenizerParserTest.class);
 
     /**
      * Constructor for TokenizerParserTest.
@@ -41,7 +45,7 @@ public class TokenizerParserTest extends TestCase {
         }
         long end = System.currentTimeMillis();
 
-        System.out.println(
+        log.info(
             "Time: " + (end - start) + " 1 run: " + 1000.0 * (end - start) / n + "mks" + " per char: " + 1000.0 * (end - start) / n / test
                 .length() + "mks");
 
