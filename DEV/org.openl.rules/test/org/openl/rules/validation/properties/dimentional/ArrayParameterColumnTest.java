@@ -76,7 +76,7 @@ public class ArrayParameterColumnTest {
             new ArrayParameterColumn(property, getRules());
             fail("Exception should be thrown for not array property");
         } catch (OpenlNotCheckedException e) {
-            assertEquals("Can`t create array parameter column for not an array property", e.getMessage());
+            assertEquals("Cannot create array parameter column for not an array property", e.getMessage());
         }
     }
 

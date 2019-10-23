@@ -43,7 +43,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             }
             assertTrue("DT contains expected dependency", f);
         } else {
-            fail("Can`t find expected table");
+            fail("Cannot find expected table");
         }
     }
 
@@ -56,7 +56,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
             assertEquals("There is no dependencies to other rules methods", 0, rulesMethods.size());
         } else {
-            fail("Can`t find expected table");
+            fail("Cannot find expected table");
         }
     }
 
@@ -100,7 +100,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
             assertTrue("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size() == d);
         } else {
-            fail("Can`t find expected table");
+            fail("Cannot find expected table");
         }
     }
 
@@ -122,7 +122,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             }
             assertTrue("TBasic contains expected dependency", f);
         } else {
-            fail("Can`t find expected table");
+            fail("Cannot find expected table");
         }
     }
 
@@ -150,7 +150,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
             assertTrue("Method contains expected dependencies", expectedRuledDependencies.size() == d);
         } else {
-            fail("Can`t find expected table");
+            fail("Cannot find expected table");
         }
     }
 

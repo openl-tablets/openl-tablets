@@ -16,7 +16,7 @@ public class TestTableCreationWizardDirect extends TestTableCreationWizard {
         String tableUri = table.getUri();
         TableSyntaxNode node = WebStudioUtils.getProjectModel().getNode(tableUri);
         if (node == null) {
-            throw new IllegalArgumentException(String.format("Can`t find node with uri:%s ", tableUri));
+            throw new IllegalArgumentException(String.format("Cannot find node with uri:%s ", tableUri));
         }
         selectedNode = node;
     }

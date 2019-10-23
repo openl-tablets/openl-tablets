@@ -503,7 +503,7 @@ public class RepositoryTreeController {
         ProjectFile[] templateFiles = templatesResolver.getProjectFiles(templateParts[1], templateParts[2]);
         if (templateFiles.length <= 0) {
             this.clearForm();
-            String errorMessage = String.format("Can`t load template files: %s", newProjectTemplate);
+            String errorMessage = String.format("Cannot load template files: %s", newProjectTemplate);
             FacesUtils.addErrorMessage(errorMessage);
             return null;
         }

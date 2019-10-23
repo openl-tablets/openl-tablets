@@ -161,7 +161,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) {
 
             if (!PropertiesChecker.isPropertySuitableForLevel(currentLevel, propertyNameToCheck)) {
-                String message = String.format("Property '%s' can`t be defined on the '%s' level",
+                String message = String.format("Property '%s' cannot be defined on the '%s' level",
                     propertyNameToCheck,
                     currentLevel.getDisplayName());
 

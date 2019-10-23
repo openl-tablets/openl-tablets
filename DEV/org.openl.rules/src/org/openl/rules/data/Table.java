@@ -547,7 +547,7 @@ public class Table implements ITable {
         } else {
             Object literal = dataModel.newInstance();
             if (literal == null) {
-                throw new OpenLCompilationException(String.format("Can`t create instance of %s", dataModel.getName()));
+                throw new OpenLCompilationException(String.format("Cannot create instance of %s", dataModel.getName()));
             }
             return literal;
         }

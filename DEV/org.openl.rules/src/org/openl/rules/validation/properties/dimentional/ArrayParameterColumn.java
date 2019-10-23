@@ -20,7 +20,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     private void validate() {
         if (!getProperty().getType().getInstanceClass().isArray()) {
-            throw new OpenlNotCheckedException("Can`t create array parameter column for not an array property");
+            throw new OpenlNotCheckedException("Cannot create array parameter column for not an array property");
         }
     }
 
@@ -41,7 +41,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             codeExpression.append(")");
             result += codeExpression.toString();
         } else {
-            String message = String.format("Can`t create expression for '%s' property validation.",
+            String message = String.format("Cannot create expression for '%s' property validation.",
                 getProperty().getName());
             throw new OpenlNotCheckedException(message);
         }

@@ -13,7 +13,7 @@ public class MatchingExpressionFactory {
         operationName = operationName == null ? "" : operationName;
 
         if (StringUtils.isEmpty(contextAttribute)) {
-            throw new OpenLRuntimeException("Can`t create matching expression with empty context attribute");
+            throw new OpenLRuntimeException("Cannot create matching expression with empty context attribute");
         }
 
         if (LTMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)) {
