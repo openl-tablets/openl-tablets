@@ -5,6 +5,7 @@ public enum SpreadsheetSymbols {
     /** cell name indicating return statement */
     RETURN_NAME("RETURN"),
     TYPE_DELIMETER(":"),
+    TILDE("~"),
     ASTERISK("*");
 
     private String symbols;

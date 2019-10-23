@@ -108,15 +108,20 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getRowNamesForModel() {
-        final long rowsForModelCount = rowHeaders.entrySet()
+        final long rowsWithAsteriskCount = rowHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
+            .filter(e -> e.getValue().getDefinition().isWithAsterisk())
             .count();
-
-        String[] ret = buildArrayForHeaders(rowHeaders,
-            cellsHeaderExtractor.getHeight(),
-            e -> rowsForModelCount == 0 || e.getDefinition().isMarkedWithAsterisk());
-
+        String[] ret;
+        if (rowsWithAsteriskCount > 0) {
+            ret = buildArrayForHeaders(rowHeaders,
+                cellsHeaderExtractor.getHeight(),
+                e -> e.getDefinition().isWithAsterisk());
+        } else {
+            ret = buildArrayForHeaders(rowHeaders,
+                cellsHeaderExtractor.getHeight(),
+                e -> !e.getDefinition().isWithTilde());
+        }
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
         }
@@ -124,14 +129,20 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getColumnNamesForModel() {
-        final long columnsMarkedWithAsterisk = columnHeaders.entrySet()
+        final long columnsWithAsteriskCount = columnHeaders.entrySet()
             .stream()
-            .filter(e -> e.getValue().getDefinition().isMarkedWithAsterisk())
+            .filter(e -> e.getValue().getDefinition().isWithAsterisk())
             .count();
-
-        String[] ret = buildArrayForHeaders(columnHeaders,
-            cellsHeaderExtractor.getWidth(),
-            e -> columnsMarkedWithAsterisk == 0 || e.getDefinition().isMarkedWithAsterisk());
+        String[] ret;
+        if (columnsWithAsteriskCount > 0) {
+            ret = buildArrayForHeaders(columnHeaders,
+                cellsHeaderExtractor.getWidth(),
+                e -> e.getDefinition().isWithAsterisk());
+        } else {
+            ret = buildArrayForHeaders(columnHeaders,
+                cellsHeaderExtractor.getWidth(),
+                e -> !e.getDefinition().isWithTilde());
+        }
 
         for (int i = 0; i < ret.length; i++) {
             ret[i] = handleWrongSymbols(ret[i]);
@@ -236,7 +247,7 @@ public class SpreadsheetComponentsBuilder {
             SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
             if (h1 != null) {
                 SyntaxNodeException error;
-                error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated", name);
+                error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.", name);
 
                 addError(error);
                 throw new DuplicatedVarException(null, headerName);
@@ -255,11 +266,11 @@ public class SpreadsheetComponentsBuilder {
         }
     }
 
-    private IdentifierNode removeAsteriskInTheEnd(IdentifierNode identifierNode) {
+    private IdentifierNode removeSignInTheEnd(IdentifierNode identifierNode, String sign) {
         String s = StringUtils.stripEnd(identifierNode.getIdentifier(), null);
-        int d = s.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
+        int d = s.lastIndexOf(sign);
         if (d != s.length() - 1) {
-            throw new IllegalStateException("Asterisk symbols is not found.");
+            throw new IllegalStateException(String.format("'%s' symbols is not found.", sign));
         }
         String v = StringUtils.stripEnd(identifierNode.getIdentifier().substring(0, d), null);
         int delta = identifierNode.getIdentifier().length() - v.length();
@@ -277,23 +288,29 @@ public class SpreadsheetComponentsBuilder {
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMETER.toString());
         } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot parse header", source);
+            throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
         }
 
         IdentifierNode headerNameNode = nodes[0];
         boolean endsWithAsterisk = false;
         if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
             .endsWith(SpreadsheetSymbols.ASTERISK.toString())) {
-            headerNameNode = removeAsteriskInTheEnd(nodes[0]);
+            headerNameNode = removeSignInTheEnd(nodes[0], SpreadsheetSymbols.ASTERISK.toString());
             endsWithAsterisk = true;
+        }
+        boolean endsWithTilde = false;
+        if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
+            .endsWith(SpreadsheetSymbols.TILDE.toString())) {
+            headerNameNode = removeSignInTheEnd(nodes[0], SpreadsheetSymbols.TILDE.toString());
+            endsWithTilde = true;
         }
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk);
+                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk, endsWithTilde);
             case 2:
-                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk);
+                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde);
             default:
-                String message = String.format("Valid header format: name [%s type]",
+                String message = String.format("Valid header format: name [%s type].",
                     SpreadsheetSymbols.TYPE_DELIMETER.toString());
                 if (nodes.length > 2) {
                     throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
@@ -353,7 +370,7 @@ public class SpreadsheetComponentsBuilder {
                 } else {
                     cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                 }
-                if (headerDefinition.getDefinition().isMarkedWithAsterisk()) {
+                if (headerDefinition.getDefinition().isWithAsterisk()) {
                     String s = handleWrongSymbols(headerDefinition.getDefinitionName());
                     if (StringUtils.isEmpty(s)) {
                         s = "Empty string";
@@ -390,7 +407,8 @@ public class SpreadsheetComponentsBuilder {
                 }
             }
         } catch (OpenLCompilationException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header", typeIdentifierNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header.",
+                typeIdentifierNode);
             addError(error);
         }
 
@@ -574,14 +592,15 @@ public class SpreadsheetComponentsBuilder {
                             .get(nonEmptySpreadsheetCells.size() - 1);
                         if (nonEmptySpreadsheetCell.getType() != null) {
                             throw SyntaxNodeExceptionUtils.createError(
-                                "Cannot convert from " + nonEmptySpreadsheetCell.getType()
-                                    .getName() + " to " + spreadsheet.getHeader().getType().getName(),
+                                String.format("Cannot convert from '%s' to '%s'.",
+                                    nonEmptySpreadsheetCell.getType().getName(),
+                                    spreadsheet.getHeader().getType().getName()),
                                 symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
                         } else {
                             return null;
                         }
                     } else {
-                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
+                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
                             symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
 
                     }
