@@ -1,1 +1,1 @@
-ERROR: Cannot convert from 'java.lang.Object' to 'java.lang.String'
+ERROR: Cannot convert from 'java.lang.Object' to 'java.lang.String'.

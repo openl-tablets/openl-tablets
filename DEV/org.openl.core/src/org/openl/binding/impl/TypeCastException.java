@@ -19,7 +19,7 @@ public class TypeCastException extends SyntaxNodeException {
     private IOpenClass to;
 
     public TypeCastException(ISyntaxNode node, IOpenClass from, IOpenClass to) {
-        super("Cannot convert from " + from.getName() + " to " + to.getName(), null, node);
+        super(String.format("Cannot convert from '%s' to '%s'.", from.getName(), to.getName()), null, node);
 
         this.from = from;
         this.to = to;

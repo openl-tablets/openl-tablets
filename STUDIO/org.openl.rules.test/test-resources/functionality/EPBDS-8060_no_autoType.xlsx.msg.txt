@@ -1,3 +1,3 @@
-ERROR: Cannot convert from java.lang.String to org.openl.meta.DoubleValue
-ERROR: Cannot convert from java.lang.String to org.openl.meta.DoubleValue
-ERROR: Cannot convert from java.lang.String to org.openl.meta.DoubleValue
+ERROR: Cannot convert from 'java.lang.String' to 'org.openl.meta.DoubleValue'.
+ERROR: Cannot convert from 'java.lang.String' to 'org.openl.meta.DoubleValue'.
+ERROR: Cannot convert from 'java.lang.String' to 'org.openl.meta.DoubleValue'.
