@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -37,11 +38,8 @@ public class DecisionTableLoader {
     static final String EMPTY_BODY = "Decision table must contain body section.";
 
     private int columnsNumber;
-
     private RuleRow ruleRow;
-
     private DTInfo info;
-
     private List<IBaseCondition> conditions = new ArrayList<>();
     private List<IBaseAction> actions = new ArrayList<>();
     private boolean hasReturnAction = false;
@@ -77,10 +75,8 @@ public class DecisionTableLoader {
     }
 
     private void addRule(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
-
         if (ruleRow != null) {
-
-            throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed",
+            throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed.",
                 new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0,
@@ -125,7 +121,7 @@ public class DecisionTableLoader {
                     .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils
-                    .createError("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+                    .createError("Cannot create a header for a Simple Rules or Lookup Table.", e, tableSyntaxNode);
             }
         }
         ILogicalTable toParse = tableBody;
@@ -146,7 +142,7 @@ public class DecisionTableLoader {
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
-                throw SyntaxNodeExceptionUtils.createError("Cannot convert table", e, tableSyntaxNode);
+                throw SyntaxNodeExceptionUtils.createError("Cannot convert table.", e, tableSyntaxNode);
             }
 
         } else if (DecisionTableHelper.looksLikeVertical(tableBody)) {
@@ -165,7 +161,7 @@ public class DecisionTableLoader {
         decisionTable.setDtInfo(info);
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table", tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
         }
 
         columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
@@ -248,7 +244,7 @@ public class DecisionTableLoader {
             .getStringValue();
 
         if (headerStr == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         return headerStr.toUpperCase();
@@ -273,7 +269,10 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             if (hasCollectReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' cannot be used together.",
+                    String.format("Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.",
+                        header,
+                        firstUsedReturnActionHeader,
+                        header),
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0,
@@ -285,7 +284,10 @@ public class DecisionTableLoader {
         } else if (DecisionTableHelper.isValidCRetHeader(header)) {
             if (hasReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' cannot be used together.",
+                    String.format("Invalid Decision Table header '%s'. Headers '%s' and '%s' cannot be used together.",
+                        header,
+                        firstUsedReturnActionHeader,
+                        header),
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0,
@@ -297,14 +299,14 @@ public class DecisionTableLoader {
                 addCollectReturnAction(header, row, table);
             } else {
                 throw SyntaxNodeExceptionUtils.createError(
-                    "Incompatible method return type with '" + header + "' header.",
+                    String.format("Incompatible method return type with '%s' header.", header),
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0,
                         bindingContext));
             }
         } else if (!ParserUtils.isBlankOrCommented(header)) {
-            throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header: " + header,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Invalid Decision Table header '%s'.", header),
                 new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0,

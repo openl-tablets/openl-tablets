@@ -3,6 +3,7 @@ package org.openl.rules.dt.algorithm;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.openl.binding.IBindingContext;
@@ -51,7 +52,7 @@ class DependentParametersOptimizedAlgorithm {
 
                 if (openCast == null) {
                     String message = String.format(
-                        "Cannot convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                        "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
                         paramType.getName(),
                         expressionType.getName(),
                         condition.getName());
@@ -95,7 +96,7 @@ class DependentParametersOptimizedAlgorithm {
                     IOpenCast cast = bindingContext.getCast(paramType0, expressionType);
                     if (cast == null) {
                         String message = String.format(
-                            "Cannot convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                            "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
                             paramType0.getName(),
                             expressionType.getName(),
                             condition.getName());
@@ -215,7 +216,7 @@ class DependentParametersOptimizedAlgorithm {
                 value = value + literalBoundNode.getValue().toString() + "]";
             }
         } else {
-            throw new SyntaxNodeException("Cannot parse array index", null, indexNode.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse array index.", null, indexNode.getSyntaxNode());
         }
 
         if (indexNode.getTargetNode() != null) {
@@ -225,7 +226,7 @@ class DependentParametersOptimizedAlgorithm {
             if (indexNode.getTargetNode() instanceof IndexNode) {
                 return value + buildFieldName((IndexNode) indexNode.getTargetNode());
             }
-            throw new SyntaxNodeException("Cannot parse array index", null, indexNode.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse array index.", null, indexNode.getSyntaxNode());
         }
         return value;
     }
@@ -239,7 +240,7 @@ class DependentParametersOptimizedAlgorithm {
             if (field.getTargetNode() instanceof IndexNode) {
                 return buildFieldName((IndexNode) field.getTargetNode()) + "." + value;
             }
-            throw new SyntaxNodeException("Cannot parse field name", null, field.getSyntaxNode());
+            throw new SyntaxNodeException("Cannot parse field name.", null, field.getSyntaxNode());
         }
         return value;
     }
@@ -298,7 +299,7 @@ class DependentParametersOptimizedAlgorithm {
             }
             return null;
         }
-        throw new IllegalStateException("Condition method should be an instance of CompositeMethod.");
+        throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
     }
 
     private static String[][] twoParameterExpressionParse(ICondition condition) throws SyntaxNodeException {
@@ -334,7 +335,7 @@ class DependentParametersOptimizedAlgorithm {
             }
             return null;
         }
-        throw new IllegalStateException("Condition method should be an instance of CompositeMethod.");
+        throw new IllegalStateException("Condition method is not an instance of CompositeMethod.");
     }
 
     private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,
@@ -443,7 +444,7 @@ class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null) {
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Operator '%s' is not found.", op),
                 condition.getUserDefinedExpressionSource());
         }
 
@@ -470,7 +471,7 @@ class DependentParametersOptimizedAlgorithm {
         RelationType rel1 = RelationType.findElement(op1);
 
         if (rel1 == null) {
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op1,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Operator '%s' is not found.", op1),
                 condition.getUserDefinedExpressionSource());
         }
 
@@ -483,7 +484,7 @@ class DependentParametersOptimizedAlgorithm {
 
         RelationType rel2 = RelationType.findElement(op2);
         if (rel2 == null) {
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op2,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Operator '%s' is not found.", op2),
                 condition.getUserDefinedExpressionSource());
         }
 
@@ -594,7 +595,7 @@ class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null) {
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Operator '%s' is not found.", op),
                 condition.getUserDefinedExpressionSource());
         }
 
@@ -603,7 +604,7 @@ class DependentParametersOptimizedAlgorithm {
         relation = RelationType.findElement(oppositeOp);
 
         if (relation == null) {
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp,
+            throw SyntaxNodeExceptionUtils.createError(String.format("Operator '%s' is not found.", oppositeOp),
                 condition.getUserDefinedExpressionSource());
         }
 
@@ -733,7 +734,8 @@ class DependentParametersOptimizedAlgorithm {
         Pattern pattern;
         String regex;
         int numberOfparams;
-        int minDelta, maxDelta;
+        int minDelta;
+        int maxDelta;
 
         public RangeEvaluatorFactory(String regex, int numberOfparams, int minDelta, int maxDelta) {
             super();
@@ -750,10 +752,8 @@ class DependentParametersOptimizedAlgorithm {
         public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
                 IOpenCast openCast) {
             super(openCast);
-            if (oneParameterEqualsFactory == null) {
-                throw new IllegalArgumentException("parameterDeclaration");
-            }
-            this.oneParameterEqualsFactory = oneParameterEqualsFactory;
+            this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
+                "oneParameterEqualsFactory cannot be null");
         }
 
         @Override
@@ -773,10 +773,8 @@ class DependentParametersOptimizedAlgorithm {
         public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
                 IOpenCast openCast) {
             super(openCast);
-            if (oneParameterEqualsFactory == null) {
-                throw new IllegalArgumentException("parameterDeclaration");
-            }
-            this.oneParameterEqualsFactory = oneParameterEqualsFactory;
+            this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
+                "oneParameterEqualsFactory cannot be null");
         }
 
         @Override
