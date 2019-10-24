@@ -90,7 +90,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         @Override
         public String toString() {
-            return "DependencyReference [reference=" + reference + ", dependency=" + dependency + "]";
+            return String.format("DependencyReference [reference=%s, dependency=%s]", reference, dependency);
         }
 
     }
@@ -137,9 +137,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         Deque<String> compilationStack = getCompilationStack();
         try {
-            log.debug("Dependency '{}' is contained in compilation stack ('{}').",
-                dependencyName,
-                compilationStack.contains(dependencyName));
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    compilationStack.contains(dependencyName) ? "Dependency '{}' in compilation stack."
+                                                              : "Dependency '{}' is not found in compilation stack.",
+                    dependencyName);
+            }
             boolean isCircularDependency = !dependencyLoader.isProject() && compilationStack.contains(dependencyName);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
                 DependencyReference dr = new DependencyReference(getCompilationStack().getFirst(), dependencyName);

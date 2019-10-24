@@ -3,12 +3,7 @@ package org.openl.rules.project.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +102,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules == null ? Collections.emptyList() : new ArrayList<>(modules);
+        this.modules = modules == null ? Collections.emptyList() : modules;
     }
 
     public List<PathEntry> getClasspath() {

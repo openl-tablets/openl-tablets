@@ -1027,17 +1027,15 @@ public class ProjectModel {
             final String moduleName = moduleInfo.getName();
 
             compiledOpenClass = instantiationStrategy.compile();
+            IDependencyLoader dependencyLoader = webStudioWorkspaceDependencyManager.getDependencyLoaders()
+                .get(moduleName);
+            XlsMetaInfo metaInfo = (XlsMetaInfo) dependencyLoader.getCompiledDependency()
+                .getCompiledOpenClass()
+                .getOpenClassWithErrors()
+                .getMetaInfo();
 
-            for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
-                if (!dependency.getDependencyName().equals(moduleName)) {
-                    XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
-
-                    if (metaInfo != null) {
-                        allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-                    }
-                }
+            if (metaInfo != null) {
+                allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
             }
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);

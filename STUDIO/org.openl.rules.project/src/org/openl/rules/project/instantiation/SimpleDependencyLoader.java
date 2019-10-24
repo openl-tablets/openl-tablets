@@ -21,13 +21,13 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     private final Logger log = LoggerFactory.getLogger(SimpleDependencyLoader.class);
 
-    private AbstractDependencyManager dependencyManager;
+    private final AbstractDependencyManager dependencyManager;
     private final String dependencyName;
-    private final Collection<Module> modules;
-    private CompiledDependency compiledDependency = null;
-    private boolean executionMode = false;
-    private boolean singleModuleMode = false;
+    private CompiledDependency compiledDependency;
+    private final boolean executionMode;
+    private final boolean singleModuleMode;
     private final ProjectDescriptor project;
+    private final Module module;
 
     protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
         Map<String, Object> params = dependencyManager.getExternalParameters();
@@ -38,12 +38,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return params;
     }
 
-    public CompiledDependency getRefToCompiledDependency() {
-        return compiledDependency;
-    }
-
-    protected Collection<Module> getModules() {
-        return modules;
+    private Collection<Module> getModules() {
+        return module != null ? Collections.singleton(module) : project.getModules();
     }
 
     protected boolean isExecutionMode() {
@@ -52,7 +48,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public boolean isProject() {
-        return project != null;
+        return module == null;
     }
 
     @Override
@@ -60,43 +56,30 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return project;
     }
 
-    protected SimpleDependencyLoader(String dependencyName,
-            Collection<Module> modules,
+    public SimpleDependencyLoader(ProjectDescriptor project,
+            Module module,
             boolean singleModuleMode,
             boolean executionMode,
-            ProjectDescriptor project,
             AbstractDependencyManager dependencyManager) {
-        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
-        this.modules = Objects.requireNonNull(modules, "modules cannot be null");
-        if (this.modules.isEmpty()) {
-            throw new IllegalArgumentException("Collection of modules cannot be empty.");
-        }
+        this.project = Objects.requireNonNull(project, "project cannot be null");
+        this.module = module;
         this.executionMode = executionMode;
         this.singleModuleMode = singleModuleMode;
-        this.project = project;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
+        this.dependencyName = buildDependencyName(project, module);
     }
 
-    public static SimpleDependencyLoader forModule(Module module,
-            boolean singleModuleMode,
-            boolean executionMode,
-            SimpleDependencyManager dependencyManager) {
-        return new SimpleDependencyLoader(module
-            .getName(), Collections.singletonList(module), singleModuleMode, executionMode, null, dependencyManager);
-    }
-
-    public static SimpleDependencyLoader forProject(ProjectDescriptor project,
-            boolean singleModuleMode,
-            boolean executionMode,
-            SimpleDependencyManager dependencyManager) {
-        return new SimpleDependencyLoader(ProjectExternalDependenciesHelper.buildDependencyNameForProject(
-            project.getName()), project.getModules(), singleModuleMode, executionMode, project, dependencyManager);
+    public static String buildDependencyName(ProjectDescriptor project, Module module) {
+        if (module != null) {
+            return module.getName();
+        }
+        return ProjectExternalDependenciesHelper.buildDependencyNameForProject(project.getName());
     }
 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
         if (compiledDependency != null) {
-            log.debug("Dependency '{}' has been used from cache.", dependencyName);
+            log.debug("Compiled dependency '{}' is used from cache.", dependencyName);
             return compiledDependency;
         }
         log.debug("Dependency '{}' is not found in cache.", dependencyName);
@@ -104,25 +87,25 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        return dependencyManager.getClassLoader(modules.iterator().next().getProject());
+        return dependencyManager.getClassLoader(getProject());
     }
 
     protected CompiledDependency compileDependency(String dependencyName,
             AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         RulesInstantiationStrategy rulesInstantiationStrategy;
         ClassLoader classLoader = buildClassLoader(dependencyManager);
-        if (!isProject() && modules.size() == 1) {
+        if (!isProject()) {
             rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                .getStrategy(modules.iterator().next(), executionMode, dependencyManager, classLoader);
+                .getStrategy(module, executionMode, dependencyManager, classLoader);
         } else {
-            if (isProject() && !modules.isEmpty()) {
-                rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                    dependencyManager,
-                    classLoader,
-                    executionMode);
-            } else {
-                throw new IllegalStateException("Сollection of modules must not be empty.");
+            Collection<Module> modules = getModules();
+            if (modules.isEmpty()) {
+                throw new IllegalStateException("Expected at least one module in the project.");
             }
+            rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(getModules(),
+                dependencyManager,
+                classLoader,
+                executionMode);
         }
 
         Map<String, Object> parameters = configureParameters(dependencyManager);
@@ -136,7 +119,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             OpenLValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
-            log.debug("Dependency '{}' has been saved in cache.", dependencyName);
+            log.debug("Dependency '{}' is saved in cache.", dependencyName);
             return compiledDependency;
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);

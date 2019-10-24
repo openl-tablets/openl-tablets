@@ -29,16 +29,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDependencyManager implements CompilationTimeLoggingDependencyManager {
+public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
-    private RuleServiceLoader ruleServiceLoader;
-    private DeploymentDescription deployment;
-    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-    private boolean lazyCompilation;
-    private PathMatcher wildcardPatternMatcher = new AntPathMatcher();
-    private ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
+    private final RuleServiceLoader ruleServiceLoader;
+    private final DeploymentDescription deployment;
+    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private final boolean lazyCompilation;
+    private final PathMatcher wildcardPatternMatcher = new AntPathMatcher();
+    private final ThreadLocal<Deque<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal
+        .withInitial(ArrayDeque::new);
 
     public boolean isLazyCompilation() {
         return lazyCompilation;
@@ -48,43 +49,39 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         return ruleServiceLoader;
     }
 
-    private static class CompilationInfo {
+    private class CompilationInfo {
         long time;
         long embeddedTime;
-        IDependencyLoader dependencyLoader;
-        Collection<Module> modules;
     }
 
-    @Override
-    public void compilationBegin(IDependencyLoader dependencyLoader, Collection<Module> modules) {
+    public void compilationBegin(IDependencyLoader dependencyLoader) {
         CompilationInfo compilationInfo = new CompilationInfo();
         compilationInfo.time = System.currentTimeMillis();
-        compilationInfo.dependencyLoader = dependencyLoader;
-        compilationInfo.modules = Collections.unmodifiableCollection(modules);
         Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
         compilationInfoStack.push(compilationInfo);
     }
 
-    @Override
-    public void compilationCompleted(IDependencyLoader dependencyLoader, boolean successed) {
+    public enum DependencyCompilationType {
+        NONLAZY,
+        LAZY,
+        UNLOADABLE;
+    }
+
+    public void compilationCompleted(IDependencyLoader dependencyLoader,
+            DependencyCompilationType compilationType,
+            boolean writeToLog) {
         Deque<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
         try {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
-            if (compilationInfo.dependencyLoader != dependencyLoader) {
-                throw new IllegalStateException("This should not happen.");
-            }
-            Collection<Module> modules = compilationInfo.modules;
-
             long t = System.currentTimeMillis() - compilationInfo.time;
 
-            if (modules.size() == 1 && successed && !(dependencyLoader instanceof LazyRuleServiceDependencyLoader)) {
-                Module module = modules.iterator().next();
-                if (log.isInfoEnabled()) {
-                    log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.",
-                        module.getName(),
-                        module.getProject().getName(),
-                        String.valueOf(t - compilationInfo.embeddedTime)));
-                }
+            if (log.isInfoEnabled() && !dependencyLoader.isProject() && writeToLog) {
+                log.info("SUCCESS COMPILATION - {} - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
+                    compilationType,
+                    dependencyLoader.getDependencyName(),
+                    dependencyLoader.getProject().getName(),
+                    deployment.getName(),
+                    t - compilationInfo.embeddedTime);
             }
 
             if (!compilationInfoStack.isEmpty()) {
@@ -95,7 +92,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
             log.error("Unexpected exception.", e);
         } finally {
             if (compilationInfoStack.isEmpty()) {
-                compliationInfoThreadLocal.remove(); // Clean a thread
+                compliationInfoThreadLocal.remove(); // Clean up the thread
             }
         }
     }
@@ -112,7 +109,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
-            throw new OpenLCompilationException("Failed to compile.", e);
+            throw new OpenLCompilationException("Failed to compile dependency.", e);
         }
     }
 
@@ -186,7 +183,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                                     }
                                 }
                             } catch (ProjectException e) {
-                                //Occurs if rules-deploy.xml file is not present in the project.
+                                // Occurs if rules-deploy.xml file is not present in the project.
                             } finally {
                                 closeRuleDeployContent(content);
                             }
@@ -197,10 +194,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                                     boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequred(
                                         wildcardPatterns,
                                         m.getName());
-                                    moduleLoader = LazyRuleServiceDependencyLoader
-                                        .forModule(deployment, m, compileAfterLazyCompilation, this);
+                                    moduleLoader = new LazyRuleServiceDependencyLoader(deployment,
+                                        project,
+                                        m,
+                                        compileAfterLazyCompilation,
+                                        this);
                                 } else {
-                                    moduleLoader = RuleServiceDependencyLoader.forModule(m, this);
+                                    moduleLoader = new RuleServiceDependencyLoader(project, m, this);
                                 }
                                 dependencyLoaders.put(moduleLoader.getDependencyName(), moduleLoader);
                             }
@@ -208,9 +208,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractDepen
                         if (project != null) {
                             IDependencyLoader projectLoader;
                             if (isLazyCompilation()) {
-                                projectLoader = LazyRuleServiceDependencyLoader.forProject(deployment, project, this);
+                                projectLoader = new LazyRuleServiceDependencyLoader(deployment,
+                                    project,
+                                    null,
+                                    false,
+                                    this);
                             } else {
-                                projectLoader = RuleServiceDependencyLoader.forProject(project, this);
+                                projectLoader = new RuleServiceDependencyLoader(project, null, this);
                             }
                             dependencyLoaders.put(projectLoader.getDependencyName(), projectLoader);
                         }

@@ -28,17 +28,20 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
         Map<String, IDependencyLoader> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
-                Collection<Module> modulesOfProject = project.getModules();
-                if (!modulesOfProject.isEmpty()) {
-                    for (final Module m : modulesOfProject) {
-                        final SimpleDependencyLoader moduleDependencyLoader = SimpleDependencyLoader
-                            .forModule(m, singleModuleMode, executionMode, this);
-                        dependencyLoaders.put(moduleDependencyLoader.getDependencyName(), moduleDependencyLoader);
-                    }
+                for (final Module m : project.getModules()) {
+                    final SimpleDependencyLoader moduleDependencyLoader = new SimpleDependencyLoader(project,
+                        m,
+                        singleModuleMode,
+                        executionMode,
+                        this);
+                    dependencyLoaders.put(moduleDependencyLoader.getDependencyName(), moduleDependencyLoader);
                 }
 
-                final SimpleDependencyLoader projectDependencyLoader = SimpleDependencyLoader
-                    .forProject(project, singleModuleMode, executionMode, this);
+                final SimpleDependencyLoader projectDependencyLoader = new SimpleDependencyLoader(project,
+                    null,
+                    singleModuleMode,
+                    executionMode,
+                    this);
                 dependencyLoaders.put(projectDependencyLoader.getDependencyName(), projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
