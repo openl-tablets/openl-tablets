@@ -3,11 +3,8 @@
  */
 package org.openl.rules.dt.algorithm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.math.BigInteger;
+import java.util.*;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -15,6 +12,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.meta.*;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -210,60 +208,110 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
-        if (isMethodTypeNumber(methodType)) {
-            if (isParameterIntRange(paramType)) {
-                return IntRangeAdaptor.getInstance();
-            } else if (isParameterDoubleRange(paramType)) {
+        if (isNumber(methodType)) {
+            if (isIntRange(paramType)) {
+                if (isNonDecimalType(methodType)) {
+                    return IntRangeAdaptor.getInstance();
+                } else {
+                    return DoubleRangeAdaptor.getInstance();
+                }
+            } else if (isDoubleRange(paramType)) {
                 return DoubleRangeAdaptor.getInstance();
             }
         }
 
-        if (isMethodTypeChar(methodType) && isParameterCharRange(paramType)) {
+        if (isChar(methodType) && isCharRange(paramType)) {
             return CharRangeAdaptor.getInstance();
         }
-        if (isMethodTypeDate(methodType) && isParameterDateRange(paramType)) {
+        if (isDate(methodType) && isDateRange(paramType)) {
             return DateRangeAdaptor.getInstance();
         }
-        if (isMethodTypeString(methodType) && isParameterStringRange(paramType)) {
+        if (isString(methodType) && isStringRange(paramType)) {
             return StringRangeAdaptor.getInstance();
         }
         return null;
     }
 
-    private static boolean isParameterDoubleRange(IOpenClass paramType) {
-        return org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass());
+    private static boolean isDoubleRange(IOpenClass type) {
+        return org.openl.rules.helpers.DoubleRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isParameterIntRange(IOpenClass paramType) {
-        return org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass());
+    private static boolean isIntRange(IOpenClass type) {
+        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isParameterCharRange(IOpenClass paramType) {
-        return org.openl.rules.helpers.CharRange.class.equals(paramType.getInstanceClass());
+    private static boolean isCharRange(IOpenClass type) {
+        return org.openl.rules.helpers.CharRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isParameterStringRange(IOpenClass paramType) {
-        return StringRange.class.equals(paramType.getInstanceClass());
+    private static boolean isStringRange(IOpenClass type) {
+        return StringRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isParameterDateRange(IOpenClass paramType) {
-        return DateRange.class.equals(paramType.getInstanceClass());
+    private static boolean isDateRange(IOpenClass type) {
+        return DateRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isMethodTypeNumber(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
+    private static boolean isNumber(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Number.class);
     }
 
-    private static boolean isMethodTypeChar(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class);
+    private static boolean isByte(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Byte.class);
     }
 
-    private static boolean isMethodTypeString(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), CharSequence.class);
+    private static boolean isByteValue(IOpenClass type) {
+        return ByteValue.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isMethodTypeDate(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), Date.class);
+    private static boolean isShort(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Short.class);
+    }
+
+    private static boolean isShortValue(IOpenClass type) {
+        return ShortValue.class.equals(type.getInstanceClass());
+    }
+
+    private static boolean isInteger(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Integer.class);
+    }
+
+    private static boolean isIntValue(IOpenClass type) {
+        return IntValue.class.equals(type.getInstanceClass());
+    }
+
+    private static boolean isLong(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Long.class);
+    }
+
+    private static boolean isLongValue(IOpenClass type) {
+        return LongValue.class.equals(type.getInstanceClass());
+    }
+
+    private static boolean isBigInteger(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), BigInteger.class);
+    }
+
+    private static boolean isBigIntegerValue(IOpenClass type) {
+        return BigIntegerValue.class.equals(type.getInstanceClass());
+    }
+
+    private static boolean isChar(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Character.class);
+    }
+
+    private static boolean isString(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), CharSequence.class);
+    }
+
+    private static boolean isDate(IOpenClass type) {
+        return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
+    }
+
+    private static boolean isNonDecimalType(IOpenClass type) {
+        return isByte(type) || isShort(type) || isShort(type) || isInteger(type) || isLong(type) || isBigInteger(
+            type) || isByteValue(
+                type) || isShortValue(type) || isIntValue(type) || isLongValue(type) || isBigIntegerValue(type);
     }
 
     // TODO to do - fix _NO_PARAM_ issue
@@ -283,11 +331,18 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             case 1:
                 IOpenClass paramType = params[0].getType();
 
-                IOpenCast openCast = bindingContext.getCast(paramType, methodType);
+                IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType, methodType);
+                paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
+                    .isImplicit() ? paramToExpressionOpenCast : null;
 
-                if (openCast != null) {
-                    return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(openCast)
-                                                                  : new EqualsIndexedEvaluator(openCast);
+                IOpenCast methodParameterOpenCast = bindingContext.getCast(methodType, paramType);
+                methodParameterOpenCast = methodParameterOpenCast != null && methodParameterOpenCast
+                    .isImplicit() ? methodParameterOpenCast : null;
+
+                if (paramToExpressionOpenCast != null) {
+                    return condition.getNumberOfEmptyRules(
+                        0) > 1 ? new EqualsIndexedEvaluatorV2(paramToExpressionOpenCast, methodParameterOpenCast)
+                               : new EqualsIndexedEvaluator(paramToExpressionOpenCast, methodParameterOpenCast);
                 }
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
@@ -304,7 +359,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 if (rangeAdaptor != null) {
                     return new CombinedRangeIndexEvaluator(
                         (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
-                        1);
+                        1,
+                        methodParameterOpenCast);
+                }
+
+                if (methodParameterOpenCast != null) {
+                    return condition.getNumberOfEmptyRules(
+                        0) > 1 ? new EqualsIndexedEvaluatorV2(paramToExpressionOpenCast, methodParameterOpenCast)
+                               : new EqualsIndexedEvaluator(paramToExpressionOpenCast, methodParameterOpenCast);
                 }
 
                 if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
@@ -315,7 +377,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 break;
 
             case 2:
-
                 IOpenClass paramType0 = params[0].getType();
                 IOpenClass paramType1 = params[1].getType();
 
@@ -329,7 +390,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         throw SyntaxNodeExceptionUtils
                             .createError(message, null, null, condition.getUserDefinedExpressionSource());
                     }
-                    return new CombinedRangeIndexEvaluator(null, 2);
+                    return new CombinedRangeIndexEvaluator(null, 2, null);
                 }
 
                 aggregateInfo = paramType1.getAggregateInfo();
@@ -361,7 +422,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         String parametersString = StringUtils.join(names, ",");
 
-        String message = String.format("Cannot make a Condition Evaluator for parameter %s and [%s]",
+        String message = String.format("Cannot make a Condition Evaluator for parameter '%s' and '%s'.",
             methodType.getName(),
             parametersString);
 

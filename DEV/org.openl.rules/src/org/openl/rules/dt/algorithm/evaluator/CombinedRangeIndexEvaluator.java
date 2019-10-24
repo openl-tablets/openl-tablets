@@ -3,6 +3,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
@@ -14,8 +15,10 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
 
-    public CombinedRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor, int paramsN) {
-        super(rangeAdaptor, paramsN);
+    public CombinedRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
+            int nparams,
+            IOpenCast expressionToParamOpenCast) {
+        super(rangeAdaptor, nparams, expressionToParamOpenCast);
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 
 /**
@@ -14,9 +15,11 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 public abstract class ARuleIndex implements IRuleIndex {
 
     private DecisionTableRuleNode emptyOrFormulaNodes;
+    private IOpenCast expressionToParamOpenCast;
 
-    ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
+    ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, IOpenCast expressionToParamOpenCast) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
+        this.expressionToParamOpenCast = expressionToParamOpenCast;
     }
 
     @Override
@@ -28,6 +31,10 @@ public abstract class ARuleIndex implements IRuleIndex {
     public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
         if (value == null) {
             return emptyOrFormulaNodes;
+        }
+
+        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
+            value = expressionToParamOpenCast.convert(value);
         }
 
         DecisionTableRuleNode node = findNodeInIndex(value);

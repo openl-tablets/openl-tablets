@@ -18,8 +18,8 @@ import org.openl.rules.helpers.NumberUtils;
  */
 public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
 
-    public EqualsIndexedEvaluator(IOpenCast openCast) {
-        super(openCast);
+    public EqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        super(paramToExpressionOpenCast, expressionToParamOpenCast);
     }
 
     @Override
@@ -29,6 +29,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
         }
 
         EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        builder.setExpressionToParamOpenCast(expressionToParamOpenCast);
         while (it.hasNext()) {
             int ruleN = it.nextInt();
 
@@ -38,8 +39,8 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             }
 
             Object value = condition.getParamValue(0, ruleN);
-            if (openCast != null) {
-                value = openCast.convert(value);
+            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
+                value = paramToExpressionOpenCast.convert(value);
             }
             builder.putValueToRule(value, ruleN);
 

@@ -15,10 +15,12 @@ import java.util.HashSet;
 
 abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
-    IOpenCast openCast;
+    IOpenCast paramToExpressionOpenCast;
+    IOpenCast expressionToParamOpenCast;
 
-    public AEqualsIndexedEvaluator(IOpenCast openCast) {
-        this.openCast = openCast;
+    public AEqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        this.paramToExpressionOpenCast = paramToExpressionOpenCast;
+        this.expressionToParamOpenCast = expressionToParamOpenCast;
     }
 
     @Override
@@ -31,6 +33,9 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
+        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
+            value = expressionToParamOpenCast.convert(value);
+        }
         return new EqualsSelector(condition, value, target, dtparams, env);
     }
 
