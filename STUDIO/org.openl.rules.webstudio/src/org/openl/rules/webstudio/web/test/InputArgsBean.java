@@ -98,6 +98,11 @@ public class InputArgsBean {
             .equals(inputTestCaseType) && argumentTreeNodes != null) {
             try {
                 Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
+                if (stringStringMap.isEmpty() && !inputTextBean
+                    .isEmpty() && (!inputTextBean.startsWith("{") || !inputTextBean.startsWith("["))) {
+                    //the only case for which jackson does not generate a clear error message
+                    throw new Message("Invalid JSON: should start with '{' or '[' symbol");
+                }
                 for (ParameterDeclarationTreeNode arg : argumentTreeNodes) {
                     String field = stringStringMap.get(arg.getName());
                     if (field != null) {
@@ -146,14 +151,13 @@ public class InputArgsBean {
     }
 
     private String constructJsonExceptionMessage(IOException e) {
-        if (e.getClass().isAssignableFrom(JsonParseException.class)) {
+        if (JsonParseException.class.isAssignableFrom(e.getClass())) {
             return String.format("%s</br>[line: %s, column: %s]",
                 ((JsonParseException) e).getOriginalMessage(),
                 ((JsonParseException) e).getLocation().getLineNr(),
                 ((JsonParseException) e).getLocation().getColumnNr());
-        } else {
-            return "Input parameters are wrong.";
         }
+        return "Input parameters are wrong.";
     }
 
     public void initObject() {
