@@ -90,7 +90,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                     }
                 }
                 if (allValues == null) {
-                    if (NumberUtils.isFloatPointNumber(value)) {
+                    if (NumberUtils.isObjectFloatPointNumber(value)) {
                         if (value instanceof BigDecimal) {
                             allValues = new TreeSet<>();
                         } else {

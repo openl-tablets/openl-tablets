@@ -183,7 +183,7 @@ public class EqualsIndexV2 implements IRuleIndex {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
-                if (NumberUtils.isFloatPointNumber(value)) {
+                if (NumberUtils.isObjectFloatPointNumber(value)) {
                     if (value instanceof BigDecimal) {
                         map = new TreeMap<>();
                         result = new TreeMap<>();

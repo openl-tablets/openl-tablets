@@ -3,7 +3,6 @@
  */
 package org.openl.rules.dt.algorithm;
 
-import java.math.BigInteger;
 import java.util.*;
 
 import org.openl.binding.BindingDependencies;
@@ -12,7 +11,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.meta.*;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -23,6 +21,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.type.*;
 import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -208,110 +207,56 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
-        if (isNumber(methodType)) {
-            if (isIntRange(paramType)) {
-                if (isNonDecimalType(methodType)) {
-                    return IntRangeAdaptor.getInstance();
-                } else {
-                    return DoubleRangeAdaptor.getInstance();
-                }
-            } else if (isDoubleRange(paramType)) {
-                return DoubleRangeAdaptor.getInstance();
-            }
+        if (NumberUtils.isNonFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
+            return IntRangeAdaptor.getInstance();
+        }
+        if (NumberUtils.isNumberType(
+            methodType.getInstanceClass()) && (isIntRangeType(paramType) || isDoubleRangeType(paramType))) {
+            return DoubleRangeAdaptor.getInstance();
         }
 
-        if (isChar(methodType) && isCharRange(paramType)) {
+        if (isCharType(methodType) && isCharRangeType(paramType)) {
             return CharRangeAdaptor.getInstance();
         }
-        if (isDate(methodType) && isDateRange(paramType)) {
+        if (isDateType(methodType) && isDateRangeType(paramType)) {
             return DateRangeAdaptor.getInstance();
         }
-        if (isString(methodType) && isStringRange(paramType)) {
+        if (isStringType(methodType) && isStringRangeType(paramType)) {
             return StringRangeAdaptor.getInstance();
         }
         return null;
     }
 
-    private static boolean isDoubleRange(IOpenClass type) {
+    private static boolean isDoubleRangeType(IOpenClass type) {
         return org.openl.rules.helpers.DoubleRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isIntRange(IOpenClass type) {
+    private static boolean isIntRangeType(IOpenClass type) {
         return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isCharRange(IOpenClass type) {
+    private static boolean isCharRangeType(IOpenClass type) {
         return org.openl.rules.helpers.CharRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isStringRange(IOpenClass type) {
+    private static boolean isStringRangeType(IOpenClass type) {
         return StringRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isDateRange(IOpenClass type) {
+    private static boolean isDateRangeType(IOpenClass type) {
         return DateRange.class.equals(type.getInstanceClass());
     }
 
-    private static boolean isNumber(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), Number.class);
-    }
-
-    private static boolean isByte(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), Byte.class);
-    }
-
-    private static boolean isByteValue(IOpenClass type) {
-        return ByteValue.class.equals(type.getInstanceClass());
-    }
-
-    private static boolean isShort(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), Short.class);
-    }
-
-    private static boolean isShortValue(IOpenClass type) {
-        return ShortValue.class.equals(type.getInstanceClass());
-    }
-
-    private static boolean isInteger(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), Integer.class);
-    }
-
-    private static boolean isIntValue(IOpenClass type) {
-        return IntValue.class.equals(type.getInstanceClass());
-    }
-
-    private static boolean isLong(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), Long.class);
-    }
-
-    private static boolean isLongValue(IOpenClass type) {
-        return LongValue.class.equals(type.getInstanceClass());
-    }
-
-    private static boolean isBigInteger(IOpenClass type) {
-        return ClassUtils.isAssignable(type.getInstanceClass(), BigInteger.class);
-    }
-
-    private static boolean isBigIntegerValue(IOpenClass type) {
-        return BigIntegerValue.class.equals(type.getInstanceClass());
-    }
-
-    private static boolean isChar(IOpenClass type) {
+    private static boolean isCharType(IOpenClass type) {
         return ClassUtils.isAssignable(type.getInstanceClass(), Character.class);
     }
 
-    private static boolean isString(IOpenClass type) {
+    private static boolean isStringType(IOpenClass type) {
         return ClassUtils.isAssignable(type.getInstanceClass(), CharSequence.class);
     }
 
-    private static boolean isDate(IOpenClass type) {
+    private static boolean isDateType(IOpenClass type) {
         return ClassUtils.isAssignable(type.getInstanceClass(), Date.class);
-    }
-
-    private static boolean isNonDecimalType(IOpenClass type) {
-        return isByte(type) || isShort(type) || isShort(type) || isInteger(type) || isLong(type) || isBigInteger(
-            type) || isByteValue(
-                type) || isShortValue(type) || isIntValue(type) || isLongValue(type) || isBigIntegerValue(type);
     }
 
     // TODO to do - fix _NO_PARAM_ issue
@@ -349,8 +294,13 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
                 if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
                     .isAssignableFrom(methodType)) {
-                    return condition.getNumberOfEmptyRules(0) > 1 ? new ContainsInArrayIndexedEvaluatorV2()
-                                                                  : new ContainsInArrayIndexedEvaluator();
+                    return condition.getNumberOfEmptyRules(0) > 1
+                                                                  ? new ContainsInArrayIndexedEvaluatorV2(
+                                                                      paramToExpressionOpenCast,
+                                                                      methodParameterOpenCast)
+                                                                  : new ContainsInArrayIndexedEvaluator(
+                                                                      paramToExpressionOpenCast,
+                                                                      methodParameterOpenCast);
                 }
 
                 IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(methodType,

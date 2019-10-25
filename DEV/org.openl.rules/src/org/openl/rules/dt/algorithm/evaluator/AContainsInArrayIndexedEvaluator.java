@@ -1,9 +1,18 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.meta.BigDecimalValue;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.NumberUtils;
@@ -12,17 +21,14 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
 public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluator {
 
     private int uniqueKeysSize = -1;
     private int maxArrayLength = -1;
+
+    public AContainsInArrayIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    }
 
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
@@ -37,8 +43,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-        Object value = condition.getEvaluator().invoke(target, params, env);
-
+        Object value = convertWithParamToExpressionOpenCast(condition.getEvaluator().invoke(target, params, env));
         return new ContainsInArraySelector(condition, value);
     }
 
@@ -75,8 +80,8 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
             for (int j = 0; j < length; j++) {
                 Object val = Array.get(values, j);
                 if (uniqueVals == null) {
-                    if (NumberUtils.isFloatPointNumber(val)) {
-                        if (val instanceof BigDecimal) {
+                    if (NumberUtils.isObjectFloatPointNumber(val)) {
+                        if (val instanceof BigDecimal || val instanceof BigDecimalValue) {
                             uniqueVals = new HashSet<>();
                         } else {
                             uniqueVals = new TreeSet<>(FloatTypeComparator.getInstance());

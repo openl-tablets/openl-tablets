@@ -15,7 +15,9 @@ public class CombinedRangeIndex implements IRuleIndex {
     private final RangeAscIndex minIndex;
     private final RangeDescIndex maxIndex;
 
-    public CombinedRangeIndex(RangeAscIndex minIndex, RangeDescIndex maxIndex, DecisionTableRuleNode nextNode) {
+    public CombinedRangeIndex(RangeAscIndex minIndex,
+            RangeDescIndex maxIndex,
+            DecisionTableRuleNode nextNode) {
         this.nextNode = nextNode;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;

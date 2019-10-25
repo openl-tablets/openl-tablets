@@ -43,12 +43,12 @@ public class EqualsSelector implements IIntSelector {
             return ((BigDecimal) value).compareTo((BigDecimal) realParams[0]) == 0;
         }
 
-        if (value instanceof BigDecimal && NumberUtils.isFloatPointNumber(realParams[0])) {
+        if (value instanceof BigDecimal && NumberUtils.isObjectFloatPointNumber(realParams[0])) {
             Double d = NumberUtils.convertToDouble(realParams[0]);
             return ((BigDecimal) value).compareTo(BigDecimal.valueOf(d)) == 0;
         }
 
-        if (NumberUtils.isFloatPointNumber(value) && realParams[0] instanceof BigDecimal) {
+        if (NumberUtils.isObjectFloatPointNumber(value) && realParams[0] instanceof BigDecimal) {
             Double d = NumberUtils.convertToDouble(value);
             return ((BigDecimal) realParams[0]).compareTo(BigDecimal.valueOf(d)) == 0;
         }

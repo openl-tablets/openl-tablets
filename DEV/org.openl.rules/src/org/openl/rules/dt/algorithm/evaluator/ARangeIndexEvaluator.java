@@ -19,14 +19,13 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
     final int nparams;
-    IOpenCast expressionToParamOpenCast;
 
     ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
             int nparams,
             IOpenCast expressionToParamOpenCast) {
+        super(null, expressionToParamOpenCast);
         this.rangeAdaptor = rangeAdaptor;
         this.nparams = nparams;
-        this.expressionToParamOpenCast = expressionToParamOpenCast;
     }
 
     @Override
@@ -48,10 +47,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     @Override
     @SuppressWarnings("unchecked")
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = condition.getEvaluator().invoke(target, dtparams, env);
-        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
-            value = expressionToParamOpenCast.convert(value);
-        }
+        Object value = convertWithExpressionToParamOpenCast(condition.getEvaluator().invoke(target, dtparams, env));
         return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 

@@ -58,7 +58,7 @@ public class EqualsIndex extends ARuleIndex {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
-                if (NumberUtils.isFloatPointNumber(value)) {
+                if (NumberUtils.isObjectFloatPointNumber(value)) {
                     if (value instanceof BigDecimal) {
                         map = new TreeMap<>();
                         nodeMap = new TreeMap<>();

@@ -29,10 +29,7 @@ public class EqualsIndexedEvaluatorV2 extends AEqualsIndexedEvaluator {
                 continue;
             }
 
-            Object value = condition.getParamValue(0, ruleN);
-            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                value = paramToExpressionOpenCast.convert(value);
-            }
+            Object value = convertWithParamToExpressionOpenCast(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
         }
 

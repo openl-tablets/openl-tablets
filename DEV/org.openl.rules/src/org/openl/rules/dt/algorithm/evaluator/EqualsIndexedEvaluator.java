@@ -38,10 +38,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
                 continue;
             }
 
-            Object value = condition.getParamValue(0, ruleN);
-            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                value = paramToExpressionOpenCast.convert(value);
-            }
+            Object value = convertWithParamToExpressionOpenCast(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
 
         }
@@ -56,9 +53,9 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             if (condition.isEmpty(i)) {
                 continue;
             }
-            Object val = condition.getParamValue(0, i);
+            Object val = convertWithParamToExpressionOpenCast(condition.getParamValue(0, i));
             if (uniqueVals == null) {
-                if (NumberUtils.isFloatPointNumber(val)) {
+                if (NumberUtils.isObjectFloatPointNumber(val)) {
                     if (val instanceof BigDecimal) {
                         uniqueVals = new HashSet<>();
                     } else {
