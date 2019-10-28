@@ -1,0 +1,6 @@
+ERROR: Field 'field1' is not found.
+ERROR: Order By expression requires typed parameter
+ERROR: Order By expression must be Comparable
+ERROR: Index operator org.openl.generated.beans.MyCustomDatatype[java.lang.String] is not found.
+ERROR: Index operator org.openl.generated.beans.MyCustomDatatype[int] is not found.
+ERROR: Index operator org.openl.generated.beans.MyCustomDatatype[java.lang.String] is not found.
