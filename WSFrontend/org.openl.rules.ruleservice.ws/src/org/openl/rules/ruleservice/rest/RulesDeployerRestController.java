@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.publish.RuleServiceManager;
 
@@ -49,8 +50,12 @@ public class RulesDeployerRestController {
     @Path("/deploy")
     @Consumes("application/zip")
     public Response deploy(@Context HttpServletRequest request) throws Exception {
-        rulesDeployerService.deploy(request.getInputStream(), false);
-        return Response.status(Status.CREATED).build();
+        try {
+            rulesDeployerService.deploy(request.getInputStream(), false);
+            return Response.status(Status.CREATED).build();
+        } catch (RulesDeployInputException e) {
+            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
     }
 
     /**
@@ -60,8 +65,12 @@ public class RulesDeployerRestController {
     @Path("/deploy")
     @Consumes("application/zip")
     public Response redeploy(@Context HttpServletRequest request) throws Exception {
-        rulesDeployerService.deploy(request.getInputStream(), true);
-        return Response.status(Status.CREATED).build();
+        try {
+            rulesDeployerService.deploy(request.getInputStream(), true);
+            return Response.status(Status.CREATED).build();
+        } catch (RulesDeployInputException e) {
+            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
     }
 
     /**
