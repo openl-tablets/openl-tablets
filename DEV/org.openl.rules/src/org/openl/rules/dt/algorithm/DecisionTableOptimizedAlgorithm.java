@@ -210,11 +210,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (NumberUtils.isNonFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
             return IntRangeAdaptor.getInstance();
         }
-        if (NumberUtils.isNumberType(
-            methodType.getInstanceClass()) && (isIntRangeType(paramType) || isDoubleRangeType(paramType))) {
+        if (NumberUtils.isFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
+            return DoubleRangeForIntRangeAdaptor.getInstance();
+        }
+        if (NumberUtils.isNumberType(methodType.getInstanceClass()) && isDoubleRangeType(paramType)) {
             return DoubleRangeAdaptor.getInstance();
         }
-
         if (isCharType(methodType) && isCharRangeType(paramType)) {
             return CharRangeAdaptor.getInstance();
         }

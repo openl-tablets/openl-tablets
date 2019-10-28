@@ -202,54 +202,52 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
         if (StringUtils.isEmpty(source.getCode())) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression", source);
+            throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression.", source);
         }
 
         // tested in TypeInExpressionTest
         //
         IBoundNode[] children = methodNode.getChildren();
         if (children != null && children.length == 1 && children[0].getChildren()[0] instanceof TypeBoundNode) {
-            String message = String.format("Cannot execute expression with only type definition %s", source.getCode());
+            String message = String.format("Cannot execute expression with only type definition '%s'.", source.getCode());
             throw SyntaxNodeExceptionUtils.createError(message, source);
         }
 
         IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getBodyType();
 
-        IConditionEvaluator conditionEvaluator;
-        IMethodCaller evaluator;
         if (condition.isDependentOnAnyParams()) {
-            if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
+            if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
+                .equals(methodType)) {
                 throw SyntaxNodeExceptionUtils
-                    .createError("Condition must have boolean type if it depends on it's parameters", source);
+                    .createError("Condition must have boolean type if it depends on it's parameters.", source);
             }
 
-            condition.setConditionEvaluator(conditionEvaluator = DependentParametersOptimizedAlgorithm
-                .makeEvaluator(condition, signature, bindingContext));
+            IConditionEvaluator conditionEvaluator = DependentParametersOptimizedAlgorithm
+                .makeEvaluator(condition, signature, bindingContext);
 
             if (conditionEvaluator != null) {
-                condition.setEvaluator(evaluator = makeOptimizedConditionMethodEvaluator(condition,
+                condition.setConditionEvaluator(conditionEvaluator);
+                IMethodCaller evaluator = makeOptimizedConditionMethodEvaluator(condition,
                     signature,
-                    conditionEvaluator.getOptimizedSourceCode()));
+                    conditionEvaluator.getOptimizedSourceCode());
+                condition.setEvaluator(evaluator);
                 if (evaluator == null) {
                     condition.setEvaluator(makeDependentParamsIndexedConditionMethodEvaluator(condition,
                         signature,
                         conditionEvaluator.getOptimizedSourceCode()));
                 }
-                return conditionEvaluator;
+            } else {
+                conditionEvaluator = new DefaultConditionEvaluator();
+                condition.setConditionEvaluator(conditionEvaluator);
             }
-
-            condition.setConditionEvaluator(conditionEvaluator = new DefaultConditionEvaluator());
             return conditionEvaluator;
+        } else {
+            IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm
+                .makeEvaluator(condition, methodType, bindingContext);
+            condition.setEvaluator(makeOptimizedConditionMethodEvaluator(condition, signature));
+            condition.setConditionEvaluator(dtcev);
+            return dtcev;
         }
-
-        IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm
-            .makeEvaluator(condition, methodType, bindingContext);
-
-        condition.setEvaluator(makeOptimizedConditionMethodEvaluator(condition, signature));
-
-        condition.setConditionEvaluator(conditionEvaluator = dtcev);
-        return conditionEvaluator;
-
     }
 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {

@@ -33,7 +33,10 @@ class DependentParametersOptimizedAlgorithm {
     static IConditionEvaluator makeEvaluator(ICondition condition,
             IMethodSignature signature,
             IBindingContext bindingContext) throws SyntaxNodeException {
-
+        if (condition.hasFormulas()) {
+            return null;
+        }
+        
         EvaluatorFactory evaluatorFactory = determineOptimizedEvaluationFactory(condition, signature);
 
         if (evaluatorFactory == null) {
