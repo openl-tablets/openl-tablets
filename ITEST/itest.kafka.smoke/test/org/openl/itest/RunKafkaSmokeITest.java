@@ -48,7 +48,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     private String toString(byte[] bytes) {
@@ -126,7 +126,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     @Test
@@ -163,7 +163,7 @@ public class RunKafkaSmokeITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         Assert.assertEquals(1, observedValues.size());
-        Assert.assertEquals("\"Good Morning\"", observedValues.get(0));
+        Assert.assertEquals("Good Morning", observedValues.get(0));
     }
 
     private String getHeaderValue(KeyValue<?, ?> v, String key) {

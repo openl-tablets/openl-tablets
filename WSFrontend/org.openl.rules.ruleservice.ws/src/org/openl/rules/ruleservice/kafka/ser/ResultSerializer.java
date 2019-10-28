@@ -30,6 +30,9 @@ public class ResultSerializer implements Serializer<Object> {
     @Override
     public byte[] serialize(String topic, Object data) {
         try {
+            if (data instanceof String) {
+                return ((String) data).getBytes(encoding);
+            }
             return objectMapper.writeValueAsString(data).getBytes(encoding);
         } catch (Exception e) {
             throw new SerializationException("Failed to write a result.", e);
