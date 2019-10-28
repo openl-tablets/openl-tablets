@@ -15,10 +15,14 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
 
+    private IOpenCast paramToExpressionOpenCast;
+
     public CombinedRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
             int nparams,
+            IOpenCast paramToExpressionOpenCast,
             IOpenCast expressionToParamOpenCast) {
         super(rangeAdaptor, nparams, expressionToParamOpenCast);
+        this.paramToExpressionOpenCast = paramToExpressionOpenCast;
     }
 
     @Override
@@ -60,6 +64,9 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
             int ruleN = it.nextInt();
             nextNodeBuilder.addRule(ruleN);
             Object origVal = condition.getParamValue(0, ruleN);
+            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
+                origVal = paramToExpressionOpenCast.convert(origVal);
+            }
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;
@@ -82,6 +89,9 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         while (it.hasNext()) {
             int ruleN = it.nextInt();
             Object origVal = condition.getParamValue(paramN, ruleN);
+            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
+                origVal = paramToExpressionOpenCast.convert(origVal);
+            }
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;

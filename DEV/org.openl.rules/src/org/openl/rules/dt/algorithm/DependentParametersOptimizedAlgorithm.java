@@ -36,7 +36,7 @@ class DependentParametersOptimizedAlgorithm {
         if (condition.hasFormulas()) {
             return null;
         }
-        
+
         EvaluatorFactory evaluatorFactory = determineOptimizedEvaluationFactory(condition, signature);
 
         if (evaluatorFactory == null) {
@@ -91,6 +91,7 @@ class DependentParametersOptimizedAlgorithm {
             CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
                 (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
                 2,
+                paramToExpressionOpenCast,
                 expressionToParamOpenCast);
 
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());

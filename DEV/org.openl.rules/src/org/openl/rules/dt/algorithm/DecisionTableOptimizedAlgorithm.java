@@ -311,6 +311,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return new CombinedRangeIndexEvaluator(
                     (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
                     1,
+                    paramToExpressionOpenCast,
                     methodParameterToParamOpenCast);
             }
 
@@ -335,11 +336,19 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             methodParameterToParamOpenCast = methodParameterToParamOpenCast != null && methodParameterToParamOpenCast
                 .isImplicit() ? methodParameterToParamOpenCast : null;
 
-            if (methodParameterToParamOpenCast != null && Objects.equals(paramType0, paramType1)) {
+            IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType0, methodType);
+            paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
+                .isImplicit() ? paramToExpressionOpenCast : null;
+
+            if ((methodParameterToParamOpenCast != null || paramToExpressionOpenCast != null) && Objects
+                .equals(paramType0, paramType1)) {
                 Class<?> clazz = methodType.getInstanceClass();
                 if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || Comparable.class
                     .isAssignableFrom(clazz)) {
-                    return new CombinedRangeIndexEvaluator(null, 2, methodParameterToParamOpenCast);
+                    return new CombinedRangeIndexEvaluator(null,
+                        2,
+                        paramToExpressionOpenCast,
+                        methodParameterToParamOpenCast);
                 }
             }
 
