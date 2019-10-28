@@ -17,7 +17,7 @@ public class DuplicatedTableException extends SyntaxNodeException {
     private static final long serialVersionUID = -6269440215951548170L;
 
     public DuplicatedTableException(String tableName, TableSyntaxNode duplicatedTable) {
-        super("The table already exists: " + tableName, null, duplicatedTable);
+        super(String.format("Duplicate table '%s'.", tableName), null, duplicatedTable);
     }
 
 }
