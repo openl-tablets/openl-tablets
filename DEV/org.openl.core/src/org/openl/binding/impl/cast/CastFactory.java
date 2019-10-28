@@ -55,6 +55,8 @@ public class CastFactory implements ICastFactory {
 
     public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 28;
 
+    public static final int AFTER_FITST_WAVE_CASTS_DISTANCE = 30;
+
     public static final int JAVA_DOWN_CAST_DISTANCE = 60;
     public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 62;
     public static final int NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 64;
@@ -78,12 +80,6 @@ public class CastFactory implements ICastFactory {
      * Internal cache of cast operations.
      */
     private ConcurrentHashMap<Object, IOpenCast> castCache = new ConcurrentHashMap<>();
-
-    /**
-     * Default constructor.
-     */
-    public CastFactory() {
-    }
 
     public void setMethodFactory(IMethodFactory factory) {
         methodFactory = factory;
@@ -740,36 +736,30 @@ public class CastFactory implements ICastFactory {
                     distance = PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
                 }
 
-                if (castCaller == null) {
-                    if (primitiveClassFrom != null) {
-                        IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                        fromOpenClass = wrapperOpenClassFrom;
-                        toOpenClass = to;
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                            new IOpenClass[] { wrapperOpenClassFrom, to });
-                    }
+                if (castCaller == null && primitiveClassFrom != null) {
+                    IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                    fromOpenClass = wrapperOpenClassFrom;
+                    toOpenClass = to;
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        new IOpenClass[] { wrapperOpenClassFrom, to });
                 }
 
-                if (castCaller == null) {
-                    if (primitiveClassTo != null) {
-                        IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                            new IOpenClass[] { from, wrapperOpenClassTo });
-                        fromOpenClass = from;
-                        toOpenClass = wrapperOpenClassTo;
-                        toNullObject = wrapperOpenClassTo.nullObject();
-                    }
+                if (castCaller == null && primitiveClassTo != null) {
+                    IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        new IOpenClass[] { from, wrapperOpenClassTo });
+                    fromOpenClass = from;
+                    toOpenClass = wrapperOpenClassTo;
+                    toNullObject = wrapperOpenClassTo.nullObject();
                 }
 
-                if (castCaller == null) {
-                    if (primitiveClassFrom != null && primitiveClassTo != null) {
-                        IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
-                        IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                        fromOpenClass = wrapperOpenClassFrom;
-                        toOpenClass = wrapperOpenClassTo;
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                            new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
-                    }
+                if (castCaller == null && primitiveClassFrom != null && primitiveClassTo != null) {
+                    IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
+                    IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
+                    fromOpenClass = wrapperOpenClassFrom;
+                    toOpenClass = wrapperOpenClassTo;
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
                 }
 
             } catch (AmbiguousMethodException ex) {

@@ -7,11 +7,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.meta.LongValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class DateRange {
+
+    private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
 
     private final long lowerBound;
     private final long upperBound;
@@ -145,18 +148,34 @@ public class DateRange {
         return new DateRange(x);
     }
 
+    public static int distance(Date x, DateRange y) {
+        return TO_DATE_RANGE_CAST_DISTANCE;
+    }
+
     public static DateRange autocast(Calendar x, DateRange y) {
         return new DateRange(x.getTime());
+    }
+
+    public static int distance(Calendar x, DateRange y) {
+        return TO_DATE_RANGE_CAST_DISTANCE;
     }
 
     public static DateRange autocast(long x, DateRange y) {
         return new DateRange(new Date(x));
     }
 
+    public static int distance(long x, DateRange y) {
+        return TO_DATE_RANGE_CAST_DISTANCE;
+    }
+
     // END
     // CAST METHODS
     public static DateRange cast(LongValue x, DateRange y) {
         return new DateRange(new Date(x.longValue()));
+    }
+
+    public static int distance(LongValue x, DateRange y) {
+        return TO_DATE_RANGE_CAST_DISTANCE;
     }
     // END
 
