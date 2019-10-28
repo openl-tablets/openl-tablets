@@ -363,8 +363,14 @@ public class RunTest {
             "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order decreasing by s]",
             new String[] { "ddd", "bb", "aaa" });
         assertEquals(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order \n     decreasing by s]",
-            new String[] { "ddd", "bb", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order \n     decreasing by s]",
+                new String[]{"ddd", "bb", "aaa"});
+        assertEquals(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s)^@s]",
+                new String[]{"aaa", "bb", "ddd"});
+        assertError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[^@s]",
+                CompositeSyntaxNodeException.class);
     }
 
     @Test

@@ -1,12 +1,29 @@
 package org.openl.rules.ruleservice.deployer;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -105,15 +122,16 @@ public class RulesDeployerService implements Closeable {
         return deployRepo.delete(fileDate);
     }
 
-    private void deployInternal(String originalName, InputStream in, boolean overridable) throws Exception {
+    private void deployInternal(String originalName, InputStream in, boolean overridable) throws IOException,
+                                                                                          RulesDeployInputException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copyAndClose(in, baos);
 
-        if (baos.size() == 0) {
-            throw new RuntimeException("Zip file input stream is empty");
-        }
-
         Map<String, byte[]> zipEntries = DeploymentUtils.unzip(new ByteArrayInputStream(baos.toByteArray()));
+
+        if (baos.size() == 0 || zipEntries.size() == 0) {
+            throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
+        }
 
         String deploymentName = getDeploymentName(zipEntries);
         String name = originalName != null ? originalName : DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
@@ -142,7 +160,7 @@ public class RulesDeployerService implements Closeable {
     private List<FileItem> splitMultipleDeployment(Map<String, byte[]> zipEntries,
             String deploymentName,
             String name,
-            boolean overridable) throws Exception {
+            boolean overridable) throws IOException {
         Set<String> projectFolders = new HashSet<>();
         String rulesXml = "/" + RULES_XML;
         for (String fileName : zipEntries.keySet()) {
@@ -209,7 +227,7 @@ public class RulesDeployerService implements Closeable {
     private FileData createFileData(Map<String, byte[]> zipEntries,
             String defaultDeploymentName,
             String defaultName,
-            boolean overridable) throws Exception {
+            boolean overridable) throws IOException {
 
         String projectName = readProjectName(zipEntries.get(RULES_XML), defaultName);
         String apiVersion = readApiVersion(zipEntries.get("rules-deploy.xml"));
