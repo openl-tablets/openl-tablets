@@ -209,7 +209,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         //
         IBoundNode[] children = methodNode.getChildren();
         if (children != null && children.length == 1 && children[0].getChildren()[0] instanceof TypeBoundNode) {
-            String message = String.format("Cannot execute expression with only type definition '%s'.", source.getCode());
+            String message = String.format("Cannot execute expression with only type definition '%s'.",
+                source.getCode());
             throw SyntaxNodeExceptionUtils.createError(message, source);
         }
 
@@ -219,7 +220,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(methodType)) {
                 throw SyntaxNodeExceptionUtils
-                    .createError("Condition must have boolean type if it depends on it's parameters.", source);
+                    .createError("Condition must have boolean type if it uses condition parameters.", source);
             }
 
             IConditionEvaluator conditionEvaluator = DependentParametersOptimizedAlgorithm

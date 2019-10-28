@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 import java.util.Collections;
 import java.util.Set;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
@@ -15,16 +16,23 @@ public class CombinedRangeIndex implements IRuleIndex {
     private final RangeAscIndex minIndex;
     private final RangeDescIndex maxIndex;
 
+    private final IOpenCast expressionToParamOpenCast;
+
     public CombinedRangeIndex(RangeAscIndex minIndex,
             RangeDescIndex maxIndex,
-            DecisionTableRuleNode nextNode) {
+            DecisionTableRuleNode nextNode,
+            IOpenCast expressionToParamOpenCast) {
         this.nextNode = nextNode;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
+        this.expressionToParamOpenCast = expressionToParamOpenCast;
     }
 
     @Override
     public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
+            value = expressionToParamOpenCast.convert(value);
+        }
         Set<Integer> minIndexRules = minIndex.findRules(value, prevResult);
         DecisionTableRuleNode minIndexResult = new RangeIndexDecisionTableRuleNode(minIndexRules, null);
         Set<Integer> maxIndexRules = maxIndex.findRules(value, minIndexResult);

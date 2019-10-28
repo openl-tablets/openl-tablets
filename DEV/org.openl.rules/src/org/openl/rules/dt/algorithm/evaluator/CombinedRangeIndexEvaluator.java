@@ -43,7 +43,10 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
             indexNodeAdaptor,
             emptyRulesBuilder.makeNode().getRules());
 
-        return new CombinedRangeIndex(minIndex, maxIndex, nextNodeBuilder.makeNode());
+        return new CombinedRangeIndex(minIndex,
+            maxIndex,
+            nextNodeBuilder.makeNode(),
+            nparams == 2 ? expressionToParamOpenCast : null);
     }
 
     @SuppressWarnings("unchecked")

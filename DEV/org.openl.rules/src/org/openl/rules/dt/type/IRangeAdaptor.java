@@ -10,7 +10,7 @@ public interface IRangeAdaptor<T, C extends Comparable<?>> {
      * Gets max value of range.
      *
      * @param param
-     * @return the max bound of the expression min <= X && X <= max. Returns null if needs maximum max posible value.
+     * @return the max bound of the expression min <= X && X <= max. Returns null if needs maximum possible value.
      */
     C getMax(T param);
 
@@ -18,7 +18,7 @@ public interface IRangeAdaptor<T, C extends Comparable<?>> {
      * Gets min value of range.
      *
      * @param param
-     * @return the min bound of the expression min <= X && X <= max. Returns null if needs maximum min posible value.
+     * @return the min bound of the expression min <= X && X <= max. Returns null if needs minimum possible value.
      */
     C getMin(T param);
 
