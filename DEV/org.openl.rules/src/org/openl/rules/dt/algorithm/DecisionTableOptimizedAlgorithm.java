@@ -205,6 +205,13 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         table.updateDependency(dependencies);
     }
 
+    public static IOpenCast toNullIfNotImplicitCast(IOpenCast cast) {
+        if (cast != null && cast.isImplicit()) {
+            return cast;
+        }
+        return null;
+    }
+
     static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
         if (NumberUtils.isNonFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
@@ -275,13 +282,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (params.length == 1) {
             IOpenClass paramType = params[0].getType();
 
-            IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType, methodType);
-            paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
-                .isImplicit() ? paramToExpressionOpenCast : null;
-
-            IOpenCast methodParameterToParamOpenCast = bindingContext.getCast(methodType, paramType);
-            methodParameterToParamOpenCast = methodParameterToParamOpenCast != null && methodParameterToParamOpenCast
-                .isImplicit() ? methodParameterToParamOpenCast : null;
+            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(paramType, methodType));
+            IOpenCast methodParameterToParamOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(methodType, paramType));
 
             if (paramToExpressionOpenCast != null) {
                 return condition.getNumberOfEmptyRules(0) > 1
@@ -332,13 +336,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IOpenClass paramType0 = params[0].getType();
             IOpenClass paramType1 = params[1].getType();
 
-            IOpenCast methodParameterToParamOpenCast = bindingContext.getCast(methodType, paramType0);
-            methodParameterToParamOpenCast = methodParameterToParamOpenCast != null && methodParameterToParamOpenCast
-                .isImplicit() ? methodParameterToParamOpenCast : null;
-
-            IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType0, methodType);
-            paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
-                .isImplicit() ? paramToExpressionOpenCast : null;
+            IOpenCast methodParameterToParamOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(methodType, paramType0));
+            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(paramType0, methodType));
 
             if ((methodParameterToParamOpenCast != null || paramToExpressionOpenCast != null) && Objects
                 .equals(paramType0, paramType1)) {

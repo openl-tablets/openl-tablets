@@ -26,6 +26,8 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 
+import static org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm.toNullIfNotImplicitCast;
+
 class DependentParametersOptimizedAlgorithm {
 
     RangeEvaluatorFactory[] rangeFactories = { new RangeEvaluatorFactory(null, 0, 0, 0) };
@@ -61,13 +63,10 @@ class DependentParametersOptimizedAlgorithm {
         IOpenClass paramType1 = params[1].getType();
 
         if (paramType0.equals(paramType1)) {
-            IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType0, expressionType);
-            paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
-                .isImplicit() ? paramToExpressionOpenCast : null;
-
-            IOpenCast expressionToParamOpenCast = bindingContext.getCast(expressionType, paramType0);
-            expressionToParamOpenCast = expressionToParamOpenCast != null && expressionToParamOpenCast
-                .isImplicit() ? expressionToParamOpenCast : null;
+            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(paramType0, expressionType));
+            IOpenCast expressionToParamOpenCast = toNullIfNotImplicitCast(
+                bindingContext.getCast(expressionType, paramType0));
 
             if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
                 String message = String.format(
@@ -91,8 +90,8 @@ class DependentParametersOptimizedAlgorithm {
             CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
                 (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
                 2,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+                null,
+                null);
 
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
 
@@ -108,13 +107,10 @@ class DependentParametersOptimizedAlgorithm {
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass paramType = params[0].getType();
 
-        IOpenCast paramToExpressionOpenCast = bindingContext.getCast(paramType, expressionType);
-        paramToExpressionOpenCast = paramToExpressionOpenCast != null && paramToExpressionOpenCast
-            .isImplicit() ? paramToExpressionOpenCast : null;
-
-        IOpenCast expressionToParamOpenCast = bindingContext.getCast(expressionType, paramType);
-        expressionToParamOpenCast = expressionToParamOpenCast != null && expressionToParamOpenCast
-            .isImplicit() ? expressionToParamOpenCast : null;
+        IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
+            bindingContext.getCast(paramType, expressionType));
+        IOpenCast expressionToParamOpenCast = toNullIfNotImplicitCast(
+            bindingContext.getCast(expressionType, paramType));
 
         if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
             String message = String.format(
