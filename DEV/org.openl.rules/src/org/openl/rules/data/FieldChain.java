@@ -1,6 +1,7 @@
 package org.openl.rules.data;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.openl.syntax.impl.IdentifierNode;
@@ -57,7 +58,7 @@ public class FieldChain extends AOpenField {
     }
 
     private static String makeNames(IOpenField[] fields) {
-        return Arrays.stream(fields).map(IOpenField::getName).collect(Collectors.joining("."));
+        return Arrays.stream(fields).filter(Objects::nonNull).map(IOpenField::getName).collect(Collectors.joining("."));
     }
 
     private static String makeNamesByTokens(IdentifierNode[] fieldAccessorChainTokens) {
