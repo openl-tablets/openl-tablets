@@ -31,25 +31,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public String increment(String value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            int d = 1;
-            StringBuilder sb = new StringBuilder();
-            int i = value.length() - 1;
-            while (i >= 0) {
-                if (d > 0) {
-                    if (value.charAt(i) != Character.MAX_CODE_POINT) {
-                        sb.append((char) (value.charAt(i) + d));
-                        d = 0;
-                    } else {
-                        sb.append(Character.MIN_CODE_POINT);
-                    }
-                } else {
-                    sb.append(value.charAt(i));
-                }
-                i--;
-            }
-            sb.reverse();
-            return sb.toString();
+            return incrementString(value);
         }
 
         @Override
@@ -58,6 +40,46 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
 
     };
+
+    ITypeAdaptor<StringValue, String> STRING_VALUE = new ITypeAdaptor<StringValue, String>() {
+
+        public String convert(StringValue param) {
+            return param != null ? param.getValue() : null;
+        }
+
+        @Override
+        public String increment(String value) {
+            return incrementString(value);
+        }
+
+        @Override
+        public Class<String> getTargetType() {
+            return String.class;
+        }
+
+    };
+
+    static String incrementString(String value) {
+        Objects.requireNonNull(value, "value cannot be null");
+        int d = 1;
+        StringBuilder sb = new StringBuilder();
+        int i = value.length() - 1;
+        while (i >= 0) {
+            if (d > 0) {
+                if (value.charAt(i) != Character.MAX_CODE_POINT) {
+                    sb.append((char) (value.charAt(i) + d));
+                    d = 0;
+                } else {
+                    sb.append(Character.MIN_CODE_POINT);
+                }
+            } else {
+                sb.append(value.charAt(i));
+            }
+            i--;
+        }
+        sb.reverse();
+        return sb.toString();
+    }
 
     ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
         @Override
@@ -142,6 +164,50 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         public Class<Short> getTargetType() {
             return Short.class;
         }
+    };
+
+    ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
+
+        @Override
+        public Integer increment(Integer value) {
+            Objects.requireNonNull(value, "value cannot be null");
+            if (value.equals(Integer.MAX_VALUE)) {
+                return null;
+            }
+            return value + 1;
+        }
+
+        @Override
+        public Class<Integer> getTargetType() {
+            return Integer.class;
+        }
+
+    };
+
+    ITypeAdaptor<IntValue, Integer> INT_VALUE = new NumberTypeAdaptor<IntValue, Integer>() {
+
+        @Override
+        public Integer convert(IntValue param) {
+            if (param == null) {
+                return null;
+            }
+            return param.intValue();
+        }
+
+        @Override
+        public Integer increment(Integer value) {
+            Objects.requireNonNull(value, "value cannot be null");
+            if (value.equals(Integer.MAX_VALUE)) {
+                return null;
+            }
+            return value + 1;
+        }
+
+        @Override
+        public Class<Integer> getTargetType() {
+            return Integer.class;
+        }
+
     };
 
     ITypeAdaptor<Long, Long> LONG = new NumberTypeAdaptor<Long, Long>() {
@@ -257,6 +323,34 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
+    ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
+
+        @Override
+        public Float convert(FloatValue param) {
+            if (param == null) {
+                return null;
+            }
+            return param.floatValue();
+        }
+
+        @Override
+        public Float increment(Float value) {
+            if (value.isNaN()) {
+                return Float.NaN;
+            }
+            if (value.isInfinite()) {
+                return value;
+            }
+            return value + Math.ulp(value);
+        }
+
+        @Override
+        public Class<Float> getTargetType() {
+            return Float.class;
+        }
+
+    };
+
     ITypeAdaptor<BigInteger, BigInteger> BIGINTEGER = new NumberTypeAdaptor<BigInteger, BigInteger>() {
         @Override
         public BigInteger increment(BigInteger value) {
@@ -322,86 +416,14 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
-
-        @Override
-        public Float convert(FloatValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.floatValue();
-        }
-
-        @Override
-        public Float increment(Float value) {
-            if (value.isNaN()) {
-                return Float.NaN;
-            }
-            if (value.isInfinite()) {
-                return value;
-            }
-            return value + Math.ulp(value);
-        }
-
-        @Override
-        public Class<Float> getTargetType() {
-            return Float.class;
-        }
-
-    };
-
-    ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
-
-        @Override
-        public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Integer.MAX_VALUE)) {
-                return null;
-            }
-            return value + 1;
-        }
-
-        @Override
-        public Class<Integer> getTargetType() {
-            return Integer.class;
-        }
-
-    };
-
-    ITypeAdaptor<IntValue, Integer> INT_VALUE = new NumberTypeAdaptor<IntValue, Integer>() {
-
-        @Override
-        public Integer convert(IntValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.intValue();
-        }
-
-        @Override
-        public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Integer.MAX_VALUE)) {
-                return null;
-            }
-            return value + 1;
-        }
-
-        @Override
-        public Class<Integer> getTargetType() {
-            return Integer.class;
-        }
-
-    };
-
     ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {
 
-        long MS_IN_A_DAY = 1000 * 3600 * 24l;
+        static final long MS_IN_DAY = 1000 * 3600 * 24l;
 
         @Override
         public Integer convert(Date date) {
 
-            return (int) (date.getTime() / MS_IN_A_DAY);
+            return (int) (date.getTime() / MS_IN_DAY);
         }
 
         @Override

@@ -103,7 +103,7 @@ public class RunStoreLogDataITest {
     @Test
     public void testKafkaMethodServiceOk() throws Exception {
         final String REQUEST = "{\"hour\": 5}";
-        final String RESPONSE = "\"Good Morning\"";
+        final String RESPONSE = "Good Morning";
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
 
@@ -186,7 +186,7 @@ public class RunStoreLogDataITest {
     @Test
     public void testKafkaServiceOk() throws Exception {
         final String REQUEST = "{\"hour\": 5}";
-        final String RESPONSE = "\"Good Morning\"";
+        final String RESPONSE = "Good Morning";
 
         final String METHOD_NAME = "Hello";
 
@@ -599,8 +599,7 @@ public class RunStoreLogDataITest {
             .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         assertEquals(1, observedValues.size());
-        assertEquals("\"" + RESPONSE + "\"", observedValues.get(0)); // Need to fix different behaviour for REST and
-                                                                     // KAFKA
+        assertEquals(RESPONSE, observedValues.get(0));
 
         Awaitility.given()
             .ignoreException(InvalidQueryException.class)
@@ -617,7 +616,7 @@ public class RunStoreLogDataITest {
                 Row row = rows.iterator().next();
                 assertNotNull(row.getString("id"));
                 assertEquals(REQUEST, row.getString("request"));
-                assertEquals("\"" + RESPONSE + "\"", row.getString("response"));
+                assertEquals(RESPONSE, row.getString("response"));
                 assertEquals(METHOD_NAME, row.getString("methodName"));
                 assertEquals("simple4", row.getString("serviceName"));
                 assertNotNull(row.getTimestamp("incomingTime"));

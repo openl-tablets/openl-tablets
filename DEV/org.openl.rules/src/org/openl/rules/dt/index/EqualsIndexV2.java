@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
@@ -25,17 +26,25 @@ public class EqualsIndexV2 implements IRuleIndex {
     private int[] emptyRules;
     private DecisionTableRuleNode nextNode;
     private int rulesTotalSize;
+    private IOpenCast expressionToParamOpenCast;
 
-    public EqualsIndexV2(DecisionTableRuleNode nextNode, Map<Object, int[]> index, int[] emptyRules) {
+    public EqualsIndexV2(DecisionTableRuleNode nextNode,
+            Map<Object, int[]> index,
+            int[] emptyRules,
+            IOpenCast expressionToParamOpenCast) {
         this.index = Collections.unmodifiableMap(index);
         this.emptyRules = emptyRules;
         this.nextNode = nextNode;
         this.rulesTotalSize = nextNode.getRules().length;
+        this.expressionToParamOpenCast = expressionToParamOpenCast;
     }
 
     private int[] findIndex(Object value) {
         int[] result = null;
         if (value != null) {
+            if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
+                value = expressionToParamOpenCast.convert(value);
+            }
             result = index.get(value);
         }
         return result == null ? EMPTY_ARRAY : result;
@@ -155,6 +164,8 @@ public class EqualsIndexV2 implements IRuleIndex {
         private Map<Object, int[]> result = null;
         private boolean comparatorBasedMap = false;
 
+        private IOpenCast expressionToParamOpenCast;
+
         public void addRule(int ruleN) {
             nextNodeBuilder.addRule(ruleN);
         }
@@ -163,12 +174,16 @@ public class EqualsIndexV2 implements IRuleIndex {
             emptyBuilder.addRule(ruleN);
         }
 
+        public void setExpressionToParamOpenCast(IOpenCast expressionToParamOpenCast) {
+            this.expressionToParamOpenCast = expressionToParamOpenCast;
+        }
+
         public void putValueToRule(Object value, int ruleN) {
             if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
-                if (NumberUtils.isFloatPointNumber(value)) {
+                if (NumberUtils.isObjectFloatPointNumber(value)) {
                     if (value instanceof BigDecimal) {
                         map = new TreeMap<>();
                         result = new TreeMap<>();
@@ -197,7 +212,10 @@ public class EqualsIndexV2 implements IRuleIndex {
                 }
             }
 
-            return new EqualsIndexV2(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry());
+            return new EqualsIndexV2(nextNodeBuilder.makeNode(),
+                result,
+                emptyBuilder.makeRulesAry(),
+                expressionToParamOpenCast);
         }
     }
 

@@ -228,6 +228,9 @@
             if (fileExtension === "zip" || fileExtension === "jar") {
                 var xhr = new XMLHttpRequest();
                 xhr.onload = function () {
+                    if (this.status === 400) {
+                        alert(this.responseText);
+                    }
                     document.getElementById("file-input").value = "";
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();

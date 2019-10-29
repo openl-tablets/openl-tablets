@@ -10,10 +10,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
-import org.openl.rules.helpers.CharRange;
-import org.openl.rules.helpers.DateRange;
-import org.openl.rules.helpers.INumberRange;
-import org.openl.rules.helpers.StringRange;
+import org.openl.rules.helpers.*;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -165,32 +162,10 @@ public class Condition extends FunctionalRow implements ICondition {
                                                                     // indexed variant)
                     }
 
-                    boolean rangeExpression = false;
-                    if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Number.class
-                        .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
-                        rangeExpression = true;
-                    } else if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && signature
-                        .getParameterType(i)
-                        .getInstanceClass()
-                        .isPrimitive() && !char.class.equals(signature.getParameterType(i).getInstanceClass())) {
-                        rangeExpression = true;
-                    } else if (DateRange.class.isAssignableFrom(params[0].getType().getInstanceClass()) && Date.class
-                        .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
-                        rangeExpression = true;
-                    } else if (CharRange.class.isAssignableFrom(params[0].getType()
-                        .getInstanceClass()) && (Character.class
-                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass()) || char.class
-                                .equals(signature.getParameterType(i).getInstanceClass()))) {
-                        rangeExpression = true;
-                    } else if (StringRange.class
-                        .isAssignableFrom(params[0].getType().getInstanceClass()) && CharSequence.class
-                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
-                        rangeExpression = true;
-                    }
-                    if (rangeExpression) {
+                    if (isRangeExpression(signature.getParameterType(i), params[0].getType())) {
                         return !hasFormulas() ? source
                                               : new StringSourceCodeModule(
-                                                  params[0].getName() + ".contains(" + source.getCode() + ")",
+                                                  getRangeExpression(source, signature.getParameterType(i), params[0]),
                                                   source.getUri()); // Range syntax to full code (must be the same as
                                                                     // indexed variant)
                     }
@@ -217,6 +192,41 @@ public class Condition extends FunctionalRow implements ICondition {
             }
         }
         return source;
+    }
+
+    private static boolean isIntRangeType(IOpenClass type) {
+        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
+    }
+
+    private String getRangeExpression(IOpenSourceCodeModule source,
+            IOpenClass methodType,
+            IParameterDeclaration param) {
+        if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
+            return String.format("((DoubleRange) %s).contains(%s)", param.getName(), source.getCode());
+        } else {
+            return param.getName() + ".contains(" + source.getCode() + ")";
+        }
+    }
+
+    private boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
+        if (INumberRange.class.isAssignableFrom(paramType.getInstanceClass()) && Number.class
+            .isAssignableFrom(methodType.getInstanceClass())) {
+            return true;
+        }
+        if (INumberRange.class.isAssignableFrom(paramType.getInstanceClass()) && methodType.getInstanceClass()
+            .isPrimitive() && !char.class.equals(methodType.getInstanceClass())) {
+            return true;
+        }
+        if (DateRange.class.isAssignableFrom(paramType.getInstanceClass()) && Date.class
+            .isAssignableFrom(methodType.getInstanceClass())) {
+            return true;
+        }
+        if (CharRange.class.isAssignableFrom(paramType.getInstanceClass()) && (Character.class
+            .isAssignableFrom(methodType.getInstanceClass()) || char.class.equals(methodType.getInstanceClass()))) {
+            return true;
+        }
+        return StringRange.class.isAssignableFrom(paramType.getInstanceClass()) && CharSequence.class
+            .isAssignableFrom(methodType.getInstanceClass());
     }
 
     @Override

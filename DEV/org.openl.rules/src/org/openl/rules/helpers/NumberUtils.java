@@ -1,34 +1,45 @@
 package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
+import org.openl.meta.*;
 
 public final class NumberUtils {
 
     private NumberUtils() {
     }
 
-    public static boolean isFloatPointNumber(Object object) {
-
-        if (object != null) {
-            return isFloatPointType(object.getClass());
+    public static boolean isObjectFloatPointNumber(Object value) {
+        if (value != null) {
+            return isFloatPointType(value.getClass());
         }
-
         return false;
     }
 
-    public static boolean isFloatPointType(Class<?> clazz) {
-        if (clazz != null && float.class.equals(clazz) || double.class.equals(clazz) || Float.class
-            .equals(clazz) || FloatValue.class.isAssignableFrom(clazz) || Double.class
-                .equals(clazz) || DoubleValue.class.isAssignableFrom(clazz) || BigDecimal.class
-                    .equals(clazz) || BigDecimalValue.class.equals(clazz)) {
-            return true;
+    public static boolean isObjectNonFloatPointNumber(Object value) {
+        if (value != null) {
+            return isObjectNonFloatPointNumber(value);
         }
         return false;
+    }
+
+    public static boolean isFloatPointType(Class<?> cls) {
+        return cls != null && (float.class.equals(cls) || double.class.equals(cls) || Float.class
+            .isAssignableFrom(cls) || FloatValue.class.isAssignableFrom(cls) || Double.class
+                .isAssignableFrom(cls) || DoubleValue.class.isAssignableFrom(
+                    cls) || BigDecimal.class.isAssignableFrom(cls) || BigDecimalValue.class.isAssignableFrom(cls));
+    }
+
+    public static boolean isNonFloatPointType(Class<?> clazz) {
+        return clazz != null && (byte.class.equals(clazz) || short.class.equals(clazz) || int.class
+            .equals(clazz) || long.class.equals(clazz) || Byte.class.isAssignableFrom(clazz) || ByteValue.class
+                .isAssignableFrom(clazz) || Short.class
+                    .isAssignableFrom(clazz) || ShortValue.class.isAssignableFrom(clazz) || Integer.class
+                        .isAssignableFrom(clazz) || IntValue.class.isAssignableFrom(clazz) || Long.class
+                            .isAssignableFrom(clazz) || LongValue.class.isAssignableFrom(clazz) || BigInteger.class
+                                .isAssignableFrom(clazz) || BigIntegerValue.class.isAssignableFrom(clazz));
     }
 
     public static Double convertToDouble(Object object) {
@@ -118,7 +129,7 @@ public final class NumberUtils {
             return ((BigDecimalValue) value).getValue().scale();
         }
 
-        if (isFloatPointNumber(value)) {
+        if (isObjectFloatPointNumber(value)) {
             /**
              * Process as float point value
              */
@@ -159,6 +170,10 @@ public final class NumberUtils {
             return double.class;
         }
         return null;
+    }
+
+    public static boolean isNumberType(Class<?> cls) {
+        return isFloatPointType(cls) || isNonFloatPointType(cls);
     }
 
 }

@@ -50,7 +50,7 @@ public class SmartNumberFormatter implements IFormatter {
             return value;
         }
 
-        if (NumberUtils.isFloatPointNumber(value)) {
+        if (NumberUtils.isObjectFloatPointNumber(value)) {
             /**
              * Process as float point value
              */
@@ -103,7 +103,7 @@ public class SmartNumberFormatter implements IFormatter {
             return ((BigDecimalValue) value).getValue().scale();
         }
 
-        if (NumberUtils.isFloatPointNumber(value)) {
+        if (NumberUtils.isObjectFloatPointNumber(value)) {
             /**
              * Process as float point value
              */

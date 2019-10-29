@@ -18,8 +18,8 @@ import org.openl.rules.helpers.NumberUtils;
  */
 public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
 
-    public EqualsIndexedEvaluator(IOpenCast openCast) {
-        super(openCast);
+    public EqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        super(paramToExpressionOpenCast, expressionToParamOpenCast);
     }
 
     @Override
@@ -29,6 +29,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
         }
 
         EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        builder.setExpressionToParamOpenCast(expressionToParamOpenCast);
         while (it.hasNext()) {
             int ruleN = it.nextInt();
 
@@ -37,10 +38,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
                 continue;
             }
 
-            Object value = condition.getParamValue(0, ruleN);
-            if (openCast != null) {
-                value = openCast.convert(value);
-            }
+            Object value = convertWithParamToExpressionOpenCast(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
 
         }
@@ -55,9 +53,9 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             if (condition.isEmpty(i)) {
                 continue;
             }
-            Object val = condition.getParamValue(0, i);
+            Object val = convertWithParamToExpressionOpenCast(condition.getParamValue(0, i));
             if (uniqueVals == null) {
-                if (NumberUtils.isFloatPointNumber(val)) {
+                if (NumberUtils.isObjectFloatPointNumber(val)) {
                     if (val instanceof BigDecimal) {
                         uniqueVals = new HashSet<>();
                     } else {

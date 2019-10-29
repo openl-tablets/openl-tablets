@@ -1,5 +1,6 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.types.IMethodCaller;
@@ -8,6 +9,28 @@ import org.openl.types.impl.ParameterMethodCaller;
 public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     private String optimizedSourceCode;
+
+    protected IOpenCast paramToExpressionOpenCast;
+    protected IOpenCast expressionToParamOpenCast;
+
+    public AConditionEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        this.paramToExpressionOpenCast = paramToExpressionOpenCast;
+        this.expressionToParamOpenCast = expressionToParamOpenCast;
+    }
+
+    protected Object convertWithExpressionToParamOpenCast(Object value) {
+        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
+            return expressionToParamOpenCast.convert(value);
+        }
+        return value;
+    }
+
+    protected Object convertWithParamToExpressionOpenCast(Object value) {
+        if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
+            return paramToExpressionOpenCast.convert(value);
+        }
+        return value;
+    }
 
     @Override
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {

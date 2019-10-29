@@ -2,10 +2,13 @@ package org.openl.rules.helpers;
 
 import java.util.Objects;
 
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class CharRange extends IntRange {
+
+    private static final int TO_CHAR_RANGE_CAST_DISTANCE = CastFactory.AFTER_FITST_WAVE_CASTS_DISTANCE + 8;
 
     public CharRange(char min, char max) {
         super(min, max);
@@ -55,6 +58,10 @@ public class CharRange extends IntRange {
 
     public static CharRange autocast(char x, CharRange y) {
         return new CharRange(x);
+    }
+
+    public static int distance(char x, CharRange y) {
+        return TO_CHAR_RANGE_CAST_DISTANCE;
     }
 
 }

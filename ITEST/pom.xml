@@ -37,6 +37,7 @@
         <module>itest.EPBDS-7721</module>
         <module>itest.storelogdata</module>
         <module>itest.EPBDS-6555</module>
+        <module>itest.EPBDS-5057</module>
     </modules>
 
     <dependencyManagement>

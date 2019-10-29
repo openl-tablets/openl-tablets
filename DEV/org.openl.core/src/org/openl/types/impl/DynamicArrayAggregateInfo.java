@@ -33,13 +33,16 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
+        IOpenClass componentClass = aggregateType.getComponentClass();
+        if (componentClass == null) {
+            return null;
+        }
         if (indexType == JavaOpenClass.INT || indexType.getInstanceClass() == Integer.class) {
             // if index type is int we return simple java array index.
             return new ArrayIndex(getComponentType(aggregateType));
         } else {
             // we support to work with Datatype arrays like this: people["John"]
             // also different object types may be used as indexes : vehicleSymbols[vehicle]
-            IOpenClass componentClass = aggregateType.getComponentClass();
             IOpenField indexField = componentClass.getIndexField();
 
             if (indexField != null) {

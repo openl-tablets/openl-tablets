@@ -1,11 +1,9 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
@@ -15,10 +13,11 @@ public class EqualsIndex extends ARuleIndex {
 
     private Map<Object, DecisionTableRuleNode> valueNodes;
 
-    public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes, Map<Object, DecisionTableRuleNode> valueNodes) {
-        super(emptyOrFormulaNodes);
-        this.valueNodes = valueNodes;
-        assert valueNodes != null;
+    public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes,
+            Map<Object, DecisionTableRuleNode> valueNodes,
+            IOpenCast expressionToParamOpenCast) {
+        super(emptyOrFormulaNodes, expressionToParamOpenCast);
+        this.valueNodes = Objects.requireNonNull(valueNodes, "valueNodes cannot be null");
     }
 
     @Override
@@ -39,6 +38,7 @@ public class EqualsIndex extends ARuleIndex {
         private Map<Object, DecisionTableRuleNode> nodeMap = null;
         private DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
         private boolean comparatorBasedMap = false;
+        private IOpenCast expressionToParamOpenCast;
 
         public void putEmptyRule(int ruleN) {
             emptyBuilder.addRule(ruleN);
@@ -49,12 +49,16 @@ public class EqualsIndex extends ARuleIndex {
             }
         }
 
+        public void setExpressionToParamOpenCast(IOpenCast expressionToParamOpenCast) {
+            this.expressionToParamOpenCast = expressionToParamOpenCast;
+        }
+
         public void putValueToRule(Object value, int ruleN) {
             if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
                 throw new IllegalArgumentException("Invalid state! Index based on comparable interface.");
             }
             if (map == null) {
-                if (NumberUtils.isFloatPointNumber(value)) {
+                if (NumberUtils.isObjectFloatPointNumber(value)) {
                     if (value instanceof BigDecimal) {
                         map = new TreeMap<>();
                         nodeMap = new TreeMap<>();
@@ -83,7 +87,7 @@ public class EqualsIndex extends ARuleIndex {
                     nodeMap.put(element.getKey(), element.getValue().makeNode());
                 }
             }
-            return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
+            return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, expressionToParamOpenCast);
         }
     }
 }

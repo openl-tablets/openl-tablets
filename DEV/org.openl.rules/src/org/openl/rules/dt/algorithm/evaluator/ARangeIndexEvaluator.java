@@ -2,6 +2,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.*;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
@@ -19,7 +20,10 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
     final int nparams;
 
-    ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor, int nparams) {
+    ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
+            int nparams,
+            IOpenCast expressionToParamOpenCast) {
+        super(null, expressionToParamOpenCast);
         this.rangeAdaptor = rangeAdaptor;
         this.nparams = nparams;
     }
@@ -43,7 +47,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     @Override
     @SuppressWarnings("unchecked")
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = condition.getEvaluator().invoke(target, dtparams, env);
+        Object value = convertWithExpressionToParamOpenCast(condition.getEvaluator().invoke(target, dtparams, env));
         return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 
@@ -137,7 +141,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         @Override
         public Comparable<?> adaptValueType(Object value) {
             if (value == null) {
-                throw new IllegalArgumentException("Null values does not supported.");
+                throw new IllegalArgumentException("Null values is not supported.");
             }
             if (rangeAdaptor != null) {
                 value = rangeAdaptor.adaptValueType(value);
@@ -147,12 +151,12 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
         @Override
         public Comparable<Object> getMax(IndexNode param) {
-            throw new UnsupportedOperationException("Operation not supported.");
+            throw new UnsupportedOperationException("Operation is not supported.");
         }
 
         @Override
         public Comparable<Object> getMin(IndexNode param) {
-            throw new UnsupportedOperationException("Operation not supported.");
+            throw new UnsupportedOperationException("Operation is not supported.");
         }
 
         @Override

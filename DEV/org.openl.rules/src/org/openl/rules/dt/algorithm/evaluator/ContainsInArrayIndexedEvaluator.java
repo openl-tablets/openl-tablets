@@ -2,6 +2,7 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.lang.reflect.Array;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
@@ -13,6 +14,10 @@ import org.openl.rules.dt.index.EqualsIndex;
  */
 public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEvaluator {
 
+    public ContainsInArrayIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    }
+
     @Override
     public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
         if (iterator.size() < 1) {
@@ -20,6 +25,7 @@ public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEval
         }
 
         EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        builder.setExpressionToParamOpenCast(expressionToParamOpenCast);
         while (iterator.hasNext()) {
             int ruleN = iterator.nextInt();
 

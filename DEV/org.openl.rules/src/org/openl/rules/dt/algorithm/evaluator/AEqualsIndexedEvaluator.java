@@ -1,5 +1,8 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -10,15 +13,10 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
 abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
-    IOpenCast openCast;
-
-    public AEqualsIndexedEvaluator(IOpenCast openCast) {
-        this.openCast = openCast;
+    public AEqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
+        super(paramToExpressionOpenCast, expressionToParamOpenCast);
     }
 
     @Override
@@ -30,7 +28,7 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = condition.getEvaluator().invoke(target, dtparams, env);
+        Object value = convertWithExpressionToParamOpenCast(condition.getEvaluator().invoke(target, dtparams, env));
         return new EqualsSelector(condition, value, target, dtparams, env);
     }
 

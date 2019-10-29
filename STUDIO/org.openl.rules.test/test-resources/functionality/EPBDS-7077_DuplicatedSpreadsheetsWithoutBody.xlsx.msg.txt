@@ -1,2 +1,2 @@
 ERROR: Table has no body. Try to merge header cell horizontally to identify table.
-ERROR: The table already exists: Spreadsheet SpreadsheetResult withoutBody()
+ERROR: Duplicate table 'Spreadsheet SpreadsheetResult withoutBody()'.
