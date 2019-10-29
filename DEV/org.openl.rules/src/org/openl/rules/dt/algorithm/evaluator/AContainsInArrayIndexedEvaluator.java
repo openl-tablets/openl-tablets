@@ -29,7 +29,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
     public AContainsInArrayIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
         super(paramToExpressionOpenCast, expressionToParamOpenCast);
     }
-
+    
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IParameterDeclaration[] cparams = condition.getParams();
@@ -79,6 +79,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
             maxArrayLength = Math.max(length, maxArrayLength);
             for (int j = 0; j < length; j++) {
                 Object val = Array.get(values, j);
+                val = convertWithParamToExpressionOpenCast(val);
                 if (uniqueVals == null) {
                     if (NumberUtils.isObjectFloatPointNumber(val)) {
                         if (val instanceof BigDecimal || val instanceof BigDecimalValue) {

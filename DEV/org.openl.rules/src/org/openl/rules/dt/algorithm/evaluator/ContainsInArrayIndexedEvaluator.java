@@ -39,6 +39,7 @@ public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEval
 
             for (int j = 0; j < length; j++) {
                 Object value = Array.get(values, j);
+                value = convertWithParamToExpressionOpenCast(value);
                 builder.putValueToRule(value, ruleN);
             }
         }

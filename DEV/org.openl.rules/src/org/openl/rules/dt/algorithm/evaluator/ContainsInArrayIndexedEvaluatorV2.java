@@ -37,10 +37,15 @@ public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEv
 
             for (int j = 0; j < length; j++) {
                 Object value = Array.get(values, j);
+                value = convertWithParamToExpressionOpenCast(value);
                 builder.putValueToRule(value, ruleN);
             }
         }
         return builder.build();
+    }
+
+    public ContainsInArrayIndexedEvaluator toV1() {
+        return new ContainsInArrayIndexedEvaluator(paramToExpressionOpenCast, expressionToParamOpenCast);
     }
 
     @Override

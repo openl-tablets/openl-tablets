@@ -65,8 +65,8 @@ class DependentParametersOptimizedAlgorithm {
         if (paramType0.equals(paramType1)) {
             IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
                 bindingContext.getCast(paramType0, expressionType));
-            IOpenCast expressionToParamOpenCast = toNullIfNotImplicitCast(
-                bindingContext.getCast(expressionType, paramType0));
+            IOpenCast expressionToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
+                bindingContext.getCast(expressionType, paramType0)) : null;
 
             if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
                 String message = String.format(
@@ -109,8 +109,8 @@ class DependentParametersOptimizedAlgorithm {
 
         IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
             bindingContext.getCast(paramType, expressionType));
-        IOpenCast expressionToParamOpenCast = toNullIfNotImplicitCast(
-            bindingContext.getCast(expressionType, paramType));
+        IOpenCast expressionToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
+            bindingContext.getCast(expressionType, paramType)) : null;
 
         if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
             String message = String.format(
