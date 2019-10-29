@@ -63,37 +63,4 @@ public class NumberUtils {
         return minValue;
     }
 
-    public static boolean isPrimitive(String canonicalTypeName) {
-        if (StringUtils.isNotBlank(canonicalTypeName)) {
-            if (canonicalTypeName.contains("byte") || canonicalTypeName.contains("short") || canonicalTypeName
-                .contains("int") || canonicalTypeName.contains("long") || canonicalTypeName
-                    .contains("float") || canonicalTypeName.contains(
-                        "double") || canonicalTypeName.contains("boolean") || canonicalTypeName.contains("char")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static Class<?> getWrapperType(String primitiveName) {
-        Class<?> wrapperType = null;
-        if (primitiveName.equals("byte")) {
-            wrapperType = Byte.class;
-        } else if (primitiveName.equals("short")) {
-            wrapperType = Short.class;
-        } else if (primitiveName.equals("int")) {
-            wrapperType = Integer.class;
-        } else if (primitiveName.equals("long")) {
-            wrapperType = Long.class;
-        } else if (primitiveName.equals("float")) {
-            wrapperType = Float.class;
-        } else if (primitiveName.equals("double")) {
-            wrapperType = Double.class;
-        } else if (primitiveName.equals("boolean")) {
-            wrapperType = Boolean.class;
-        } else if (primitiveName.equals("char")) {
-            wrapperType = Character.class;
-        }
-        return wrapperType;
-    }
 }

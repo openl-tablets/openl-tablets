@@ -1,6 +1,8 @@
 package org.openl.rules.calc;
 
+import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultField extends ASpreadsheetField {
@@ -23,14 +25,13 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
     }
 
     public Object processResult(SpreadsheetResult spreadsheetResult, Object res) {
-        if (res != null && spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && !getType()
-            .getInstanceClass()
-            .isAssignableFrom(res.getClass())) {
+        if (res != null && spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null
+                && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
             throw new UnexpectedSpreadsheetResultFieldTypeException(
                 String.format("Unexpected type for field %s in %s. Expected: %s, found: %s",
                     getName(),
                     getDeclaringClass().getName(),
-                    spreadsheetResult.getCustomSpreadsheetResultOpenClass().getName(),
+                    getType().getDisplayName(INamedThing.LONG),
                     res.getClass().getTypeName()));
         }
 

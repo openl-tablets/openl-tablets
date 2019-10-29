@@ -7,7 +7,7 @@ import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.NumberUtils;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCell implements Invokable {
@@ -87,7 +87,7 @@ public class SpreadsheetCell implements Invokable {
             type = JavaOpenClass.getOpenClass(Void.class);
         } else if (!(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type.getInstanceClass()
             .isPrimitive()) {
-            Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
+            Class<?> wrapper = ClassUtils.primitiveToWrapper(type.getInstanceClass());
             type = JavaOpenClass.getOpenClass(wrapper);
         }
         this.type = type;
