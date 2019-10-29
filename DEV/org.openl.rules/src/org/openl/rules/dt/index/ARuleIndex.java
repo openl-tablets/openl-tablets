@@ -1,12 +1,9 @@
 package org.openl.rules.dt.index;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.dt.element.ConditionCasts;
 
 /**
  * @author snshor
@@ -15,11 +12,11 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 public abstract class ARuleIndex implements IRuleIndex {
 
     private DecisionTableRuleNode emptyOrFormulaNodes;
-    private IOpenCast expressionToParamOpenCast;
+    private ConditionCasts conditionCasts;
 
-    ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, IOpenCast expressionToParamOpenCast) {
+    ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, ConditionCasts conditionCasts) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
-        this.expressionToParamOpenCast = expressionToParamOpenCast;
+        this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 
     @Override
@@ -33,10 +30,7 @@ public abstract class ARuleIndex implements IRuleIndex {
             return emptyOrFormulaNodes;
         }
 
-        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
-            value = expressionToParamOpenCast.convert(value);
-        }
-
+        value = conditionCasts.castToConditionType(value);
         DecisionTableRuleNode node = findNodeInIndex(value);
 
         return node == null ? emptyOrFormulaNodes : node;

@@ -3,11 +3,11 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -15,8 +15,8 @@ import org.openl.vm.IRuntimeEnv;
 
 abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
-    public AEqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
-        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    public AEqualsIndexedEvaluator(ConditionCasts conditionCasts) {
+        super(conditionCasts);
     }
 
     @Override
@@ -28,7 +28,7 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = convertWithExpressionToParamOpenCast(condition.getEvaluator().invoke(target, dtparams, env));
+        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
         return new EqualsSelector(condition, value, target, dtparams, env);
     }
 

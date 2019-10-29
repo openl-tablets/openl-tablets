@@ -7,7 +7,6 @@ import java.util.*;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -15,6 +14,8 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.*;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
+import org.openl.rules.dt.element.ConditionCasts;
+import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.type.*;
@@ -200,13 +201,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         table.updateDependency(dependencies);
     }
 
-    public static IOpenCast toNullIfNotImplicitCast(IOpenCast cast) {
-        if (cast != null && cast.isImplicit()) {
-            return cast;
-        }
-        return null;
-    }
-
     static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
         if (NumberUtils.isNonFloatPointType(methodType.getInstanceClass()) && isIntRangeType(paramType)) {
@@ -265,7 +259,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     // TODO to do - fix _NO_PARAM_ issue
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
-            IOpenClass methodType,
+            IOpenClass inputParamType,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (condition.hasFormulas()) {
@@ -275,96 +269,75 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         IParameterDeclaration[] params = condition.getParams();
 
         if (params.length == 1) {
-            IOpenClass paramType = params[0].getType();
+            IOpenClass conditionParamType = params[0].getType();
 
-            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
-                bindingContext.getCast(paramType, methodType));
-            IOpenCast methodParameterToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
-                bindingContext.getCast(methodType, paramType)) : null;
+            ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType, inputParamType, bindingContext);
 
-            if (paramToExpressionOpenCast != null) {
-                return condition.getNumberOfEmptyRules(0) > 1
-                                                              ? new EqualsIndexedEvaluatorV2(paramToExpressionOpenCast,
-                                                                  methodParameterToParamOpenCast)
-                                                              : new EqualsIndexedEvaluator(paramToExpressionOpenCast,
-                                                                  methodParameterToParamOpenCast);
+            if (conditionCasts.isCastToInputTypeExists()) {
+                return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                                                              : new EqualsIndexedEvaluator(conditionCasts);
             }
 
-            IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
+            IAggregateInfo aggregateInfo = conditionParamType.getAggregateInfo();
 
-            if (aggregateInfo.isAggregate(paramType)) {
-                IOpenCast paramComponentToExpressionOpenCast = toNullIfNotImplicitCast(
-                    bindingContext.getCast(aggregateInfo.getComponentType(paramType), methodType));
-                IOpenCast methodParameterToParamComponentOpenCast = paramComponentToExpressionOpenCast == null ? toNullIfNotImplicitCast(
-                    bindingContext.getCast(methodType, aggregateInfo.getComponentType(paramType))) : null;
-
-                if (paramComponentToExpressionOpenCast != null || methodParameterToParamComponentOpenCast != null) {
-                    return condition.getNumberOfEmptyRules(0) > 1
-                                                                  ? new ContainsInArrayIndexedEvaluatorV2(
-                                                                      paramComponentToExpressionOpenCast,
-                                                                      methodParameterToParamComponentOpenCast)
-                                                                  : new ContainsInArrayIndexedEvaluator(
-                                                                      paramComponentToExpressionOpenCast,
-                                                                      methodParameterToParamComponentOpenCast);
+            if (aggregateInfo.isAggregate(conditionParamType)) {
+                ConditionCasts agregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
+                    .getComponentType(conditionParamType), inputParamType, bindingContext);
+                if (agregateConditionCasts.isCastToConditionTypeExists() || agregateConditionCasts
+                    .isCastToInputTypeExists() && !inputParamType.isArray()) {
+                    return condition.getNumberOfEmptyRules(0) > 1 ? new ContainsInArrayIndexedEvaluatorV2(
+                        agregateConditionCasts) : new ContainsInArrayIndexedEvaluator(agregateConditionCasts);
                 }
             }
 
-            IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(methodType,
-                paramType);
+            IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(inputParamType,
+                conditionParamType);
 
             if (rangeAdaptor != null) {
                 return new CombinedRangeIndexEvaluator(
                     (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
                     1,
-                    paramToExpressionOpenCast,
-                    methodParameterToParamOpenCast);
+                    conditionCasts);
             }
 
-            if (methodParameterToParamOpenCast != null) {
-                return condition.getNumberOfEmptyRules(0) > 1
-                                                              ? new EqualsIndexedEvaluatorV2(paramToExpressionOpenCast,
-                                                                  methodParameterToParamOpenCast)
-                                                              : new EqualsIndexedEvaluator(paramToExpressionOpenCast,
-                                                                  methodParameterToParamOpenCast);
+            if (conditionCasts.isCastToConditionTypeExists()) {
+                return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                                                              : new EqualsIndexedEvaluator(conditionCasts);
             }
 
-            if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
-                .equals(methodType)) {
+            if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
+                .equals(inputParamType)) {
                 return new DefaultConditionEvaluator();
             }
 
         } else if (params.length == 2) {
-            IOpenClass paramType0 = params[0].getType();
-            IOpenClass paramType1 = params[1].getType();
+            IOpenClass conditionParamType0 = params[0].getType();
+            IOpenClass conditionParamType1 = params[1].getType();
 
-            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
-                bindingContext.getCast(paramType0, methodType));
-            IOpenCast methodParameterToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
-                bindingContext.getCast(methodType, paramType0)) : null;
+            ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType0, inputParamType, bindingContext);
 
-            if ((methodParameterToParamOpenCast != null || paramToExpressionOpenCast != null) && Objects
-                .equals(paramType0, paramType1)) {
-                Class<?> clazz = methodType.getInstanceClass();
+            if ((conditionCasts.atLeastOneExists()) && Objects.equals(conditionParamType0, conditionParamType1)) {
+                Class<?> clazz = inputParamType.getInstanceClass();
                 if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || Comparable.class
                     .isAssignableFrom(clazz)) {
-                    return new CombinedRangeIndexEvaluator(null,
-                        2,
-                        paramToExpressionOpenCast,
-                        methodParameterToParamOpenCast);
+                    return new CombinedRangeIndexEvaluator(null, 2, conditionCasts);
                 }
             }
 
-            IAggregateInfo aggregateInfo = paramType1.getAggregateInfo();
-            if (aggregateInfo.isAggregate(paramType1) && aggregateInfo.getComponentType(paramType1) == methodType) {
-                BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(paramType0);
+            IAggregateInfo aggregateInfo = conditionParamType1.getAggregateInfo();
+            if (aggregateInfo.isAggregate(
+                conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == inputParamType) {
+                BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(conditionParamType0);
 
                 if (booleanTypeAdaptor != null) {
                     return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
                 }
             }
 
-            if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
-                .equals(methodType)) {
+            if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
+                .equals(inputParamType)) {
                 return new DefaultConditionEvaluator();
             }
         }
@@ -379,7 +352,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.",
             condition.getName(),
             StringUtils.join(names, ", "),
-            methodType.getName());
+            inputParamType.getName());
 
         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getUserDefinedExpressionSource());
     }

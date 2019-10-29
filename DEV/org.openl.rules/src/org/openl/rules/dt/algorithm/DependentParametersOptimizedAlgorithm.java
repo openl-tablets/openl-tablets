@@ -11,10 +11,11 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.*;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.meta.*;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.*;
+import org.openl.rules.dt.element.ConditionCasts;
+import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
@@ -25,8 +26,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
-
-import static org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm.toNullIfNotImplicitCast;
 
 class DependentParametersOptimizedAlgorithm {
 
@@ -59,28 +58,25 @@ class DependentParametersOptimizedAlgorithm {
             EvaluatorFactory evaluatorFactory) throws SyntaxNodeException {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
         IParameterDeclaration[] params = condition.getParams();
-        IOpenClass paramType0 = params[0].getType();
-        IOpenClass paramType1 = params[1].getType();
+        IOpenClass conditionParamType0 = params[0].getType();
+        IOpenClass conditionParamType1 = params[1].getType();
 
-        if (paramType0.equals(paramType1)) {
-            IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
-                bindingContext.getCast(paramType0, expressionType));
-            IOpenCast expressionToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
-                bindingContext.getCast(expressionType, paramType0)) : null;
+        if (conditionParamType0.equals(conditionParamType1)) {
+            ConditionCasts conditionCasts = ConditionHelper
+                .findConditionCasts(conditionParamType0, expressionType, bindingContext);
 
-            if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
+            if (!conditionCasts.atLeastOneExists()) {
                 String message = String.format(
                     "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
-                    paramType0.getName(),
+                    conditionParamType0.getName(),
                     expressionType.getName(),
                     condition.getName());
                 throw new SyntaxNodeException(message, null, null, condition.getUserDefinedExpressionSource());
             }
 
             IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
-                paramType0,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+                conditionParamType0,
+                conditionCasts);
 
             if (adaptor == null) {
                 return null;
@@ -90,8 +86,7 @@ class DependentParametersOptimizedAlgorithm {
             CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
                 (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
                 2,
-                null,
-                null);
+                ConditionHelper.getBlankConditionCasts());
 
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
 
@@ -105,17 +100,15 @@ class DependentParametersOptimizedAlgorithm {
             EvaluatorFactory evaluatorFactory) throws SyntaxNodeException {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
         IParameterDeclaration[] params = condition.getParams();
-        IOpenClass paramType = params[0].getType();
+        IOpenClass conditionParamType = params[0].getType();
 
-        IOpenCast paramToExpressionOpenCast = toNullIfNotImplicitCast(
-            bindingContext.getCast(paramType, expressionType));
-        IOpenCast expressionToParamOpenCast = paramToExpressionOpenCast == null ? toNullIfNotImplicitCast(
-            bindingContext.getCast(expressionType, paramType)) : null;
+        ConditionCasts conditionCasts = ConditionHelper
+            .findConditionCasts(conditionParamType, expressionType, bindingContext);
 
-        if (paramToExpressionOpenCast == null && expressionToParamOpenCast == null) {
+        if (!conditionCasts.atLeastOneExists()) {
             String message = String.format(
                 "Cannot convert from '%s' to '%s'. Incompatible types comparison in '%s' condition.",
-                paramType.getName(),
+                conditionParamType.getName(),
                 expressionType.getName(),
                 condition.getName());
 
@@ -123,22 +116,19 @@ class DependentParametersOptimizedAlgorithm {
         }
 
         if (evaluatorFactory instanceof OneParameterEqualsFactory) {
-            if (!paramType.isArray() && !expressionType.isArray()) {
+            if (!conditionParamType.isArray() && !expressionType.isArray()) {
                 return condition.getNumberOfEmptyRules(0) > 1
                                                               ? new OneParameterEqualsIndexedEvaluatorV2(
                                                                   (OneParameterEqualsFactory) evaluatorFactory,
-                                                                  paramToExpressionOpenCast,
-                                                                  expressionToParamOpenCast)
+                                                                  conditionCasts)
                                                               : new OneParameterEqualsIndexedEvaluator(
                                                                   (OneParameterEqualsFactory) evaluatorFactory,
-                                                                  paramToExpressionOpenCast,
-                                                                  expressionToParamOpenCast);
+                                                                  conditionCasts);
             }
         } else {
             IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
-                paramType,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+                conditionParamType,
+                conditionCasts);
 
             if (adaptor == null) {
                 return null;
@@ -147,7 +137,7 @@ class DependentParametersOptimizedAlgorithm {
             @SuppressWarnings("unchecked")
             AConditionEvaluator rix = new SingleRangeIndexEvaluator(
                 (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
-                expressionToParamOpenCast);
+                conditionCasts);
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
             return rix;
         }
@@ -156,141 +146,83 @@ class DependentParametersOptimizedAlgorithm {
 
     private static IRangeAdaptor<?, ? extends Comparable<?>> getRangeAdaptor(EvaluatorFactory evaluatorFactory,
             IOpenClass paramType,
-            IOpenCast paramToExpressionOpenCast,
-            IOpenCast expressionToParamOpenCast) {
+            ConditionCasts conditionCasts) {
 
         Class<?> typeClass = paramType.getInstanceClass();
         if (typeClass.equals(String.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.STRING,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, conditionCasts);
         }
 
         if (typeClass.equals(StringValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.STRING_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(byte.class) || typeClass.equals(Byte.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BYTE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE, conditionCasts);
         }
 
         if (typeClass.equals(ByteValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BYTE_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(short.class) || typeClass.equals(Short.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.SHORT,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT, conditionCasts);
         }
 
         if (typeClass.equals(ShortValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.SHORT_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(int.class) || typeClass.equals(Integer.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.INT,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT, conditionCasts);
         }
 
         if (typeClass.equals(IntValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.INT_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(long.class) || typeClass.equals(Long.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.LONG,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG, conditionCasts);
         }
 
         if (typeClass.equals(LongValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.LONG_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(float.class) || typeClass.equals(Float.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.FLOAT,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT, conditionCasts);
         }
 
         if (typeClass.equals(FloatValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.FLOAT_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(double.class) || typeClass.equals(Double.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.DOUBLE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE, conditionCasts);
         }
 
         if (typeClass.equals(DoubleValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.DOUBLE_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(BigInteger.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BIGINTEGER,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, conditionCasts);
         }
 
         if (typeClass.equals(BigIntegerValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BIGINTEGER_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(BigDecimal.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BIGDECIMAL,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, conditionCasts);
         }
 
         if (typeClass.equals(BigDecimalValue.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.BIGDECIMAL_VALUE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, conditionCasts);
         }
 
         if (typeClass.equals(Date.class)) {
-            return new RelationRangeAdaptor<>(evaluatorFactory,
-                ITypeAdaptor.DATE,
-                paramToExpressionOpenCast,
-                expressionToParamOpenCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DATE, conditionCasts);
         }
 
         return null;
@@ -720,19 +652,16 @@ class DependentParametersOptimizedAlgorithm {
     static class RelationRangeAdaptor<C extends Comparable<C>> implements IRangeAdaptor<Object, C> {
         EvaluatorFactory evaluatorFactory;
         ITypeAdaptor<Object, C> typeAdaptor;
-        IOpenCast paramToExpressionOpenCast;
-        IOpenCast expressionToParamOpenCast;
+        ConditionCasts conditionCasts;
 
         @SuppressWarnings("unchecked")
         RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
                 ITypeAdaptor<? extends Object, C> typeAdaptor,
-                IOpenCast paramToExpressionOpenCast,
-                IOpenCast expressionToParamOpenCast) {
+                ConditionCasts conditionCasts) {
             super();
             this.evaluatorFactory = evaluatorFactory;
             this.typeAdaptor = (ITypeAdaptor<Object, C>) typeAdaptor;
-            this.paramToExpressionOpenCast = paramToExpressionOpenCast;
-            this.expressionToParamOpenCast = expressionToParamOpenCast;
+            this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionsCasts cannot be null");
         }
 
         @Override
@@ -741,9 +670,7 @@ class DependentParametersOptimizedAlgorithm {
                 return null;
             }
             if (evaluatorFactory.hasMax()) {
-                if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                    param = paramToExpressionOpenCast.convert(param);
-                }
+                param = conditionCasts.castToInputType(param);
                 C v = typeAdaptor.convert(param);
                 if (evaluatorFactory.needsIncrement(Bound.UPPER)) {
                     v = typeAdaptor.increment(v);
@@ -760,9 +687,7 @@ class DependentParametersOptimizedAlgorithm {
                 return null;
             }
             if (evaluatorFactory.hasMin()) {
-                if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                    param = paramToExpressionOpenCast.convert(param);
-                }
+                param = conditionCasts.castToInputType(param);
                 C v = typeAdaptor.convert(param);
                 if (evaluatorFactory.needsIncrement(Bound.LOWER)) {
                     v = typeAdaptor.increment(v);
@@ -775,9 +700,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public C adaptValueType(Object value) {
-            if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
-                value = expressionToParamOpenCast.convert(value);
-            }
+            value = conditionCasts.castToConditionType(value);
             return typeAdaptor.convert(value);
         }
 
@@ -809,9 +732,8 @@ class DependentParametersOptimizedAlgorithm {
         private OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
-                IOpenCast paramToExpressionOpenCast,
-                IOpenCast expressionToParamOpenCast) {
-            super(paramToExpressionOpenCast, expressionToParamOpenCast);
+                ConditionCasts conditionCasts) {
+            super(conditionCasts);
             this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
                 "oneParameterEqualsFactory cannot be null");
         }
@@ -831,9 +753,8 @@ class DependentParametersOptimizedAlgorithm {
         private OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
-                IOpenCast paramToExpressionOpenCast,
-                IOpenCast expressionToParamOpenCast) {
-            super(paramToExpressionOpenCast, expressionToParamOpenCast);
+                ConditionCasts conditionCasts) {
+            super(conditionCasts);
             this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
                 "oneParameterEqualsFactory cannot be null");
         }

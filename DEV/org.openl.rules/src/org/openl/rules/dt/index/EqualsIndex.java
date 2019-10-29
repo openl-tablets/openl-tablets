@@ -3,10 +3,10 @@ package org.openl.rules.dt.index;
 import java.math.BigDecimal;
 import java.util.*;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.helpers.NumberUtils;
 
 public class EqualsIndex extends ARuleIndex {
@@ -15,8 +15,8 @@ public class EqualsIndex extends ARuleIndex {
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes,
             Map<Object, DecisionTableRuleNode> valueNodes,
-            IOpenCast expressionToParamOpenCast) {
-        super(emptyOrFormulaNodes, expressionToParamOpenCast);
+            ConditionCasts conditionCasts) {
+        super(emptyOrFormulaNodes, conditionCasts);
         this.valueNodes = Objects.requireNonNull(valueNodes, "valueNodes cannot be null");
     }
 
@@ -38,7 +38,7 @@ public class EqualsIndex extends ARuleIndex {
         private Map<Object, DecisionTableRuleNode> nodeMap = null;
         private DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
         private boolean comparatorBasedMap = false;
-        private IOpenCast expressionToParamOpenCast;
+        private ConditionCasts conditionCasts;
 
         public void putEmptyRule(int ruleN) {
             emptyBuilder.addRule(ruleN);
@@ -49,8 +49,8 @@ public class EqualsIndex extends ARuleIndex {
             }
         }
 
-        public void setExpressionToParamOpenCast(IOpenCast expressionToParamOpenCast) {
-            this.expressionToParamOpenCast = expressionToParamOpenCast;
+        public void setConditionCasts(ConditionCasts conditionCasts) {
+            this.conditionCasts = conditionCasts;
         }
 
         public void putValueToRule(Object value, int ruleN) {
@@ -87,7 +87,7 @@ public class EqualsIndex extends ARuleIndex {
                     nodeMap.put(element.getKey(), element.getValue().makeNode());
                 }
             }
-            return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, expressionToParamOpenCast);
+            return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, conditionCasts);
         }
     }
 }
