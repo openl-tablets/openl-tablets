@@ -114,7 +114,7 @@ public class IntRange implements INumberRange {
         }
     }
 
-    public static RangeWithBounds getRangeWithBounds(String range) {
+    private static RangeWithBounds getRangeWithBounds(String range) {
         return IntRangeParser.getInstance().parse(range);
     }
 
