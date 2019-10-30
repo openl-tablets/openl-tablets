@@ -298,7 +298,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return new CombinedRangeIndexEvaluator(
                     (IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
                     1,
-                    conditionCasts);
+                    ConditionHelper.getConditionCastsWithNoCasts());
             }
 
             if (conditionCasts.isCastToConditionTypeExists()) {

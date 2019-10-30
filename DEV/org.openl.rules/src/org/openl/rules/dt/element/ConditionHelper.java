@@ -25,9 +25,9 @@ public final class ConditionHelper {
         return new ConditionCasts(castToInputType, castToConditionType);
     }
 
-    public static ConditionCasts getBlankConditionCasts() {
-        return BLANK_CONDITION_CASTS;
+    public static ConditionCasts getConditionCastsWithNoCasts() {
+        return CONDITION_CASTS_WITH_NO_CASTS;
     }
 
-    private static final ConditionCasts BLANK_CONDITION_CASTS = new ConditionCasts(null, null);
+    private static final ConditionCasts CONDITION_CASTS_WITH_NO_CASTS = new ConditionCasts(null, null);
 }

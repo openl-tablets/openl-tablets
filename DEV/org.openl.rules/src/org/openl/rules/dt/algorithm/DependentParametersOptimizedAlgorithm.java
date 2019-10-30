@@ -86,7 +86,7 @@ class DependentParametersOptimizedAlgorithm {
             CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
                 (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
                 2,
-                ConditionHelper.getBlankConditionCasts());
+                ConditionHelper.getConditionCastsWithNoCasts());
 
             rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
 
