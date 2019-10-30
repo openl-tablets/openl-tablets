@@ -15,6 +15,9 @@ final class ExportUtils {
         if (value == null) {
             return null;
         }
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            return ((Collection) value).toArray();
+        }
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
             Object array = Array.newInstance(field.getType().getInstanceClass(), length);
