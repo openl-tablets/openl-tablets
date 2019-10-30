@@ -19,6 +19,8 @@ import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.LongValue;
 import org.openl.rules.table.OpenLArgumentsCloner;
@@ -1295,12 +1297,20 @@ public final class RulesUtils {
     public static boolean contains(IntRange range, LongValue x) {
         return range != null && range.contains(x);
     }
+    
+    public static boolean contains(IntRange range, BigIntegerValue x) {
+        return range != null && range.contains(x);
+    }
 
     public static boolean contains(DoubleRange range, Double x) {
         return range != null && range.contains(x);
     }
 
     public static boolean contains(DoubleRange range, DoubleValue x) {
+        return range != null && range.contains(x);
+    }
+    
+    public static boolean contains(DoubleRange range, BigDecimalValue x) {
         return range != null && range.contains(x);
     }
 
