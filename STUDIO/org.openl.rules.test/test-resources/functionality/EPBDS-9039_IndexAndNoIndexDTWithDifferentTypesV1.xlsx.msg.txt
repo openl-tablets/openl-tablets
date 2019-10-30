@@ -1,0 +1,3 @@
+WARN: PERFORMANCE: Condition 'C1' uses additional type casting from 'org.openl.rules.helpers.IntRange' to 'org.openl.rules.helpers.DoubleRange' in calculation time for each table row.
+WARN: PERFORMANCE: Condition 'C1' uses additional type casting from 'java.lang.Integer' to 'java.lang.Double' in calculation time for each table row.
+WARN: PERFORMANCE: Condition 'C1' uses additional type casting from 'java.lang.Integer' to 'java.lang.Double' in calculation time for each table row.

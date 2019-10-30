@@ -252,10 +252,8 @@ public class Condition extends FunctionalRow implements ICondition {
                 getName(),
                 param.getType().getInstanceClass().getTypeName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));
-            return String.format("((DoubleRange) %s).contains(%s)", param.getName(), source.getCode());
-        } else {
-            return param.getName() + ".contains(" + source.getCode() + ")";
         }
+        return String.format("contains(%s, %s)", param.getName(), source.getCode());
     }
 
     private boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
