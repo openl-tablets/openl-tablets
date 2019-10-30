@@ -98,10 +98,8 @@ public class InputArgsBean {
             .equals(inputTestCaseType) && argumentTreeNodes != null) {
             try {
                 Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
-                if (stringStringMap.isEmpty() && !inputTextBean
-                    .isEmpty() && (!inputTextBean.startsWith("{") || !inputTextBean.startsWith("["))) {
-                    //the only case for which jackson does not generate a clear error message
-                    throw new Message("Invalid JSON: should start with '{' or '[' symbol");
+                if (stringStringMap.isEmpty()) {
+                    validateFirstJsonSymbol(inputTextBean);
                 }
                 for (ParameterDeclarationTreeNode arg : argumentTreeNodes) {
                     String field = stringStringMap.get(arg.getName());
@@ -123,6 +121,9 @@ public class InputArgsBean {
         if (InputTestCaseType.TEXT.equals(inputTestCaseType) && StringUtils.isNotBlank(inputTextBean)) {
             try {
                 stringStringMap = JsonUtils.splitJSON(inputTextBean);
+                if (stringStringMap.isEmpty()) {
+                    validateFirstJsonSymbol(inputTextBean);
+                }
             } catch (IOException e) {
                 throw new Message(constructJsonExceptionMessage(e));
             }
@@ -148,6 +149,13 @@ public class InputArgsBean {
             throw new Message(constructJsonExceptionMessage(e));
         }
         return parsedArguments;
+    }
+
+    private void validateFirstJsonSymbol(String inputJson) {
+        if (!inputJson.isEmpty() && (!inputJson.startsWith("{") || !inputJson.startsWith("["))) {
+            // the only case for which jackson does not generate a clear error message
+            throw new Message("Invalid JSON: should start with '{' or '[' symbol");
+        }
     }
 
     private String constructJsonExceptionMessage(IOException e) {
