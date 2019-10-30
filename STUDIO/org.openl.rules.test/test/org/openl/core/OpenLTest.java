@@ -73,13 +73,13 @@ public final class OpenLTest {
             Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
-            assertEquals("Incorrect test name", "HelloTest12()", testUnitsResults.getName());
-            assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
+            assertEquals("Unexpected test name", "HelloTest12()", testUnitsResults.getName());
+            assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
             assertTrue("Shoud have a context", testUnitsResults.hasContext());
-            assertEquals("Incorrect count of test cases", 19, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Incorrect count of failures", 11, testUnitsResults.getNumberOfFailures());
-            assertEquals("Incorrect count of errors", 1, testUnitsResults.getNumberOfErrors());
-            assertEquals("Incorrect count of assertions", 10, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("Unexpected number of test cases", 19, testUnitsResults.getNumberOfTestUnits());
+            assertEquals("Unexpected number of failures", 11, testUnitsResults.getNumberOfFailures());
+            assertEquals("Unexpected number of errors", 1, testUnitsResults.getNumberOfErrors());
+            assertEquals("Unexpected number of assertions", 10, testUnitsResults.getNumberOfAssertionFailures());
         }
 
         {
@@ -92,13 +92,13 @@ public final class OpenLTest {
             Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
-            assertEquals("Incorrect test name", "GreetingTest()", testUnitsResults.getName());
-            assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
+            assertEquals("Unexpected test name", "GreetingTest()", testUnitsResults.getName());
+            assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
             assertFalse("Shoud not have a context", testUnitsResults.hasContext());
-            assertEquals("Incorrect count of test cases", 4, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Incorrect count of failures", 0, testUnitsResults.getNumberOfFailures());
-            assertEquals("Incorrect count of errors", 0, testUnitsResults.getNumberOfErrors());
-            assertEquals("Incorrect count of assertions", 0, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("Unexpected number of test cases", 4, testUnitsResults.getNumberOfTestUnits());
+            assertEquals("Unexpected number of failures", 0, testUnitsResults.getNumberOfFailures());
+            assertEquals("Unexpected number of errors", 0, testUnitsResults.getNumberOfErrors());
+            assertEquals("Unexpected number of assertions", 0, testUnitsResults.getNumberOfAssertionFailures());
         }
 
     }
@@ -113,17 +113,17 @@ public final class OpenLTest {
         testAllExcelFilesInFolder(DIR, true);
     }
 
-    private void testAllExcelFilesInFolder(String folderName, boolean pass) {
-        LOG.info(">>> Running all OpenL tests...");
+    private void testAllExcelFilesInFolder(String testsDirPath, boolean pass) {
+        LOG.info(">>> Running tests from directory '{}'...", testsDirPath);
         boolean hasErrors = false;
-        final File sourceDir = new File(folderName);
+        final File testsDir = new File(testsDirPath);
 
-        if (!sourceDir.exists()) {
-            LOG.warn("Tests directory does not exist.");
+        if (!testsDir.exists()) {
+            LOG.warn("Tests folder is not found.");
             return;
         }
 
-        File[] files = sourceDir.listFiles();
+        File[] files = testsDir.listFiles();
         // files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
 
         for (File file : files) {
@@ -135,12 +135,12 @@ public final class OpenLTest {
                 try {
                     new FileInputStream(file).close();
                 } catch (Exception ex) {
-                    error(errors++, startTime, sourceFile, "Failed to read file.", ex);
+                    error(errors++, startTime, sourceFile, "Failed to read excel file.", ex);
                     hasErrors = true;
                     continue;
                 }
 
-                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(folderName + sourceFile);
+                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(testsDirPath + sourceFile);
                 engineFactory.setExecutionMode(false);
                 compiledOpenClass = engineFactory.getCompiledOpenClass();
             } else if (file.isDirectory()) {
@@ -165,7 +165,7 @@ public final class OpenLTest {
 
             // Check messages
             if (pass) {
-                File msgFile = new File(sourceDir, sourceFile + ".msg.txt");
+                File msgFile = new File(testsDir, sourceFile + ".msg.txt");
                 List<String> expectedMessages = new ArrayList<>();
 
                 if (msgFile.exists()) {
@@ -178,7 +178,7 @@ public final class OpenLTest {
                             }
                         }
                     } catch (IOException exc) {
-                        error(errors++, startTime, sourceFile, "Cannot read a file {}", msgFile, exc);
+                        error(errors++, startTime, sourceFile, "Failed to read messages file.", msgFile, exc);
                     }
 
                     Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
