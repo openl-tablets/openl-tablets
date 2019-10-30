@@ -80,6 +80,7 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final Pattern REGEX = Pattern.compile("[ ,()\t\n\r]");
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
@@ -169,9 +170,9 @@ public class XlsBinder implements IOpenBinder {
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
         OpenL openl = null;
-
+        List<SyntaxNodeException> exceptions = new ArrayList<>();
         try {
-            openl = makeOpenL(moduleNode);
+            openl = makeOpenL(moduleNode, exceptions);
         } catch (OpenLConfigurationException ex) {
             OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
@@ -193,6 +194,8 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
+        //add collected exceptions
+        exceptions.forEach(bindingContext::addError);
 
         if (parsedCode.getExternalParams() != null) {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
@@ -413,20 +416,25 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private void addImports(OpenLBuilderImpl builder, Collection<String> imports) {
+    private void addImports(XlsModuleSyntaxNode moduleNode,
+                            OpenLBuilderImpl builder,
+                            Collection<String> imports,
+                            List<SyntaxNodeException> exceptions) {
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<String> classNames = new LinkedHashSet<>();
         Collection<String> libraries = new LinkedHashSet<>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
+                String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
                 try {
-                    String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
                     userContext.getUserClassLoader().loadClass(libraryClassName); // try
                     // load
                     // class
                     libraries.add(libraryClassName);
                 } catch (Exception e) {
-                    packageNames.add(singleImport.substring(0, singleImport.length() - 2));
+                    packageNames.add(libraryClassName);
+                } catch (Throwable e) {
+                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
                 }
             } else {
                 try {
@@ -436,15 +444,17 @@ public class XlsBinder implements IOpenBinder {
                     classNames.add(singleImport);
                 } catch (Exception e) {
                     packageNames.add(singleImport);
+                } catch (Throwable e) {
+                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
                 }
             }
         }
-        builder.setPackageImports(packageNames.toArray(new String[] {}));
-        builder.setClassImports(classNames.toArray(new String[] {}));
-        builder.setLibraries(libraries.toArray(new String[] {}));
+        builder.setPackageImports(packageNames.toArray(EMPTY_STRING_ARRAY));
+        builder.setClassImports(classNames.toArray(EMPTY_STRING_ARRAY));
+        builder.setLibraries(libraries.toArray(EMPTY_STRING_ARRAY));
     }
 
-    private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
+    private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
 
         String openlName = getOpenLName(moduleNode.getOpenlNode());
         Collection<String> imports = moduleNode.getImports();
@@ -460,7 +470,7 @@ public class XlsBinder implements IOpenBinder {
         String category = openlName + "::" + moduleNode.getModule().getUri();
         builder.setCategory(category);
 
-        addImports(builder, imports);
+        addImports(moduleNode, builder, imports, exceptions);
 
         builder.setContexts(null, userContext);
 
