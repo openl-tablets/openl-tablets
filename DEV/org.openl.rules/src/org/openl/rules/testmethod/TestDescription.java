@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -17,6 +18,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
+import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,11 @@ public class TestDescription {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
+
+            if (paramType != null && paramValue != null && Collection.class
+                .isAssignableFrom(paramType.getInstanceClass())) {
+                paramType = JavaOpenClass.getOpenClass(((ArrayList) paramValue).get(0).getClass());
+            }
 
             IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, dataModel);
 

@@ -1,8 +1,14 @@
 package org.openl.rules.testmethod.export;
 
+import java.util.Collection;
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -65,7 +71,9 @@ public abstract class BaseExport {
         if (value instanceof ParameterWithValueDeclaration) {
             ParameterWithValueDeclaration parameter = (ParameterWithValueDeclaration) value;
             Object simpleValue = parameter.getValue();
-
+            if (simpleValue != null && Collection.class.isAssignableFrom(simpleValue.getClass())) {
+                simpleValue = ((Collection) simpleValue).toArray();
+            }
             // Return key field for complex objects
             IOpenField keyField = parameter.getKeyField();
             if (keyField != null) {

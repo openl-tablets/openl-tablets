@@ -2,6 +2,7 @@ package org.openl.rules.testmethod.export;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -13,7 +14,11 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenField;
 
 class ParameterExport extends BaseExport {
@@ -151,6 +156,9 @@ class ParameterExport extends BaseExport {
             for (int p = 0; p < executionParams.length; p++) {
                 ParameterWithValueDeclaration parameter = executionParams[p];
                 Object value = parameter.getValue();
+                if (value != null && Collection.class.isAssignableFrom(value.getClass())) {
+                    value = ((Collection) value).toArray();
+                }
 
                 List<FieldDescriptor> fields = nonEmptyFields.get(p);
                 if (fields == null) {
@@ -235,6 +243,10 @@ class ParameterExport extends BaseExport {
     private int getRowHeight(Object value, List<FieldDescriptor> fields) {
         if (value == null || fields == null) {
             return 1;
+        }
+
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            value = ((Collection) value).toArray();
         }
 
         if (value.getClass().isArray()) {
