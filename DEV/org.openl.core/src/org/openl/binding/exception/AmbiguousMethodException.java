@@ -43,9 +43,9 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
     public String getMessage() {
         StringBuilder buf = new StringBuilder();
 
-        buf.append("Method ");
+        buf.append("Method '");
         MethodUtil.printMethod(methodName, pars, buf);
-        buf.append(" is ambiguous:\n").append("Matching methods:\n");
+        buf.append("' is ambiguous:\n").append("Matching methods:\n");
         for (IOpenMethod method : matchingMethods) {
             MethodUtil.printMethod(method, buf).append('\n');
         }
