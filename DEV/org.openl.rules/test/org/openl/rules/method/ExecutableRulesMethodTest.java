@@ -111,7 +111,7 @@ public class ExecutableRulesMethodTest {
                 return runtimeEnv;
             }
             throw new OpenlNotCheckedException(
-                String.format("Instance must implement %s.", IEngineWrapper.class.getCanonicalName()));
+                String.format("Expected an Instance of interface '%s'.", IEngineWrapper.class.getTypeName()));
         }
 
         public static boolean isMethodArgumentsCacheEnable(Object instance) {

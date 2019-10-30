@@ -95,7 +95,7 @@ public class RepositoryInstatiator {
                     // Didn't find setter, skip this param. For example not always exists setUri(String).
                 } catch (Exception e) {
                     throw new IllegalStateException(
-                        String.format("Failed to invoke %s(String) method in: %s.", setter, clazz.getTypeName()),
+                        String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), name),
                         e);
                 }
             }
@@ -120,7 +120,7 @@ public class RepositoryInstatiator {
             // repository.
             initMethod.invoke(instance);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("Failed to call initialize() in: " + clazz, e);
+            throw new IllegalStateException(String.format("Failed on method '%s.initialize()' call.", clazz), e);
         }
     }
 }

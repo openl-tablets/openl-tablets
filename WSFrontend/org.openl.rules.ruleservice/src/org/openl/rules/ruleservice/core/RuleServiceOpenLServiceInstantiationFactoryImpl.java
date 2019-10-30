@@ -193,7 +193,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             return RuleServiceInstantiationFactoryHelper
                 .getInterfaceForService(openClass, annotatedClass, serviceTarget, serviceClassLoader);
         } catch (Exception e) {
-            log.error("Failed to applying annotation template class for '{}'.", annotatedClass.getCanonicalName(), e);
+            log.error("Failed to applying annotation template class for '{}'.", annotatedClass.getTypeName(), e);
         }
         return annotatedClass;
     }

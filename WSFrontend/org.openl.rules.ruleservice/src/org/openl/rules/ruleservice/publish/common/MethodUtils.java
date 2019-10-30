@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.annotations.Name;
@@ -85,9 +86,10 @@ public final class MethodUtils {
                                 Logger log = LoggerFactory.getLogger(MethodUtils.class);
                                 if (log.isWarnEnabled()) {
                                     log.warn(
-                                        "Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
-                                            .getClass()
-                                            .getCanonicalName() + "#" + method.getName() + "' has been skipped.");
+                                        "Invalid parameter name '{}' is used in @Name annotation for method '{}.{}'.",
+                                        name.value(),
+                                        method.getClass().getTypeName(),
+                                        MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
                                 }
                             }
                         }

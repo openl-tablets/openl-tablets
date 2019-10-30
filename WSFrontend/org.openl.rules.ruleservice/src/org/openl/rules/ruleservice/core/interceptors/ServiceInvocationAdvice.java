@@ -296,19 +296,9 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     calledMethod.getName(),
                     calledMethod.getParameterTypes());
                 if (beanMethod == null) {
-                    StringBuilder sb = new StringBuilder();
-                    boolean flag = true;
-                    for (Class<?> clazz : calledMethod.getParameterTypes()) {
-                        if (flag) {
-                            flag = false;
-                        } else {
-                            sb.append(", ");
-                        }
-                        sb.append(clazz.getCanonicalName());
-                    }
-                    throw new OpenLRuntimeException(
-                        "Called method is not found in the service bean. Please, check that excel file contains method '" + MethodUtil
-                            .printMethod(calledMethod.getName(), calledMethod.getParameterTypes()) + "'.");
+                    throw new OpenLRuntimeException(String.format(
+                        "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
+                        MethodUtil.printMethod(calledMethod.getName(), calledMethod.getParameterTypes())));
                 }
             }
             try {

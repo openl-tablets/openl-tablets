@@ -209,8 +209,8 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             }
             overrideTypes.addAll(getOverrideTypes());
         }
-        overrideTypes.add(SpreadsheetResult.class.getCanonicalName());
-        overrideTypes.add(Point.class.getCanonicalName());
+        overrideTypes.add(SpreadsheetResult.class.getName());
+        overrideTypes.add(Point.class.getName());
 
         if (supportVariations) {
             tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");

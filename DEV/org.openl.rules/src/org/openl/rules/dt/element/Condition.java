@@ -220,7 +220,7 @@ public class Condition extends FunctionalRow implements ICondition {
                 param.getType().getComponentClass().getInstanceClass().getTypeName()), tableSyntaxNode));
             return String.format("contains(%s, (%s) %s)",
                 param.getName(),
-                param.getType().getComponentClass().getInstanceClass().getCanonicalName(),
+                param.getType().getComponentClass().getInstanceClass().getTypeName(),
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
@@ -229,7 +229,7 @@ public class Condition extends FunctionalRow implements ICondition {
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
                 methodType.getInstanceClass().getTypeName()), tableSyntaxNode));
             return String.format("contains((%s[]) %s, %s)",
-                methodType.getInstanceClass().getCanonicalName(),
+                methodType.getInstanceClass().getTypeName(),
                 param.getName(),
                 source.getCode());
         } else {

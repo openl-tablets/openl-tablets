@@ -19,9 +19,8 @@ public class ResultValue {
         if (openCast != null) {
             return (T) openCast.convert(value);
         } else {
-            throw new ResultValueConvertException(String.format("Cannot convert from '%s' to '%s'.",
-                value.getClass().getCanonicalName(),
-                to.getCanonicalName()));
+            throw new ResultValueConvertException(
+                String.format("Cannot convert from '%s' to '%s'.", value.getClass().getTypeName(), to.getTypeName()));
         }
     }
 

@@ -158,7 +158,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
 
         String enchancedClassName = originalClass
-            .getCanonicalName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+            .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
