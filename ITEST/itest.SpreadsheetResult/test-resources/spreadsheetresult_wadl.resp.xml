@@ -7,7 +7,7 @@
             <xs:element name="Tiktak" type="tns:Tiktak"/>
             <xs:complexType name="Tiktak">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="INT" type="xs:int"/>
+                    <xs:element name="INT" type="xs:int"/>
                     <xs:element minOccurs="0" name="String" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
