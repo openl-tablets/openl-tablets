@@ -76,6 +76,7 @@ class DependentParametersOptimizedAlgorithm {
 
             IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
                 conditionParamType0,
+                expressionType,
                 conditionCasts);
 
             if (adaptor == null) {
@@ -128,6 +129,7 @@ class DependentParametersOptimizedAlgorithm {
         } else {
             IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
                 conditionParamType,
+                expressionType,
                 conditionCasts);
 
             if (adaptor == null) {
@@ -146,9 +148,11 @@ class DependentParametersOptimizedAlgorithm {
 
     private static IRangeAdaptor<?, ? extends Comparable<?>> getRangeAdaptor(EvaluatorFactory evaluatorFactory,
             IOpenClass paramType,
+            IOpenClass expressionType,
             ConditionCasts conditionCasts) {
+        Class<?> typeClass = conditionCasts.isCastToInputTypeExists() ? expressionType.getInstanceClass()
+                                                                      : paramType.getInstanceClass();
 
-        Class<?> typeClass = paramType.getInstanceClass();
         if (typeClass.equals(String.class)) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, conditionCasts);
         }
