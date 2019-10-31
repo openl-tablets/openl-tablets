@@ -3,9 +3,9 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.CombinedRangeIndex;
 import org.openl.rules.dt.index.IRuleIndex;
@@ -15,14 +15,10 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
 
-    private IOpenCast paramToExpressionOpenCast;
-
     public CombinedRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
             int nparams,
-            IOpenCast paramToExpressionOpenCast,
-            IOpenCast expressionToParamOpenCast) {
-        super(rangeAdaptor, nparams, expressionToParamOpenCast);
-        this.paramToExpressionOpenCast = paramToExpressionOpenCast;
+            ConditionCasts conditionCasts) {
+        super(rangeAdaptor, nparams, conditionCasts);
     }
 
     @Override
@@ -50,7 +46,7 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         return new CombinedRangeIndex(minIndex,
             maxIndex,
             nextNodeBuilder.makeNode(),
-            nparams == 2 ? expressionToParamOpenCast : null);
+            nparams == 2 ? conditionCasts.getCastToConditionType() : null);
     }
 
     @SuppressWarnings("unchecked")
@@ -64,9 +60,7 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
             int ruleN = it.nextInt();
             nextNodeBuilder.addRule(ruleN);
             Object origVal = condition.getParamValue(0, ruleN);
-            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                origVal = paramToExpressionOpenCast.convert(origVal);
-            }
+            origVal = conditionCasts.castToInputType(origVal);
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;
@@ -89,9 +83,7 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         while (it.hasNext()) {
             int ruleN = it.nextInt();
             Object origVal = condition.getParamValue(paramN, ruleN);
-            if (paramToExpressionOpenCast != null && paramToExpressionOpenCast.isImplicit()) {
-                origVal = paramToExpressionOpenCast.convert(origVal);
-            }
+            origVal = conditionCasts.castToInputType(origVal);
             if (origVal == null) {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;

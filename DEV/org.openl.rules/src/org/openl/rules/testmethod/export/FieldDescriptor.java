@@ -3,7 +3,9 @@ package org.openl.rules.testmethod.export;
 import static org.openl.types.java.JavaOpenClass.CLASS;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -57,13 +59,7 @@ class FieldDescriptor {
             }
         }
 
-        // Put array fields later
-        Collections.sort(result, new Comparator<FieldDescriptor>() {
-            @Override
-            public int compare(FieldDescriptor o1, FieldDescriptor o2) {
-                return Boolean.compare(o1.isArray(), o2.isArray());
-            }
-        });
+        result.sort((FieldDescriptor o1, FieldDescriptor o2) -> Boolean.compare(o1.isArray(), o2.isArray()));
 
         return result;
     }

@@ -24,10 +24,10 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("rulesDeployName", rulesDeploy.getServiceName());
         assertEquals(Boolean.FALSE, rulesDeploy.isProvideRuntimeContext());
         assertEquals(Boolean.TRUE, rulesDeploy.isProvideVariations());
-        assertEquals(String.class.getCanonicalName(), rulesDeploy.getServiceClass());
-        assertEquals(String.class.getCanonicalName(), rulesDeploy.getRmiServiceClass());
-        assertEquals(String.class.getCanonicalName(), rulesDeploy.getInterceptingTemplateClassName());
-        assertEquals(String.class.getCanonicalName(), rulesDeploy.getAnnotationTemplateClassName());
+        assertEquals(String.class.getName(), rulesDeploy.getServiceClass());
+        assertEquals(String.class.getName(), rulesDeploy.getRmiServiceClass());
+        assertEquals(String.class.getName(), rulesDeploy.getInterceptingTemplateClassName());
+        assertEquals(String.class.getName(), rulesDeploy.getAnnotationTemplateClassName());
         assertNotNull(rulesDeploy.getPublishers());
         assertEquals(1, rulesDeploy.getPublishers().length);
         assertEquals(RulesDeploy.PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
@@ -50,9 +50,9 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setLazyModulesForCompilationPatterns(
             new RulesDeploy.WildcardPattern[] { new RulesDeploy.WildcardPattern("some1*"),
                     new RulesDeploy.WildcardPattern("some2*") });
-        rulesDeploy.setInterceptingTemplateClassName(String.class.getCanonicalName());
-        rulesDeploy.setAnnotationTemplateClassName(String.class.getCanonicalName());
-        rulesDeploy.setServiceClass(String.class.getCanonicalName());
+        rulesDeploy.setInterceptingTemplateClassName(String.class.getName());
+        rulesDeploy.setAnnotationTemplateClassName(String.class.getName());
+        rulesDeploy.setServiceClass(String.class.getName());
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setVersion("v1");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { PublisherType.WEBSERVICE });

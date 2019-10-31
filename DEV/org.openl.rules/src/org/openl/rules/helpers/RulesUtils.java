@@ -19,6 +19,10 @@ import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.LongValue;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
@@ -872,7 +876,7 @@ public final class RulesUtils {
      * @param obj the object to find
      * @return <code>true</code> if the array contains the object
      */
-    public static boolean contains(Object[] array, Object obj) {
+    public static <T> boolean contains(T[] array, T obj) {
         return ArrayUtils.contains(array, obj);
     }
 
@@ -1284,6 +1288,42 @@ public final class RulesUtils {
             }
         }
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
+    }
+
+    public static boolean contains(IntRange range, Long x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(IntRange range, LongValue x) {
+        return range != null && range.contains(x);
+    }
+    
+    public static boolean contains(IntRange range, BigIntegerValue x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(DoubleRange range, Double x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(DoubleRange range, DoubleValue x) {
+        return range != null && range.contains(x);
+    }
+    
+    public static boolean contains(DoubleRange range, BigDecimalValue x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(CharRange range, Character x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(StringRange range, String x) {
+        return range != null && range.contains(x);
+    }
+
+    public static boolean contains(DateRange range, Date x) {
+        return range != null && range.contains(x);
     }
 
     /**

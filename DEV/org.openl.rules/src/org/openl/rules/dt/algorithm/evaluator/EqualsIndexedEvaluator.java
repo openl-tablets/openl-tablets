@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
@@ -18,8 +18,8 @@ import org.openl.rules.helpers.NumberUtils;
  */
 public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
 
-    public EqualsIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
-        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    public EqualsIndexedEvaluator(ConditionCasts conditionCasts) {
+        super(conditionCasts);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
         }
 
         EqualsIndex.Builder builder = new EqualsIndex.Builder();
-        builder.setExpressionToParamOpenCast(expressionToParamOpenCast);
+        builder.setConditionCasts(conditionCasts);
         while (it.hasNext()) {
             int ruleN = it.nextInt();
 
@@ -38,7 +38,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
                 continue;
             }
 
-            Object value = convertWithParamToExpressionOpenCast(condition.getParamValue(0, ruleN));
+            Object value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
 
         }
@@ -53,7 +53,7 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             if (condition.isEmpty(i)) {
                 continue;
             }
-            Object val = convertWithParamToExpressionOpenCast(condition.getParamValue(0, i));
+            Object val = conditionCasts.castToInputType(condition.getParamValue(0, i));
             if (uniqueVals == null) {
                 if (NumberUtils.isObjectFloatPointNumber(val)) {
                     if (val instanceof BigDecimal) {

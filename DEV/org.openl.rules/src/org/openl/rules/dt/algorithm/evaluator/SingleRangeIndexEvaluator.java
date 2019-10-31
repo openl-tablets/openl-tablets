@@ -3,9 +3,9 @@ package org.openl.rules.dt.algorithm.evaluator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.index.RangeAscIndex;
@@ -15,8 +15,8 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
 
     public SingleRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
-            IOpenCast expressionToParamOpenCast) {
-        super(rangeAdaptor, 1, expressionToParamOpenCast);
+            ConditionCasts conditionCasts) {
+        super(rangeAdaptor, 1, conditionCasts);
     }
 
     @Override

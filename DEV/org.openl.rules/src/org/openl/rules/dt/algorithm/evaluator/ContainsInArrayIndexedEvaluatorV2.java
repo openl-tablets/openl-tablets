@@ -2,16 +2,16 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.lang.reflect.Array;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IIntIterator;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.EqualsIndexV2;
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEvaluator {
 
-    public ContainsInArrayIndexedEvaluatorV2(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
-        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    public ContainsInArrayIndexedEvaluatorV2(ConditionCasts conditionCasts) {
+        super(conditionCasts);
     }
 
     @Override
@@ -21,7 +21,7 @@ public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEv
         }
 
         EqualsIndexV2.Builder builder = new EqualsIndexV2.Builder();
-        builder.setExpressionToParamOpenCast(expressionToParamOpenCast);
+        builder.setConditionCasts(conditionCasts);
         while (iterator.hasNext()) {
             int ruleN = iterator.nextInt();
             builder.addRule(ruleN);
@@ -37,10 +37,15 @@ public class ContainsInArrayIndexedEvaluatorV2 extends AContainsInArrayIndexedEv
 
             for (int j = 0; j < length; j++) {
                 Object value = Array.get(values, j);
+                value = conditionCasts.castToInputType(value);
                 builder.putValueToRule(value, ruleN);
             }
         }
         return builder.build();
+    }
+
+    public ContainsInArrayIndexedEvaluator toV1() {
+        return new ContainsInArrayIndexedEvaluator(conditionCasts);
     }
 
     @Override

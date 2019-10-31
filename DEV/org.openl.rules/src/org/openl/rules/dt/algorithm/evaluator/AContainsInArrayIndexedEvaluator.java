@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.meta.BigDecimalValue;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
@@ -26,8 +26,8 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
     private int uniqueKeysSize = -1;
     private int maxArrayLength = -1;
 
-    public AContainsInArrayIndexedEvaluator(IOpenCast paramToExpressionOpenCast, IOpenCast expressionToParamOpenCast) {
-        super(paramToExpressionOpenCast, expressionToParamOpenCast);
+    public AContainsInArrayIndexedEvaluator(ConditionCasts conditionCasts) {
+        super(conditionCasts);
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-        Object value = convertWithParamToExpressionOpenCast(condition.getEvaluator().invoke(target, params, env));
+        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, params, env));
         return new ContainsInArraySelector(condition, value);
     }
 
@@ -79,6 +79,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
             maxArrayLength = Math.max(length, maxArrayLength);
             for (int j = 0; j < length; j++) {
                 Object val = Array.get(values, j);
+                val = conditionCasts.castToInputType(val);
                 if (uniqueVals == null) {
                     if (NumberUtils.isObjectFloatPointNumber(val)) {
                         if (val instanceof BigDecimal || val instanceof BigDecimalValue) {

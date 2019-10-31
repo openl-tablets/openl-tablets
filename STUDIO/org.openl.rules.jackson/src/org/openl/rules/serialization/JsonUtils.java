@@ -46,7 +46,7 @@ public final class JsonUtils {
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
         Set<String> overideTypes = new HashSet<>();
         for (Class<?> type : types) {
-            overideTypes.add(type.getCanonicalName());
+            overideTypes.add(type.getName());
         }
         jacksonObjectMapperFactoryBean.setOverrideTypes(overideTypes);
         return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();

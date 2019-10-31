@@ -60,6 +60,8 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private int noParamsIndex = 0;
 
+    private Boolean hasFormulas = null;
+
     FunctionalRow(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
 
         this.name = name;
@@ -188,7 +190,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             TableSyntaxNode tableSyntaxNode) throws Exception {
         this.ruleExecutionType = ruleExecutionType;
 
-        method = generateMethod(signature, openl, bindingContext, methodType);
+        method = generateMethod(tableSyntaxNode, openl, signature, methodType, bindingContext);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
 
@@ -206,10 +208,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     }
 
-    protected IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
+    protected IParameterDeclaration[] getParams(IOpenClass declaringClass,
             IMethodSignature signature,
-            IOpenClass declaringClass,
             IOpenClass methodType,
+            IOpenSourceCodeModule methodSource,
             OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
@@ -252,10 +254,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         int len = nValues();
 
-        IParameterDeclaration[] paramDecl = getParams(method.getMethodBodyBoundNode().getSyntaxNode().getModule(),
+        IParameterDeclaration[] paramDecl = getParams(method.getDeclaringClass(),
             method.getSignature(),
-            method.getDeclaringClass(),
             method.getType(),
+            method.getMethodBodyBoundNode().getSyntaxNode().getModule(),
             ota.getOpenl(),
             ota.getBindingContext());
 
@@ -378,25 +380,31 @@ public abstract class FunctionalRow implements IDecisionRow {
         return (NO_PARAM + noParamsIndex).intern();
     }
 
-    private CompositeMethod generateMethod(IMethodSignature signature,
+    private CompositeMethod generateMethod(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
-            IBindingContext bindingContext,
-            IOpenClass methodType) throws Exception {
+            IMethodSignature signature,
+            IOpenClass methodType,
+            IBindingContext bindingContext) throws Exception {
 
-        IOpenSourceCodeModule source = getExpressionSource(bindingContext, openl, null, signature, methodType);
-
-        IParameterDeclaration[] methodParams = getParams(source, signature, null, methodType, openl, bindingContext);
+        IOpenSourceCodeModule source = getExpressionSource(tableSyntaxNode,
+            signature,
+            methodType,
+            null,
+            openl,
+            bindingContext);
+        IParameterDeclaration[] methodParams = getParams(null, signature, methodType, source, openl, bindingContext);
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
 
         return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContext);
     }
 
-    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
-            OpenL openl,
-            IOpenClass declaringClass,
+    protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
             IMethodSignature signature,
-            IOpenClass methodType) throws Exception {
+            IOpenClass methodType,
+            IOpenClass declaringClass,
+            OpenL openl,
+            IBindingContext bindingContext) throws Exception {
         return new GridCellSourceCodeModule(codeTable.getSource(), bindingContext);
     }
 
@@ -538,6 +546,13 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean hasFormulas() {
+        if (hasFormulas == null) {
+            hasFormulas = initHasFormulas();
+        }
+        return hasFormulas;
+    }
+
+    private boolean initHasFormulas() {
         if (storage != null) {
             for (IStorage<?> aStorage : storage) {
                 if (aStorage.getInfo().getNumberOfFormulas() > 0) {

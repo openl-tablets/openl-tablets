@@ -461,7 +461,7 @@ public final class JAXRSEnhancerHelper {
             classLoader,
             service);
         String enchancedClassName = serviceClass
-            .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+            .getName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
         if (serviceClass.getPackage() == null) {
             enchancedClassName = "default." + enchancedClassName;

@@ -154,10 +154,10 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     @Override
-    protected IParameterDeclaration[] getParams(IOpenSourceCodeModule methodSource,
+    protected IParameterDeclaration[] getParams(IOpenClass declaringClass,
             IMethodSignature signature,
-            IOpenClass declaringClass,
             IOpenClass methodType,
+            IOpenSourceCodeModule methodSource,
             OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
@@ -170,21 +170,23 @@ public class Action extends FunctionalRow implements IAction {
             return getParams();
         }
 
-        return super.getParams(methodSource, signature, declaringClass, methodType, openl, bindingContext);
+        return super.getParams(declaringClass, signature, methodType, methodSource, openl, bindingContext);
     }
 
     @Override
-    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
-            OpenL openl,
-            IOpenClass declaringClass,
+    protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
             IMethodSignature signature,
-            IOpenClass methodType) throws Exception {
+            IOpenClass methodType,
+            IOpenClass declaringClass,
+            OpenL openl,
+            IBindingContext bindingContext) throws Exception {
 
-        IOpenSourceCodeModule source = super.getExpressionSource(bindingContext,
-            openl,
-            declaringClass,
+        IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
             signature,
-            methodType);
+            methodType,
+            declaringClass,
+            openl,
+            bindingContext);
 
         if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils
             .isEmpty(source.getCode()) && getParams() == null) {

@@ -1,16 +1,19 @@
 package org.openl.rules.dt.element;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.helpers.*;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -129,83 +132,128 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
-            OpenL openl,
-            IOpenClass declaringClass,
+    protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
             IMethodSignature signature,
-            IOpenClass methodType) throws Exception {
-        IOpenSourceCodeModule source = super.getExpressionSource(bindingContext,
-            openl,
-            declaringClass,
+            IOpenClass methodParamType,
+            IOpenClass declaringClass,
+            OpenL openl,
+            IBindingContext bindingContext) throws Exception {
+        IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
             signature,
-            methodType);
+            methodParamType,
+            declaringClass,
+            openl,
+            bindingContext);
+
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {
                 userDefinedOpenSourceCodeModule = source;
-                IParameterDeclaration[] params = getParams(source,
+                IParameterDeclaration[] params = getParams(declaringClass,
                     signature,
-                    declaringClass,
-                    methodType,
+                    methodParamType,
+                    source,
                     openl,
                     bindingContext);
                 if (params.length == 1) {
                     if (params[0].getType()
-                        .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null && params[0]
-                            .getType()
-                            .getComponentClass()
-                            .getInstanceClass()
-                            .isAssignableFrom(signature.getParameterType(i).getInstanceClass())) {
-                        return !hasFormulas() ? source
-                                              : new StringSourceCodeModule(
-                                                  "contains(" + params[0].getName() + ", " + source.getCode() + ")",
-                                                  source.getUri()); // Contains syntax to full code (must be the same as
-                                                                    // indexed variant)
+                        .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null) {
+                        IOpenClass inputType = signature.getParameterType(i);
+                        ConditionCasts conditionCasts = ConditionHelper
+                            .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
+                        if (conditionCasts.isCastToConditionTypeExists() || conditionCasts
+                            .isCastToInputTypeExists() && !inputType.isArray()) {
+                            return !hasFormulas() ? source
+                                                  : new StringSourceCodeModule(
+                                                      getContainsInArrayExpression(tableSyntaxNode,
+                                                          source,
+                                                          signature.getParameterType(i),
+                                                          params[0],
+                                                          conditionCasts,
+                                                          bindingContext),
+                                                      source.getUri()); // build an expression for condition (must be
+                                                                        // the same as indexed variant)
+                        }
                     }
 
                     if (isRangeExpression(signature.getParameterType(i), params[0].getType())) {
                         return !hasFormulas() ? source
                                               : new StringSourceCodeModule(
-                                                  getRangeExpression(source, signature.getParameterType(i), params[0]),
-                                                  source.getUri()); // Range syntax to full code (must be the same as
-                                                                    // indexed variant)
+                                                  getRangeExpression(tableSyntaxNode,
+                                                      source,
+                                                      signature.getParameterType(i),
+                                                      params[0],
+                                                      bindingContext),
+                                                  source.getUri()); // build an expression for condition (must be the
+                                                                    // same as indexed variant)
                     }
 
                     return !hasFormulas() && !(params[0].getType().isArray() && signature.getParameterType(i)
                         .isArray()) ? source
                                     : new StringSourceCodeModule(source.getCode() + " == " + params[0].getName(),
-                                        source.getUri()); // Simple
-                    // syntax
-                    // to
-                    // full
-                    // code
-                }
-                if (params.length == 2) {
+                                        source.getUri()); // build an expression if default evaluator is used
+                } else if (params.length == 2) {
                     return !hasFormulas() ? source
                                           : new StringSourceCodeModule(params[0].getName() + "<=" + source
                                               .getCode() + " and " + source.getCode() + "<" + params[1].getName(),
-                                              source.getUri()); // Simple
-                    // syntax
-                    // to
-                    // full
-                    // code
+                                              source.getUri()); // build an expression if default evaluator is used
                 }
             }
         }
         return source;
+
+    }
+
+    private String getContainsInArrayExpression(TableSyntaxNode tableSyntaxNode,
+            IOpenSourceCodeModule source,
+            IOpenClass methodType,
+            IParameterDeclaration param,
+            ConditionCasts conditionCasts,
+            IBindingContext bindingContext) {
+        if (Objects.equals(param.getType().getComponentClass(), methodType)) {
+            return String.format("contains(%s, %s)", param.getName(), source.getCode());
+        }
+        if (conditionCasts.isCastToConditionTypeExists()) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                getName(),
+                methodType.getInstanceClass().getTypeName(),
+                param.getType().getComponentClass().getInstanceClass().getTypeName()), tableSyntaxNode));
+            return String.format("contains(%s, (%s) %s)",
+                param.getName(),
+                param.getType().getComponentClass().getInstanceClass().getTypeName(),
+                source.getCode());
+        } else if (conditionCasts.isCastToInputTypeExists()) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                getName(),
+                param.getType().getComponentClass().getInstanceClass().getTypeName(),
+                methodType.getInstanceClass().getTypeName()), tableSyntaxNode));
+            return String.format("contains((%s[]) %s, %s)",
+                methodType.getInstanceClass().getTypeName(),
+                param.getName(),
+                source.getCode());
+        } else {
+            throw new IllegalStateException("It should not happen.");
+        }
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
         return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
     }
 
-    private String getRangeExpression(IOpenSourceCodeModule source,
+    private String getRangeExpression(TableSyntaxNode tableSyntaxNode,
+            IOpenSourceCodeModule source,
             IOpenClass methodType,
-            IParameterDeclaration param) {
+            IParameterDeclaration param,
+            IBindingContext bindingContext) {
         if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
-            return String.format("((DoubleRange) %s).contains(%s)", param.getName(), source.getCode());
-        } else {
-            return param.getName() + ".contains(" + source.getCode() + ")";
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
+                getName(),
+                param.getType().getInstanceClass().getTypeName(),
+                DoubleRange.class.getTypeName()), tableSyntaxNode));
         }
+        return String.format("contains(%s, %s)", param.getName(), source.getCode());
     }
 
     private boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {

@@ -2,12 +2,12 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.*;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.source.IOpenSourceCodeModule;
@@ -22,8 +22,8 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
             int nparams,
-            IOpenCast expressionToParamOpenCast) {
-        super(null, expressionToParamOpenCast);
+            ConditionCasts conditionCasts) {
+        super(conditionCasts);
         this.rangeAdaptor = rangeAdaptor;
         this.nparams = nparams;
     }
@@ -47,7 +47,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     @Override
     @SuppressWarnings("unchecked")
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = convertWithExpressionToParamOpenCast(condition.getEvaluator().invoke(target, dtparams, env));
+        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
         return new RangeSelector(condition, value, target, dtparams, rangeAdaptor, env);
     }
 

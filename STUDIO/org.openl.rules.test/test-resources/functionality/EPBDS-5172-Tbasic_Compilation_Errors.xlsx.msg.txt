@@ -1,8 +1,8 @@
 ERROR: Type 'Dote' is not found
 ERROR: Field 'polID' is not found
-ERROR: Method add(java.lang.String, null-Class) is ambiguous:
-ERROR: Method add(null-Class, java.lang.String) is ambiguous:
+ERROR: Method 'add(java.lang.String, null-Class)' is ambiguous:
+ERROR: Method 'add(null-Class, java.lang.String)' is ambiguous:
 ERROR: Type 'Dute' is not found
 ERROR: Field 'polID2' is not found
-ERROR: Method add(java.lang.String, null-Class) is ambiguous:
-ERROR: Method add(null-Class, java.lang.String) is ambiguous:
+ERROR: Method 'add(java.lang.String, null-Class)' is ambiguous:
+ERROR: Method 'add(null-Class, java.lang.String)' is ambiguous:

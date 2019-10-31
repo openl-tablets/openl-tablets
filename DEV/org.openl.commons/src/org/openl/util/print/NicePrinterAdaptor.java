@@ -91,7 +91,7 @@ public class NicePrinterAdaptor {
     }
 
     protected String getTypeName(Object obj) {
-        return obj.getClass().getName();
+        return obj.getClass().getTypeName();
     }
 
     public Object getUniqueID(Object obj) {

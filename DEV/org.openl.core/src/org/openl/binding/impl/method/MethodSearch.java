@@ -122,7 +122,10 @@ public final class MethodSearch {
                     }
                     if (callParam[i] != type) {
                         IOpenCast gCast = casts.getCast(callParam[i], type);
-                        if (type != methodParam[i]) {
+                        if (gCast == null || !gCast.isImplicit()) {
+                            return NO_MATCH;
+                        }
+                        if (!Objects.equals(type, methodParam[i])) {
                             IOpenCast cast = casts.getCast(type, methodParam[i]);
                             if (cast == null || !cast.isImplicit()) {
                                 return NO_MATCH;

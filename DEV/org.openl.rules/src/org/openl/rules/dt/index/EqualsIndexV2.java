@@ -3,12 +3,12 @@ package org.openl.rules.dt.index;
 import java.math.BigDecimal;
 import java.util.*;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
+import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.helpers.NumberUtils;
 
 /**
@@ -26,25 +26,23 @@ public class EqualsIndexV2 implements IRuleIndex {
     private int[] emptyRules;
     private DecisionTableRuleNode nextNode;
     private int rulesTotalSize;
-    private IOpenCast expressionToParamOpenCast;
+    private ConditionCasts conditionCasts;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
             Map<Object, int[]> index,
             int[] emptyRules,
-            IOpenCast expressionToParamOpenCast) {
+            ConditionCasts conditionCasts) {
         this.index = Collections.unmodifiableMap(index);
         this.emptyRules = emptyRules;
         this.nextNode = nextNode;
         this.rulesTotalSize = nextNode.getRules().length;
-        this.expressionToParamOpenCast = expressionToParamOpenCast;
+        this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 
     private int[] findIndex(Object value) {
         int[] result = null;
         if (value != null) {
-            if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
-                value = expressionToParamOpenCast.convert(value);
-            }
+            value = conditionCasts.castToConditionType(value);
             result = index.get(value);
         }
         return result == null ? EMPTY_ARRAY : result;
@@ -164,7 +162,7 @@ public class EqualsIndexV2 implements IRuleIndex {
         private Map<Object, int[]> result = null;
         private boolean comparatorBasedMap = false;
 
-        private IOpenCast expressionToParamOpenCast;
+        private ConditionCasts conditionCasts;
 
         public void addRule(int ruleN) {
             nextNodeBuilder.addRule(ruleN);
@@ -174,8 +172,8 @@ public class EqualsIndexV2 implements IRuleIndex {
             emptyBuilder.addRule(ruleN);
         }
 
-        public void setExpressionToParamOpenCast(IOpenCast expressionToParamOpenCast) {
-            this.expressionToParamOpenCast = expressionToParamOpenCast;
+        public void setConditionCasts(ConditionCasts conditionCasts) {
+            this.conditionCasts = conditionCasts;
         }
 
         public void putValueToRule(Object value, int ruleN) {
@@ -212,10 +210,7 @@ public class EqualsIndexV2 implements IRuleIndex {
                 }
             }
 
-            return new EqualsIndexV2(nextNodeBuilder.makeNode(),
-                result,
-                emptyBuilder.makeRulesAry(),
-                expressionToParamOpenCast);
+            return new EqualsIndexV2(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry(), conditionCasts);
         }
     }
 

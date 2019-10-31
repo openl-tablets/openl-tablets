@@ -2,6 +2,7 @@ package org.openl.rules.testmethod.export;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -13,8 +14,14 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 class ParameterExport extends BaseExport {
     ParameterExport(Styles styles) {
@@ -151,6 +158,9 @@ class ParameterExport extends BaseExport {
             for (int p = 0; p < executionParams.length; p++) {
                 ParameterWithValueDeclaration parameter = executionParams[p];
                 Object value = parameter.getValue();
+                if (value != null && Collection.class.isAssignableFrom(value.getClass())) {
+                    value = ((Collection) value).toArray();
+                }
 
                 List<FieldDescriptor> fields = nonEmptyFields.get(p);
                 if (fields == null) {
@@ -237,6 +247,10 @@ class ParameterExport extends BaseExport {
             return 1;
         }
 
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            value = ((Collection) value).toArray();
+        }
+
         if (value.getClass().isArray()) {
             int count = Array.getLength(value);
             int height = 0;
@@ -288,10 +302,32 @@ class ParameterExport extends BaseExport {
         List<List<FieldDescriptor>> result = new ArrayList<>(executionParams.length);
         for (int i = 0; i < executionParams.length; i++) {
             ParameterWithValueDeclaration param = executionParams[i];
-            result.add(FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(descriptions, i)));
+            List<Object> values = valuesForAllCases(descriptions, i);
+            if (Collection.class.isAssignableFrom(param.getType().getInstanceClass())) {
+                IOpenClass paramType = JavaOpenClass
+                    .getOpenClass(defineCollectionGenericType((Collection) param.getValue()));
+                result.add(FieldDescriptor.nonEmptyFields(paramType, values));
+            } else {
+                result.add(FieldDescriptor.nonEmptyFields(param.getType(), values));
+            }
         }
 
         return result;
+    }
+
+    private Class<?> defineCollectionGenericType(Collection collection) {
+        Class<?> commonParent = Object.class;
+        for (Object ob : collection) {
+            if (ob != null) {
+                Class<?> aClass = ob.getClass();
+                if (commonParent.isAssignableFrom(aClass)) {
+                    commonParent = aClass;
+                } else {
+                    return Object.class;
+                }
+            }
+        }
+        return commonParent;
     }
 
     /**

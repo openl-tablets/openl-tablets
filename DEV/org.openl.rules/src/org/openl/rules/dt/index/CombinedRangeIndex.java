@@ -16,7 +16,7 @@ public class CombinedRangeIndex implements IRuleIndex {
     private final RangeAscIndex minIndex;
     private final RangeDescIndex maxIndex;
 
-    private final IOpenCast expressionToParamOpenCast;
+    private final IOpenCast castToConditionType;
 
     public CombinedRangeIndex(RangeAscIndex minIndex,
             RangeDescIndex maxIndex,
@@ -25,13 +25,13 @@ public class CombinedRangeIndex implements IRuleIndex {
         this.nextNode = nextNode;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;
-        this.expressionToParamOpenCast = expressionToParamOpenCast;
+        this.castToConditionType = expressionToParamOpenCast;
     }
 
     @Override
     public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
-        if (expressionToParamOpenCast != null && expressionToParamOpenCast.isImplicit()) {
-            value = expressionToParamOpenCast.convert(value);
+        if (castToConditionType != null && castToConditionType.isImplicit()) {
+            value = castToConditionType.convert(value);
         }
         Set<Integer> minIndexRules = minIndex.findRules(value, prevResult);
         DecisionTableRuleNode minIndexResult = new RangeIndexDecisionTableRuleNode(minIndexRules, null);
