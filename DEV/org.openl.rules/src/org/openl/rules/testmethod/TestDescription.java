@@ -116,6 +116,8 @@ public class TestDescription {
 
             if (paramType != null && paramValue != null && Collection.class
                 .isAssignableFrom(paramType.getInstanceClass())) {
+                //replace the Collection type with the type of the first element
+                //there may be a bug, because through the UI, elements of different types can be added to the collection
                 paramType = JavaOpenClass.getOpenClass(((ArrayList) paramValue).get(0).getClass());
             }
 
