@@ -1,1 +1,1 @@
-ERROR: Method 'calc(MyType[])' is not found
+ERROR: Method 'calc(MyType[])' is not found.

@@ -24,13 +24,13 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
         IOpenClass type = expressionNode.getType();
         if (type instanceof NullOpenClass) {
-            String message = "Order By expression requires typed parameter";
+            String message = "Expected a parameter for 'Order By' expression.";
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);
         }
         Class<?> instanceClass = type.getInstanceClass();
         if (!Comparable.class
             .isAssignableFrom(instanceClass) && (!instanceClass.isPrimitive() || instanceClass == void.class)) {
-            return makeErrorNode("Order By expression must be Comparable",
+            return makeErrorNode("Expected Comparable type for 'Order By' expression.",
                 expressionNode.getSyntaxNode(),
                 bindingContext);
         }

@@ -1,4 +1,4 @@
-ERROR: Method 'MyRuleY(int)' is not found
-ERROR: Method 'MyRuleZ(java.lang.String, int)' is not found
-ERROR: Method 'MyRuleY()' is not found
-ERROR: Method 'MyRuleX()' is not found
+ERROR: Method 'MyRuleY(int)' is not found.
+ERROR: Method 'MyRuleZ(java.lang.String, int)' is not found.
+ERROR: Method 'MyRuleY()' is not found.
+ERROR: Method 'MyRuleX()' is not found.

@@ -52,8 +52,8 @@ public class NewNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            String errMsg = "Constructor is not found: " + MethodUtil.printMethod(type.getName(), types);
-            return makeErrorNode(errMsg, typeNode, bindingContext);
+            return makeErrorNode(String.format("Constructor '%s' is not found.",
+                MethodUtil.printMethod(type.getName(), types)), typeNode, bindingContext);
         }
 
         return new MethodBoundNode(node, children, methodCaller);

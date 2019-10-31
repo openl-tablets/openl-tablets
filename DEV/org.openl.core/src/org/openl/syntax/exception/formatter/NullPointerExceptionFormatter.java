@@ -5,7 +5,7 @@ public class NullPointerExceptionFormatter implements ExceptionMessageFormatter 
     @Override
     public String format(Throwable error) {
         if (error instanceof NullPointerException) {
-            return "The element is null";
+            return "The element is null.";
         }
         return error.getMessage();
 

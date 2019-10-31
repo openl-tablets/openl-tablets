@@ -1,13 +1,13 @@
-ERROR: Operator not defined: negative(int[])
-ERROR: Access non-static field from a static object
-ERROR: Access of a non-static method from a static object
-ERROR: Condition must have boolean type
-ERROR: Operator not defined for: add(int[], int)
-ERROR: Operator not defined for: and(int, int)
-ERROR: Operator not defined for: or(int, int)
-ERROR: Type 'int1' is not found
-ERROR: Constructor is not found: java.util.Calendar()
-ERROR: Order By expression must be Comparable
-ERROR: Operator not defined: inc(int[])
-ERROR: Operator not defined: dec(int[])
-ERROR: The method must return a value
+ERROR: Operator 'negative(int[])' is not found.
+ERROR: Accessing to non-static field from a static class.
+ERROR: Accessing to non-static method from a static class.
+ERROR: Expected boolean type for condition.
+ERROR: Operator 'add(int[], int)' is not found.
+ERROR: Operator 'and(int, int)' is not found.
+ERROR: Operator 'or(int, int)' is not found.
+ERROR: Type 'int1' is not found.
+ERROR: Constructor 'java.util.Calendar()' is not found.
+ERROR: Expected Comparable type for 'Order By' expression.
+ERROR: Operator 'inc(int[])' is not found.
+ERROR: Operator 'dec(int[])' is not found.
+ERROR: The method must return a value.

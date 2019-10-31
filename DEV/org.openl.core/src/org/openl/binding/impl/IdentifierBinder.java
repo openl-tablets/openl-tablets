@@ -1,7 +1,10 @@
 package org.openl.binding.impl;
 
+import java.util.Objects;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
@@ -33,8 +36,10 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
+        if (type == null) {
+            throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", fieldName));
+        }
 
-        assertNotNull(type, "Field '", fieldName, "' is not found.");
         BindHelper.checkOnDeprecation(node, bindingContext, type);
         return new TypeBoundNode(node, type);
     }
@@ -49,16 +54,18 @@ public class IdentifierBinder extends ANodeBinder {
             dims++;
             type = type.getComponentClass();
         }
-        IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
-        assertNotNull(field, "Field '", fieldName, "' is not found inside '", type, "' type");
+        IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
+        if (field == null) {
+            throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
+        }
 
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
-                BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
+                BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
             } else {
-                return makeErrorNode("Access non-static field from a static object", node, bindingContext);
+                return makeErrorNode("Accessing to non-static field from a static class.", node, bindingContext);
             }
         }
 

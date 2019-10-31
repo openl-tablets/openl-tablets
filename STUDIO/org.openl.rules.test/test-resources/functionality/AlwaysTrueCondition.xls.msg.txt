@@ -1,1 +1,1 @@
-WARN: Condition is always true
+WARN: Condition is always true.

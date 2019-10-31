@@ -271,19 +271,6 @@ public abstract class ANodeBinder implements INodeBinder {
         return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType) : null;
     }
 
-    protected static void assertNotNull(Object node, String message, Object... messages) {
-        if (node == null) {
-            if (messages == null) {
-                throw new IllegalStateException(message);
-            }
-            StringBuilder msg = new StringBuilder(message);
-            for (Object obj : messages) {
-                msg.append(obj);
-            }
-            throw new IllegalStateException(msg.toString());
-        }
-    }
-
     protected static void assertCountOfChild(String message, ISyntaxNode node, int count) {
         if (node.getNumberOfChildren() != count) {
             throw new IllegalStateException(message);
