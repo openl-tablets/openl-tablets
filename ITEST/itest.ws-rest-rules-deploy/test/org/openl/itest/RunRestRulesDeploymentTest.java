@@ -78,6 +78,7 @@ public class RunRestRulesDeploymentTest {
         assertEquals(0, uiInfoResponseResponseEntity2.getServices().length);
         assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
 
+        client.post("/admin/deploy", "/empty_project.zip", 400);
     }
 
     @Test
