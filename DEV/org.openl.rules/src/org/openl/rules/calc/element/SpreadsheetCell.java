@@ -108,7 +108,7 @@ public class SpreadsheetCell implements Invokable {
     @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
-        if (isValueCell() || isConstantCell() || (isEmpty() && isDefaultPrimitiveCell())) {
+        if (isValueCell() || isConstantCell() || isDefaultPrimitiveCell()) {
             return getValue();
         } else if (isMethodCell()) {
             return getMethod().invoke(spreadsheetResult, params, env);
