@@ -176,7 +176,7 @@ public class SpreadsheetStructureBuilder {
         IOpenClass type = spreadsheetCell.getType();
 
         if (code == null) {
-            spreadsheetCell.setValue(null);
+            spreadsheetCell.setValue(type.nullObject());
         } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
             int end = 0;

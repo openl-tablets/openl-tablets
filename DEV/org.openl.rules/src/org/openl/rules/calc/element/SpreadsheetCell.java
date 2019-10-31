@@ -7,7 +7,6 @@ import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCell implements Invokable {
@@ -73,6 +72,12 @@ public class SpreadsheetCell implements Invokable {
         return spreadsheetCellType == SpreadsheetCellType.CONSTANT;
     }
 
+    public boolean isDefaultPrimitiveCell() {
+        return type != null && !(type instanceof DomainOpenClass) && type.getInstanceClass() != null
+                && type.getInstanceClass().isPrimitive()
+                && isEmpty();
+    }
+
     public void setMethod(IOpenMethod method) {
         this.method = method;
     }
@@ -85,10 +90,6 @@ public class SpreadsheetCell implements Invokable {
             type = NullOpenClass.the;
         } else if (type == JavaOpenClass.VOID) {
             type = JavaOpenClass.getOpenClass(Void.class);
-        } else if (!(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type.getInstanceClass()
-            .isPrimitive()) {
-            Class<?> wrapper = ClassUtils.primitiveToWrapper(type.getInstanceClass());
-            type = JavaOpenClass.getOpenClass(wrapper);
         }
         this.type = type;
     }
@@ -107,7 +108,7 @@ public class SpreadsheetCell implements Invokable {
     @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
-        if (isValueCell() || isConstantCell()) {
+        if (isValueCell() || isConstantCell() || (isEmpty() && isDefaultPrimitiveCell())) {
             return getValue();
         } else if (isMethodCell()) {
             return getMethod().invoke(spreadsheetResult, params, env);
