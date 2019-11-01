@@ -207,7 +207,7 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange cast(LongValue x, IntRange y) {
-        return new IntRange(x.intValue());
+        return new IntRange(x.longValue());
     }
 
     public static int distance(LongValue x, IntRange y) {
@@ -215,7 +215,7 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange cast(FloatValue x, IntRange y) {
-        return new IntRange(x.intValue());
+        return new IntRange(x.longValue());
     }
 
     public static int distance(FloatValue x, IntRange y) {
@@ -223,7 +223,7 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange cast(DoubleValue x, IntRange y) {
-        return new IntRange(x.intValue());
+        return new IntRange(x.longValue());
     }
 
     public static int distance(DoubleValue x, IntRange y) {
@@ -231,7 +231,7 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange cast(BigIntegerValue x, IntRange y) {
-        return new IntRange(x.intValue());
+        return new IntRange(x.longValue());
     }
 
     public static int distance(BigIntegerValue x, IntRange y) {
@@ -239,7 +239,7 @@ public class IntRange implements INumberRange {
     }
 
     public static IntRange cast(BigDecimalValue x, IntRange y) {
-        return new IntRange(x.intValue());
+        return new IntRange(x.longValue());
     }
 
     public static int distance(BigDecimalValue x, IntRange y) {
