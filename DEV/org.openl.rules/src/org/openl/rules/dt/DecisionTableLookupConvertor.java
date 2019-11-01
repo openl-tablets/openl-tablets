@@ -237,7 +237,7 @@ public class DecisionTableLookupConvertor {
 
     private void validateHCHeaders(IGridTable hcHeaderTable) throws OpenLCompilationException {
         String message = String.format(
-            "The height of the horizontal keys must be equal to the number of the %s headers",
+            "The height of the horizontal keys must be equal to the number of the %s headers.",
             DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
         assertEQ(hcHeaders.size(), hcHeaderTable.getHeight(), message);
     }

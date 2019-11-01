@@ -1,2 +1,2 @@
-ERROR: Field 'Step4' is not found
-ERROR: Operator not defined for: multiply(java.lang.Double[], null-Class)
+ERROR: Identifier 'Step4' is not found.
+ERROR: Operator 'multiply(java.lang.Double[], null-Class)' is not found.

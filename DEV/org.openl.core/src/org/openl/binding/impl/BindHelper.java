@@ -1,10 +1,6 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +54,6 @@ public class BindHelper {
         bindingContext.addError(error);
     }
 
-    public static final String CONDITION_TYPE_MESSAGE = "Condition must have boolean type";
     private static final Collection<String> EQUAL_OPERATORS = Collections
         .unmodifiableCollection(Arrays.asList("op.binary.eq",
             "op.binary.strict_eq",
@@ -84,7 +79,9 @@ public class BindHelper {
     public static IBoundNode checkConditionBoundNode(IBoundNode conditionNode, IBindingContext bindingContext) {
         if (conditionNode != null && !isBooleanType(conditionNode.getType())) {
             if (conditionNode.getType() != NullOpenClass.the) {
-                BindHelper.processError(CONDITION_TYPE_MESSAGE, conditionNode.getSyntaxNode(), bindingContext);
+                BindHelper.processError("Expected boolean type for condition.",
+                    conditionNode.getSyntaxNode(),
+                    bindingContext);
             }
             return new ErrorBoundNode(conditionNode.getSyntaxNode());
         } else {

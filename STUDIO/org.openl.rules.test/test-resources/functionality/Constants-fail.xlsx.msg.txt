@@ -1,2 +1,2 @@
-ERROR: Field 'D_1' has already been defined
-ERROR: Field 'Const27' has already been defined
+ERROR: Field 'D_1' has already been defined.
+ERROR: Field 'Const27' has already been defined.

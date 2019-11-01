@@ -35,7 +35,7 @@ public class ReturnNodeBinder extends ANodeBinder {
             exprNode = bindTypeNode(node.getChild(0), bindingContext, returnType);
 
         } else if (bindingContext.getReturnType() != JavaOpenClass.VOID) {
-            return makeErrorNode("The method must return a value", node, bindingContext);
+            return makeErrorNode("The method must return a value.", node, bindingContext);
         }
 
         IBoundNode[] children = {};

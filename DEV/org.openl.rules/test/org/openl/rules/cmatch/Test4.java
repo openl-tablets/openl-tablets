@@ -26,8 +26,7 @@ public class Test4 {
 
     @Test
     public void test3() {
-        TestUtils
-            .assertEx("test/rules/cmatch1/match4-3.xls", "Cannot convert an empty string to numeric type.", "cell=F6");
+        TestUtils.assertEx("test/rules/cmatch1/match4-3.xls", "Cannot convert an empty string to a number.", "cell=F6");
     }
 
     @Test

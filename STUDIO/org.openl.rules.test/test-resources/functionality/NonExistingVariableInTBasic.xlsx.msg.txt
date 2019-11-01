@@ -1,5 +1,5 @@
-ERROR: Field 'value' is not found
-ERROR: Field 'premium' is not found
-ERROR: Field 'premium' is not found
-ERROR: Field 'premium' is not found
-ERROR: Field 'premium' is not found
+ERROR: Identifier 'value' is not found.
+ERROR: Identifier 'premium' is not found.
+ERROR: Identifier 'premium' is not found.
+ERROR: Identifier 'premium' is not found.
+ERROR: Identifier 'premium' is not found.

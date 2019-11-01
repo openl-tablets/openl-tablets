@@ -1,2 +1,2 @@
 ERROR: Cannot parse cell value '249.0'. Expected value of type 'int'.
-ERROR: Field 'vehicleTypee' is not found inside 'org.openl.generated.beans.MyTestType' type
+ERROR: Field 'vehicleTypee' is not found in type 'org.openl.generated.beans.MyTestType'.

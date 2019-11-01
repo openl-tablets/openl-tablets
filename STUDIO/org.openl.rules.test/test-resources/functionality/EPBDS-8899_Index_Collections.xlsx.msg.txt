@@ -1,1 +1,1 @@
-ERROR: Index operator java.util.HashSet[int] is not found
+ERROR: Index operator java.util.HashSet[int] is not found.

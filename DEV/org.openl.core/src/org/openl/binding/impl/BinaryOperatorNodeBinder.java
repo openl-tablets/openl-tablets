@@ -50,7 +50,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {
-        return "Operator not defined for: " + methodName + "(" + t1.getName() + ", " + t2.getName() + ")";
+        return String.format("Operator '%s(%s, %s)' is not found.", methodName, t1.getName(), t2.getName());
     }
 
     public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,

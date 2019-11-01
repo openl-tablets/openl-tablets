@@ -65,7 +65,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
                 ExecutableRulesMethod existsMethod = values.get(value);
 
-                String message = String.format("Found method with duplicate property '%s'", propertyName);
+                String message = String.format("Found method with duplicate property '%s'.", propertyName);
 
                 TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
 

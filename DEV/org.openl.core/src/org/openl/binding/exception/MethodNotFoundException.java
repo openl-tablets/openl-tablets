@@ -31,7 +31,7 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
 
         buffer.append("Method '");
         MethodUtil.printMethod(methodName, params, buffer);
-        buffer.append("' is not found");
+        buffer.append("' is not found.");
 
         return buffer.toString();
     }

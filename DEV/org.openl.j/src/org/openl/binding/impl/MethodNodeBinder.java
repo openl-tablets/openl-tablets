@@ -171,7 +171,7 @@ public class MethodNodeBinder extends ANodeBinder {
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
         if (log.isTraceEnabled()) {
             String method = MethodUtil.printMethod(methodName, argumentTypes);
-            log.trace("Method {} was binded as {}", method, bindingType);
+            log.trace("Method {} has been binded as {}.", method, bindingType);
         }
     }
 
@@ -213,9 +213,9 @@ public class MethodNodeBinder extends ANodeBinder {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
-                BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
+                BindHelper.processWarn("Accessing to static method from non-static object.", node, bindingContext);
             } else {
-                return makeErrorNode("Access of a non-static method from a static object", node, bindingContext);
+                return makeErrorNode("Accessing to non-static method from a static class.", node, bindingContext);
             }
         }
         return null;
@@ -223,7 +223,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private IBoundNode validateNode(ISyntaxNode node, IBindingContext bindingContext) {
         if (node.getNumberOfChildren() < 1) {
-            return makeErrorNode("New node should have at least one subnode", node, bindingContext);
+            return makeErrorNode("New node should have at least one subnode.", node, bindingContext);
         }
         return null;
     }
