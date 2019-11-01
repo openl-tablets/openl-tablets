@@ -262,7 +262,7 @@ public class CastOperators {
     }
 
     public static BigInteger cast(float x, BigInteger y) {
-        return BigInteger.valueOf((long) x);
+        return new BigDecimal(String.valueOf(x)).toBigInteger();
     }
 
     public static BigDecimal cast(float x, BigDecimal y) {
@@ -294,7 +294,7 @@ public class CastOperators {
     }
 
     public static BigInteger cast(double x, BigInteger y) {
-        return BigInteger.valueOf((long) x);
+        return BigDecimal.valueOf(x).toBigInteger();
     }
 
     public static BigDecimal cast(double x, BigDecimal y) {

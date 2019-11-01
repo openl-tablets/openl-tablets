@@ -660,7 +660,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     public static BigInteger cast(FloatValue x, BigInteger y) {
-        return BigInteger.valueOf(x.longValue());
+        return new BigDecimal(String.valueOf(x.floatValue())).toBigInteger();
     }
 
     public static BigDecimal cast(FloatValue x, BigDecimal y) {

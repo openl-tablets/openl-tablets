@@ -716,7 +716,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     public static BigInteger cast(DoubleValue x, BigInteger y) {
-        return BigInteger.valueOf(x.longValue());
+        return BigDecimal.valueOf(x.doubleValue()).toBigInteger();
     }
 
     public static BigDecimal cast(DoubleValue x, BigDecimal y) {
