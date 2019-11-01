@@ -283,7 +283,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static DoubleRange autocast(float x, DoubleRange y) {
-        return new DoubleRange(x);
+        return new DoubleRange(new BigDecimal(String.valueOf(x)).doubleValue());
     }
 
     public static int distance(float x, DoubleRange y) {

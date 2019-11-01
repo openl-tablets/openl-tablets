@@ -540,7 +540,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(float x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+        return new org.openl.meta.DoubleValue(new BigDecimal(String.valueOf(x)).doubleValue());
     }
 
     /**
