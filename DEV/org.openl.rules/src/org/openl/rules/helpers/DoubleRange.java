@@ -339,7 +339,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static DoubleRange cast(LongValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
+        return new DoubleRange(x.longValue());
     }
 
     public static int distance(LongValue x, DoubleRange y) {
@@ -347,7 +347,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static DoubleRange cast(FloatValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
+        return new DoubleRange(new BigDecimal(String.valueOf(x.floatValue())).doubleValue());
     }
 
     public static int distance(FloatValue x, DoubleRange y) {
@@ -355,7 +355,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static DoubleRange cast(DoubleValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
+        return new DoubleRange(x.doubleValue());
     }
 
     public static int distance(DoubleValue x, DoubleRange y) {
@@ -363,7 +363,7 @@ public class DoubleRange implements INumberRange {
     }
 
     public static DoubleRange cast(BigIntegerValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
+        return new DoubleRange(x.doubleValue());
     }
 
     public static int distance(BigIntegerValue x, DoubleRange y) {
