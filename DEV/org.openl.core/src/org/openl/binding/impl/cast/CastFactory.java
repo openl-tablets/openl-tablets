@@ -530,12 +530,12 @@ public class CastFactory implements ICastFactory {
         Class<?> toClass = to.getInstanceClass();
 
         if (toClass.equals(ClassUtils.wrapperToPrimitive(fromClass))) {
-            return JavaUnboxingCast.getInstance();
+            return JavaUnboxingCast.getInstance(fromClass);
         }
 
         // Apache ClassUtils has error in 2.6
         if (Void.class.equals(fromClass) && void.class.equals(toClass)) {
-            return JavaUnboxingCast.getInstance();
+            return JavaUnboxingCast.getInstance(fromClass);
         }
 
         return null;
