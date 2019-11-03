@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
@@ -59,9 +60,10 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-            Map<String, IOpenField> fieldMap;
+            TreeMap<String, IOpenField> fieldMap;
             try {
-                fieldMap = getType().getFields();
+                Map<String, IOpenField> openFieldMap = getType().getFields();
+                fieldMap = new TreeMap<>(openFieldMap);
             } catch (LinkageError e) {
                 return fields;
             }
