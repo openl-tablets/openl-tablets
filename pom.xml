@@ -83,14 +83,14 @@
         <org.springsecurity.version>5.1.6.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
-        <asm.version>7.1</asm.version>
-        <cglib.version>3.2.12</cglib.version>
+        <asm.version>7.2</asm.version>
+        <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.3.0</kafka.version>
         <kafka-junit.version>2.3.0</kafka-junit.version>
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.3.2</org.apache.cxf.version>
-        <org.slf4j.version>1.7.26</org.slf4j.version>
-        <org.apache.poi.version>4.1.0</org.apache.poi.version>
+        <org.apache.cxf.version>3.3.4</org.apache.cxf.version>
+        <org.slf4j.version>1.7.28</org.slf4j.version>
+        <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.10.0</com.fasterxml.jackson.version>
@@ -1187,12 +1187,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.22.2</version>
+                <version>3.24.0</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
-                <version>1.5.22</version>
+                <version>1.5.24</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
@@ -1514,7 +1514,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.24</version>
+                <version>1.25</version>
             </dependency>
             <!--Activity -->
             <dependency>
