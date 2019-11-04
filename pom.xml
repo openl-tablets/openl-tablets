@@ -96,7 +96,7 @@
         <com.fasterxml.jackson.version>2.10.0</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.19.v20190610</jetty.server.version>
+        <jetty.server.version>9.4.22.v20191022</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
