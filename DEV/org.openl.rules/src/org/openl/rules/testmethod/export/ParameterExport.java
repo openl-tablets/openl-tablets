@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.openl.binding.impl.CastToWiderType;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -21,7 +23,6 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.java.JavaOpenClass;
 
 class ParameterExport extends BaseExport {
     ParameterExport(Styles styles) {
@@ -103,7 +104,16 @@ class ParameterExport extends BaseExport {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
             }
 
-            colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix);
+            if (Map.class.isAssignableFrom(param.getType().getInstanceClass())) {
+                Map map = (Map) param.getValue();
+                for (Object key : map.keySet()) {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
+                        param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                        styles.header));
+                }
+            } else {
+                colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix);
+            }
         }
 
         return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields));
@@ -160,6 +170,14 @@ class ParameterExport extends BaseExport {
                 Object value = parameter.getValue();
                 if (value != null && Collection.class.isAssignableFrom(value.getClass())) {
                     value = ((Collection) value).toArray();
+                }
+
+                if (value != null && Map.class.isAssignableFrom(value.getClass())) {
+                    Map map = (Map) value;
+                    for (Object val : map.values()) {
+                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
+                    }
+                    continue;
                 }
 
                 List<FieldDescriptor> fields = nonEmptyFields.get(p);
@@ -230,7 +248,9 @@ class ParameterExport extends BaseExport {
             for (FieldDescriptor fieldDescriptor : fields) {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
-
+                if (fieldValue != null && Collection.class.isAssignableFrom(fieldValue.getClass())) {
+                    fieldValue = ((Collection) fieldValue).toArray();
+                }
                 if (children == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum), fieldValue, styles.parameterValue, rowHeight));
                 } else {
@@ -304,8 +324,7 @@ class ParameterExport extends BaseExport {
             ParameterWithValueDeclaration param = executionParams[i];
             List<Object> values = valuesForAllCases(descriptions, i);
             if (Collection.class.isAssignableFrom(param.getType().getInstanceClass())) {
-                IOpenClass paramType = JavaOpenClass
-                    .getOpenClass(defineCollectionGenericType((Collection) param.getValue()));
+                IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection) param.getValue());
                 result.add(FieldDescriptor.nonEmptyFields(paramType, values));
             } else {
                 result.add(FieldDescriptor.nonEmptyFields(param.getType(), values));
@@ -313,21 +332,6 @@ class ParameterExport extends BaseExport {
         }
 
         return result;
-    }
-
-    private Class<?> defineCollectionGenericType(Collection collection) {
-        Class<?> commonParent = Object.class;
-        for (Object ob : collection) {
-            if (ob != null) {
-                Class<?> aClass = ob.getClass();
-                if (commonParent.isAssignableFrom(aClass)) {
-                    commonParent = aClass;
-                } else {
-                    return Object.class;
-                }
-            }
-        }
-        return commonParent;
     }
 
     /**

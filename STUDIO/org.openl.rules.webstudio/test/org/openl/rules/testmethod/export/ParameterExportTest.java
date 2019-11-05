@@ -1,6 +1,9 @@
 package org.openl.rules.testmethod.export;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,7 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -101,6 +106,22 @@ public class ParameterExportTest {
 
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#2", "name2");
+    }
+
+    @Test
+    public void listOfObjects() throws IOException {
+        List<Object> paramList = Arrays.asList(12, 23.0);
+        Map<String, Integer> mapValues = new HashMap<>();
+        mapValues.put("key1", 123);
+        mapValues.put("key2", 333);
+        List<TestUnitsResults> result = mockResults(params(paramList, mapValues));
+        export.write(sheet, result);
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        int rowNum = BaseExport.FIRST_ROW + 2;
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+        assertRowEquals(row, "ID", "p1", "p2[\"key1\"]:Integer", "p2[\"key2\"]:Integer");
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "#1", "12,23.0", "123", "333");
     }
 
     @Test
