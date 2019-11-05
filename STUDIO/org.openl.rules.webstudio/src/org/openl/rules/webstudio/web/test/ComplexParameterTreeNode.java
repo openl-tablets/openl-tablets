@@ -7,6 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.impl.NumericComparableString;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -61,18 +62,20 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-            SortedMap<String, IOpenField> fieldMap;
+            SortedMap<NumericComparableString, IOpenField> fieldMap = new TreeMap<>();
             try {
                 Map<String, IOpenField> openFieldMap = getType().getFields();
-                fieldMap = new TreeMap<>(openFieldMap);
+                for (Entry<String, IOpenField> entry : openFieldMap.entrySet()) {
+                    fieldMap.put(NumericComparableString.valueOf(entry.getKey()), entry.getValue());
+                }
             } catch (LinkageError e) {
                 return fields;
             }
 
-            for (Entry<String, IOpenField> fieldEntry : fieldMap.entrySet()) {
+            for (Entry<NumericComparableString, IOpenField> fieldEntry : fieldMap.entrySet()) {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst() && field.isReadable()) {
-                    String fieldName = fieldEntry.getKey();
+                    String fieldName = fieldEntry.getKey().getValue();
                     Object fieldValue;
                     IOpenClass fieldType = field.getType();
 
