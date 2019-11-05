@@ -1,9 +1,13 @@
 package org.openl.binding.impl;
 
-import org.openl.binding.IBindingContext;
+import java.util.Collection;
+
+import org.openl.OpenL;
+import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
 
 /**
@@ -45,24 +49,24 @@ public final class CastToWiderType {
     /**
      * Find wider type for types type1 and type 2 and needed casts for them.
      *
-     * @param bindingContext binding context
+     * @param castFactory binding context
      * @param type1 first type
      * @param type2 second type
      * @return cast information
      */
-    public static CastToWiderType create(IBindingContext bindingContext, IOpenClass type1, IOpenClass type2) {
+    public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {
         if (NullOpenClass.the.equals(type1)) {
             return new CastToWiderType(type2, null, null);
         } else {
-            IOpenCast cast1To2 = bindingContext.getCast(type1, type2);
-            IOpenCast cast2To1 = bindingContext.getCast(type2, type1);
+            IOpenCast cast1To2 = castFactory.getCast(type1, type2);
+            IOpenCast cast2To1 = castFactory.getCast(type2, type1);
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
                 IOpenClass parentClass = OpenClassUtils.findParentClassWithBoxing(type1, type2);
                 if (parentClass != null) {
-                    IOpenCast castToParent1 = bindingContext.getCast(type1, parentClass);
-                    IOpenCast castToParent2 = bindingContext.getCast(type2, parentClass);
+                    IOpenCast castToParent1 = castFactory.getCast(type1, parentClass);
+                    IOpenCast castToParent2 = castFactory.getCast(type2, parentClass);
                     return new CastToWiderType(parentClass, castToParent1, castToParent2);
                 }
             } else {
@@ -86,5 +90,28 @@ public final class CastToWiderType {
             return new CastToWiderType(type1, null, null);
         }
 
+    }
+
+    // TODO remove after adding generics to Collections
+    public static IOpenClass defineCollectionWiderType(Collection collection) {
+        if (collection == null) {
+            return NullOpenClass.the;
+        }
+        ICastFactory castFactory = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder().getCastFactory();
+        IOpenClass widerType = null;
+        for (Object ob : collection) {
+            if (ob != null) {
+                if (widerType == null) {
+                    widerType = JavaOpenClass.getOpenClass(ob.getClass());
+                    continue;
+                }
+                IOpenClass fieldType = JavaOpenClass.getOpenClass(ob.getClass());
+                widerType = create(castFactory, widerType, fieldType).getWiderType();
+            }
+        }
+        if (widerType == null) {
+            return NullOpenClass.the;
+        }
+        return widerType;
     }
 }

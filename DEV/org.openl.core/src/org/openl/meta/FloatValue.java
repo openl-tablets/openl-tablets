@@ -579,8 +579,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         if (x == null) {
             return null;
         }
-
-        return new DoubleValue(x.getValue(), x, true);
+        return new DoubleValue(new BigDecimal(String.valueOf(x.getValue())).doubleValue(), x, true);
     }
 
     public static BigDecimalValue autocast(FloatValue x, BigDecimalValue y) {
@@ -629,7 +628,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     public static double cast(FloatValue x, double y) {
-        return x.doubleValue();
+        return new BigDecimal(String.valueOf(x.floatValue())).doubleValue();
     }
 
     public static ByteValue cast(FloatValue x, ByteValue y) {
@@ -661,11 +660,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     public static BigInteger cast(FloatValue x, BigInteger y) {
-        return BigInteger.valueOf(x.longValue());
+        return new BigDecimal(String.valueOf(x.floatValue())).toBigInteger();
     }
 
     public static BigDecimal cast(FloatValue x, BigDecimal y) {
-        return BigDecimal.valueOf(x.doubleValue());
+        return new BigDecimal(String.valueOf(x.floatValue()));
     }
 
     public static FloatValue round(FloatValue value) {

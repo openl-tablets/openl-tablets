@@ -2,6 +2,7 @@ package org.openl.rules.testmethod.export;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -49,7 +50,12 @@ public abstract class BaseExport {
         Cell cell = row.createCell(cellNum);
 
         Object simpleValue = getSimpleValue(value);
+        if (simpleValue != null && Map.class.isAssignableFrom(simpleValue.getClass())) {
+            //Remove HashMap<..., ...>
+            simpleValue = simpleValue.toString().substring(simpleValue.toString().indexOf("{"));
+        }
         if (simpleValue != null) {
+
             if (simpleValue instanceof Date) {
                 style = styles.getDateStyle(row.getSheet().getWorkbook(), style);
                 cell.setCellValue((Date) simpleValue);

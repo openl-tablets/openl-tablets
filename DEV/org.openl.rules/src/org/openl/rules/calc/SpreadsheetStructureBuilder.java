@@ -12,9 +12,18 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.meta.*;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.IMetaHolder;
+import org.openl.meta.IMetaInfo;
+import org.openl.meta.StringValue;
+import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.calc.element.*;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellRefType;
+import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
+import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.ICell;
@@ -27,7 +36,12 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.*;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
@@ -176,7 +190,7 @@ public class SpreadsheetStructureBuilder {
         IOpenClass type = spreadsheetCell.getType();
 
         if (code == null) {
-            spreadsheetCell.setValue(null);
+            spreadsheetCell.setValue(type.nullObject());
         } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
             int end = 0;
@@ -397,9 +411,11 @@ public class SpreadsheetStructureBuilder {
                 if (autoType) {
                     if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
                         cellType = null;
-                    } else {
+                    } else if (cellCode != null) {
                         String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
                         cellType = JavaOpenClass.getOpenClass(Double.class);
+                    } else {
+                        cellType = NullOpenClass.the;
                     }
                 } else {
                     if (!SpreadsheetExpressionMarker.isFormula(cellCode)) {

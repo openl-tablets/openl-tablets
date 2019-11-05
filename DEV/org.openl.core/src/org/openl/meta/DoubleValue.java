@@ -540,7 +540,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(float x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue(x);
+        return new org.openl.meta.DoubleValue(new BigDecimal(String.valueOf(x)).doubleValue());
     }
 
     /**
@@ -716,7 +716,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     public static BigInteger cast(DoubleValue x, BigInteger y) {
-        return BigInteger.valueOf(x.longValue());
+        return BigDecimal.valueOf(x.doubleValue()).toBigInteger();
     }
 
     public static BigDecimal cast(DoubleValue x, BigDecimal y) {

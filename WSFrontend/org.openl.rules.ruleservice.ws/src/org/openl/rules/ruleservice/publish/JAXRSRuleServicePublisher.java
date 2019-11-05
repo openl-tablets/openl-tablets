@@ -1,22 +1,16 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Field;
 import java.util.*;
-
-import javax.ws.rs.container.ContainerRequestFilter;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.cxf.jaxrs.model.ProviderInfo;
-import org.apache.cxf.jaxrs.provider.ServerProviderFactory;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
@@ -48,9 +42,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     private boolean swaggerPrettyPrint = false;
 
     @Autowired
-    private ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory;
-
-    @Autowired
     @Qualifier("JAXRSServicesServerPrototype")
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
@@ -71,14 +62,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
 
     public void setBaseAddress(String baseAddress) {
         this.baseAddress = baseAddress;
-    }
-
-    public ObjectFactory<WadlGenerator> getWadlGeneratorObjectFactory() {
-        return wadlGeneratorObjectFactory;
-    }
-
-    public void setWadlGeneratorObjectFactory(ObjectFactory<WadlGenerator> wadlGeneratorObjectFactory) {
-        this.wadlGeneratorObjectFactory = wadlGeneratorObjectFactory;
     }
 
     public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -153,8 +136,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();
 
-                setWADLGenerator(svrFactory, wsServer);
-
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));
                 log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
@@ -168,17 +149,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
         }
     }
 
-    private void setWADLGenerator(JAXRSServerFactoryBean svrFactory, Server wsServer) throws NoSuchFieldException,
-                                                                                      IllegalAccessException {
-        ServerProviderFactory serverProviderFactory = (ServerProviderFactory) wsServer.getEndpoint()
-            .get(ServerProviderFactory.class.getName());
-        Field wadlGeneratorField = ServerProviderFactory.class.getDeclaredField("wadlGenerator");
-        wadlGeneratorField.setAccessible(true);
-        wadlGeneratorField.set(serverProviderFactory,
-            new ProviderInfo<ContainerRequestFilter>(getWadlGeneratorObjectFactory().getObject(),
-                svrFactory.getBus(),
-                true));
-    }
 
     private ObjectSerializer getObjectSerializer(JAXRSServerFactoryBean svrFactory) {
         for (Object provider : svrFactory.getProviders()) {
@@ -243,7 +213,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher, Availabl
     @Override
     public List<ServiceInfo> getAvailableServices() {
         List<ServiceInfo> services = new ArrayList<>(availableServices);
-        Collections.sort(services, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        services.sort(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER));
         return services;
     }
 

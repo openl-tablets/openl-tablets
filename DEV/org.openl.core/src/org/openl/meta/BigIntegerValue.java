@@ -521,25 +521,25 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     // ******* Casts 8*************
 
     public static BigIntegerValue cast(float x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf((long) x));
+        return new BigIntegerValue(new BigDecimal(String.valueOf(x)).toBigInteger());
     }
 
     public static BigIntegerValue cast(double x, BigIntegerValue y) {
-        return new BigIntegerValue(String.valueOf((long) x));
+        return new BigIntegerValue(BigDecimal.valueOf(x).toBigInteger());
     }
 
     public static BigIntegerValue cast(FloatValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.longValue()));
+        return new BigIntegerValue(new BigDecimal(String.valueOf(x.floatValue())).toBigInteger());
     }
 
     public static BigIntegerValue cast(DoubleValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.longValue()));
+        return new BigIntegerValue(BigDecimal.valueOf(x.doubleValue()).toBigInteger());
     }
 
     public static BigIntegerValue cast(BigDecimal x, BigIntegerValue y) {

@@ -29,12 +29,18 @@ public final class OpenClassUtils {
         return findParentClass(t1, t2);
     }
 
-    public static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
+    private static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
         if (NullOpenClass.isAnyNull(class1)) {
-            return class2;
+            if (NullOpenClass.isAnyNull(class2)) {
+                return class2;
+            }
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(class2.getInstanceClass()));
         }
         if (NullOpenClass.isAnyNull(class2)) {
-            return class1;
+            if (NullOpenClass.isAnyNull(class1)) {
+                return class1;
+            }
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(class1.getInstanceClass()));
         }
 
         if (class1.isArray() && class2.isArray()) {
