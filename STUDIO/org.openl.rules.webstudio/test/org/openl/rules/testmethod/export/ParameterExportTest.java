@@ -124,6 +124,33 @@ public class ParameterExportTest {
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
     }
 
+    public class ComplexObj {
+        public List<Object> paramList;
+        public Map<String, Integer> mapValues;
+
+        public ComplexObj(List<Object> paramList, Map<String, Integer> mapValues) {
+            this.paramList = paramList;
+            this.mapValues = mapValues;
+        }
+    }
+
+    @Test
+    public void complexObjectWithListAndMap() throws IOException {
+        List<Object> paramList = Arrays.asList(12, 23.0);
+        Map<String, Integer> mapValues = new HashMap<>();
+        mapValues.put("key1", 123);
+        mapValues.put("key2", 333);
+        ComplexObj obj = new ComplexObj(paramList, mapValues);
+        List<TestUnitsResults> result = mockResults(params(obj));
+        export.write(sheet, result);
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        int rowNum = BaseExport.FIRST_ROW + 2;
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+        assertRowEquals(row, "ID", "p1.paramList", "p1.mapValues[\"key1\"]:Integer", "p1.mapValues[\"key2\"]:Integer");
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "#1", "12,23.0", "123", "333");
+    }
+
     @Test
     public void arrayOfObjects() throws IOException {
         List<TestUnitsResults> result = mockResults(params((Object) new A[] { new A("name1"), new A("name2") }),

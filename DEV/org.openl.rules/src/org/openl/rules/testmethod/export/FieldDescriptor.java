@@ -34,7 +34,7 @@ class FieldDescriptor {
             type = type.getComponentClass();
         }
 
-        if (type.isSimple()) {
+        if (type.isSimple() || Map.class.isAssignableFrom(type.getInstanceClass())) {
             return null;
         }
 

@@ -94,6 +94,17 @@ class ParameterExport extends BaseExport {
             boolean hasPK = isHasPK(param);
 
             List<FieldDescriptor> fields = nonEmptyFields.get(i);
+
+            if (Map.class.isAssignableFrom(param.getType().getInstanceClass())) {
+                Map map = (Map) param.getValue();
+                for (Object key : map.keySet()) {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
+                        param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                        styles.header));
+                }
+                continue;
+            }
+
             if (fields == null || fields.isEmpty()) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
                 continue;
@@ -104,16 +115,8 @@ class ParameterExport extends BaseExport {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
             }
 
-            if (Map.class.isAssignableFrom(param.getType().getInstanceClass())) {
-                Map map = (Map) param.getValue();
-                for (Object key : map.keySet()) {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                        param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
-                        styles.header));
-                }
-            } else {
-                colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix);
-            }
+            colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix, param);
+
         }
 
         return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields));
@@ -123,7 +126,11 @@ class ParameterExport extends BaseExport {
         return param.getKeyField() instanceof PrimaryKeyField;
     }
 
-    private int addHeaderTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, String prefix) {
+    private int addHeaderTasks(TreeSet<WriteTask> tasks,
+            Cursor cursor,
+            List<FieldDescriptor> fields,
+            String prefix,
+            ParameterWithValueDeclaration param) {
         int colNum = cursor.getColNum();
         int rowNum = cursor.getRowNum();
 
@@ -133,12 +140,23 @@ class ParameterExport extends BaseExport {
             int width = fieldDescriptor.getLeafNodeCount();
 
             if (fieldDescriptor.getChildren() == null) {
-                tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
+                if (Map.class.isAssignableFrom(fieldDescriptor.getField().getType().getInstanceClass())) {
+                    Map map = (Map) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
+                    for (Object key : map.keySet()) {
+                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
+                            prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                            styles.header));
+                    }
+                    continue;
+                } else {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
+                }
             } else {
                 addHeaderTasks(tasks,
                     new Cursor(rowNum, colNum),
                     fieldDescriptor.getChildren(),
-                    prefix + fieldName + ".");
+                    prefix + fieldName + ".",
+                    param);
             }
 
             colNum += width;
@@ -248,6 +266,13 @@ class ParameterExport extends BaseExport {
             for (FieldDescriptor fieldDescriptor : fields) {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
+                if (fieldValue != null && Map.class.isAssignableFrom(fieldValue.getClass())) {
+                    Map map = (Map) fieldValue;
+                    for (Object val : map.values()) {
+                        tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
+                    }
+                    continue;
+                }
                 if (fieldValue != null && Collection.class.isAssignableFrom(fieldValue.getClass())) {
                     fieldValue = ((Collection) fieldValue).toArray();
                 }
