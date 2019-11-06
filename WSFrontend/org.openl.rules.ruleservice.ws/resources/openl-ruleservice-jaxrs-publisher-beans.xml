@@ -53,8 +53,7 @@
         <property name="setOfClassNames" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
     </bean>
 
-    <bean id="wadlGenerator" class="org.openl.rules.ruleservice.publish.jaxrs.WadlGenerator" scope="prototype">
-        <property name="linkJsonToXmlSchema" value="true"/>
+    <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator" scope="prototype">
         <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
         <property name="supportCollections" value="false"/>
         <property name="extraClasses" ref="serviceConfigurationRootClasses"/>
@@ -81,6 +80,7 @@
         <property name="providers">
             <list>
                 <ref bean="JAXRSExceptionMapper"/>
+                <ref bean="wadlGenerator"/>
                 <ref bean="JAXRSJSONProvider"/>
                 <ref bean="JAXRSTextPlainDateMessageBodyWriter"/>
                 <ref bean="JAXRSWebApplicationExceptionMapper"/>

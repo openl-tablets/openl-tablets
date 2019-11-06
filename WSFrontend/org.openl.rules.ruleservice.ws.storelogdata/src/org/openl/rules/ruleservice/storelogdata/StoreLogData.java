@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.reflect.Method;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +25,8 @@ public class StoreLogData {
     private ProducerRecord<String, Object> producerRecord;
     private ProducerRecord<String, byte[]> dltRecord;
 
-    private Date incomingMessageTime;
-    private Date outcomingMessageTime;
+    private ZonedDateTime incomingMessageTime;
+    private ZonedDateTime outcomingMessageTime;
 
     private Object[] parameters;
 
@@ -110,19 +110,19 @@ public class StoreLogData {
         this.serviceName = serviceName;
     }
 
-    public Date getIncomingMessageTime() {
+    public ZonedDateTime getIncomingMessageTime() {
         return incomingMessageTime;
     }
 
-    public void setIncomingMessageTime(Date incomingMessageTime) {
+    public void setIncomingMessageTime(ZonedDateTime incomingMessageTime) {
         this.incomingMessageTime = incomingMessageTime;
     }
 
-    public Date getOutcomingMessageTime() {
+    public ZonedDateTime getOutcomingMessageTime() {
         return outcomingMessageTime;
     }
 
-    public void setOutcomingMessageTime(Date outcomingMessageTime) {
+    public void setOutcomingMessageTime(ZonedDateTime outcomingMessageTime) {
         this.outcomingMessageTime = outcomingMessageTime;
     }
 

@@ -1,54 +1,24 @@
 package org.openl.rules.ruleservice.ws.logging;
 
-import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.Converter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
-import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
-import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.Response;
-import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
-import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.*;
 
 public class StoreLogDataMapperTest {
 
     private static final String SOME_VALUE = RandomStringUtils.random(10, true, true);
-
-    private long beginTime;
-    private long endTime;
-
-    @Before
-    public void setUp() {
-        beginTime = Timestamp.valueOf("1980-01-01 00:00:00").getTime();
-        endTime = Timestamp.valueOf("2020-12-31 00:58:00").getTime();
-    }
-
-    /**
-     * Method should generate random number that represents a time between two dates.
-     *
-     * @return
-     */
-    private Date getRandomTimeBetweenTwoDates() {
-        long diff = endTime - beginTime + 1;
-        long d = beginTime + (long) (Math.random() * diff);
-        return new Date(d);
-    }
 
     @Test
     public void testPublisherFilteringMapping() {
@@ -124,8 +94,8 @@ public class StoreLogDataMapperTest {
         final PublisherType publisher = PublisherType.RESTFUL;
         final String serviceName = RandomStringUtils.random(10);
 
-        final Date incomingMessageTime = getRandomTimeBetweenTwoDates();
-        final Date outcomingMessageTime = getRandomTimeBetweenTwoDates();
+        final ZonedDateTime incomingMessageTime = ZonedDateTime.now();
+        final ZonedDateTime outcomingMessageTime = ZonedDateTime.now().plus(1, ChronoUnit.MINUTES);
 
         storeLogData.setIncomingMessageTime(incomingMessageTime);
         storeLogData.setOutcomingMessageTime(outcomingMessageTime);
@@ -183,8 +153,8 @@ public class StoreLogDataMapperTest {
 
     public static class TestEntity {
         private String id;
-        private Date incomingTime;
-        private Date outcomingTime;
+        private ZonedDateTime incomingTime;
+        private ZonedDateTime outcomingTime;
         private String request;
         private String response;
         private String serviceName;
@@ -216,21 +186,21 @@ public class StoreLogDataMapperTest {
             this.id = id;
         }
 
-        public Date getIncomingTime() {
+        public ZonedDateTime getIncomingTime() {
             return incomingTime;
         }
 
         @IncomingTime
-        public void setIncomingTime(Date incomingTime) {
+        public void setIncomingTime(ZonedDateTime incomingTime) {
             this.incomingTime = incomingTime;
         }
 
-        public Date getOutcomingTime() {
+        public ZonedDateTime getOutcomingTime() {
             return outcomingTime;
         }
 
         @OutcomingTime
-        public void setOutcomingTime(Date outcomingTime) {
+        public void setOutcomingTime(ZonedDateTime outcomingTime) {
             this.outcomingTime = outcomingTime;
         }
 

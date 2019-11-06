@@ -1,11 +1,7 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import java.io.FilterWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Date;
+import java.io.*;
+import java.time.ZonedDateTime;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
@@ -16,8 +12,6 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
@@ -198,7 +192,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         final StoreLogData storeLogData = StoreLogDataHolder.get();
         try {
             storeLogData.setResponseMessage(message);
-            storeLogData.setOutcomingMessageTime(new Date());
+            storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             getStoreLoggingManager().store(storeLogData);
         } finally {
             StoreLogDataHolder.remove();

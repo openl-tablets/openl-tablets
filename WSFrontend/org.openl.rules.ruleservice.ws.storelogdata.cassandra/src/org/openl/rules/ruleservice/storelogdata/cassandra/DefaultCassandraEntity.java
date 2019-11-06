@@ -1,24 +1,28 @@
 package org.openl.rules.ruleservice.storelogdata.cassandra;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.*;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
 
-import com.datastax.driver.mapping.annotations.ClusteringColumn;
-import com.datastax.driver.mapping.annotations.PartitionKey;
-import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 
-@Table(name = "openl_log_data")
+@EntitySupport(DefaultCassandraEntityOperations.class)
+@Entity
+@CqlName("openl_log_data")
 public class DefaultCassandraEntity {
     @PartitionKey(0)
     @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime
-    private Date incomingTime;
+    private ZonedDateTime incomingTime;
 
     @OutcomingTime
-    private Date outcomingTime;
+    private ZonedDateTime outcomingTime;
 
     @Request
     private String request;
@@ -40,29 +44,6 @@ public class DefaultCassandraEntity {
     @Publisher
     private String publisherType;
 
-    public DefaultCassandraEntity() {
-    }
-
-    public DefaultCassandraEntity(String id,
-            Date incomingTime,
-            Date outcomingTime,
-            String request,
-            String response,
-            String serviceName,
-            String url,
-            String methodName,
-            String publisherType) {
-        this.id = id;
-        this.incomingTime = incomingTime;
-        this.outcomingTime = outcomingTime;
-        this.request = request;
-        this.response = response;
-        this.serviceName = serviceName;
-        this.url = url;
-        this.methodName = methodName;
-        this.publisherType = publisherType;
-    }
-
     public String getId() {
         return id;
     }
@@ -71,19 +52,19 @@ public class DefaultCassandraEntity {
         this.id = id;
     }
 
-    public Date getIncomingTime() {
+    public ZonedDateTime getIncomingTime() {
         return incomingTime;
     }
 
-    public void setIncomingTime(Date incomingTime) {
+    public void setIncomingTime(ZonedDateTime incomingTime) {
         this.incomingTime = incomingTime;
     }
 
-    public Date getOutcomingTime() {
+    public ZonedDateTime getOutcomingTime() {
         return outcomingTime;
     }
 
-    public void setOutcomingTime(Date outcomingTime) {
+    public void setOutcomingTime(ZonedDateTime outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
 

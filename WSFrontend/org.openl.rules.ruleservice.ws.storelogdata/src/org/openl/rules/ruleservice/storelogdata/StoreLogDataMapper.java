@@ -6,13 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -20,22 +15,7 @@ import org.apache.kafka.common.header.Header;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultConverter;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultDateConverter;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultNumberConverter;
-import org.openl.rules.ruleservice.storelogdata.annotation.DefaultStringConverter;
-import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.KafkaMessageHeader;
-import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
-import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
-import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.Response;
-import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
-import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,8 +228,7 @@ public class StoreLogDataMapper {
         }
 
         if (!(DefaultConverter.class.equals(converterClass) || DefaultStringConverter.class
-            .equals(converterClass) || DefaultNumberConverter.class
-                .equals(converterClass) || DefaultDateConverter.class.equals(converterClass))) {
+            .equals(converterClass) || DefaultDateConverter.class.equals(converterClass))) {
             Converter<Object, Object> converter = null;
             try {
                 converter = (Converter<Object, Object>) converterClass.newInstance();

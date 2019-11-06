@@ -1,25 +1,12 @@
-CREATE TABLE openl_log_data (
+CREATE TABLE IF NOT EXISTS openl_log_data (
     id text,
-    datevalue1 timestamp,
-    datevalue2 timestamp,
-    datevalue3 timestamp,
-    incomingtime timestamp,
-    methodName text,
-    numbervalue1 bigint,
-    numbervalue2 bigint,
-    numbervalue3 bigint,
-    numbervalue4 bigint,
-    numbervalue5 bigint,
-    outcomingtime timestamp,
-    publishertype text,
+    incoming_time timestamp,
+    method_name text,
+    outcoming_time timestamp,
+    publisher_type text,
     request text,
     response text,
-    servicename text,
-    stringvalue1 text,
-    stringvalue2 text,
-    stringvalue3 text,
-    stringvalue4 text,
-    stringvalue5 text,
+    service_name text,
     url text,
-    PRIMARY KEY (id, publishertype, servicename)
+    PRIMARY KEY (id, publisher_type, service_name)
 )

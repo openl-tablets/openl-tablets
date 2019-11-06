@@ -2,7 +2,7 @@ package org.openl.rules.ext.cassandra;
 
 /*-
  * #%L
- * OpenL - STUDIO - Cassandra
+ * OpenL - EXT - Cassandra
  * %%
  * Copyright (C) 2016 - 2019 OpenL Tablets
  * %%
@@ -10,12 +10,14 @@ package org.openl.rules.ext.cassandra;
  * #L%
  */
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
-import java.util.Properties;
 
-import com.datastax.driver.core.*;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.SimpleStatement;
+import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
+import com.datastax.oss.driver.api.core.cql.Statement;
 
 public class CassandraOperations {
 
@@ -29,104 +31,39 @@ public class CassandraOperations {
         return CassandraOperationsHolder.INSTANCE;
     }
 
-    private volatile Cluster cluster;
-    private volatile Session session;
-    private volatile Properties props;
+    private volatile CqlSession session;
 
-    public Properties getProperties() throws IOException {
-        if (props == null) {
-            synchronized (this) {
-                if (props == null) {
-                    InputStream inStream = CassandraOperations.class.getClassLoader()
-                        .getResourceAsStream(CASSANDRA_PROPERTIES_FILE_NAME);
-                    Properties props1 = new Properties();
-                    props1.load(inStream);
-                    props = props1;
-                }
-            }
-        }
-        return props;
-    }
-
-    public Session getSession() throws IOException {
+    public CqlSession getSession() {
         if (session == null) {
             synchronized (this) {
                 if (session == null) {
-                    Properties props = getProperties();
-
-                    String keyspace = props.getProperty("keyspace");
-                    if (keyspace != null) {
-                        keyspace = keyspace.trim();
-                    }
-
-                    Cluster cluster1 = getCluster();
-                    if (cluster1 != null) {
-                        session = cluster1.connect(keyspace);
-                    }
+                    session = CqlSession.builder()
+                        .withConfigLoader(DriverConfigLoader.fromClasspath(CASSANDRA_PROPERTIES_FILE_NAME))
+                        .build();
                 }
             }
         }
         return session;
     }
 
-    public Cluster getCluster() throws IOException {
-        if (cluster == null) {
-            synchronized (this) {
-                if (cluster == null) {
-                    Properties props = getProperties();
-
-                    Cluster.Builder clusterBuilder = Cluster.builder();
-
-                    String contactpoints = props.getProperty("contactpoints");
-                    if (contactpoints != null) {
-                        contactpoints = contactpoints.trim();
-                    }
-
-                    Integer port = null;
-                    if (props.getProperty("port") == null) {
-                        port = 9042;
-                    } else {
-                        port = Integer.valueOf(props.getProperty("port").trim());
-                    }
-
-                    clusterBuilder.addContactPoint(contactpoints).withPort(port);
-
-                    String username = props.getProperty("username");
-                    if (username != null) {
-                        username = username.trim();
-                    }
-                    String password = props.getProperty("password");
-                    if (password == null) {
-                        password = "";
-                    }
-                    if (username != null) {
-                        clusterBuilder.withCredentials(username, password);
-                    }
-                    Cluster cluster1 = clusterBuilder.build();
-
-                    PoolingOptions poolingOptions = cluster1.getConfiguration().getPoolingOptions();
-                    poolingOptions.setConnectionsPerHost(HostDistance.LOCAL, 5, 12)
-                        .setConnectionsPerHost(HostDistance.REMOTE, 2, 4);
-                    poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, 2048)
-                        .setMaxRequestsPerConnection(HostDistance.REMOTE, 512);
-
-                    cluster = cluster1;
-                }
-            }
-        }
-        return cluster;
-    }
-
-    public static final ResultSet cassandraExecute(String query) throws IOException {
+    public static final ResultSet cassandraExecute(String query) {
         return CassandraOperations.getInstance().getSession().execute(query);
     }
 
-    public static final ResultSet cassandraExecute(String query, Object... values) throws IOException {
-        return CassandraOperations.getInstance().getSession().execute(query, values);
+    public static final ResultSet cassandraExecute(String query, Object... values) {
+        SimpleStatement statement = SimpleStatement.builder(query).addPositionalValues(values).build();
+        return CassandraOperations.getInstance().getSession().execute(statement);
     }
 
-    public static final ResultSet cassandraExecute(String query, Map<String, Object> values) throws IOException {
-        return CassandraOperations.getInstance().getSession().execute(query, values);
+    public static final ResultSet cassandraExecute(String query, Map<String, Object> values) {
+        SimpleStatementBuilder statementBuilder = SimpleStatement.builder(query);
+        if (values != null) {
+            values.entrySet().forEach(e -> statementBuilder.addNamedValue(e.getKey(), e.getValue()));
+        }
+        return CassandraOperations.getInstance().getSession().execute(statementBuilder.build());
     }
 
+    public static final ResultSet cassandraExecute(Statement<?> statement) {
+        return CassandraOperations.getInstance().getSession().execute(statement);
+    }
 }

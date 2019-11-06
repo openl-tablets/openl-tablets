@@ -1,26 +1,19 @@
 package org.openl.itest.cassandra;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
-import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
-import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
-import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
-import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.Response;
-import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
-import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.*;
 import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
 
-import com.datastax.driver.mapping.annotations.ClusteringColumn;
-import com.datastax.driver.mapping.annotations.PartitionKey;
-import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 
-@Table(name = "openl_logging_hello_entity4")
+@Entity
+@EntitySupport(HelloEntity4Operations.class)
+@CqlName("openl_logging_hello_entity4")
 @QualifyPublisherType(PublisherType.WEBSERVICE)
 public class HelloEntity4 {
     @PartitionKey(0)
@@ -28,10 +21,10 @@ public class HelloEntity4 {
     private String id;
 
     @IncomingTime
-    private Date incomingTime;
+    private ZonedDateTime incomingTime;
 
     @OutcomingTime
-    private Date outcomingTime;
+    private ZonedDateTime outcomingTime;
 
     @Request
     private String request;
@@ -71,19 +64,19 @@ public class HelloEntity4 {
         this.id = id;
     }
 
-    public Date getIncomingTime() {
+    public ZonedDateTime getIncomingTime() {
         return incomingTime;
     }
 
-    public void setIncomingTime(Date incomingTime) {
+    public void setIncomingTime(ZonedDateTime incomingTime) {
         this.incomingTime = incomingTime;
     }
 
-    public Date getOutcomingTime() {
+    public ZonedDateTime getOutcomingTime() {
         return outcomingTime;
     }
 
-    public void setOutcomingTime(Date outcomingTime) {
+    public void setOutcomingTime(ZonedDateTime outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
 
