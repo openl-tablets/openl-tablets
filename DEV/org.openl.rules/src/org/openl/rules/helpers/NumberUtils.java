@@ -20,7 +20,7 @@ public final class NumberUtils {
 
     public static boolean isObjectNonFloatPointNumber(Object value) {
         if (value != null) {
-            return isObjectNonFloatPointNumber(value);
+            return isNonFloatPointType(value.getClass());
         }
         return false;
     }
@@ -66,6 +66,37 @@ public final class NumberUtils {
 
         if (BigDecimalValue.class.equals(object.getClass())) {
             return ((BigDecimalValue) object).doubleValue();
+        }
+
+        if (Byte.class.equals(object.getClass())) {
+            return ((Byte) object).doubleValue();
+        }
+        if (ByteValue.class.equals(object.getClass())) {
+            return ((ByteValue) object).doubleValue();
+        }
+        if (Short.class.equals(object.getClass())) {
+            return ((Short) object).doubleValue();
+        }
+        if (ShortValue.class.equals(object.getClass())) {
+            return ((ShortValue) object).doubleValue();
+        }
+        if (Integer.class.equals(object.getClass())) {
+            return ((Integer) object).doubleValue();
+        }
+        if (IntValue.class.equals(object.getClass())) {
+            return ((IntValue) object).doubleValue();
+        }
+        if (Long.class.equals(object.getClass())) {
+            return ((Long) object).doubleValue();
+        }
+        if (LongValue.class.equals(object.getClass())) {
+            return ((LongValue) object).doubleValue();
+        }
+        if (BigInteger.class.equals(object.getClass())) {
+            return ((BigInteger) object).doubleValue();
+        }
+        if (BigIntegerValue.class.equals(object.getClass())) {
+            return ((BigIntegerValue) object).doubleValue();
         }
 
         return null;

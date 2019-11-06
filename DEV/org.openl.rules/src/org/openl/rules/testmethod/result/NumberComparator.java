@@ -33,12 +33,14 @@ class NumberComparator implements TestResultComparator {
                 // -Inf == -Inf
                 // Number == Number
                 return true;
-            } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double
-                .isNaN(expected)) {
+            } else if (Double.isInfinite(actual) || Double.isInfinite(expected)
+                    || Double.isNaN(actual) || Double.isNaN(expected)) {
                 return false;
             } else {
                 // Number ~= Number
-                return Math.abs(actual - expected) <= (delta != null ? delta : Math.ulp(actual));
+                double diff = Math.abs(actual - expected);
+                double epsilon = delta == null ? Math.ulp(actual) : delta;
+                return epsilon < 1 ? diff <= epsilon : diff < epsilon;
             }
         }
         return false;
