@@ -1247,6 +1247,12 @@
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-mapper-processor</artifactId>
                 <version>${cassandra.driver.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.datastax.oss</groupId>
+                        <artifactId>java-driver-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.cassandraunit</groupId>

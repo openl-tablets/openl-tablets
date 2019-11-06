@@ -13,7 +13,6 @@ package org.openl.rules.ext.cassandra;
 import java.util.Map;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
@@ -38,7 +37,7 @@ public class CassandraOperations {
             synchronized (this) {
                 if (session == null) {
                     session = CqlSession.builder()
-                        .withConfigLoader(DriverConfigLoader.fromClasspath(CASSANDRA_PROPERTIES_FILE_NAME))
+                        .withConfigLoader(ConfigLoader.fromProjectResource(CASSANDRA_PROPERTIES_FILE_NAME))
                         .build();
                 }
             }

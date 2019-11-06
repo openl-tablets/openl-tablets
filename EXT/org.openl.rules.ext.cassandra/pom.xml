@@ -20,7 +20,7 @@
         <license.licenseName>openl_tablets_mit</license.licenseName>
         <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>
         <license.organizationName>OpenL Tablets</license.organizationName>
-        <license.inceptionYear>2016</license.inceptionYear>
+        <license.inceptionYear>2019</license.inceptionYear>
     </properties>
     <build>
         <plugins>
