@@ -17,8 +17,12 @@ public class TestResultComparatorFactory {
             return new ArrayComparator(clazz.getComponentType(), delta);
         } else if (String.class.equals(clazz)) {
             return StringComparator.getInstance();
-        } else if (NumberUtils.isFloatPointType(clazz)) {
+        } else if (NumberUtils.isNumberType(clazz)) {
             if (delta == null) {
+                if (NumberUtils.isNonFloatPointType(clazz)) {
+                    //let's use Comparable comparator
+                    return ComparableComparator.getInstance();
+                }
                 return NumberComparator.getInstance();
             } else {
                 return new NumberComparator(delta);
