@@ -21,8 +21,8 @@ public class DefaultResultBuilder implements IResultBuilder {
         SpreadsheetResult spreadsheetResult = new SpreadsheetResult(resultValues,
             spreadsheet.getRowNames(),
             spreadsheet.getColumnNames(),
-            spreadsheet.getRowNamesForModel(),
-            spreadsheet.getColumnNamesForModel(),
+            spreadsheet.getRowNamesForResultModel(),
+            spreadsheet.getColumnNamesForResultModel(),
             spreadsheet.getFieldsCoordinates());
 
         spreadsheetResult.setDetailedPlainModel(spreadsheet.isDetailedPlainModel());

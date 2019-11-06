@@ -68,8 +68,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 typeName,
                 spreadsheet.getRowNames(),
                 spreadsheet.getColumnNames(),
-                spreadsheet.getRowNamesForModel(),
-                spreadsheet.getColumnNamesForModel(),
+                spreadsheet.getRowNamesForResultModel(),
+                spreadsheet.getColumnNamesForResultModel(),
                 spreadsheet.getRowTitles(),
                 spreadsheet.getColumnTitles(),
                 getModule(),
@@ -115,8 +115,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowNames(componentsBuilder.getRowNames());
         spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
 
-        spreadsheet.setRowNamesForModel(componentsBuilder.getRowNamesForModel());
-        spreadsheet.setColumnNamesForModel(componentsBuilder.getColumnNamesForModel());
+        spreadsheet.setRowNamesForResultModel(componentsBuilder.getRowNamesForResultModel());
+        spreadsheet.setColumnNamesForResultModel(componentsBuilder.getColumnNamesForResultModel());
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
@@ -126,7 +126,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         if (getHeader().getType().getInstanceClass() != null && SpreadsheetResult.class
             .isAssignableFrom(getHeader().getType().getInstanceClass())) {
-            validateRowsColumnsForModel(spreadsheet);
+            validateRowsColumnsForResultModel(spreadsheet);
         }
 
         if (spreadsheet.isCustomSpreadsheet()) {
@@ -150,18 +150,18 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return spreadsheet;
     }
 
-    public void validateRowsColumnsForModel(Spreadsheet spreadsheet) {
-        long columnsForModelCount = Arrays.stream(spreadsheet.getColumnNamesForModel())
+    public void validateRowsColumnsForResultModel(Spreadsheet spreadsheet) {
+        long columnsForResultModelCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
             .filter(Objects::nonNull)
             .count();
-        long rowsForModelCount = Arrays.stream(spreadsheet.getRowNamesForModel()).filter(Objects::nonNull).count();
+        long rowsForResultModelCount = Arrays.stream(spreadsheet.getRowNamesForResultModel()).filter(Objects::nonNull).count();
 
         Map<String, String> fNames = new HashMap<>();
         int warnCnt = 0;
-        for (int i = 0; i < spreadsheet.getRowNamesForModel().length; i++) {
-            for (int j = 0; j < spreadsheet.getColumnNamesForModel().length; j++) {
-                if (spreadsheet.getColumnNamesForModel()[j] != null && spreadsheet
-                    .getRowNamesForModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
+        for (int i = 0; i < spreadsheet.getRowNamesForResultModel().length; i++) {
+            for (int j = 0; j < spreadsheet.getColumnNamesForResultModel().length; j++) {
+                if (spreadsheet.getColumnNamesForResultModel()[j] != null && spreadsheet
+                    .getRowNamesForResultModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
                                                                          // messages
                     String fieldName = SpreadsheetStructureBuilder
                         .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
@@ -186,23 +186,23 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
                     if (f) {
                         String refName;
-                        if (columnsForModelCount == 1) {
+                        if (columnsForResultModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
-                        } else if (rowsForModelCount == 1) {
+                        } else if (rowsForResultModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
                         } else {
                             refName = fieldName;
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        if (columnsForModelCount == 1) {
-                            sb.append(spreadsheet.getRowNamesForModel()[i]);
-                        } else if (rowsForModelCount == 1) {
-                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
+                        if (columnsForResultModelCount == 1) {
+                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                        } else if (rowsForResultModelCount == 1) {
+                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
                         } else {
-                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
+                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
                             sb.append("_");
-                            sb.append(spreadsheet.getRowNamesForModel()[i]);
+                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
                         }
                         String fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {

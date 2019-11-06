@@ -107,7 +107,7 @@ public class SpreadsheetComponentsBuilder {
         return s;
     }
 
-    public String[] getRowNamesForModel() {
+    public String[] getRowNamesForResultModel() {
         final long rowsWithAsteriskCount = rowHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isWithAsterisk())
@@ -128,7 +128,7 @@ public class SpreadsheetComponentsBuilder {
         return ret;
     }
 
-    public String[] getColumnNamesForModel() {
+    public String[] getColumnNamesForResultModel() {
         final long columnsWithAsteriskCount = columnHeaders.entrySet()
             .stream()
             .filter(e -> e.getValue().getDefinition().isWithAsterisk())

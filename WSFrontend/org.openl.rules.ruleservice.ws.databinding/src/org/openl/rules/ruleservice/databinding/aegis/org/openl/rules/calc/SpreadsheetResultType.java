@@ -47,8 +47,8 @@ public class SpreadsheetResultType extends BeanType {
                 "width",
                 "logicalTable",
                 "customSpreadsheetResultOpenClass",
-                "rowNamesForModel",
-                "columnNamesForModel",
+                "rowNamesForResultModel",
+                "columnNamesForResultModel",
                 "detailedPlainModel")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
