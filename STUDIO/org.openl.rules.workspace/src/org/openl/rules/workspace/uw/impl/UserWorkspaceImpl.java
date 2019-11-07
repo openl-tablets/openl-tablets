@@ -24,12 +24,8 @@ import org.slf4j.LoggerFactory;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
-        @Override
-        public int compare(AProject o1, AProject o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
-        }
-    };
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
+        .compareToIgnoreCase(o2.getName());
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
@@ -133,7 +129,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userDProjects) {
             result = new ArrayList<>(userDProjects.values());
         }
-        Collections.sort(result, PROJECTS_COMPARATOR);
+        result.sort(PROJECTS_COMPARATOR);
 
         return result;
     }
@@ -189,7 +185,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             result = new ArrayList<>(userRulesProjects.values());
         }
 
-        Collections.sort(result, PROJECTS_COMPARATOR);
+        result.sort(PROJECTS_COMPARATOR);
 
         return result;
     }
