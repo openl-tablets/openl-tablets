@@ -92,7 +92,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (openMethodBinder.isPreBindStarted()) {
                     if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(
                         openMethodBinder.getHeader())) {
-                        throw new RecursiveMethodPreBindingException();
+                        throw new RecursiveSpreadsheetMethodPreBindingException();
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
@@ -103,7 +103,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     if (method != null) {
                         return method;
                     }
-                    throw new RecursiveMethodPreBindingException();
+                    throw new IllegalStateException(
+                        "Method compilaiton is failed with the circular reference to itself.");
                 }
                 preBindMethod(openMethodBinder.getHeader());
             }
@@ -197,7 +198,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             openMethodBinders = Collections.singletonList(openMethodBinder);
         }
         if (openMethodBinders.stream().anyMatch(RecursiveOpenMethodPreBinder::isPreBindStarted)) {
-            throw new RecursiveMethodPreBindingException();
+            if (OpenLSystemProperties
+                .isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(openMethodHeader)) {
+                throw new RecursiveSpreadsheetMethodPreBindingException();
+            } else {
+                throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");
+            }
         }
         openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::startPreBind);
         openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::preBind);
