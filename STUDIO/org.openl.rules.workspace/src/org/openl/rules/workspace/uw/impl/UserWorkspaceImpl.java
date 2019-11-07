@@ -313,6 +313,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
+            Map<String, String> closedProjectBranches = new HashMap<>();
+            for (RulesProject project : userRulesProjects.values()) {
+                if (!project.isOpened()) {
+                    closedProjectBranches.put(project.getName(), project.getBranch());
+                }
+            }
 
             userRulesProjects.clear();
 
@@ -338,16 +344,24 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 FileData designFileData = rp.getFileData();
 
                 try {
-                    if (designRepository.supports().branches() && local != null) {
+                    if (designRepository.supports().branches()) {
                         BranchRepository branchRepository = (BranchRepository) designRepository;
                         String repoBranch = branchRepository.getBranch();
-                        String branch = local.getBranch();
-                        if (branch == null) {
-                            log.warn("Unknown branch in repository supporting branches");
-                        } else if (!branch.equals(repoBranch)) {
+                        String branch;
+                        if (local != null) {
+                            branch = local.getBranch();
+                            if (branch == null) {
+                                log.warn("Unknown branch in repository supporting branches");
+                            }
+                        } else {
+                            branch = closedProjectBranches.get(name);
+                        }
+
+                        // If branch is null then keep default branch.
+                        if (branch != null && !branch.equals(repoBranch)) {
                             // We are inside alternative branch. Must change design repo info.
                             desRepo = branchRepository.forBranch(branch);
-                            // Other branch - other version of file data
+                            // Other branch — other version of file data
                             if (designFileData != null) {
                                 designFileData = desRepo.check(designFileData.getName());
                             }
