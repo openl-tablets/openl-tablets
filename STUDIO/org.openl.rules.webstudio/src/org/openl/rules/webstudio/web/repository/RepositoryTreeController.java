@@ -705,7 +705,9 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
-        if (isSupportsBranches() && projectArtefact.getVersion() == null) {
+        AProject p = projectArtefact.getProject();
+        boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
+        if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
             FacesUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
             return null;
