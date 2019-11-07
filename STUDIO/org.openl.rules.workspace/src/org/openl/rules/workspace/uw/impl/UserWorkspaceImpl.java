@@ -388,14 +388,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
             }
 
-            Iterator<Map.Entry<String, RulesProject>> entryIterator = userRulesProjects.entrySet().iterator();
-            while (entryIterator.hasNext()) {
-                Map.Entry<String, RulesProject> entry = entryIterator.next();
-                if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
-                    entryIterator.remove();
-                }
-            }
-
             projectsRefreshNeeded = false;
         }
     }
