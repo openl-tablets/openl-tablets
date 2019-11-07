@@ -21,14 +21,14 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
         Object res = spreadsheetResult.getFieldValue(getName());
 
-        return processResult(spreadsheetResult, res);
+        return processResult(res);
     }
 
-    public Object processResult(SpreadsheetResult spreadsheetResult, Object res) {
-        if (res != null && spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null
-                && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
+    protected Object processResult(Object res) {
+        if (res != null && (getType().getInstanceClass() == null || !ClassUtils.isAssignable(res.getClass(),
+            getType().getInstanceClass()))) {
             throw new UnexpectedSpreadsheetResultFieldTypeException(
-                String.format("Unexpected type for field %s in %s. Expected: %s, found: %s",
+                String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
                     getName(),
                     getDeclaringClass().getName(),
                     getType().getDisplayName(INamedThing.LONG),

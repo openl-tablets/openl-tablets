@@ -127,6 +127,9 @@ public final class OpenLTest {
         // files = new File[] {new File(sourceDir, "CastsTest.xlsx")}; // Just for debugging.
 
         for (File file : files) {
+            if (!file.getName().startsWith("EPBDS-9077_CSR_RecursiveTypeCompilation")) {
+                // continue;
+            }
             final long startTime = System.nanoTime();
             int errors = 0;
             String sourceFile = file.getName();

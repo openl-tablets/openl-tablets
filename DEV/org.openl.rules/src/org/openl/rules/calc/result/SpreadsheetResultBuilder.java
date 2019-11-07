@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}.
  *
  */
-public class DefaultResultBuilder implements IResultBuilder {
+public class SpreadsheetResultBuilder implements IResultBuilder {
 
     @Override
     public Object buildResult(SpreadsheetResultCalculator result) {

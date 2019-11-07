@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResultField {
 
@@ -28,13 +29,12 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     }
 
     @Override
-    public Object processResult(SpreadsheetResult spreadsheetResult, Object res) {
-        if (field1.getType().getInstanceClass() != null && field1.getType()
-            .getInstanceClass()
-            .isAssignableFrom(res.getClass())) {
+    protected Object processResult(Object res) {
+        if (field1.getType().getInstanceClass() != null && ClassUtils.isAssignable(res.getClass(),
+            field1.getType().getInstanceClass())) {
             return cast1 != null ? cast1.convert(res) : res;
         } else {
-            res = field2.processResult(spreadsheetResult, res);
+            res = field2.processResult(res);
             return cast2 != null ? cast2.convert(res) : res;
         }
     }

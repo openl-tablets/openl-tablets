@@ -61,7 +61,7 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public void addType(String namespace, IOpenClass type) {
+    public IOpenClass addType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 

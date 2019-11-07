@@ -194,7 +194,7 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
-        //add collected exceptions
+        // add collected exceptions
         exceptions.forEach(bindingContext::addError);
 
         if (parsedCode.getExternalParams() != null) {
@@ -417,9 +417,9 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private void addImports(XlsModuleSyntaxNode moduleNode,
-                            OpenLBuilderImpl builder,
-                            Collection<String> imports,
-                            List<SyntaxNodeException> exceptions) {
+            OpenLBuilderImpl builder,
+            Collection<String> imports,
+            List<SyntaxNodeException> exceptions) {
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<String> classNames = new LinkedHashSet<>();
         Collection<String> libraries = new LinkedHashSet<>();
@@ -924,10 +924,36 @@ public class XlsBinder implements IOpenBinder {
         }
 
         @Override
+        public void startPreBind() {
+            if (completed) {
+                throw new IllegalStateException(String.format("Method '%s' is already pre-compiled.",
+                    MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
+            }
+            preBinding = true;
+        }
+
+        @Override
+        public void finishPreBind() {
+            if (!completed && preBinding) {
+                throw new IllegalStateException(String.format("Method '%s' is not pre-compiled.",
+                    MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
+            }
+            if (!preBinding) {
+                throw new IllegalStateException(String.format("Pre-compilation is not started for method '%s'.",
+                    MethodUtil.printMethod(getHeader().getName(), getHeader().getSignature().getParameterTypes())));
+            }
+            preBinding = false;
+        }
+
+        @Override
         public void preBind() {
             try {
                 if (!completed) {
-                    preBinding = true;
+                    if (!preBinding) {
+                        throw new IllegalStateException(String.format("Pre-compilation is not started for method '%s'.",
+                            MethodUtil.printMethod(getHeader().getName(),
+                                getHeader().getSignature().getParameterTypes())));
+                    }
                     try {
                         rulesModuleBindingContext.pushErrors();
                         IMemberBoundNode memberBoundNode = XlsBinder.this
@@ -949,13 +975,12 @@ public class XlsBinder implements IOpenBinder {
                     }
                 }
             } finally {
-                preBinding = false;
                 completed = true;
             }
         }
 
         @Override
-        public boolean isPreBinding() {
+        public boolean isPreBindStarted() {
             return preBinding;
         }
 

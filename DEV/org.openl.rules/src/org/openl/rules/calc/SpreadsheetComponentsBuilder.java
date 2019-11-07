@@ -23,7 +23,7 @@ import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.ArrayResultBuilder;
-import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.calc.result.SpreadsheetResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
@@ -505,7 +505,7 @@ public class SpreadsheetComponentsBuilder {
         if (!isExistsReturnHeader() && spreadsheet.getHeader()
             .getType()
             .equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
-            resultBuilder = new DefaultResultBuilder();
+            resultBuilder = new SpreadsheetResultBuilder();
         } else {
             // real return type
             //

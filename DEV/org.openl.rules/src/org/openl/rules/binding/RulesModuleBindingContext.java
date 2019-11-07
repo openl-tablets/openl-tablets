@@ -1,29 +1,25 @@
 package org.openl.rules.binding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.*;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -85,18 +81,23 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
-        Iterable<IOpenMethod> select = CollectionUtils.findAll(preBinderMethods.values(),
-            e -> methodName.equals(e.getName()));
+        Iterable<IOpenMethod> select = CollectionUtils.findAll(
+            preBinderMethods.values().stream().map(IOpenMethod.class::cast).collect(Collectors.toList()),
+            e -> Objects.equals(methodName, e.getName()));
         IMethodCaller method = null;
         try {
             method = MethodSearch.findMethod(methodName, parTypes, this, select);
             if (method != null) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
-                if (openMethodBinder.isPreBinding()) {
+                if (openMethodBinder.isPreBindStarted()) {
+                    if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(
+                        openMethodBinder.getHeader())) {
+                        throw new RecursiveMethodPreBindingException();
+                    }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
                         Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
-                            e -> methodName.equals(e.getName()));
+                            e -> Objects.equals(methodName, e.getName()));
                         method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
                     }
                     if (method != null) {
@@ -104,23 +105,18 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     }
                     throw new RecursiveMethodPreBindingException();
                 }
-                openMethodBinder.preBind();
-                preBinderMethods.remove(openMethodBinder.getHeader());
+                preBindMethod(openMethodBinder.getHeader());
             }
         } catch (AmbiguousMethodException e) {
-            List<IOpenMethod> methods = e.getMatchingMethods();
-            for (IOpenMethod m : methods) {
-                RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(m);
-                if (openMethodBinder != null && !openMethodBinder.isPreBinding()) {
-                    openMethodBinder.preBind();
-                    preBinderMethods.remove(openMethodBinder.getHeader());
-                }
-            }
+            e.getMatchingMethods()
+                .stream()
+                .map(m -> extractOpenMethodPrebinder(m).getHeader())
+                .forEach(this::preBindMethod);
         }
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
             Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
-                e -> methodName.equals(e.getName()));
+                e -> Objects.equals(methodName, e.getName()));
             method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
         }
         return method;
@@ -134,7 +130,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         } else if (method instanceof VarArgsOpenMethod) {
             return (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
         }
-        throw new IllegalStateException();
+        throw new IllegalStateException("It should not happen.");
     }
 
     @Override
@@ -143,45 +139,36 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    protected void add(String namespace, String typeName, IOpenClass type) {
+    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+        final String typeName = type.getName();
         if (type instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
                 IOpenClass copyOfCustomType = customSpreadsheetResultOpenClass.makeCopyForModule(getModule());
                 getModule().addType(copyOfCustomType);
-                super.add(namespace, typeName, copyOfCustomType);
+                return super.addType(namespace, copyOfCustomType);
             } else {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
                 csroc.extendWith((CustomSpreadsheetResultOpenClass) type, this);
+                return csroc;
             }
         } else {
-            super.add(namespace, typeName, type);
+            return super.addType(namespace, type);
         }
     }
 
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && typeName
-            .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && ISyntaxConstants.THIS_NAMESPACE
+            .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
-            String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-            Collection<IOpenMethod> methods = preBinderMethods.get(sprMethodName);
-            for (IOpenMethod method : methods) {
-                RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-                if (openMethodBinder.isCompleted()) {
-                    preBinderMethods.remove(openMethodBinder.getHeader());
-                } else if (!openMethodBinder.isPreBinding()) {
-                    openMethodBinder.preBind();
-                    preBinderMethods.remove(openMethodBinder.getHeader());
+            final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+            preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
+                if (isReturnTypeSpreadsheet(openMethodBinder.getHeader())) {
+                    preBindMethod(openMethodBinder.getHeader());
                 }
-            }
-            IOpenClass type = super.findType(namespace, typeName);
-            if (type != null) {
-                return type;
-            } else {
-                throw new RecursiveMethodPreBindingException();
-            }
+            });
         }
         return super.findType(namespace, typeName);
     }
@@ -191,12 +178,36 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public void preBindMethod(OpenMethodHeader openMethodHeader) {
-        IOpenMethod method = preBinderMethods.get(openMethodHeader);
-        if (method != null) {
-            RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-            openMethodBinder.preBind();
-            preBinderMethods.remove(openMethodBinder.getHeader());
+        if (openMethodHeader == null) {
+            return;
         }
+        // All custom spreadsheet methods compiles at once
+        Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
+        if (OpenLSystemProperties
+            .isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(openMethodHeader)) {
+            openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
+            openMethodBinders = openMethodBinders.stream()
+                .filter(e -> isReturnTypeSpreadsheet(e.getHeader()))
+                .collect(Collectors.toList());
+        } else {
+            RecursiveOpenMethodPreBinder openMethodBinder = preBinderMethods.get(openMethodHeader);
+            if (openMethodBinder == null) {
+                return;
+            }
+            openMethodBinders = Collections.singletonList(openMethodBinder);
+        }
+        if (openMethodBinders.stream().anyMatch(RecursiveOpenMethodPreBinder::isPreBindStarted)) {
+            throw new RecursiveMethodPreBindingException();
+        }
+        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::startPreBind);
+        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::preBind);
+        openMethodBinders.stream().forEach(e -> preBinderMethods.remove(e.getHeader()));
+        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::finishPreBind);
+    }
+
+    private boolean isReturnTypeSpreadsheet(OpenMethodHeader openMethodHeader) {
+        return openMethodHeader.getType().getInstanceClass() != null && SpreadsheetResult.class
+            .isAssignableFrom(openMethodHeader.getType().getInstanceClass());
     }
 
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {

@@ -55,19 +55,16 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public void addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
-        add(namespace, type.getName(), type);
-    }
-
-    protected void add(String namespace, String typeName, IOpenClass type) throws DuplicatedTypeException {
+    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+        final String typeName = type.getName();
         if (internalTypes == null) {
             internalTypes = new HashMap<>();
         }
-        String nameWithNamespace = buildTypeName(namespace, typeName);
+        final String nameWithNamespace = buildTypeName(namespace, typeName);
         if (internalTypes.containsKey(nameWithNamespace)) {
             IOpenClass openClass = internalTypes.get(nameWithNamespace);
             if (openClass == type) {
-                return;
+                return type;
             }
             if (openClass.getPackageName().equals(type.getPackageName())) {
                 throw new DuplicatedTypeException(null, nameWithNamespace);
@@ -75,6 +72,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
         }
 
         internalTypes.put(nameWithNamespace, type);
+        return type;
     }
 
     @Override
