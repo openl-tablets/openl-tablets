@@ -707,7 +707,7 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = selectedNode.getData();
         if (isSupportsBranches() && projectArtefact.getVersion() == null) {
             activeProjectNode = null;
-            FacesUtils.addErrorMessage("Failed to delete node. Project does not exits in the branch.");
+            FacesUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
             return null;
         }
         try {
