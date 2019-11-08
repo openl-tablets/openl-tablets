@@ -1106,17 +1106,32 @@ public class DataTableBindHelper {
             return false;
         }
 
-        if (identifier1.length != identifier2.length) {
+        int length1 = identifier1.length;
+        int length2 = identifier2.length;
+
+        //if the last identifier is precision then decrease the length
+        if (isPrecisionNode(identifier1[length1 -1])) {
+            length1--;
+        }
+        if (isPrecisionNode(identifier2[length2 -1])) {
+            length2--;
+        }
+
+        if (length1 != length2) {
             return false;
         }
 
-        for (int i = 0; i < identifier1.length; i++) {
+        for (int i = 0; i < length1; i++) {
             if (!identifier1[i].getIdentifier().equals(identifier2[i].getIdentifier())) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static boolean isPrecisionNode(IdentifierNode node) {
+        return StringUtils.matches(PRECISION_PATTERN, node.getIdentifier());
     }
 
     private static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
