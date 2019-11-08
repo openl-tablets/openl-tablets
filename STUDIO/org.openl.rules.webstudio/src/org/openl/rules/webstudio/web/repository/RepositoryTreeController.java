@@ -568,7 +568,7 @@ public class RepositoryTreeController {
             return msg;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return "Internal error: " + e.getMessage();
+            return "Internal error while creating a project: " + e.getMessage();
         }
     }
 

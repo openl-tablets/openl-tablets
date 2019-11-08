@@ -127,6 +127,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
                         return null;
                     }
+                    if (method.getName().equals("supports") && method.getReturnType() == Features.class) {
+                        return new FeaturesBuilder(null).setVersions(false).build();
+                    }
                     throw new IllegalStateException(
                         "Repository configuration is incorrect. Please change configuration.");
                 });

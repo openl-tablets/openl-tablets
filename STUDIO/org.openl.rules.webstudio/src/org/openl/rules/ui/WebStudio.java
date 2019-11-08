@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -430,10 +431,27 @@ public class WebStudio {
     public synchronized List<ProjectDescriptor> getAllProjects() {
         if (projects == null) {
             File[] files = new File(workspacePath).listFiles();
-            projects = projectResolver.resolve(files);
-            for (ProjectDescriptor pd : projects) {
-                Collections.sort(pd.getModules(), MODULES_COMPARATOR);
+
+            // Keep only projects existing in user workspace.
+            HttpSession session = FacesUtils.getSession();
+            if (files != null) {
+                files = Arrays.stream(files).filter(
+                    projectFolder -> {
+                        try {
+                            return getProject(projectFolder.getName(), session) != null;
+                        } catch (Exception e) {
+                            log.warn(e.getMessage(), e);
+                            return false;
+                        }
+                    }
+                ).toArray(File[]::new);
+
+                projects = projectResolver.resolve(files);
+                for (ProjectDescriptor pd : projects) {
+                    pd.getModules().sort(MODULES_COMPARATOR);
+                }
             }
+
         }
         return projects;
     }
