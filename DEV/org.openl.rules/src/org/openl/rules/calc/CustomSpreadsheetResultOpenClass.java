@@ -29,9 +29,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private String[] rowNames;
     private String[] columnNames;
-    private String[] rowNamesForModel;
-    private String[] columnNamesForModel;
-    private List<Pair<String[], String[]>> rowAndColumnNamesForModelHistory;
+    private String[] rowNamesForResultModel;
+    private String[] columnNamesForResultModel;
+    private List<Pair<String[], String[]>> rowAndColumnNamesForResultModelHistory;
     private String[] rowTitles;
     private String[] columnTitles;
     private Map<String, Point> fieldsCoordinates;
@@ -40,8 +40,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private volatile SpreadsheetResultSetter[] spreadsheetResultSetters;
     private boolean simpleRefBeanByRow;
     private boolean simpleRefBeanByColumn;
-    private long columnsForModelCount;
-    private long rowsForModelCount;
+    private long columnsForResultModelCount;
+    private long rowsForResultModelCount;
     private byte[] beanClassByteCode;
     private boolean detailedPlainModel;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
@@ -49,8 +49,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
             String[] columnNames,
-            String[] rowNamesForModel,
-            String[] columnNamesForModel,
+            String[] rowNamesForResultModel,
+            String[] columnNamesForResultModel,
             String[] rowTitles,
             String[] columnTitles,
             XlsModuleOpenClass module,
@@ -58,18 +58,17 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
-        this.rowNamesForModel = Objects.requireNonNull(rowNamesForModel);
-        this.columnNamesForModel = Objects.requireNonNull(columnNamesForModel);
+        this.rowNamesForResultModel = Objects.requireNonNull(rowNamesForResultModel);
+        this.columnNamesForResultModel = Objects.requireNonNull(columnNamesForResultModel);
 
-        this.columnsForModelCount = Arrays.stream(columnNamesForModel).filter(Objects::nonNull).count();
-        this.rowsForModelCount = Arrays.stream(rowNamesForModel).filter(Objects::nonNull).count();
+        this.columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
+        this.rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
 
-        this.simpleRefBeanByRow = columnsForModelCount == 1;
-        this.simpleRefBeanByColumn = rowsForModelCount == 1;
+        this.simpleRefBeanByRow = columnsForResultModelCount == 1;
+        this.simpleRefBeanByColumn = rowsForResultModelCount == 1;
 
-        this.rowAndColumnNamesForModelHistory = new ArrayList<>();
-        this.rowAndColumnNamesForModelHistory
-            .add(Pair.of(this.columnNamesForModel, this.rowNamesForModel));
+        this.rowAndColumnNamesForResultModelHistory = new ArrayList<>();
+        this.rowAndColumnNamesForResultModelHistory.add(Pair.of(this.columnNamesForResultModel, this.rowNamesForResultModel));
 
         this.rowTitles = Objects.requireNonNull(rowTitles);
         this.columnTitles = Objects.requireNonNull(columnTitles);
@@ -130,8 +129,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     private void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
-            String[] rowNamesForModel,
-            String[] columnNamesForModel,
+            String[] rowNamesForResultModel,
+            String[] columnNamesForResultModel,
             String[] rowTitles,
             String[] columnTitles,
             Collection<IOpenField> fields,
@@ -145,44 +144,43 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
         List<String> nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
-        List<String> nRowNamesForModel = new ArrayList<>(Arrays.asList(this.rowNamesForModel));
+        List<String> nRowNamesForResultModel = new ArrayList<>(Arrays.asList(this.rowNamesForResultModel));
         Set<String> existedRowNamesSet = new HashSet<>(Arrays.asList(this.rowNames));
         List<String> nColumnNames = new ArrayList<>(Arrays.asList(this.columnNames));
-        List<String> nColumnNamesForModel = new ArrayList<>(
-            Arrays.asList(this.columnNamesForModel));
+        List<String> nColumnNamesForResultModel = new ArrayList<>(Arrays.asList(this.columnNamesForResultModel));
         Set<String> existedColumnNamesSet = new HashSet<>(Arrays.asList(this.columnNames));
 
         List<String> nRowTitles = new ArrayList<>(Arrays.asList(this.rowTitles));
         List<String> nColumnTitles = new ArrayList<>(Arrays.asList(this.columnTitles));
 
         boolean fieldCoordinatesNeedUpdate = false;
-        boolean rowColumnsForModelNeedUpdate = false;
+        boolean rowColumnsForResultModelNeedUpdate = false;
 
         for (int i = 0; i < rowNames.length; i++) {
             if (!existedRowNamesSet.contains(rowNames[i])) {
                 nRowNames.add(rowNames[i]);
-                nRowNamesForModel.add(rowNamesForModel[i]);
+                nRowNamesForResultModel.add(rowNamesForResultModel[i]);
                 nRowTitles.add(rowTitles[i]);
                 fieldCoordinatesNeedUpdate = true;
-                rowColumnsForModelNeedUpdate = true;
-            } else if (rowNamesForModel[i] != null) {
+                rowColumnsForResultModelNeedUpdate = true;
+            } else if (rowNamesForResultModel[i] != null) {
                 int k = nRowNames.indexOf(rowNames[i]);
-                nRowNamesForModel.set(k, rowNamesForModel[i]);
-                rowColumnsForModelNeedUpdate = true;
+                nRowNamesForResultModel.set(k, rowNamesForResultModel[i]);
+                rowColumnsForResultModelNeedUpdate = true;
             }
         }
 
         for (int i = 0; i < columnNames.length; i++) {
             if (!existedColumnNamesSet.contains(columnNames[i])) {
                 nColumnNames.add(columnNames[i]);
-                nColumnNamesForModel.add(columnNamesForModel[i]);
+                nColumnNamesForResultModel.add(columnNamesForResultModel[i]);
                 nColumnTitles.add(columnTitles[i]);
                 fieldCoordinatesNeedUpdate = true;
-                rowColumnsForModelNeedUpdate = true;
-            } else if (columnNamesForModel[i] != null) {
+                rowColumnsForResultModelNeedUpdate = true;
+            } else if (columnNamesForResultModel[i] != null) {
                 int k = nColumnNames.indexOf(columnNames[i]);
-                nColumnNamesForModel.set(k, columnNamesForModel[i]);
-                rowColumnsForModelNeedUpdate = true;
+                nColumnNamesForResultModel.set(k, columnNamesForResultModel[i]);
+                rowColumnsForResultModelNeedUpdate = true;
             }
         }
 
@@ -197,19 +195,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
 
-        if (rowColumnsForModelNeedUpdate) {
+        if (rowColumnsForResultModelNeedUpdate) {
             this.simpleRefBeanByRow = simpleRefBeanByRow && this.simpleRefBeanByRow;
             this.simpleRefBeanByColumn = simpleRefBeanByColumn && this.simpleRefBeanByColumn;
 
-            this.rowAndColumnNamesForModelHistory
-                .add(Pair.of(columnNamesForModel, rowNamesForModel));
+            this.rowAndColumnNamesForResultModelHistory.add(Pair.of(columnNamesForResultModel, rowNamesForResultModel));
 
-            this.rowNamesForModel = nRowNamesForModel.toArray(new String[] {});
-            this.columnNamesForModel = nColumnNamesForModel.toArray(new String[] {});
-            this.columnsForModelCount = Arrays.stream(columnNamesForModel)
-                .filter(Objects::nonNull)
-                .count();
-            this.rowsForModelCount = Arrays.stream(rowNamesForModel).filter(Objects::nonNull).count();
+            this.rowNamesForResultModel = nRowNamesForResultModel.toArray(new String[] {});
+            this.columnNamesForResultModel = nColumnNamesForResultModel.toArray(new String[] {});
+            this.columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
+            this.rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
         }
 
         for (IOpenField field : fields) {
@@ -256,12 +251,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     public void extendWith(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
             IBindingContext bindingContext) {
         if (beanClass != null) {
-            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result cannot be extended.");
+            throw new IllegalStateException(
+                "Java bean class for custom spreadsheet result is loaded to classloader. Custom spreadsheet result cannot be extended.");
         }
         this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
             customSpreadsheetResultOpenClass.columnNames,
-            customSpreadsheetResultOpenClass.rowNamesForModel,
-            customSpreadsheetResultOpenClass.columnNamesForModel,
+            customSpreadsheetResultOpenClass.rowNamesForResultModel,
+            customSpreadsheetResultOpenClass.columnNamesForResultModel,
             customSpreadsheetResultOpenClass.rowTitles,
             customSpreadsheetResultOpenClass.columnTitles,
             customSpreadsheetResultOpenClass.getFields().values(),
@@ -273,7 +269,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     public void fixCSRFields() {
         if (beanClass != null) {
-            throw new IllegalStateException("Bean class is loaded. Custom spreadsheet result cannot be extended.");
+            throw new IllegalStateException(
+                "Java bean class for custom spreadsheet result is loaded to classloader. Custom spreadsheet result cannot be extended.");
         }
         for (String fieldName : fieldMap().keySet()) {
             IOpenField openField = fieldMap().get(fieldName);
@@ -288,20 +285,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
     }
 
-    public String[] getRowNamesForModel() {
-        return rowNamesForModel.clone();
+    public String[] getRowNamesForResultModel() {
+        return rowNamesForResultModel.clone();
     }
 
-    public String[] getColumnNamesForModel() {
-        return columnNamesForModel.clone();
+    public String[] getColumnNamesForResultModel() {
+        return columnNamesForResultModel.clone();
     }
 
     public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             rowNames,
             columnNames,
-            rowNamesForModel,
-            columnNamesForModel,
+            rowNamesForResultModel,
+            columnNamesForResultModel,
             rowTitles,
             columnTitles,
             module,
@@ -321,8 +318,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return new SpreadsheetResult(result,
             rowNames,
             columnNames,
-            rowNamesForModel,
-            columnNamesForModel,
+            rowNamesForResultModel,
+            columnNamesForResultModel,
             fieldsCoordinates);
     }
 
@@ -449,21 +446,21 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             Map<String, List<IOpenField>> beanFieldsMap) {
         for (Triple<String, Point, IOpenField> w : fields) {
             Point point = w.getMiddle();
-            if (point != null && rowNamesForModel[point
-                .getRow()] != null && columnNamesForModel[point.getColumn()] != null) {
+            if (point != null && rowNamesForResultModel[point.getRow()] != null && columnNamesForResultModel[point
+                .getColumn()] != null) {
                 if (used[point.getRow()][point.getColumn()] == null) {
                     String fieldName;
                     if (simpleRefBeanByRow) {
-                        fieldName = rowNamesForModel[point.getRow()];
+                        fieldName = rowNamesForResultModel[point.getRow()];
                     } else if (simpleRefBeanByColumn) {
-                        fieldName = columnNamesForModel[point.getColumn()];
+                        fieldName = columnNamesForResultModel[point.getColumn()];
                     } else {
                         boolean found = false;
-                        for (Pair<String[], String[]> p : rowAndColumnNamesForModelHistory) {
+                        for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
                             for (String col : p.getLeft()) {
                                 for (String row : p.getRight()) {
-                                    if (!found && Objects.equals(columnNamesForModel[point.getColumn()],
-                                        col) && Objects.equals(rowNamesForModel[point.getRow()], row)) {
+                                    if (!found && Objects.equals(columnNamesForResultModel[point.getColumn()], col) && Objects
+                                        .equals(rowNamesForResultModel[point.getRow()], row)) {
                                         found = true;
                                     }
                                 }
@@ -472,8 +469,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         if (!found) {
                             continue;
                         }
-                        fieldName = columnNamesForModel[point
-                            .getColumn()] + "_" + rowNamesForModel[point.getRow()];
+                        fieldName = columnNamesForResultModel[point.getColumn()] + "_" + rowNamesForResultModel[point.getRow()];
                     }
                     if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
@@ -682,9 +678,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     List<IOpenField> openFields = e.getValue();
                     for (IOpenField openField : openFields) {
                         Point p = spreadsheetResult.fieldsCoordinates.get(openField.getName());
-                        if (p != null && spreadsheetResult.rowNamesForModel[p
-                            .getRow()] != null && spreadsheetResult.columnNamesForModel[p
-                                .getColumn()] != null) {
+                        if (p != null && spreadsheetResult.rowNamesForResultModel[p
+                            .getRow()] != null && spreadsheetResult.columnNamesForResultModel[p.getColumn()] != null) {
                             fieldNames[p.getRow()][p.getColumn()] = e.getKey();
                         }
                     }

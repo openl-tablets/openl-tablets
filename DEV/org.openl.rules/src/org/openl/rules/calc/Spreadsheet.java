@@ -35,9 +35,9 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private String[] columnNames;
 
-    private String[] rowNamesForModel;
+    private String[] rowNamesForResultModel;
 
-    private String[] columnNamesForModel;
+    private String[] columnNamesForResultModel;
 
     private String[] rowTitles;
 
@@ -148,20 +148,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.rowTitles = rowTitles;
     }
 
-    public String[] getRowNamesForModel() {
-        return rowNamesForModel;
+    public String[] getRowNamesForResultModel() {
+        return rowNamesForResultModel;
     }
 
-    public void setRowNamesForModel(String[] rowNamesForModel) {
-        this.rowNamesForModel = rowNamesForModel;
+    public void setRowNamesForResultModel(String[] rowNamesForResultModel) {
+        this.rowNamesForResultModel = rowNamesForResultModel;
     }
 
-    public String[] getColumnNamesForModel() {
-        return columnNamesForModel;
+    public String[] getColumnNamesForResultModel() {
+        return columnNamesForResultModel;
     }
 
-    public void setColumnNamesForModel(String[] columnNamesForModel) {
-        this.columnNamesForModel = columnNamesForModel;
+    public void setColumnNamesForResultModel(String[] columnNamesForResultModel) {
+        this.columnNamesForResultModel = columnNamesForResultModel;
     }
 
     public String[] getRowTitles() {

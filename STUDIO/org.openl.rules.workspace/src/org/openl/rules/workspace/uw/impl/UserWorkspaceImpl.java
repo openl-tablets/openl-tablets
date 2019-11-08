@@ -24,12 +24,8 @@ import org.slf4j.LoggerFactory;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
-        @Override
-        public int compare(AProject o1, AProject o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
-        }
-    };
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
+        .compareToIgnoreCase(o2.getName());
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
@@ -133,7 +129,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userDProjects) {
             result = new ArrayList<>(userDProjects.values());
         }
-        Collections.sort(result, PROJECTS_COMPARATOR);
+        result.sort(PROJECTS_COMPARATOR);
 
         return result;
     }
@@ -189,7 +185,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             result = new ArrayList<>(userRulesProjects.values());
         }
 
-        Collections.sort(result, PROJECTS_COMPARATOR);
+        result.sort(PROJECTS_COMPARATOR);
 
         return result;
     }
@@ -313,6 +309,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
+            Map<String, String> closedProjectBranches = new HashMap<>();
+            for (RulesProject project : userRulesProjects.values()) {
+                if (!project.isOpened()) {
+                    closedProjectBranches.put(project.getName(), project.getBranch());
+                }
+            }
 
             userRulesProjects.clear();
 
@@ -338,16 +340,24 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 FileData designFileData = rp.getFileData();
 
                 try {
-                    if (designRepository.supports().branches() && local != null) {
+                    if (designRepository.supports().branches()) {
                         BranchRepository branchRepository = (BranchRepository) designRepository;
                         String repoBranch = branchRepository.getBranch();
-                        String branch = local.getBranch();
-                        if (branch == null) {
-                            log.warn("Unknown branch in repository supporting branches");
-                        } else if (!branch.equals(repoBranch)) {
+                        String branch;
+                        if (local != null) {
+                            branch = local.getBranch();
+                            if (branch == null) {
+                                log.warn("Unknown branch in repository supporting branches");
+                            }
+                        } else {
+                            branch = closedProjectBranches.get(name);
+                        }
+
+                        // If branch is null then keep default branch.
+                        if (branch != null && !branch.equals(repoBranch)) {
                             // We are inside alternative branch. Must change design repo info.
                             desRepo = branchRepository.forBranch(branch);
-                            // Other branch - other version of file data
+                            // Other branch — other version of file data
                             if (designFileData != null) {
                                 designFileData = desRepo.check(designFileData.getName());
                             }
@@ -375,14 +385,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     FileData local = lp.getFileData();
                     userRulesProjects.put(name.toLowerCase(),
                         new RulesProject(this, localRepository, local, designRepository, null, projectsLockEngine));
-                }
-            }
-
-            Iterator<Map.Entry<String, RulesProject>> entryIterator = userRulesProjects.entrySet().iterator();
-            while (entryIterator.hasNext()) {
-                Map.Entry<String, RulesProject> entry = entryIterator.next();
-                if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
-                    entryIterator.remove();
                 }
             }
 

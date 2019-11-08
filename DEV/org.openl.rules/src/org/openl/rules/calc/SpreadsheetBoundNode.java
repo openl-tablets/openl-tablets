@@ -59,35 +59,35 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
-        if (spreadsheet.isCustomSpreadsheet()) {
-            Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
-            spreadsheetOpenClassFields.remove("this");
-            String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
-
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                typeName,
-                spreadsheet.getRowNames(),
-                spreadsheet.getColumnNames(),
-                spreadsheet.getRowNamesForModel(),
-                spreadsheet.getColumnNamesForModel(),
-                spreadsheet.getRowTitles(),
-                spreadsheet.getColumnTitles(),
-                getModule(),
-                spreadsheet.isDetailedPlainModel());
-
-            customSpreadsheetResultOpenClass
-                .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
-
-            for (IOpenField field : spreadsheetOpenClassFields.values()) {
-                CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
-                    customSpreadsheetResultOpenClass,
-                    field.getName(),
-                    field.getType());
-                customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
-            }
-            return customSpreadsheetResultOpenClass;
+        if (!spreadsheet.isCustomSpreadsheet()) {
+            throw new IllegalArgumentException("Only custom spreadsheets are supported.");
         }
-        return null;
+        Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
+        spreadsheetOpenClassFields.remove("this");
+        String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
+
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+            typeName,
+            spreadsheet.getRowNames(),
+            spreadsheet.getColumnNames(),
+            spreadsheet.getRowNamesForResultModel(),
+            spreadsheet.getColumnNamesForResultModel(),
+            spreadsheet.getRowTitles(),
+            spreadsheet.getColumnTitles(),
+            getModule(),
+            spreadsheet.isDetailedPlainModel());
+
+        customSpreadsheetResultOpenClass
+            .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
+
+        for (IOpenField field : spreadsheetOpenClassFields.values()) {
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
+                customSpreadsheetResultOpenClass,
+                field.getName(),
+                field.getType());
+            customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
+        }
+        return customSpreadsheetResultOpenClass;
     }
 
     @Override
@@ -115,8 +115,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowNames(componentsBuilder.getRowNames());
         spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
 
-        spreadsheet.setRowNamesForModel(componentsBuilder.getRowNamesForModel());
-        spreadsheet.setColumnNamesForModel(componentsBuilder.getColumnNamesForModel());
+        spreadsheet.setRowNamesForResultModel(componentsBuilder.getRowNamesForResultModel());
+        spreadsheet.setColumnNamesForResultModel(componentsBuilder.getColumnNamesForResultModel());
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
@@ -124,18 +124,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setDetailedPlainModel(
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
 
-        if (getHeader().getType().getInstanceClass() != null && SpreadsheetResult.class
-            .isAssignableFrom(getHeader().getType().getInstanceClass())) {
-            validateRowsColumnsForModel(spreadsheet);
-        }
-
         if (spreadsheet.isCustomSpreadsheet()) {
             CustomSpreadsheetResultOpenClass type = null;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
-                bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
-                IOpenClass bindingContextType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                    type.getName());
+                IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
                 String message = String.format("Cannot define type '%s'.", spreadsheet.getName());
@@ -150,19 +143,21 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return spreadsheet;
     }
 
-    public void validateRowsColumnsForModel(Spreadsheet spreadsheet) {
-        long columnsForModelCount = Arrays.stream(spreadsheet.getColumnNamesForModel())
+    public void validateRowsColumnsForResultModel(Spreadsheet spreadsheet) {
+        long columnsForResultModelCount = Arrays.stream(spreadsheet.getColumnNamesForResultModel())
             .filter(Objects::nonNull)
             .count();
-        long rowsForModelCount = Arrays.stream(spreadsheet.getRowNamesForModel()).filter(Objects::nonNull).count();
+        long rowsForResultModelCount = Arrays.stream(spreadsheet.getRowNamesForResultModel())
+            .filter(Objects::nonNull)
+            .count();
 
         Map<String, String> fNames = new HashMap<>();
         int warnCnt = 0;
-        for (int i = 0; i < spreadsheet.getRowNamesForModel().length; i++) {
-            for (int j = 0; j < spreadsheet.getColumnNamesForModel().length; j++) {
-                if (spreadsheet.getColumnNamesForModel()[j] != null && spreadsheet
-                    .getRowNamesForModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
-                                                                         // messages
+        for (int i = 0; i < spreadsheet.getRowNamesForResultModel().length; i++) {
+            for (int j = 0; j < spreadsheet.getColumnNamesForResultModel().length; j++) {
+                if (spreadsheet.getColumnNamesForResultModel()[j] != null && spreadsheet
+                    .getRowNamesForResultModel()[i] != null && warnCnt < 10) { // Don't show more than 10 conflict
+                    // messages
                     String fieldName = SpreadsheetStructureBuilder
                         .getSpreadsheetCellFieldName(spreadsheet.getColumnNames()[j], spreadsheet.getRowNames()[i]);
 
@@ -186,27 +181,27 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
                     if (f) {
                         String refName;
-                        if (columnsForModelCount == 1) {
+                        if (columnsForResultModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getRowNames()[i];
-                        } else if (rowsForModelCount == 1) {
+                        } else if (rowsForResultModelCount == 1) {
                             refName = SpreadsheetStructureBuilder.DOLLAR_SIGN + spreadsheet.getColumnNames()[j];
                         } else {
                             refName = fieldName;
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        if (columnsForModelCount == 1) {
-                            sb.append(spreadsheet.getRowNamesForModel()[i]);
-                        } else if (rowsForModelCount == 1) {
-                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
+                        if (columnsForResultModelCount == 1) {
+                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                        } else if (rowsForResultModelCount == 1) {
+                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
                         } else {
-                            sb.append(spreadsheet.getColumnNamesForModel()[j]);
+                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
                             sb.append("_");
-                            sb.append(spreadsheet.getRowNamesForModel()[i]);
+                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
                         }
                         String fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {
-                            fieldName = "_";
+                            fName = "_";
                         }
                         String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
                                                         : fName.toLowerCase();
@@ -235,7 +230,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (header.getType() == JavaOpenClass.VOID) {
             throw SyntaxNodeExceptionUtils.createError("Spreadsheet cannot return 'void' type.", tableSyntaxNode);
         }
-        this.bindingContext = bindingContext;
+        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         componentsBuilder.buildHeaders(header.getType());
         structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header);
@@ -258,6 +253,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         cells = structureBuilder.getCells();
         Spreadsheet spreadsheet = (Spreadsheet) getMethod();
         if (spreadsheet != null) {
+            validateRowsColumnsForResultModel(spreadsheet);
+
             spreadsheet.setCells(cells);
 
             spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet, bindingContext));

@@ -36,7 +36,7 @@ public interface IBindingContext extends ICastFactory {
      * @param type type
      * @throws Exception if an error has occurred
      */
-    void addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
+    IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
 
     ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 

@@ -44,8 +44,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public void addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
-        delegate.addType(namespace, type);
+    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+        return delegate.addType(namespace, type);
     }
 
     @Override
