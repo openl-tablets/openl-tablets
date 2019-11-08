@@ -23,13 +23,12 @@
             <includes>
                 <include>org.springframework.data:spring-data-elasticsearch</include>
                 <include>org.elasticsearch:elasticsearch</include>
-                <include>org.eclipse.jetty:jetty-util-ajax</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
             </includes>
             <excludes>
                 <exclude>aopalliance:aopalliance</exclude>
                 <exclude>commons-lang:commons-lang</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
-                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
                 <exclude>org.slf4j:slf4j-api</exclude>
                 <exclude>org.springframework:spring-aop</exclude>

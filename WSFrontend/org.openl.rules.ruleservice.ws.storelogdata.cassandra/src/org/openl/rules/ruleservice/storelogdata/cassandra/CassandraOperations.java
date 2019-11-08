@@ -4,7 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.IOUtils;
@@ -30,7 +34,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     private final Logger log = LoggerFactory.getLogger(CassandraOperations.class);
 
     private CqlSession session;
-    private boolean shemaCreationEnabled = false;
+    private boolean schemaCreationEnabled = false;
     private ApplicationContext applicationContext;
 
     @Override
@@ -120,7 +124,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             return;
         }
         try {
-            createShemaIfMissed(entity.getClass());
+            createSchemaIfMissed(entity.getClass());
             EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
             if (entitySupport == null) {
                 log.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class {}.",
@@ -144,7 +148,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         entitySavers.set(Collections.emptyMap());
     }
 
-    public void createShemaIfMissed(Class<?> entityClass) {
+    public void createSchemaIfMissed(Class<?> entityClass) {
         if (isCreateShemaEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
@@ -196,11 +200,11 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     public boolean isCreateShemaEnabled() {
-        return shemaCreationEnabled;
+        return schemaCreationEnabled;
     }
 
-    public void setCreateShemaEnabled(boolean createShemaEnabled) {
-        this.shemaCreationEnabled = createShemaEnabled;
+    public void setCreateSchemaEnabled(boolean createSchemaEnabled) {
+        this.schemaCreationEnabled = createSchemaEnabled;
     }
 
     @Override
