@@ -23,8 +23,8 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(PrepareStoreLogDataObjectSerializerFound.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
-    @StoreLogDataToCassandra({ HelloEntity1.class })
-    @StoreLogDataToElasticsearch({ CustomElasticEntity1.class })
+    @StoreLogDataToCassandra(HelloEntity1.class)
+    @StoreLogDataToElasticsearch(CustomElasticEntity1.class)
     @ServiceCallBeforeInterceptor(Simple4ServiceMethodBeforeAdvice.class)
     @ServiceCallAfterInterceptor(Simple4ServiceMethodAfterAdvice.class)
     @PrepareStoreLogData(value = BeforeBeforeInterceptor.class, bindToServiceMethodAdvice = Simple4ServiceMethodBeforeAdvice.class, before = true)
