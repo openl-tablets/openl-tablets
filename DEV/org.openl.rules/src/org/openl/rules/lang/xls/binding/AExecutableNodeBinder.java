@@ -117,7 +117,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         return builder.toString();
     }
 
-    static String join(Collection collection, String separator) {
+    static String join(Collection<?> collection, String separator) {
 
         // handle null, zero and one elements before building a buffer
         if (collection == null) {

@@ -30,8 +30,7 @@ public class Constraints {
 
     public void setAll(String constraintsStr) {
         this.constraintsStr = constraintsStr;
-        List<Constraint> constraints = ConstraintsParser.parse(constraintsStr);
-        setAll(constraints);
+        setAll(ConstraintsParser.parse(constraintsStr));
     }
 
     public void setAll(List<Constraint> constraints) {
@@ -45,8 +44,7 @@ public class Constraints {
     }
 
     public void addAll(String constraintsStr) {
-        List<Constraint> constraints = ConstraintsParser.parse(constraintsStr);
-        addAll(constraints);
+        addAll(ConstraintsParser.parse(constraintsStr));
     }
 
     public void addAll(List<Constraint> constraints) {

@@ -405,7 +405,6 @@ public final class RuleRowHelper {
                         }
                     }
                 }
-
             } catch (Exception | LinkageError e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.

@@ -4,6 +4,7 @@
 
 package org.openl.binding.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
@@ -21,22 +21,24 @@ import org.openl.types.IOpenClass;
  * @author snshor
  */
 public class BinaryOperatorNodeBinder extends ANodeBinder {
-    private static Map<String, String> inverseMethod = new HashMap<String, String>(6) {
-        {
-            put("le", "ge");
-            put("lt", "gt");
-            put("ge", "le");
-            put("gt", "lt");
-            put("eq", "eq");
-            put("add", "add");
-        }
-    };
+    private static final Map<String, String> INVERSE_METHOD;
+
+    static {
+        Map<String, String> inverseMethod = new HashMap<>();
+        inverseMethod.put("le", "ge");
+        inverseMethod.put("lt", "gt");
+        inverseMethod.put("ge", "le");
+        inverseMethod.put("gt", "lt");
+        inverseMethod.put("eq", "eq");
+        inverseMethod.put("add", "add");
+        INVERSE_METHOD = Collections.unmodifiableMap(inverseMethod);
+    }
 
     public static IBoundNode bindOperator(ISyntaxNode node,
             String operatorName,
             IBoundNode b1,
             IBoundNode b2,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            IBindingContext bindingContext) {
 
         IOpenClass[] types = { b1.getType(), b2.getType() };
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
@@ -63,7 +65,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             return methodCaller;
         }
 
-        String inverse = inverseMethod.get(methodName);
+        String inverse = INVERSE_METHOD.get(methodName);
 
         if (inverse != null) {
 
@@ -132,7 +134,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            throw SyntaxNodeExceptionUtils.createError("Binary node must have 2 subnodes", node);
+            throw SyntaxNodeExceptionUtils.createError("Binary node must have 2 subnodes.", node);
         }
 
         int index = node.getType().lastIndexOf('.');

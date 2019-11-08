@@ -31,25 +31,19 @@ public class GridRegionAction implements IUndoableGridTableAction {
 
     @Override
     public void doAction(IGridTable table) {
-        switch (actionType) {
-            case EXPAND:
-                resizeRegion(isInsert, isColumns, nRowsOrColumns, region);
-                break;
-            case MOVE:
-                moveRegion(isInsert, isColumns, nRowsOrColumns, region);
-                break;
+        if (ActionType.EXPAND.equals(actionType)) {
+            resizeRegion(isInsert, isColumns, nRowsOrColumns, region);
+        } else if (ActionType.MOVE.equals(actionType)) {
+            moveRegion(isInsert, isColumns, nRowsOrColumns, region);
         }
     }
 
     @Override
     public void undoAction(IGridTable table) {
-        switch (actionType) {
-            case EXPAND:
-                resizeRegion(!isInsert, isColumns, nRowsOrColumns, region);
-                break;
-            case MOVE:
-                moveRegion(!isInsert, isColumns, nRowsOrColumns, region);
-                break;
+        if (ActionType.EXPAND.equals(actionType)) {
+            resizeRegion(!isInsert, isColumns, nRowsOrColumns, region);
+        } else if (ActionType.MOVE.equals(actionType)) {
+            moveRegion(!isInsert, isColumns, nRowsOrColumns, region);
         }
     }
 

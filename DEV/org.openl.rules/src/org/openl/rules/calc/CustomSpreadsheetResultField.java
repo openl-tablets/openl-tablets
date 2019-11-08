@@ -17,9 +17,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
             return getType().nullObject();
         }
 
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-
-        Object res = spreadsheetResult.getFieldValue(getName());
+        Object res = ((SpreadsheetResult) target).getFieldValue(getName());
 
         return processResult(res);
     }
@@ -45,8 +43,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-        spreadsheetResult.setFieldValue(getName(), value);
+        ((SpreadsheetResult) target).setFieldValue(getName(), value);
     }
 
 }

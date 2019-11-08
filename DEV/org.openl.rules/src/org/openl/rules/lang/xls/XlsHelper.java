@@ -2,10 +2,7 @@ package org.openl.rules.lang.xls;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -27,45 +24,45 @@ public final class XlsHelper {
     private XlsHelper() {
     }
 
-    private static Map<String, String> tableHeaders;
+    private static final Map<String, String> TABLE_HEADERS;
+
     static {
+        Map<String, String> tableHeaders = new HashMap<>();
+        tableHeaders.put(IXlsTableNames.CONSTANTS, XlsNodeTypes.XLS_CONSTANTS.toString());
 
-        if (XlsHelper.tableHeaders == null) {
-            XlsHelper.tableHeaders = new HashMap<>();
-            XlsHelper.tableHeaders.put(IXlsTableNames.CONSTANTS, XlsNodeTypes.XLS_CONSTANTS.toString());
+        tableHeaders.put(IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.SMART_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.SMART_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
+        tableHeaders.put(IXlsTableNames.CONDITIONS_TABLE, XlsNodeTypes.XLS_CONDITIONS.toString());
+        tableHeaders.put(IXlsTableNames.ACTIONS_TABLE, XlsNodeTypes.XLS_ACTIONS.toString());
+        tableHeaders.put(IXlsTableNames.RETURNS_TABLE, XlsNodeTypes.XLS_RETURNS.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.CONDITIONS_TABLE, XlsNodeTypes.XLS_CONDITIONS.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.ACTIONS_TABLE, XlsNodeTypes.XLS_ACTIONS.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.RETURNS_TABLE, XlsNodeTypes.XLS_RETURNS.toString());
+        tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString());
+        tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString());
+        tableHeaders.put(IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString());
+        tableHeaders.put(IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.TBASIC_TABLE, XlsNodeTypes.XLS_TBASIC.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.TBASIC_TABLE2, XlsNodeTypes.XLS_TBASIC.toString());
+        tableHeaders.put(IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString());
+        tableHeaders.put(IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString());
+        tableHeaders.put(IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.COLUMN_MATCH, XlsNodeTypes.XLS_COLUMN_MATCH.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.DATA_TABLE, XlsNodeTypes.XLS_DATA.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.DATATYPE_TABLE, XlsNodeTypes.XLS_DATATYPE.toString());
+        tableHeaders.put(IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.METHOD_TABLE, XlsNodeTypes.XLS_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString());
+        tableHeaders.put(IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
+        tableHeaders.put(IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString());
+        tableHeaders.put(IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString());
 
-            XlsHelper.tableHeaders.put(IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.TABLE_PART, XlsNodeTypes.XLS_TABLEPART.toString());
-            XlsHelper.tableHeaders.put(IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString());
-        }
+        TABLE_HEADERS = Collections.unmodifiableMap(tableHeaders);
     }
 
     public static String getModuleName(XlsModuleSyntaxNode node) {
@@ -121,7 +118,7 @@ public final class XlsHelper {
         }
         IdentifierNode headerToken = headerTokens[0];
         String header = headerTokens[0].getIdentifier();
-        String xlsType = tableHeaders.get(header);
+        String xlsType = TABLE_HEADERS.get(header);
 
         if (xlsType == null) {
             xlsType = XlsNodeTypes.XLS_OTHER.toString();

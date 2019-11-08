@@ -17,9 +17,6 @@ import org.openl.types.IOpenClass;
  */
 public class AmbiguousTypeException extends OpenlNotCheckedException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3432594431020887309L;
 
     private List<IOpenClass> matchingTypes;
@@ -32,15 +29,15 @@ public class AmbiguousTypeException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-        buf.append("Type ").append(typeName);
-        buf.append(" is ambiguous:\n").append("Matching types:\n");
+        sb.append("Type ").append(typeName);
+        sb.append(" is ambiguous:\n").append("Matching types:\n");
         for (IOpenClass type : matchingTypes) {
-            buf.append(type.getName()).append('\n');
+            sb.append(type.getName()).append('\n');
         }
 
-        return buf.toString();
+        return sb.toString();
     }
 
 }

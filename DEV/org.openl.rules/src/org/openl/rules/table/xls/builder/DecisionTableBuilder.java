@@ -79,18 +79,20 @@ public class DecisionTableBuilder extends TableBuilder {
             throw new IllegalStateException("beginTable() has to be called");
         }
         if (parameterNames == null || parameterNames.length == 0) {
-            throw new IllegalArgumentException("parameterNames must be not null array of positive length");
+            throw new IllegalArgumentException("parameterNames cannot be null or empty");
         }
         if (parameterSignatures == null || parameterSignatures.length == 0) {
-            throw new IllegalArgumentException("parameterSignatures must be not null array of positive length");
+            throw new IllegalArgumentException("parameterSignatures cannot be null or empty");
         }
         if (parameterSignatures.length != parameterNames.length) {
-            throw new IllegalArgumentException("numbers of parameter names and parameter signatures must be equal");
+            throw new IllegalArgumentException(
+                "Array length of parameter names and parameter signatures must be the same.");
         }
 
         int elementWidth = parameterNames.length;
         if (elementColumn + elementWidth > getHeight()) {
-            throw new IllegalStateException("total elements width is too big, expected height = " + getHeight());
+            throw new IllegalStateException(
+                String.format("Total elements width is too big, expected height %s.", getHeight()));
         }
 
         writeCell(elementColumn, getCurrentRow(), elementWidth, 1, title);

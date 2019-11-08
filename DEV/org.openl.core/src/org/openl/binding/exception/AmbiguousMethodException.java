@@ -20,13 +20,12 @@ import org.openl.types.IOpenMethod;
  */
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -4733490029481524664L;
 
     private List<IOpenMethod> matchingMethods;
+
     private String methodName;
+
     private IOpenClass[] pars;
 
     public AmbiguousMethodException(String methodName, IOpenClass[] pars, List<IOpenMethod> matchingMethods) {
@@ -41,16 +40,16 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-        buf.append("Method '");
-        MethodUtil.printMethod(methodName, pars, buf);
-        buf.append("' is ambiguous:\n").append("Matching methods:\n");
+        sb.append("Method '");
+        MethodUtil.printMethod(methodName, pars, sb);
+        sb.append("' is ambiguous:\n").append("Matching methods:\n");
         for (IOpenMethod method : matchingMethods) {
-            MethodUtil.printMethod(method, buf).append('\n');
+            MethodUtil.printMethod(method, sb).append('\n');
         }
 
-        return buf.toString();
+        return sb.toString();
     }
 
 }

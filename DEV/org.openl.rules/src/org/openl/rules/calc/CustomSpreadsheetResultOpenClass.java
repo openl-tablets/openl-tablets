@@ -3,7 +3,7 @@ package org.openl.rules.calc;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -207,7 +207,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             if (thisField == null) {
                 addField(field);
             } else {
-                if (!thisField.getType().equals(field.getType())) {
+                if (!thisField.getType()
+                    .equals(field
+                        .getType()) && thisField instanceof CustomSpreadsheetResultField && field instanceof CustomSpreadsheetResultField) {
                     CastToWiderType castToWiderType = CastToWiderType
                         .create(bindingContext, thisField.getType(), field.getType());
                     fieldMap().put(field.getName(),
@@ -287,6 +289,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         return columnNamesForResultModel.clone();
     }
 
+    private boolean isCustomSpreadsheetResultField(IOpenField field) {
+        return field instanceof CustomSpreadsheetResultField;
+    }
+
     public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             rowNames,
@@ -298,7 +304,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             module,
             detailedPlainModel);
         for (IOpenField field : getFields().values()) {
-            if (field instanceof CustomSpreadsheetResultField) {
+            if (isCustomSpreadsheetResultField(field)) {
                 type.addField(field);
             }
         }
@@ -308,8 +314,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result,
+        return new SpreadsheetResult(new Object[rowNames.length][columnNames.length],
             rowNames,
             columnNames,
             rowNamesForResultModel,
@@ -387,12 +392,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     }
 
     private List<Triple<String, Point, IOpenField>> getSortedFields() {
-        List<Triple<String, Point, IOpenField>> fields = new ArrayList<>();
-        for (Entry<String, IOpenField> entry : getFields().entrySet()) {
-            fields.add(Triple.of(entry.getKey(), fieldsCoordinates.get(entry.getKey()), entry.getValue()));
-        }
-        Collections.sort(fields, COMP);
-        return fields;
+        return getFields().entrySet()
+            .stream()
+            .map(entry -> Triple.of(entry.getKey(), fieldsCoordinates.get(entry.getKey()), entry.getValue()))
+            .sorted(COMP)
+            .collect(Collectors.toList());
     }
 
     public Map<String, List<IOpenField>> getBeanFieldsMap() {

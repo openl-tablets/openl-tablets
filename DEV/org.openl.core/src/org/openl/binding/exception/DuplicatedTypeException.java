@@ -19,13 +19,13 @@ public class DuplicatedTypeException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (super.getMessage() != null) {
-            buf.append(super.getMessage());
+            sb.append(super.getMessage());
         }
 
-        buf.append(String.format("Type '%s' has already been defined.", type));
-        return buf.toString();
+        sb.append(String.format("Type '%s' has already been defined.", type));
+        return sb.toString();
     }
 
 }

@@ -14,7 +14,7 @@ import org.openl.exception.OpenlNotCheckedException;
  */
 public class DuplicatedVarException extends OpenlNotCheckedException {
 
-    private static final long serialVersionUID = 2754037692502108330L;
+    private static final long serialVersionUID = 1L;
 
     private String variableName;
 
@@ -29,13 +29,13 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (super.getMessage() != null) {
-            buf.append(super.getMessage());
+            sb.append(super.getMessage());
         }
 
-        buf.append(String.format("Variable '%s' has already been defined", variableName));
-        return buf.toString();
+        sb.append(String.format("Variable '%s' has already been defined.", variableName));
+        return sb.toString();
     }
 
 }
