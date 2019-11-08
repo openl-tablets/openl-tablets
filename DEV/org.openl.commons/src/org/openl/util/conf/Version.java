@@ -228,10 +228,6 @@ public class Version implements Comparable<Version> {
         return 0;
     }
 
-    /**
-     *
-     */
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Version)) {
@@ -282,10 +278,6 @@ public class Version implements Comparable<Version> {
         return version[VARIANT];
     }
 
-    /**
-     *
-     */
-
     @Override
     public int hashCode() {
         return version[BUILD] * 119 + version[VARIANT] * 37 + version[MINOR] * 17 + version[MAJOR];
@@ -333,10 +325,6 @@ public class Version implements Comparable<Version> {
     public void setVariant(int i) {
         version[VARIANT] = i;
     }
-
-    /**
-     *
-     */
 
     @Override
     public String toString() {

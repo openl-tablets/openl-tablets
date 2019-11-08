@@ -17,9 +17,6 @@ package org.openl.util.fast;
 // "implements serializable"  was added by Eugeny Tseitlin 18.06.2003
 public final class FastStack implements Cloneable, java.io.Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 8597605056696566232L;
 
     static final int DEFAULT_CAPACITY = 10;

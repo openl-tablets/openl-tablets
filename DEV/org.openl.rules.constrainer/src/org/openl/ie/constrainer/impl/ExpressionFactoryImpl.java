@@ -12,9 +12,7 @@ import org.openl.ie.tools.ReusableFactory;
  * A generic implementation of the ExpressionFactory interface.
  */
 public final class ExpressionFactoryImpl extends UndoableOnceImpl implements ExpressionFactory, java.io.Serializable {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 7593413055525940597L;
 
     /**
@@ -32,9 +30,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         Class clazz();
     }
 
-    /**
-     *
-     */
     static class ExpressionKeyImpl implements ExpressionKey {
         private Class _clazz;
         private Object[] _args;
@@ -90,9 +85,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             return true;
         }
 
-        /**
-         *
-         */
         public ExpressionKeyImpl(Class clazz, Object[] args) {
             _clazz = clazz;
             _args = args;

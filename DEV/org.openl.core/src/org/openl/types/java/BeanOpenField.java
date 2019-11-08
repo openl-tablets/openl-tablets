@@ -104,18 +104,11 @@ public class BeanOpenField implements IOpenField {
 
     }
 
-    /**
-     *
-     */
     private BeanOpenField(PropertyDescriptor descriptor) {
         this.descriptor = descriptor;
         this.readMethod = descriptor.getReadMethod();
         this.writeMethod = descriptor.getWriteMethod();
     }
-
-    /**
-     *
-     */
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
@@ -129,10 +122,6 @@ public class BeanOpenField implements IOpenField {
             throw RuntimeExceptionWrapper.wrap("", ex);
         }
     }
-
-    /**
-     *
-     */
 
     @Override
     public IOpenClass getDeclaringClass() {

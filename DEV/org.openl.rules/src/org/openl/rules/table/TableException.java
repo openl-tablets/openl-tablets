@@ -8,10 +8,8 @@ package org.openl.rules.table;
  *
  */
 public class TableException extends RuntimeException {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 623227561784778496L;
+
+    private static final long serialVersionUID = 1L;
 
     public TableException(String msg) {
         super(msg);

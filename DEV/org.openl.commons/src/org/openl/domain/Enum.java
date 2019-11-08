@@ -48,9 +48,6 @@ public class Enum<T> {
         return idx;
     }
 
-    /**
-     *
-     */
     public int size() {
         return allObjects.length;
     }

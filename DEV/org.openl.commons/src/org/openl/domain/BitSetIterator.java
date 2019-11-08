@@ -47,10 +47,6 @@ public class BitSetIterator extends AIntIterator {
         return nextBit >= 0;
     }
 
-    /**
-     *
-     */
-
     @Override
     public int nextInt() {
         if (!isNextReady) {

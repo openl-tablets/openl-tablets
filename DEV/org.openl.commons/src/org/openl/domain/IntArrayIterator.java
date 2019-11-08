@@ -25,10 +25,6 @@ public class IntArrayIterator extends AIntIterator {
         return ary[current++];
     }
 
-    /**
-     *
-     */
-
     @Override
     public int nextInt() {
         return ary[current++];
