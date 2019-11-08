@@ -60,6 +60,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private boolean hideDeleted = true;
 
     private final Object lock = new Object();
+    private String errorMessage;
 
     private void buildTree() {
         try {
@@ -126,7 +127,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
                                                                                    : rootCause.getMessage());
             log.error(message, e);
-            FacesUtils.addErrorMessage(message);
+            errorMessage = message;
             setSelectedNode(rulesRepository);
         }
     }
@@ -138,11 +139,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    public TreeRepository getRoot() {
+    TreeRepository getRoot() {
         synchronized (lock) {
             buildTree();
             return root;
         }
+    }
+
+    String getErrorMessage() {
+        return errorMessage;
     }
 
     public TreeRepository getRulesRepository() {
@@ -308,6 +313,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void invalidateTree() {
         synchronized (lock) {
             root = null;
+            errorMessage = null;
 
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
             // Because selection is invalidated too we can assume that view is changed so we can safely clear all
@@ -359,6 +365,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         this.filter = filter != null ? filter : ALL_FILTER;
         synchronized (lock) {
             root = null;
+            errorMessage = null;
         }
     }
 
@@ -404,6 +411,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
 
             root = null;
+            errorMessage = null;
         }
     }
 
