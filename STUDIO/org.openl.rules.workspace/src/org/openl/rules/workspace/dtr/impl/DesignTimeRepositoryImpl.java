@@ -127,7 +127,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
                         return null;
                     }
-                    if (method.getName().equals("supports") && method.getReturnType() == Features.class) {
+                    if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
                         return new FeaturesBuilder(null).setVersions(false).build();
                     }
                     throw new IllegalStateException(
@@ -164,7 +164,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 fileDatas = repository.list(path);
             }
         } catch (IOException e) {
-            throw new RepositoryException("Cannot read the deploy repository", e);
+            throw new RepositoryException("Cannot read the deploy repository.", e);
         }
         for (FileData fileData : fileDatas) {
             result.add(new ADeploymentProject(repository, fileData));
@@ -181,7 +181,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             if (!hasProject(name)) {
-                throw new RepositoryException("Cannot find project ''{0}''.", null, name);
+                throw new RepositoryException("Project '{0}' is not found.", null, name);
             }
 
             AProject cached = projects.get(name.toLowerCase());
@@ -224,7 +224,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            log.warn("Cannot find the project '{}' which version is '{}'.", name, repoVersion);
+                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }
