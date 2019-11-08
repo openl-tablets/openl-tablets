@@ -21,6 +21,8 @@ public class SpreadsheetCell implements Invokable {
 
     private IOpenMethod method;
 
+    private boolean typeUnknown = false;
+
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
@@ -73,9 +75,9 @@ public class SpreadsheetCell implements Invokable {
     }
 
     public boolean isDefaultPrimitiveCell() {
-        return type != null && !(type instanceof DomainOpenClass) && type.getInstanceClass() != null
-                && type.getInstanceClass().isPrimitive()
-                && isEmpty();
+        return type != null && !(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type
+            .getInstanceClass()
+            .isPrimitive() && isEmpty();
     }
 
     public void setMethod(IOpenMethod method) {
@@ -120,5 +122,13 @@ public class SpreadsheetCell implements Invokable {
     @Override
     public String toString() {
         return "R" + getRowIndex() + "C" + getColumnIndex();
+    }
+
+    public void setTypeUnknown(boolean typeUnknown) {
+        this.typeUnknown = typeUnknown;
+    }
+
+    public boolean isTypeUnknown() {
+        return typeUnknown;
     }
 }

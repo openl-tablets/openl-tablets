@@ -39,16 +39,16 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
 
         Set<String> rowNamesForResultModel = new LinkedHashSet<>();
-        rowNamesForResultModel.addAll(
-            Arrays.stream(type1.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
-        rowNamesForResultModel.addAll(
-            Arrays.stream(type2.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesForResultModel
+            .addAll(Arrays.stream(type1.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
+        rowNamesForResultModel
+            .addAll(Arrays.stream(type2.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
 
         Set<String> columnNamesForResultModel = new LinkedHashSet<>();
-        columnNamesForResultModel.addAll(
-            Arrays.stream(type1.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
-        columnNamesForResultModel.addAll(
-            Arrays.stream(type2.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesForResultModel
+            .addAll(Arrays.stream(type1.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
+        columnNamesForResultModel
+            .addAll(Arrays.stream(type2.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
 
         if (!type1.getModule().equals(type2.getModule())) {
             throw new IllegalStateException("CSR types are from differnet modules.");
@@ -76,7 +76,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             if (f1 && f2) {
                 IOpenField field1 = fields1.get(fieldName);
                 IOpenField field2 = fields2.get(fieldName);
-                if (field1.getType().equals(field2.getType())) {
+                if (Objects.equals(field1.getType(), field2.getType())) {
                     mergedCustomSpreadsheetResultOpenClass
                         .addField(new CustomSpreadsheetResultField(mergedCustomSpreadsheetResultOpenClass,
                             fieldName,

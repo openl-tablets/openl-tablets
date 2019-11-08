@@ -12,7 +12,6 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -90,8 +89,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if (method != null) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
-                    if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(
-                        openMethodBinder.getHeader())) {
+                    if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder
+                        .isSpreadsheet()) {
                         throw new RecursiveSpreadsheetMethodPreBindingException();
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
@@ -166,7 +165,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
             preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
-                if (isReturnTypeSpreadsheet(openMethodBinder.getHeader())) {
+                if (openMethodBinder.isSpreadsheet()) {
                     preBindMethod(openMethodBinder.getHeader());
                 }
             });
@@ -182,24 +181,27 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (openMethodHeader == null) {
             return;
         }
+        RecursiveOpenMethodPreBinder openMethodBinder = preBinderMethods.get(openMethodHeader);
+        if (openMethodBinder == null) {
+            // No need to compile, because it is already compiled.
+            return;
+        }
         // All custom spreadsheet methods compiles at once
         Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
-        if (OpenLSystemProperties
-            .isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(openMethodHeader)) {
+        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder.isSpreadsheet()) {
             openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
             openMethodBinders = openMethodBinders.stream()
-                .filter(e -> isReturnTypeSpreadsheet(e.getHeader()))
+                .filter(RecursiveOpenMethodPreBinder::isSpreadsheet)
                 .collect(Collectors.toList());
         } else {
-            RecursiveOpenMethodPreBinder openMethodBinder = preBinderMethods.get(openMethodHeader);
-            if (openMethodBinder == null) {
-                return;
-            }
             openMethodBinders = Collections.singletonList(openMethodBinder);
         }
-        if (openMethodBinders.stream().anyMatch(RecursiveOpenMethodPreBinder::isPreBindStarted)) {
+        Optional<RecursiveOpenMethodPreBinder> prebindingOpenMethodPreBinder = openMethodBinders.stream()
+            .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
+            .findAny();
+        if (prebindingOpenMethodPreBinder.isPresent()) {
             if (OpenLSystemProperties
-                .isCustomSpreadsheetType(getExternalParams()) && isReturnTypeSpreadsheet(openMethodHeader)) {
+                .isCustomSpreadsheetType(getExternalParams()) && prebindingOpenMethodPreBinder.get().isSpreadsheet()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException();
             } else {
                 throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");
@@ -209,11 +211,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::preBind);
         openMethodBinders.stream().forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::finishPreBind);
-    }
-
-    private boolean isReturnTypeSpreadsheet(OpenMethodHeader openMethodHeader) {
-        return openMethodHeader.getType().getInstanceClass() != null && SpreadsheetResult.class
-            .isAssignableFrom(openMethodHeader.getType().getInstanceClass());
     }
 
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {

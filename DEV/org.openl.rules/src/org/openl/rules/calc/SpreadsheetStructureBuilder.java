@@ -75,13 +75,28 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetCell[][] cells;
 
+    private List<SpreadsheetCell> processingCells = new ArrayList<>();
+    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+
+    private volatile boolean cellsExtracted = false;
+
     /**
      * Extract cell values from the source spreadsheet table.
      *
      * @return cells of spreadsheet with its values
      */
     public SpreadsheetCell[][] getCells() {
-        extractCellValues();
+        if (!cellsExtracted) {
+            synchronized (this) {
+                if (!cellsExtracted) {
+                    try {
+                        extractCellValues();
+                    } finally {
+                        cellsExtracted = true;
+                    }
+                }
+            }
+        }
         return cells;
     }
 
@@ -141,17 +156,14 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private List<SpreadsheetCell> processingCells = new ArrayList<>();
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
-
     public IOpenClass makeType(SpreadsheetCell cell) {
-        if (cell.getType() == null) {
+        if (cell.getType() == null && !cell.isTypeUnknown()) {
             int rowIndex = cell.getRowIndex();
             int columnIndex = cell.getColumnIndex();
 
             IBindingContext rowContext = getRowContext(rowIndex);
             if (processingCells.contains(cell)) {
-                cell.setType(JavaOpenClass.OBJECT);
+                cell.setTypeUnknown(true);
                 throw new OpenlNotCheckedException("Spreadsheet Expression Loop: " + processingCells.toString());
             }
             processingCells.add(cell);
@@ -159,11 +171,12 @@ public class SpreadsheetStructureBuilder {
             extractCellValue(rowContext, rowIndex, columnIndex);
             extractedCellValues.add(cell);
             processingCells.remove(cell);
-            if (cell.getType() == null) {
-                cell.setType(JavaOpenClass.OBJECT);
-            }
         }
-        return cell.getType();
+        if (cell.isTypeUnknown()) {
+            return NullOpenClass.the;
+        } else {
+            return cell.getType();
+        }
     }
 
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
@@ -220,11 +233,12 @@ public class SpreadsheetStructureBuilder {
                 }
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {
+                spreadsheetCell.setTypeUnknown(true);
                 componentsBuilder.getTableSyntaxNode().addError(e);
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
+                spreadsheetCell.setTypeUnknown(true);
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-
                 addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }

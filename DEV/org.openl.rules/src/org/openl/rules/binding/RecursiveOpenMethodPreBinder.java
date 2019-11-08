@@ -7,6 +7,8 @@ public interface RecursiveOpenMethodPreBinder extends IOpenMethod {
 
     OpenMethodHeader getHeader();
 
+    boolean isSpreadsheet();
+
     void preBind();
 
     void startPreBind();

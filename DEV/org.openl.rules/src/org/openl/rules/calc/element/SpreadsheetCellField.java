@@ -12,6 +12,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     protected SpreadsheetCell cell;
     private SpreadsheetStructureBuilderHolder structureBuilderContainer;
     private SpreadsheetCellRefType refType;
+    private volatile IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenClass declaringClass,
@@ -50,11 +51,18 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public IOpenClass getType() {
-        IOpenClass t = cell.getType();
-        if (t == null) {
-            t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
+        if (this.type == null) {
+            synchronized (this) {
+                if (this.type == null) {
+                    IOpenClass t = cell.getType();
+                    if (t == null) {
+                        t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
+                    }
+                    this.type = t;
+                }
+            }
         }
-        return t;
+        return this.type;
     }
 
     @Override

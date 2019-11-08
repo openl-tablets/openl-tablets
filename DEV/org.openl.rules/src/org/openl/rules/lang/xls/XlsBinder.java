@@ -869,6 +869,11 @@ public class XlsBinder implements IOpenBinder {
         }
 
         @Override
+        public boolean isSpreadsheet() {
+            return XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType());
+        }
+
+        @Override
         public OpenMethodHeader getHeader() {
             return openMethodHeader;
         }

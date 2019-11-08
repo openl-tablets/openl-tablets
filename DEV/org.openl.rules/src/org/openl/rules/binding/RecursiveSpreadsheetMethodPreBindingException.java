@@ -12,7 +12,7 @@ public class RecursiveSpreadsheetMethodPreBindingException extends OpenlNotCheck
 
     @Override
     public String getMessage() {
-        return "Automatically type definition for Spreadsheet with the circular reference is failed. Please, define manually common 'SpreadsheetResult' type for the cell.";
+        return "Automatically type definition for Spreadsheet with the circular reference is failed. Please, define common 'SpreadsheetResult' type.";
     }
 
 }
