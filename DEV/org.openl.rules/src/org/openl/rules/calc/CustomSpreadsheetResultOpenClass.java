@@ -68,7 +68,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.simpleRefBeanByColumn = rowsForResultModelCount == 1;
 
         this.rowAndColumnNamesForResultModelHistory = new ArrayList<>();
-        this.rowAndColumnNamesForResultModelHistory.add(Pair.of(this.columnNamesForResultModel, this.rowNamesForResultModel));
+        this.rowAndColumnNamesForResultModelHistory
+            .add(Pair.of(this.columnNamesForResultModel, this.rowNamesForResultModel));
 
         this.rowTitles = Objects.requireNonNull(rowTitles);
         this.columnTitles = Objects.requireNonNull(columnTitles);
@@ -97,13 +98,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
-    }
-
-    public boolean isEmptyBeanClass() {
-        return Arrays.stream(getBeanClass().getDeclaredFields()).filter(e -> !e.isSynthetic()).count() == 0; // SONAR
-                                                                                                             // adds
-                                                                                                             // synthetic
-                                                                                                             // fields
     }
 
     public byte[] getBeanClassByteCode() {
@@ -459,8 +453,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
                             for (String col : p.getLeft()) {
                                 for (String row : p.getRight()) {
-                                    if (!found && Objects.equals(columnNamesForResultModel[point.getColumn()], col) && Objects
-                                        .equals(rowNamesForResultModel[point.getRow()], row)) {
+                                    if (!found && Objects.equals(columnNamesForResultModel[point.getColumn()],
+                                        col) && Objects.equals(rowNamesForResultModel[point.getRow()], row)) {
                                         found = true;
                                     }
                                 }
@@ -469,7 +463,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         if (!found) {
                             continue;
                         }
-                        fieldName = columnNamesForResultModel[point.getColumn()] + "_" + rowNamesForResultModel[point.getRow()];
+                        fieldName = columnNamesForResultModel[point.getColumn()] + "_" + rowNamesForResultModel[point
+                            .getRow()];
                     }
                     if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
@@ -487,9 +482,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                             .findType(customSpreadsheetResultOpenClass.getName());
                         Class<?> fieldCls;
                         if (csroc != null) {
-                            if (csroc.isEmptyBeanClass()) {
-                                continue; // IGNORE EMPTY CSRS TYPES
-                            }
                             fieldCls = csroc.getBeanClass();
                         } else {
                             fieldCls = Object.class;

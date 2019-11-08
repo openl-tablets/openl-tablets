@@ -167,14 +167,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         t = t.getComponentClass();
                     }
                     boolean f = true;
-                    if (t instanceof CustomSpreadsheetResultOpenClass) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
-                        CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
-                            .findType(customSpreadsheetResultOpenClass.getName());
-                        if (csroc != null && csroc.isEmptyBeanClass()) { // If CSR returns null
-                            f = false; // IGNORE EMPTY CSRS TYPES
-                        }
-                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
+                    if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
                         f = false; // IGNORE VOID TYPES
                     }
