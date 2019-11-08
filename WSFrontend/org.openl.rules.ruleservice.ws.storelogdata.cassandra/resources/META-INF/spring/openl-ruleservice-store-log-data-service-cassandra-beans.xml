@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations">
-        <property name="createShemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
+        <property name="createSchemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
     </bean>
 
     <bean class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">

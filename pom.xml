@@ -101,6 +101,8 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.22.v20191022</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
+        <elasticsearch.version>6.8.1</elasticsearch.version>
+        <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -1148,11 +1150,6 @@
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-util-ajax</artifactId>
-                <version>9.4.6.v20170531</version>
-            </dependency>
             <!-- Apache CXF Runtime Aegis Databinding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -1231,12 +1228,18 @@
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
-                <version>2.1.14.RELEASE</version>
+                <version>3.2.0.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
-                <version>2.4.0</version>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codelibs</groupId>
+                <artifactId>elasticsearch-cluster-runner</artifactId>
+                <version>${elasticsearch-cluster-runner.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>

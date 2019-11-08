@@ -2,7 +2,18 @@ package org.openl.rules.ruleservice.storelogdata.elasticsearch;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.storelogdata.annotation.*;
+import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
+import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
+import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
+import org.openl.rules.ruleservice.storelogdata.annotation.Request;
+import org.openl.rules.ruleservice.storelogdata.annotation.Response;
+import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
+import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.ZonedDataTimeToDateConvertor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -45,31 +56,6 @@ public class DefaultElasticEntity {
     private String url;
 
     public DefaultElasticEntity() {
-    }
-
-    public DefaultElasticEntity(String id,
-            Date incomingTime,
-            Date outcomingTime,
-            Object request,
-            Object response,
-            String requestBody,
-            String responseBody,
-            String serviceName,
-            String url,
-            String methodName,
-            String publisherType) {
-        super();
-        this.id = id;
-        this.incomingTime = incomingTime;
-        this.outcomingTime = outcomingTime;
-        this.request = request;
-        this.response = response;
-        this.requestBody = requestBody;
-        this.responseBody = responseBody;
-        this.serviceName = serviceName;
-        this.url = url;
-        this.methodName = methodName;
-        this.publisherType = publisherType;
     }
 
     public String getPublisherType() {
