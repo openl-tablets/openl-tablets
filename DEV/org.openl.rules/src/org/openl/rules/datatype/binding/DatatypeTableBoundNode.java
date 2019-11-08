@@ -492,12 +492,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type %s is not found.", tableSrc.getCode());
+            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 
         if (row.getWidth() < 2) {
-            String errorMessage = "Bad table structure: must be {header} / {type | name}";
+            String errorMessage = "Bad table structure: must be {header} / {type | name}.";
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
         return fieldType;
@@ -517,25 +517,26 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
-                throw new OpenLCompilationException(String.format("Parent class '%s' is not defined", parentClassName));
+                throw new OpenLCompilationException(
+                    String.format("Parent class '%s' is not defined.", parentClassName));
             }
 
             if (parentClass.getInstanceClass() != null) {// parent class has
                 // errors
                 if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
                     throw new OpenLCompilationException(
-                        String.format("Cannot inherit from final class '%s'", parentClassName));
+                        String.format("Cannot inherit from final class '%s'.", parentClassName));
                 }
 
                 if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())) {
                     throw new OpenLCompilationException(
-                        String.format("Cannot inherit from abstract class '%s'", parentClassName));
+                        String.format("Cannot inherit from abstract class '%s'.", parentClassName));
                 }
             }
 
             if (parentClass instanceof DomainOpenClass) {
                 throw new OpenLCompilationException(
-                    String.format("Parent class '%s' cannot be domain type", parentClassName));
+                    String.format("Parent class '%s' cannot be domain type.", parentClassName));
             }
 
             dataType.setSuperClass(parentClass);

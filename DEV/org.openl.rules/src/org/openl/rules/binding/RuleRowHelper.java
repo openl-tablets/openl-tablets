@@ -152,7 +152,7 @@ public final class RuleRowHelper {
         }
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {
-            throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found.", node);
+            throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", typeCode), node);
         }
         return type;
     }

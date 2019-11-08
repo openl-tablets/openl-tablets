@@ -44,13 +44,12 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         IOpenClass componentType = info.getComponentType(containerType);
         if (componentType == null) {
             String typeName = containerType.getName();
-            return makeErrorNode("An array or a collection is expected, but " + typeName + " type has been defined.",
-                targetNode.getSyntaxNode(),
-                bindingContext);
+            return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
+                typeName), targetNode.getSyntaxNode(), bindingContext);
         }
         int numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 2) {
-            return makeErrorNode("Aggregate node can have either 1 or 2 childen nodes", node, bindingContext);
+            return makeErrorNode("Aggregate node can have either 1 or 2 childen nodes.", node, bindingContext);
         }
 
         // there could be 1 or 2 syntax nodes as children
@@ -79,7 +78,9 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             if (varType != componentType) {
                 IOpenCast cast = bindingContext.getCast(componentType, varType);
                 if (cast == null) {
-                    return makeErrorNode("Cannot cast " + componentType + " to " + varType, varNode, bindingContext);
+                    return makeErrorNode(String.format("Cannot cast '%s' to '%s'.", componentType, varType),
+                        varNode,
+                        bindingContext);
                 }
             }
         }

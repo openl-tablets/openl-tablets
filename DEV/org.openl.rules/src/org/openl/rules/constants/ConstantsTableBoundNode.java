@@ -91,7 +91,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type %s is not found.", tableSrc.getCode());
+            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 

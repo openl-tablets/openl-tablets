@@ -37,7 +37,7 @@ public class TypeCastBinder extends ANodeBinder {
             if (!(nullNode.getSyntaxNode() instanceof TerminalNode)) {
                 String code = ((IdentifierNode) nullNode.getSyntaxNode().getChild(0)).getIdentifier();
 
-                return makeErrorNode("Type '" + code + "' is not found.", node, bindingContext);
+                return makeErrorNode(String.format("Type '%s' is not found.", code), node, bindingContext);
             }
         }
 

@@ -208,7 +208,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                                "Cells '%s' and '%s' conflicts with each other in the output model for this spreadsheet result.",
+                                "Cells '%s' and '%s' conflict with each other in the spreadsheet output model.",
                                 v,
                                 refName), getTableSyntaxNode()));
                             warnCnt++;
