@@ -27,6 +27,7 @@ import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.constants.ConstantsTableBinder;
 import org.openl.rules.data.DataBase;
@@ -863,8 +864,15 @@ public class XlsBinder implements IOpenBinder {
         }
 
         @Override
-        public boolean isSpreadsheet() {
-            return XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType());
+        public TableSyntaxNode getTableSyntaxNode() {
+            return tableSyntaxNode;
+        }
+
+        @Override
+        public boolean isReturnsCustomSpreadsheetResult() {
+            return XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && openMethodHeader.getType()
+                .getInstanceClass() != null && SpreadsheetResult.class
+                    .isAssignableFrom(openMethodHeader.getType().getInstanceClass());
         }
 
         @Override

@@ -83,7 +83,8 @@ public class SpreadsheetResult implements Serializable {
     public boolean isFieldUsedInModel(String fieldName) {
         Point point = fieldsCoordinates.get(fieldName);
         if (point != null) {
-            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point.getRow()] != null;
+            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
+                .getRow()] != null;
         }
         return false;
     }

@@ -83,8 +83,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                 customSpreadsheetResultOpenClass,
-                field.getName(),
-                field.getType());
+                field);
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
         return customSpreadsheetResultOpenClass;

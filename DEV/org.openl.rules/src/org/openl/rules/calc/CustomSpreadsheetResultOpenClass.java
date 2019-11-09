@@ -4,13 +4,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedFieldException;
-import org.openl.binding.impl.CastToWiderType;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -26,6 +26,8 @@ import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
+
+    private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
     private String[] rowNames;
     private String[] columnNames;
@@ -45,6 +47,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private byte[] beanClassByteCode;
     private boolean detailedPlainModel;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
+    volatile boolean beanClassInitializing = false;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -77,6 +80,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
         this.module = Objects.requireNonNull(module);
         this.detailedPlainModel = detailedPlainModel;
+    }
+
+    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
+        this(name,
+            EMPTY_STRING_ARRAY,
+            EMPTY_STRING_ARRAY,
+            EMPTY_STRING_ARRAY,
+            EMPTY_STRING_ARRAY,
+            EMPTY_STRING_ARRAY,
+            EMPTY_STRING_ARRAY,
+            module,
+            false);
+        this.simpleRefBeanByRow = true;
+        this.simpleRefBeanByColumn = true;
     }
 
     @Override
@@ -207,19 +224,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             if (thisField == null) {
                 addField(field);
             } else {
-                if (!thisField.getType()
-                    .equals(field
-                        .getType()) && thisField instanceof CustomSpreadsheetResultField && field instanceof CustomSpreadsheetResultField) {
-                    CastToWiderType castToWiderType = CastToWiderType
-                        .create(bindingContext, thisField.getType(), field.getType());
+                if (thisField instanceof CustomSpreadsheetResultField && field instanceof CustomSpreadsheetResultField) {
                     fieldMap().put(field.getName(),
                         new CastingCustomSpreadsheetResultField(getModule(),
                             field.getName(),
                             (CustomSpreadsheetResultField) thisField,
-                            castToWiderType.getCast1(),
-                            (CustomSpreadsheetResultField) field,
-                            castToWiderType.getCast2(),
-                            castToWiderType.getWiderType()));
+                            (CustomSpreadsheetResultField) field));
                 }
             }
         }
@@ -343,46 +353,57 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         if (beanClass == null) {
             synchronized (this) {
                 if (beanClass == null) {
-                    final String beanClassName = getBeanClassName(this);
-                    JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName);
-                    Set<String> usedFields = new HashSet<>();
-                    @SuppressWarnings("unchecked")
-                    List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
-                    Map<String, List<IOpenField>> beanFieldsMap = new HashMap<>();
-                    List<Triple<String, Point, IOpenField>> fields = getSortedFields();
-                    addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, true, beanFieldsMap);
-                    addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, false, beanFieldsMap);
-                    String[] sprStructureFieldNames = addSprStructureFields(beanClassBuilder, beanFieldsMap.keySet());
-
-                    byte[] byteCode = beanClassBuilder.byteCode();
+                    if (beanClassInitializing) {
+                        // The same thread compiles this bean class. SOF occurs in method
+                        // 'addFieldsToJavaClassBuilder'.
+                        return null;
+                    }
                     try {
-                        this.beanClass = loadBeanClass(beanClassName, byteCode);
-                        this.beanClassByteCode = byteCode;
-                        List<SpreadsheetResultSetter> sprSetters = new ArrayList<>();
-                        for (Field field : beanClass.getDeclaredFields()) {
-                            if (!field.isSynthetic()) {// SONAR adds synthetic fields
-                                List<IOpenField> openFields = beanFieldsMap.get(field.getName());
-                                if (openFields != null) {
-                                    for (IOpenField openField : openFields) {
-                                        SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
-                                            module,
-                                            field,
-                                            openField);
-                                        sprSetters.add(spreadsheetResultValueSetter);
+                        beanClassInitializing = true;
+                        final String beanClassName = getBeanClassName(this);
+                        JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName);
+                        Set<String> usedFields = new HashSet<>();
+                        @SuppressWarnings("unchecked")
+                        List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
+                        Map<String, List<IOpenField>> beanFieldsMap = new HashMap<>();
+                        List<Triple<String, Point, IOpenField>> fields = getSortedFields();
+                        addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, true, beanFieldsMap);
+                        addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, usedFields, false, beanFieldsMap);
+                        String[] sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
+                            beanFieldsMap.keySet());
+
+                        byte[] byteCode = beanClassBuilder.byteCode();
+                        try {
+                            this.beanClass = loadBeanClass(beanClassName, byteCode);
+                            this.beanClassByteCode = byteCode;
+                            List<SpreadsheetResultSetter> sprSetters = new ArrayList<>();
+                            for (Field field : beanClass.getDeclaredFields()) {
+                                if (!field.isSynthetic()) {// SONAR adds synthetic fields
+                                    List<IOpenField> openFields = beanFieldsMap.get(field.getName());
+                                    if (openFields != null) {
+                                        for (IOpenField openField : openFields) {
+                                            SpreadsheetResultValueSetter spreadsheetResultValueSetter = new SpreadsheetResultValueSetter(
+                                                module,
+                                                field,
+                                                openField);
+                                            sprSetters.add(spreadsheetResultValueSetter);
+                                        }
+                                    } else if (field.getName().equals(sprStructureFieldNames[0])) {
+                                        sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
+                                    } else if (field.getName().equals(sprStructureFieldNames[1])) {
+                                        sprSetters.add(new SpreadsheetResultColumnNamesSetter(field));
+                                    } else if (field.getName().equals(sprStructureFieldNames[2])) {
+                                        sprSetters.add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap));
                                     }
-                                } else if (field.getName().equals(sprStructureFieldNames[0])) {
-                                    sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
-                                } else if (field.getName().equals(sprStructureFieldNames[1])) {
-                                    sprSetters.add(new SpreadsheetResultColumnNamesSetter(field));
-                                } else if (field.getName().equals(sprStructureFieldNames[2])) {
-                                    sprSetters.add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap));
                                 }
                             }
+                            this.beanFieldsMap = beanFieldsMap;
+                            this.spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[] {});
+                        } catch (Exception e) {
+                            throw new IllegalStateException(e);
                         }
-                        this.beanFieldsMap = beanFieldsMap;
-                        this.spreadsheetResultSetters = sprSetters.toArray(new SpreadsheetResultSetter[] {});
-                    } catch (Exception e) {
-                        throw new IllegalStateException(e);
+                    } finally {
+                        beanClassInitializing = false;
                     }
                 }
             }
@@ -473,7 +494,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                     if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
                     }
-                    Class<?> type;
+                    String typeName;
                     IOpenClass t = w.getRight().getType();
                     int dim = 0;
                     while (t.isArray()) {
@@ -484,33 +505,33 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
                         CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
                             .findType(customSpreadsheetResultOpenClass.getName());
-                        Class<?> fieldCls;
+                        String fieldClsName;
                         if (csroc != null) {
-                            fieldCls = csroc.getBeanClass();
+                            fieldClsName = getBeanClassName(csroc);
+                            // Loads field bean class to the same class loader
+                            csroc.getBeanClass();
                         } else {
-                            fieldCls = Object.class;
+                            fieldClsName = Object.class.getName();
                         }
-                        if (dim > 0) {
-                            type = Array.newInstance(fieldCls, new int[dim]).getClass();
-                        } else {
-                            type = fieldCls;
-                        }
+                        typeName = dim > 0 ? IntStream.range(0, dim)
+                            .mapToObj(e -> "[")
+                            .collect(Collectors.joining()) + "L" + fieldClsName + ";" : fieldClsName;
                     } else if (t instanceof SpreadsheetResultOpenClass) {
                         if (dim > 0) {
-                            type = Array.newInstance(Map.class, new int[dim]).getClass();
+                            typeName = Array.newInstance(Map.class, new int[dim]).getClass().getName();
                         } else {
-                            type = Map.class;
+                            typeName = Map.class.getName();
                         }
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
-                        type = w.getRight().getType().getInstanceClass();
+                        typeName = w.getRight().getType().getInstanceClass().getName();
                     }
                     if (!isFieldConflictsWithOtherGetterSetters(usedGettersAndSetters, fieldName)) {
                         usedGettersAndSetters.add(ClassUtils.getter(fieldName));
                         usedGettersAndSetters.add(ClassUtils.setter(fieldName));
-                        beanClassBuilder.addField(fieldName, type.getName());
+                        beanClassBuilder.addField(fieldName, typeName);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, w.getRight()));
                     } else if (addFieldNameWithCollisions) {
                         String newFieldName = fieldName;
@@ -524,7 +545,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                         }
                         usedGettersAndSetters.add(ClassUtils.getter(newFieldName));
                         usedGettersAndSetters.add(ClassUtils.setter(newFieldName));
-                        beanClassBuilder.addField(newFieldName, type.getName());
+                        beanClassBuilder.addField(newFieldName, typeName);
                         beanFieldsMap.put(newFieldName, fillUsed(used, point, w.getRight()));
                     }
                 } else {
@@ -685,5 +706,4 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         }
 
     }
-
 }

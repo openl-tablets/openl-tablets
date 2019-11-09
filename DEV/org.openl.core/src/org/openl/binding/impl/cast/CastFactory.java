@@ -10,10 +10,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.cache.GenericKey;
 import org.openl.ie.constrainer.ConstrainerObject;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -95,6 +92,9 @@ public class CastFactory implements ICastFactory {
             IOpenClass openClass2,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
+        if (UnknownOpenClass.the.equals(openClass1) || UnknownOpenClass.the.equals(openClass2)) {
+            return UnknownOpenClass.the;
+        }
         if (NullOpenClass.the.equals(openClass1)) {
             return openClass2;
         }
@@ -274,11 +274,19 @@ public class CastFactory implements ICastFactory {
             return JavaNoCast.getInstance();
         }
 
-        if (to == NullOpenClass.the) {
+        if (UnknownOpenClass.the.equals(from)) {
+            return UnknownOpenClass.the.equals(to) ? JavaNoCast.getInstance() : new JavaDownCast(to, this);
+        }
+
+        if (UnknownOpenClass.the.equals(to)) {
             return null;
         }
 
-        if (from == NullOpenClass.the) {
+        if (NullOpenClass.the.equals(to)) {
+            return null;
+        }
+
+        if (NullOpenClass.the.equals(from)) {
             if (isPrimitive(to)) {
                 return null;
             } else {
@@ -673,8 +681,7 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[] { openClassFrom, to });
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
             }
 
@@ -695,8 +702,7 @@ public class CastFactory implements ICastFactory {
                 //
                 if (primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[] { from, openClassTo });
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }
@@ -736,14 +742,12 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                        new IOpenClass[] { openClassFrom, to });
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
 
                 if (castCaller == null && primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                        new IOpenClass[] { from, openClassTo });
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }

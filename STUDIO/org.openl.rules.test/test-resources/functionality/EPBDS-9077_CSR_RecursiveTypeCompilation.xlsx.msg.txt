@@ -1,2 +1,0 @@
-ERROR: Automatically type definition for Spreadsheet 'mySpr' with the circular reference is failed. Please, define common 'SpreadsheetResult' type.
-ERROR: Method '$Values$Step3(null-Class)' is not found.

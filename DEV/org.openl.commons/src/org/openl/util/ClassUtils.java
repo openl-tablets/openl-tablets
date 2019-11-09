@@ -224,12 +224,15 @@ public class ClassUtils {
      * <p>
      *
      * @param cls the Class to check, may be null
-     * @param toClass the Class to try to assign into, returns false if null
+     * @param toClass the Class to try to assign into
      * @return {@code true} if assignment possible
      */
     public static boolean isAssignable(Class<?> cls, final Class<?> toClass) {
+        if (cls == null && toClass == null) {
+            return true;
+        }
         if (toClass == null) {
-            return false;
+            return !cls.isPrimitive();
         }
         // have to check for null, as isAssignableFrom does not
         if (cls == null) {
