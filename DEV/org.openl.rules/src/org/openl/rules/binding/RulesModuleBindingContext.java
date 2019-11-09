@@ -91,7 +91,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (openMethodBinder.isPreBindStarted()) {
                     if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder
                         .isSpreadsheet()) {
-                        throw new RecursiveSpreadsheetMethodPreBindingException();
+                        throw new RecursiveSpreadsheetMethodPreBindingException(openMethodBinder.getName());
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
@@ -202,7 +202,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (prebindingOpenMethodPreBinder.isPresent()) {
             if (OpenLSystemProperties
                 .isCustomSpreadsheetType(getExternalParams()) && prebindingOpenMethodPreBinder.get().isSpreadsheet()) {
-                throw new RecursiveSpreadsheetMethodPreBindingException();
+                throw new RecursiveSpreadsheetMethodPreBindingException(prebindingOpenMethodPreBinder.get().getName());
             } else {
                 throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");
             }
