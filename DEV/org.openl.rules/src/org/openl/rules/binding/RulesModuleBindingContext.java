@@ -151,7 +151,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 return super.addType(namespace, copyOfCustomType);
             } else {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
-                csroc.extendWith((CustomSpreadsheetResultOpenClass) type, this);
+                csroc.extendWith(customSpreadsheetResultOpenClass);
                 return csroc;
             }
         } else {
@@ -191,7 +191,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
         // All custom spreadsheet methods compiles at once
         Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
-        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder.isReturnsCustomSpreadsheetResult()) {
+        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder
+            .isReturnsCustomSpreadsheetResult()) {
             openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
             openMethodBinders = openMethodBinders.stream()
                 .filter(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)
@@ -216,8 +217,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
             .findAny();
         if (prebindingOpenMethodPreBinder.isPresent()) {
-            if (OpenLSystemProperties
-                .isCustomSpreadsheetType(getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
+            if (OpenLSystemProperties.isCustomSpreadsheetType(
+                getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException();
             } else {
                 throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");

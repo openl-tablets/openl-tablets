@@ -1,61 +1,43 @@
 package org.openl.binding.impl;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.rules.calc.CustomSpreadsheetResultField;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
-    private static String getIfCSRTypeName(CustomSpreadsheetResultOpenClass type1,
-            CustomSpreadsheetResultOpenClass type2) {
-        return "IfNode" + type1.getName() + "And" + type2.getName() + "_" + type1.getName()
-            .hashCode() + "_" + type2.getName().hashCode();
+    private static Set<String> toMergedLinkedHashSet(String[] arr1, String[] arr2) {
+        Set<String> ret = new LinkedHashSet<>();
+        Arrays.stream(arr1).forEach(ret::add);
+        Arrays.stream(arr2).forEach(ret::add);
+        return ret;
     }
 
-    private static CustomSpreadsheetResultOpenClass merge(IBindingContext bindingContext,
+    private static CustomSpreadsheetResultOpenClass mergeTwoCustomSpreadsheetResultTypes(
             CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, getIfCSRTypeName(type1, type2));
-        if (type instanceof CustomSpreadsheetResultOpenClass) {
-            return (CustomSpreadsheetResultOpenClass) type;
-        }
+        Set<String> rowNames = toMergedLinkedHashSet(type1.getRowNames(), type2.getRowNames());
+        Set<String> columnNames = toMergedLinkedHashSet(type1.getColumnNames(), type2.getColumnNames());
 
-        Set<String> rowNames = new LinkedHashSet<>();
-        rowNames.addAll(Arrays.stream(type1.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
-        rowNames.addAll(Arrays.stream(type2.getRowNames()).collect(Collectors.toCollection(HashSet::new)));
-
-        Set<String> columnNames = new LinkedHashSet<>();
-        columnNames.addAll(Arrays.stream(type1.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
-        columnNames.addAll(Arrays.stream(type2.getColumnNames()).collect(Collectors.toCollection(HashSet::new)));
-
-        Set<String> rowNamesForResultModel = new LinkedHashSet<>();
-        rowNamesForResultModel
-            .addAll(Arrays.stream(type1.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
-        rowNamesForResultModel
-            .addAll(Arrays.stream(type2.getRowNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
-
-        Set<String> columnNamesForResultModel = new LinkedHashSet<>();
-        columnNamesForResultModel
-            .addAll(Arrays.stream(type1.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
-        columnNamesForResultModel
-            .addAll(Arrays.stream(type2.getColumnNamesForResultModel()).collect(Collectors.toCollection(HashSet::new)));
+        Set<String> rowNamesForResultModel = toMergedLinkedHashSet(type1.getRowNamesForResultModel(),
+            type2.getRowNamesForResultModel());
+        Set<String> columnNamesForResultModel = toMergedLinkedHashSet(type1.getColumnNamesForResultModel(),
+            type2.getColumnNamesForResultModel());
 
         if (!type1.getModule().equals(type2.getModule())) {
-            throw new IllegalStateException("CSR types are from differnet modules.");
+            throw new IllegalStateException("Custom spreadsheet result types are from differnet modules.");
         }
 
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-            getIfCSRTypeName(type1, type2),
+            "IfNode_" + type1.getName() + "_And_" + type2.getName(),
             rowNames.toArray(new String[] {}),
             columnNames.toArray(new String[] {}),
             rowNamesForResultModel.toArray(new String[] {}),
@@ -96,8 +78,6 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             }
         }
 
-        bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, mergedCustomSpreadsheetResultOpenClass);
-
         return mergedCustomSpreadsheetResultOpenClass;
     }
 
@@ -112,7 +92,11 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         if (type instanceof CustomSpreadsheetResultOpenClass && elseType instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass type1 = (CustomSpreadsheetResultOpenClass) type;
             CustomSpreadsheetResultOpenClass type2 = (CustomSpreadsheetResultOpenClass) elseType;
-            return new IfNode(node, conditionNode, thenNode, elseNode, merge(bindingContext, type1, type2));
+            return new IfNode(node,
+                conditionNode,
+                thenNode,
+                elseNode,
+                mergeTwoCustomSpreadsheetResultTypes(type1, type2));
         } else {
             return super.buildIfElseNode(node, bindingContext, conditionNode, thenNode, type, elseNode, elseType);
         }

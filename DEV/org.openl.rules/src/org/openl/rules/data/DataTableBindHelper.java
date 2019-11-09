@@ -943,7 +943,7 @@ public class DataTableBindHelper {
                     fieldName,
                     sb.toString());
             } else {
-                errorMessage = String.format("Field '%s' is not found in %s.", fieldName, loadedFieldType.getName());
+                errorMessage = String.format("Field '%s' is not found in type '%s'.", fieldName, loadedFieldType.getName());
             }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(bindingContext, table, error);
@@ -951,7 +951,7 @@ public class DataTableBindHelper {
         }
 
         if (!field.isWritable()) {
-            String message = String.format("Field '%s' is not writable in %s.", fieldName, loadedFieldType.getName());
+            String message = String.format("Field '%s' is not writable in type '%s'.", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
