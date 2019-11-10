@@ -48,6 +48,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     private boolean detailedPlainModel;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile boolean beanClassInitializing = false;
+    private boolean ignoreCompilation = false;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -704,6 +705,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
                 field.set(target, fieldNames);
             }
         }
+    }
 
+    public boolean isIgnoreCompilation() {
+        return ignoreCompilation;
+    }
+
+    public void setIgnoreCompilation(boolean ignoreCompilation) {
+        this.ignoreCompilation = ignoreCompilation;
     }
 }

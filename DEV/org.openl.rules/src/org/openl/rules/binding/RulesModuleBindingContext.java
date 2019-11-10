@@ -48,6 +48,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private PreBinderMethods preBinderMethods = new PreBinderMethods();
 
+    private boolean ignoreCustomSpreadsheetResultCompilation = false;
+
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
         super(delegate, module);
         internalMethods = new ArrayList<>();
@@ -166,18 +168,36 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .equals(namespace) && typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
             final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-            if (super.findType(namespace, typeName) == null) {
-                preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
-                    if (openMethodBinder.isReturnsCustomSpreadsheetResult()) {
-                        preBindMethod(openMethodBinder.getHeader());
-                    }
-                });
+            IOpenClass openClass = super.findType(namespace, typeName);
+            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                if (!customSpreadsheetResultOpenClass.isIgnoreCompilation()) {
+                    preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
+                        if (openMethodBinder.isReturnsCustomSpreadsheetResult()) {
+                            preBindMethod(openMethodBinder.getHeader());
+                        }
+                    });
+                }
+            } else {
+                throw new IllegalStateException(String.format("Type '%s' is not found", typeName));
             }
         }
         return super.findType(namespace, typeName);
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
+        if (!isExecutionMode() && OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && method
+            .isReturnsCustomSpreadsheetResult()) {
+            final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
+            IOpenClass openClass = findType(ISyntaxConstants.THIS_NAMESPACE, sprTypeName);
+            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                customSpreadsheetResultOpenClass.setMetaInfo(
+                    new TableMetaInfo("Spreadsheet", method.getName(), method.getTableSyntaxNode().getUri()));
+            } else {
+                throw new IllegalStateException(String.format("Type '%s' is not found", sprTypeName));
+            }
+        }
         preBinderMethods.put(openMethodHeader, method);
     }
 
@@ -190,25 +210,28 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             // No need to compile, because it is already compiled.
             return;
         }
+
+        final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
+            .getName();
+        final boolean isCustomSpreadsheetResultEnabled = OpenLSystemProperties
+            .isCustomSpreadsheetType(getExternalParams());
         // All custom spreadsheet methods compiles at once
         Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
-        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && openMethodBinder
-            .isReturnsCustomSpreadsheetResult()) {
+        if (isCustomSpreadsheetResultEnabled && openMethodBinder.isReturnsCustomSpreadsheetResult()) {
+            if (isIgnoreCustomSpreadsheetResultCompilation()) {
+                return;
+            }
             openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
             openMethodBinders = openMethodBinders.stream()
                 .filter(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)
                 .collect(Collectors.toList());
-            final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodBinder.getName();
-            if (super.findType(ISyntaxConstants.THIS_NAMESPACE, sprTypeName) == null) {
-                CustomSpreadsheetResultOpenClass csroc = new CustomSpreadsheetResultOpenClass(
-                    Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodBinder.getName(),
-                    getModule());
-                if (!isExecutionMode()) {
-                    csroc.setMetaInfo(new TableMetaInfo("Spreadsheet",
-                        openMethodBinder.getName(),
-                        openMethodBinder.getTableSyntaxNode().getUri()));
-                }
-                getModule().addType(csroc);
+            IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
+            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
+                csroc.setIgnoreCompilation(true);
+            } else {
+                throw new IllegalStateException(
+                    String.format("Type '%s' is not found", customSpreadsheetResultTypeName));
             }
         } else {
             openMethodBinders = Collections.singletonList(openMethodBinder);
@@ -229,13 +252,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         openMethodBinders.stream().forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::finishPreBind);
 
-        // After recursive compilation non initialized fields need to be initialized for CSR type in compile time.
-        if (openMethodBinders.stream().anyMatch(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)) {
-            IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE,
-                Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader.getName());
+        // After recursive compilation non initialized fields need to be initialized for CSR type in compile time and
+        // meta info initialized.
+        if (isCustomSpreadsheetResultEnabled && openMethodBinders.stream()
+            .anyMatch(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)) {
+            IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
                 csroc.getFields().values().stream().forEach(IOpenField::getType);
+            } else {
+                throw new IllegalStateException(
+                    String.format("Type '%s' is not found", customSpreadsheetResultTypeName));
             }
         }
     }
@@ -540,5 +567,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public boolean isConstructor() {
             return false;
         }
+    }
+
+    public boolean isIgnoreCustomSpreadsheetResultCompilation() {
+        return ignoreCustomSpreadsheetResultCompilation;
+    }
+
+    public void setIgnoreCustomSpreadsheetResultCompilation(boolean ignoreCustomSpreadsheetResultCompilation) {
+        this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
 }
