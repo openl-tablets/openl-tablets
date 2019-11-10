@@ -30,6 +30,6 @@ public abstract class AXlsTableBinder extends ANodeBinder {
 
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode,
             OpenL openl,
-            IBindingContext cxt,
+            IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception;
 }

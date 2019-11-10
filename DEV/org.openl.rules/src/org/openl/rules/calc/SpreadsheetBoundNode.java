@@ -130,7 +130,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = String.format("Cannot define type '%s'.", spreadsheet.getName());
+                String message = String.format("Cannot define type '%s'.",
+                    Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(error);
                 bindingContext.addError(error);

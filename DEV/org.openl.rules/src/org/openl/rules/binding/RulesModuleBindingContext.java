@@ -146,9 +146,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
-                IOpenClass copyOfCustomType = customSpreadsheetResultOpenClass.makeCopyForModule(getModule());
-                getModule().addType(copyOfCustomType);
-                return super.addType(namespace, copyOfCustomType);
+                IOpenClass copyOfCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass
+                    .makeCopyForModule(getModule());
+                getModule().addType(copyOfCustomSpreadsheetResultOpenClass);
+                return copyOfCustomSpreadsheetResultOpenClass;
             } else {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
                 csroc.extendWith(customSpreadsheetResultOpenClass);
@@ -208,7 +209,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                         openMethodBinder.getTableSyntaxNode().getUri()));
                 }
                 getModule().addType(csroc);
-                super.addType(ISyntaxConstants.THIS_NAMESPACE, csroc);
             }
         } else {
             openMethodBinders = Collections.singletonList(openMethodBinder);

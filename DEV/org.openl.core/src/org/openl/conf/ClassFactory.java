@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassFactory extends AConfigurationElement {
 
-    private final Logger log = LoggerFactory.getLogger(ClassFactory.class);
-
     static final Class<?>[] NO_PARAMS = {};
     protected String className;
     protected String extendsClassName;
@@ -38,7 +36,7 @@ public class ClassFactory extends AConfigurationElement {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
             final Logger log = LoggerFactory.getLogger(ClassFactory.class);
-            log.debug("Potential problem loading class: {0}", ex, name);
+            log.debug("Potential problem loading class: {0}", name, ex);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
             final Logger log = LoggerFactory.getLogger(ClassFactory.class);
@@ -47,7 +45,7 @@ public class ClassFactory extends AConfigurationElement {
                 System.getProperty("java.version"),
                 e);
             throw RuntimeExceptionWrapper.wrap(e);
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             final Logger log = LoggerFactory.getLogger(ClassFactory.class);
             log.error(String.format("Failed to load class '%s'.", name), t);
             throw RuntimeExceptionWrapper.wrap(t);
@@ -57,7 +55,7 @@ public class ClassFactory extends AConfigurationElement {
     public static Object newInstance(Class<?> cc, String uri) {
         try {
             return cc.newInstance();
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", cc.getTypeName()),
                 uri,
                 t);
@@ -67,7 +65,7 @@ public class ClassFactory extends AConfigurationElement {
     public static Object newInstance(String classname, IConfigurableResourceContext cxt, String uri) {
         try {
             return cxt.getClassLoader().loadClass(classname).newInstance();
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", classname),
                 uri,
                 t);
@@ -78,7 +76,7 @@ public class ClassFactory extends AConfigurationElement {
         Class<?> c;
         try {
             c = cl.loadClass(className);
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to load class '%s'.", className), uri, t);
         }
 
@@ -96,7 +94,7 @@ public class ClassFactory extends AConfigurationElement {
         Constructor<?> c;
         try {
             c = clazz.getConstructor(params);
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             String methodString = MethodUtil.printMethod("", params);
             throw new OpenLConfigurationException(String
                 .format("Constructor '%s' is not found in class '%s'.", methodString, clazz.getTypeName()), uri, t);
@@ -114,7 +112,7 @@ public class ClassFactory extends AConfigurationElement {
         Method m;
         try {
             m = clazz.getMethod(methodName, params);
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             String methodString = MethodUtil.printMethod(methodName, params);
             throw new OpenLConfigurationException(String
                 .format("Method '%s' is not found in class '%s'.", methodString, clazz.getTypeName()), uri, t);
@@ -140,7 +138,7 @@ public class ClassFactory extends AConfigurationElement {
             }
         } catch (OpenLConfigurationException ex) {
             throw ex;
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Default constructor is not found in class '%s'.",
                 clazz.getTypeName()), uri, null);
         }
@@ -190,7 +188,7 @@ public class ClassFactory extends AConfigurationElement {
     protected Object getResourceInternal(IConfigurableResourceContext cxt) {
         try {
             return cxt.getClassLoader().loadClass(className).newInstance();
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", className),
                 getUri(),
                 t);

@@ -562,16 +562,24 @@ public class XlsBinder implements IOpenBinder {
                     .getNodeType()) || XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
     }
 
-    private boolean isSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        return XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
+    private boolean isCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
+        if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
+            String returnTypeToken = TableSyntaxNodeHelper.getTableReturnType(tableSyntaxNode);
+            if (returnTypeToken != null && (SpreadsheetResult.class.getSimpleName()
+                .equals(returnTypeToken) || SpreadsheetResult.class.getName().equals(returnTypeToken) || returnTypeToken
+                    .equals(TableSyntaxNodeHelper.getTableName(tableSyntaxNode)))) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private Set<String> extractCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
+    private Set<String> findAllCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext rulesModuleBindingContext) {
         Set<String> customSpreadsheetResultTypeNames = new HashSet<>();
         if (OpenLSystemProperties.isCustomSpreadsheetType(rulesModuleBindingContext.getExternalParams())) {
             for (int i = 0; i < tableSyntaxNodes.length; i++) {
-                if (isSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
+                if (isCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
                     customSpreadsheetResultTypeNames
                         .add(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + TableSyntaxNodeHelper
                             .getTableName(tableSyntaxNodes[i]));
@@ -590,7 +598,7 @@ public class XlsBinder implements IOpenBinder {
         IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length];
         OpenMethodHeader[] openMethodHeaders = new OpenMethodHeader[tableSyntaxNodes.length];
 
-        Set<String> customSpreadsheetResultTypes = extractCustomSpreadsheetResultTypes(tableSyntaxNodes,
+        Set<String> customSpreadsheetResultTypes = findAllCustomSpreadsheetResultTypes(tableSyntaxNodes,
             rulesModuleBindingContext);
 
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder = new SyntaxNodeExceptionHolder();
