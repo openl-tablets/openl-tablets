@@ -563,8 +563,7 @@ public class XlsBinder implements IOpenBinder {
         if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
             String returnTypeToken = TableSyntaxNodeHelper.getTableReturnType(tableSyntaxNode);
             if (returnTypeToken != null && (SpreadsheetResult.class.getSimpleName()
-                .equals(returnTypeToken) || SpreadsheetResult.class.getName().equals(returnTypeToken) || returnTypeToken
-                    .equals(TableSyntaxNodeHelper.getTableName(tableSyntaxNode)))) {
+                .equals(returnTypeToken) || SpreadsheetResult.class.getName().equals(returnTypeToken))) {
                 return true;
             }
         }
