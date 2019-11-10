@@ -14,7 +14,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     private volatile IOpenField field;
 
-    public CustomSpreadsheetResultField(IOpenClass declaringClass, IOpenField field) {
+    public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
         super(declaringClass, field.getName(), null);
         this.field = Objects.requireNonNull(field, "field cannot be null");
     }

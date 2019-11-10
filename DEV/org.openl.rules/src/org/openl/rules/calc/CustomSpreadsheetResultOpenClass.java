@@ -226,7 +226,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             } else {
                 if (thisField instanceof CustomSpreadsheetResultField && field instanceof CustomSpreadsheetResultField) {
                     fieldMap().put(field.getName(),
-                        new CastingCustomSpreadsheetResultField(getModule(),
+                        new CastingCustomSpreadsheetResultField(this,
                             field.getName(),
                             (CustomSpreadsheetResultField) thisField,
                             (CustomSpreadsheetResultField) field));

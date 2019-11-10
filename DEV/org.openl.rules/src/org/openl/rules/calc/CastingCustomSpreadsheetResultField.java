@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 
@@ -16,7 +15,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     private volatile IOpenCast cast2;
     private volatile IOpenClass type;
 
-    public CastingCustomSpreadsheetResultField(XlsModuleOpenClass declaringClass,
+    public CastingCustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass,
             String name,
             CustomSpreadsheetResultField field1,
             CustomSpreadsheetResultField field2) {
@@ -26,8 +25,8 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     }
 
     @Override
-    public XlsModuleOpenClass getDeclaringClass() {
-        return (XlsModuleOpenClass) super.getDeclaringClass();
+    public CustomSpreadsheetResultOpenClass getDeclaringClass() {
+        return (CustomSpreadsheetResultOpenClass) super.getDeclaringClass();
     }
 
     @Override
@@ -52,7 +51,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     if (Objects.equals(field1.getType(), field2.getType())) {
                         this.type = field1.getType();
                     } else {
-                        CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass()
+                        CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass().getModule()
                             .getRulesModuleBindingContext(), field1.getType(), field2.getType());
                         this.cast1 = castToWiderType.getCast1();
                         this.cast2 = castToWiderType.getCast2();
