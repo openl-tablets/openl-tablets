@@ -10,7 +10,10 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.cache.GenericKey;
 import org.openl.ie.constrainer.ConstrainerObject;
-import org.openl.types.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -92,9 +95,6 @@ public class CastFactory implements ICastFactory {
             IOpenClass openClass2,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
-        if (UnknownOpenClass.the.equals(openClass1) || UnknownOpenClass.the.equals(openClass2)) {
-            return UnknownOpenClass.the;
-        }
         if (NullOpenClass.the.equals(openClass1)) {
             return openClass2;
         }
@@ -272,14 +272,6 @@ public class CastFactory implements ICastFactory {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
             return JavaNoCast.getInstance();
-        }
-
-        if (UnknownOpenClass.the.equals(from)) {
-            return UnknownOpenClass.the.equals(to) ? JavaNoCast.getInstance() : new JavaDownCast(to, this);
-        }
-
-        if (UnknownOpenClass.the.equals(to)) {
-            return null;
         }
 
         if (NullOpenClass.the.equals(to)) {

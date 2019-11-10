@@ -7,7 +7,6 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
-import org.openl.types.UnknownOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
 
@@ -56,9 +55,6 @@ public final class CastToWiderType {
      * @return cast information
      */
     public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {
-        if (UnknownOpenClass.the.equals(type1) || UnknownOpenClass.the.equals(type2)) {
-            return new CastToWiderType(UnknownOpenClass.the, null, null);
-        }
         if (NullOpenClass.the.equals(type1)) {
             return new CastToWiderType(type2, null, null);
         } else {

@@ -6,7 +6,7 @@ import org.openl.base.INamedThing;
 import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.UnknownOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -42,7 +42,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
                     try {
                         setType(field.getType());
                     } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
-                        setType(UnknownOpenClass.the);
+                        setType(JavaOpenClass.OBJECT);
                     }
                     field = null;
                 }

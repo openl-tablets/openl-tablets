@@ -6,7 +6,6 @@ import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
-import org.openl.types.UnknownOpenClass;
 import org.openl.util.ClassUtils;
 
 public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResultField {
@@ -53,17 +52,11 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     if (Objects.equals(field1.getType(), field2.getType())) {
                         this.type = field1.getType();
                     } else {
-                        if (UnknownOpenClass.the.equals(field1.getType())) {
-                            this.type = field2.getType();
-                        } else if (UnknownOpenClass.the.equals(field2.getType())) {
-                            this.type = field1.getType();
-                        } else {
-                            CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass()
-                                .getRulesModuleBindingContext(), field1.getType(), field2.getType());
-                            this.cast1 = castToWiderType.getCast1();
-                            this.cast2 = castToWiderType.getCast2();
-                            this.type = castToWiderType.getWiderType();
-                        }
+                        CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass()
+                            .getRulesModuleBindingContext(), field1.getType(), field2.getType());
+                        this.cast1 = castToWiderType.getCast1();
+                        this.cast2 = castToWiderType.getCast2();
+                        this.type = castToWiderType.getWiderType();
                     }
                 }
             }
