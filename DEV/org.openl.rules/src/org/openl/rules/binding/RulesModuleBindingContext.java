@@ -179,7 +179,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     });
                 }
             } else {
-                throw new IllegalStateException(String.format("Type '%s' is not found", typeName));
+                throw new IllegalStateException(String.format("Type '%s' is not found.", typeName));
             }
         }
         return super.findType(namespace, typeName);
@@ -195,7 +195,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 customSpreadsheetResultOpenClass.setMetaInfo(
                     new TableMetaInfo("Spreadsheet", method.getName(), method.getTableSyntaxNode().getUri()));
             } else {
-                throw new IllegalStateException(String.format("Type '%s' is not found", sprTypeName));
+                throw new IllegalStateException(String.format("Type '%s' is not found.", sprTypeName));
             }
         }
         preBinderMethods.put(openMethodHeader, method);
@@ -231,7 +231,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 csroc.setIgnoreCompilation(true);
             } else {
                 throw new IllegalStateException(
-                    String.format("Type '%s' is not found", customSpreadsheetResultTypeName));
+                    String.format("Type '%s' is not found.", customSpreadsheetResultTypeName));
             }
         } else {
             openMethodBinders = Collections.singletonList(openMethodBinder);
@@ -262,7 +262,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 csroc.getFields().values().stream().forEach(IOpenField::getType);
             } else {
                 throw new IllegalStateException(
-                    String.format("Type '%s' is not found", customSpreadsheetResultTypeName));
+                    String.format("Type '%s' is not found.", customSpreadsheetResultTypeName));
             }
         }
     }
