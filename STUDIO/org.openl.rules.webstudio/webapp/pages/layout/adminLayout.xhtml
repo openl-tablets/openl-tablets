@@ -169,7 +169,7 @@
         <div id="center">
             <a4j:outputPanel ajaxRendered="true">
                 <h:panelGroup styleClass="messages" layout="block"
-                    rendered="#{!empty facesContext.maximumSeverity}">
+                    rendered="#{systemSettingsBean.hasMessages}">
                     <h:messages infoClass="success" errorClass="error" showDetail="true"
                         showSummary="false" tooltip="true" globalOnly="true" />
                 </h:panelGroup>

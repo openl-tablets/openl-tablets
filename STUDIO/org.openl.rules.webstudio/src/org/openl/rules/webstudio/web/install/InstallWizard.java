@@ -168,10 +168,18 @@ public class InstallWizard {
 
                     designRepositoryConfiguration = new RepositoryConfiguration("",
                         systemConfig,
-                        RepositoryMode.DESIGN);
+                        RepositoryMode.DESIGN,
+                        true);
+                    if (designRepositoryConfiguration.getErrorMessage() != null) {
+                        log.error(designRepositoryConfiguration.getErrorMessage());
+                    }
                     deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
                         systemConfig,
-                        RepositoryMode.DEPLOY_CONFIG);
+                        RepositoryMode.DEPLOY_CONFIG,
+                        true);
+                    if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
+                        log.error(deployConfigRepositoryConfiguration.getErrorMessage());
+                    }
 
                     initProductionRepositoryEditor();
 

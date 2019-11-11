@@ -277,7 +277,7 @@
                                         <h:inputText value="#{designRepository.name}" disabled="true"/>
                                         <h:outputText value="Type:" />
                                         <h:selectOneMenu value="#{designRepository.type}">
-                                            <f:ajax event="change" render="designParameters deployConfigFolderStructureParams" />
+                                            <f:ajax event="change" render="designParameters deployConfigFolderStructureParams designRepoTypeMessage" />
                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                             <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -286,6 +286,10 @@
                                             <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
                                             <f:selectItem itemValue="git" itemLabel="Git" />
                                         </h:selectOneMenu>
+                                        <h:outputText value=""/>
+                                        <h:panelGroup id="designRepoTypeMessage">
+                                            <h:outputText value="#{designRepository.errorMessage}" rendered="#{not empty designRepository.errorMessage}" styleClass="error"/>
+                                        </h:panelGroup>
                                     </h:panelGrid>
                                     <h:panelGroup id="designParameters">
                                         <h:panelGroup rendered="#{designRepository.formType == 'common'}">
@@ -341,7 +345,7 @@
                                             <h:inputText value="#{deployConfigRepo.name}" disabled="true" rendered="#{not systemSettingsBean.useDesignRepo}"/>
                                             <h:outputText value="Type:" rendered="#{not systemSettingsBean.useDesignRepo}" />
                                             <h:selectOneMenu value="#{deployConfigRepo.type}" rendered="#{not systemSettingsBean.useDesignRepo}">
-                                                <f:ajax event="change" render="deployConfigParameters deployConfigFolderStructureParams" />
+                                                <f:ajax event="change" render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage" />
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
                                                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -350,6 +354,10 @@
                                                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
                                                 <f:selectItem itemValue="git" itemLabel="Git" />
                                             </h:selectOneMenu>
+                                            <h:outputText value=""/>
+                                            <h:panelGroup id="deployConfigRepoTypeMessage">
+                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not empty deployConfigRepo.errorMessage}" styleClass="error"/>
+                                            </h:panelGroup>
                                         </h:panelGrid>
                                         <h:panelGroup id="deployConfigParameters" rendered="#{not systemSettingsBean.useDesignRepo}">
                                             <h:panelGroup rendered="#{deployConfigRepo.formType == 'common'}">
