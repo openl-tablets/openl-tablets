@@ -28,9 +28,5 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-        </dependency>
     </dependencies>
 </project>

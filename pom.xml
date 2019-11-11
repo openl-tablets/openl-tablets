@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
@@ -101,7 +102,6 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.22.v20191022</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
-        <elasticsearch.version>6.8.1</elasticsearch.version>
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -1177,7 +1177,7 @@
                 <artifactId>cxf-rt-transports-http-hc</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
-            <!-- CXF Runtime CORBA Binding -->		
+            <!-- CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
@@ -1228,12 +1228,18 @@
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
-                <version>3.2.0.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>${elasticsearch.version}</version>
+                <version>3.2.1.RELEASE</version>
+                <exclusions>
+                    <!-- Elasticsearch rest template is used, no need in transport client -->
+                    <exclusion>
+                        <groupId>org.elasticsearch.client</groupId>
+                        <artifactId>transport</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.elasticsearch.plugin</groupId>
+                        <artifactId>transport-netty4-client</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.codelibs</groupId>
@@ -1267,7 +1273,7 @@
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra.unit.driver.version}</version>
-                <scope>test</scope> 
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
