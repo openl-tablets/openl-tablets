@@ -5,13 +5,13 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -41,7 +41,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            IBindingContext bindingContext,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
         ILogicalTable table = tsn.getTable();

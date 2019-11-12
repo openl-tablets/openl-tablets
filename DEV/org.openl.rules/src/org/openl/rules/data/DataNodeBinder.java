@@ -14,6 +14,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -40,7 +41,9 @@ public class DataNodeBinder extends AXlsTableBinder {
     public static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module, IBindingContext bindingContext) {
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
+            XlsModuleOpenClass module,
+            RulesModuleBindingContext bindingContext) {
         DataTableBoundNode boundNode = new DataTableBoundNode(tsn, module);
 
         if (!bindingContext.isExecutionMode()) {
@@ -57,7 +60,7 @@ public class DataNodeBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
-            IBindingContext bindingContext,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
         DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module, bindingContext);

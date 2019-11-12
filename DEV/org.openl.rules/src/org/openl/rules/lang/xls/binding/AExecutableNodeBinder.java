@@ -31,13 +31,13 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
-            IBindingContext bindingContext,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
         OpenMethodHeader header = createHeader(tableSyntaxNode, openl, bindingContext);
         header.setDeclaringClass(module);
 
-        checkForDuplicates(tableSyntaxNode, (RulesModuleBindingContext) bindingContext, header);
+        checkForDuplicates(tableSyntaxNode, bindingContext, header);
 
         return createNode(tableSyntaxNode, openl, header, module);
     }
@@ -57,10 +57,8 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
 
     public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
-            IBindingContext bindingContext) throws SyntaxNodeException {
-
+            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
         IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-
         return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
     }
 

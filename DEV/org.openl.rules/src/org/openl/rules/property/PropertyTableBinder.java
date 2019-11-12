@@ -1,7 +1,6 @@
 package org.openl.rules.property;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
@@ -39,12 +38,10 @@ public class PropertyTableBinder extends DataNodeBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            IBindingContext cxt,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
-        assert cxt instanceof RulesModuleBindingContext;
-
-        PropertyTableBoundNode propertyNode = (PropertyTableBoundNode) makeNode(tsn, module, cxt);
+        PropertyTableBoundNode propertyNode = (PropertyTableBoundNode) makeNode(tsn, module, bindingContext);
 
         String tableName = parseHeader(tsn);
         propertyNode.setTableName(tableName);
@@ -57,20 +54,20 @@ public class PropertyTableBinder extends DataNodeBinder {
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propTableBody = getTableBody(tsn);
 
-        processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
+        processTable(module, propertyTable, propTableBody, tableName, propertiesClass, bindingContext, openl, false);
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
         propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header
         propertiesInstance.setCurrentTableType(tsn.getType());
 
-        PropertiesChecker.checkProperties(cxt,
+        PropertiesChecker.checkProperties(bindingContext,
             propertiesInstance.getAllProperties().keySet(),
             tsn,
             InheritanceLevel.getEnumByValue(propertiesInstance.getPropertyValueAsString(SCOPE_PROPERTY_NAME)));
 
         tsn.setTableProperties(propertiesInstance);
 
-        analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext) cxt);
+        analysePropertiesNode(tsn, propertiesInstance, bindingContext);
 
         propertyNode.setPropertiesInstance(propertiesInstance);
 
@@ -219,7 +216,9 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
 
     @Override
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module, IBindingContext bindingContext) {
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
+            XlsModuleOpenClass module,
+            RulesModuleBindingContext bindingContext) {
         PropertyTableBoundNode boundNode = new PropertyTableBoundNode(tsn);
 
         if (!bindingContext.isExecutionMode()) {

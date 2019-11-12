@@ -26,10 +26,8 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            IBindingContext cxt,
+            RulesModuleBindingContext cxt,
             XlsModuleOpenClass module) throws Exception {
-
-        assert cxt instanceof RulesModuleBindingContext;
 
         ADtColumnsDefinitionTableBoundNode aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl, cxt);
 
