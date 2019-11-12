@@ -753,11 +753,17 @@ public class RepositoryTreeController {
                     repositoryTreeState.refreshSelectedNode();
                 } else {
                     repositoryTreeState.deleteSelectedNodeFromTree();
+                    if (isSupportsBranches()) {
+                        repositoryTreeState.invalidateTree();
+                    }
                 }
             } else {
                 if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
                     repositoryTreeState.deleteNode(selectedNode);
                     repositoryTreeState.invalidateSelection();
+                    if (isSupportsBranches()) {
+                        repositoryTreeState.invalidateTree();
+                    }
                 } else {
                     repositoryTreeState.refreshSelectedNode();
                 }
