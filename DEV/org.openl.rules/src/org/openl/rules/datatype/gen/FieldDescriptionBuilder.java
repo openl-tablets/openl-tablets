@@ -28,6 +28,7 @@ public class FieldDescriptionBuilder {
     private final String typeName;
     private String defaultValueAsString;
     private Object defaultValue;
+    private boolean contextProperty;
 
     private FieldDescriptionBuilder(String typeName) {
         this.typeName = typeName;
@@ -47,8 +48,13 @@ public class FieldDescriptionBuilder {
         return this;
     }
 
+    public FieldDescriptionBuilder setContextProperty(boolean contextProperty) {
+        this.contextProperty = contextProperty;
+        return this;
+    }
+
     public FieldDescription build() {
-        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString);
+        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString, contextProperty);
     }
 
     /**

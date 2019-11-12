@@ -20,10 +20,14 @@ import org.openl.vm.IRuntimeEnv;
 public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper {
     ColumnMatch delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass, ColumnMatch delegate) {
+    public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            ColumnMatch delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -216,11 +220,21 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

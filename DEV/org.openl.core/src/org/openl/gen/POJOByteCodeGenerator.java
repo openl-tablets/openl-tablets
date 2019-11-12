@@ -6,18 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.openl.gen.writers.BeanByteCodeWriter;
-import org.openl.gen.writers.ConstructorWithParametersWriter;
-import org.openl.gen.writers.DefaultConstructorWriter;
-import org.openl.gen.writers.EqualsWriter;
-import org.openl.gen.writers.GettersWriter;
-import org.openl.gen.writers.HashCodeWriter;
-import org.openl.gen.writers.SettersWriter;
-import org.openl.gen.writers.ToStringWriter;
+import org.objectweb.asm.*;
+import org.openl.gen.writers.*;
+import org.openl.runtime.ContextProperty;
 import org.openl.util.ClassUtils;
 
 /**
@@ -116,8 +107,19 @@ public class POJOByteCodeGenerator {
     private void visitFields(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
-            classWriter.visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
+            FieldVisitor fieldVisitor = classWriter
+                .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
+            if (field.getValue().isContextProperty()) {
+                visitOpenLContextAnnotation(field.getKey(), fieldVisitor);
+            }
         }
+    }
+
+    private void visitOpenLContextAnnotation(String fieldName, FieldVisitor fieldVisitor) {
+        AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ContextProperty.class),
+            true);
+        annotationVisitor.visit("value", fieldName);
+        annotationVisitor.visitEnd();
     }
 
     private static String getNamespace(String beannameWithPackage) {

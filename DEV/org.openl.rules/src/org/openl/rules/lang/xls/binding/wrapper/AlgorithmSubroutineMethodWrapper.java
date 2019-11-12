@@ -17,11 +17,15 @@ import org.openl.vm.IRuntimeEnv;
 public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
     AlgorithmSubroutineMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, AlgorithmSubroutineMethod delegate) {
+    public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            AlgorithmSubroutineMethod delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         super(null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -159,11 +163,21 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+    
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

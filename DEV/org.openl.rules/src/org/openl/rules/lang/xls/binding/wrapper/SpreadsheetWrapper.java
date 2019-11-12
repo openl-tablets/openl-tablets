@@ -3,27 +3,30 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetBoundNode;
-import org.openl.rules.calc.SpreadsheetInvoker;
-import org.openl.rules.calc.SpreadsheetOpenClass;
+import org.openl.rules.calc.*;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.*;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrapper {
     Spreadsheet delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
 
-    public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass, Spreadsheet delegate) {
+    XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
+
+    public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            Spreadsheet delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         super();
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -211,11 +214,81 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
+    @Override
+    public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass spreadsheetCustomResultType) {
+        delegate.setCustomSpreadsheetResultType(spreadsheetCustomResultType);
+    }
+
+    @Override
+    public void setRowTitles(String[] rowTitles) {
+        delegate.setRowTitles(rowTitles);
+    }
+
+    @Override
+    public String[] getRowNamesForResultModel() {
+        return delegate.getRowNamesForResultModel();
+    }
+
+    @Override
+    public void setRowNamesForResultModel(String[] rowNamesForResultModel) {
+        delegate.setRowNamesForResultModel(rowNamesForResultModel);
+    }
+
+    @Override
+    public String[] getColumnNamesForResultModel() {
+        return delegate.getColumnNamesForResultModel();
+    }
+
+    @Override
+    public void setColumnNamesForResultModel(String[] columnNamesForResultModel) {
+        delegate.setColumnNamesForResultModel(columnNamesForResultModel);
+    }
+
+    @Override
+    public String[] getRowTitles() {
+        return delegate.getRowTitles();
+    }
+
+    @Override
+    public void setColumnTitles(String[] columnTitles) {
+        delegate.setColumnTitles(columnTitles);
+    }
+
+    @Override
+    public String[] getColumnTitles() {
+        return delegate.getColumnTitles();
+    }
+
+    @Override
+    public boolean isDetailedPlainModel() {
+        return delegate.isDetailedPlainModel();
+    }
+
+    @Override
+    public void setDetailedPlainModel(boolean detailedPlainModel) {
+        delegate.setDetailedPlainModel(detailedPlainModel);
+    }
+
+    @Override
+    public Map<String, Point> getFieldsCoordinates() {
+        return delegate.getFieldsCoordinates();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

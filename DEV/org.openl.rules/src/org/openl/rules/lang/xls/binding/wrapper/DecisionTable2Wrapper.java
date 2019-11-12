@@ -25,10 +25,14 @@ import org.openl.vm.IRuntimeEnv;
 public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper {
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass, DecisionTable delegate) {
+    public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            DecisionTable delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -252,11 +256,26 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
+    @Override
+    public int getNumberOfActions() {
+        return delegate.getNumberOfActions();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

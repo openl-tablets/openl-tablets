@@ -15,11 +15,14 @@ import org.openl.vm.IRuntimeEnv;
 public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
     OverloadedMethodsDispatcherTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
     public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            OverloadedMethodsDispatcherTable delegate) {
+            OverloadedMethodsDispatcherTable delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -113,6 +116,11 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     }
 
     @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
+    @Override
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
         IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
@@ -123,6 +131,11 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

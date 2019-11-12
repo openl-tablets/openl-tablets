@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.openl.runtime.ContextProperty;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -22,9 +23,10 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BeanOpenField implements IOpenField {
 
-    PropertyDescriptor descriptor;
-    Method readMethod;
-    Method writeMethod;
+    private final PropertyDescriptor descriptor;
+    private final Method readMethod;
+    private final Method writeMethod;
+    private final String contextProperty;
 
     public static void collectFields(Map<String, IOpenField> map,
             Class<?> c,
@@ -82,32 +84,33 @@ public class BeanOpenField implements IOpenField {
                     }
 
                 }
+
                 BeanOpenField bf = new BeanOpenField(pd);
 
                 if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                     map.put(fieldName, bf);
-                    if (getters != null) {
-                        if (pd.getReadMethod() != null) {
-                            getters.put(pd.getReadMethod(), bf);
-                        }
+                    if (getters != null && pd.getReadMethod() != null) {
+                        getters.put(pd.getReadMethod(), bf);
                     }
-                    if (setters != null) {
-                        if (pd.getWriteMethod() != null) {
-                            setters.put(pd.getWriteMethod(), bf);
-                        }
+                    if (setters != null && pd.getWriteMethod() != null) {
+                        setters.put(pd.getWriteMethod(), bf);
                     }
                 }
             }
-        } catch (Throwable t) {
+        } catch (Exception | LinkageError t) {
             throw RuntimeExceptionWrapper.wrap(t);
-        }
-
+        } 
     }
 
     private BeanOpenField(PropertyDescriptor descriptor) {
         this.descriptor = descriptor;
         this.readMethod = descriptor.getReadMethod();
         this.writeMethod = descriptor.getWriteMethod();
+        ContextProperty contextPropertyAnnotation = null;
+        if (this.readMethod != null) {
+            contextPropertyAnnotation = this.readMethod.getAnnotation(ContextProperty.class);
+        }
+        this.contextProperty = contextPropertyAnnotation != null ? contextPropertyAnnotation.value() : null;
     }
 
     @Override
@@ -186,6 +189,16 @@ public class BeanOpenField implements IOpenField {
     @Override
     public String toString() {
         return getName();
+    }
+
+    @Override
+    public boolean isContextProperty() {
+        return contextProperty != null;
+    }
+
+    @Override
+    public String getContextProperty() {
+        return contextProperty;
     }
 
 }

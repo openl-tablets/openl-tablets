@@ -21,5 +21,13 @@ public interface IOpenField extends IOpenMember {
 
     boolean isReadable();
 
+    default boolean isContextProperty() {
+        return false;
+    }
+
+    default String getContextProperty() {
+        return null;
+    }
+
     boolean isWritable();
 }

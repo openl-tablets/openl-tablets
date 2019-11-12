@@ -9,6 +9,7 @@ package org.openl.types.java;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import org.openl.runtime.ContextProperty;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -22,9 +23,14 @@ import org.openl.vm.IRuntimeEnv;
 public class JavaOpenField implements IOpenField {
 
     Field field;
+    String contextProperty;
 
     JavaOpenField(Field field) {
         this.field = field;
+        ContextProperty contextProperty = field.getAnnotation(ContextProperty.class);
+        if (contextProperty != null) {
+            this.contextProperty = contextProperty.value();
+        }
     }
 
     @Override
@@ -117,5 +123,15 @@ public class JavaOpenField implements IOpenField {
 
     public Field getJavaField() {
         return field;
+    }
+
+    @Override
+    public boolean isContextProperty() {
+        return contextProperty != null;
+    }
+
+    @Override
+    public String getContextProperty() {
+        return contextProperty;
     }
 }

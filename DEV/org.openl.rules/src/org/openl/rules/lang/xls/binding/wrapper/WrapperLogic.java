@@ -72,35 +72,46 @@ public final class WrapperLogic {
         if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
+
+        ContextPropertiesInjector contextPropertiesInjector = new ContextPropertiesInjector(
+            openMethod.getSignature().getParameterTypes(),
+            module.getRulesModuleBindingContext());
+
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableWrapper(module, (OverloadedMethodsDispatcherTable) openMethod);
+            return new OverloadedMethodsDispatcherTableWrapper(module,
+                (OverloadedMethodsDispatcherTable) openMethod,
+                contextPropertiesInjector);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
-            return new MatchingOpenMethodDispatcherWrapper(module, (MatchingOpenMethodDispatcher) openMethod);
+            return new MatchingOpenMethodDispatcherWrapper(module,
+                (MatchingOpenMethodDispatcher) openMethod,
+                contextPropertiesInjector);
         }
         if (openMethod instanceof DeferredMethod) {
-            return new DeferredMethodWrapper(module, (DeferredMethod) openMethod);
+            return new DeferredMethodWrapper(module, (DeferredMethod) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof CompositeMethod) {
-            return new CompositeMethodWrapper(module, (CompositeMethod) openMethod);
+            return new CompositeMethodWrapper(module, (CompositeMethod) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof Algorithm) {
-            return new AlgorithmWrapper(module, (Algorithm) openMethod);
+            return new AlgorithmWrapper(module, (Algorithm) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AlgorithmSubroutineMethodWrapper(module, (AlgorithmSubroutineMethod) openMethod);
+            return new AlgorithmSubroutineMethodWrapper(module,
+                (AlgorithmSubroutineMethod) openMethod,
+                contextPropertiesInjector);
         }
         if (openMethod instanceof DecisionTable) {
-            return new DecisionTable2Wrapper(module, (DecisionTable) openMethod);
+            return new DecisionTable2Wrapper(module, (DecisionTable) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof ColumnMatch) {
-            return new ColumnMatchWrapper(module, (ColumnMatch) openMethod);
+            return new ColumnMatchWrapper(module, (ColumnMatch) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof Spreadsheet) {
-            return new SpreadsheetWrapper(module, (Spreadsheet) openMethod);
+            return new SpreadsheetWrapper(module, (Spreadsheet) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof TableMethod) {
-            return new TableMethodWrapper(module, (TableMethod) openMethod);
+            return new TableMethodWrapper(module, (TableMethod) openMethod, contextPropertiesInjector);
         }
         return openMethod;
     }
@@ -135,7 +146,7 @@ public final class WrapperLogic {
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
-                return wrapper.getDelegate().invoke(target, params, env);
+                return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
                 simpleRulesRuntimeEnv.setTopClass(null);
@@ -151,6 +162,6 @@ public final class WrapperLogic {
                 }
             }
         }
-        return wrapper.getDelegate().invoke(target, params, env);
+        return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
     }
 }
