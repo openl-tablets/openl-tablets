@@ -166,7 +166,11 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
+        Class<?> ic = ioc.getInstanceClass();
+        if (ic == null){
+            return false;
+        }
+        return getInstanceClass().isAssignableFrom(ic);
     }
 
     @Override

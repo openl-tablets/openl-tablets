@@ -279,6 +279,10 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
+        Class<?> ic = ioc.getInstanceClass();
+        if (ic == null) {
+            return false;
+        }
         return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
