@@ -15,6 +15,16 @@ grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
 };
 
 // WEBSTUDIO
+
+//permission for a specific jar file. change the path to your jar file
+//grant codeBase "file:${catalina.home}/openl-demo/user-workspace/DEFAULT/PROJECT_NAME/JAR_FILE_NAME" {
+            //permissions
+//};
+
+grant codeBase "file:${catalina.home}/webapps/webstudio/WEB-INF/-" {
+    //permission for a specific jar file should be duplicated here
+};
+
 grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         //Registration and cancellation of virtual-machine shutdown hooks
@@ -110,6 +120,16 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 };
 
 // WEBSERVICE
+
+//permission for a specific jar file. change the path to your jar file
+//grant codeBase "file:${catalina.home}/openl-demo/rules-deploy/PROJECT_NAME_VERSION/PROJECT_NAME/JAR_FILE_NAME" {
+        //permissions
+//};
+
+grant codeBase "file:${catalina.home}/webapps/webservice/WEB-INF/-" {
+    //permission for a specific jar file should be duplicated here
+};
+
 grant codeBase "file:${catalina.home}/webapps/webservice/-" {
 
         //accessClassInPackages
@@ -122,6 +142,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.lang.RuntimePermission "closeClassLoader";
+        permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.loader";
 
         //Modification of threads
         //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
