@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -99,13 +100,19 @@ class ContextPropertiesInjector {
                 Object value = field.get(params[paramIndex], env);
                 value = openCast.convert(value);
                 if (rulesRuntimeContext == null) {
-                    try {
-                        rulesRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv.getContext().clone();
-                    } catch (CloneNotSupportedException e) {
-                        throw new OpenlNotCheckedException(e);
+                    IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv
+                        .getContext();
+                    if (!Objects.equals(value, currentRuntimeContext.getValue(field.getContextProperty()))) {
+                        try {
+                            rulesRuntimeContext = (IRulesRuntimeContext) currentRuntimeContext.clone();
+                            rulesRuntimeContext.setValue(field.getContextProperty(), value);
+                        } catch (CloneNotSupportedException e) {
+                            throw new OpenlNotCheckedException(e);
+                        }
                     }
+                } else {
+                    rulesRuntimeContext.setValue(field.getContextProperty(), value);
                 }
-                rulesRuntimeContext.setValue(field.getContextProperty(), value);
             }
             return rulesRuntimeContext;
         }
