@@ -58,8 +58,13 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
     public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
-        IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-        return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+        try {
+            bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
+            IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
+            return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+        } finally {
+            bindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
+        }
     }
 
     protected abstract IMemberBoundNode createNode(TableSyntaxNode tsn,
