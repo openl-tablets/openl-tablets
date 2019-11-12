@@ -320,17 +320,6 @@ public class XlsBinder implements IOpenBinder {
 
             // Select and sort Spreadsheet tables
             TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
-            if (OpenLSystemProperties.isCustomSpreadsheetType(bindingContext.getExternalParams())) {
-                try {
-                    spreadsheets = TableSyntaxNodeRelationsUtils.sort(spreadsheets,
-                        new SpreadsheetTableSyntaxNodeRelationsDeterminer());
-                } catch (TableSyntaxNodeCircularDependencyException e) {
-                    for (TableSyntaxNode tsn : e.getTableSyntaxNodes()) {
-                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tsn);
-                        processError(error, tsn, rulesModuleBindingContext);
-                    }
-                }
-            }
 
             TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
 
