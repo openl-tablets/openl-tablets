@@ -22,7 +22,7 @@
 
     <modules>
         <module>server-core</module>
-        <module>itest.policy</module>
+        <!--<module>itest.policy</module>-->
         <module>itest.smoke</module>
         <module>itest.kafka.smoke</module>
         <module>itest.jacksonbinding</module>
