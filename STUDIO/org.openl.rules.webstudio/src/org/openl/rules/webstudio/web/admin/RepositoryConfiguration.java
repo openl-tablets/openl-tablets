@@ -32,9 +32,18 @@ public class RepositoryConfiguration {
 
     private RepositorySettings settings;
 
+    private String errorMessage;
+
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
             RepositoryMode repositoryMode) {
+        this(configName, configManager, repositoryMode, false);
+    }
+
+    public RepositoryConfiguration(String configName,
+            ConfigurationManager configManager,
+            RepositoryMode repositoryMode,
+            boolean fallbackToDefault) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
         this.repositoryMode = repositoryMode;
@@ -56,14 +65,21 @@ public class RepositoryConfiguration {
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
 
-        load();
+        load(fallbackToDefault);
     }
 
-    private void load() {
+    private void load(boolean fallbackToDefault) {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
-            throw new IllegalArgumentException("Unsupported repository type. Repository factory: " + factoryClassName);
+            // Fallback to default value and save error message
+            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ".";
+            if (fallbackToDefault) {
+                repositoryType = RepositoryType.values()[0];
+                errorMessage += " Was replaced with " + repositoryType.getFactoryClassName() + ".";
+            } else {
+                throw new IllegalArgumentException(errorMessage);
+            }
         }
         name = configManager.getStringProperty(REPOSITORY_NAME);
 
@@ -106,7 +122,7 @@ public class RepositoryConfiguration {
     void revert() {
         configManager.removeProperty(REPOSITORY_NAME);
         configManager.removeProperty(REPOSITORY_FACTORY);
-        load();
+        load(false);
 
         settings.revert(configManager);
     }
@@ -114,6 +130,10 @@ public class RepositoryConfiguration {
     void commit() {
         fixState();
         store(configManager);
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     public String getName() {
@@ -152,6 +172,7 @@ public class RepositoryConfiguration {
                 throw new IllegalArgumentException(String.format("Access type %s is not supported", accessType));
             }
             repositoryType = newRepositoryType;
+            errorMessage = null;
             RepositorySettings newSettings = createSettings(newRepositoryType);
             newSettings.copyContent(settings);
             settings = newSettings;

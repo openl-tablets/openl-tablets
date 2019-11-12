@@ -1,0 +1,126 @@
+grant codeBase "file:${user.dir}/target/openl-test/rules-deploy/test1_v1/test1/test.jar" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${user.dir}/target/test-classes/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:../server-core/-" {
+    permission java.security.AllPermission;
+};
+
+grant codeBase "file:../../WSFrontend/-" {
+    permission java.security.AllPermission;
+};
+
+grant codeBase "file:${user.home}/-" {
+    permission java.security.AllPermission;
+};
+
+//ITEST
+grant {
+        permission java.lang.RuntimePermission "setContextClassLoader";
+        permission java.lang.RuntimePermission "createClassLoader";
+        permission java.lang.RuntimePermission "modifyThread";
+        permission java.lang.RuntimePermission "setSecurityManager";
+        permission java.io.FilePermission "${user.home}/.m2/-", "read";
+        permission java.io.FilePermission "${webservice-webapp}/", "read";
+        permission java.io.FilePermission "${user.dir}/target/-", "read, write, delete";
+        permission java.io.FilePermission "/logs/ruleservice.log", "read,write,delete";
+        permission java.io.FilePermission "<<ALL FILES>>", "execute";
+};
+
+
+// DEMO POLICY
+grant {
+
+        //Registration and cancellation of virtual-machine shutdown hooks
+        //ex: AbstractJcrRepositoryFactory
+        permission java.lang.RuntimePermission "shutdownHooks";
+
+        //accessClassInPackages
+        permission java.lang.RuntimePermission "accessClassInPackage.org.apache.*";
+        permission java.lang.RuntimePermission "accessClassInPackage.jdk.*";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.*";
+
+
+        //ClassLoaders
+        permission java.lang.RuntimePermission "getClassLoader";
+        permission java.lang.RuntimePermission "setContextClassLoader";
+        permission java.lang.RuntimePermission "createClassLoader";
+        permission java.lang.RuntimePermission "closeClassLoader";
+        permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.loader";
+
+        //appeared in Java 9+
+        //ex:springframework
+        permission java.lang.RuntimePermission "defineClass";
+
+        //Modification of threads
+        //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
+        permission java.lang.RuntimePermission "modifyThread";
+
+        //Retrieval of the ProtectionDomain for a class
+        //ex: springframework.cglib
+        permission java.lang.RuntimePermission "getProtectionDomain";
+
+        //Warning: Extreme caution should be taken before granting this permission to code, for it provides access to the declared members of a class.
+        //ex: springframework.beans.factory
+        permission java.lang.RuntimePermission "accessDeclaredMembers";
+
+        //Reading of the value of the specified environment variable
+        permission java.lang.RuntimePermission "getenv.*";
+
+        //access to the java.util.prefs.Preferences implementations
+        permission java.lang.RuntimePermission "preferences";
+
+        permission java.lang.RuntimePermission "reflectionFactoryAccess";
+
+        //HikariPool
+        //Permits an application to specify the maximum period a Connection or objects created from the Connection will wait for the database to reply to any one request.
+        permission java.sql.SQLPermission "setNetworkTimeout";
+
+        //allows anyone to listen on dynamic ports (DB, LDAP, SSO...)
+        permission java.net.SocketPermission "*", "accept,connect,listen,resolve";
+
+        // Read and Modify any properties
+        permission java.util.PropertyPermission "*", "read,write";
+
+        //ability to control the logging configuration
+        permission java.util.logging.LoggingPermission "control";
+
+        //LocalJackrabbitRepositoryFactory
+        permission javax.security.auth.AuthPermission "modifyPrincipals";
+        permission javax.security.auth.AuthPermission "modifyPublicCredentials";
+
+        permission java.lang.reflect.ReflectPermission "*";
+
+        //com.sun.faces.config.ConfigureListener
+        permission java.awt.AWTPermission "accessEventQueue";
+
+        //FileUtils
+        permission java.io.FilePermission "${java.io.tmpdir}", "read,write,delete";
+        permission java.io.FilePermission "${java.io.tmpdir}/-", "read,write,delete";
+
+        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
+        permission java.io.FilePermission "${catalina.base}/logs", "read,write,delete";
+
+        //richfaces
+        permission java.io.FilePermission "${catalina.base}/-", "read";
+        permission java.io.FilePermission "${catalina.base}/", "read";
+
+        permission java.io.FilePermission "${java.home}/-", "read";
+        permission java.util.PropertyPermission "*", "read,write";
+
+        //oracle.jdbc.driver.OracleDriver.registerMBeans
+        permission javax.management.MBeanServerPermission "createMBeanServer";
+        permission javax.management.MBeanPermission "*", "*";
+        permission javax.management.MBeanTrustPermission "register";
+
+        // jgit
+        permission java.io.FilePermission "${user.home}/.gitconfig", "read";
+        permission java.net.NetPermission "getProxySelector";
+        permission java.security.SecurityPermission "insertProvider.BC";
+        permission java.security.SecurityPermission "putProviderProperty.BC";
+
+};
