@@ -4,5 +4,6 @@ enum CommitType {
     SAVE,
     ARCHIVE,
     RESTORE,
-    ERASE
+    ERASE,
+    MERGE
 }
