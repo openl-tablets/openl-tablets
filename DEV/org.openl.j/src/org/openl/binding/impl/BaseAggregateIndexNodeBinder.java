@@ -9,6 +9,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 /**
  * This the base class for a set of classes providing aggregate functions like SELECT FIRST, SELECT ALL, ORDER BY etc
@@ -40,6 +41,12 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
 
         IOpenClass containerType = targetNode.getType();
+
+        if (NullOpenClass.the.equals(containerType)) {
+            return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
+                NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
+        }
+
         IAggregateInfo info = containerType.getAggregateInfo();
         IOpenClass componentType = info.getComponentType(containerType);
         if (componentType == null) {

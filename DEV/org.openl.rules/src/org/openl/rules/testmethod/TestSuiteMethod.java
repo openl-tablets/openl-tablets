@@ -24,6 +24,7 @@ import org.openl.types.impl.CollectionType;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -434,9 +435,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private static CollectionType getCollectionType(IOpenClass type) {
         Class<?> instanceClass = type.getInstanceClass();
-        if (List.class.isAssignableFrom(instanceClass)) {
+        if (ClassUtils.isAssignable(instanceClass, List.class)) {
             return CollectionType.LIST;
-        } else if (Map.class.isAssignableFrom(instanceClass)) {
+        } else if (ClassUtils.isAssignable(instanceClass, Map.class)) {
             return CollectionType.MAP;
         } else {
             return CollectionType.ARRAY;
