@@ -338,6 +338,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     try {
                         result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
+                        foreignTable.getTableSyntaxNode().addError(ex);
                         throw createIndexNotFoundError(foreignTable, valuesTable, s, ex, cxt);
                     }
                     if (result != null) {

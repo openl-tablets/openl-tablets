@@ -1,0 +1,2 @@
+ERROR: Empty key in an unique index
+ERROR: Foreign table 'Policydata' has errors
