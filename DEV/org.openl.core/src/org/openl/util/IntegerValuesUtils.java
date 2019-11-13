@@ -10,41 +10,37 @@ public final class IntegerValuesUtils {
     }
 
     public static boolean isIntegerValue(Class<?> clazz) {
-        return byte.class.equals(clazz) || short.class.equals(clazz) || int.class.equals(clazz) || long.class
-            .equals(clazz) || Byte.class.equals(clazz) || Short.class.equals(clazz) || Integer.class
-                .equals(clazz) || Long.class.equals(clazz) || BigInteger.class.equals(clazz) || ByteValue.class
-                    .equals(clazz) || ShortValue.class.equals(clazz) || IntValue.class
-                        .equals(clazz) || LongValue.class.equals(clazz) || BigIntegerValue.class.equals(clazz);
+        return byte.class == clazz || short.class == clazz || int.class == clazz || long.class == clazz || Byte.class == clazz || Short.class == clazz || Integer.class == clazz || Long.class == clazz || BigInteger.class == clazz || ByteValue.class == clazz || ShortValue.class == clazz || IntValue.class == clazz || LongValue.class == clazz || BigIntegerValue.class == clazz;
     }
 
     public static Object createNewObjectByType(Class<?> clazz, String value) {
-        if (byte.class.equals(clazz)) {
+        if (byte.class == clazz) {
             return Byte.valueOf(value);
-        } else if (short.class.equals(clazz)) {
+        } else if (short.class == clazz) {
             return Short.valueOf(value);
-        } else if (int.class.equals(clazz)) {
+        } else if (int.class == clazz) {
             return Integer.valueOf(value);
-        } else if (long.class.equals(clazz)) {
+        } else if (long.class == clazz) {
             return Long.valueOf(value);
-        } else if (Byte.class.equals(clazz)) {
+        } else if (Byte.class == clazz) {
             return Byte.valueOf(value);
-        } else if (Short.class.equals(clazz)) {
+        } else if (Short.class == clazz) {
             return Short.valueOf(value);
-        } else if (Integer.class.equals(clazz)) {
+        } else if (Integer.class == clazz) {
             return Integer.valueOf(value);
-        } else if (Long.class.equals(clazz)) {
+        } else if (Long.class == clazz) {
             return Long.valueOf(value);
-        } else if (BigInteger.class.equals(clazz)) {
+        } else if (BigInteger.class == clazz) {
             return new BigInteger(value);
-        } else if (ByteValue.class.equals(clazz)) {
+        } else if (ByteValue.class == clazz) {
             return new org.openl.meta.ByteValue(value);
-        } else if (ShortValue.class.equals(clazz)) {
+        } else if (ShortValue.class == clazz) {
             return new org.openl.meta.ShortValue(Short.valueOf(value));
-        } else if (IntValue.class.equals(clazz)) {
+        } else if (IntValue.class == clazz) {
             return new org.openl.meta.IntValue(Integer.valueOf(value));
-        } else if (LongValue.class.equals(clazz)) {
+        } else if (LongValue.class == clazz) {
             return new org.openl.meta.LongValue(Long.valueOf(value));
-        } else if (BigIntegerValue.class.equals(clazz)) {
+        } else if (BigIntegerValue.class == clazz) {
             return new BigIntegerValue(value);
         }
 

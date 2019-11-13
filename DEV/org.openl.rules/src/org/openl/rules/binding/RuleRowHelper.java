@@ -172,7 +172,7 @@ public final class RuleRowHelper {
             theValueCell = theCell.getTopLeftCellFromRegion();
         }
 
-        if (String.class.equals(paramType.getInstanceClass())) {
+        if (String.class == paramType.getInstanceClass()) {
             // if param type is of type String, load as String
             String src = theValueCell.getStringValue();
             if (src != null) {
@@ -394,7 +394,7 @@ public final class RuleRowHelper {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
                 } else {
-                    if (String.class.equals(paramType.getInstanceClass())) {
+                    if (String.class == paramType.getInstanceClass()) {
                         result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
                     } else {
                         if (theValueCell.hasNativeType()) {

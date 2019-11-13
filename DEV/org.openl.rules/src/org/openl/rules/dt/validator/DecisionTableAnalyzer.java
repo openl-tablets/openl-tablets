@@ -71,9 +71,9 @@ public class DecisionTableAnalyzer {
     public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, IBaseCondition condition) {
         IDomain<?> result = null;
         Class<?> type = parameter.getType().getInstanceClass();
-        if (String.class.equals(type)) {
+        if (String.class == type) {
             result = gatherStringDomainFromValues(condition);
-        } else if (int.class.equals(type)) {
+        } else if (int.class == type) {
             result = gatherIntDomainFromValues(condition);
         }
         return result;

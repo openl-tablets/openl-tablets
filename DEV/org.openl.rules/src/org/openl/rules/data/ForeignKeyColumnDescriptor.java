@@ -475,8 +475,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
                 IOpenClass componentType = getComponentType(fieldType);
                 Object currentValue = getField().get(target, env);
-                boolean isList = ClassUtils.(fieldType.getInstanceClass(), List.class);
-                boolean isSet = ClassUtils.(fieldType.getInstanceClass(), Set.class);
+                boolean isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+                boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
                 boolean isArray = !isList && !isSet;
                 int shift = 0;
                 Object v;

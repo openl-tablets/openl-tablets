@@ -3,6 +3,7 @@ package org.openl.rules.testmethod.result;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.rules.helpers.NumberUtils;
 
 public class TestResultComparatorFactory {
@@ -15,26 +16,26 @@ public class TestResultComparatorFactory {
             GenericComparator.getInstance();
         } else if (clazz.isArray()) {
             return new ArrayComparator(clazz.getComponentType(), delta);
-        } else if (String.class.equals(clazz)) {
+        } else if (String.class == clazz) {
             return StringComparator.getInstance();
         } else if (NumberUtils.isNumberType(clazz)) {
             if (delta == null) {
                 if (NumberUtils.isNonFloatPointType(clazz)) {
-                    //let's use Comparable comparator
+                    // let's use Comparable comparator
                     return ComparableComparator.getInstance();
                 }
                 return NumberComparator.getInstance();
             } else {
                 return new NumberComparator(delta);
             }
-        } else if (Comparable.class.isAssignableFrom(clazz)) {
+        } else if (ClassUtils.isAssignable(clazz, Comparable.class)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
             return ComparableComparator.getInstance();
-        } else if (Collection.class.isAssignableFrom(clazz)) {
+        } else if (ClassUtils.isAssignable(clazz, Collection.class)) {
             return CollectionComparator.getInstance();
-        } else if (Map.class.isAssignableFrom(clazz)) {
+        } else if (ClassUtils.isAssignable(clazz, Map.class)) {
             return MapComparator.getInstance();
-        } else if (Object.class.equals(clazz)) {
+        } else if (Object.class == clazz) {
             if (delta == null) {
                 return ObjectComparator.getInstance();
             } else {

@@ -475,7 +475,7 @@ public class CastFactory implements ICastFactory {
         if (fromClass.isEnum() && toClass == String.class) {
             return EnumToStringCast.getInstance();
         }
-        if (String.class.equals(fromClass) && toClass.isEnum()) {
+        if (String.class == fromClass && toClass.isEnum()) {
             return new StringToEnumCast(toClass);
         }
         return null;

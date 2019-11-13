@@ -242,19 +242,19 @@ public class TableProperty {
     }
 
     public boolean isStringType() {
-        return String.class.equals(type);
+        return String.class == type;
     }
 
     public boolean isDateType() {
-        return Date.class.equals(type);
+        return Date.class.isAssignableFrom(type);
     }
 
     public boolean isBooleanType() {
-        return Boolean.class.equals(type);
+        return Boolean.class == type || boolean.class == type;
     }
 
     public boolean isDoubleType() {
-        return Double.class.equals(type);
+        return Double.class == type || double.class == type;
     }
 
     public boolean isEnumType() {
@@ -271,7 +271,7 @@ public class TableProperty {
      * @return true if type is <code>String[]</code>
      */
     public boolean isStringArray() {
-        return type != null && type.isArray() && String.class.equals(type.getComponentType());
+        return type != null && type.isArray() && String.class == type.getComponentType();
     }
 
     public void setConstraints(Constraints constraints) {

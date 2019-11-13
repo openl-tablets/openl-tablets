@@ -15,8 +15,7 @@ class StringComparator extends GenericComparator<String> {
 
     @Override
     boolean fit(Object expected, Object actual) {
-        return (expected == null || String.class.equals(expected.getClass())) && (actual == null || String.class
-            .equals(actual.getClass()));
+        return (expected == null || expected instanceof String) && (actual == null || actual instanceof String);
     }
 
     @Override

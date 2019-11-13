@@ -250,7 +250,7 @@ public class SpreadsheetStructureBuilder {
                 IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
                 ICell theCellValue = cell.getCell(0, 0);
                 Object result = null;
-                if (String.class.equals(instanceClass)) {
+                if (String.class == instanceClass) {
                     result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
                 } else {
                     if (theCellValue.hasNativeType()) {

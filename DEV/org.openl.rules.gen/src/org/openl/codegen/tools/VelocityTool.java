@@ -62,10 +62,6 @@ public class VelocityTool {
         return builder.toString();
     }
 
-    public boolean isNotPrimitiveDouble(Class<?> clazz) {
-        return !double.class.equals(clazz);
-    }
-
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
         return NumberUtils.getNumericPrimitive(wrapperClass);
     }
