@@ -1,6 +1,6 @@
 FROM openjdk:11-jre-slim
 
-ENV TOMCAT_VERSION=9.0.21
+ENV TOMCAT_VERSION=9.0.27
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
