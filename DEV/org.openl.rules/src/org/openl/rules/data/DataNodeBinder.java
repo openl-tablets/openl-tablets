@@ -87,7 +87,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         // Check that table type loaded properly.
         //
         if (tableType.getInstanceClass() == null) {
-            String message = String.format("Type '%s' was defined with errors", typeName);
+            String message = String.format("Type '%s' is defined with errors.", typeName);
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 

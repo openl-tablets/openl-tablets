@@ -217,22 +217,19 @@ public class Condition extends FunctionalRow implements ICondition {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
-                methodType.getInstanceClass().getTypeName(),
-                param.getType().getComponentClass().getInstanceClass().getTypeName()), tableSyntaxNode));
+                methodType.getName(),
+                param.getType().getComponentClass().getName()), tableSyntaxNode));
             return String.format("contains(%s, (%s) %s)",
                 param.getName(),
-                param.getType().getComponentClass().getInstanceClass().getTypeName(),
+                param.getType().getComponentClass().getName(),
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
-                methodType.getInstanceClass().getTypeName()), tableSyntaxNode));
-            return String.format("contains((%s[]) %s, %s)",
-                methodType.getInstanceClass().getTypeName(),
-                param.getName(),
-                source.getCode());
+                methodType.getName()), tableSyntaxNode));
+            return String.format("contains((%s[]) %s, %s)", methodType.getName(), param.getName(), source.getCode());
         } else {
             throw new IllegalStateException("It should not happen.");
         }
@@ -251,7 +248,7 @@ public class Condition extends FunctionalRow implements ICondition {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
-                param.getType().getInstanceClass().getTypeName(),
+                param.getType().getName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));
         }
         return String.format("contains(%s, %s)", param.getName(), source.getCode());
