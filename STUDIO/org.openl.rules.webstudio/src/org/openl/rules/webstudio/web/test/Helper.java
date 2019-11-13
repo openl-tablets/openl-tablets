@@ -31,7 +31,11 @@ public final class Helper {
     }
 
     public String format(Object value) {
-        return FormattersManager.format(value);
+        if (value instanceof Number) {
+            return String.valueOf(value);
+        } else {
+            return FormattersManager.format(value);
+        }
     }
 
     public boolean isExplanationValue(Object value) {
