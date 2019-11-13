@@ -6,8 +6,19 @@
 
 package org.openl.rules.convertor;
 
+import org.openl.binding.IBindingContext;
+import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.StringRange;
+import org.openl.types.IOpenClass;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,16 +33,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.openl.binding.IBindingContext;
-import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.DoubleValue;
-import org.openl.rules.helpers.CharRange;
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
-import org.openl.rules.helpers.StringRange;
-import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
@@ -74,6 +75,7 @@ public class String2DataConvertorFactory {
         convertors.put(LocalDateTime.class, new String2LocalDateTimeConvertor());
         convertors.put(LocalTime.class, new String2LocalTimeConvertor());
         convertors.put(ZonedDateTime.class, new String2ZonedDateTimeConvertor());
+        convertors.put(Instant.class, new String2InstantConverter());
         convertors.put(Calendar.class, new String2CalendarConvertor());
         convertors.put(Class.class, new String2ClassConvertor());
         convertors.put(IOpenClass.class, new String2OpenClassConvertor());
@@ -105,7 +107,7 @@ public class String2DataConvertorFactory {
         return convertor.parse(data, null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
         Lock readLock = convertorsLock.readLock();
