@@ -1,7 +1,13 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +40,7 @@ public class HelperTest {
         assertEquals("Str", helper.format("Str"));
         assertEquals("1", helper.format(1));
         assertEquals("0.1", helper.format(0.1));
+        assertEquals("1.759999999999998", helper.format(1.759999999999998));
         assertEquals("true", helper.format(true));
         assertEquals("foo,bar", helper.format(new String[] { "foo", "bar" }));
     }
