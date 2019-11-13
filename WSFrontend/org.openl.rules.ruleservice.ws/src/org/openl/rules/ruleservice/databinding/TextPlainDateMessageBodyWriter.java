@@ -1,11 +1,15 @@
 package org.openl.rules.ruleservice.databinding;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.MessageBodyWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,10 +20,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
-
 @SuppressWarnings("rawtypes")
 public class TextPlainDateMessageBodyWriter implements MessageBodyWriter {
 
@@ -27,6 +27,7 @@ public class TextPlainDateMessageBodyWriter implements MessageBodyWriter {
 
     static {
         DATE_TYPE_SET.add(Date.class);
+        DATE_TYPE_SET.add(Instant.class);
         DATE_TYPE_SET.add(ZonedDateTime.class);
         DATE_TYPE_SET.add(LocalDateTime.class);
         DATE_TYPE_SET.add(LocalDate.class);
@@ -42,17 +43,19 @@ public class TextPlainDateMessageBodyWriter implements MessageBodyWriter {
     @SuppressWarnings("unchecked")
     @Override
     public void writeTo(Object o,
-            Class aClass,
-            Type type,
-            Annotation[] annotations,
-            MediaType mediaType,
-            MultivaluedMap multivaluedMap,
-            OutputStream outputStream) throws IOException {
+                        Class aClass,
+                        Type type,
+                        Annotation[] annotations,
+                        MediaType mediaType,
+                        MultivaluedMap multivaluedMap,
+                        OutputStream outputStream) throws IOException {
         String text = null;
         if (aClass.isAssignableFrom(Date.class)) {
             text = dateToString((Date) o);
         } else if (aClass.isAssignableFrom(ZonedDateTime.class)) {
             text = zonedDateTimeToString((ZonedDateTime) o);
+        } else if (aClass.isAssignableFrom(Instant.class)) {
+            text = instantToString((Instant) o);
         } else if (aClass.isAssignableFrom(LocalDateTime.class)) {
             text = localDateTimeToString((LocalDateTime) o);
         } else if (aClass.isAssignableFrom(LocalDate.class)) {
@@ -106,5 +109,9 @@ public class TextPlainDateMessageBodyWriter implements MessageBodyWriter {
             return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX'['VV']'").format(zonedDateTime);
         }
         return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX'['VV']'").format(zonedDateTime);
+    }
+
+    private String instantToString(Instant instant) {
+        return dateToString(Date.from(instant));
     }
 }
