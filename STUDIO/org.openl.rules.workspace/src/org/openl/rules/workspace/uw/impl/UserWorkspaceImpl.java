@@ -311,7 +311,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userRulesProjects) {
             Map<String, String> closedProjectBranches = new HashMap<>();
             for (RulesProject project : userRulesProjects.values()) {
-                if (!project.isOpened()) {
+                // Deleted projects should be switched to default branch
+                if (!project.isOpened() && !project.isDeleted()) {
                     closedProjectBranches.put(project.getName(), project.getBranch());
                 }
             }

@@ -21,6 +21,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -135,7 +136,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(fileItem.getData(), false, commit);
-                addTagToCommit(commit, firstCommitId);
+                addTagToCommit(commit, firstCommitId, fileItem.getData().getAuthor());
             }
             push();
         } catch (IOException e) {
@@ -166,7 +167,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             commitId = commit.getId().getName();
 
             resolveAndMerge(data, checkoutOldVersion, commit);
-            addTagToCommit(commit);
+            addTagToCommit(commit, data.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -232,7 +233,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, data.getAuthor());
             } else {
                 // Files cannot be archived. Only folders.
                 git.rm().addFilepattern(name).call();
@@ -243,7 +244,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, data.getAuthor());
             }
 
             push();
@@ -286,7 +287,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .call();
             commitId = commit.getId().getName();
 
-            addTagToCommit(commit);
+            addTagToCommit(commit, destData.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -360,7 +361,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, author);
             } else {
                 FileData fileData = checkHistory(name, version);
                 if (fileData == null) {
@@ -383,7 +384,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, author);
             }
 
             push();
@@ -872,7 +873,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull(String commitToRevert) throws GitAPIException, IOException {
+    private void pull(String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
         FetchResult fetchResult;
         try {
             remoteRepoLock.lock();
@@ -892,7 +893,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .format(JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME, branch));
             }
 
-            MergeResult mergeResult = git.merge().include(r.getObjectId()).setStrategy(MergeStrategy.RECURSIVE).call();
+            String mergeMessage = getMergeMessage(mergeAuthor, r);
+            MergeResult mergeResult = git.merge()
+                .include(r.getObjectId())
+                .setStrategy(MergeStrategy.RECURSIVE)
+                .setMessage(mergeMessage)
+                .call();
 
             if (!mergeResult.getMergeStatus().isSuccessful()) {
                 validateMergeConflict(mergeResult, true);
@@ -1230,12 +1236,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private void addTagToCommit(RevCommit commit) throws GitAPIException, IOException {
-        addTagToCommit(commit, commit.getId().getName());
+    private void addTagToCommit(RevCommit commit, String mergeAuthor) throws GitAPIException, IOException {
+        addTagToCommit(commit, commit.getId().getName(), mergeAuthor);
     }
 
-    private void addTagToCommit(RevCommit commit, String commitToRevert) throws GitAPIException, IOException {
-        pull(commitToRevert);
+    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+        pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {
             String tagName = tagPrefix + getNextTagId();
@@ -1291,7 +1297,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(folderItem.getData(), false, commit);
-                addTagToCommit(commit, firstCommitId);
+                addTagToCommit(commit, firstCommitId, folderItem.getData().getAuthor());
             }
             push();
         } catch (IOException e) {
@@ -1326,7 +1332,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             commitId = commit.getId().getName();
 
             resolveAndMerge(folderData, checkoutOldVersion, commit);
-            addTagToCommit(commit);
+            addTagToCommit(commit, folderData.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -1422,7 +1428,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (checkoutOldVersion || conflictResolveData != null) {
             // Merge detached commit to existing branch.
             git.checkout().setName(branch).call();
-            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
+            ObjectId commitId = lastCommit.getId();
+            ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
+            String mergeMessage = getMergeMessage(folderData.getAuthor(), ref);
+            MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).call();
             validateMergeConflict(mergeDetached, false);
         }
     }
@@ -1860,6 +1869,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
         return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
+    }
+
+    private String getMergeMessage(String mergeAuthor, Ref r) throws IOException {
+        String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
+            git.getRepository().exactRef(Constants.HEAD));
+        return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
     }
 
     private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
