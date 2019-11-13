@@ -26,6 +26,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -357,7 +358,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     }
                 }
 
-                boolean isCollection = Collection.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
 
                 boolean f = true;
                 if (fieldType.isArray()) {
@@ -474,8 +475,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
                 IOpenClass componentType = getComponentType(fieldType);
                 Object currentValue = getField().get(target, env);
-                boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
-                boolean isSet = Set.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isList = ClassUtils.(fieldType.getInstanceClass(), List.class);
+                boolean isSet = ClassUtils.(fieldType.getInstanceClass(), Set.class);
                 boolean isArray = !isList && !isSet;
                 int shift = 0;
                 Object v;

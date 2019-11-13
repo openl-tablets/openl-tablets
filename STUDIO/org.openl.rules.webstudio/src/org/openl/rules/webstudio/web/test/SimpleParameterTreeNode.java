@@ -9,6 +9,7 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaEnumDomain;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,17 +43,15 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     public String getNodeType() {
         IOpenClass type = getType();
         Class<?> instanceClass = type.getInstanceClass();
-        if (boolean.class.isAssignableFrom(instanceClass)) {
+        if (boolean.class == instanceClass) {
             return "boolean";
-        } else if (Boolean.class
-            .isAssignableFrom(instanceClass) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
+        } else if (ClassUtils.isAssignable(instanceClass,
+            Boolean.class) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
             return "selection";
-        } else if (Date.class.isAssignableFrom(instanceClass)) {
+        } else if (ClassUtils.isAssignable(instanceClass, Date.class)) {
             return "date";
-        } else if (Number.class.isAssignableFrom(instanceClass) || byte.class
-            .isAssignableFrom(instanceClass) || short.class.isAssignableFrom(instanceClass) || int.class
-                .isAssignableFrom(instanceClass) || long.class.isAssignableFrom(instanceClass) || float.class
-                    .isAssignableFrom(instanceClass) || double.class.isAssignableFrom(instanceClass)) {
+        } else if (ClassUtils.isAssignable(instanceClass,
+            Number.class) || byte.class == instanceClass || short.class == instanceClass || int.class == instanceClass || long.class == instanceClass || float.class == instanceClass || double.class == instanceClass) {
             return "number";
         } else {
             return "string";

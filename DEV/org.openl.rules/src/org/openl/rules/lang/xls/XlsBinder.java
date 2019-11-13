@@ -7,6 +7,7 @@ package org.openl.rules.lang.xls;
 import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.*;
@@ -799,9 +800,8 @@ public class XlsBinder implements IOpenBinder {
 
         @Override
         public boolean isReturnsCustomSpreadsheetResult() {
-            if (XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && openMethodHeader.getType()
-                .getInstanceClass() != null && SpreadsheetResult.class
-                    .isAssignableFrom(openMethodHeader.getType().getInstanceClass())) {
+            if (XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && ClassUtils
+                .isAssignable(openMethodHeader.getType().getInstanceClass(), SpreadsheetResult.class)) {
                 if (openMethodHeader.getType() instanceof CustomSpreadsheetResultOpenClass) {
                     return Objects.equals(openMethodHeader.getType().getName(),
                         Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader.getName());

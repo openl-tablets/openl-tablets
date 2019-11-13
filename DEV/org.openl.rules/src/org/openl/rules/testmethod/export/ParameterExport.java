@@ -1,12 +1,9 @@
 package org.openl.rules.testmethod.export;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,11 +13,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
@@ -95,7 +88,7 @@ class ParameterExport extends BaseExport {
 
             List<FieldDescriptor> fields = nonEmptyFields.get(i);
 
-            if (Map.class.isAssignableFrom(param.getType().getInstanceClass())) {
+            if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Map.class)) {
                 Map map = (Map) param.getValue();
                 for (Object key : map.keySet()) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
@@ -140,7 +133,7 @@ class ParameterExport extends BaseExport {
             int width = fieldDescriptor.getLeafNodeCount();
 
             if (fieldDescriptor.getChildren() == null) {
-                if (Map.class.isAssignableFrom(fieldDescriptor.getField().getType().getInstanceClass())) {
+                if (ClassUtils.isAssignable(fieldDescriptor.getField().getType().getInstanceClass(), Map.class)) {
                     Map map = (Map) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
                     for (Object key : map.keySet()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
@@ -348,7 +341,7 @@ class ParameterExport extends BaseExport {
         for (int i = 0; i < executionParams.length; i++) {
             ParameterWithValueDeclaration param = executionParams[i];
             List<Object> values = valuesForAllCases(descriptions, i);
-            if (Collection.class.isAssignableFrom(param.getType().getInstanceClass())) {
+            if (org.openl.util.ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
                 IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection) param.getValue());
                 result.add(FieldDescriptor.nonEmptyFields(paramType, values));
             } else {

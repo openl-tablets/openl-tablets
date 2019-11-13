@@ -339,8 +339,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                         t = Array.newInstance(t, new int[dim]).getClass();
                     }
                     ret.put(method, Pair.of(t, Boolean.FALSE));
-                } else if (type.getInstanceClass() != null && SpreadsheetResult.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                } else if (ClassUtils.isAssignable(type.getInstanceClass(), SpreadsheetResult.class)) {
                     Class<?> t = Object.class;
                     if (dim > 0) {
                         t = Array.newInstance(t, new int[dim]).getClass();

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -34,7 +35,7 @@ class FieldDescriptor {
             type = type.getComponentClass();
         }
 
-        if (type.isSimple() || Map.class.isAssignableFrom(type.getInstanceClass())) {
+        if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             return null;
         }
 

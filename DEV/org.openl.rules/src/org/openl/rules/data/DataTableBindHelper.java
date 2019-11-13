@@ -147,7 +147,7 @@ public class DataTableBindHelper {
         // If data table body contains only one row, we consider it is vertical.
         //
         if (dataTableBody.getHeight() != 1) {
-            if (TableProperties.class.isAssignableFrom(tableType.getInstanceClass())) {
+            if (ClassUtils.isAssignable(tableType.getInstanceClass(), TableProperties.class)) {
                 // Properties are always vertical
                 return false;
             }
@@ -167,7 +167,7 @@ public class DataTableBindHelper {
                 } else if (refCount1 > refCount2) {
                     return false;
                 } else {
-                    if (TestMethodOpenClass.class.isAssignableFrom(tableType.getClass())) {
+                    if (tableType instanceof TestMethodOpenClass) {
                         int resCount1 = countResFields(dataTableBody, tableType);
                         int resCount2 = countResFields(dataTableBodyT, tableType);
                         return resCount1 >= resCount2;
@@ -764,8 +764,8 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && List.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
@@ -775,8 +775,8 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && Map.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), Map.class)) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);

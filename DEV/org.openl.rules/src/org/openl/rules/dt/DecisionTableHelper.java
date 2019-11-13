@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -472,13 +473,14 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext) throws OpenLCompilationException {
         int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
         IOpenClass type = decisionTable.getType();
-        if ((type.isArray() || Collection.class.isAssignableFrom(type.getInstanceClass())) && parametersCount > 1) {
+        if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
+            Collection.class)) && parametersCount > 1) {
             throw new OpenLCompilationException(
                 String.format("Error: Cannot bind node: '%s'. Found more than one parameter for '%s'.",
                     Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                     type.getComponentClass().getDisplayName(0)));
         }
-        if (Map.class.isAssignableFrom(type.getInstanceClass())) {
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             if (parametersCount > 2) {
                 throw new OpenLCompilationException(
                     String.format("Error: Cannot bind node: '%s'. Found more than two parameter for '%s'.",
@@ -911,8 +913,8 @@ public final class DecisionTableHelper {
                     boolean isKey = false;
                     String header;
                     if (isCollect && tableSyntaxNode.getHeader()
-                        .getCollectParameters().length > 1 && i == 0 && Map.class
-                            .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+                        .getCollectParameters().length > 1 && i == 0 && org.openl.util.ClassUtils
+                            .isAssignable(decisionTable.getType().getInstanceClass(), Map.class)) {
                         header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
                         isKey = true;
                     } else {
@@ -1155,8 +1157,9 @@ public final class DecisionTableHelper {
                 grid.setCellValue(column, 0, header);
                 final int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
                 IOpenClass type = getTypeForCondition(decisionTable, condition);
-                if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && (type.getInstanceClass()
-                    .isPrimitive() || Comparable.class.isAssignableFrom(type.getInstanceClass()))) {
+                if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && type
+                    .getInstanceClass() != null && (type.getInstanceClass()
+                        .isPrimitive() || ClassUtils.isAssignable(type.getInstanceClass(), Comparable.class))) {
                     boolean minMaxOrder = getMinMaxOrder(originalTable,
                         numberOfColumnsUnderTitleCounter,
                         firstColumnHeight,
@@ -2485,7 +2488,8 @@ public final class DecisionTableHelper {
 
     private static boolean isTwoColumnsForReturn(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable) {
         boolean twoColumnsForReturn = false;
-        if (isCollect(tableSyntaxNode) && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+        if (isCollect(tableSyntaxNode) && ClassUtils.isAssignable(decisionTable.getType().getInstanceClass(),
+            Map.class)) {
             twoColumnsForReturn = true;
         }
         return twoColumnsForReturn;
