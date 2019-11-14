@@ -31,10 +31,14 @@ public final class Helper {
     }
 
     public String format(Object value) {
+        return FormattersManager.format(value);
+    }
+
+    public String formatText(Object value) {
         if (value instanceof Number) {
             return String.valueOf(value);
         } else {
-            return FormattersManager.format(value);
+            return format(value);
         }
     }
 
