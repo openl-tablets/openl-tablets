@@ -40,7 +40,16 @@ public class HelperTest {
         assertEquals("Str", helper.format("Str"));
         assertEquals("1", helper.format(1));
         assertEquals("0.1", helper.format(0.1));
-        assertEquals("1.759999999999998", helper.format(1.759999999999998));
+        assertEquals("true", helper.format(true));
+        assertEquals("foo,bar", helper.format(new String[] { "foo", "bar" }));
+    }
+
+    @Test
+    public void testFormatText(){
+        Helper helper = new Helper();
+        assertEquals("1.759999999999998", helper.formatText(1.759999999999998));
+        assertEquals("null", helper.format(null));
+        assertEquals("Str", helper.format("Str"));
         assertEquals("true", helper.format(true));
         assertEquals("foo,bar", helper.format(new String[] { "foo", "bar" }));
     }
