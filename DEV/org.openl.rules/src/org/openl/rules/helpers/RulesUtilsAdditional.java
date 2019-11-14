@@ -33,7 +33,7 @@ public final class RulesUtilsAdditional {
                         if (fieldType.isArray()) {
                             fieldValue = Array.newInstance(fieldType.getComponentType(), 1);
                             Object elem = instantiateValue(fieldType.getComponentType(), notNullsForSimpleTypes);
-                            elem = fill(elem, notNullsForSimpleTypes);
+                            fill(elem, notNullsForSimpleTypes, stack);
                             Array.set(fieldValue, 0, elem);
                         } else {
                             fieldValue = instantiateValue(field.getType(), notNullsForSimpleTypes);
