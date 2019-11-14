@@ -230,8 +230,7 @@ public abstract class FacesUtils {
     }
 
     public static void redirect(String page) throws IOException {
-        HttpServletResponse response = (HttpServletResponse) getResponse();
-        response.sendRedirect(page);
+        FacesContext.getCurrentInstance().getExternalContext().redirect(page);
     }
 
     public static void redirectToRoot() throws IOException {

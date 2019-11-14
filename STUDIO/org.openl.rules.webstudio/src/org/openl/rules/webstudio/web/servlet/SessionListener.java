@@ -21,14 +21,30 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
     }
 
-    protected void printSession(HttpSession session) {
-        log.debug(
-            "\n" + "  id           : {}\n" + "  creation time: {}\n" + "  accessed time: {}\n" + "  max inactive : {}\n" + "  has rulesUserSession? {}",
-            session.getId(),
-            session.getCreationTime(),
-            session.getLastAccessedTime(),
-            session.getMaxInactiveInterval(),
-            getUserRules(session) != null);
+    private void printSession(HttpSession session) {
+        if (log.isDebugEnabled()) {
+            long creationTime = 0;
+            try {
+                creationTime = session.getCreationTime();
+            } catch (IllegalStateException e) {
+                log.debug("Session is invalidated, can't get Creation Time.");
+            }
+
+            long lastAccessedTime = 0;
+            try {
+                lastAccessedTime = session.getLastAccessedTime();
+            } catch (IllegalStateException e) {
+                log.debug("Session is invalidated, can't get Last Accessed Time.");
+            }
+
+            log.debug(
+                "\n" + "  id           : {}\n" + "  creation time: {}\n" + "  accessed time: {}\n" + "  max inactive : {}\n" + "  has rulesUserSession? {}",
+                session.getId(),
+                creationTime,
+                lastAccessedTime,
+                session.getMaxInactiveInterval(),
+                getUserRules(session) != null);
+        }
     }
 
     // Global (one for all, in scope of web application)
