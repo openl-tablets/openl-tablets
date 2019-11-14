@@ -2,6 +2,7 @@ package org.openl.rules.helpers;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -22,26 +23,50 @@ public final class RulesUtilsAdditional {
         if (stack.contains(target.getClass())) {
             return; // Prevents stack overflow
         }
+        if (target.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(target); i++) {
+                fill(Array.get(target, i), notNullsForSimpleTypes, stack);
+            }
+            return;
+        }
         stack.push(target.getClass());
         try {
             for (Field field : target.getClass().getDeclaredFields()) {
-                try {
-                    field.setAccessible(true);
-                    Object fieldValue = field.get(target);
-                    if (fieldValue == null) {
+                if (!Modifier.isStatic(field.getModifiers())) {
+                    try {
                         Class<?> fieldType = field.getType();
-                        if (fieldType.isArray()) {
-                            fieldValue = Array.newInstance(fieldType.getComponentType(), 1);
-                            Object elem = instantiateValue(fieldType.getComponentType(), notNullsForSimpleTypes);
-                            fill(elem, notNullsForSimpleTypes, stack);
-                            Array.set(fieldValue, 0, elem);
+                        field.setAccessible(true);
+                        Object fieldValue = field.get(target);
+                        if (fieldValue == null) {
+                            Class<?> t = fieldType;
+                            int dim = 0;
+                            while (t.isArray()) {
+                                t = t.getComponentType();
+                                dim++;
+                            }
+                            if (dim > 0) {
+                                int[] dims = new int[dim];
+                                for (int i = 0; i < dim; i++) {
+                                    dims[i] = 1;
+                                }
+                                fieldValue = Array.newInstance(t, dims);
+                                Object elem = instantiateValue(t, notNullsForSimpleTypes);
+                                fill(elem, notNullsForSimpleTypes, stack);
+                                Object arr = fieldValue;
+                                for (int i = 0; i < dim - 1; i++) {
+                                    arr = Array.get(arr, 0);
+                                }
+                                Array.set(arr, 0, elem);
+                            } else {
+                                fieldValue = instantiateValue(field.getType(), notNullsForSimpleTypes);
+                            }
+                            field.set(target, fieldValue);
+                            fill(fieldValue, notNullsForSimpleTypes, stack);
                         } else {
-                            fieldValue = instantiateValue(field.getType(), notNullsForSimpleTypes);
+                            fill(fieldValue, notNullsForSimpleTypes, stack);
                         }
-                        field.set(target, fieldValue);
-                        fill(fieldValue, notNullsForSimpleTypes, stack);
+                    } catch (IllegalAccessException | InstantiationException e) {
                     }
-                } catch (IllegalAccessException | InstantiationException e) {
                 }
             }
         } finally {

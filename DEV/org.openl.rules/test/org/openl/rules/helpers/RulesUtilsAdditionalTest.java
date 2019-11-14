@@ -16,6 +16,7 @@ public class RulesUtilsAdditionalTest {
         assertNotNull(outer.getInners());
         assertEquals(1, outer.getInners().length);
         assertNotNull(outer.getInners()[0]);
+        assertNotNull(outer.getInnersNotEmpty()[0].getOuter());
     }
 
     @Test
@@ -37,6 +38,7 @@ public class RulesUtilsAdditionalTest {
         String stringValue;
         Integer intValue;
         Inner[] inners;
+        Inner[] innersNotEmpty = new Inner[] { new Inner() };
 
         public Inner getInner() {
             return inner;
@@ -70,6 +72,13 @@ public class RulesUtilsAdditionalTest {
             this.inners = inners;
         }
 
+        public Inner[] getInnersNotEmpty() {
+            return innersNotEmpty;
+        }
+
+        public void setInnersNotEmpty(Inner[] innersNotEmpty) {
+            this.innersNotEmpty = innersNotEmpty;
+        }
     }
 
     public static class Inner {
