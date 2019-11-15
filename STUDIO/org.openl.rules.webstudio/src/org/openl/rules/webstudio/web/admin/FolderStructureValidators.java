@@ -15,6 +15,16 @@ public class FolderStructureValidators {
     public void pathInRepository(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
 
+        validatePathInRepository(path);
+    }
+
+    public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {
+        String filePath = (String) value;
+        FacesUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
+        validateGitPath(filePath);
+    }
+
+    public static void validatePathInRepository(String path) {
         if (StringUtils.isEmpty(path)) {
             return;
         }
@@ -24,13 +34,7 @@ public class FolderStructureValidators {
         validateGitPath(path);
     }
 
-    public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {
-        String filePath = (String) value;
-        FacesUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
-        validateGitPath(filePath);
-    }
-
-    private void validateGitPath(String path) {
+    private static void validateGitPath(String path) {
         try {
             // Cross-platform path check
             NameChecker.validatePath(path);
