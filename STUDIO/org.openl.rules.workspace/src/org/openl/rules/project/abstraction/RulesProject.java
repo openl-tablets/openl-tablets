@@ -107,8 +107,9 @@ public class RulesProject extends UserWorkspaceProject {
         // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for local
         // files
         List<FileData> fileDatas = getHistoryFileDatas();
-        boolean extraCommits = fileDatas
-            .size() > 1 && !fileDatas.get(fileDatas.size() - 2).getVersion().equals(oldVersion);
+        boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
+            .getVersion()
+            .equals(oldVersion) || additionalData instanceof ConflictResolveData;
         if (extraCommits) {
             openVersion(version);
         } else {
