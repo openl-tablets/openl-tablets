@@ -1,24 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.validator.ValidatorException;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -29,13 +10,24 @@ import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.security.*;
+import org.openl.rules.security.Group;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.PreferencesManager;
-import org.openl.rules.webstudio.web.admin.*;
+import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
+import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
+import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
+import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
+import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
@@ -50,6 +42,28 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import javax.annotation.PreDestroy;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.validator.ValidatorException;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 @ManagedBean
 @SessionScoped
@@ -90,6 +104,7 @@ public class InstallWizard {
     private String adUrl;
     private String adUsername;
     private String adPassword;
+    private String ldapFilter;
 
     private CASSettings casSettings;
     private SAMLSettings samlSettings;
@@ -144,7 +159,7 @@ public class InstallWizard {
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                         validateConnectionToDesignRepo(deployConfigRepositoryConfiguration,
-                            RepositoryMode.DEPLOY_CONFIG);
+                                RepositoryMode.DEPLOY_CONFIG);
                     }
 
                     productionRepositoryEditor.validate();
@@ -160,23 +175,23 @@ public class InstallWizard {
                 // Get defaults from 'system.properties'
                 if (workingDirChanged || systemConfig == null) {
                     systemConfig = new ConfigurationManager(workingDir + "/system-settings/system.properties",
-                        "system.properties");
+                            "system.properties");
                     String repoPassKey = StringUtils
-                        .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+                            .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
                     // Make it globally available. It will not be changed during application execution.
                     System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
 
                     designRepositoryConfiguration = new RepositoryConfiguration("",
-                        systemConfig,
-                        RepositoryMode.DESIGN,
-                        true);
+                            systemConfig,
+                            RepositoryMode.DESIGN,
+                            true);
                     if (designRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(designRepositoryConfiguration.getErrorMessage());
                     }
                     deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
-                        systemConfig,
-                        RepositoryMode.DEPLOY_CONFIG,
-                        true);
+                            systemConfig,
+                            RepositoryMode.DEPLOY_CONFIG,
+                            true);
                     if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                     }
@@ -196,21 +211,21 @@ public class InstallWizard {
                 switch (userMode) {
                     case AD_USER_MODE:
                         groupsAreManagedInStudio = systemConfig
-                            .getBooleanProperty("security.ad.groups-are-managed-in-studio");
+                                .getBooleanProperty("security.ad.groups-are-managed-in-studio");
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.ad.default-group"));
+                                .isBlank(systemConfig.getStringProperty("security.ad.default-group"));
                         break;
                     case CAS_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
+                                .isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.cas.default-group"));
+                                .isBlank(systemConfig.getStringProperty("security.cas.default-group"));
                         break;
                     case SAML_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
+                                .isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
                         allowAccessToNewUsers = !StringUtils
-                            .isBlank(systemConfig.getStringProperty("security.saml.default-group"));
+                                .isBlank(systemConfig.getStringProperty("security.saml.default-group"));
                         break;
                 }
             } else if (step == 4) {
@@ -219,7 +234,7 @@ public class InstallWizard {
                 if (groupManagementService instanceof GroupManagementServiceWrapper) {
                     // GroupManagementService delegate is transactional and properly initialized
                     GroupManagementService delegate = (GroupManagementService) temporaryContext
-                        .getBean("groupManagementService");
+                            .getBean("groupManagementService");
                     // Initialize groupManagementService before first usage in GroupsBean
                     ((GroupManagementServiceWrapper) groupManagementService).setDelegate(delegate);
                 }
@@ -239,7 +254,7 @@ public class InstallWizard {
     }
 
     private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
-            RepositoryMode repositoryMode) throws RepositoryValidationException {
+                                                RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
             Map<String, Object> config = designRepositoryConfiguration.getProperties();
             Repository repository = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
@@ -250,7 +265,7 @@ public class InstallWizard {
         } catch (RRepositoryException e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
-                .getMessage() : rootCause.getMessage());
+                    .getMessage() : rootCause.getMessage());
             throw new RepositoryValidationException(message, e);
         }
     }
@@ -286,32 +301,33 @@ public class InstallWizard {
     private void readAdProperties() {
         adDomain = systemConfig.getStringProperty("security.ad.domain");
         adUrl = systemConfig.getStringProperty("security.ad.server-url");
+        ldapFilter = systemConfig.getStringProperty("security.ad.search-filter");
     }
 
     private void readCasProperties() {
         casSettings = new CASSettings(systemConfig.getStringProperty("security.cas.app-url"),
-            systemConfig.getStringProperty("security.cas.cas-server-url-prefix"),
-            systemConfig.getStringProperty("security.cas.default-group"),
-            systemConfig.getStringProperty("security.cas.attribute.first-name"),
-            systemConfig.getStringProperty("security.cas.attribute.last-name"),
-            systemConfig.getStringProperty("security.cas.attribute.groups"));
+                systemConfig.getStringProperty("security.cas.cas-server-url-prefix"),
+                systemConfig.getStringProperty("security.cas.default-group"),
+                systemConfig.getStringProperty("security.cas.attribute.first-name"),
+                systemConfig.getStringProperty("security.cas.attribute.last-name"),
+                systemConfig.getStringProperty("security.cas.attribute.groups"));
     }
 
     private void readSamlProperties() {
         samlSettings = new SAMLSettings(systemConfig.getStringProperty("security.saml.app-url"),
-            systemConfig.getStringProperty("security.saml.saml-server-metadata-url"),
-            systemConfig.getIntegerProperty("security.saml.request-timeout"),
-            systemConfig.getStringProperty("security.saml.keystore-file-path"),
-            systemConfig.getStringProperty("security.saml.keystore-password"),
-            systemConfig.getStringProperty("security.saml.keystore-sp-alias"),
-            systemConfig.getStringProperty("security.saml.keystore-sp-password"),
-            systemConfig.getStringProperty("security.saml.default-group"),
-            systemConfig.getStringProperty("security.saml.attribute.username"),
-            systemConfig.getStringProperty("security.saml.attribute.first-name"),
-            systemConfig.getStringProperty("security.saml.attribute.last-name"),
-            systemConfig.getStringProperty("security.saml.attribute.groups"),
-            systemConfig.getStringProperty("security.saml.authentication-contexts"),
-            systemConfig.getBooleanProperty("security.saml.local-logout"));
+                systemConfig.getStringProperty("security.saml.saml-server-metadata-url"),
+                systemConfig.getIntegerProperty("security.saml.request-timeout"),
+                systemConfig.getStringProperty("security.saml.keystore-file-path"),
+                systemConfig.getStringProperty("security.saml.keystore-password"),
+                systemConfig.getStringProperty("security.saml.keystore-sp-alias"),
+                systemConfig.getStringProperty("security.saml.keystore-sp-password"),
+                systemConfig.getStringProperty("security.saml.default-group"),
+                systemConfig.getStringProperty("security.saml.attribute.username"),
+                systemConfig.getStringProperty("security.saml.attribute.first-name"),
+                systemConfig.getStringProperty("security.saml.attribute.last-name"),
+                systemConfig.getStringProperty("security.saml.attribute.groups"),
+                systemConfig.getStringProperty("security.saml.authentication-contexts"),
+                systemConfig.getBooleanProperty("security.saml.local-logout"));
     }
 
     public String finish() {
@@ -328,6 +344,7 @@ public class InstallWizard {
 
                     systemConfig.setProperty("security.ad.domain", adDomain);
                     systemConfig.setProperty("security.ad.server-url", adUrl);
+                    systemConfig.setProperty("security.ad.search-filter", ldapFilter);
                     systemConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
                     systemConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                 } else if (CAS_USER_MODE.equals(userMode)) {
@@ -350,22 +367,22 @@ public class InstallWizard {
 
                     systemConfig.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
                     systemConfig.setProperty("security.saml.saml-server-metadata-url",
-                        samlSettings.getSamlServerMetadataUrl());
+                            samlSettings.getSamlServerMetadataUrl());
                     systemConfig.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());
                     systemConfig.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
                     systemConfig.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
                     systemConfig.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
                     systemConfig.setProperty("security.saml.keystore-sp-password",
-                        samlSettings.getKeystoreSpPassword());
+                            samlSettings.getKeystoreSpPassword());
                     systemConfig.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
                     systemConfig.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
                     systemConfig.setProperty("security.saml.attribute.first-name",
-                        samlSettings.getFirstNameAttribute());
+                            samlSettings.getFirstNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.last-name",
-                        samlSettings.getSecondNameAttribute());
+                            samlSettings.getSecondNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
                     systemConfig.setProperty("security.saml.authentication-contexts",
-                        samlSettings.getAuthenticationContexts());
+                            samlSettings.getAuthenticationContexts());
                     systemConfig.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
                 } else {
                     dbConfig.restoreDefaults();
@@ -409,23 +426,23 @@ public class InstallWizard {
         if (groupsAreManagedInStudio) {
             initializeTemporaryContext();
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext
-                .getBean("groupManagementService");
+                    .getBean("groupManagementService");
             UserManagementService userManagementService = (UserManagementService) temporaryContext
-                .getBean("userManagementService");
+                    .getBean("userManagementService");
 
             if (allowAccessToNewUsers) {
                 if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
                     Group group = new SimpleGroup(VIEWERS_GROUP,
-                        null,
-                        new ArrayList<>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
+                            null,
+                            new ArrayList<>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
                     groupManagementService.addGroup(group);
                 }
             }
 
             if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
                 Group group = new SimpleGroup(ADMINISTRATORS_GROUP,
-                    null,
-                    new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
+                        null,
+                        new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
                 groupManagementService.addGroup(group);
             }
             Group administrator = groupManagementService.getGroupByName(ADMINISTRATORS_GROUP);
@@ -508,7 +525,7 @@ public class InstallWizard {
             } else {
                 if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
                     throw new ValidatorException(
-                        FacesUtils.createErrorMessage("Username length must be less than 100."));
+                            FacesUtils.createErrorMessage("Username length must be less than 100."));
                 }
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
@@ -522,6 +539,7 @@ public class InstallWizard {
         String domain = (String) ((UIInput) viewRoot.findComponent("step3Form:adDomain")).getValue();
         String url = (String) ((UIInput) viewRoot.findComponent("step3Form:adUrl")).getValue();
         String username = (String) ((UIInput) viewRoot.findComponent("step3Form:adUsername")).getValue();
+        String ldapFilter = (String) ((UIInput) viewRoot.findComponent("step3Form:ldapFilter")).getValue();
         String password = (String) ((UIInput) toValidate).getSubmittedValue();
 
         if (StringUtils.isBlank(domain)) {
@@ -534,11 +552,12 @@ public class InstallWizard {
         if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
-                    domain,
-                    url);
+                        domain,
+                        url);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    password);
+                        username,
+                        password);
+                ldapAuthenticationProvider.setSearchFilter(ldapFilter);
                 ldapAuthenticationProvider.authenticate(authenticationToken);
             } catch (AuthenticationException e) {
                 throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
@@ -552,10 +571,10 @@ public class InstallWizard {
         UIViewRoot viewRoot = context.getViewRoot();
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:casGroupsAttribute"))
-            .getSubmittedValue();
+                .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
@@ -567,7 +586,7 @@ public class InstallWizard {
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
             throw new ValidatorException(FacesUtils.createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
+                    "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
 
@@ -575,20 +594,20 @@ public class InstallWizard {
         UIViewRoot viewRoot = context.getViewRoot();
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String requestTimeout = (String) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
-            .getSubmittedValue();
+                .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL cannot be blank."));
@@ -620,7 +639,7 @@ public class InstallWizard {
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
             throw new ValidatorException(FacesUtils.createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
+                    "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
     }
 
@@ -634,7 +653,7 @@ public class InstallWizard {
         for (String admin : allAdmins) {
             if (admin.length() > 50) {
                 throw new ValidatorException(
-                    FacesUtils.createErrorMessage("Administrator username length must be less than 50."));
+                        FacesUtils.createErrorMessage("Administrator username length must be less than 50."));
             }
         }
     }
@@ -680,12 +699,12 @@ public class InstallWizard {
                         validateIsWritable(studioDir);
                     } else {
                         throw new ValidatorException(FacesUtils.createErrorMessage(String.format(
-                            "There is not enough access rights for installing WebStudio into the folder: '%s'.",
-                            studioPath)));
+                                "There is not enough access rights for installing WebStudio into the folder: '%s'.",
+                                studioPath)));
                     }
                 } else {
                     throw new ValidatorException(
-                        FacesUtils.createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
+                            FacesUtils.createErrorMessage(String.format("'%s' is not a folder.", studioPath)));
                 }
             } else {
                 File parentFolder = studioDir.getAbsoluteFile().getParentFile();
@@ -730,7 +749,7 @@ public class InstallWizard {
 
         } catch (IOException ioe) {
             throw new ValidatorException(
-                FacesUtils.createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
+                    FacesUtils.createErrorMessage(String.format("%s for '%s'", ioe.getMessage(), file.getAbsolutePath())));
         }
     }
 
@@ -738,7 +757,7 @@ public class InstallWizard {
      * Deletes the folder which was created for validating folder permissions
      *
      * @param existingFolder folder which already exists on file system
-     * @param studioFolder folder were studio will be installed
+     * @param studioFolder   folder were studio will be installed
      */
     private void deleteFolder(File existingFolder, File studioFolder) {
         if (studioFolder.exists() && !studioFolder.delete()) {
@@ -884,6 +903,14 @@ public class InstallWizard {
         this.adUsername = adUsername;
     }
 
+    public String getLdapFilter() {
+        return ldapFilter;
+    }
+
+    public void setLdapFilter(String ldapFilter) {
+        this.ldapFilter = ldapFilter;
+    }
+
     public String getAdPassword() {
         return adPassword;
     }
@@ -923,7 +950,7 @@ public class InstallWizard {
 
     public boolean isUseDesignRepo() {
         return !Boolean
-            .parseBoolean(systemConfig.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+                .parseBoolean(systemConfig.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
@@ -984,20 +1011,20 @@ public class InstallWizard {
         destroyRepositoryObjects();
 
         final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
-            "/rules-production.properties",
-            workingDir + "/system-settings/",
-            "");
+                "/rules-production.properties",
+                workingDir + "/system-settings/",
+                "");
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
         productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
         productionRepositoryEditor = new ProductionRepositoryEditor(systemConfig,
-            productionConfigManagerFactory,
-            productionRepositoryFactoryProxy);
+                productionConfigManagerFactory,
+                productionRepositoryFactoryProxy);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
         connectionProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
-            .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+                .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
         connectionProductionRepoController.clearForm();
 
         newProductionRepoController = new NewProductionRepoController();
