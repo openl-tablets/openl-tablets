@@ -79,7 +79,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         s3 = builder.withRegion(Regions.fromName(regionName)).build();
 
         try {
-            if (!s3.doesBucketExist(bucketName)) {
+            if (!s3.doesBucketExistV2(bucketName)) {
                 s3.createBucket(bucketName);
             }
             try {
@@ -251,14 +251,14 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         try {
             s3.deleteObject(bucketName, data.getName());
             onModified();
             return true;
         } catch (SdkClientException e) {
             log.error(e.getMessage(), e);
-            return false;
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -359,7 +359,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
 
@@ -376,7 +376,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             }
         } catch (SdkClientException e) {
             log.error(e.getMessage(), e);
-            return false;
+            throw new IOException(e.getMessage(), e);
         }
     }
 

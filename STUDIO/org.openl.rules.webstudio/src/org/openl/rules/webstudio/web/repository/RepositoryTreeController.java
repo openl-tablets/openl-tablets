@@ -907,12 +907,7 @@ public class RepositoryTreeController {
                             if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
                                 FileData fileData = new FileData();
                                 fileData.setName(projectName);
-                                if (!repository.delete(fileData)) {
-                                    if (repository.check(fileData.getName()) != null) {
-                                        log.warn("Cannot close project because resource '" + fileData
-                                            .getName() + "' is used");
-                                    }
-                                }
+                                repository.delete(fileData);
                             }
                         } catch (Exception e) {
                             // Log exception and skip current user

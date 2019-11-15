@@ -76,7 +76,7 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -101,7 +101,7 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         throw new UnsupportedOperationException();
     }
 

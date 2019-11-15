@@ -132,7 +132,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         Map<String, String> mapping = getMappingForRead();
         return delegate.delete(toInternal(mapping, data));
     }
@@ -174,7 +174,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         if (data.getVersion() == null) {
             // Store mapping before modification to use it later
             Map<String, String> mapping = getMappingForRead();
@@ -200,7 +200,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
                 refreshMapping();
-                return false;
+                throw e;
             } finally {
                 lock.unlock();
             }

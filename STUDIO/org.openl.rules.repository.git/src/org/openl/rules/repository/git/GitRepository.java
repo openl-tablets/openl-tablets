@@ -196,8 +196,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean delete(FileData data) {
-        boolean deleted;
+    public boolean delete(FileData data) throws IOException {
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -249,18 +248,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             push();
 
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             reset(commitId);
-            deleted = false;
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("delete(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
@@ -334,11 +336,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
         String author = StringUtils.trimToEmpty(data.getAuthor());
-        boolean deleted;
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -388,18 +389,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             push();
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            deleted = false;
             reset(commitId);
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("deleteHistory(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @Override

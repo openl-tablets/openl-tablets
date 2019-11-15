@@ -98,7 +98,12 @@ public class FileSystemRepositoryTest {
     private void assertDelete(Repository repo, String name, boolean expected) {
         FileData fileData = new FileData();
         fileData.setName(name);
-        boolean result = repo.delete(fileData);
+        boolean result;
+        try {
+            result = repo.delete(fileData);
+        } catch (IOException e) {
+            result = false;
+        }
         assertEquals("The deleting of the file has been failed", expected, result);
     }
 

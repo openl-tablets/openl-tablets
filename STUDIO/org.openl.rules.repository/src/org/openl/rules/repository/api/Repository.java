@@ -82,9 +82,10 @@ public interface Repository {
      * Delete a file or mark it as deleted.
      *
      * @param data the file descriptor to delete.
-     * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
+     * @return true if file has been deleted successfully or false if the file is absent.
+     * @throws IOException if not possible to delete the file.
      */
-    boolean delete(FileData data);
+    boolean delete(FileData data) throws IOException;
 
     /**
      * Set a listener to monitor changes in the repository.
@@ -134,10 +135,11 @@ public interface Repository {
      *
      * @param data the file descriptor to delete. The fields "name", "version", "author" and "comment" must be
      *            initialized.
-     * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
+     * @return true if file has been deleted successfully or false if the file is absent.
+     * @throws IOException if not possible to delete the file.
      * @see #delete(FileData)
      */
-    boolean deleteHistory(FileData data);
+    boolean deleteHistory(FileData data) throws IOException;
 
     /**
      * Copy a file of the given version to the destination file. If the version is null, then copy latest version.
