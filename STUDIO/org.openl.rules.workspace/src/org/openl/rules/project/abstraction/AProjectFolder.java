@@ -130,7 +130,7 @@ public class AProjectFolder extends AProjectArtefact {
             String name = artefactPath.substring(subFolderNameStart, subFolderNameEnd);
             AProjectFolder folder = (AProjectFolder) artefacts.get(name);
             if (folder == null) {
-                folder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
+                folder = new AProjectFolder(new HashMap<>(),
                     artefact.getProject(),
                     artefact.getRepository(),
                     folderPath + "/" + name);
@@ -234,7 +234,7 @@ public class AProjectFolder extends AProjectArtefact {
                 fileData.setAuthor(user == null ? null : user.getUserName());
                 setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
             } catch (IOException e) {
-                throw new ProjectException("Cannot update: " + e.getMessage(), e);
+                throw new ProjectException(e.getMessage(), e);
             } finally {
                 for (FileItem change : changes) {
                     IOUtils.closeQuietly(change.getStream());

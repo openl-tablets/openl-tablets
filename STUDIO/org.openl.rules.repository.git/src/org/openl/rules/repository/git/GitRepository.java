@@ -1918,7 +1918,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
             // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
             // forcing.
-            throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
+            throw new IOException("Incorrect login or password for git repository.");
         }
         return credentialsProvider;
     }

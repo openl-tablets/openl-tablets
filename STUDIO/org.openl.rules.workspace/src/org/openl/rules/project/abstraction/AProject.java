@@ -373,7 +373,7 @@ public class AProject extends AProjectFolder {
                         fileData.setAuthor(user == null ? null : user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
-                        throw new ProjectException("Cannot update: " + ex.getMessage(), ex);
+                        throw new ProjectException(ex.getMessage(), ex);
                     } finally {
                         IOUtils.closeQuietly(stream);
                     }
@@ -429,7 +429,7 @@ public class AProject extends AProjectFolder {
             return ((FolderRepository) repositoryTo)
                 .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
-            throw new ProjectException("Cannot update: " + e.getMessage(), e);
+            throw new ProjectException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(stream);
         }
