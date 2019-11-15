@@ -12,6 +12,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -40,6 +41,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
     private final LockEngine deploymentsLockEngine;
+    private final DesignTimeRepositoryListener designRepoListener = this::refresh;
 
     public UserWorkspaceImpl(WorkspaceUser user,
             LocalWorkspace localWorkspace,
@@ -64,6 +66,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void addWorkspaceListener(UserWorkspaceListener listener) {
         listeners.add(listener);
+        designTimeRepository.addListener(designRepoListener);
     }
 
     @Override
@@ -309,18 +312,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
+            final Repository designRepository = designTimeRepository.getRepository();
+
             Map<String, String> closedProjectBranches = new HashMap<>();
-            for (RulesProject project : userRulesProjects.values()) {
-                // Deleted projects should be switched to default branch
-                if (!project.isOpened() && !project.isDeleted()) {
-                    closedProjectBranches.put(project.getName(), project.getBranch());
+            boolean supportsBranches = designRepository.supports().branches();
+            if (supportsBranches) {
+                for (RulesProject project : userRulesProjects.values()) {
+                    // Deleted projects should be switched to default branch
+                    if (!project.isOpened() && !project.isDeleted()) {
+                        closedProjectBranches.put(project.getName(), project.getBranch());
+                    }
                 }
             }
 
             userRulesProjects.clear();
 
             // add new
-            final Repository designRepository = designTimeRepository.getRepository();
             LocalRepository localRepository = localWorkspace.getRepository();
             for (AProject rp : designTimeRepository.getProjects()) {
                 String name = rp.getName();
@@ -339,9 +346,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 Repository desRepo = designRepository;
                 FileData designFileData = rp.getFileData();
+                boolean closeProject = false;
 
                 try {
-                    if (designRepository.supports().branches()) {
+                    if (supportsBranches) {
                         BranchRepository branchRepository = (BranchRepository) designRepository;
                         String repoBranch = branchRepository.getBranch();
                         String branch;
@@ -356,11 +364,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                         // If branch is null then keep default branch.
                         if (branch != null && !branch.equals(repoBranch)) {
-                            // We are inside alternative branch. Must change design repo info.
-                            desRepo = branchRepository.forBranch(branch);
-                            // Other branch — other version of file data
-                            if (designFileData != null) {
-                                designFileData = desRepo.check(designFileData.getName());
+                            if (branchRepository.branchExists(branch)) {
+                                // We are inside alternative branch. Must change design repo info.
+                                desRepo = branchRepository.forBranch(branch);
+                                // Other branch — other version of file data
+                                if (designFileData != null) {
+                                    designFileData = desRepo.check(designFileData.getName());
+                                }
+                            } else {
+                                log.debug("Close the project {} because the branch {} was removed", name, branch);
+                                closeProject = true;
                             }
                         }
                     }
@@ -373,8 +386,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     local = null;
                 }
 
-                userRulesProjects.put(name.toLowerCase(),
-                    new RulesProject(this, localRepository, local, desRepo, designFileData, projectsLockEngine));
+                RulesProject project = new RulesProject(this,
+                    localRepository,
+                    local,
+                    desRepo,
+                    designFileData,
+                    projectsLockEngine);
+                if (closeProject) {
+                    try {
+                        project.close();
+                    } catch (ProjectException e) {
+                        log.warn("Can't close the project {}", project.getName(), e);
+                    }
+                }
+                userRulesProjects.put(name.toLowerCase(), project);
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -413,6 +438,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public void removeWorkspaceListener(UserWorkspaceListener listener) {
+        designTimeRepository.removeListener(designRepoListener);
         listeners.remove(listener);
     }
 

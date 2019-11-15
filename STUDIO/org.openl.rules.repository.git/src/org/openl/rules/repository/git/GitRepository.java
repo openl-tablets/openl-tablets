@@ -764,12 +764,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
         }
 
+        boolean branchesChanged;
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(): lock");
             writeLock.lock();
 
-            doFastForward(fetchResult);
+            branchesChanged = doFastForward(fetchResult);
             fastForwardNotMergedCommits(fetchResult);
 
             TreeSet<String> availableBranches = getAvailableBranches();
@@ -784,6 +785,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(): unlock");
         }
 
+        if (branchesChanged) {
+            monitor.fireOnChange();
+        }
+
         try {
             log.debug("getLastRevision(): lock");
             readLock.lock();
@@ -794,7 +799,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+    /**
+     * @return true if need to force listener invocation. It can be if some branch was added or deleted.
+     */
+    private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+        boolean branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
@@ -837,6 +846,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 }
                             }
                             git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -845,6 +855,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -856,6 +867,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     break;
             }
         }
+
+        return branchesChanged;
     }
 
     private void fastForwardNotMergedCommits(FetchResult fetchResult) throws IOException, GitAPIException {
