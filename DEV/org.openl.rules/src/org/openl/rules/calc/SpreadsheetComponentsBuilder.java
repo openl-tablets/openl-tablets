@@ -246,9 +246,8 @@ public class SpreadsheetComponentsBuilder {
 
             SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
             if (h1 != null) {
-                SyntaxNodeException error;
-                error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.", name);
-
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
+                    name);
                 addError(error);
                 throw new DuplicatedVarException(null, headerName);
             } else {

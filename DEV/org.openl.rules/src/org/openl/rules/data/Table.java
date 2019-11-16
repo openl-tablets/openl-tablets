@@ -190,7 +190,7 @@ public class Table implements ITable {
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
-                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
+                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index.",
                     new GridCellSourceCodeModule(gridTable));
             }
 
@@ -222,7 +222,7 @@ public class Table implements ITable {
             Object value = gridTable.getCell(0, 0).getObjectValue();
 
             if (value == null) {
-                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
+                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index.",
                     new GridCellSourceCodeModule(gridTable));
             }
 
@@ -547,7 +547,7 @@ public class Table implements ITable {
         } else {
             Object literal = dataModel.newInstance();
             if (literal == null) {
-                throw new OpenLCompilationException(String.format("Cannot create instance of %s", dataModel.getName()));
+                throw new OpenLCompilationException(String.format("Cannot create an instance of '%s'.", dataModel.getName()));
             }
             return literal;
         }

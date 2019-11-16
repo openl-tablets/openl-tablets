@@ -203,7 +203,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext) {
 
         String message = String
-            .format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
+            .format("Index Key %s is not found in the foreign table '%s'.", src, foreignTable.getName());
 
         return SyntaxNodeExceptionUtils
             .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
@@ -234,8 +234,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            String message = "Column '" + columnName + "' is not found.";
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+            throw SyntaxNodeExceptionUtils
+                .createError(String.format("Column '%s' is not found.", columnName), null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -321,8 +321,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
                 if (foreignKeyIndex == -1) {
-                    String message = "Column '" + foreignKey.getIdentifier() + "' is not found.";
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Column '%s' is not found.",
+                        foreignKey.getIdentifier()), null, foreignKey);
                 }
 
                 // table will have 1xN size
@@ -391,7 +391,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         IOpenCast cast = cxt.getCast(resType, fieldType);
                         if (cast == null || !cast.isImplicit()) {
                             String message = String.format(
-                                "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                                "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
                                 getField().getName(),
                                 fieldType,
                                 resType);
@@ -519,7 +519,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenCast cast = cxt.getCast(resType, fieldType);
                 if (cast == null || !cast.isImplicit()) {
                     String message = String.format(
-                        "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                        "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
                         getField().getName(),
                         fieldType,
                         resType);
@@ -535,7 +535,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String message = String.format("Table '%s' is not found.", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
+            String message = String.format("Foreign table '%s' has errors.", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
     }
