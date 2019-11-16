@@ -314,7 +314,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 String foreignKeyTableName = foreignKeyTable.getIdentifier();
                 ITable foreignTable = db.getTable(foreignKeyTableName);
-                // foreignTable.findObject(columnIndex, key, bindingContext)
 
                 validateForeignTable(foreignTable, foreignKeyTableName);
 
@@ -437,15 +436,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     getField().set(target, v, env);
                 }
             }
-        } else {
-            /*
-             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during preparing column descriptor. See {@link
-             * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
-             * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
-             * hasColumnTytleRow)}
-             */
-        }
+        } 
     }
 
     private IOpenClass getComponentType(IOpenClass fieldType) {

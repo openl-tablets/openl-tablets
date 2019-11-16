@@ -25,7 +25,6 @@ public class DimensionPropertiesValidator extends TablesValidator {
 
     private static final String VALIDATION_FAILED = "Validation failed for dispatcher table";
 
-    @SuppressWarnings("unused")
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 

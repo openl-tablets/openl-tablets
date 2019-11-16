@@ -396,10 +396,9 @@ public class Table implements ITable {
                 Object prevRes = ColumnDescriptor.PREV_RES_EMPTY;
                 int width = valuesTable.getSource().getWidth();
                 for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                    ILogicalTable logicalTable = LogicalTableHelper
-                        .logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
-                        .getSubtable(0, 0, width, 1);
-                    logicalTable = LogicalTableHelper.make1ColumnTable(logicalTable);
+                    ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
+                        LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
+                            .getSubtable(0, 0, width, 1));
                     Object res = descriptor.parseCellValue(logicalTable, openlAdapter);
                     if (!descriptor.isSameValue(res, prevRes)) {
                         rowValues[rowNum - startRow][colNum] = res;
@@ -475,10 +474,9 @@ public class Table implements ITable {
             }
             int width = valuesTable.getSource().getWidth();
             for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
-                ILogicalTable logicalTable = LogicalTableHelper
-                    .logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
-                    .getSubtable(0, 0, width, 1);
-                logicalTable = LogicalTableHelper.make1ColumnTable(logicalTable);
+                ILogicalTable logicalTable = LogicalTableHelper.make1ColumnTable(
+                    LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, width, i + 1))
+                        .getSubtable(0, 0, width, 1));
                 rowValues[i][colNum] = descriptor.parseCellValue(logicalTable, openlAdapter);
             }
         }
@@ -547,7 +545,8 @@ public class Table implements ITable {
         } else {
             Object literal = dataModel.newInstance();
             if (literal == null) {
-                throw new OpenLCompilationException(String.format("Cannot create an instance of '%s'.", dataModel.getName()));
+                throw new OpenLCompilationException(
+                    String.format("Cannot create an instance of '%s'.", dataModel.getName()));
             }
             return literal;
         }

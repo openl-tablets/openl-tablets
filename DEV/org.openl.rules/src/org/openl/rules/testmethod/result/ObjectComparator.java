@@ -36,7 +36,7 @@ class ObjectComparator extends GenericComparator<Object> {
             if (String.class == clazz) {
                 clazz = clazz2;
                 try {
-                    IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(clazz2);
+                    IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(clazz2);
                     expectedVal = convertor.parse((String) expectedVal, null);
                 } catch (Exception ex) {
                     return false;

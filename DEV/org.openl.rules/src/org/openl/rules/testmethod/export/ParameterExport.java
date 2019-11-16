@@ -89,7 +89,7 @@ class ParameterExport extends BaseExport {
             List<FieldDescriptor> fields = nonEmptyFields.get(i);
 
             if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Map.class)) {
-                Map map = (Map) param.getValue();
+                Map<?, ?> map = (Map<?, ?>) param.getValue();
                 for (Object key : map.keySet()) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
                         param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
@@ -134,7 +134,7 @@ class ParameterExport extends BaseExport {
 
             if (fieldDescriptor.getChildren() == null) {
                 if (ClassUtils.isAssignable(fieldDescriptor.getField().getType().getInstanceClass(), Map.class)) {
-                    Map map = (Map) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
+                    Map<?, ?> map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
                     for (Object key : map.keySet()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
                             prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
@@ -179,12 +179,12 @@ class ParameterExport extends BaseExport {
             for (int p = 0; p < executionParams.length; p++) {
                 ParameterWithValueDeclaration parameter = executionParams[p];
                 Object value = parameter.getValue();
-                if (value != null && Collection.class.isAssignableFrom(value.getClass())) {
-                    value = ((Collection) value).toArray();
+                if (value instanceof Collection) {
+                    value = ((Collection<?>) value).toArray();
                 }
 
-                if (value != null && Map.class.isAssignableFrom(value.getClass())) {
-                    Map map = (Map) value;
+                if (value instanceof Map) {
+                    Map<?, ?> map = (Map<?, ?>) value;
                     for (Object val : map.values()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
                     }
@@ -259,15 +259,14 @@ class ParameterExport extends BaseExport {
             for (FieldDescriptor fieldDescriptor : fields) {
                 Object fieldValue = ExportUtils.fieldValue(value, fieldDescriptor.getField());
                 List<FieldDescriptor> children = fieldDescriptor.getChildren();
-                if (fieldValue != null && Map.class.isAssignableFrom(fieldValue.getClass())) {
-                    Map map = (Map) fieldValue;
+                if (fieldValue instanceof Map) {
+                    Map<?, ?> map = (Map<?, ?>) fieldValue;
                     for (Object val : map.values()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), val.toString(), styles.header));
                     }
                     continue;
-                }
-                if (fieldValue != null && Collection.class.isAssignableFrom(fieldValue.getClass())) {
-                    fieldValue = ((Collection) fieldValue).toArray();
+                } else if (fieldValue instanceof Collection) {
+                    fieldValue = ((Collection<?>) fieldValue).toArray();
                 }
                 if (children == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum), fieldValue, styles.parameterValue, rowHeight));
@@ -285,8 +284,8 @@ class ParameterExport extends BaseExport {
             return 1;
         }
 
-        if (Collection.class.isAssignableFrom(value.getClass())) {
-            value = ((Collection) value).toArray();
+        if (value instanceof Collection) {
+            value = ((Collection<?>) value).toArray();
         }
 
         if (value.getClass().isArray()) {
@@ -342,7 +341,7 @@ class ParameterExport extends BaseExport {
             ParameterWithValueDeclaration param = executionParams[i];
             List<Object> values = valuesForAllCases(descriptions, i);
             if (org.openl.util.ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
-                IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection) param.getValue());
+                IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection<?>) param.getValue());
                 result.add(FieldDescriptor.nonEmptyFields(paramType, values));
             } else {
                 result.add(FieldDescriptor.nonEmptyFields(param.getType(), values));

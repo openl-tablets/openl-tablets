@@ -15,8 +15,8 @@ final class ExportUtils {
         if (value == null) {
             return null;
         }
-        if (Collection.class.isAssignableFrom(value.getClass())) {
-            return ((Collection) value).toArray();
+        if (value instanceof Collection) {
+            return ((Collection<?>) value).toArray();
         }
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
@@ -45,7 +45,7 @@ final class ExportUtils {
                 result.add(null);
             } else {
                 if (element instanceof Collection) {
-                    for (Object o : (Iterable) element) {
+                    for (Object o : (Collection<?>) element) {
                         result.add(o);
                     }
                 } else if (!element.getClass().isArray()) {

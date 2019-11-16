@@ -54,8 +54,8 @@ class FieldDescriptor {
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
                 if (fieldValue != null && (!field.getType().isArray() || Array.getLength(fieldValue) > 0)) {
-                    if (Collection.class.isAssignableFrom(fieldValue.getClass())) {
-                        fieldType = CastToWiderType.defineCollectionWiderType((Collection) fieldValue);
+                    if (fieldValue instanceof Collection) {
+                        fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
                     }
                     List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType, childFieldValues);
                     result.add(new FieldDescriptor(field, children));

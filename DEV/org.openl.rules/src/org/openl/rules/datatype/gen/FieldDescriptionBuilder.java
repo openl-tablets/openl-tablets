@@ -11,19 +11,20 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 
 public class FieldDescriptionBuilder {
 
-    private static final Map<String, Class<?>> CLASSMAP = Collections
-        .unmodifiableMap(new HashMap<String, Class<?>>(8, 1) {
-            {
-                put("int", int.class);
-                put("long", long.class);
-                put("char", char.class);
-                put("short", short.class);
-                put("byte", byte.class);
-                put("double", double.class);
-                put("float", float.class);
-                put("boolean", boolean.class);
-            }
-        });
+    private static final Map<String, Class<?>> CLASSMAP;
+
+    static {
+        Map<String, Class<?>> classMap = new HashMap<>();
+        classMap.put("int", int.class);
+        classMap.put("long", long.class);
+        classMap.put("char", char.class);
+        classMap.put("short", short.class);
+        classMap.put("byte", byte.class);
+        classMap.put("double", double.class);
+        classMap.put("float", float.class);
+        classMap.put("boolean", boolean.class);
+        CLASSMAP = Collections.unmodifiableMap(classMap);
+    }
 
     private final String typeName;
     private String defaultValueAsString;
