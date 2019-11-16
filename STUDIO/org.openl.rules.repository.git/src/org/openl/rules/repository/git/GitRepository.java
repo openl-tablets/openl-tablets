@@ -196,8 +196,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean delete(FileData data) {
-        boolean deleted;
+    public boolean delete(FileData data) throws IOException {
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -249,18 +248,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             push();
 
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             reset(commitId);
-            deleted = false;
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("delete(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
@@ -334,11 +336,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
         String author = StringUtils.trimToEmpty(data.getAuthor());
-        boolean deleted;
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -388,18 +389,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             push();
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            deleted = false;
             reset(commitId);
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("deleteHistory(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @Override
@@ -760,12 +764,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
         }
 
+        boolean branchesChanged;
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(): lock");
             writeLock.lock();
 
-            doFastForward(fetchResult);
+            branchesChanged = doFastForward(fetchResult);
             fastForwardNotMergedCommits(fetchResult);
 
             TreeSet<String> availableBranches = getAvailableBranches();
@@ -780,6 +785,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(): unlock");
         }
 
+        if (branchesChanged) {
+            monitor.fireOnChange();
+        }
+
         try {
             log.debug("getLastRevision(): lock");
             readLock.lock();
@@ -790,7 +799,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+    /**
+     * @return true if need to force listener invocation. It can be if some branch was added or deleted.
+     */
+    private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+        boolean branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
@@ -833,6 +846,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 }
                             }
                             git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -841,6 +855,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -852,6 +867,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     break;
             }
         }
+
+        return branchesChanged;
     }
 
     private void fastForwardNotMergedCommits(FetchResult fetchResult) throws IOException, GitAPIException {
@@ -1918,7 +1935,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
             // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
             // forcing.
-            throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
+            throw new IOException("Incorrect login or password for git repository.");
         }
         return credentialsProvider;
     }

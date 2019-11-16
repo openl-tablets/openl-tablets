@@ -107,8 +107,9 @@ public class RulesProject extends UserWorkspaceProject {
         // If there are additional commits (merge commits) we cannot assume that their hash codes are same as for local
         // files
         List<FileData> fileDatas = getHistoryFileDatas();
-        boolean extraCommits = fileDatas
-            .size() > 1 && !fileDatas.get(fileDatas.size() - 2).getVersion().equals(oldVersion);
+        boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
+            .getVersion()
+            .equals(oldVersion) || additionalData instanceof ConflictResolveData;
         if (extraCommits) {
             openVersion(version);
         } else {
@@ -153,10 +154,28 @@ public class RulesProject extends UserWorkspaceProject {
     private void deleteFromLocalRepository() throws ProjectException {
         try {
             for (FileData fileData : localRepository.list(localFolderName)) {
-                if (!localRepository.delete(fileData)) {
-                    if (localRepository.check(fileData.getName()) != null) {
-                        throw new ProjectException(
-                            String.format("Cannot close project because resource '%s' is used", fileData.getName()));
+                IOException deleteCause = null;
+                boolean deleted;
+                try {
+                    deleted = localRepository.delete(fileData);
+                } catch (IOException e) {
+                    deleted = false;
+                    deleteCause = e;
+                }
+
+                if (!deleted) {
+                    try {
+                        if (localRepository.check(fileData.getName()) != null) {
+                            String message = String.format("Cannot close project because resource '%s' is used",
+                                fileData.getName());
+                            if (deleteCause == null) {
+                                throw new ProjectException(message);
+                            } else {
+                                throw new ProjectException(message, deleteCause);
+                            }
+                        }
+                    } catch (IOException e) {
+                        throw new ProjectException("Not possible to read the directory", e);
                     }
                 }
             }
@@ -177,12 +196,12 @@ public class RulesProject extends UserWorkspaceProject {
                 data.setVersion(null);
                 data.setAuthor(getUser().getUserName());
                 data.setComment(comment);
-                if (!designRepository.deleteHistory(data)) {
-                    throw new ProjectException("Cannot erase project because it is absent or cannot be deleted");
-                }
+                designRepository.deleteHistory(data);
             } else {
                 deleteFromLocalRepository();
             }
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         } finally {
             refresh();
         }

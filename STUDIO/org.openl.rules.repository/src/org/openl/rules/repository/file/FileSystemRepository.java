@@ -110,19 +110,17 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         File file = new File(root, data.getName());
-        boolean deleted;
         try {
             FileUtils.delete(file);
-            deleted = true;
         } catch (IOException e) {
-            deleted = false;
+            throw e;
         }
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete()) {
         }
-        return deleted;
+        return true;
     }
 
     private FileData copy(String srcName, FileData destData) throws IOException {
@@ -171,7 +169,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         return data.getVersion() == null && delete(data);
     }
 

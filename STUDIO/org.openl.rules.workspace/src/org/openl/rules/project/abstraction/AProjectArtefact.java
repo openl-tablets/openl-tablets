@@ -48,8 +48,10 @@ public class AProjectArtefact {
 
     public void delete() throws ProjectException {
         FileData fileData = getFileData();
-        if (!getRepository().delete(fileData)) {
-            throw new ProjectException("Resource is absent or cannot be deleted");
+        try {
+            getRepository().delete(fileData);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         }
     }
 

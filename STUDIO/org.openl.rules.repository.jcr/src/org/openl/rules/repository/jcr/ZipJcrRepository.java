@@ -213,7 +213,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         try {
             String path = data.getName();
             ArtefactAPI artefact = getArtefact(path);
@@ -226,9 +226,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             artefact.addProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION, ValueType.BOOLEAN, true);
 
             return true;
-        } catch (CommonException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return false;
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -314,7 +314,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
 
@@ -338,9 +338,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 artefact.removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
                 return true;
             }
-        } catch (CommonException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return false;
+            throw new IOException(e.getMessage(), e);
         }
     }
 

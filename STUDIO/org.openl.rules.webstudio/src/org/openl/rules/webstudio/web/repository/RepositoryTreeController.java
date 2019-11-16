@@ -16,6 +16,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -44,6 +45,7 @@ import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -547,6 +549,11 @@ public class RepositoryTreeController {
             return msg;
         }
 
+        msg = validateProjectFolder();
+        if (msg != null) {
+            return msg;
+        }
+
         msg = validateCreateProjectComment(comment);
         if (msg != null) {
             return msg;
@@ -570,6 +577,17 @@ public class RepositoryTreeController {
             log.error(e.getMessage(), e);
             return "Internal error while creating a project: " + e.getMessage();
         }
+    }
+
+    private String validateProjectFolder() {
+        if (isSupportsBranches()) {
+            try {
+                FolderStructureValidators.validatePathInRepository(projectFolder);
+            } catch (ValidatorException e) {
+                return e.getMessage();
+            }
+        }
+        return null;
     }
 
     private String validateCreateProjectComment(String comment) {
@@ -889,12 +907,7 @@ public class RepositoryTreeController {
                             if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
                                 FileData fileData = new FileData();
                                 fileData.setName(projectName);
-                                if (!repository.delete(fileData)) {
-                                    if (repository.check(fileData.getName()) != null) {
-                                        log.warn("Cannot close project because resource '" + fileData
-                                            .getName() + "' is used");
-                                    }
-                                }
+                                repository.delete(fileData);
                             }
                         } catch (Exception e) {
                             // Log exception and skip current user

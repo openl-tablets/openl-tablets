@@ -128,6 +128,21 @@
                             </table>
 
                             <div class="field-description">
+                                <p> The LDAP filter string to search for the user being authenticated.<br/>
+                                    Occurrences of {0} are replaced with the <b>login@domain.</b><br/>
+                                    Occurrences of {1} are replaced with the <b>login</b> only.</p>
+                            </div>
+
+                            <table>
+                                <tr>
+                                    <td><label>LDAP filter:</label></td>
+                                    <td>
+                                        <h:inputText id="ldapFilter" value="#{installWizard.ldapFilter}" style="width:400px" size="200"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div class="field-description">
                                 <p>Login and Password are used to check connection to Active Directory. They will not be saved anywhere.</p>
                             </div>
 
@@ -149,7 +164,7 @@
                                     <td>
                                         <a4j:commandButton id="adConnectionCheck"
                                                            value="Check connection"
-                                                           execute="adDomain adUrl adUsername adPassword"
+                                                           execute="adDomain adUrl adUsername adPassword ldapFilter"
                                                            oncomplete="toggleBlock('#ad-successful-message', #{!facesContext.validationFailed});"/>
                                     </td>
                                 </tr>
