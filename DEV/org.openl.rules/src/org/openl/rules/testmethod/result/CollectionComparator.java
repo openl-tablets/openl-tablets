@@ -20,8 +20,7 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
 
     @Override
     boolean fit(Object expected, Object actual) {
-        return (expected == null || Collection.class.isAssignableFrom(
-            expected.getClass())) && (actual == null || Collection.class.isAssignableFrom(actual.getClass()));
+        return (expected == null || expected instanceof Collection) && (actual == null || actual instanceof Collection);
     }
 
     @Override

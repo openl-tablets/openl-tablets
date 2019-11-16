@@ -50,8 +50,8 @@ public abstract class BaseExport {
         Cell cell = row.createCell(cellNum);
 
         Object simpleValue = getSimpleValue(value);
-        if (simpleValue != null && Map.class.isAssignableFrom(simpleValue.getClass())) {
-            //Remove HashMap<..., ...>
+        if (simpleValue instanceof Map) {
+            // Remove HashMap<..., ...>
             simpleValue = simpleValue.toString().substring(simpleValue.toString().indexOf("{"));
         }
         if (simpleValue != null) {
@@ -77,8 +77,8 @@ public abstract class BaseExport {
         if (value instanceof ParameterWithValueDeclaration) {
             ParameterWithValueDeclaration parameter = (ParameterWithValueDeclaration) value;
             Object simpleValue = parameter.getValue();
-            if (simpleValue != null && Collection.class.isAssignableFrom(simpleValue.getClass())) {
-                simpleValue = ((Collection) simpleValue).toArray();
+            if (simpleValue instanceof Collection) {
+                simpleValue = ((Collection<?>) simpleValue).toArray();
             }
             // Return key field for complex objects
             IOpenField keyField = parameter.getKeyField();

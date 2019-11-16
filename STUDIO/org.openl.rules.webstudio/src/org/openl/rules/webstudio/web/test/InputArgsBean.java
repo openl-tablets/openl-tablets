@@ -159,7 +159,7 @@ public class InputArgsBean {
     }
 
     private String constructJsonExceptionMessage(IOException e) {
-        if (JsonParseException.class.isAssignableFrom(e.getClass())) {
+        if (e instanceof JsonParseException) {
             return String.format("%s</br>[line: %s, column: %s]",
                 ((JsonParseException) e).getOriginalMessage(),
                 ((JsonParseException) e).getLocation().getLineNr(),

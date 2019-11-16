@@ -36,62 +36,41 @@ public final class NumberUtils {
     }
 
     public static Double convertToDouble(Object object) {
-        if (Float.class == object.getClass()) {
+        if (object instanceof Float) {
             return Double.parseDouble(object.toString());
-        }
-
-        if (FloatValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof FloatValue) {
             return Double.parseDouble(object.toString());
-        }
-
-        if (Double.class == object.getClass()) {
+        } else if (object instanceof Double) {
             return (Double) object;
-        }
-
-        if (DoubleValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof DoubleValue) {
             return ((DoubleValue) object).doubleValue();
-        }
-
-        if (BigDecimal.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof BigDecimal) {
             return ((BigDecimal) object).doubleValue();
-        }
-
-        if (BigDecimalValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof BigDecimalValue) {
             return ((BigDecimalValue) object).doubleValue();
-        }
-
-        if (Byte.class == object.getClass()) {
+        } else if (object instanceof Byte) {
             return ((Byte) object).doubleValue();
-        }
-        if (ByteValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof ByteValue) {
             return ((ByteValue) object).doubleValue();
-        }
-        if (Short.class == object.getClass()) {
+        } else if (object instanceof Short) {
             return ((Short) object).doubleValue();
-        }
-        if (ShortValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof ShortValue) {
             return ((ShortValue) object).doubleValue();
-        }
-        if (Integer.class == object.getClass()) {
+        } else if (object instanceof Integer) {
             return ((Integer) object).doubleValue();
-        }
-        if (IntValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof IntValue) {
             return ((IntValue) object).doubleValue();
-        }
-        if (Long.class == object.getClass()) {
+        } else if (object instanceof Long) {
             return ((Long) object).doubleValue();
-        }
-        if (LongValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof LongValue) {
             return ((LongValue) object).doubleValue();
-        }
-        if (BigInteger.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof BigInteger) {
             return ((BigInteger) object).doubleValue();
-        }
-        if (BigIntegerValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof BigIntegerValue) {
             return ((BigIntegerValue) object).doubleValue();
+        } else {
+            return null;
         }
-
-        return null;
     }
 
     public static DoubleValue convertToDoubleValue(Object object) {
