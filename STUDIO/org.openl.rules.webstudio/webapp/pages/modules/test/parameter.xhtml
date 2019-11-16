@@ -9,7 +9,9 @@
     <h:panelGroup rendered="#{!empty parameter and !empty parameter.value}">
         <h:panelGroup rendered="#{parameter.type.simple}">
             <h:outputText value="#{helper.formatText(parameter.value)}"
-                rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
+                rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value) and trace}" />
+            <h:outputText value="#{helper.format(parameter.value)}"
+                          rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value) and !trace}" />
             <h:outputText value="#{parameter.value}"
                 rendered="#{parameterTreeBuilder.isDateParameter(parameter.value)}">
                 <f:convertDateTime pattern="#{systemConfig['data.format.date']}" />
