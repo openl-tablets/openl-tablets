@@ -1,7 +1,5 @@
 package org.openl.rules.security.standalone.dao;
 
-import java.util.List;
-
 /**
  * Base interface to be implemented by DAO interfaces. All Dao interfaces (like
  * UserDao, etc) should extend this interface.
