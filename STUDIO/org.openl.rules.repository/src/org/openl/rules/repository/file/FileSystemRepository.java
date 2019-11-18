@@ -114,8 +114,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         File file = new File(root, data.getName());
         try {
             FileUtils.delete(file);
-        } catch (IOException e) {
-            throw e;
+        } catch (FileNotFoundException e) {
+            return false;
         }
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete()) {
