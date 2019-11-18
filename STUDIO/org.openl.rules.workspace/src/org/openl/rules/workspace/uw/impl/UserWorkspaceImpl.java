@@ -371,7 +371,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                 if (designFileData != null) {
                                     designFileData = desRepo.check(designFileData.getName());
                                 }
-                            } else {
+                            } else if (local != null) {
                                 log.debug("Close the project {} because the branch {} was removed", name, branch);
                                 closeProject = true;
                             }

@@ -69,6 +69,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
@@ -90,16 +91,11 @@ import com.thoughtworks.xstream.XStreamException;
  *
  * @author snshor
  */
-public class WebStudio {
+public class WebStudio implements DesignTimeRepositoryListener {
 
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
-    private static final Comparator<Module> MODULES_COMPARATOR = new Comparator<Module>() {
-        @Override
-        public int compare(Module o1, Module o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    };
+    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName);
 
     private final RulesTreeView typeView = new TypeView();
     private final RulesTreeView fileView = new FileView();
@@ -149,19 +145,18 @@ public class WebStudio {
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
 
+    private RulesUserSession rulesUserSession;
+
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
+        rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
 
         initWorkspace(session);
-        initUserSettings(session);
+        initUserSettings();
         updateSystemProperties = systemConfigManager
             .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
         projectResolver = ProjectResolver.instance();
-    }
-
-    public WebStudio() {
-        this(FacesUtils.getSession());
     }
 
     private void initWorkspace(HttpSession session) {
@@ -172,15 +167,15 @@ public class WebStudio {
         }
 
         workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
+        userWorkspace.getDesignTimeRepository().addListener(this);
     }
 
-    private void initUserSettings(HttpSession session) {
+    private void initUserSettings() {
         String settingsLocation = systemConfigManager
-            .getStringProperty("user.settings.home") + File.separator + WebStudioUtils.getRulesUserSession(session)
+            .getStringProperty("user.settings.home") + File.separator + rulesUserSession
                 .getUserName() + File.separator + USER_SETTINGS_FILENAME;
-        String defaultSettingsLocation = USER_SETTINGS_FILENAME;
 
-        userSettingsManager = new ConfigurationManager(settingsLocation, defaultSettingsLocation, true);
+        userSettingsManager = new ConfigurationManager(settingsLocation, USER_SETTINGS_FILENAME, true);
 
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
@@ -220,7 +215,7 @@ public class WebStudio {
         RulesProject project = null;
         try {
             FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
-            project = getCurrentProject(session);
+            project = getCurrentProject();
             if (project == null) {
                 return;
             }
@@ -266,7 +261,6 @@ public class WebStudio {
         try {
             String logicalName = getLogicalName(project);
             if (!logicalName.equals(project.getName())) {
-                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
                 getModel().clearModuleInfo();
 
@@ -291,25 +285,36 @@ public class WebStudio {
     }
 
     public BenchmarkInfoView[] getBenchmarks() {
-        return benchmarks.toArray(new BenchmarkInfoView[benchmarks.size()]);
+        return benchmarks.toArray(new BenchmarkInfoView[0]);
     }
 
-    public RulesProject getCurrentProject(HttpSession session) {
+    public RulesProject getCurrentProject() {
         if (currentProject != null) {
             String projectFolder = currentProject.getProjectFolder().getName();
-            return getProject(projectFolder, session);
+            return getProject(projectFolder);
         }
         return null;
     }
 
-    private RulesProject getProject(String projectFolder, HttpSession session) {
+    public RulesProject getProject(String name) {
+        UserWorkspace userWorkspace;
         try {
-            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
-            return rulesUserSession.getUserWorkspace().getProject(projectFolder, false);
-        } catch (Exception e) {
-            log.error("Error when trying to get current project", e);
+            userWorkspace = rulesUserSession.getUserWorkspace();
+        } catch (WorkspaceException e) {
+            log.error(e.getMessage(), e);
             return null;
         }
+
+        if (userWorkspace.hasProject(name)) {
+            try {
+                return userWorkspace.getProject(name, false);
+            } catch (ProjectException e) {
+                // Should not occur
+                log.error(e.getMessage(), e);
+                return null;
+            }
+        }
+        return null;
     }
 
     public String exportModule() {
@@ -338,7 +343,7 @@ public class WebStudio {
             // Export fresh state of the project (it could be modified in
             // background by Excel)
             forExport.refresh();
-            String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
+            String userName = rulesUserSession.getUserName();
 
             String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getFileData().getVersion());
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
@@ -367,10 +372,6 @@ public class WebStudio {
             FileUtils.deleteQuietly(file);
         }
         return null;
-    }
-
-    public RulesProject getCurrentProject() {
-        return getCurrentProject(FacesUtils.getSession());
     }
 
     public ProjectDescriptor getCurrentProjectDescriptor() {
@@ -433,12 +434,11 @@ public class WebStudio {
             File[] files = new File(workspacePath).listFiles();
 
             // Keep only projects existing in user workspace.
-            HttpSession session = FacesUtils.getSession();
             if (files != null) {
                 files = Arrays.stream(files).filter(
                     projectFolder -> {
                         try {
-                            return getProject(projectFolder.getName(), session) != null;
+                            return getProject(projectFolder.getName()) != null;
                         } catch (Exception e) {
                             log.warn(e.getMessage(), e);
                             return false;
@@ -579,7 +579,6 @@ public class WebStudio {
             File sourceFile = new File(module.getRulesRootPath().getPath());
             historyListener.beforeSave(sourceFile);
 
-            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
             LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository();
 
             File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
@@ -634,7 +633,6 @@ public class WebStudio {
                 throw new ValidationException(errorMessage);
             }
 
-            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
             final String userName = rulesUserSession.getUserName();
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository();
@@ -815,7 +813,7 @@ public class WebStudio {
     private String validateUploadedFiles(ProjectFile zipFile,
             PathFilter zipFilter,
             ProjectDescriptor oldProjectDescriptor,
-            Charset charset) throws IOException, ProjectException {
+            Charset charset) throws IOException {
         ProjectDescriptor newProjectDescriptor;
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
@@ -844,12 +842,12 @@ public class WebStudio {
 
     private ProjectDescriptorArtefactResolver getProjectDescriptorResolver() {
         return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils
-            .getWebApplicationContext(FacesUtils.getServletContext())
+            .getRequiredWebApplicationContext(FacesUtils.getServletContext())
             .getBean("projectDescriptorArtefactResolver");
     }
 
     private PathFilter getZipFilter() {
-        return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext())
+        return (PathFilter) WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext())
             .getBean("zipFilter");
     }
 
@@ -914,33 +912,22 @@ public class WebStudio {
         return project != null && project != currentProject;
     }
 
-    public RulesProject getProject(String name) {
-        HttpSession session = FacesUtils.getSession();
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-        RulesProject project = null;
-        if (userWorkspace.hasProject(name)) {
-            try {
-                project = userWorkspace.getProject(name, false);
-            } catch (ProjectException e) {
-                // Should not occur
-                log.error(e.getMessage(), e);
-            }
-        }
-        return project;
-    }
-
-    public void setTreeView(RulesTreeView treeView) throws Exception {
+    private void setTreeView(RulesTreeView treeView) {
         this.treeView = treeView;
         model.redraw();
         userSettingsManager.setProperty("rules.tree.view", treeView.getName());
     }
 
-    public void setTreeView(String name) throws Exception {
+    public void setTreeView(String name) {
         RulesTreeView mode = getTreeView(name);
-        setTreeView(mode);
+        if (mode != null) {
+            setTreeView(mode);
+        } else {
+            log.error("Can't find RulesTreeView for name {}", name);
+        }
     }
 
-    public RulesTreeView getTreeView(String name) {
+    private RulesTreeView getTreeView(String name) {
         for (RulesTreeView mode : treeViews) {
             if (name.equals(mode.getName())) {
                 return mode;
@@ -1044,6 +1031,15 @@ public class WebStudio {
     public void destroy() {
         if (model != null) {
             model.destroy();
+        }
+
+        if (rulesUserSession != null) {
+            try {
+                UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+                userWorkspace.getDesignTimeRepository().removeListener(this);
+            } catch (WorkspaceException e) {
+                log.warn(e.getMessage(), e);
+            }
         }
     }
 
@@ -1158,7 +1154,7 @@ public class WebStudio {
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {
         try {
             String projectFolder = descriptor.getProjectFolder().getName();
-            RulesProject project = getProject(projectFolder, FacesUtils.getSession());
+            RulesProject project = getProject(projectFolder);
             if (isSupportsBranches() && project != null) {
                 String previousBranch = project.getBranch();
                 if (!branch.equals(previousBranch)) {
@@ -1197,4 +1193,17 @@ public class WebStudio {
         }
     }
 
+    @Override
+    public synchronized void onRepositoryModified() {
+        projects = null;
+
+        if (currentProject != null) {
+            RulesProject project = getCurrentProject();
+            if (project == null || !project.isOpened()) {
+                currentProject = null;
+                currentModule = null;
+                model.clearModuleInfo();
+            }
+        }
+    }
 }
