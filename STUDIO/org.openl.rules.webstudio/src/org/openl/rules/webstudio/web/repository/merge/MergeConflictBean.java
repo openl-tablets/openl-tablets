@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -222,8 +223,10 @@ public class MergeConflictBean {
 
         // Save
         List<FileItem> resolvedFiles = new ArrayList<>();
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject project = mergeConflict.getProject();
         try {
-            RulesProject project = mergeConflict.getProject();
+            studio.freezeProject(project.getName());
             UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = getRulesLocation();
 
@@ -259,7 +262,7 @@ public class MergeConflictBean {
 
             project.save(
                 new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
-            WebStudioUtils.getWebStudio().reset();
+            studio.reset();
             clearMergeStatus();
         } catch (ValidationException e) {
             throw e;
@@ -271,6 +274,7 @@ public class MergeConflictBean {
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
+            studio.releaseProject(project.getName());
         }
     }
 
