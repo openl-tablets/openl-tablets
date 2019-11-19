@@ -42,7 +42,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         CriteriaBuilder builder = getSession().getCriteriaBuilder();
         CriteriaQuery<User> criteria = builder.createQuery(User.class);
         Root<User> root = criteria.from(User.class);
-        criteria.select(root).distinct(true).orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
         return getSession().createQuery(criteria).getResultList();
     }
 }

@@ -45,7 +45,7 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         CriteriaBuilder builder = getSession().getCriteriaBuilder();
         CriteriaQuery<Group> criteria = builder.createQuery(Group.class);
         Root<Group> root = criteria.from(Group.class);
-        criteria.select(root).distinct(true).orderBy(builder.asc(builder.upper(root.get("name"))));
+        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 }
