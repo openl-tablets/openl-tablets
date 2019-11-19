@@ -8,7 +8,13 @@
 
     <bean id="JAXRSserviceConfigurationDefaultTypingModeFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultTypingModeFactoryBean" scope="prototype">
-        <property name="defaultValue" value="SMART"/>
+        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}"/> 
+    </bean>
+    
+    <bean id="JAXRSserviceConfigurationFailOnMissPropertiesFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
+        <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
+        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/> 
     </bean>
 
     <bean id="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"
@@ -27,6 +33,7 @@
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
         <property name="defaultDateFormat" ref="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"/>
         <property name="serializationInclusion" ref="JAXRSserviceConfigurationSerializationInclusionFactoryBean"/>
+        <property name="failOnUnknownProperties" ref="JAXRSserviceConfigurationFailOnMissPropertiesFactoryBean"/>
     </bean>
 
     <bean id="JAXRSJacksonObjectMapper" factory-bean="JAXRSJacksonDatabindingFactoryBean"

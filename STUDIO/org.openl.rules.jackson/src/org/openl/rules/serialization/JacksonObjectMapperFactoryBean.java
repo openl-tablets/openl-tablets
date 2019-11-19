@@ -11,25 +11,11 @@ package org.openl.rules.serialization;
  */
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
+import org.openl.rules.variation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +26,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -61,6 +49,8 @@ public class JacksonObjectMapperFactoryBean {
 
     private Set<String> overrideTypes;
 
+    private boolean failOnUnknownProperties = false;
+
     public ObjectMapper createJacksonObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -81,42 +71,47 @@ public class JacksonObjectMapperFactoryBean {
 
         mapper.setAnnotationIntrospector(introspector);
 
-        if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        } else {
-            if (DefaultTypingMode.SMART.equals(getDefaultTypingMode())) {
-                mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY);
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                if (getOverrideTypes() != null) {
-                    List<Class<?>> clazzes = new ArrayList<>();
-                    for (String className : getOverrideTypes()) {
-                        try {
-                            Class<?> clazz = loadClass(className);
-                            clazzes.add(clazz);
-                        } catch (ClassNotFoundException e) {
-                            log.warn("Class '{}' is not found.", className, e);
-                        }
-                    }
-
-                    Iterator<Class<?>> itr = clazzes.iterator();
-                    while (itr.hasNext()) {
-                        Class<?> clazz = itr.next();
-                        Iterator<Class<?>> innerItr = clazzes.iterator();
-                        while (innerItr.hasNext()) {
-                            Class<?> c = innerItr.next();
-                            if (!clazz.equals(c)) {
-                                if (clazz.isAssignableFrom(c)) {
-                                    mapper.addMixIn(clazz, Mixin.class);
-                                    break;
-                                }
-                            }
-                        }
-                        mapper.registerSubtypes(clazz);
+        if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
+            .equals(getDefaultTypingMode())) {
+            Builder basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
+            if (getOverrideTypes() != null) {
+                List<Class<?>> clazzes = new ArrayList<>();
+                for (String className : getOverrideTypes()) {
+                    try {
+                        Class<?> clazz = loadClass(className);
+                        clazzes.add(clazz);
+                        basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("Class '{}' is not found.", className, e);
                     }
                 }
-            } else {
-                mapper.disableDefaultTyping();
+
+                Iterator<Class<?>> itr = clazzes.iterator();
+                while (itr.hasNext()) {
+                    Class<?> clazz = itr.next();
+                    Iterator<Class<?>> innerItr = clazzes.iterator();
+                    while (innerItr.hasNext()) {
+                        Class<?> c = innerItr.next();
+                        if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
+                            mapper.addMixIn(clazz, Mixin.class);
+                            break;
+                        }
+                    }
+                    mapper.registerSubtypes(clazz);
+                }
             }
+            if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
+                mapper.activateDefaultTyping(basicPolymorphicTypeValidatorBuilder.build(),
+                    ObjectMapper.DefaultTyping.NON_FINAL,
+                    JsonTypeInfo.As.PROPERTY);
+            } else {
+                mapper.activateDefaultTyping(basicPolymorphicTypeValidatorBuilder.build(),
+                    ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
+                    JsonTypeInfo.As.PROPERTY);
+            }
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
+        } else {
+            mapper.deactivateDefaultTyping();
         }
 
         if (isSupportVariations()) {
@@ -127,7 +122,6 @@ public class JacksonObjectMapperFactoryBean {
             mapper.addMixIn(JXPathVariation.class, JXPathVariationType.class);
             mapper.addMixIn(VariationsResult.class, VariationsResultType.class);
         }
-
         if (getDefaultDateFormat() == null) {
             mapper.setDateFormat(getISO8601Format());
         } else {
@@ -180,6 +174,14 @@ public class JacksonObjectMapperFactoryBean {
         } else {
             this.defaultTypingMode = defaultTypingMode;
         }
+    }
+
+    public void setFailOnUnknownProperties(boolean failOnUnknownProperties) {
+        this.failOnUnknownProperties = failOnUnknownProperties;
+    }
+
+    public boolean isFailOnUnknownProperties() {
+        return failOnUnknownProperties;
     }
 
     @Deprecated

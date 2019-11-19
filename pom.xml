@@ -97,7 +97,7 @@
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.10.0</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.22.v20191022</jetty.server.version>
