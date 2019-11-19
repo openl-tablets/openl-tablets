@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -147,6 +149,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private RulesUserSession rulesUserSession;
 
+    /**
+     * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
+     * can affect their modified status.
+     */
+    private Set<String> frozenProjects = new HashSet<>();
+
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
@@ -259,6 +267,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void saveProject(RulesProject project) throws ProjectException {
         try {
+            freezeProject(project.getName());
             String logicalName = getLogicalName(project);
             if (!logicalName.equals(project.getName())) {
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
@@ -281,6 +290,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             model.resetSourceModified();
         } catch (WorkspaceException e) {
             throw new ProjectException(e.getMessage(), e);
+        } finally {
+            releaseProject(project.getName());
         }
     }
 
@@ -1191,6 +1202,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    public void freezeProject(String name) {
+        frozenProjects.add(name);
+    }
+
+    public void releaseProject(String name) {
+        frozenProjects.remove(name);
+    }
+
+    boolean isProjectFrozen(String name) {
+        return frozenProjects.contains(name);
     }
 
     @Override
