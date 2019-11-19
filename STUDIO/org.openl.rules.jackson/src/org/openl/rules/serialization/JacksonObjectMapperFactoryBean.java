@@ -74,6 +74,7 @@ public class JacksonObjectMapperFactoryBean {
         if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
             .equals(getDefaultTypingMode())) {
             Builder basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
+            basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
             if (getOverrideTypes() != null) {
                 List<Class<?>> clazzes = new ArrayList<>();
                 for (String className : getOverrideTypes()) {
@@ -81,6 +82,7 @@ public class JacksonObjectMapperFactoryBean {
                         Class<?> clazz = loadClass(className);
                         clazzes.add(clazz);
                         basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                        basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
                     } catch (ClassNotFoundException e) {
                         log.warn("Class '{}' is not found.", className, e);
                     }

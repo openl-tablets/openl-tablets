@@ -253,6 +253,8 @@ public class JacksonObjectMapperFactoryBeanTest {
 
     public static class Wrapper {
         public Animal animal;
+        public Animal[] animals;
+        public Object[] arrayOfAnimals;
     }
 
     public static class Animal {
@@ -277,10 +279,19 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setOverrideTypes(overrideTypes);
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
+        wrapper.animals = new Animal[] { new Dog() };
+        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        Assert.assertNotNull(w);
         Assert.assertTrue(w.animal instanceof Dog);
+        Assert.assertNotNull(w.animals);
+        Assert.assertEquals(1, w.animals.length);
+        Assert.assertTrue(w.animals[0] instanceof Dog);
+        Assert.assertNotNull(w.arrayOfAnimals);
+        Assert.assertEquals(1, w.arrayOfAnimals.length);
+        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
     }
 
     @Test
@@ -296,10 +307,19 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setOverrideTypes(overrideTypes);
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
+        wrapper.animals = new Animal[] { new Dog() };
+        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        Assert.assertNotNull(w);
         Assert.assertTrue(w.animal instanceof Dog);
+        Assert.assertNotNull(w.animals);
+        Assert.assertEquals(1, w.animals.length);
+        Assert.assertTrue(w.animals[0] instanceof Dog);
+        Assert.assertNotNull(w.arrayOfAnimals);
+        Assert.assertEquals(1, w.arrayOfAnimals.length);
+        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
     }
 
     @Test(expected = InvalidTypeIdException.class)
