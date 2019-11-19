@@ -269,8 +269,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             freezeProject(project.getName());
             String logicalName = getLogicalName(project);
+            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             if (!logicalName.equals(project.getName())) {
-                UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
                 getModel().clearModuleInfo();
 
                 // Revert project name in rules.xml
@@ -284,9 +284,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
 
                 resetProjects();
-                userWorkspace.refresh();
             }
             project.save();
+            userWorkspace.refresh();
             model.resetSourceModified();
         } catch (WorkspaceException e) {
             throw new ProjectException(e.getMessage(), e);
