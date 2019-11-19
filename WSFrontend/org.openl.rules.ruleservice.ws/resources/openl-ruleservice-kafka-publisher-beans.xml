@@ -6,12 +6,12 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean id="kafkaProducerDefaultTypingModeFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean" scope="prototype">
-        <property name="defaultValue" value="SMART" />
+        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}" />
         <property name="type" value="PRODUCER" />
     </bean>
 
     <bean id="kafkaConsumerDefaultTypingModeFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationDefaultTypingModeFactoryBean" scope="prototype">
-        <property name="defaultValue" value="SMART" />
+        <property name="defaultValue" value="${ruleservice.jackson.defaultTypingMode}" />
         <property name="type" value="CONSUMER" />
     </bean>
 
@@ -44,6 +44,18 @@
         <property name="type" value="CONSUMER" />
         <property name="defaultAdditionalRootClassNames" ref="rootClassNamesBindingFactoryBean" />
     </bean>
+    
+    <bean id="kafkaProducerFailOnMissPropertiesFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationFailOnMissPropertiesFactoryBean">
+        <property name="type" value="PRODUCER" />
+        <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
+        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+    </bean>
+    
+    <bean id="kafkaConsumerFailOnMissPropertiesFactoryBean" class="org.openl.rules.ruleservice.kafka.databinding.KafkaDeployConfigurationFailOnMissPropertiesFactoryBean">
+        <property name="type" value="CONSUMER" />
+        <property name="propertyName" value="jacksondatabinding.failOnUnknownProperties"/>
+        <property name="defaultValue" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+    </bean>
 
     <bean id="kafkaProducerJacksonDatabindingFactoryBean" class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
         <property name="defaultTypingMode" ref="kafkaProducerDefaultTypingModeFactoryBean" />
@@ -51,6 +63,8 @@
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="kafkaProducerDefaultDateFormatFactoryBean" />
         <property name="serializationInclusion" ref="kafkaProducerSerializationInclusionFactoryBean" />
+        <property name="failOnUnknownProperties" ref="kafkaProducerFailOnMissPropertiesFactoryBean"/>
+        <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 
     <bean id="kafkaConsumerJacksonDatabindingFactoryBean" class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" scope="prototype">
@@ -59,6 +73,8 @@
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean" />
         <property name="defaultDateFormat" ref="kafkaConsumerDefaultDateFormatFactoryBean" />
         <property name="serializationInclusion" ref="kafkaConsumerSerializationInclusionFactoryBean" />
+        <property name="failOnUnknownProperties" ref="kafkaConsumerFailOnMissPropertiesFactoryBean"/>
+        <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 
     <!-- Initializes OpenL Engine instances according to web services configuration 

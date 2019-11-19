@@ -272,6 +272,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.SMART);
         bean.setSupportVariations(true);
+        bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());
@@ -299,6 +300,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
         bean.setSupportVariations(true);
+        bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Wrapper.class.getName());
         overrideTypes.add(Animal.class.getName());
@@ -327,6 +329,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
         bean.setSupportVariations(true);
+        bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());

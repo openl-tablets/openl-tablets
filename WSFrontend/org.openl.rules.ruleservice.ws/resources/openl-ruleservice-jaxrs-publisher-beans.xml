@@ -34,6 +34,7 @@
         <property name="defaultDateFormat" ref="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"/>
         <property name="serializationInclusion" ref="JAXRSserviceConfigurationSerializationInclusionFactoryBean"/>
         <property name="failOnUnknownProperties" ref="JAXRSserviceConfigurationFailOnMissPropertiesFactoryBean"/>
+        <property name="polymorphicTypeValidation" value="true"/>
     </bean>
 
     <bean id="JAXRSJacksonObjectMapper" factory-bean="JAXRSJacksonDatabindingFactoryBean"

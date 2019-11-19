@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -51,6 +52,8 @@ public class JacksonObjectMapperFactoryBean {
 
     private boolean failOnUnknownProperties = false;
 
+    private boolean polymorphicTypeValidation = false;
+
     public ObjectMapper createJacksonObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -73,16 +76,21 @@ public class JacksonObjectMapperFactoryBean {
 
         if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
             .equals(getDefaultTypingMode())) {
-            Builder basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
-            basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
+            Builder basicPolymorphicTypeValidatorBuilder = null;
+            if (isPolymorphicTypeValidation()) {
+                basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
+                basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
+            }
             if (getOverrideTypes() != null) {
                 List<Class<?>> clazzes = new ArrayList<>();
                 for (String className : getOverrideTypes()) {
                     try {
                         Class<?> clazz = loadClass(className);
                         clazzes.add(clazz);
-                        basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
-                        basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+                        if (isPolymorphicTypeValidation()) {
+                            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                            basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+                        }
                     } catch (ClassNotFoundException e) {
                         log.warn("Class '{}' is not found.", className, e);
                     }
@@ -102,15 +110,12 @@ public class JacksonObjectMapperFactoryBean {
                     mapper.registerSubtypes(clazz);
                 }
             }
-            if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
-                mapper.activateDefaultTyping(basicPolymorphicTypeValidatorBuilder.build(),
-                    ObjectMapper.DefaultTyping.NON_FINAL,
-                    JsonTypeInfo.As.PROPERTY);
-            } else {
-                mapper.activateDefaultTyping(basicPolymorphicTypeValidatorBuilder.build(),
-                    ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
-                    JsonTypeInfo.As.PROPERTY);
-            }
+            mapper.activateDefaultTyping(
+                isPolymorphicTypeValidation() ? basicPolymorphicTypeValidatorBuilder.build()
+                                              : LaissezFaireSubTypeValidator.instance,
+                DefaultTypingMode.ENABLE.equals(getDefaultTypingMode()) ? ObjectMapper.DefaultTyping.NON_FINAL
+                                                                        : ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
+                JsonTypeInfo.As.PROPERTY);
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
         } else {
             mapper.deactivateDefaultTyping();
@@ -222,5 +227,13 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
         this.serializationInclusion = serializationInclusion;
+    }
+
+    public boolean isPolymorphicTypeValidation() {
+        return polymorphicTypeValidation;
+    }
+
+    public void setPolymorphicTypeValidation(boolean polymorphicTypeValidation) {
+        this.polymorphicTypeValidation = polymorphicTypeValidation;
     }
 }
