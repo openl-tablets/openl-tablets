@@ -356,7 +356,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (local != null) {
                             branch = local.getBranch();
                             if (branch == null) {
-                                log.warn("Unknown branch in repository supporting branches");
+                                log.warn("Unknown branch in repository supporting branches for project {}.", local.getName());
                             }
                         } else {
                             branch = closedProjectBranches.get(name);
