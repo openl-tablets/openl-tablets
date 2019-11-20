@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd"
     default-autowire="no">
 
@@ -71,33 +68,6 @@
                 </list>
               </constructor-arg>
             </bean>
-          </constructor-arg>
-        </bean>
-      </list>
-    </constructor-arg>
-    </bean>
-
-    <bean id="localWorkspaceFileFilter" class="org.apache.commons.io.filefilter.OrFileFilter">
-    <constructor-arg>
-      <list>
-        <ref bean="localWorkspaceFolderFilter" />
-        <bean class="org.apache.commons.io.filefilter.AndFileFilter">
-          <constructor-arg>
-            <list>
-              <util:constant static-field="org.apache.commons.io.filefilter.HiddenFileFilter.VISIBLE"/>
-              <bean class="org.apache.commons.io.filefilter.NotFileFilter">
-                <constructor-arg>
-                  <bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
-                </constructor-arg>
-              </bean>
-              <bean class="org.apache.commons.io.filefilter.NotFileFilter">
-                <constructor-arg>
-                  <bean class="org.apache.commons.io.filefilter.NameFileFilter">
-                    <constructor-arg ref="excludedFiles" />
-                  </bean>
-                </constructor-arg>
-              </bean>
-            </list>
           </constructor-arg>
         </bean>
       </list>

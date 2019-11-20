@@ -22,17 +22,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final Map<String, AProject> localProjects;
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final FileFilter localWorkspaceFolderFilter;
-    private final FileFilter localWorkspaceFileFilter;
     private final LocalRepository localRepository;
 
-    public LocalWorkspaceImpl(WorkspaceUser user,
-            File location,
-            FileFilter localWorkspaceFolderFilter,
-            FileFilter localWorkspaceFileFilter) {
+    LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter) {
         this.user = user;
         this.location = location;
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
 
         localProjects = new HashMap<>();
         localRepository = new LocalRepository(location);
@@ -146,9 +141,5 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
         return listeners.remove(listener);
-    }
-
-    public FileFilter getLocalWorkspaceFileFilter() {
-        return localWorkspaceFileFilter;
     }
 }
