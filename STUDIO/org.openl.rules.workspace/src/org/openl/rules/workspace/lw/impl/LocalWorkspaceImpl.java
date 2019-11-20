@@ -85,7 +85,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
-            return localProjects.values();
+            return new ArrayList<>(localProjects.values());
         }
     }
 
