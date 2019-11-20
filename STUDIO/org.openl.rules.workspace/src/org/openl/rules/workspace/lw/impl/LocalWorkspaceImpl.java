@@ -121,12 +121,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    private void notifyRemoved(AProject project) {
-        synchronized (localProjects) {
-            localProjects.remove(project.getName().toLowerCase());
-        }
-    }
-
     @Override
     public void refresh() {
         // check existing
@@ -147,13 +141,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         for (LocalWorkspaceListener lwl : new ArrayList<>(listeners)) {
             lwl.workspaceReleased(this);
         }
-    }
-
-    @Override
-    public void removeProject(String name) throws ProjectException {
-        AProject project = getProject(name);
-        notifyRemoved(project);
-        project.delete(user, null);
     }
 
     @Override
