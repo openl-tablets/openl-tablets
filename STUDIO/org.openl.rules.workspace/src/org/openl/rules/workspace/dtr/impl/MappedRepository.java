@@ -68,12 +68,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         try {
             lock.lock();
             externalToInternal = Collections.emptyMap();
-
-            if (delegate instanceof Closeable) {
-                ((Closeable) delegate).close();
-            }
         } finally {
             lock.unlock();
+        }
+
+        if (delegate instanceof Closeable) {
+            ((Closeable) delegate).close();
         }
     }
 
@@ -175,17 +175,24 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
+        Map<String, String> mapping = getMappingForRead();
+
         if (data.getVersion() == null) {
-            // Store mapping before modification to use it later
-            Map<String, String> mapping = getMappingForRead();
-
-            Lock lock = mappingLock.writeLock();
             try {
-                lock.lock();
+                ByteArrayInputStream inputStream;
 
-                Map<String, String> newMap = new HashMap<>(externalToInternal);
-                newMap.remove(data.getName());
-                ByteArrayInputStream inputStream = getStreamFromProperties(newMap);
+                Lock lock = mappingLock.writeLock();
+                try {
+                    lock.lock();
+
+                    Map<String, String> newMap = new HashMap<>(externalToInternal);
+                    newMap.remove(data.getName());
+                    inputStream = getStreamFromProperties(newMap);
+
+                    externalToInternal = newMap;
+                } finally {
+                    lock.unlock();
+                }
 
                 FileData configData = new FileData();
                 configData.setName(configFile);
@@ -194,18 +201,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 delegate.save(configData, inputStream);
 
                 // Use mapping before modification
-                boolean result = delegate.deleteHistory(toInternal(mapping, data));
-                externalToInternal = newMap;
-                return result;
-            } catch (IOException e) {
+                return delegate.deleteHistory(toInternal(mapping, data));
+            } catch (IOException | RuntimeException e) {
                 log.error(e.getMessage(), e);
                 refreshMapping();
                 throw e;
-            } finally {
-                lock.unlock();
             }
         } else {
-            Map<String, String> mapping = getMappingForRead();
             return delegate.deleteHistory(toInternal(mapping, data));
         }
     }
