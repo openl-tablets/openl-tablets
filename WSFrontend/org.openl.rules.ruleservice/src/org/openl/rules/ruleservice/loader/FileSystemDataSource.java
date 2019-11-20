@@ -29,27 +29,9 @@ public class FileSystemDataSource implements DataSource {
 
     private File loadDeploymentsFromDirectory;
 
-    private FileFilter localWorkspaceFolderFilter;
-
-    private FileFilter localWorkspaceFileFilter;
-
     private boolean supportDeployments = false;
 
     private boolean supportVersion = false;
-
-    /**
-     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean configuration property.
-     */
-    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
-    }
-
-    /**
-     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean configuration property.
-     */
-    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-    }
 
     public void setSupportDeployments(boolean supportDeployments) {
         this.supportDeployments = supportDeployments;
