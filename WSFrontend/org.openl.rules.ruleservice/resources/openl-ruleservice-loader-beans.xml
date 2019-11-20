@@ -1,62 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-
-	<!-- Folder filter bean -->
-	<bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
-		<constructor-arg>
-			<list>
-				<util:constant static-field="org.apache.commons.io.filefilter.DirectoryFileFilter.DIRECTORY" />
-				<bean class="org.apache.commons.io.filefilter.NotFileFilter">
-					<constructor-arg>
-						<bean class="org.apache.commons.io.filefilter.NameFileFilter">
-							<constructor-arg>
-								<list>
-									<!-- Exclude the following folders from a workspace -->
-									<value>.studioProps</value>
-									<value>.svn</value>
-									<value>CVS</value>
-								</list>
-							</constructor-arg>
-						</bean>
-					</constructor-arg>
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- File filter bean -->
-	<bean id="localWorkspaceFileFilter" class="org.apache.commons.io.filefilter.OrFileFilter">
-		<constructor-arg>
-			<list>
-				<ref bean="localWorkspaceFolderFilter" />
-				<bean class="org.apache.commons.io.filefilter.AndFileFilter">
-					<constructor-arg>
-						<list>
-							<util:constant static-field="org.apache.commons.io.filefilter.FileFileFilter.FILE" />
-							<bean class="org.apache.commons.io.filefilter.NotFileFilter">
-								<constructor-arg>
-									<bean class="org.apache.commons.io.filefilter.WildcardFileFilter">
-										<constructor-arg>
-											<list>
-												<value>.cvsignore</value>
-												<value>*.tmp</value>
-											</list>
-										</constructor-arg>
-										<constructor-arg>
-											<util:constant static-field="org.apache.commons.io.IOCase.INSENSITIVE" />
-										</constructor-arg>
-									</bean>
-								</constructor-arg>
-							</bean>
-						</list>
-					</constructor-arg>
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Local storage for all projects that is used in services. -->
 	<bean id="localTemporaryDeploymentsStorage"
