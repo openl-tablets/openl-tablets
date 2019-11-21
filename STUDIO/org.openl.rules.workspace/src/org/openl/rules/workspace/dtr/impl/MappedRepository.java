@@ -36,6 +36,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     private String configFile;
     private String baseFolder;
 
+    public FolderRepository getDelegate() {
+        return delegate;
+    }
+
     public void setDelegate(FolderRepository delegate) {
         this.delegate = delegate;
     }

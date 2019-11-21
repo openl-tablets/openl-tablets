@@ -76,7 +76,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             repository = createRepo(RepositoryMode.DESIGN, flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
 
             if (!separateDeployConfigRepo) {
-                deployConfigRepository = repository;
+                if (flatProjects) {
+                    deployConfigRepository = repository;
+                } else {
+                    // Deploy config repository currently supports only flat folder structure.
+                    deployConfigRepository = ((MappedRepository) repository).getDelegate();
+                }
             } else {
                 deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
                     flatDeployConfig,
