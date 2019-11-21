@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
