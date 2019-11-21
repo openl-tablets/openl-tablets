@@ -84,6 +84,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     @Override
     public void setShowEqualElements(boolean showEqualElements) {
         super.setShowEqualElements(showEqualElements);
+        clearTreeSelection();
         setDiffTree(getRichDiffTree().getDiffTreeNode());
     }
 
