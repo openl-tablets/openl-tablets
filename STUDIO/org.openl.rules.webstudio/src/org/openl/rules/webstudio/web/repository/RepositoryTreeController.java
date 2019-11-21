@@ -723,6 +723,11 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
+        if (projectArtefact == null) {
+            activeProjectNode = null;
+            FacesUtils.addErrorMessage("Project is already deleted.");
+            return null;
+        }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
         if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
