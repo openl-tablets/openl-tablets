@@ -127,6 +127,11 @@
             </rich:dataTable>
           </ui:repeat>
 
+          <p>
+            <h:outputText rendered="#{not empty mergeConflictBean.mergeError}"
+                          value="#{mergeConflictBean.mergeError}" styleClass="error"/>
+          </p>
+
         </h:panelGroup>
 
         <h:panelGroup id="modalResolveConflictsButtons">
@@ -134,7 +139,8 @@
             <a4j:commandButton value="Save" action="#{mergeConflictBean.saveAndResolve}" render="@form"
                                styleClass="button-primary"
                                disabled="#{mergeConflictBean.saveDisabled}"
-                               oncomplete="if (#{!facesContext.validationFailed}) {closeResolveConflictDialog();}"/>
+                               data="#{mergeConflictBean.mergeError}"
+                               oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {closeResolveConflictDialog();}"/>
             <input class="restore-changed-state" type="button" value="Cancel" onclick="closeResolveConflictDialog();"/>
           </footer>
         </h:panelGroup>
