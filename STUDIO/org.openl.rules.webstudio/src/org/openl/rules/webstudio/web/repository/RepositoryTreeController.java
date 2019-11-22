@@ -1978,13 +1978,13 @@ public class RepositoryTreeController {
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);
                 if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
-                    return commentParts;
+                    return new ArrayList<>(commentParts);
                 }
             }
 
         }
 
-        return Collections.singletonList(comment);
+        return new ArrayList<>(Collections.singletonList(comment));
     }
 
     /**
