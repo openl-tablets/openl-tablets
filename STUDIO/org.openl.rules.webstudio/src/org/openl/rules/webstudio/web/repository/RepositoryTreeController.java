@@ -1932,8 +1932,13 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
-                .getBranches(selectedProject.getName());
+            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName()));
+            String projectBranch = getProjectBranch();
+            if (projectBranch != null && !branches.contains(projectBranch)) {
+                branches.add(projectBranch);
+                branches.sort(String.CASE_INSENSITIVE_ORDER);
+            }
 
             return Arrays.asList(FacesUtils.createSelectItems(branches));
         } catch (IOException e) {
