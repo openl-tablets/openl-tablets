@@ -34,6 +34,14 @@ public final class Helper {
         return FormattersManager.format(value);
     }
 
+    public String formatText(Object value) {
+        if (value instanceof Number) {
+            return String.valueOf(value);
+        } else {
+            return format(value);
+        }
+    }
+
     public boolean isExplanationValue(Object value) {
         return value instanceof ExplanationNumberValue<?>;
     }

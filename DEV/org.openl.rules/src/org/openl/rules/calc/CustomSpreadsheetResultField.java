@@ -1,11 +1,23 @@
 package org.openl.rules.calc;
 
+import java.util.Objects;
+
 import org.openl.base.INamedThing;
+import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultField extends ASpreadsheetField {
+
+    private volatile IOpenField field;
+
+    public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
+        super(declaringClass, field.getName(), null);
+        this.field = Objects.requireNonNull(field, "field cannot be null");
+    }
 
     public CustomSpreadsheetResultField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(declaringClass, name, type);
@@ -17,16 +29,30 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
             return getType().nullObject();
         }
 
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-
-        Object res = spreadsheetResult.getFieldValue(getName());
-
+        Object res = ((SpreadsheetResult) target).getFieldValue(getName());
         return processResult(res);
     }
 
+    @Override
+    public IOpenClass getType() {
+        if (field != null) {
+            synchronized (this) {
+                if (field != null) {
+                    // Lazy initialization for cells level recursive compilation
+                    try {
+                        setType(field.getType());
+                    } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
+                        setType(JavaOpenClass.OBJECT);
+                    }
+                    field = null;
+                }
+            }
+        }
+        return super.getType();
+    }
+
     protected Object processResult(Object res) {
-        if (res != null && (getType().getInstanceClass() == null || !ClassUtils.isAssignable(res.getClass(),
-            getType().getInstanceClass()))) {
+        if (res != null && !ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
             throw new UnexpectedSpreadsheetResultFieldTypeException(
                 String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
                     getName(),
@@ -45,8 +71,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
-        spreadsheetResult.setFieldValue(getName(), value);
+        ((SpreadsheetResult) target).setFieldValue(getName(), value);
     }
 
 }

@@ -15,9 +15,7 @@ import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
 public class TablePropertyValues extends HttpServlet {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -2074749648149949900L;
 
     @Override
@@ -62,9 +60,9 @@ public class TablePropertyValues extends HttpServlet {
                     displayValuesString);
 
                 outputStream.println(params);
-            } else if (Date.class.equals(propDefinition.getType().getInstanceClass())) {
+            } else if (Date.class == propDefinition.getType().getInstanceClass()) {
                 outputStream.println("{\"type\" : \"DATE\"}");
-            } else if (Boolean.class.equals(propDefinition.getType().getInstanceClass())) {
+            } else if (Boolean.class == propDefinition.getType().getInstanceClass()) {
                 outputStream.println("{\"type\" : \"BOOLEAN\"}");
             } else {
                 outputStream.println("{\"type\" : \"TEXT\"}");

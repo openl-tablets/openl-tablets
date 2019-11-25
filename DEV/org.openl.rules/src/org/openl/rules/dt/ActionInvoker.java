@@ -21,53 +21,65 @@ public class ActionInvoker implements Invokable {
         this.actions = actions;
     }
 
-    private Object addReturnValues(Collection<Object> returnValue, Object[] returnValues, boolean[] f) {
-        for (int i = 0; i < returnValues.length; i++) {
-            if (f[i] && returnValues[i] != null) {
-                returnValue.add(returnValues[i]);
+    private Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
+        int returnValuesLength = Array.getLength(returnValues);
+        for (int i = 0; i < returnValuesLength; i++) {
+            if (f[i] && Array.get(returnValues, i) != null) {
+                returnValue.add(Array.get(returnValues, i));
             }
         }
         return returnValue;
     }
 
     private Object addReturnValues(Map<Object, Object> returnValue,
-            Object[] returnValues,
-            Object[] keyValues,
+            Object returnValues,
+            Object keyValues,
             boolean[] f) {
-        for (int i = 0; i < returnValues.length; i++) {
-            if (f[i] && keyValues[i] != null && returnValues[i] != null) {
-                returnValue.put(keyValues[i], returnValues[i]);
+        int returnValuesLength = Array.getLength(returnValues);
+        for (int i = 0; i < returnValuesLength; i++) {
+            if (f[i] && Array.get(keyValues, i) != null && Array.get(returnValues, i) != null) {
+                returnValue.put(Array.get(keyValues, i), Array.get(returnValues, i));
             }
         }
         return returnValue;
     }
 
     @SuppressWarnings("unchecked")
-    private Object processReturnValue(Object[] returnValues, Object[] keyValues, boolean[] f, IOpenClass type) {
+    private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
             int c = 0;
-            for (int i = 0; i < returnValues.length; i++) {
+            for (int i = 0; i < f.length; i++) {
                 if (f[i]) {
                     c++;
                 }
             }
+            int returnValuesLength = Array.getLength(returnValues);
+            Object ret;
             if (c == 0) {
-                return Arrays.stream(returnValues).filter(Objects::nonNull).toArray(Object[]::new);
+                int retLength = 0;
+                for (int i = 0; i < returnValuesLength; i++) {
+                    if (Array.get(returnValues, i) != null) {
+                        retLength++;
+                        ;
+                    }
+                }
+                ret = Array.newInstance(type.getComponentClass().getInstanceClass(), retLength);
+            } else {
+                ret = Array.newInstance(type.getComponentClass().getInstanceClass(), c);
             }
-            Object[] ret = (Object[]) Array.newInstance(type.getComponentClass().getInstanceClass(), c);
             int j = 0;
-            for (int i = 0; i < returnValues.length; i++) {
-                if (f[i] && returnValues[i] != null) {
-                    ret[j] = returnValues[i];
+            for (int i = 0; i < returnValuesLength; i++) {
+                if ((f[i] || c == 0) && Array.get(returnValues, i) != null) {
+                    Array.set(ret, j, Array.get(returnValues, i));
                     j++;
                 }
             }
             return ret;
         } else {
-            if (Map.class.equals(type.getInstanceClass())) {
+            if (Map.class == type.getInstanceClass()) {
                 return addReturnValues(new HashMap<>(), returnValues, keyValues, f);
             }
-            if (SortedMap.class.equals(type.getInstanceClass())) {
+            if (SortedMap.class == type.getInstanceClass()) {
                 return addReturnValues(new TreeMap<>(), returnValues, keyValues, f);
             }
             if (Map.class.isAssignableFrom(type.getInstanceClass())) {
@@ -80,13 +92,13 @@ public class ActionInvoker implements Invokable {
                     throw new OpenLRuntimeException(e);
                 }
             }
-            if (Collection.class.equals(type.getInstanceClass()) || List.class.equals(type.getInstanceClass())) {
+            if (Collection.class == type.getInstanceClass() || List.class == type.getInstanceClass()) {
                 return addReturnValues(new ArrayList<>(), returnValues, f);
             }
-            if (Set.class.equals(type.getInstanceClass())) {
+            if (Set.class == type.getInstanceClass()) {
                 return addReturnValues(new HashSet<>(), returnValues, f);
             }
-            if (SortedSet.class.equals(type.getInstanceClass())) {
+            if (SortedSet.class == type.getInstanceClass()) {
                 return addReturnValues(new TreeSet<>(), returnValues, f);
             }
             if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
@@ -102,9 +114,9 @@ public class ActionInvoker implements Invokable {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object returnValue = null;
-        Object[] keyValues = null;
-        Object[] returnValues = null;
+        Object retVal = null;
+        Object keyValues = null;
+        Object returnValues = null;
         boolean[] f = null;
         boolean isCollectReturn = false;
         IOpenClass type = null;
@@ -114,8 +126,7 @@ public class ActionInvoker implements Invokable {
                 if (returnValues == null) {
                     type = action.getType();
                     if (type.isArray()) {
-                        returnValues = (Object[]) Array.newInstance(type.getComponentClass().getInstanceClass(),
-                            rules.length);
+                        returnValues = Array.newInstance(type.getComponentClass().getInstanceClass(), rules.length);
                     } else {
                         returnValues = new Object[rules.length];
                     }
@@ -126,12 +137,12 @@ public class ActionInvoker implements Invokable {
                 }
                 for (int i = 0; i < rules.length; i++) {
                     Object actionResult = action.executeAction(rules[i], target, params, env);
-                    if (returnValues[i] == null && actionResult != null) {
-                        returnValues[i] = actionResult;
+                    if (actionResult != null && Array.get(returnValues, i) == null) {
+                        Array.set(returnValues, i, actionResult);
                         f[i] = true;
                     }
                 }
-                returnValue = returnValues;
+                retVal = returnValues;
                 isCollectReturn = true;
             } else {
                 if (action.isCollectReturnKeyAction()) {
@@ -144,8 +155,8 @@ public class ActionInvoker implements Invokable {
                     }
                     for (int i = 0; i < rules.length; i++) {
                         Object actionResult = action.executeAction(rules[i], target, params, env);
-                        if (keyValues[i] == null && actionResult != null) {
-                            keyValues[i] = actionResult;
+                        if (actionResult != null && Array.get(keyValues, i) == null) {
+                            Array.set(keyValues, i, actionResult);
                             f[i] = true;
                         }
                     }
@@ -162,17 +173,17 @@ public class ActionInvoker implements Invokable {
                             action.executeAction(rules[i], target, params, env);
                         }
                     }
-                    if (returnValue == null && (actionResult != null || i < rules.length)) {
-                        returnValue = actionResult;
+                    if (retVal == null && (actionResult != null || i < rules.length)) {
+                        retVal = actionResult;
                         isCollectReturn = false;
                     }
                 }
             }
         }
         if (isCollectReturn) {
-            return processReturnValue((Object[]) returnValue, keyValues, f, type);
+            return processReturnValue(retVal, keyValues, f, type);
         }
-        return returnValue;
+        return retVal;
     }
 
     public int[] getRules() {

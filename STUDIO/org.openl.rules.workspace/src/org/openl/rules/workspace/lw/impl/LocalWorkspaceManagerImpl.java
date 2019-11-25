@@ -27,7 +27,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     private String workspaceHome;
     private FileFilter localWorkspaceFolderFilter;
-    private FileFilter localWorkspaceFileFilter;
     private boolean enableLocks = true;
 
     // User name -> user workspace
@@ -50,7 +49,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
-    protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
+    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
@@ -62,8 +61,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
         LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user,
             userWorkspace,
-            localWorkspaceFolderFilter,
-            localWorkspaceFileFilter);
+            localWorkspaceFolderFilter);
         workspace.addWorkspaceListener(this);
         return workspace;
     }
@@ -93,10 +91,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
             return lockEngine;
         }
-    }
-
-    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
     }
 
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {

@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -23,6 +24,7 @@ public class MultiUserWorkspaceManagerTest {
 
         manager = new MultiUserWorkspaceManager();
         manager.setLocalWorkspaceManager(localWorkspaceManager);
+        manager.setDesignTimeRepository(new DesignTimeRepositoryImpl());
     }
 
     @Test

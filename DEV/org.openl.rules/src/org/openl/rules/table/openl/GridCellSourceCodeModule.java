@@ -45,9 +45,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         this(table, 0, 0, bindingContext);
     }
 
-    public GridCellSourceCodeModule(IGridTable table, int column, int row, IBindingContext bindingContext
-    // , TableSyntaxNode parent
-    ) {
+    public GridCellSourceCodeModule(IGridTable table, int column, int row, IBindingContext bindingContext) {
         this.table = table;
         this.column = column;
         this.row = row;

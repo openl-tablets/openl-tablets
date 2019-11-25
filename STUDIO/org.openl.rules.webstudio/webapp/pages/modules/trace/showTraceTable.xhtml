@@ -38,6 +38,7 @@
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
                                     <ui:param name="lazy" value="false" />
+                                    <ui:param name="trace" value="true"/>
                                 </ui:include>
                             </td>
                         </h:panelGroup>
@@ -47,6 +48,7 @@
                             <ui:include src="/pages/modules/test/parameter.xhtml">
                                 <ui:param name="parameter" value="#{showTraceTableBean.context}" />
                                 <ui:param name="lazy" value="false" />
+                                <ui:param name="trace" value="true"/>
                             </ui:include>
                         </td>
                     </h:panelGroup>
@@ -66,6 +68,7 @@
                                 <ui:param name="parameter" value="#{result}"/>
                                 <ui:param name="lazy" value="false" />
                                 <ui:param name="hasExplainLinks" value="false" />
+                                <ui:param name="trace" value="true"/>
                             </ui:include>
                         </h:panelGroup>
                     </td>

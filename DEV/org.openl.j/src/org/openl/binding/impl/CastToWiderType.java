@@ -92,8 +92,8 @@ public final class CastToWiderType {
 
     }
 
-    // TODO remove after adding generics to Collections
-    public static IOpenClass defineCollectionWiderType(Collection collection) {
+    // TODO remove after adding a support of generics to OpenL
+    public static IOpenClass defineCollectionWiderType(Collection<?> collection) {
         if (collection == null) {
             return NullOpenClass.the;
         }

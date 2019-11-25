@@ -7,7 +7,7 @@ public class EnumMatchBuilder implements IMatcherBuilder {
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         Class<?> clazz = type.getInstanceClass();
-        return clazz.isEnum() ? new EnumMatchMatcher(clazz) : null;
+        return clazz != null && clazz.isEnum() ? new EnumMatchMatcher(clazz) : null;
     }
 
     @Override

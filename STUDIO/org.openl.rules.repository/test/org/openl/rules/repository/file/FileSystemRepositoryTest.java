@@ -95,7 +95,7 @@ public class FileSystemRepositoryTest {
         assertEquals("Unexpected content in the file.", value, text);
     }
 
-    private void assertDelete(Repository repo, String name, boolean expected) {
+    private void assertDelete(Repository repo, String name, boolean expected) throws IOException {
         FileData fileData = new FileData();
         fileData.setName(name);
         boolean result = repo.delete(fileData);

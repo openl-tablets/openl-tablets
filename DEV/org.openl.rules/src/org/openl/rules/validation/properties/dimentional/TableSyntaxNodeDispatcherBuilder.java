@@ -86,7 +86,7 @@ class TableSyntaxNodeDispatcherBuilder {
 
     private static IDecisionTableColumn makeColumn(TablePropertyDefinition dimensionProperty,
             DispatcherTableRules rules) {
-        if (dimensionProperty.getType().getInstanceClass().isArray()) {
+        if (dimensionProperty.getType().isArray()) {
             return new ArrayParameterColumn(dimensionProperty, rules);
         } else {
             return new SimpleParameterColumn(dimensionProperty, rules);

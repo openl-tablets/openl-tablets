@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.tbasic.Algorithm;
+import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.*;
 import org.openl.vm.IRuntimeEnv;
@@ -16,10 +18,14 @@ import org.openl.vm.IRuntimeEnv;
 public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
     Algorithm delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass, Algorithm delegate) {
+    public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            Algorithm delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -157,11 +163,26 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public Collection<AlgorithmSubroutineMethod> getSubroutines() {
+        return delegate.getSubroutines();
+    }
+
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

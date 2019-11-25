@@ -2,9 +2,10 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,22 +20,29 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Override
     @Transactional
     public User getUserByName(final String name) {
-        return (User) getSession().createCriteria(User.class).add(Restrictions.eq("loginName", name)).uniqueResult();
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<User> criteria = builder.createQuery(User.class);
+        Root<User> u = criteria.from(User.class);
+        criteria.select(u).where(builder.equal(u.get("loginName"), name)).distinct(true);
+        List<User> results = getSession().createQuery(criteria).getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
     @Transactional
     public void deleteUserByName(final String name) {
-        getSession().createSQLQuery("delete from OpenL_Users where loginName = :name").setString("name", name).executeUpdate();
+        getSession().createNativeQuery("delete from OpenL_Users where loginName = :name")
+            .setParameter("name", name)
+            .executeUpdate();
     }
 
     @Override
     @Transactional
-    @SuppressWarnings("unchecked")
     public List<User> getAllUsers() {
-        return getSession().createCriteria(User.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("loginName").ignoreCase())
-                .list();
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<User> criteria = builder.createQuery(User.class);
+        Root<User> root = criteria.from(User.class);
+        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        return getSession().createQuery(criteria).getResultList();
     }
 }

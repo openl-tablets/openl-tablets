@@ -13,10 +13,13 @@ import org.openl.util.formatters.*;
  *
  * @author DLiauchuk
  */
-public class FormattersManager {
+public final class FormattersManager {
 
-    public static String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";
-    public static String DEFAULT_NUMBER_FORMAT = "#.#################";
+    public static final String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";
+    public static final String DEFAULT_NUMBER_FORMAT = "#.#################";
+
+    private FormattersManager() {
+    }
 
     /**
      * Gets the formatter for appropriate value. Formatters supports formatting of <code>null</code> objects.

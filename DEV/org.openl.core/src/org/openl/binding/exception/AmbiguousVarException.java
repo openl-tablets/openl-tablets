@@ -17,12 +17,11 @@ import org.openl.types.IOpenField;
  *
  */
 public class AmbiguousVarException extends OpenlNotCheckedException {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -8752617383143899614L;
 
     private List<IOpenField> matchingFields;
+    
     private String varName;
 
     public AmbiguousVarException(String varName, List<IOpenField> matchingFields) {
@@ -32,20 +31,20 @@ public class AmbiguousVarException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-        buf.append("Variable ").append(varName);
-        buf.append(" is ambiguous:\n").append("Matching fieldValues:\n");
+        sb.append("Variable ").append(varName);
+        sb.append(" is ambiguous:\n").append("Matching fieldValues:\n");
         boolean first = true;
         for (IOpenField f : matchingFields) {
             if (!first) {
-                buf.append(", ");
+                sb.append(", ");
             }
-            buf.append(f.getDisplayName(INamedThing.LONG));
+            sb.append(f.getDisplayName(INamedThing.LONG));
             first = false;
         }
 
-        return buf.toString();
+        return sb.toString();
     }
 
 }

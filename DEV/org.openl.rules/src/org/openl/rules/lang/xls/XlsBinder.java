@@ -5,9 +5,9 @@
 package org.openl.rules.lang.xls;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.*;
@@ -25,7 +25,10 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.constants.ConstantsTableBinder;
 import org.openl.rules.data.DataBase;
@@ -52,7 +55,6 @@ import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -81,41 +83,43 @@ import org.slf4j.LoggerFactory;
 public class XlsBinder implements IOpenBinder {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-    private static final Pattern REGEX = Pattern.compile("[ ,()\t\n\r]");
+
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
-    private static Map<String, AXlsTableBinder> binderFactory;
 
-    private static final String[][] BINDERS = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_DT.toString(), org.openl.rules.dt.DecisionTableNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() },
-            { XlsNodeTypes.XLS_CONDITIONS.toString(), ConditionsTableBinder.class.getName() },
-            { XlsNodeTypes.XLS_ACTIONS.toString(), ActionsTableBinder.class.getName() },
-            { XlsNodeTypes.XLS_RETURNS.toString(), ReturnsTableBinder.class.getName() },
-            { XlsNodeTypes.XLS_CONSTANTS.toString(), ConstantsTableBinder.class.getName() } };
+    private static class BinderFactoryHolder {
+        private static final Map<String, AXlsTableBinder> INSTANCE;
 
-    public static synchronized Map<String, AXlsTableBinder> getBinderFactory() {
+        private static final String[][] BINDERS = {
+                { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_DT.toString(), org.openl.rules.dt.DecisionTableNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_SPREADSHEET.toString(), SpreadsheetNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_METHOD.toString(), MethodTableNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_TEST_METHOD.toString(), TestMethodNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
+                { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() },
+                { XlsNodeTypes.XLS_CONDITIONS.toString(), ConditionsTableBinder.class.getName() },
+                { XlsNodeTypes.XLS_ACTIONS.toString(), ActionsTableBinder.class.getName() },
+                { XlsNodeTypes.XLS_RETURNS.toString(), ReturnsTableBinder.class.getName() },
+                { XlsNodeTypes.XLS_CONSTANTS.toString(), ConstantsTableBinder.class.getName() } };
 
-        if (binderFactory == null) {
-            binderFactory = new HashMap<>();
-
-            for (int i = 0; i < BINDERS.length; i++) {
-
+        static {
+            Map<String, AXlsTableBinder> binderFactory = new HashMap<>();
+            for (String[] binder : BINDERS) {
                 try {
-                    binderFactory.put(BINDERS[i][0], (AXlsTableBinder) Class.forName(BINDERS[i][1]).newInstance());
+                    binderFactory.put(binder[0], (AXlsTableBinder) Class.forName(binder[1]).newInstance());
                 } catch (Exception ex) {
                     throw RuntimeExceptionWrapper.wrap(ex);
                 }
             }
+            INSTANCE = Collections.unmodifiableMap(binderFactory);
         }
+    }
 
-        return binderFactory;
+    public Map<String, AXlsTableBinder> getBinderFactories() {
+        return BinderFactoryHolder.INSTANCE;
     }
 
     private IUserContext userContext;
@@ -317,17 +321,6 @@ public class XlsBinder implements IOpenBinder {
 
             // Select and sort Spreadsheet tables
             TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
-            if (OpenLSystemProperties.isCustomSpreadsheetType(bindingContext.getExternalParams())) {
-                try {
-                    spreadsheets = TableSyntaxNodeRelationsUtils.sort(spreadsheets,
-                        new SpreadsheetTableSyntaxNodeRelationsDeterminer());
-                } catch (TableSyntaxNodeCircularDependencyException e) {
-                    for (TableSyntaxNode tsn : e.getTableSyntaxNodes()) {
-                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tsn);
-                        processError(error, tsn, rulesModuleBindingContext);
-                    }
-                }
-            }
 
             TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
 
@@ -433,7 +426,7 @@ public class XlsBinder implements IOpenBinder {
                     libraries.add(libraryClassName);
                 } catch (Exception e) {
                     packageNames.add(libraryClassName);
-                } catch (Throwable e) {
+                } catch (LinkageError e) {
                     exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
                 }
             } else {
@@ -444,7 +437,7 @@ public class XlsBinder implements IOpenBinder {
                     classNames.add(singleImport);
                 } catch (Exception e) {
                     packageNames.add(singleImport);
-                } catch (Throwable e) {
+                } catch (LinkageError e) {
                     exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
                 }
             }
@@ -487,7 +480,6 @@ public class XlsBinder implements IOpenBinder {
 
         if (binder == null) {
             log.debug("Unknown table type '{}'", tableSyntaxNodeType);
-
             return null;
         }
 
@@ -496,7 +488,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
-        return getBinderFactory().get(tableSyntaxNodeType);
+        return getBinderFactories().get(tableSyntaxNodeType);
     }
 
     protected String getDefaultOpenLName() {
@@ -542,7 +534,6 @@ public class XlsBinder implements IOpenBinder {
         ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<>();
 
         for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
-
             if (childSelector == null || childSelector.select(tsn)) {
                 childSyntaxNodes.add(tsn);
             }
@@ -558,22 +549,36 @@ public class XlsBinder implements IOpenBinder {
                     .getNodeType()) || XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
     }
 
-    private boolean isSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        return XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
+    private boolean isCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
+        if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
+            String returnTypeToken = TableSyntaxNodeHelper.getTableReturnType(tableSyntaxNode);
+            if (returnTypeToken != null && (SpreadsheetResult.class.getSimpleName()
+                .equals(returnTypeToken) || SpreadsheetResult.class.getName().equals(returnTypeToken))) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private Set<String> extractCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
+    private Collection<CustomSpreadsheetResultOpenClass> registerCustomSpreadsheetResultTypes(
+            TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        Set<String> customSpreadsheetResultTypeNames = new HashSet<>();
         if (OpenLSystemProperties.isCustomSpreadsheetType(rulesModuleBindingContext.getExternalParams())) {
+            Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new ArrayList<>();
             for (int i = 0; i < tableSyntaxNodes.length; i++) {
-                if (isSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
-                    customSpreadsheetResultTypeNames
-                        .add("SpreadsheetResult" + TableSyntaxNodeHelper.getTableName(tableSyntaxNodes[i]));
+                if (isCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
+                    final String sprResTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + TableSyntaxNodeHelper
+                        .getTableName(tableSyntaxNodes[i]);
+                    if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
+                        CustomSpreadsheetResultOpenClass csroc = new CustomSpreadsheetResultOpenClass(sprResTypeName,
+                            rulesModuleBindingContext.getModule());
+                        rulesModuleBindingContext.getModule().addType(csroc);
+                        customSpreadsheetResultOpenClasses.add(csroc);
+                    }
                 }
             }
         }
-        return customSpreadsheetResultTypeNames;
+        return Collections.emptyList();
     }
 
     protected IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
@@ -585,22 +590,24 @@ public class XlsBinder implements IOpenBinder {
         IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length];
         OpenMethodHeader[] openMethodHeaders = new OpenMethodHeader[tableSyntaxNodes.length];
 
-        Set<String> customSpreadsheetResultTypes = extractCustomSpreadsheetResultTypes(tableSyntaxNodes,
-            rulesModuleBindingContext);
+        registerCustomSpreadsheetResultTypes(tableSyntaxNodes, rulesModuleBindingContext);
 
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder = new SyntaxNodeExceptionHolder();
-
-        for (int i = 0; i < tableSyntaxNodes.length; i++) { // Add methods that should be compiled recursively
-            if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
-                openMethodHeaders[i] = addMethodHeaderToContext(module,
-                    tableSyntaxNodes[i],
-                    openl,
-                    rulesModuleBindingContext,
-                    syntaxNodeExceptionHolder,
-                    children,
-                    i,
-                    customSpreadsheetResultTypes);
+        try {
+            rulesModuleBindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
+            for (int i = 0; i < tableSyntaxNodes.length; i++) { // Add methods that should be compiled recursively
+                if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
+                    openMethodHeaders[i] = addMethodHeaderToContext(module,
+                        tableSyntaxNodes[i],
+                        openl,
+                        rulesModuleBindingContext,
+                        syntaxNodeExceptionHolder,
+                        children,
+                        i);
+                }
             }
+        } finally {
+            rulesModuleBindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }
 
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
@@ -645,60 +652,12 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext rulesModuleBindingContext,
             SyntaxNodeExceptionHolder syntaxNodeExceptionHolder,
             IMemberBoundNode[] children,
-            int index,
-            Set<String> customSpreadsheetResultTypes) {
+            int index) {
         try {
-            AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory()
+            AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactories()
                 .get(tableSyntaxNode.getType());
-            IOpenSourceCodeModule source = null;
-            if (!customSpreadsheetResultTypes.isEmpty()) {
-                String headerSource = aExecutableNodeBinder
-                    .createHeaderSource(tableSyntaxNode, rulesModuleBindingContext)
-                    .getCode();
-                String[] tokens = REGEX.split(headerSource);
-                List<String> notEmptyTokens = new ArrayList<>();
-                for (String token : tokens) {
-                    if (!token.isEmpty()) {
-                        notEmptyTokens.add(token);
-                    }
-                }
-                tokens = notEmptyTokens.toArray(new String[] {});
-                StringBuilder sb = new StringBuilder();
-                addTypeToken(customSpreadsheetResultTypes, tokens[0], sb);
-                int j = 1;
-                while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))) {
-                    sb.append(tokens[j]);
-                    j++;
-                }
-                sb.append(" ");
-                sb.append(tokens[j++]);
-                sb.append("(");
-                boolean isType = true;
-                while (j < tokens.length) {
-                    if (isType) {
-                        addTypeToken(customSpreadsheetResultTypes, tokens[j], sb);
-                        j++;
-                        while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))) {
-                            sb.append(tokens[j]);
-                            j++;
-                        }
-                        isType = false;
-                        sb.append(" ");
-                    } else {
-                        sb.append(tokens[j]);
-                        j++;
-                        isType = true;
-                        if (j < tokens.length - 1) {
-                            sb.append(", ");
-                        }
-                    }
-                }
-                sb.append(")");
-                headerSource = sb.toString();
-                source = new StringSourceCodeModule(headerSource, tableSyntaxNode.getUri());
-            } else {
-                source = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode, rulesModuleBindingContext);
-            }
+            IOpenSourceCodeModule source = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode,
+                rulesModuleBindingContext);
 
             OpenMethodHeader openMethodHeader = (OpenMethodHeader) OpenLManager
                 .makeMethodHeader(openl, source, rulesModuleBindingContext);
@@ -717,28 +676,6 @@ public class XlsBinder implements IOpenBinder {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
         }
         return null;
-    }
-
-    private void addTypeToken(Set<String> customSpreadsheetResultTypes, String token, StringBuilder sb) {
-        int i = token.indexOf('[');
-        if (i > 0) { // Array type
-            String beginToken = token.substring(0, i);
-            String endToken = token.substring(i);
-            if (customSpreadsheetResultTypes.contains(beginToken)) {
-                sb.append("SpreadsheetResult"); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind
-                // method
-                sb.append(endToken); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
-            } else {
-                sb.append(token);
-            }
-        } else {
-            if (customSpreadsheetResultTypes.contains(token)) {
-                sb.append("SpreadsheetResult"); // Replace CustomspreadsheetResult with SpreadsheetResult in prebind
-                // method
-            } else {
-                sb.append(token);
-            }
-        }
     }
 
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
@@ -790,36 +727,24 @@ public class XlsBinder implements IOpenBinder {
             XlsModuleOpenClass module,
             OpenL openl,
             RulesModuleBindingContext rulesModuleBindingContext) {
-
         try {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
-
         } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-
-            return null;
-
         } catch (CompositeSyntaxNodeException ex) {
-
             for (SyntaxNodeException error : ex.getErrors()) {
                 processError(error, tableSyntaxNode, rulesModuleBindingContext);
             }
-
-            return null;
-
         } catch (Exception | LinkageError t) {
-
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-
-            return null;
         }
+        return null;
     }
 
     protected void processError(SyntaxNodeException error,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext rulesModuleBindingContext) {
-
         tableSyntaxNode.addError(error);
         rulesModuleBindingContext.addError(error);
     }
@@ -866,6 +791,24 @@ public class XlsBinder implements IOpenBinder {
             this.index = index;
             this.openMethodHeader = openMethodHeader;
             this.syntaxNodeExceptionHolder = syntaxNodeExceptionHolder;
+        }
+
+        @Override
+        public TableSyntaxNode getTableSyntaxNode() {
+            return tableSyntaxNode;
+        }
+
+        @Override
+        public boolean isReturnsCustomSpreadsheetResult() {
+            if (XlsNodeTypes.XLS_SPREADSHEET.equals(this.tableSyntaxNode.getNodeType()) && ClassUtils
+                .isAssignable(openMethodHeader.getType().getInstanceClass(), SpreadsheetResult.class)) {
+                if (openMethodHeader.getType() instanceof CustomSpreadsheetResultOpenClass) {
+                    return Objects.equals(openMethodHeader.getType().getName(),
+                        Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader.getName());
+                }
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -968,10 +911,9 @@ public class XlsBinder implements IOpenBinder {
                             }
                         }
                     } finally {
-                        List<SyntaxNodeException> syntaxNodeExceptions = rulesModuleBindingContext.popErrors();
-                        for (SyntaxNodeException e : syntaxNodeExceptions) {
-                            syntaxNodeExceptionHolder.addBindingContextError(e);
-                        }
+                        rulesModuleBindingContext.popErrors()
+                            .stream()
+                            .forEach(syntaxNodeExceptionHolder::addBindingContextError);
                     }
                 }
             } finally {

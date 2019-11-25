@@ -17,6 +17,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.table.Point;
 import org.openl.rules.variation.*;
 import org.openl.util.RangeWithBounds.BoundType;
@@ -24,6 +25,7 @@ import org.openl.util.RangeWithBounds.BoundType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 public class JacksonObjectMapperFactoryBeanTest {
 
@@ -161,7 +163,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testVariations() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setEnableDefaultTyping(false);
+        bean.setDefaultTypingMode(DefaultTypingMode.SMART);
         bean.setSupportVariations(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(CompoundStep.class.getName());
@@ -251,6 +253,8 @@ public class JacksonObjectMapperFactoryBeanTest {
 
     public static class Wrapper {
         public Animal animal;
+        public Animal[] animals;
+        public Object[] arrayOfAnimals;
     }
 
     public static class Animal {
@@ -264,10 +268,68 @@ public class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
-    public void testOverrideTypes() throws JsonProcessingException, IOException {
+    public void testOverrideTypesSmart() throws JsonProcessingException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+        bean.setDefaultTypingMode(DefaultTypingMode.SMART);
         bean.setSupportVariations(true);
-        bean.setEnableDefaultTyping(false);
+        bean.setPolymorphicTypeValidation(true);
+        Set<String> overrideTypes = new HashSet<>();
+        overrideTypes.add(Animal.class.getName());
+        overrideTypes.add(Dog.class.getName());
+        overrideTypes.add(Cat.class.getName());
+        bean.setOverrideTypes(overrideTypes);
+        Wrapper wrapper = new Wrapper();
+        wrapper.animal = new Dog();
+        wrapper.animals = new Animal[] { new Dog() };
+        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
+        String text = objectMapper.writeValueAsString(wrapper);
+        Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        Assert.assertNotNull(w);
+        Assert.assertTrue(w.animal instanceof Dog);
+        Assert.assertNotNull(w.animals);
+        Assert.assertEquals(1, w.animals.length);
+        Assert.assertTrue(w.animals[0] instanceof Dog);
+        Assert.assertNotNull(w.arrayOfAnimals);
+        Assert.assertEquals(1, w.arrayOfAnimals.length);
+        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
+    }
+
+    @Test
+    public void testOverrideTypesEnable() throws JsonProcessingException, IOException {
+        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+        bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
+        bean.setSupportVariations(true);
+        bean.setPolymorphicTypeValidation(true);
+        Set<String> overrideTypes = new HashSet<>();
+        overrideTypes.add(Wrapper.class.getName());
+        overrideTypes.add(Animal.class.getName());
+        overrideTypes.add(Dog.class.getName());
+        overrideTypes.add(Cat.class.getName());
+        bean.setOverrideTypes(overrideTypes);
+        Wrapper wrapper = new Wrapper();
+        wrapper.animal = new Dog();
+        wrapper.animals = new Animal[] { new Dog() };
+        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
+        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
+        String text = objectMapper.writeValueAsString(wrapper);
+        Wrapper w = objectMapper.readValue(text, Wrapper.class);
+        Assert.assertNotNull(w);
+        Assert.assertTrue(w.animal instanceof Dog);
+        Assert.assertNotNull(w.animals);
+        Assert.assertEquals(1, w.animals.length);
+        Assert.assertTrue(w.animals[0] instanceof Dog);
+        Assert.assertNotNull(w.arrayOfAnimals);
+        Assert.assertEquals(1, w.arrayOfAnimals.length);
+        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
+    }
+
+    @Test(expected = InvalidTypeIdException.class)
+    public void testOverrideTypesEnableMissedClass() throws JsonProcessingException, IOException {
+        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+        bean.setDefaultTypingMode(DefaultTypingMode.ENABLE);
+        bean.setSupportVariations(true);
+        bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Animal.class.getName());
         overrideTypes.add(Dog.class.getName());
@@ -277,7 +339,6 @@ public class JacksonObjectMapperFactoryBeanTest {
         wrapper.animal = new Dog();
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
-        Wrapper w = objectMapper.readValue(text, Wrapper.class);
-        Assert.assertTrue(w.animal instanceof Dog);
+        objectMapper.readValue(text, Wrapper.class);
     }
 }

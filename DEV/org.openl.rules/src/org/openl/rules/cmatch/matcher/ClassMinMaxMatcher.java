@@ -25,8 +25,8 @@ public class ClassMinMaxMatcher implements IMatcher {
     @Override
     @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
-        Comparable<Object> c1 = Comparable.class.cast(var);
-        Comparable<Object> c2 = Comparable.class.cast(checkValue);
+        Comparable<Object> c1 = (Comparable<Object>) var;
+        Comparable<Object> c2 = (Comparable<Object>) checkValue;
 
         int result = c1.compareTo(c2);
 

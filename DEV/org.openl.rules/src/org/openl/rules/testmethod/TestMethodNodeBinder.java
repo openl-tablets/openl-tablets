@@ -14,6 +14,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBindHelper;
@@ -50,7 +51,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     @Override
     protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
             XlsModuleOpenClass module,
-            IBindingContext bindingContext) {
+            RulesModuleBindingContext bindingContext) {
         TestMethodBoundNode boundNode = new TestMethodBoundNode(tableSyntaxNode, module);
 
         if (!bindingContext.isExecutionMode()) {
@@ -63,7 +64,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
-            IBindingContext bindingContext,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
         if (bindingContext.isExecutionMode()) {
             return null;// skipped in execution mode

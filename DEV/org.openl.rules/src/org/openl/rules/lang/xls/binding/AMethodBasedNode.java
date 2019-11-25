@@ -198,7 +198,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenClass type,
             ILocation location,
             IOpenSourceCodeModule syntaxNode) {
-        String message = String.format("Type '%s' was defined with errors", type.getName());
+        String message = String.format("Type '%s' is defined with errors.", type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         getTableSyntaxNode().addError(error);
         bindingContext.addError(error);

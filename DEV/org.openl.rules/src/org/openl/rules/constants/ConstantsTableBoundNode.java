@@ -91,7 +91,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type %s is not found.", tableSrc.getCode());
+            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 
@@ -119,7 +119,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     throw new IllegalStateException("Multi-dimensional arrays are not supported.");
                 }
 
-                if (String.class.equals(constantType.getInstanceClass())) {
+                if (String.class == constantType.getInstanceClass()) {
                     objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
                 } else {
                     objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);

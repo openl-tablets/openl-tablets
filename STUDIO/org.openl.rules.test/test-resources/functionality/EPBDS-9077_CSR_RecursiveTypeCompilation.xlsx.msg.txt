@@ -1,2 +1,0 @@
-ERROR: Automatically type definition for Spreadsheet with the circular reference is failed. Please, define manually common 'SpreadsheetResult' type for the cell.
-ERROR: Method '$Values$Step3(java.lang.Object)' is not found.

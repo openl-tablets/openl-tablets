@@ -1,28 +1,28 @@
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but int type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but java.util.Date type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but Foo type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
-ERROR: An array or a collection is expected, but java.lang.Integer type has been defined.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'int' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'java.util.Date' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'Foo' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.
+ERROR: An array or a collection is expected, but type 'java.lang.Integer' is found.

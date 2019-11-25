@@ -13,11 +13,15 @@ import org.openl.vm.IRuntimeEnv;
 public class CompositeMethodWrapper extends CompositeMethod implements IOpenMethodWrapper {
     CompositeMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, CompositeMethod delegate) {
+    public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            CompositeMethod delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         super(null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -145,11 +149,21 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

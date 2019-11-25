@@ -83,8 +83,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                 customSpreadsheetResultOpenClass,
-                field.getName(),
-                field.getType());
+                field);
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
         return customSpreadsheetResultOpenClass;
@@ -131,7 +130,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
-                String message = String.format("Cannot define type '%s'.", spreadsheet.getName());
+                String message = String.format("Cannot define type '%s'.",
+                    Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(error);
                 bindingContext.addError(error);
@@ -167,14 +167,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         t = t.getComponentClass();
                     }
                     boolean f = true;
-                    if (t instanceof CustomSpreadsheetResultOpenClass) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) t;
-                        CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) this.getModule()
-                            .findType(customSpreadsheetResultOpenClass.getName());
-                        if (csroc != null && csroc.isEmptyBeanClass()) { // If CSR returns null
-                            f = false; // IGNORE EMPTY CSRS TYPES
-                        }
-                    } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
+                    if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
                         f = false; // IGNORE VOID TYPES
                     }
@@ -208,7 +201,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                                "Cells '%s' and '%s' conflicts with each other in the output model for this spreadsheet result.",
+                                "Cells '%s' and '%s' conflict with each other in the spreadsheet output model.",
                                 v,
                                 refName), getTableSyntaxNode()));
                             warnCnt++;

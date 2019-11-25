@@ -23,18 +23,9 @@ import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenField;
 import org.openl.types.java.JavaOpenMethod;
 
-public class BindHelper {
+public final class BindHelper {
 
     private BindHelper() {
-    }
-
-    public static void processError(String message,
-            ISyntaxNode syntaxNode,
-            Throwable ex,
-            IBindingContext bindingContext) {
-
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, syntaxNode);
-        bindingContext.addError(error);
     }
 
     public static void processError(CompositeSyntaxNodeException error, IBindingContext bindingContext) {
@@ -102,7 +93,7 @@ public class BindHelper {
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof JavaOpenConstructor) {
-            Constructor constr = ((JavaOpenConstructor) caller).getJavaConstructor();
+            Constructor<?> constr = ((JavaOpenConstructor) caller).getJavaConstructor();
             if (isDeprecated(constr)) {
                 String msg = String.format("DEPRECATED '%s' constructor will be removed in the next version.",
                     constr.getName());

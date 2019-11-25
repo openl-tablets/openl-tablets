@@ -23,16 +23,16 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
     @Override
     public String getMessage() {
 
-        StringBuilder buffer = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         if (super.getMessage() != null) {
-            buffer.append(super.getMessage());
+            sb.append(super.getMessage());
         }
 
-        buffer.append("Method '");
-        MethodUtil.printMethod(methodName, params, buffer);
-        buffer.append("' is not found.");
+        sb.append("Method '");
+        MethodUtil.printMethod(methodName, params, sb);
+        sb.append("' is not found.");
 
-        return buffer.toString();
+        return sb.toString();
     }
 }

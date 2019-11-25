@@ -10,7 +10,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
-import javax.validation.ValidationException;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -19,6 +18,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -49,6 +49,8 @@ public class MergeConflictBean {
     private String conflictedFile;
     private String mergeMessage;
     private boolean mergeMessageModified;
+    private String mergeError;
+    private String uploadError;
 
     public List<ConflictGroup> getConflictGroups() {
         MergeConflictInfo mergeConflict = getMergeConflict();
@@ -167,12 +169,14 @@ public class MergeConflictBean {
 
     public void uploadListener(FileUploadEvent event) {
         conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
+        uploadError = null;
     }
 
     public void applyConflictResolution() {
         ConflictResolution conflictResolution = conflictResolutions.get(conflictedFile);
         if (conflictResolution.getCustomResolutionFile() == null) {
-            throw new ValidationException("You must upload the file");
+            uploadError = "You must upload the file";
+            return;
         }
         conflictResolution.setResolutionType(ResolutionType.CUSTOM);
     }
@@ -203,27 +207,30 @@ public class MergeConflictBean {
         // Validate
         MergeConflictInfo mergeConflict = getMergeConflict();
         if (mergeConflict == null) {
-            throw new ValidationException("Nothing to merge");
+            mergeError = "Nothing to merge";
+            return;
         }
 
         for (Map.Entry<String, ConflictResolution> entry : conflictResolutions.entrySet()) {
             ConflictResolution resolution = entry.getValue();
             if (resolution.getResolutionType() == ResolutionType.UNRESOLVED) {
-                throw new ValidationException(
-                    String.format("You must resolve conflict for the file '%s'", entry.getKey()));
+                mergeError = String.format("You must resolve conflict for the file '%s'", entry.getKey());
+                return;
             }
 
             if (resolution.getResolutionType() == ResolutionType.CUSTOM && resolution
                 .getCustomResolutionFile() == null) {
-                throw new ValidationException(
-                    String.format("You must upload your version of the file '%s'", entry.getKey()));
+                mergeError = String.format("You must upload your version of the file '%s'", entry.getKey());
+                return;
             }
         }
 
         // Save
         List<FileItem> resolvedFiles = new ArrayList<>();
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject project = mergeConflict.getProject();
         try {
-            RulesProject project = mergeConflict.getProject();
+            studio.freezeProject(project.getName());
             UserWorkspace userWorkspace = getUserWorkspace();
             String rulesLocation = getRulesLocation();
 
@@ -252,25 +259,24 @@ public class MergeConflictBean {
                         resolvedFiles.add(new FileItem(name, conflictResolution.getCustomResolutionFile().getInput()));
                         break;
                     default:
-                        throw new ValidationException(
-                            "Cannot merge with resolution type " + conflictResolution.getResolutionType());
+                        mergeError = "Cannot merge with resolution type " + conflictResolution.getResolutionType();
+                        return;
                 }
             }
 
             project.save(
                 new ConflictResolveData(mergeConflict.getException().getTheirCommit(), resolvedFiles, mergeMessage));
-            WebStudioUtils.getWebStudio().reset();
+            studio.reset();
             clearMergeStatus();
-        } catch (ValidationException e) {
-            throw e;
         } catch (Exception e) {
             String message = "Failed to resolve conflict. See logs for details.";
             log.error(message, e);
-            throw new ValidationException(message);
+            mergeError = message;
         } finally {
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
             }
+            studio.releaseProject(project.getName());
         }
     }
 
@@ -282,10 +288,20 @@ public class MergeConflictBean {
 
             mergeMessage = generateMergeMessage();
             mergeMessageModified = false;
+            mergeError = null;
+            uploadError = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new ValidationException(e.getMessage(), e);
+            mergeError = e.getMessage();
         }
+    }
+
+    public String getMergeError() {
+        return mergeError;
+    }
+
+    public String getUploadError() {
+        return uploadError;
     }
 
     private String generateMergeMessage() {

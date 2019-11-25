@@ -79,11 +79,17 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
+        if (ioc == null) {
+            return false;
+        }
+        return isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
     public boolean isAssignableFrom(Class<?> c) {
+        if (c == null) {
+            return false;
+        }
         return getInstanceClass().isAssignableFrom(c);
     }
 

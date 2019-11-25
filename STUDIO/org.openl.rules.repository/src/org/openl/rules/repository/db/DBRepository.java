@@ -120,13 +120,13 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public boolean delete(FileData path) {
+    public boolean delete(FileData path) throws IOException {
         FileData data;
         try {
             data = getLatestVersionFileData(path.getName());
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            return false;
+            throw e;
         }
 
         if (data != null) {
@@ -136,7 +136,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 return true;
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
-                return false;
+                throw e;
             }
         } else {
             return false;
@@ -216,7 +216,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings.readHistoricFile);
-            statement.setLong(1, Long.valueOf(version));
+            statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
 
@@ -239,7 +239,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
 
@@ -260,7 +260,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 }
             } catch (SQLException e) {
                 log.error(e.getMessage(), e);
-                return false;
+                throw new IOException(e.getMessage(), e);
             } finally {
                 safeClose(statement);
                 safeClose(connection);
@@ -271,7 +271,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteVersion);
-                statement.setLong(1, Long.valueOf(version));
+                statement.setLong(1, Long.parseLong(version));
                 statement.setString(2, name);
                 int rows = statement.executeUpdate();
 
@@ -283,7 +283,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 }
             } catch (SQLException e) {
                 log.error(e.getMessage(), e);
-                return false;
+                throw new IOException(e.getMessage(), e);
             } finally {
                 safeClose(statement);
                 safeClose(connection);
@@ -306,7 +306,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             statement.setString(2, destData.getAuthor());
             statement.setString(3, destData.getComment());
 
-            statement.setLong(4, Long.valueOf(version));
+            statement.setLong(4, Long.parseLong(version));
             statement.setString(5, srcName);
             statement.executeUpdate();
 
@@ -362,7 +362,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings.readHistoricFileMetainfo);
-            statement.setLong(1, Long.valueOf(version));
+            statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
 
@@ -580,7 +580,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         public Object getRevision() {
             Object revision = checkRepository();
             if (revision instanceof Throwable) {
-                log.warn("Cannot to check revision of the repository", revision);
+                log.warn("Cannot check revision of the repository", (Throwable) revision);
                 return null;
             }
             return revision;

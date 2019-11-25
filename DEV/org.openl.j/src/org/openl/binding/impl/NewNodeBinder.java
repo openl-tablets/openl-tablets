@@ -39,7 +39,7 @@ public class NewNodeBinder extends ANodeBinder {
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (type == null) {
-            return makeErrorNode("Type '" + typeName + "' is not found.", typeNode, bindingContext);
+            return makeErrorNode(String.format("Type '%s' is not found.", typeName), typeNode, bindingContext);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);

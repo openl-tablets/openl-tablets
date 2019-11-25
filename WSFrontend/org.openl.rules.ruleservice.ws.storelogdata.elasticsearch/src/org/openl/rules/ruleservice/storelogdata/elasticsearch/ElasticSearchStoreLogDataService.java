@@ -1,13 +1,20 @@
 package org.openl.rules.ruleservice.storelogdata.elasticsearch;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.util.UUID;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
@@ -19,6 +26,8 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
     private boolean enabled = true;
 
     private ElasticsearchOperations elasticsearchOperations;
+
+    private StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
     public ElasticsearchOperations getElasticsearchOperations() {
         return elasticsearchOperations;
@@ -39,7 +48,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     @Override
     public void save(StoreLogData storeLogData) {
-        IndexBuilder[] elasticsearchIndexBuilders = null;
+        Object[] entities = null;
 
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
             .getAnnotation(StoreLogDataToElasticsearch.class);
@@ -53,24 +62,22 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
         }
 
         if (storeLogDataToElasticsearchAnnotation.value().length == 0) {
-            elasticsearchIndexBuilders = new IndexBuilder[] { new DefaultIndexBuilderImpl() };
+            entities = new DefaultElasticEntity[] { new DefaultElasticEntity() };
         } else {
-            Class<? extends IndexBuilder>[] elasticSearchIndexBuilderClasses = storeLogDataToElasticsearchAnnotation
-                .value();
-            elasticsearchIndexBuilders = new IndexBuilder[elasticSearchIndexBuilderClasses.length];
+            entities = new Object[storeLogDataToElasticsearchAnnotation.value().length];
             int i = 0;
-            for (Class<? extends IndexBuilder> elasticSearchIndexBuilderClass : elasticSearchIndexBuilderClasses) {
-                if (StoreLogDataToElasticsearch.DEFAULT.class.equals(elasticSearchIndexBuilderClass)) {
-                    elasticsearchIndexBuilders[i] = new DefaultIndexBuilderImpl();
+            for (Class<?> entityClass : storeLogDataToElasticsearchAnnotation.value()) {
+                if (StoreLogDataToElasticsearch.DEFAULT.class.equals(entityClass)) {
+                    entities[i] = new DefaultElasticEntity();
                 } else {
                     try {
-                        elasticsearchIndexBuilders[i] = elasticSearchIndexBuilderClass.newInstance();
+                        entities[i] = entityClass.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
                                 "Failed to instantiate ElasticSearch index builder for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
                                 MethodUtil.printQualifiedMethodName(serviceMethod),
-                                elasticSearchIndexBuilderClass.getTypeName()), e);
+                                entityClass.getTypeName()), e);
                         }
                         return;
                     }
@@ -79,16 +86,31 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             }
         }
 
-        IndexQuery[] indexQueries = new IndexQuery[elasticsearchIndexBuilders.length];
+        IndexQuery[] indexQueries = new IndexQuery[entities.length];
         int i = 0;
-        for (IndexBuilder indexBuilder : elasticsearchIndexBuilders) {
-            IndexQuery indexQuery = new IndexQueryBuilder().withIndexName(indexBuilder.withIndexName(storeLogData))
-                .withType(indexBuilder.withType(storeLogData))
-                .withId(indexBuilder.withId(storeLogData))
-                .withObject(indexBuilder.withObject(storeLogData))
-                .withVersion(indexBuilder.withVersion(storeLogData))
-                .withSource(indexBuilder.withSource(storeLogData))
-                .withParentId(indexBuilder.withParentId(storeLogData))
+
+        for (Object entity : entities) {
+            try {
+                storeLogDataMapper.map(storeLogData, entity);
+            } catch (Exception e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to map '%s' Elasticsearch index for method '%s'.",
+                        entity.getClass().getTypeName(),
+                        MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                }
+                return;
+            }
+        }
+
+        for (Object entity : entities) {
+            Class<?> clazz = entity.getClass();
+            IndexQuery indexQuery = new IndexQueryBuilder().withIndexName(extractIndexName(clazz))
+                .withType(null)
+                .withId(extractId(entity))
+                .withObject(entity)
+                .withVersion(null)
+                .withSource(null)
+                .withParentId(null)
                 .build();
             indexQueries[i++] = indexQuery;
         }
@@ -96,11 +118,41 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             if (indexQuery != null) {
                 try {
                     elasticsearchOperations.index(indexQuery);
+                    elasticsearchOperations.refresh(indexQuery.getIndexName());
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
                     log.error("Failed on ElasticSearch entity save operation.", e);
                 }
             }
+        }
+    }
+
+    private String extractId(Object entity) {
+        String existingId = null;
+
+        for (Field f : entity.getClass().getDeclaredFields()) {
+            Id[] annotationsByType = f.getAnnotationsByType(Id.class);
+            if (annotationsByType != null && annotationsByType.length != 0) {
+                try {
+                    f.setAccessible(true);
+                    existingId = (String) f.get(entity);
+                } catch (IllegalAccessException e) {
+                    log.error("Failed on ElasticSearch entity extract ID operation.", e);
+                }
+            }
+        }
+        if (existingId == null) {
+            existingId = UUID.randomUUID().toString();
+        }
+        return existingId;
+    }
+
+    private String extractIndexName(Class<?> clazz) {
+        String indexName = clazz.getAnnotation(Document.class).indexName();
+        try {
+            return URLEncoder.encode(indexName, "UTF-8").toLowerCase();
+        } catch (UnsupportedEncodingException e) {
+            return null;
         }
     }
 

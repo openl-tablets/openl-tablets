@@ -172,9 +172,6 @@ public class LocalFrameBuilder {
 
     int localVarFrameSize = 0;
 
-    /**
-     *
-     */
     public LocalFrameBuilder() {
         super();
     }

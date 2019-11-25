@@ -11,8 +11,11 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
  * @author snshor Created Jul 21, 2009
  *
  */
-public class DefaultPropertyDefinitions {
+public final class DefaultPropertyDefinitions {
     private static final TablePropertyDefinition[] definitions;
+
+    private DefaultPropertyDefinitions() {
+    }
 
     static {
         // <<< INSERT TablePropertiesDefinition >>>

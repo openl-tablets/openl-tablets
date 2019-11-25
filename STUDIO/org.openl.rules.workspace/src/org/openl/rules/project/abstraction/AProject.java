@@ -172,8 +172,10 @@ public class AProject extends AProjectFolder {
         unlock();
         close(null);
         FileData fileData = getFileData();
-        if (!getRepository().delete(fileData)) {
-            throw new ProjectException("Project is absent or cannot be deleted");
+        try {
+            getRepository().delete(fileData);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         }
         setFileData(null);
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
@@ -193,8 +195,10 @@ public class AProject extends AProjectFolder {
         data.setVersion(fileData.getVersion());
         data.setAuthor(user.getUserName());
         data.setComment(comment);
-        if (!getRepository().delete(data)) {
-            throw new ProjectException("Resource is absent or cannot be deleted");
+        try {
+            getRepository().delete(data);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         }
         setFileData(null);
         setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
@@ -211,8 +215,10 @@ public class AProject extends AProjectFolder {
         data.setVersion(null);
         data.setAuthor(user.getUserName());
         data.setComment(comment);
-        if (!getRepository().deleteHistory(data)) {
-            throw new ProjectException("Cannot erase project because it is absent or cannot be deleted");
+        try {
+            getRepository().deleteHistory(data);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         }
     }
 
@@ -247,7 +253,7 @@ public class AProject extends AProjectFolder {
                 setHistoryVersion(version);
             }
         } catch (IOException ex) {
-            throw new ProjectException("Cannot undelete a project", ex);
+            throw new ProjectException(ex.getMessage(), ex);
         }
 
     }
@@ -373,7 +379,7 @@ public class AProject extends AProjectFolder {
                         fileData.setAuthor(user == null ? null : user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
-                        throw new ProjectException("Cannot update: " + ex.getMessage(), ex);
+                        throw new ProjectException(ex.getMessage(), ex);
                     } finally {
                         IOUtils.closeQuietly(stream);
                     }
@@ -429,7 +435,7 @@ public class AProject extends AProjectFolder {
             return ((FolderRepository) repositoryTo)
                 .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
-            throw new ProjectException("Cannot update: " + e.getMessage(), e);
+            throw new ProjectException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(stream);
         }

@@ -128,16 +128,16 @@ public class DimensionPropertiesDomainsCollector {
         String propertyName = property.getName();
         IDomainCollector result = null;
 
-        if (Date.class.equals(propertyType)) {
+        if (Date.class == propertyType) {
             dateDomainCollector.addPropertyToSearch(propertyName);
             result = dateDomainCollector;
-        } else if (String.class.equals(propertyType)) {
+        } else if (String.class == propertyType) {
             result = new StringDomainCollector(propertyName);
         } else if (propertyType.isEnum()) {
             result = new EnumDomainCollector(propertyName);
         } else if (propertyType.isArray() && propertyType.getComponentType().isEnum()) {
             result = new ArrayDomainCollector(propertyName);
-        } else if (propertyType.isArray() && String.class.equals(propertyType.getComponentType())) {
+        } else if (propertyType.isArray() && String.class == propertyType.getComponentType()) {
             result = new ArrayDomainCollector(propertyName);
         }
         return result;

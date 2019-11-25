@@ -6,14 +6,7 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -54,11 +47,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IModuleInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
+import org.openl.types.*;
 import org.openl.types.impl.AMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -194,8 +183,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenClass existingType = findType(type.getName());
             if (existingType instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass existingCustomSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) existingType;
-                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type,
-                    getRulesModuleBindingContext());
+                existingCustomSpreadsheetResultOpenClass.extendWith((CustomSpreadsheetResultOpenClass) type);
                 return existingCustomSpreadsheetResultOpenClass;
             } else {
                 return ((CustomSpreadsheetResultOpenClass) type).makeCopyForModule(this);

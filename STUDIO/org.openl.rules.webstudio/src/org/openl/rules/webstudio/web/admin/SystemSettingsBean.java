@@ -63,19 +63,37 @@ public class SystemSettingsBean {
 
     @PostConstruct
     public void afterPropertiesSet() {
-        configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
+        try {
+            configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
-        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN);
+            designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN, true);
+            if (designRepositoryConfiguration.getErrorMessage() != null) {
+                log.error(designRepositoryConfiguration.getErrorMessage());
+                FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
+            }
 
-        deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
-            configManager,
-            RepositoryMode.DEPLOY_CONFIG);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
+                configManager,
+                RepositoryMode.DEPLOY_CONFIG,
+                true);
+            if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
+                log.error(deployConfigRepositoryConfiguration.getErrorMessage());
+                FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
+            }
 
-        productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
-            productionConfigManagerFactory,
-            productionRepositoryFactoryProxy);
+            productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
+                productionConfigManagerFactory,
+                productionRepositoryFactoryProxy);
 
-        validator = new SystemSettingsValidator(this);
+            validator = new SystemSettingsValidator(this);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            FacesUtils.addErrorMessage(e.getMessage());
+        }
+    }
+
+    public boolean isHasMessages() {
+        return FacesUtils.getFacesContext().getMaximumSeverity() != null;
     }
 
     public String getUserWorkspaceHome() {

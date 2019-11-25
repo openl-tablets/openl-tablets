@@ -24,16 +24,16 @@ public class BoundCode implements IBoundCode {
 
     private IParsedCode parsedCode;
     private IBoundNode topNode;
-    private SyntaxNodeException[] error;
+    private SyntaxNodeException[] errors;
     private Collection<OpenLMessage> messages;
 
     public BoundCode(IParsedCode parsedCode,
             IBoundNode topNode,
-            SyntaxNodeException[] error,
+            SyntaxNodeException[] errors,
             Collection<OpenLMessage> messages) {
         this.parsedCode = parsedCode;
         this.topNode = topNode;
-        this.error = error;
+        this.errors = errors;
         if (messages == null) {
             this.messages = Collections.emptyList();
         } else {
@@ -48,7 +48,7 @@ public class BoundCode implements IBoundCode {
      */
     @Override
     public SyntaxNodeException[] getErrors() {
-        return error;
+        return errors;
     }
 
     @Override

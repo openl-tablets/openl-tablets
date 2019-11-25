@@ -35,6 +35,7 @@
     <bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
         <constructor-arg name="domain" value="#{systemConfig['security.ad.domain']}"/>
         <constructor-arg name="url" value="#{systemConfig['security.ad.server-url']}"/>
+        <property name="searchFilter" value="#{systemConfig['security.ad.search-filter']}"/>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
@@ -45,6 +46,9 @@
         </constructor-arg>
         <constructor-arg name="domain" value="#{systemConfig['security.ad.domain']}"/>
         <constructor-arg name="url" value="#{systemConfig['security.ad.server-url']}"/>
+        <constructor-arg name="searchFilter" value="#{systemConfig['security.ad.search-filter']}"/>
+        <constructor-arg name="primaryGroupFilter" value="#{systemConfig['security.ad.primary-group-filter']}"/>
+        <constructor-arg name="groupFilter" value="#{systemConfig['security.ad.group-filter']}"/>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">

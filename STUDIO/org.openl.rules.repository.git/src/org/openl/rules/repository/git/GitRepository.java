@@ -21,6 +21,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.merge.MergeMessageFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -135,7 +136,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(fileItem.getData(), false, commit);
-                addTagToCommit(commit, firstCommitId);
+                addTagToCommit(commit, firstCommitId, fileItem.getData().getAuthor());
             }
             push();
         } catch (IOException e) {
@@ -166,7 +167,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             commitId = commit.getId().getName();
 
             resolveAndMerge(data, checkoutOldVersion, commit);
-            addTagToCommit(commit);
+            addTagToCommit(commit, data.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -195,8 +196,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean delete(FileData data) {
-        boolean deleted;
+    public boolean delete(FileData data) throws IOException {
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -232,7 +232,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, data.getAuthor());
             } else {
                 // Files cannot be archived. Only folders.
                 git.rm().addFilepattern(name).call();
@@ -243,23 +243,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, data.getAuthor());
             }
 
             push();
 
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             reset(commitId);
-            deleted = false;
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("delete(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
@@ -286,7 +289,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .call();
             commitId = commit.getId().getName();
 
-            addTagToCommit(commit);
+            addTagToCommit(commit, destData.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -333,11 +336,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public boolean deleteHistory(FileData data) {
+    public boolean deleteHistory(FileData data) throws IOException {
         String name = data.getName();
         String version = data.getVersion();
         String author = StringUtils.trimToEmpty(data.getAuthor());
-        boolean deleted;
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -360,7 +362,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, author);
             } else {
                 FileData fileData = checkHistory(name, version);
                 if (fileData == null) {
@@ -383,22 +385,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
                 commitId = commit.getId().getName();
 
-                addTagToCommit(commit);
+                addTagToCommit(commit, author);
             }
 
             push();
-            deleted = true;
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            reset(commitId);
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            deleted = false;
             reset(commitId);
+            throw new IOException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("deleteHistory(): unlock");
         }
 
         monitor.fireOnChange();
-        return deleted;
+        return true;
     }
 
     @Override
@@ -759,12 +764,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
         }
 
+        boolean branchesChanged;
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("pull(): lock");
             writeLock.lock();
 
-            doFastForward(fetchResult);
+            branchesChanged = doFastForward(fetchResult);
             fastForwardNotMergedCommits(fetchResult);
 
             TreeSet<String> availableBranches = getAvailableBranches();
@@ -779,6 +785,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("pull(): unlock");
         }
 
+        if (branchesChanged) {
+            monitor.fireOnChange();
+        }
+
         try {
             log.debug("getLastRevision(): lock");
             readLock.lock();
@@ -789,7 +799,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+    /**
+     * @return true if need to force listener invocation. It can be if some branch was added or deleted.
+     */
+    private boolean doFastForward(FetchResult fetchResult) throws GitAPIException, IOException {
+        boolean branchesChanged = false;
         for (TrackingRefUpdate refUpdate : fetchResult.getTrackingRefUpdates()) {
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
@@ -832,6 +846,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 }
                             }
                             git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -840,6 +855,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                            branchesChanged = true;
                         }
                     }
                     break;
@@ -851,6 +867,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     break;
             }
         }
+
+        return branchesChanged;
     }
 
     private void fastForwardNotMergedCommits(FetchResult fetchResult) throws IOException, GitAPIException {
@@ -872,7 +890,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull(String commitToRevert) throws GitAPIException, IOException {
+    private void pull(String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
         FetchResult fetchResult;
         try {
             remoteRepoLock.lock();
@@ -892,7 +910,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .format(JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME, branch));
             }
 
-            MergeResult mergeResult = git.merge().include(r.getObjectId()).setStrategy(MergeStrategy.RECURSIVE).call();
+            String mergeMessage = getMergeMessage(mergeAuthor, r);
+            MergeResult mergeResult = git.merge()
+                .include(r.getObjectId())
+                .setStrategy(MergeStrategy.RECURSIVE)
+                .setMessage(mergeMessage)
+                .call();
 
             if (!mergeResult.getMergeStatus().isSuccessful()) {
                 validateMergeConflict(mergeResult, true);
@@ -1230,12 +1253,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private void addTagToCommit(RevCommit commit) throws GitAPIException, IOException {
-        addTagToCommit(commit, commit.getId().getName());
+    private void addTagToCommit(RevCommit commit, String mergeAuthor) throws GitAPIException, IOException {
+        addTagToCommit(commit, commit.getId().getName(), mergeAuthor);
     }
 
-    private void addTagToCommit(RevCommit commit, String commitToRevert) throws GitAPIException, IOException {
-        pull(commitToRevert);
+    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+        pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {
             String tagName = tagPrefix + getNextTagId();
@@ -1291,7 +1314,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 resolveAndMerge(folderItem.getData(), false, commit);
-                addTagToCommit(commit, firstCommitId);
+                addTagToCommit(commit, firstCommitId, folderItem.getData().getAuthor());
             }
             push();
         } catch (IOException e) {
@@ -1326,7 +1349,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             commitId = commit.getId().getName();
 
             resolveAndMerge(folderData, checkoutOldVersion, commit);
-            addTagToCommit(commit);
+            addTagToCommit(commit, folderData.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -1422,7 +1445,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (checkoutOldVersion || conflictResolveData != null) {
             // Merge detached commit to existing branch.
             git.checkout().setName(branch).call();
-            MergeResult mergeDetached = git.merge().include(lastCommit.getId()).call();
+            ObjectId commitId = lastCommit.getId();
+            ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
+            String mergeMessage = getMergeMessage(folderData.getAuthor(), ref);
+            MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).call();
             validateMergeConflict(mergeDetached, false);
         }
     }
@@ -1862,6 +1888,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
     }
 
+    private String getMergeMessage(String mergeAuthor, Ref r) throws IOException {
+        String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
+            git.getRepository().exactRef(Constants.HEAD));
+        return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
+    }
+
     private boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
         if (baseVersion != null) {
             List<Ref> tags = git.tagList().call();
@@ -1903,7 +1935,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
             // We cannot use this credentials provider anymore. If we continue, the server can lock us for brute
             // forcing.
-            throw new IOException("Git repository credentials are incorrect. Please update repository configuration.");
+            throw new IOException("Incorrect login or password for git repository.");
         }
         return credentialsProvider;
     }

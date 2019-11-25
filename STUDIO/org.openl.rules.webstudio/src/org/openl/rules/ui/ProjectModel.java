@@ -9,7 +9,6 @@ import java.util.*;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
@@ -546,6 +545,12 @@ public class ProjectModel {
     }
 
     public boolean isSourceModified() {
+        RulesProject project = getProject();
+        if (project != null && studio.isProjectFrozen(project.getName())) {
+            log.debug("Project is saving currently. Ignore it's intermediate state.");
+            return false;
+        }
+
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {
             for (WorkbookSyntaxNode node : workbookNodes) {

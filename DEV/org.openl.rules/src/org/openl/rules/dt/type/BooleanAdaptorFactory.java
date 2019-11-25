@@ -13,7 +13,7 @@ public class BooleanAdaptorFactory {
 
     public static BooleanTypeAdaptor getAdaptor(IOpenClass openClass) {
 
-        if (boolean.class.equals(openClass.getInstanceClass()) || Boolean.class.equals(openClass.getInstanceClass())) {
+        if (boolean.class == openClass.getInstanceClass() || Boolean.class == openClass.getInstanceClass()) {
             return new BooleanTypeAdaptor();
         }
 

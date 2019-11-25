@@ -34,6 +34,7 @@ import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.CollectionType;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
@@ -146,7 +147,7 @@ public class DataTableBindHelper {
         // If data table body contains only one row, we consider it is vertical.
         //
         if (dataTableBody.getHeight() != 1) {
-            if (TableProperties.class.isAssignableFrom(tableType.getInstanceClass())) {
+            if (ClassUtils.isAssignable(tableType.getInstanceClass(), TableProperties.class)) {
                 // Properties are always vertical
                 return false;
             }
@@ -166,7 +167,7 @@ public class DataTableBindHelper {
                 } else if (refCount1 > refCount2) {
                     return false;
                 } else {
-                    if (TestMethodOpenClass.class.isAssignableFrom(tableType.getClass())) {
+                    if (tableType instanceof TestMethodOpenClass) {
                         int resCount1 = countResFields(dataTableBody, tableType);
                         int resCount2 = countResFields(dataTableBodyT, tableType);
                         return resCount1 >= resCount2;
@@ -765,8 +766,8 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && List.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
@@ -776,8 +777,8 @@ public class DataTableBindHelper {
             }
 
             if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && Map.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), Map.class)) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);
@@ -945,7 +946,8 @@ public class DataTableBindHelper {
                     fieldName,
                     sb.toString());
             } else {
-                errorMessage = String.format("Field '%s' is not found in %s.", fieldName, loadedFieldType.getName());
+                errorMessage = String
+                    .format("Field '%s' is not found in type '%s'.", fieldName, loadedFieldType.getName());
             }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(bindingContext, table, error);
@@ -953,7 +955,8 @@ public class DataTableBindHelper {
         }
 
         if (!field.isWritable()) {
-            String message = String.format("Field '%s' is not writable in %s.", fieldName, loadedFieldType.getName());
+            String message = String
+                .format("Field '%s' is not writable in type '%s'.", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
@@ -1000,9 +1003,9 @@ public class DataTableBindHelper {
             return null;
         }
 
-        if (!Map.class.isAssignableFrom(field.getType().getInstanceClass()) && !List.class
-            .isAssignableFrom(field.getType().getInstanceClass()) && !field.getType()
-                .isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
+        if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
+            field.getType().getInstanceClass(),
+            List.class) && !field.getType().isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
             String message = String
                 .format("Field '%s' is not a collection! The field type is '%s'.", name, field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
@@ -1012,7 +1015,7 @@ public class DataTableBindHelper {
 
         IOpenField collectionAccessField;
         if (multiRowElement) {
-            if (List.class.isAssignableFrom(field.getType().getInstanceClass())) {
+            if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, currentFieldNameNode);
                 collectionAccessField = new CollectionElementWithMultiRowField(field,
                     buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
@@ -1032,7 +1035,7 @@ public class DataTableBindHelper {
                 }
             }
         } else {
-            if (Map.class.isAssignableFrom(field.getType().getInstanceClass())) {
+            if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
                 Object mapKey;
                 try {
                     mapKey = getCollectionKey(currentFieldNameNode);
@@ -1054,7 +1057,7 @@ public class DataTableBindHelper {
                     processError(bindingContext, table, error);
                     return null;
                 }
-                if (List.class.isAssignableFrom(field.getType().getInstanceClass())) {
+                if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(bindingContext, table, currentFieldNameNode);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
                 } else {
@@ -1111,11 +1114,11 @@ public class DataTableBindHelper {
         int length1 = identifier1.length;
         int length2 = identifier2.length;
 
-        //if the last identifier is precision then decrease the length
-        if (isPrecisionNode(identifier1[length1 -1])) {
+        // if the last identifier is precision then decrease the length
+        if (isPrecisionNode(identifier1[length1 - 1])) {
             length1--;
         }
-        if (isPrecisionNode(identifier2[length2 -1])) {
+        if (isPrecisionNode(identifier2[length2 - 1])) {
             length2--;
         }
 

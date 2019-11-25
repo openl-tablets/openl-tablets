@@ -14,12 +14,11 @@ import org.openl.types.IOpenClass;
  *
  */
 public class FieldNotFoundException extends OpenLCompilationException {
-    /**
-     *
-     */
-    private static final long serialVersionUID = -782077307706500730L;
+
+    private static final long serialVersionUID = 1L;
 
     private String fieldName;
+
     private IOpenClass type;
 
     public FieldNotFoundException(String msg, String fieldName, IOpenClass type) {
@@ -30,17 +29,17 @@ public class FieldNotFoundException extends OpenLCompilationException {
 
     @Override
     public String getMessage() {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if (super.getMessage() != null) {
-            buf.append(super.getMessage());
+            sb.append(super.getMessage());
         }
 
-        buf.append("Field ").append(fieldName);
-        buf.append(" is not found");
+        sb.append("Field '").append(fieldName);
+        sb.append("' is not found");
         if (type != null) {
-            buf.append(" in ").append(type.getName());
+            sb.append(" in type '").append(type.getName()).append("'.");
         }
-        return buf.toString();
+        return sb.toString();
     }
 
 }

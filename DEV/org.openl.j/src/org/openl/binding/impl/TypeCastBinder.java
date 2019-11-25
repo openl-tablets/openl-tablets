@@ -8,10 +8,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.TerminalNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
@@ -31,16 +28,7 @@ public class TypeCastBinder extends ANodeBinder {
 
         IOpenClass to = children[0].getType();
         IOpenClass from = children[1].getType();
-
-        if (from == NullOpenClass.the || to == NullOpenClass.the) {
-            IBoundNode nullNode = to == NullOpenClass.the ? children[0] : children[1];
-            if (!(nullNode.getSyntaxNode() instanceof TerminalNode)) {
-                String code = ((IdentifierNode) nullNode.getSyntaxNode().getChild(0)).getIdentifier();
-
-                return makeErrorNode("Type '" + code + "' is not found.", node, bindingContext);
-            }
-        }
-
+        
         if (to.equals(from)) {
             return children[1];
         }

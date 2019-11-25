@@ -89,7 +89,7 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     @Override
-    public boolean delete(FileData data) {
+    public boolean delete(FileData data) throws IOException {
         boolean deleted = super.delete(data);
         deleteFileProperties(data.getName());
 

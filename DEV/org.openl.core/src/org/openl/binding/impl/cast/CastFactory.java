@@ -274,11 +274,11 @@ public class CastFactory implements ICastFactory {
             return JavaNoCast.getInstance();
         }
 
-        if (to == NullOpenClass.the) {
+        if (NullOpenClass.the.equals(to)) {
             return null;
         }
 
-        if (from == NullOpenClass.the) {
+        if (NullOpenClass.the.equals(from)) {
             if (isPrimitive(to)) {
                 return null;
             } else {
@@ -475,7 +475,7 @@ public class CastFactory implements ICastFactory {
         if (fromClass.isEnum() && toClass == String.class) {
             return EnumToStringCast.getInstance();
         }
-        if (String.class.equals(fromClass) && toClass.isEnum()) {
+        if (String.class == fromClass && toClass.isEnum()) {
             return new StringToEnumCast(toClass);
         }
         return null;
@@ -673,8 +673,7 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[] { openClassFrom, to });
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
             }
 
@@ -695,8 +694,7 @@ public class CastFactory implements ICastFactory {
                 //
                 if (primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
-                        new IOpenClass[] { from, openClassTo });
+                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }
@@ -736,14 +734,12 @@ public class CastFactory implements ICastFactory {
                     IOpenClass openClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = openClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                        new IOpenClass[] { openClassFrom, to });
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { openClassFrom, to });
                 }
 
                 if (castCaller == null && primitiveClassTo != null) {
                     IOpenClass openClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
-                        new IOpenClass[] { from, openClassTo });
+                    castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, openClassTo });
                     fromOpenClass = from;
                     toOpenClass = openClassTo;
                 }

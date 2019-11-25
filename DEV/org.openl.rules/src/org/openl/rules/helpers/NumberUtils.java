@@ -26,83 +26,55 @@ public final class NumberUtils {
     }
 
     public static boolean isFloatPointType(Class<?> cls) {
-        return cls != null && (float.class.equals(cls) || double.class.equals(cls) || Float.class
-            .isAssignableFrom(cls) || FloatValue.class.isAssignableFrom(cls) || Double.class
-                .isAssignableFrom(cls) || DoubleValue.class.isAssignableFrom(
-                    cls) || BigDecimal.class.isAssignableFrom(cls) || BigDecimalValue.class.isAssignableFrom(cls));
+        return cls != null && (float.class == cls || double.class == cls || Float.class == cls || FloatValue.class
+            .isAssignableFrom(cls) || Double.class == cls || DoubleValue.class.isAssignableFrom(cls) || BigDecimal.class
+                .isAssignableFrom(cls) || BigDecimalValue.class.isAssignableFrom(cls));
     }
 
     public static boolean isNonFloatPointType(Class<?> clazz) {
-        return clazz != null && (byte.class.equals(clazz) || short.class.equals(clazz) || int.class
-            .equals(clazz) || long.class.equals(clazz) || Byte.class.isAssignableFrom(clazz) || ByteValue.class
-                .isAssignableFrom(clazz) || Short.class
-                    .isAssignableFrom(clazz) || ShortValue.class.isAssignableFrom(clazz) || Integer.class
-                        .isAssignableFrom(clazz) || IntValue.class.isAssignableFrom(clazz) || Long.class
-                            .isAssignableFrom(clazz) || LongValue.class.isAssignableFrom(clazz) || BigInteger.class
-                                .isAssignableFrom(clazz) || BigIntegerValue.class.isAssignableFrom(clazz));
+        return clazz != null && (byte.class == clazz || short.class == clazz || int.class == clazz || long.class == clazz || Byte.class == clazz || ByteValue.class == clazz || Short.class == clazz || ShortValue.class == clazz || Integer.class == clazz || IntValue.class == clazz || Long.class == clazz || LongValue.class == clazz || BigInteger.class == clazz || BigIntegerValue.class == clazz);
     }
 
     public static Double convertToDouble(Object object) {
-
-        if (Float.class.equals(object.getClass())) {
+        if (object instanceof Float) {
             return Double.parseDouble(object.toString());
-        }
-
-        if (FloatValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof FloatValue) {
             return Double.parseDouble(object.toString());
-        }
-
-        if (Double.class.equals(object.getClass())) {
+        } else if (object instanceof Double) {
             return (Double) object;
-        }
-
-        if (DoubleValue.class.isAssignableFrom(object.getClass())) {
+        } else if (object instanceof DoubleValue) {
             return ((DoubleValue) object).doubleValue();
-        }
-
-        if (BigDecimal.class.equals(object.getClass())) {
+        } else if (object instanceof BigDecimal) {
             return ((BigDecimal) object).doubleValue();
-        }
-
-        if (BigDecimalValue.class.equals(object.getClass())) {
+        } else if (object instanceof BigDecimalValue) {
             return ((BigDecimalValue) object).doubleValue();
-        }
-
-        if (Byte.class.equals(object.getClass())) {
+        } else if (object instanceof Byte) {
             return ((Byte) object).doubleValue();
-        }
-        if (ByteValue.class.equals(object.getClass())) {
+        } else if (object instanceof ByteValue) {
             return ((ByteValue) object).doubleValue();
-        }
-        if (Short.class.equals(object.getClass())) {
+        } else if (object instanceof Short) {
             return ((Short) object).doubleValue();
-        }
-        if (ShortValue.class.equals(object.getClass())) {
+        } else if (object instanceof ShortValue) {
             return ((ShortValue) object).doubleValue();
-        }
-        if (Integer.class.equals(object.getClass())) {
+        } else if (object instanceof Integer) {
             return ((Integer) object).doubleValue();
-        }
-        if (IntValue.class.equals(object.getClass())) {
+        } else if (object instanceof IntValue) {
             return ((IntValue) object).doubleValue();
-        }
-        if (Long.class.equals(object.getClass())) {
+        } else if (object instanceof Long) {
             return ((Long) object).doubleValue();
-        }
-        if (LongValue.class.equals(object.getClass())) {
+        } else if (object instanceof LongValue) {
             return ((LongValue) object).doubleValue();
-        }
-        if (BigInteger.class.equals(object.getClass())) {
+        } else if (object instanceof BigInteger) {
             return ((BigInteger) object).doubleValue();
-        }
-        if (BigIntegerValue.class.equals(object.getClass())) {
+        } else if (object instanceof BigIntegerValue) {
             return ((BigIntegerValue) object).doubleValue();
+        } else {
+            return null;
         }
-
-        return null;
     }
 
     public static DoubleValue convertToDoubleValue(Object object) {
+
         if (FloatValue.class.isAssignableFrom(object.getClass())) {
             return FloatValue.autocast((FloatValue) object, (DoubleValue) null);
         }
@@ -187,17 +159,17 @@ public final class NumberUtils {
     }
 
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
-        if (Byte.class.equals(wrapperClass)) {
+        if (Byte.class == wrapperClass) {
             return byte.class;
-        } else if (Short.class.equals(wrapperClass)) {
+        } else if (Short.class == wrapperClass) {
             return short.class;
-        } else if (Integer.class.equals(wrapperClass)) {
+        } else if (Integer.class == wrapperClass) {
             return int.class;
-        } else if (Long.class.equals(wrapperClass)) {
+        } else if (Long.class == wrapperClass) {
             return long.class;
-        } else if (Float.class.equals(wrapperClass)) {
+        } else if (Float.class == wrapperClass) {
             return float.class;
-        } else if (Double.class.equals(wrapperClass)) {
+        } else if (Double.class == wrapperClass) {
             return double.class;
         }
         return null;

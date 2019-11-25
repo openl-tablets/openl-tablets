@@ -2,9 +2,10 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.openl.rules.security.standalone.persistence.Group;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,23 +19,33 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Override
     @Transactional
     public Group getGroupByName(final String name) {
-        return (Group) getSession().createCriteria(Group.class).add(Restrictions.eq("name", name)).uniqueResult();
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<Group> criteria = builder.createQuery(Group.class);
+        Root<Group> g = criteria.from(Group.class);
+        criteria.select(g).where(builder.equal(g.get("name"), name)).distinct(true);
+        List<Group> groupList = getSession().createQuery(criteria).getResultList();
+        return groupList.isEmpty() ? null : groupList.get(0);
     }
 
     @Override
     @Transactional
     public void deleteGroupByName(final String name) {
-        getSession().createSQLQuery("delete from OpenL_Group2Group where includedGroupID = (select id from OpenL_Groups where groupName = :name)").setString("name", name).executeUpdate();
-        getSession().createSQLQuery("delete from OpenL_Groups where groupName = :name").setString("name", name).executeUpdate();
+        getSession().createNativeQuery(
+            "delete from OpenL_Group2Group where includedGroupID = (select id from OpenL_Groups where groupName = :name)")
+            .setParameter("name", name)
+            .executeUpdate();
+        getSession().createNativeQuery("delete from OpenL_Groups where groupName = :name")
+            .setParameter("name", name)
+            .executeUpdate();
     }
 
     @Override
     @Transactional
-    @SuppressWarnings("unchecked")
     public List<Group> getAllGroups() {
-        return getSession().createCriteria(Group.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("name").ignoreCase())
-                .list();
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<Group> criteria = builder.createQuery(Group.class);
+        Root<Group> root = criteria.from(Group.class);
+        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
+        return getSession().createQuery(criteria).getResultList();
     }
 }

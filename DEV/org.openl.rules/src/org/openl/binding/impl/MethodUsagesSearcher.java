@@ -22,7 +22,10 @@ import org.openl.util.text.TextInfo;
  *
  * @author PUdalau
  */
-public class MethodUsagesSearcher {
+public final class MethodUsagesSearcher {
+
+    private MethodUsagesSearcher() {
+    }
 
     public static class MethodUsage implements NodeUsage {
         private int startPos;

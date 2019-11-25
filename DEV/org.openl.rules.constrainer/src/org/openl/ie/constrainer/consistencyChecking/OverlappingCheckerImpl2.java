@@ -33,9 +33,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     }
 
     private class GoalSaveSolutions extends GoalImpl {
-        /**
-         *
-         */
+
         private static final long serialVersionUID = 4298252562811799305L;
 
         List<Overlapping> overlappingRules;

@@ -26,6 +26,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -202,7 +203,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext) {
 
         String message = String
-            .format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
+            .format("Index Key %s is not found in the foreign table '%s'.", src, foreignTable.getName());
 
         return SyntaxNodeExceptionUtils
             .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
@@ -233,8 +234,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            String message = "Column '" + columnName + "' is not found.";
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+            throw SyntaxNodeExceptionUtils
+                .createError(String.format("Column '%s' is not found.", columnName), null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -313,15 +314,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 String foreignKeyTableName = foreignKeyTable.getIdentifier();
                 ITable foreignTable = db.getTable(foreignKeyTableName);
-                // foreignTable.findObject(columnIndex, key, bindingContext)
 
                 validateForeignTable(foreignTable, foreignKeyTableName);
 
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
                 if (foreignKeyIndex == -1) {
-                    String message = "Column '" + foreignKey.getIdentifier() + "' is not found.";
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Column '%s' is not found.",
+                        foreignKey.getIdentifier()), null, foreignKey);
                 }
 
                 // table will have 1xN size
@@ -337,6 +337,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     try {
                         result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
+                        foreignTable.getTableSyntaxNode().addError(ex);
                         throw createIndexNotFoundError(foreignTable, valuesTable, s, ex, cxt);
                     }
                     if (result != null) {
@@ -357,7 +358,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     }
                 }
 
-                boolean isCollection = Collection.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isCollection = ClassUtils.isAssignable(fieldType.getInstanceClass(), Collection.class);
 
                 boolean f = true;
                 if (fieldType.isArray()) {
@@ -389,7 +390,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         IOpenCast cast = cxt.getCast(resType, fieldType);
                         if (cast == null || !cast.isImplicit()) {
                             String message = String.format(
-                                "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                                "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
                                 getField().getName(),
                                 fieldType,
                                 resType);
@@ -435,15 +436,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     getField().set(target, v, env);
                 }
             }
-        } else {
-            /*
-             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during preparing column descriptor. See {@link
-             * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
-             * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
-             * hasColumnTytleRow)}
-             */
-        }
+        } 
     }
 
     private IOpenClass getComponentType(IOpenClass fieldType) {
@@ -474,8 +467,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
                 IOpenClass componentType = getComponentType(fieldType);
                 Object currentValue = getField().get(target, env);
-                boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
-                boolean isSet = Set.class.isAssignableFrom(fieldType.getInstanceClass());
+                boolean isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+                boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
                 boolean isArray = !isList && !isSet;
                 int shift = 0;
                 Object v;
@@ -517,7 +510,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenCast cast = cxt.getCast(resType, fieldType);
                 if (cast == null || !cast.isImplicit()) {
                     String message = String.format(
-                        "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                        "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
                         getField().getName(),
                         fieldType,
                         resType);
@@ -533,7 +526,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String message = String.format("Table '%s' is not found.", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
+            String message = String.format("Foreign table '%s' has errors.", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
     }

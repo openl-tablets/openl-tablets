@@ -5,13 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.IndexBuilder;
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.METHOD, ElementType.TYPE })
 public @interface StoreLogDataToElasticsearch {
-    Class<? extends IndexBuilder>[] value() default DEFAULT.class;
+    Class<?>[] value() default DEFAULT.class;
 
-    public static interface DEFAULT extends IndexBuilder {
+    public static interface DEFAULT {
     }
 }

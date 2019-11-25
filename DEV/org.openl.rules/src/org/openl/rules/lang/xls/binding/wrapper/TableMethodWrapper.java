@@ -16,10 +16,14 @@ import org.openl.vm.IRuntimeEnv;
 public class TableMethodWrapper extends TableMethod implements IOpenMethodWrapper {
     TableMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public TableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, TableMethod delegate) {
+    public TableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            TableMethod delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -147,11 +151,21 @@ public class TableMethodWrapper extends TableMethod implements IOpenMethodWrappe
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

@@ -73,7 +73,7 @@
                                     <h:outputLink
                                         value="javascript: explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, result.actualResult)}')"
                                         rendered="#{helper.isExplanationValue(result.actualResult)}">
-                                        <h:outputText value="#{helper.format(result.actualResult)}" />
+                                        <h:outputText value="#{helper.formatText(result.actualResult)}" />
                                     </h:outputLink>
                                     <h:outputText rendered="#{helper.isSpreadsheetResult(result.actualResult)}"
                                         value="#{runBean.getFormattedSpreadsheetResult(result)}" escape="false" />

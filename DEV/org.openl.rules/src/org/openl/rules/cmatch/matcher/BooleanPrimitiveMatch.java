@@ -20,7 +20,7 @@ public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         Class<?> c = type.getInstanceClass();
-        if (boolean.class.equals(c)) {
+        if (boolean.class == c) {
             return this;
         } else {
             return null;

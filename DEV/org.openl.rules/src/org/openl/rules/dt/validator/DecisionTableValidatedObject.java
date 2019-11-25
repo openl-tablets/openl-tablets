@@ -95,8 +95,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (domain == null) {
             if (paramType.getDomain() != null) {
                 domain = makeDomainAdaptor(paramType.getDomain());
-            } else if (boolean.class.equals(paramType.getInstanceClass()) || Boolean.class
-                .equals(paramType.getInstanceClass())) {
+            } else if (boolean.class == paramType.getInstanceClass() || Boolean.class == paramType.getInstanceClass()) {
                 return constrainer.addIntBoolVar(parameterName);
             }
         }
@@ -115,15 +114,15 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
 
-        if (String.class.equals(instanceClass) || Date.class.equals(instanceClass)) {
+        if (String.class == instanceClass || Date.class == instanceClass) {
             return JavaOpenClass.INT;
         }
 
-        if (IntRange.class.equals(instanceClass)) {
+        if (IntRange.class == instanceClass) {
             return JavaOpenClass.getOpenClass(CtrIntRange.class);
         }
 
-        if (boolean.class.equals(instanceClass) || Boolean.class.equals(instanceClass)) {
+        if (boolean.class == instanceClass || Boolean.class == instanceClass) {
             return JavaOpenClass.INT;
         }
 

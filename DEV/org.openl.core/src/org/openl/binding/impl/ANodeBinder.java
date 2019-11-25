@@ -102,7 +102,7 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         if (boundNodesCount != n) {
-            return new IBoundNode[] { makeErrorNode("Cannot bind node", parentNode, bindingContext) };
+            return new IBoundNode[] { makeErrorNode("Cannot bind a node.", parentNode, bindingContext) };
         }
 
         return children;
@@ -287,7 +287,7 @@ public abstract class ANodeBinder implements INodeBinder {
     public IBoundNode bindTarget(ISyntaxNode node,
             IBindingContext bindingContext,
             IBoundNode targetNode) throws Exception {
-        return makeErrorNode("This node does not support target binding", node, bindingContext);
+        return makeErrorNode("This node does not support target binding.", node, bindingContext);
     }
 
     /*

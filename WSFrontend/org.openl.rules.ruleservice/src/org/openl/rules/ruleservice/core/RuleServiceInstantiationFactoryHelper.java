@@ -3,22 +3,11 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -28,11 +17,7 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
-import org.openl.rules.ruleservice.core.interceptors.annotations.NotConvertor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
-import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
+import org.openl.rules.ruleservice.core.interceptors.annotations.*;
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConvertorAdvice;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
@@ -349,15 +334,12 @@ public final class RuleServiceInstantiationFactoryHelper {
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                     CustomSpreadsheetResultOpenClass csrt = (CustomSpreadsheetResultOpenClass) module
                         .findType(customSpreadsheetResultOpenClass.getName());
-                    if (!csrt.isEmptyBeanClass()) {
-                        Class<?> t = csrt.getBeanClass();
-                        if (dim > 0) {
-                            t = Array.newInstance(t, new int[dim]).getClass();
-                        }
-                        ret.put(method, Pair.of(t, Boolean.FALSE));
+                    Class<?> t = csrt.getBeanClass();
+                    if (dim > 0) {
+                        t = Array.newInstance(t, new int[dim]).getClass();
                     }
-                } else if (type.getInstanceClass() != null && SpreadsheetResult.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+                    ret.put(method, Pair.of(t, Boolean.FALSE));
+                } else if (ClassUtils.isAssignable(type.getInstanceClass(), SpreadsheetResult.class)) {
                     Class<?> t = Object.class;
                     if (dim > 0) {
                         t = Array.newInstance(t, new int[dim]).getClass();

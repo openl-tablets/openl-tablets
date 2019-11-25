@@ -261,7 +261,7 @@ public abstract class AOpenClass implements IOpenClass {
         }
 
         if (nonUniqueLowerCaseFieldMap == null) {
-            nonUniqueLowerCaseFieldMap = Collections.emptyMap();
+            nonUniqueLowerCaseFieldMap = new HashMap<>();
         }
 
     }
@@ -487,7 +487,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
         List<IOpenMethod> found = allMethodNamesMap.get(name);
-        return found == null ? Collections.<IOpenMethod> emptyList() : Collections.unmodifiableList(found);
+        return found == null ? Collections.emptyList() : Collections.unmodifiableList(found);
     }
 
     @Override
@@ -500,7 +500,7 @@ public abstract class AOpenClass implements IOpenClass {
                 }
             }
         }
-        return allConstructors == null ? Collections.<IOpenMethod> emptyList() : allConstructors;
+        return allConstructors == null ? Collections.emptyList() : allConstructors;
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {

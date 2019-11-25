@@ -23,9 +23,9 @@ import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.ArrayResultBuilder;
-import org.openl.rules.calc.result.SpreadsheetResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
+import org.openl.rules.calc.result.SpreadsheetResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -246,9 +246,8 @@ public class SpreadsheetComponentsBuilder {
 
             SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
             if (h1 != null) {
-                SyntaxNodeException error;
-                error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.", name);
-
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
+                    name);
                 addError(error);
                 throw new DuplicatedVarException(null, headerName);
             } else {

@@ -9,6 +9,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.ANodeBinder;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
 
@@ -30,6 +31,6 @@ public abstract class AXlsTableBinder extends ANodeBinder {
 
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode,
             OpenL openl,
-            IBindingContext cxt,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception;
 }

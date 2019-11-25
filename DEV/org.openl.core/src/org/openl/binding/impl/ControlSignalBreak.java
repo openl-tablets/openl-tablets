@@ -12,9 +12,6 @@ package org.openl.binding.impl;
  */
 public class ControlSignalBreak extends ControlSignal {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 2480067210332233310L;
 
 }

@@ -22,6 +22,7 @@ public abstract class ABoundNode implements IBoundNode {
     private static final IBoundNode[] EMPTY = new IBoundNode[0];
 
     protected ISyntaxNode syntaxNode;
+
     protected IBoundNode[] children;
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {

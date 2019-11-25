@@ -78,7 +78,11 @@ public class ReloadableDelegatingFilter implements Filter {
         reload(() -> {
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
                 .getWebApplicationContext(servletContext);
-            context.refresh();
+            if (context != null) {
+                context.refresh();
+            } else {
+                LoggerFactory.getLogger(ReloadableDelegatingFilter.class).warn("WebApplicationContext is null");
+            }
 
             SessionListener.getSessionCache(servletContext).invalidateAll();
         });
@@ -139,24 +143,25 @@ public class ReloadableDelegatingFilter implements Filter {
     private void reloadConfigurationIfNeeded() throws ServletException {
         ConfigurationReloader reloader = reloaderHolder.get();
         if (reloader != null) {
-            Filter oldDelegate;
-
             write.lock();
             try {
-                try {
-                    reloader.reload();
-                } catch (RuntimeException e) {
-                    log.error(e.getMessage(), e);
-                }
+                reloader = reloaderHolder.get();
+                if (reloader != null) {
+                    try {
+                        reloader.reload();
+                    } catch (RuntimeException e) {
+                        log.error(e.getMessage(), e);
+                    } finally {
+                        reloaderHolder.remove();
+                    }
 
-                oldDelegate = delegate;
-                delegate = createFilter();
+                    Filter oldDelegate = delegate;
+                    delegate = createFilter();
+                    oldDelegate.destroy();
+                }
             } finally {
                 write.unlock();
-                reloaderHolder.remove();
             }
-
-            oldDelegate.destroy();
         }
     }
 

@@ -10,7 +10,7 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
 
-public class PropertiesHelper {
+public final class PropertiesHelper {
 
     public static final String PROPERTIES_HEADER = "properties";
 

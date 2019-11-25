@@ -61,8 +61,8 @@ public class ParameterTreeBuilder {
     }
 
     private static ParameterDeclarationTreeNode createComplexBeanNode(ParameterRenderConfig config) {
-        if (config.getType().getInstanceClass() != null && IRulesRuntimeContext.class
-            .isAssignableFrom(config.getType().getInstanceClass())) {
+        if (config.getType().getInstanceClass() != null && ClassUtils.isAssignable(config.getType().getInstanceClass(),
+            IRulesRuntimeContext.class)) {
             return new ContextParameterTreeNode(config);
         }
         if (canConstruct(config.getType())) {

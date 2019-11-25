@@ -152,7 +152,7 @@ public final class RuleRowHelper {
         }
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {
-            throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found.", node);
+            throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", typeCode), node);
         }
         return type;
     }
@@ -172,7 +172,7 @@ public final class RuleRowHelper {
             theValueCell = theCell.getTopLeftCellFromRegion();
         }
 
-        if (String.class.equals(paramType.getInstanceClass())) {
+        if (String.class == paramType.getInstanceClass()) {
             // if param type is of type String, load as String
             String src = theValueCell.getStringValue();
             if (src != null) {
@@ -394,7 +394,7 @@ public final class RuleRowHelper {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
                 } else {
-                    if (String.class.equals(paramType.getInstanceClass())) {
+                    if (String.class == paramType.getInstanceClass()) {
                         result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
                     } else {
                         if (theValueCell.hasNativeType()) {
@@ -405,7 +405,6 @@ public final class RuleRowHelper {
                         }
                     }
                 }
-
             } catch (Exception | LinkageError e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.

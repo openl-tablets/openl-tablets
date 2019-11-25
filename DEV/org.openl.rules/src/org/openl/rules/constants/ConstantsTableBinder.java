@@ -1,7 +1,6 @@
 package org.openl.rules.constants;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
@@ -20,10 +19,8 @@ public class ConstantsTableBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            IBindingContext cxt,
+            RulesModuleBindingContext bindingCOntext,
             XlsModuleOpenClass module) throws Exception {
-
-        assert cxt instanceof RulesModuleBindingContext;
 
         ILogicalTable table = tsn.getTable();
 

@@ -19,10 +19,12 @@ public class DatatypeOpenField extends AOpenField {
     private volatile byte flag;
     private volatile Method getter;
     private volatile Method setter;
+    private final String contextProperty;
 
-    public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
+    public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type, String contextProperty) {
         super(name, type);
         this.declaringClass = declaringClass;
+        this.contextProperty = contextProperty;
     }
 
     private void initMethods() {
@@ -103,4 +105,13 @@ public class DatatypeOpenField extends AOpenField {
         }
     }
 
+    @Override
+    public boolean isContextProperty() {
+        return contextProperty != null;
+    }
+
+    @Override
+    public String getContextProperty() {
+        return contextProperty;
+    }
 }

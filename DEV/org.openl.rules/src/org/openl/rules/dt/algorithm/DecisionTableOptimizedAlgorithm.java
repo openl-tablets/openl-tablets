@@ -320,8 +320,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             if ((conditionCasts.atLeastOneExists()) && Objects.equals(conditionParamType0, conditionParamType1)) {
                 Class<?> clazz = inputParamType.getInstanceClass();
-                if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || Comparable.class
-                    .isAssignableFrom(clazz)) {
+                if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || ClassUtils
+                    .isAssignable(clazz, Comparable.class)) {
                     return new CombinedRangeIndexEvaluator(null, 2, conditionCasts);
                 }
             }

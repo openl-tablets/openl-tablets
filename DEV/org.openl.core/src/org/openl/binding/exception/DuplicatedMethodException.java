@@ -15,12 +15,11 @@ import org.openl.types.IOpenMethod;
  *
  */
 public class DuplicatedMethodException extends OpenlNotCheckedException {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 4145939391957085009L;
 
     private IOpenMethod existedMethod;
+
     private IOpenMethod newMethod;
 
     public DuplicatedMethodException(String msg, IOpenMethod existedMethod, IOpenMethod newMethod) {
@@ -43,11 +42,11 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
             return super.getMessage();
         }
 
-        StringBuilder buf = new StringBuilder();
-        buf.append("Method ");
-        MethodUtil.printMethod(newMethod, buf);
-        buf.append(" has already been defined.");
-        return buf.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Method ");
+        MethodUtil.printMethod(newMethod, sb);
+        sb.append(" has already been defined.");
+        return sb.toString();
     }
 
 }

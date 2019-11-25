@@ -10,11 +10,15 @@ import org.openl.vm.IRuntimeEnv;
 public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {
     DeferredMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
+    ContextPropertiesInjector contextPropertiesInjector;
 
-    public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, DeferredMethod delegate) {
+    public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            DeferredMethod delegate,
+            ContextPropertiesInjector contextPropertiesInjector) {
         super(null, null, null, null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.contextPropertiesInjector = contextPropertiesInjector;
     }
 
     @Override
@@ -102,11 +106,21 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         delegate.setModuleName(dependencyName);
     }
 
+    @Override
+    public boolean isConstructor() {
+        return delegate.isConstructor();
+    }
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
+    }
+
+    @Override
+    public ContextPropertiesInjector getContextPropertiesInjector() {
+        return contextPropertiesInjector;
     }
 
 }

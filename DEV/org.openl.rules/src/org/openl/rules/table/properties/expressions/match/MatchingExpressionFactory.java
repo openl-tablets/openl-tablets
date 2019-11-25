@@ -3,7 +3,7 @@ package org.openl.rules.table.properties.expressions.match;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.util.StringUtils;
 
-public class MatchingExpressionFactory {
+public final class MatchingExpressionFactory {
 
     private MatchingExpressionFactory() {
     }
@@ -13,7 +13,7 @@ public class MatchingExpressionFactory {
         operationName = operationName == null ? "" : operationName;
 
         if (StringUtils.isEmpty(contextAttribute)) {
-            throw new OpenLRuntimeException("Cannot create matching expression with empty context attribute");
+            throw new OpenLRuntimeException("Cannot create matching expression with empty context attribute.");
         }
 
         if (LTMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)) {
@@ -29,7 +29,7 @@ public class MatchingExpressionFactory {
         } else if (ContainsMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operationName)) {
             matchExpression = new ContainsMatchingExpression(contextAttribute);
         } else {
-            throw new OpenLRuntimeException(String.format("Unknown match expression operation '%s'", operationName));
+            throw new OpenLRuntimeException(String.format("Unknown match expression operation '%s'.", operationName));
         }
         return matchExpression;
     }

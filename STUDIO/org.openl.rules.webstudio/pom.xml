@@ -310,6 +310,11 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- w3c -->
+        <dependency>
+            <groupId>org.w3c</groupId>
+            <artifactId>dom</artifactId>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

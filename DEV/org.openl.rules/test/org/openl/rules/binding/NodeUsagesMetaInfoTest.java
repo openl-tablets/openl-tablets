@@ -355,7 +355,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertNull(usedNodes.get(0).getUri());
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
-        assertEquals(totalAssets.getUri(), usedNodes.get(1).getUri());
+        assertEquals(totalAssets.getUri(),
+            usedNodes.stream().filter(e -> e.getUri() != null).findFirst().get().getUri());
         assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)

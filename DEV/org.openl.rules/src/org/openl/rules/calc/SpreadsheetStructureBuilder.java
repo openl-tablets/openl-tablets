@@ -11,19 +11,9 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.IMetaHolder;
-import org.openl.meta.IMetaInfo;
-import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
+import org.openl.meta.*;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellRefType;
-import org.openl.rules.calc.element.SpreadsheetCellType;
-import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
-import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
+import org.openl.rules.calc.element.*;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.ICell;
@@ -36,12 +26,7 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
@@ -75,13 +60,28 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetCell[][] cells;
 
+    private List<SpreadsheetCell> processingCells = new ArrayList<>();
+    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+
+    private volatile boolean cellsExtracted = false;
+
     /**
      * Extract cell values from the source spreadsheet table.
      *
      * @return cells of spreadsheet with its values
      */
     public SpreadsheetCell[][] getCells() {
-        extractCellValues();
+        if (!cellsExtracted) {
+            synchronized (this) {
+                if (!cellsExtracted) {
+                    try {
+                        extractCellValues();
+                    } finally {
+                        cellsExtracted = true;
+                    }
+                }
+            }
+        }
         return cells;
     }
 
@@ -141,29 +141,29 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private List<SpreadsheetCell> processingCells = new ArrayList<>();
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
-
     public IOpenClass makeType(SpreadsheetCell cell) {
-        if (cell.getType() == null) {
+        if (cell.getType() == null && !cell.isTypeUnknown()) {
             int rowIndex = cell.getRowIndex();
             int columnIndex = cell.getColumnIndex();
 
             IBindingContext rowContext = getRowContext(rowIndex);
             if (processingCells.contains(cell)) {
-                cell.setType(JavaOpenClass.OBJECT);
-                throw new OpenlNotCheckedException("Spreadsheet Expression Loop: " + processingCells.toString());
+                cell.setTypeUnknown(true);
+                throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + processingCells.toString());
             }
-            processingCells.add(cell);
-
-            extractCellValue(rowContext, rowIndex, columnIndex);
-            extractedCellValues.add(cell);
-            processingCells.remove(cell);
-            if (cell.getType() == null) {
-                cell.setType(JavaOpenClass.OBJECT);
+            try {
+                processingCells.add(cell);
+                extractCellValue(rowContext, rowIndex, columnIndex);
+                extractedCellValues.add(cell);
+            } finally {
+                processingCells.remove(cell);
             }
         }
-        return cell.getType();
+        if (cell.isTypeUnknown()) {
+            return NullOpenClass.the;
+        } else {
+            return cell.getType();
+        }
     }
 
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
@@ -220,11 +220,12 @@ public class SpreadsheetStructureBuilder {
                 }
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {
+                spreadsheetCell.setTypeUnknown(true);
                 componentsBuilder.getTableSyntaxNode().addError(e);
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
+                spreadsheetCell.setTypeUnknown(true);
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-
                 addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
@@ -249,7 +250,7 @@ public class SpreadsheetStructureBuilder {
                 IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
                 ICell theCellValue = cell.getCell(0, 0);
                 Object result = null;
-                if (String.class.equals(instanceClass)) {
+                if (String.class == instanceClass) {
                     result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
                 } else {
                     if (theCellValue.hasNativeType()) {

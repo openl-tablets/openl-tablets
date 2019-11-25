@@ -9,9 +9,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.java.JavaOpenClass;
 
-/**
- *
- */
 public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
 
     private int getIntValue(Long number, ISyntaxNode node) throws SyntaxNodeException {

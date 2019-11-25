@@ -19,6 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.*;
 import org.openl.types.impl.OpenFieldDelegator;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
@@ -216,22 +217,19 @@ public class Condition extends FunctionalRow implements ICondition {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
-                methodType.getInstanceClass().getTypeName(),
-                param.getType().getComponentClass().getInstanceClass().getTypeName()), tableSyntaxNode));
+                methodType.getName(),
+                param.getType().getComponentClass().getName()), tableSyntaxNode));
             return String.format("contains(%s, (%s) %s)",
                 param.getName(),
-                param.getType().getComponentClass().getInstanceClass().getTypeName(),
+                param.getType().getComponentClass().getName(),
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
-                methodType.getInstanceClass().getTypeName()), tableSyntaxNode));
-            return String.format("contains((%s[]) %s, %s)",
-                methodType.getInstanceClass().getTypeName(),
-                param.getName(),
-                source.getCode());
+                methodType.getName()), tableSyntaxNode));
+            return String.format("contains((%s[]) %s, %s)", methodType.getName(), param.getName(), source.getCode());
         } else {
             throw new IllegalStateException("It should not happen.");
         }
@@ -250,31 +248,32 @@ public class Condition extends FunctionalRow implements ICondition {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                 "PERFORMANCE: Condition '%s' uses additional type casting from '%s' to '%s' in calculation time for each table row.",
                 getName(),
-                param.getType().getInstanceClass().getTypeName(),
+                param.getType().getName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));
         }
         return String.format("contains(%s, %s)", param.getName(), source.getCode());
     }
 
     private boolean isRangeExpression(IOpenClass methodType, IOpenClass paramType) {
-        if (INumberRange.class.isAssignableFrom(paramType.getInstanceClass()) && Number.class
-            .isAssignableFrom(methodType.getInstanceClass())) {
+        if (ClassUtils.isAssignable(paramType.getInstanceClass(), INumberRange.class) && ClassUtils
+            .isAssignable(methodType.getInstanceClass(), Number.class)) {
             return true;
         }
-        if (INumberRange.class.isAssignableFrom(paramType.getInstanceClass()) && methodType.getInstanceClass()
+        if (ClassUtils.isAssignable(paramType.getInstanceClass(), INumberRange.class) && methodType.getInstanceClass()
             .isPrimitive() && !char.class.equals(methodType.getInstanceClass())) {
             return true;
         }
-        if (DateRange.class.isAssignableFrom(paramType.getInstanceClass()) && Date.class
-            .isAssignableFrom(methodType.getInstanceClass())) {
+        if (ClassUtils.isAssignable(paramType.getInstanceClass(), DateRange.class) && ClassUtils
+            .isAssignable(methodType.getInstanceClass(), Date.class)) {
             return true;
         }
-        if (CharRange.class.isAssignableFrom(paramType.getInstanceClass()) && (Character.class
-            .isAssignableFrom(methodType.getInstanceClass()) || char.class.equals(methodType.getInstanceClass()))) {
+        if (ClassUtils.isAssignable(paramType.getInstanceClass(),
+            CharRange.class) && (ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class) || char.class
+                .equals(methodType.getInstanceClass()))) {
             return true;
         }
-        return StringRange.class.isAssignableFrom(paramType.getInstanceClass()) && CharSequence.class
-            .isAssignableFrom(methodType.getInstanceClass());
+        return ClassUtils.isAssignable(paramType.getInstanceClass(), StringRange.class) && ClassUtils
+            .isAssignable(methodType.getInstanceClass(), CharSequence.class);
     }
 
     @Override

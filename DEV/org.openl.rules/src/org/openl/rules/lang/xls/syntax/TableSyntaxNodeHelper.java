@@ -17,6 +17,23 @@ public final class TableSyntaxNodeHelper {
         return rableSyntaxNode.getHeader().getHeaderToken().getModule().getCode();
     }
 
+    public static String getTableReturnType(TableSyntaxNode tableSyntaxNode) {
+        String[] tokens = REGEX.split(getSignature(tableSyntaxNode));
+        if (tokens.length > 3) {
+            List<String> notEmptyTokens = new ArrayList<>();
+            for (String token : tokens) {
+                if (!token.isEmpty()) {
+                    notEmptyTokens.add(token);
+                }
+            }
+            tokens = notEmptyTokens.toArray(new String[] {});
+        }
+        if (tokens != null && tokens.length > 1) {
+            return tokens[1];
+        }
+        return null;
+    }
+
     public static String getTableName(TableSyntaxNode tableSyntaxNode) {
         String methodName = StringUtils.EMPTY;
         String[] tokens = REGEX.split(getSignature(tableSyntaxNode));

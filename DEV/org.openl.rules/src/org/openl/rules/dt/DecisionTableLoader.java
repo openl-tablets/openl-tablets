@@ -25,6 +25,7 @@ import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
@@ -326,10 +327,10 @@ public class DecisionTableLoader {
         if (type.isArray()) {
             return true;
         }
-        if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
             return true;
         }
-        return Map.class.isAssignableFrom(type.getInstanceClass());
+        return ClassUtils.isAssignable(type.getInstanceClass(), Map.class);
 
     }
 

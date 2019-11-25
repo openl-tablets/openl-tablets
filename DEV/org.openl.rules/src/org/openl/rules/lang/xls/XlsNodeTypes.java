@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +51,15 @@ public enum XlsNodeTypes {
         return value;
     }
 
-    private static Map<String, XlsNodeTypes> cache = null;
+    private static final Map<String, XlsNodeTypes> CACHE;
+
     static {
         XlsNodeTypes[] tmp = XlsNodeTypes.values();
-        cache = new HashMap<>(tmp.length);
+        Map<String, XlsNodeTypes> cache = new HashMap<>(tmp.length);
         for (XlsNodeTypes xlsNodeType : tmp) {
             cache.put(xlsNodeType.value, xlsNodeType);
         }
+        CACHE = Collections.unmodifiableMap(cache);
     }
 
     // Temporary method.
@@ -64,6 +67,6 @@ public enum XlsNodeTypes {
     // to XlsNodeTypes
     //
     public static XlsNodeTypes getEnumByValue(String value) {
-        return cache.get(value);
+        return CACHE.get(value);
     }
 }

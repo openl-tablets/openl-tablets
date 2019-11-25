@@ -21,7 +21,6 @@ public class RulesBindingDependencies extends BindingDependencies {
             for (IOpenMethod overlappedMethod : overlappedMethods) {
                 addMethodDependency(overlappedMethod, node);
             }
-
         }
     }
 

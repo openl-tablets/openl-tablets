@@ -184,9 +184,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 String format,
                 Class<?> returnType) throws InvalidFileNamePatternException {
             String pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
-            if (Boolean.class.equals(returnType)) {
+            if (Boolean.class == returnType) {
                 pattern = "[a-zA-Z]+";
-            } else if (Date.class.equals(returnType)) {
+            } else if (Date.class == returnType) {
                 if (format == null) {
                     format = "yyyyMMdd"; // default pattern for easier declaration and be ordered by date naturally
                 }
@@ -224,11 +224,11 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
         protected Object getObject(String propertyName, String value, Class<?> clazz) {
             Object propValue;
-            if (Boolean.class.equals(clazz)) {
+            if (Boolean.class == clazz || boolean.class == clazz) {
                 propValue = BooleanUtils.toBoolean(value);
-            } else if (String.class.equals(clazz)) {
+            } else if (String.class == clazz) {
                 propValue = value;
-            } else if (Date.class.equals(clazz)) {
+            } else if (Date.class == clazz) {
                 try {
                     propValue = getDateFormats().get(propertyName).parse(value);
                 } catch (ParseException e) {

@@ -33,7 +33,6 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
         }
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
-
         if (tsn != null) {
             spreadsheetResult.setLogicalTable(tsn.getTableBody());
         }

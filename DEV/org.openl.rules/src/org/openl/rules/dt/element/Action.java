@@ -106,10 +106,10 @@ public class Action extends FunctionalRow implements IAction {
         if (type.isArray()) {
             return type.getComponentClass();
         }
-        if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
             return JavaOpenClass.OBJECT;
         }
-        if (Map.class.isAssignableFrom(type.getInstanceClass())) {
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             return JavaOpenClass.OBJECT;
         }
         return type;

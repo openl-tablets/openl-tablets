@@ -68,6 +68,9 @@ public class JaxbAnnotationsSupportConvertor implements ModelConverter {
                 return context.resolveProperty(valueType, annotations);
             }
         }
+        if (type == null) {
+            return null;
+        }
         return chain.next().resolveProperty(type, context, annotations, chain);
     }
 }

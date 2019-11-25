@@ -16,6 +16,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -44,6 +45,7 @@ import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -547,6 +549,11 @@ public class RepositoryTreeController {
             return msg;
         }
 
+        msg = validateProjectFolder();
+        if (msg != null) {
+            return msg;
+        }
+
         msg = validateCreateProjectComment(comment);
         if (msg != null) {
             return msg;
@@ -568,8 +575,19 @@ public class RepositoryTreeController {
             return msg;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return "Internal error: " + e.getMessage();
+            return "Internal error while creating a project: " + e.getMessage();
         }
+    }
+
+    private String validateProjectFolder() {
+        if (isSupportsBranches()) {
+            try {
+                FolderStructureValidators.validatePathInRepository(projectFolder);
+            } catch (ValidatorException e) {
+                return e.getMessage();
+            }
+        }
+        return null;
     }
 
     private String validateCreateProjectComment(String comment) {
@@ -705,6 +723,11 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
+        if (projectArtefact == null) {
+            activeProjectNode = null;
+            FacesUtils.addErrorMessage("Project is already deleted.");
+            return null;
+        }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
         if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
@@ -753,11 +776,17 @@ public class RepositoryTreeController {
                     repositoryTreeState.refreshSelectedNode();
                 } else {
                     repositoryTreeState.deleteSelectedNodeFromTree();
+                    if (isSupportsBranches()) {
+                        repositoryTreeState.invalidateTree();
+                    }
                 }
             } else {
                 if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
                     repositoryTreeState.deleteNode(selectedNode);
                     repositoryTreeState.invalidateSelection();
+                    if (isSupportsBranches()) {
+                        repositoryTreeState.invalidateTree();
+                    }
                 } else {
                     repositoryTreeState.refreshSelectedNode();
                 }
@@ -883,12 +912,7 @@ public class RepositoryTreeController {
                             if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
                                 FileData fileData = new FileData();
                                 fileData.setName(projectName);
-                                if (!repository.delete(fileData)) {
-                                    if (repository.check(fileData.getName()) != null) {
-                                        log.warn("Cannot close project because resource '" + fileData
-                                            .getName() + "' is used");
-                                    }
-                                }
+                                repository.delete(fileData);
                             }
                         } catch (Exception e) {
                             // Log exception and skip current user
@@ -1908,8 +1932,13 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
-                .getBranches(selectedProject.getName());
+            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName()));
+            String projectBranch = getProjectBranch();
+            if (projectBranch != null && !branches.contains(projectBranch)) {
+                branches.add(projectBranch);
+                branches.sort(String.CASE_INSENSITIVE_ORDER);
+            }
 
             return Arrays.asList(FacesUtils.createSelectItems(branches));
         } catch (IOException e) {
@@ -1949,13 +1978,13 @@ public class RepositoryTreeController {
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);
                 if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
-                    return commentParts;
+                    return new ArrayList<>(commentParts);
                 }
             }
 
         }
 
-        return Collections.singletonList(comment);
+        return new ArrayList<>(Collections.singletonList(comment));
     }
 
     /**

@@ -29,9 +29,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     private static final long serialVersionUID = 1996508840075924034L;
 
-    private static final BigDecimalValue ZERO = new BigDecimalValue("0");
-    private static final BigDecimalValue ONE = new BigDecimalValue("1");
-    private static final BigDecimalValue MINUS_ONE = new BigDecimalValue("-1");
+    public static final BigDecimalValue ZERO = new BigDecimalValue("0");
+    public static final BigDecimalValue ONE = new BigDecimalValue("1");
+    public static final BigDecimalValue MINUS_ONE = new BigDecimalValue("-1");
 
     private final java.math.BigDecimal value;
 

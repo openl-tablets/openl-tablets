@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.meta.*;
 import org.openl.rules.helpers.DoubleRange;
@@ -140,7 +141,7 @@ public class DomainTree {
             // the are errors in datatype table. it cause stop
             // processing datatype table binding.
 
-            if (instanceClass != null && Collection.class.isAssignableFrom(instanceClass)) {
+            if (ClassUtils.isAssignable(instanceClass, Collection.class)) {
                 return false;
             }
 

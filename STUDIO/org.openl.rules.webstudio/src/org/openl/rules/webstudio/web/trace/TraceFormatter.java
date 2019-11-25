@@ -12,7 +12,17 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.webstudio.web.trace.node.*;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -130,7 +140,11 @@ public class TraceFormatter {
             if (result != null && result.getClass().isArray()) {
                 txt = ArrayUtils.toString(result);
             } else {
-                txt = FormattersManager.format(result);
+                if (result instanceof Number) {
+                    txt = String.valueOf(result);
+                } else {
+                    txt = FormattersManager.format(result);
+                }
             }
 
             buf.append(" = ").append(txt);
