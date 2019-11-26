@@ -103,7 +103,6 @@
         <jetty.server.version>9.4.22.v20191022</jetty.server.version>
         <awaitility.version>3.1.6</awaitility.version>
         <elasticsearch-cluster-runner.version>6.8.1.0</elasticsearch-cluster-runner.version>
-        <org.w3c.version>2.3.0-jaxb-1.0.6</org.w3c.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -1862,12 +1861,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <!-- w3c -->
-            <dependency>
-                <groupId>org.w3c</groupId>
-                <artifactId>dom</artifactId>
-                <version>${org.w3c.version}</version>
             </dependency>
             <!-- Util -->
             <dependency>
