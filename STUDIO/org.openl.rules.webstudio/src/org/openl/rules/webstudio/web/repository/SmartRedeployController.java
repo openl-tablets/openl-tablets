@@ -347,8 +347,6 @@ public class SmartRedeployController {
                 if (!workspace.hasDDProject(deploymentName)) {
                     // create if absent
                     deployConfiguration = workspace.createDDProject(deploymentName);
-                    deployConfiguration.getFileData()
-                        .setComment(deployConfigRepoComments.createProject(deploymentName));
                 }
             }
 
@@ -374,6 +372,11 @@ public class SmartRedeployController {
                 deployConfiguration.open();
                 // rewrite project->version
                 deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
+
+                if (create) {
+                    deployConfiguration.getFileData()
+                        .setComment(deployConfigRepoComments.createProject(deploymentName));
+                }
 
                 deployConfiguration.save();
 
