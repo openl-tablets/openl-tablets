@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -76,7 +77,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             repository = createRepo(RepositoryMode.DESIGN, flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
 
             if (!separateDeployConfigRepo) {
-                if (flatProjects) {
+                if (flatProjects || !(repository instanceof MappedRepository)) {
                     deployConfigRepository = repository;
                 } else {
                     // Deploy config repository currently supports only flat folder structure.
@@ -126,6 +127,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return repo;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if (rootCause == null) {
+                rootCause = e;
+            }
+            String message;
+            if (rootCause.getMessage() == null || !(rootCause instanceof IOException)) {
+                // For some exceptions like ClassNotFoundException the messages aren't understandable for a user. Use
+                // default.
+                message = "Repository configuration is incorrect. Please change configuration.";
+            } else {
+                message = rootCause.getMessage();
+            }
+
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
                 new Class[] { Repository.class },
                 (proxy, method, args) -> {
@@ -135,8 +149,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
                         return new FeaturesBuilder(null).setVersions(false).build();
                     }
-                    throw new IllegalStateException(
-                        "Repository configuration is incorrect. Please change configuration.");
+                    throw new IllegalStateException(message);
                 });
         }
     }
