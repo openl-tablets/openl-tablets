@@ -18,7 +18,7 @@ import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigParseOptions;
 import com.typesafe.config.impl.Parseable;
 
-public final class ConfigLoader {
+final class ConfigLoader {
 
     private ConfigLoader() {
     }
@@ -43,7 +43,7 @@ public final class ConfigLoader {
             .parse();
     }
 
-    public static DriverConfigLoader fromApplicationContext(ApplicationContext applicationContext) {
+    static DriverConfigLoader fromApplicationContext(ApplicationContext applicationContext) {
         return new DefaultDriverConfigLoader(() -> {
             ConfigFactory.invalidateCaches();
             Config config = ConfigFactory.defaultOverrides()

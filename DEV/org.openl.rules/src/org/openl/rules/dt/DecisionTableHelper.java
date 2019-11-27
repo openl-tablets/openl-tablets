@@ -341,12 +341,12 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        int numberOfHcondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
+        int numberOfHCondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
         int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
 
         final FuzzyContext fuzzyContext = buildFuzzyContext(tableSyntaxNode,
             decisionTable,
-            numberOfHcondition,
+            numberOfHCondition,
             bindingContext);
 
         final NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter = new NumberOfColumnsUnderTitleCounter(
@@ -358,7 +358,7 @@ public final class DecisionTableHelper {
             originalTable,
             fuzzyContext,
             numberOfColumnsUnderTitleCounter,
-            numberOfHcondition,
+            numberOfHCondition,
             firstColumnHeight,
             bindingContext);
 
@@ -367,7 +367,7 @@ public final class DecisionTableHelper {
             grid,
             numberOfColumnsUnderTitleCounter,
             dtHeaders,
-            numberOfHcondition,
+            numberOfHCondition,
             firstColumnHeight,
             bindingContext);
 
@@ -411,7 +411,7 @@ public final class DecisionTableHelper {
     private static void validateCompoundReturnType(IOpenClass compoundType) throws OpenLCompilationException {
         try {
             compoundType.getInstanceClass().getConstructor();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new OpenLCompilationException(
                 String.format("Invalid compound return type: There is no default constructor found in return type '%s'",
                     compoundType.getDisplayName(0)));
@@ -564,7 +564,7 @@ public final class DecisionTableHelper {
                         }
                         DecisionTableMetaInfoReader.appendParameters(sb,
                             localParameterNames.toArray(new String[] {}),
-                            typeOfColumns.toArray(new IOpenClass[] {}));
+                            typeOfColumns.toArray(IOpenClass.EMPTY));
                         writeReturnMetaInfo(tableSyntaxNode,
                             cell,
                             sb.toString(),
@@ -663,10 +663,10 @@ public final class DecisionTableHelper {
         Map<IOpenMethod[], List<Token>> m = new HashMap<>();
         for (Token token : fuzzyContext.getFuzzyReturnTokens()) {
             IOpenMethod[][] returnTypeMethodChains = fuzzyContext.getMethodChainsForReturnToken(token);
-            for (int i = 0; i < returnTypeMethodChains.length; i++) {
+            for (IOpenMethod[] returnTypeMethodChain : returnTypeMethodChains) {
                 boolean f = false;
                 for (Entry<IOpenMethod[], List<Token>> entry : m.entrySet()) {
-                    if (OpenLFuzzyUtils.isEqualsMethodChains(entry.getKey(), returnTypeMethodChains[i])) {
+                    if (OpenLFuzzyUtils.isEqualsMethodChains(entry.getKey(), returnTypeMethodChain)) {
                         entry.getValue().add(token);
                         f = true;
                         break;
@@ -675,7 +675,7 @@ public final class DecisionTableHelper {
                 if (!f) {
                     List<Token> tokens = new ArrayList<>();
                     tokens.add(token);
-                    m.put(returnTypeMethodChains[i], tokens);
+                    m.put(returnTypeMethodChain, tokens);
                 }
             }
         }
@@ -1001,7 +1001,7 @@ public final class DecisionTableHelper {
                         header,
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
-                        typeOfColumns.toArray(new IOpenClass[] {}),
+                        typeOfColumns.toArray(IOpenClass.EMPTY),
                         dtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
                 } else if (dtHeader.isCondition()) {
                     writeMetaInfoForVCondition(originalTable,
@@ -1010,9 +1010,9 @@ public final class DecisionTableHelper {
                         header,
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
-                        typeOfColumns.toArray(new IOpenClass[] {}),
-                        dtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri(),
-                        null);
+                        typeOfColumns.toArray(IOpenClass.EMPTY),
+                        dtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri()
+                    );
                 }
             }
         }
@@ -1030,7 +1030,7 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             IBindingContext bindingContext) throws OpenLCompilationException {
         List<DTHeader> actions = dtHeaders.stream()
-            .filter(e -> e.isAction())
+            .filter(DTHeader::isAction)
             .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         int i = 0;
@@ -1099,7 +1099,7 @@ public final class DecisionTableHelper {
             IWritableGrid grid,
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             List<DTHeader> dtHeaders,
-            int numberOfHcondition,
+            int numberOfHCondition,
             int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
@@ -1134,7 +1134,7 @@ public final class DecisionTableHelper {
                 // write vertical condition
                 //
                 numOfVCondition++;
-                if (numOfVCondition == 1 && numberOfHcondition == 0 && conditions.size() < 2) {
+                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions.size() < 2) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition).intern();
                 } else {
                     header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition).intern();
@@ -1202,8 +1202,8 @@ public final class DecisionTableHelper {
                                 minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER,
                                 statement,
                                 new IOpenClass[] { type, type },
-                                null,
-                                null);
+                                null
+                            );
                         }
                         if (condition.getWidth() > 1) {
                             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
@@ -1235,8 +1235,8 @@ public final class DecisionTableHelper {
                                 typeOfValue.getLeft().length == 1 ? null : new String[] { typeOfValue.getLeft()[1] },
                                 typeOfValue.getRight(),
                                 new IOpenClass[] { typeOfValue.getMiddle() },
-                                null,
-                                null);
+                                null
+                            );
                         }
                         if (condition.getWidth() > 1) {
                             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
@@ -1257,15 +1257,14 @@ public final class DecisionTableHelper {
     }
 
     private static void writeMetaInfoForVCondition(ILogicalTable originalTable,
-            DecisionTable decisionTable,
-            int column,
-            String header,
-            String[] parameterNames,
-            String conditionStatement,
-            IOpenClass[] typeOfColumns,
-            String url,
-            String additionalDetails) {
-        assert header != null;
+                                                   DecisionTable decisionTable,
+                                                   int column,
+                                                   String header,
+                                                   String[] parameterNames,
+                                                   String conditionStatement,
+                                                   IOpenClass[] typeOfColumns,
+                                                   String url) {
+        Objects.requireNonNull(header);
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
@@ -1276,8 +1275,7 @@ public final class DecisionTableHelper {
                 parameterNames,
                 conditionStatement,
                 typeOfColumns,
-                url,
-                additionalDetails);
+                url, null);
         }
     }
 
@@ -2072,7 +2070,7 @@ public final class DecisionTableHelper {
             .mapToLong(e -> e.stream()
                 .filter(x -> x instanceof FuzzyDTHeader)
                 .map(x -> (FuzzyDTHeader) x)
-                .filter(x -> predicate.test(x))
+                .filter(predicate::test)
                 .count())
             .max()
             .orElse(0);
@@ -2082,38 +2080,38 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .mapToInt(x -> x.getFuzzyResult().getMax())
                     .sum(),
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .count() != currentFuzzyConditionsCounts);
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .mapToInt(x -> x.getFuzzyResult().getMin())
                     .sum(),
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .count() != currentFuzzyConditionsCounts);
 
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
                     .sum(),
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .filter(x -> predicate.test(x))
+                    .filter(predicate::test)
                     .count() != currentFuzzyConditionsCounts);
         }
 
