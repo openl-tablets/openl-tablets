@@ -145,9 +145,6 @@ public class ParsedCell implements ICell {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
         }
-        if (value instanceof Date) {
-            return DateUtil.getExcelDate((Date) value, grid.isUse1904Windowing());
-        }
 
         return Double.NaN;
     }

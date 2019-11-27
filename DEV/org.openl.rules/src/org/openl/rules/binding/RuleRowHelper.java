@@ -257,6 +257,11 @@ public final class RuleRowHelper {
         Object res = null;
         if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
             Class<?> expectedType = paramType.getInstanceClass();
+            if (cell.getObjectValue() instanceof Date) {
+                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                return objectConvertor != ObjectToDataConvertorFactory.NO_Convertor
+                        ? objectConvertor.convert(cell.getNativeDate()) : null;
+            }
 
             if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class
                 .isAssignableFrom(expectedType)) {
