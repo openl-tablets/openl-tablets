@@ -45,8 +45,6 @@
     <bean id="fileSystemDataSource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
           depends-on="unpackClasspathAutoJarToDirectoryBean">
         <constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
-        <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
-        <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
         <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
         <property name="supportVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
     </bean>

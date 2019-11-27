@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,10 +10,8 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,27 +28,9 @@ public class FileSystemDataSource implements DataSource {
 
     private File loadDeploymentsFromDirectory;
 
-    private FileFilter localWorkspaceFolderFilter;
-
-    private FileFilter localWorkspaceFileFilter;
-
     private boolean supportDeployments = false;
 
     private boolean supportVersion = false;
-
-    /**
-     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean configuration property.
-     */
-    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
-    }
-
-    /**
-     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean configuration property.
-     */
-    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-    }
 
     public void setSupportDeployments(boolean supportDeployments) {
         this.supportDeployments = supportDeployments;
@@ -155,12 +134,6 @@ public class FileSystemDataSource implements DataSource {
     }
 
     private Deployment getDeployment(File deploymentFolder, String deploymentName, CommonVersion deploymentVersion) {
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder,
-            new ArtefactPathImpl(deploymentFolder.getName()),
-            new LocalWorkspaceImpl(null,
-                deploymentFolder.getParentFile(),
-                localWorkspaceFolderFilter,
-                localWorkspaceFileFilter));
         FileSystemRepository repository = new FileSystemRepository();
         repository.setRoot(deploymentFolder.getParentFile());
         try {
@@ -168,7 +141,7 @@ public class FileSystemDataSource implements DataSource {
         } catch (RRepositoryException e) {
             log.error("Failed to initialize local repository: {}", e.getMessage(), e);
         }
-        String folderPath = localFolderAPI.getArtefactPath().getStringValue();
+        String folderPath = new ArtefactPathImpl(deploymentFolder.getName()).getStringValue();
 
         // FileSystemDataSource can contain projects stored either as zip or as a folder. Depending on it we construct
         // Deployment object accordingly

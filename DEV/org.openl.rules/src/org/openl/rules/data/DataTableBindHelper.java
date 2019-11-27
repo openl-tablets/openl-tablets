@@ -735,11 +735,13 @@ public class DataTableBindHelper {
 
             IOpenField fieldInChain;
             if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier
-                .equals(FPK) && fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField) { // Multi-rows
-                // support.
-                // PK
-                // for
-                // arrays.
+                .equals(FPK)) {
+                if (!(fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) {
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Primary key was defined incorrectly.", fieldNameNode);
+                    processError(bindingContext, table, error);
+                    continue;
+                }
+                // Multi-rows support. PK for arrays.
                 CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
                 CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
                     datatypeCollectionMultiRowElementField.getField(),

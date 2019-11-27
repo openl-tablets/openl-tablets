@@ -27,8 +27,7 @@ public class DecisionRowField implements IOpenField {
         int ruleNum = reo.getRuleNum();
 
         Object[] res = new Object[conditionOrAction.getNumberOfParams()];
-        conditionOrAction.loadValues(res, 0, ruleNum, target, null, env); // TODO does not work for methods in
-        // conditions!!!
+        conditionOrAction.loadValues(res, 0, ruleNum, target, env.getLocalFrame(), env);
 
         return res;
     }

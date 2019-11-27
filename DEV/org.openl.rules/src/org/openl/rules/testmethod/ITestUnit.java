@@ -1,9 +1,9 @@
 package org.openl.rules.testmethod;
 
-import java.util.List;
-
 import org.openl.message.OpenLMessage;
 import org.openl.rules.testmethod.result.ComparedResult;
+
+import java.util.List;
 
 public interface ITestUnit {
 
@@ -30,5 +30,7 @@ public interface ITestUnit {
     TestDescription getTest();
 
     List<OpenLMessage> getErrors();
+
+    int getNumberOfFailedTests();
 
 }

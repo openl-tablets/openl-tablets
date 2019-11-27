@@ -723,6 +723,11 @@ public class RepositoryTreeController {
     public String deleteNode() {
         TreeNode selectedNode = getSelectedNode();
         AProjectArtefact projectArtefact = selectedNode.getData();
+        if (projectArtefact == null) {
+            activeProjectNode = null;
+            FacesUtils.addErrorMessage("Project is already deleted.");
+            return null;
+        }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
         if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
@@ -1927,8 +1932,13 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
-                .getBranches(selectedProject.getName());
+            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName()));
+            String projectBranch = getProjectBranch();
+            if (projectBranch != null && !branches.contains(projectBranch)) {
+                branches.add(projectBranch);
+                branches.sort(String.CASE_INSENSITIVE_ORDER);
+            }
 
             return Arrays.asList(FacesUtils.createSelectItems(branches));
         } catch (IOException e) {
@@ -1968,13 +1978,13 @@ public class RepositoryTreeController {
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);
                 if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
-                    return commentParts;
+                    return new ArrayList<>(commentParts);
                 }
             }
 
         }
 
-        return Collections.singletonList(comment);
+        return new ArrayList<>(Collections.singletonList(comment));
     }
 
     /**

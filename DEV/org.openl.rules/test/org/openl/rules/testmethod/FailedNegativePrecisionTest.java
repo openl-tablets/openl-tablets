@@ -1,11 +1,10 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.TestUtils;
-import org.openl.rules.testmethod.result.ComparedResult;
+
+import static org.junit.Assert.assertEquals;
 
 public class FailedNegativePrecisionTest {
 
@@ -48,15 +47,15 @@ public class FailedNegativePrecisionTest {
     }
 
     private static void assertAllFailed(ITestUnit testUnit) {
-        for (ComparedResult res : testUnit.getComparisonResults()) {
-            assertEquals(TestStatus.TR_NEQ, res.getStatus());
-        }
+        assertEquals(testUnit.getNumberOfFailedTests(), testUnit.getComparisonResults().size());
     }
 
     public interface INegativePrecision {
 
         TestUnitsResults testFloatNumbersNegativePrecision1_mustBeFailed();
+
         TestUnitsResults testNegativePrecision1_mustBeFailed();
+
         TestUnitsResults testPositivePrecision1_mustBeFailed();
     }
 }
