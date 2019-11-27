@@ -1,11 +1,5 @@
 package org.openl.rules.testmethod;
 
-import static org.openl.rules.testmethod.TestStatus.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -16,13 +10,23 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
+
 public class BaseTestUnit implements ITestUnit {
 
     private final TestDescription test;
     private final Throwable actualError;
     private final TestStatus resultStatus;
     private final long executionTime;
+    //must be increased only through addComparisonResult method
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
+    private int numberOfFailedTests = 0;
 
     BaseTestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         this.test = test;
@@ -32,7 +36,7 @@ public class BaseTestUnit implements ITestUnit {
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
-                "Ambiguous expectation in the test case. Two expected result has been declared.");
+                    "Ambiguous expectation in the test case. Two expected result has been declared.");
         } else {
             this.actualError = error;
         }
@@ -63,7 +67,7 @@ public class BaseTestUnit implements ITestUnit {
      * Gets the description field value.
      *
      * @return if the description field value presents, return it`s value. In other case return
-     *         {@link ITestUnit#DEFAULT_DESCRIPTION}
+     * {@link ITestUnit#DEFAULT_DESCRIPTION}
      */
     @Override
     public String getDescription() {
@@ -88,7 +92,6 @@ public class BaseTestUnit implements ITestUnit {
 
     /**
      * Return the comparison of the expected result and actual.
-     *
      */
     private TestStatus compareResult(String expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
@@ -97,23 +100,29 @@ public class BaseTestUnit implements ITestUnit {
                 return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
             } else {
                 ComparedResult results = new ComparedResult(null,
-                    expectedError == null ? expectedResult : expectedError,
-                    rootCause == null ? actualResult : rootCause.getMessage(),
-                    TR_EXCEPTION);
+                        expectedError == null ? expectedResult : expectedError,
+                        rootCause == null ? actualResult : rootCause.getMessage(),
+                        TR_EXCEPTION);
 
-                comparisonResults.add(results);
+                addComparisonResult(results);
                 return TR_EXCEPTION;
             }
         } else {
             if (expectedError != null) {
                 ComparedResult results = new ComparedResult(null, expectedError, actualResult, TR_NEQ);
-
-                comparisonResults.add(results);
+                addComparisonResult(results);
                 return TR_NEQ;
             } else {
                 return compareAndGetResult(expectedResult, actualResult);
             }
         }
+    }
+
+    private void addComparisonResult(ComparedResult result) {
+        if (!TestStatus.TR_OK.equals(result.getStatus())) {
+            numberOfFailedTests++;
+        }
+        comparisonResults.add(result);
     }
 
     private TestStatus compareMessageAndGetResult(String expectedError, String actualError, Object expectedResult) {
@@ -131,7 +140,7 @@ public class BaseTestUnit implements ITestUnit {
         }
         TestStatus status = isEqual ? TR_OK : TR_NEQ;
         ComparedResult results = new ComparedResult(null, expectedValue, actualError, status);
-        comparisonResults.add(results);
+        addComparisonResult(results);
         return status;
     }
 
@@ -163,10 +172,10 @@ public class BaseTestUnit implements ITestUnit {
 
         TestStatus status = equal ? TR_OK : TR_NEQ;
         ComparedResult fieldComparisonResults = new ComparedResult(field.getName(),
-            expectedFieldValue,
-            actualFieldValue,
-            status);
-        comparisonResults.add(fieldComparisonResults);
+                expectedFieldValue,
+                actualFieldValue,
+                status);
+        addComparisonResult(fieldComparisonResults);
 
         return equal;
     }
@@ -209,6 +218,11 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     @Override
+    public int getNumberOfFailedTests() {
+        return numberOfFailedTests;
+    }
+
+    @Override
     public ParameterWithValueDeclaration getActualParam() {
         throw new UnsupportedOperationException();
     }
@@ -218,7 +232,8 @@ public class BaseTestUnit implements ITestUnit {
         private static Builder instance = new Builder();
 
         private Builder() {
-            /* NON */ }
+            /* NON */
+        }
 
         public static Builder getInstance() {
             return instance;
