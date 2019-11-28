@@ -143,7 +143,7 @@ public final class OpenLFuzzyUtils {
                 }
                 ret.put(entry.getKey(), m);
             }
-            cache1.put(tokenizedPrefix, ret);
+            cache1.put(tokenizedPrefix, Collections.unmodifiableMap(ret));
         }
         return ret;
     }
@@ -325,7 +325,7 @@ public final class OpenLFuzzyUtils {
         System.arraycopy(sourceTokens, 0, sortedSourceTokens, 0, sourceTokens.length);
         Arrays.sort(sortedSourceTokens);
         int[] f = new int[tokensList.length];
-        int max = 0;
+        int foundTokensMax = 0;
         for (int i = 0; i < tokensList.length; i++) {
             String[] sortedTokens = new String[tokensList[i].length];
             System.arraycopy(tokensList[i], 0, sortedTokens, 0, tokensList[i].length);
@@ -351,25 +351,24 @@ public final class OpenLFuzzyUtils {
                     }
                 }
             }
-            if (max < c) {
-                max = c;
+            if (foundTokensMax < c) {
+                foundTokensMax = c;
             }
             f[i] = c;
 
-            similarity.add(Pair.of(source1.stream().collect(Collectors.joining(StringUtils.SPACE)),
-                target1.stream().collect(Collectors.joining(StringUtils.SPACE))));
+            similarity.add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
         }
 
-        if (max == 0) {
+        if (foundTokensMax == 0) {
             return Collections.emptyList();
         }
 
-        int min = Integer.MAX_VALUE;
+        int missedTokensMin = Integer.MAX_VALUE;
         int minDistance = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == max) {
-                if (min > tokensList[i].length - f[i]) {
-                    min = tokensList[i].length - f[i];
+            if (f[i] == foundTokensMax) {
+                if (missedTokensMin > tokensList[i].length - f[i]) {
+                    missedTokensMin = tokensList[i].length - f[i];
                 }
                 if (minDistance > tokens[i].getDistance()) {
                     minDistance = tokens[i].getDistance();
@@ -381,7 +380,7 @@ public final class OpenLFuzzyUtils {
         int best = 0;
         int bestL = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == max && tokensList[i].length - f[i] == min && (ignoreDistances || tokens[i]
+            if (f[i] == foundTokensMax && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
                 .getDistance() == minDistance)) {
                 Pair<String, String> pair = similarity.get(i);
                 if (!ignoreDistances) {
@@ -410,56 +409,49 @@ public final class OpenLFuzzyUtils {
                 }
             }
         }
-        int max1 = max;
-        int min1 = min;
-        return ret.stream().map(e -> new FuzzyResult(e, max1, min1)).collect(Collectors.toList());
+        int foundTokensMax1 = foundTokensMax;
+        int missedTokensMin1 = missedTokensMin;
+        return ret.stream().map(e -> new FuzzyResult(e, foundTokensMax1, missedTokensMin1)).collect(Collectors.toList());
     }
 
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
         Token token;
-        int max;
-        int min;
+        int foundTokensCount;
+        int missedTokensCount;
 
-        public FuzzyResult(Token token, int max, int min) {
+        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount) {
             this.token = token;
-            this.max = max;
-            this.min = min;
+            this.foundTokensCount = foundTokensCount;
+            this.missedTokensCount = missedTokensCount;
         }
 
         @Override
         public int compareTo(FuzzyResult o) {
-            if (this.max > o.max) {
+            if (this.foundTokensCount > o.foundTokensCount) {
                 return -1;
             }
-            if (this.max < o.max) {
+            if (this.foundTokensCount < o.foundTokensCount) {
                 return 1;
             }
-            if (this.min > o.min) {
+            if (this.missedTokensCount > o.missedTokensCount) {
                 return 1;
             }
-            if (this.min < o.min) {
+            if (this.missedTokensCount < o.missedTokensCount) {
                 return -1;
             }
-            if (this.token.getDistance() > o.token.getDistance()) {
-                return 1;
-            }
-            if (this.token.getDistance() < o.token.getDistance()) {
-                return -1;
-            }
-
-            return 0;
+            return Integer.compare(this.token.getDistance(), o.token.getDistance());
         }
 
         public Token getToken() {
             return token;
         }
 
-        public int getMax() {
-            return max;
+        public int getFoundTokensCount() {
+            return foundTokensCount;
         }
 
-        public int getMin() {
-            return min;
+        public int getMissedTokensCount() {
+            return missedTokensCount;
         }
     }
 }
