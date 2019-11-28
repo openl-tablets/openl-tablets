@@ -1,0 +1,7 @@
+ERROR: Cannot parse cell value 'Sun Dec 31 00:00:00 UTC 1899'
+ERROR: Cannot parse cell value 'Thu Jan 11 00:00:00 UTC 1900'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value: [Wed Jul 18 00:00:00 UTC 1900] to the necessary type
+ERROR: Cannot parse cell value 'Sun Jan 14 00:00:00 UTC 1900'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value 'Sun Oct 27 00:00:00 UTC 1901'. Expected value of type 'Double'.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse double range.

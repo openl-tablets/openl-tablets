@@ -117,6 +117,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setFilesToCompare(Collections.emptyList());
         deleteTempFiles();
         setDiffTree(null);
+        clearTreeSelection();
         super.setShowEqualElements(false);
     }
 
