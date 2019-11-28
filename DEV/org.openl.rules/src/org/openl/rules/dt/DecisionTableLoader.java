@@ -26,6 +26,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
+import static org.openl.rules.dt.DecisionTableHelper.*;
 
 /**
  * @author snshor
@@ -211,7 +212,7 @@ public class DecisionTableLoader {
      * Put subtable, that will be displayed at the business view.<br>
      * It must be without method header, properties section, conditions and return headers.
      *
-     * @param tableSyntaxNode
+     * @param tableSyntaxNode table syntax node
      */
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
@@ -219,12 +220,12 @@ public class DecisionTableLoader {
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
-            // if DT is simple, its body doesn`t contain conditions and return headers.
+            // if DT is simple, its body does not contain conditions and return headers.
             // so put the body as it is.
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         } else {
             // need to get the subtable without conditions and return headers.
-            ILogicalTable businessView = null;
+            ILogicalTable businessView;
             if (DecisionTableHelper.looksLikeVertical(tableBody)) {
                 // if table is vertical, remove service rows.
                 businessView = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
@@ -299,12 +300,23 @@ public class DecisionTableLoader {
             if (validateCollectReturnType(decisionTable)) {
                 addCollectReturnAction(header, row, table);
             } else {
-                throw SyntaxNodeExceptionUtils.createError(
-                    String.format("Incompatible method return type with '%s' header.", header),
-                    new GridCellSourceCodeModule(table.getRow(row).getSource(),
-                        IDecisionTableConstants.INFO_COLUMN_INDEX,
-                        0,
-                        bindingContext));
+                if (isSmart(decisionTable.getSyntaxNode()) || isSimple(decisionTable.getSyntaxNode())) {
+                    boolean isMap = decisionTable.getSyntaxNode().getHeader().getCollectParameters().length > 0;
+                    final String errorMsg = String.format(
+                        "Decision table return type '%s' is incompatible with keyword 'Collect' in the table header, expected %s.",
+                        decisionTable.getType().getName(),
+                        isMap ? "a map" : "an array or a collection");
+                    throw SyntaxNodeExceptionUtils.createError(errorMsg, decisionTable.getSyntaxNode());
+                } else {
+                    throw SyntaxNodeExceptionUtils.createError(String.format(
+                        "Unexpected return type '%s' for decision table is used or column header '%s' is used wrong way.",
+                        decisionTable.getType().getName(),
+                        header),
+                        new GridCellSourceCodeModule(table.getRow(row).getSource(),
+                            IDecisionTableConstants.INFO_COLUMN_INDEX,
+                            0,
+                            bindingContext));
+                }
             }
         } else if (!ParserUtils.isBlankOrCommented(header)) {
             throw SyntaxNodeExceptionUtils.createError(String.format("Invalid Decision Table header '%s'.", header),
