@@ -723,10 +723,10 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    protected IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
-            XlsModuleOpenClass module,
-            OpenL openl,
-            RulesModuleBindingContext rulesModuleBindingContext) {
+    private IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
+                                       XlsModuleOpenClass module,
+                                       OpenL openl,
+                                       RulesModuleBindingContext rulesModuleBindingContext) {
         try {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
         } catch (SyntaxNodeException error) {
@@ -775,7 +775,7 @@ public class XlsBinder implements IOpenBinder {
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
         boolean completed = false;
 
-        public XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
+        XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                 OpenL openl,
                 TableSyntaxNode tableSyntaxNode,
                 IMemberBoundNode[] childrens,

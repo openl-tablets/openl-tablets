@@ -135,7 +135,7 @@ public final class XlsHelper {
                 if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)) {
                     int i = 3;
                     collectParameters.add(headerTokens[i].getIdentifier());
-                    if (i < headerTokens.length && headerTokens[i + 1].getIdentifier()
+                    if (headerTokens[i + 1].getIdentifier()
                         .equals(IXlsTableNames.COLLECT_AND)) {
                         i = i + 2;
                         collectParameters.add(headerTokens[i].getIdentifier());
