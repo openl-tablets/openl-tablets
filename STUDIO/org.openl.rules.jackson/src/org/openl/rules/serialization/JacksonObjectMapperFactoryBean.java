@@ -10,15 +10,6 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-import java.text.DateFormat;
-import java.util.*;
-
-import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
-import org.openl.rules.variation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -35,6 +26,17 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import org.openl.rules.serialization.jackson.Mixin;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
+import org.openl.rules.variation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 public class JacksonObjectMapperFactoryBean {
 
@@ -77,17 +79,18 @@ public class JacksonObjectMapperFactoryBean {
         if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
             .equals(getDefaultTypingMode())) {
             Builder basicPolymorphicTypeValidatorBuilder = null;
-            if (isPolymorphicTypeValidation()) {
+            final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
+            if (polymorphicTypeValidation) {
                 basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
                 basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
             }
             if (getOverrideTypes() != null) {
-                List<Class<?>> clazzes = new ArrayList<>();
+                List<Class<?>> classes = new ArrayList<>();
                 for (String className : getOverrideTypes()) {
                     try {
                         Class<?> clazz = loadClass(className);
-                        clazzes.add(clazz);
-                        if (isPolymorphicTypeValidation()) {
+                        classes.add(clazz);
+                        if (polymorphicTypeValidation) {
                             basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
                             basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
                         }
@@ -96,12 +99,8 @@ public class JacksonObjectMapperFactoryBean {
                     }
                 }
 
-                Iterator<Class<?>> itr = clazzes.iterator();
-                while (itr.hasNext()) {
-                    Class<?> clazz = itr.next();
-                    Iterator<Class<?>> innerItr = clazzes.iterator();
-                    while (innerItr.hasNext()) {
-                        Class<?> c = innerItr.next();
+                for (Class<?> clazz : classes) {
+                    for (Class<?> c : classes) {
                         if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
                             mapper.addMixIn(clazz, Mixin.class);
                             break;
@@ -111,8 +110,8 @@ public class JacksonObjectMapperFactoryBean {
                 }
             }
             mapper.activateDefaultTyping(
-                isPolymorphicTypeValidation() ? basicPolymorphicTypeValidatorBuilder.build()
-                                              : LaissezFaireSubTypeValidator.instance,
+                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                                          : LaissezFaireSubTypeValidator.instance,
                 DefaultTypingMode.ENABLE.equals(getDefaultTypingMode()) ? ObjectMapper.DefaultTyping.NON_FINAL
                                                                         : ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
                 JsonTypeInfo.As.PROPERTY);
