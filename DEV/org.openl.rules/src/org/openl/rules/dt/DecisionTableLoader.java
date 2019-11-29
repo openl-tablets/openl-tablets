@@ -1,10 +1,5 @@
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -26,7 +21,14 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
-import static org.openl.rules.dt.DecisionTableHelper.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.openl.rules.dt.DecisionTableHelper.isSimple;
+import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 /**
  * @author snshor
@@ -309,7 +311,7 @@ public class DecisionTableLoader {
                     throw SyntaxNodeExceptionUtils.createError(errorMsg, decisionTable.getSyntaxNode());
                 } else {
                     throw SyntaxNodeExceptionUtils.createError(String.format(
-                        "Unexpected return type '%s' for decision table is used or column header '%s' is used wrong way.",
+                        "Decision table return type '%s' is incompatible with column header '%s'.",
                         decisionTable.getType().getName(),
                         header),
                         new GridCellSourceCodeModule(table.getRow(row).getSource(),
