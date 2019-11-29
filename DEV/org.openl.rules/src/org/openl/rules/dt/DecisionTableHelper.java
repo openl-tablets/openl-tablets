@@ -1444,7 +1444,7 @@ public final class DecisionTableHelper {
                     IOpenClass type = definition.getHeader().getSignature().getParameterType(i);
                     for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                         if (param.equals(header.getSignature().getParameterName(j)) && type
-                                .equals(header.getSignature().getParameterType(j))) {
+                            .equals(header.getSignature().getParameterType(j))) {
                             usedMethodParameterIndexes.add(j);
                             methodParametersToRename.put(param, param);
                             break;
@@ -1563,8 +1563,7 @@ public final class DecisionTableHelper {
         Set<Integer> usedParamIndexes = new HashSet<>(usedMethodParameterIndexes);
         usedParamIndexes.addAll(usedParamIndexesByField);
 
-        int[] usedMethodParameterIndexesArray = ArrayUtils
-            .toPrimitive(usedParamIndexes.toArray(new Integer[] {}));
+        int[] usedMethodParameterIndexesArray = ArrayUtils.toPrimitive(usedParamIndexes.toArray(new Integer[] {}));
 
         switch (matchType) {
             case STRICT:
@@ -3014,12 +3013,10 @@ public final class DecisionTableHelper {
         } else if (v == 1) {
             return Triple
                 .of(new String[] { type.getName() + "[]" }, AOpenClass.getArrayType(type, 1), condition.getStatement());
-        } else if (v == 2) {
+        } else {
             return Triple.of(new String[] { type.getName() + "[][]" },
                 AOpenClass.getArrayType(type, 2),
                 condition.getStatement());
-        } else {
-            throw new IllegalArgumentException();
         }
     }
 
@@ -3141,7 +3138,7 @@ public final class DecisionTableHelper {
         Map<Token, Integer> tokensToParameterIndex;
         Map<Token, IOpenMethod[]> tokenToMethodsChain;
 
-        public ParameterTokens(Token[] tokens,
+        ParameterTokens(Token[] tokens,
                 Map<Token, Integer> tokensToParameterIndex,
                 Map<Token, IOpenMethod[]> tokenToMethodsChain) {
             this.tokens = tokens;
@@ -3149,11 +3146,11 @@ public final class DecisionTableHelper {
             this.tokenToMethodsChain = tokenToMethodsChain;
         }
 
-        public IOpenMethod[] getMethodsChain(Token value) {
+        IOpenMethod[] getMethodsChain(Token value) {
             return tokenToMethodsChain.get(value);
         }
 
-        public int getParameterIndex(Token value) {
+        int getParameterIndex(Token value) {
             return tokensToParameterIndex.get(value);
         }
 
@@ -3215,23 +3212,23 @@ public final class DecisionTableHelper {
             this.fuzzyReturnType = returnType;
         }
 
-        public ParameterTokens getParameterTokens() {
+        ParameterTokens getParameterTokens() {
             return parameterTokens;
         }
 
-        public Token[] getFuzzyReturnTokens() {
+        Token[] getFuzzyReturnTokens() {
             return returnTokens;
         }
 
-        public IOpenMethod[][] getMethodChainsForReturnToken(Token token) {
+        IOpenMethod[][] getMethodChainsForReturnToken(Token token) {
             return returnTypeFuzzyTokens.get(token);
         }
 
-        public boolean isFuzzySupportsForReturnType() {
+        boolean isFuzzySupportsForReturnType() {
             return returnTypeFuzzyTokens != null && returnTokens != null && fuzzyReturnType != null;
         }
 
-        public IOpenClass getFuzzyReturnType() {
+        IOpenClass getFuzzyReturnType() {
             return fuzzyReturnType;
         }
     }
