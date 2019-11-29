@@ -1,10 +1,10 @@
 package org.openl.rules.testmethod.result;
 
+import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.ClassUtils;
+
 import java.util.Collection;
 import java.util.Map;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.openl.rules.helpers.NumberUtils;
 
 public class TestResultComparatorFactory {
 

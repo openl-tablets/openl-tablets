@@ -1,9 +1,5 @@
 package org.openl.rules.testmethod.export;
 
-import java.lang.reflect.Array;
-import java.util.*;
-
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,6 +12,10 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.testmethod.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.ClassUtils;
+
+import java.lang.reflect.Array;
+import java.util.*;
 
 class ParameterExport extends BaseExport {
     ParameterExport(Styles styles) {

@@ -1,6 +1,9 @@
 package org.openl.rules.testmethod.export;
 
-import static org.openl.types.java.JavaOpenClass.CLASS;
+import org.openl.binding.impl.CastToWiderType;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.util.ClassUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -8,10 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.openl.binding.impl.CastToWiderType;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
+import static org.openl.types.java.JavaOpenClass.CLASS;
 
 class FieldDescriptor {
     private final IOpenField field;
