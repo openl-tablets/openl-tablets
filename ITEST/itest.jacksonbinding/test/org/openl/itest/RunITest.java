@@ -26,6 +26,7 @@ public class RunITest {
     @Test
     public void testSerializationInclusionAlwaysConfiguration() {
         client.get("/rules-serializationInclusionAlways/getObject", "/serialization_inclusion_always.json");
+        client.get("/rules-serializationInclusionAlways/swagger.json", "/serialization_inclusion_always_swagger.json");
     }
 
     @Test
