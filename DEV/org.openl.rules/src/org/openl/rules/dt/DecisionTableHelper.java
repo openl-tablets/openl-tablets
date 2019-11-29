@@ -2025,11 +2025,11 @@ public final class DecisionTableHelper {
         return false;
     }
 
-    private static boolean intersect(int b1, int e1, int b2, int e2) {
+    private static boolean intersects(int b1, int e1, int b2, int e2) {
         return b2 <= b1 && b1 <= e2 || b2 <= e1 && e1 <= e2 || b1 <= b2 && b2 <= e1 || b1 <= e2 && e2 <= e1;
     }
 
-    private static List<DTHeader> optimizeDtHeaders(List<DTHeader> dtHeaders) {
+    private static List<DTHeader> optimizeDtHeaders(ILogicalTable originalTable, List<DTHeader> dtHeaders) {
         // Remove headers that intersect with declared dt header if declared dt header is matched 100%
         boolean[] f = new boolean[dtHeaders.size()];
         Arrays.fill(f, false);
@@ -2038,7 +2038,7 @@ public final class DecisionTableHelper {
                 if (dtHeaders.get(i) instanceof DeclaredDTHeader && dtHeaders.get(j) instanceof DeclaredDTHeader) {
                     DeclaredDTHeader d1 = (DeclaredDTHeader) dtHeaders.get(i);
                     DeclaredDTHeader d2 = (DeclaredDTHeader) dtHeaders.get(j);
-                    if (!(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth()) && intersect(
+                    if (!(d1.getColumn() == d2.getColumn() && d1.getWidth() == d2.getWidth()) && intersects(
                         d1.getColumn(),
                         d1.getColumn() + d1.getWidth() - 1,
                         d2.getColumn(),
@@ -2049,9 +2049,17 @@ public final class DecisionTableHelper {
                 }
             }
         }
+        final int lastColumn = originalTable.getSource().getWidth();
         Set<Integer> indexes = new HashSet<>();
         for (int i = 0; i < dtHeaders.size(); i++) {
-            if (dtHeaders.get(i) instanceof DeclaredDTHeader && !f[i]) {
+            DTHeader dtHeader = dtHeaders.get(i);
+            // Exclude from optimization conditions and actions that matches to the last column, where return is
+            // expected.
+            if ((dtHeaders.get(i).isCondition() || dtHeader.isAction()) && dtHeader.getColumn() + dtHeader
+                .getWidth() >= lastColumn) {
+                continue;
+            }
+            if (dtHeader instanceof DeclaredDTHeader && !f[i]) {
                 indexes.add(i);
             }
         }
@@ -2062,7 +2070,7 @@ public final class DecisionTableHelper {
             if (!(dtHeader instanceof DeclaredDTHeader)) {
                 for (Integer index : indexes) {
                     DTHeader t = dtHeaders.get(index);
-                    if (intersect(t.getColumn(),
+                    if (intersects(t.getColumn(),
                         t.getColumn() + t.getWidth() - 1,
                         dtHeader.getColumn(),
                         dtHeader.getColumn() + dtHeader.getWidth() - 1)) {
@@ -2125,7 +2133,7 @@ public final class DecisionTableHelper {
             boolean twoColumnsForReturn,
             int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        dtHeaders = optimizeDtHeaders(dtHeaders);
+        dtHeaders = optimizeDtHeaders(originalTable, dtHeaders);
         int numberOfParametersForVCondition = numberOfParameters - numberOfHCondition;
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
