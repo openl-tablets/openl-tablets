@@ -10,23 +10,28 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-import java.text.DateFormat;
-import java.util.*;
-
-import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import org.openl.rules.serialization.jackson.Mixin;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
+import org.openl.rules.variation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 public class JacksonObjectMapperFactoryBean {
 
@@ -40,87 +45,76 @@ public class JacksonObjectMapperFactoryBean {
 
     private Set<String> overrideTypes;
 
+    private boolean polymorphicTypeValidation = false;
+
     public ObjectMapper createJacksonObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
         AnnotationIntrospector secondaryIntropsector = new JacksonAnnotationIntrospector();
-        AnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
-
+        JaxbAnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
             secondaryIntropsector);
 
         mapper.setAnnotationIntrospector(introspector);
 
-        if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        } else {
-            if (DefaultTypingMode.SMART.equals(getDefaultTypingMode())) {
-                mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY);
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                if (getOverrideTypes() != null) {
-                    List<Class<?>> clazzes = new ArrayList<>();
-                    for (String className : getOverrideTypes()) {
-                        try {
-                            Class<?> clazz = loadClass(className);
-                            clazzes.add(clazz);
-                        } catch (ClassNotFoundException e) {
-                            log.warn("Class '{}' hasn't been found!", className, e);
+        if (DefaultTypingMode.SMART.equals(getDefaultTypingMode()) || DefaultTypingMode.ENABLE
+            .equals(getDefaultTypingMode())) {
+            BasicPolymorphicTypeValidator.Builder basicPolymorphicTypeValidatorBuilder = null;
+            final boolean polymorphicTypeValidation = isPolymorphicTypeValidation();
+            if (polymorphicTypeValidation) {
+                basicPolymorphicTypeValidatorBuilder = BasicPolymorphicTypeValidator.builder();
+                basicPolymorphicTypeValidatorBuilder.allowIfSubTypeIsArray();
+            }
+            if (getOverrideTypes() != null) {
+                List<Class<?>> classes = new ArrayList<>();
+                for (String className : getOverrideTypes()) {
+                    try {
+                        Class<?> clazz = loadClass(className);
+                        classes.add(clazz);
+                        if (polymorphicTypeValidation) {
+                            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+                            basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
                         }
-                    }
-
-                    Iterator<Class<?>> itr = clazzes.iterator();
-                    while (itr.hasNext()) {
-                        Class<?> clazz = itr.next();
-                        Iterator<Class<?>> innerItr = clazzes.iterator();
-                        while (innerItr.hasNext()) {
-                            Class<?> c = innerItr.next();
-                            if (!clazz.equals(c)) {
-                                if (clazz.isAssignableFrom(c)) {
-                                    mapper.addMixInAnnotations(clazz, Mixin.class);
-                                    break;
-                                }
-                            }
-                        }
-                        mapper.registerSubtypes(clazz);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("Class '{}' is not found.", className, e);
                     }
                 }
-            } else {
-                mapper.disableDefaultTyping();
+
+                for (Class<?> clazz : classes) {
+                    for (Class<?> c : classes) {
+                        if (!clazz.equals(c) && clazz.isAssignableFrom(c)) {
+                            mapper.addMixIn(clazz, Mixin.class);
+                            break;
+                        }
+                    }
+                    mapper.registerSubtypes(clazz);
+                }
             }
+            mapper.activateDefaultTyping(
+                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                                          : LaissezFaireSubTypeValidator.instance,
+                DefaultTypingMode.ENABLE.equals(getDefaultTypingMode()) ? ObjectMapper.DefaultTyping.NON_FINAL
+                                                                        : ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
+                JsonTypeInfo.As.PROPERTY);
+        } else {
+            mapper.deactivateDefaultTyping();
         }
+
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         if (isSupportVariations()) {
-            addMixInAnnotations(mapper, "org.openl.rules.variation.Variation", VariationType.class);
-            addMixInAnnotations(mapper,
-                "org.openl.rules.variation.ArgumentReplacementVariation",
-                ArgumentReplacementVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.ComplexVariation", ComplexVariationType.class);
-            addMixInAnnotations(mapper,
-                "org.openl.rules.variation.DeepCloningVariation",
-                DeepCloningVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.JXPathVariation", JXPathVariationType.class);
-            addMixInAnnotations(mapper, "org.openl.rules.variation.VariationsResult", VariationsResultType.class);
+            mapper.addMixIn(Variation.class, VariationType.class);
+            mapper.addMixIn(ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
+            mapper.addMixIn(ComplexVariation.class, ComplexVariationType.class);
+            mapper.addMixIn(DeepCloningVariation.class, DeepCloningVariationType.class);
+            mapper.addMixIn(JXPathVariation.class, JXPathVariationType.class);
+            mapper.addMixIn(VariationsResult.class, VariationsResultType.class);
         }
-
-        /*
-         * mapper.addMixInAnnotations(SpreadsheetResult.class, SpreadSheetResultType.class);
-         * mapper.addMixInAnnotations(Point.class, PointType.class); mapper.addMixInAnnotations(DoubleRange.class,
-         * DoubleRangeType.class); mapper.addMixInAnnotations(IntRange.class, IntRangeType.class);
-         */
-
-        /*
-         * mapper.addMixInAnnotations(IRulesRuntimeContext.class, IRulesRuntimeContextType.class);
-         * mapper.addMixInAnnotations(org.openl.rules.ruleservice.context. IRulesRuntimeContext.class,
-         * org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.
-         * ruleservice.context.IRulesRuntimeContextType.class);
-         */
-
         if (getDefaultDateFormat() == null) {
             mapper.setDateFormat(getISO8601Format());
         } else {
             mapper.setDateFormat(getDefaultDateFormat());
         }
-
         return mapper;
     }
 
@@ -206,5 +200,13 @@ public class JacksonObjectMapperFactoryBean {
 
     public void setDefaultDateFormat(DateFormat defaultDateFormat) {
         this.defaultDateFormat = defaultDateFormat;
+    }
+
+    public boolean isPolymorphicTypeValidation() {
+        return polymorphicTypeValidation;
+    }
+
+    public void setPolymorphicTypeValidation(boolean polymorphicTypeValidation) {
+        this.polymorphicTypeValidation = polymorphicTypeValidation;
     }
 }
