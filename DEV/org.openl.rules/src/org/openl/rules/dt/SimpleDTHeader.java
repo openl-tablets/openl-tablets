@@ -2,9 +2,9 @@ package org.openl.rules.dt;
 
 class SimpleDTHeader extends DTHeader {
 
-    int row;
-    boolean horizontal;
-    String title;
+    private int row;
+    private boolean horizontal;
+    private String title;
 
     SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int width) {
         super(new int[] { methodParameterIndex }, statement, column, width);
