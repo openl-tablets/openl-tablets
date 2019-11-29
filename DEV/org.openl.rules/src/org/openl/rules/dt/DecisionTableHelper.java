@@ -1,5 +1,13 @@
 package org.openl.rules.dt;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +27,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -52,14 +61,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.function.ToLongFunction;
-
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
 
 public final class DecisionTableHelper {
 
@@ -375,19 +376,19 @@ public final class DecisionTableHelper {
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
         if (IGNORED_CLASSES_FOR_COMPOUND_TYPE.contains(compoundType.getInstanceClass())) {
             return false;
-        }
-
-        if (compoundType.getConstructor(IOpenClass.EMPTY) == null) {
+        } else if (compoundType.getConstructor(IOpenClass.EMPTY) == null) {
             return false;
-        }
-
-        int count = 0;
-        for (IOpenMethod method : compoundType.getMethods()) {
-            if (OpenLFuzzyUtils.isSetterMethod(method)) {
-                count++;
+        } else if (ClassUtils.isAssignable(compoundType.getInstanceClass(), SpreadsheetResult.class)) {
+            return false;
+        } else {
+            int count = 0;
+            for (IOpenMethod method : compoundType.getMethods()) {
+                if (OpenLFuzzyUtils.isSetterMethod(method)) {
+                    count++;
+                }
             }
+            return count > 0;
         }
-        return count > 0;
     }
 
     private static boolean isCompoundInputType(IOpenClass type) {
