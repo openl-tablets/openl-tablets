@@ -2358,7 +2358,6 @@ public final class DecisionTableHelper {
                     boolean f = false;
                     int width = originalTable.getSource().getCell(column, 0).getWidth();
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
-                    ;
                     if (fuzzyContext.isFuzzySupportsForReturnType()) {
                         List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
                             .openlFuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
