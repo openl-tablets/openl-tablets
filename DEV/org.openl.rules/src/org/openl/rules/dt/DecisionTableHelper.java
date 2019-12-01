@@ -1,13 +1,5 @@
 package org.openl.rules.dt;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.function.ToLongFunction;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +53,14 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
 
 public final class DecisionTableHelper {
 
@@ -410,7 +410,7 @@ public final class DecisionTableHelper {
             compoundType.getInstanceClass().getConstructor();
         } catch (ReflectiveOperationException e) {
             throw new OpenLCompilationException(
-                String.format("Invalid compound return type: There is no default constructor found in return type '%s'",
+                String.format("Invalid return type: There is no default constructor found in type '%s'.",
                     compoundType.getDisplayName(0)));
         }
     }
