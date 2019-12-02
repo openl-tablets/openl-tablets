@@ -98,7 +98,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         this.table = table;
         this.openl = openl;
         this.parentClassIdentifier = parentClassIdentifier;
-        this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : parentClassName;
+        this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : null;
         this.moduleOpenClass = moduleOpenClass;
     }
 
