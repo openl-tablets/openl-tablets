@@ -1,15 +1,15 @@
 package org.openl.gen;
 
+import org.objectweb.asm.*;
+import org.openl.gen.writers.*;
+import org.openl.runtime.ContextProperty;
+import org.openl.util.ClassUtils;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.objectweb.asm.*;
-import org.openl.gen.writers.*;
-import org.openl.runtime.ContextProperty;
-import org.openl.util.ClassUtils;
 
 /**
  * Generates byte code for simple java bean.
@@ -110,7 +110,7 @@ public class POJOByteCodeGenerator {
             FieldVisitor fieldVisitor = classWriter
                 .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
             if (field.getValue().isContextProperty()) {
-                visitOpenLContextAnnotation(field.getKey(), fieldVisitor);
+                visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }
         }
     }

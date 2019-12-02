@@ -8,17 +8,20 @@ public class FieldDescription {
     private final TypeDescription typeDescription;
     private String defaultValueAsString;
     private Object defaultValue;
-    private boolean contextProperty;
+    private String contextPropertyName;
 
     public FieldDescription(String typeName) {
         this.typeDescription = new TypeDescription(typeName);
     }
 
-    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, boolean contextProperty) {
+    public FieldDescription(String typeName,
+            Object defaultValue,
+            String defaultValueAsString,
+            String contextPropertyName) {
         this(typeName);
         this.defaultValueAsString = defaultValueAsString;
         this.defaultValue = defaultValue;
-        this.contextProperty = contextProperty;
+        this.contextPropertyName = contextPropertyName;
     }
 
     public String getTypeName() {
@@ -34,11 +37,15 @@ public class FieldDescription {
     }
 
     public boolean isContextProperty() {
-        return contextProperty;
+        return contextPropertyName != null;
     }
 
     public boolean isArray() {
         return typeDescription.isArray();
+    }
+
+    public String getContextPropertyName() {
+        return contextPropertyName;
     }
 
     @Override

@@ -1,13 +1,13 @@
 package org.openl.rules.datatype.gen;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.gen.FieldDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FieldDescriptionBuilder {
 
@@ -29,7 +29,7 @@ public class FieldDescriptionBuilder {
     private final String typeName;
     private String defaultValueAsString;
     private Object defaultValue;
-    private boolean contextProperty;
+    private String contextPropertyName;
 
     private FieldDescriptionBuilder(String typeName) {
         this.typeName = typeName;
@@ -49,13 +49,13 @@ public class FieldDescriptionBuilder {
         return this;
     }
 
-    public FieldDescriptionBuilder setContextProperty(boolean contextProperty) {
-        this.contextProperty = contextProperty;
+    public FieldDescriptionBuilder setContextPropertyName(String contextPropertyName) {
+        this.contextPropertyName = contextPropertyName;
         return this;
     }
 
     public FieldDescription build() {
-        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString, contextProperty);
+        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString, contextPropertyName);
     }
 
     /**
