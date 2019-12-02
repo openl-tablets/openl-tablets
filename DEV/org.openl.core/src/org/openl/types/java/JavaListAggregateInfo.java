@@ -15,6 +15,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
+import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
@@ -83,7 +84,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @Override
     public boolean isAggregate(IOpenClass type) {
-        return List.class.isAssignableFrom(type.getInstanceClass());
+        return ClassUtils.isAssignable(type.getInstanceClass(), List.class);
     }
 
     @Override

@@ -1,5 +1,13 @@
 package org.openl.rules.dt;
 
+import static org.openl.rules.dt.DecisionTableHelper.isSimple;
+import static org.openl.rules.dt.DecisionTableHelper.isSmart;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -21,14 +29,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static org.openl.rules.dt.DecisionTableHelper.isSimple;
-import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 /**
  * @author snshor
@@ -183,7 +183,7 @@ public class DecisionTableLoader {
 
     private void validateMapReturnType(DecisionTable decisionTable,
             TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
-        if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+        if (ClassUtils.isAssignable(decisionTable.getType().getInstanceClass(), Map.class)) {
             if (hasCollectReturnAction && !hasCollectReturnKeyAction) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Invalid Decision Table headers: At least one KEY header is required.",
@@ -310,10 +310,10 @@ public class DecisionTableLoader {
                         isMap ? "a map" : "an array or a collection");
                     throw SyntaxNodeExceptionUtils.createError(errorMsg, decisionTable.getSyntaxNode());
                 } else {
-                    throw SyntaxNodeExceptionUtils.createError(String.format(
-                        "Decision table return type '%s' is incompatible with column header '%s'.",
-                        decisionTable.getType().getName(),
-                        header),
+                    throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Decision table return type '%s' is incompatible with column header '%s'.",
+                            decisionTable.getType().getName(),
+                            header),
                         new GridCellSourceCodeModule(table.getRow(row).getSource(),
                             IDecisionTableConstants.INFO_COLUMN_INDEX,
                             0,

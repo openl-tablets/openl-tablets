@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import java.time.*;
+import java.util.Date;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.DecisionTableHelper;
@@ -18,13 +21,6 @@ import org.openl.util.IntegerValuesUtils;
 import org.openl.util.NumberUtils;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.Date;
 
 // TODO Reimplement
 public class CellEditorSelector {
@@ -91,19 +87,20 @@ public class CellEditorSelector {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
                         Number maxValue = NumberUtils.getMaxValue(instanceClass);
                         result = factory
-                                .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
+                            .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
                     } else {
                         // Numeric Array
                         return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR,
-                                ICellEditor.CE_NUMERIC,
-                                IntegerValuesUtils.isIntegerValue(instanceClass));
+                            ICellEditor.CE_NUMERIC,
+                            IntegerValuesUtils.isIntegerValue(instanceClass));
                     }
                 }
 
                 // Date
-            } else if (Date.class.isAssignableFrom(instanceClass) || LocalDate.class.isAssignableFrom(
-                    instanceClass) || LocalDateTime.class.isAssignableFrom(instanceClass) || LocalTime.class
-                    .isAssignableFrom(instanceClass) || ZonedDateTime.class.isAssignableFrom(instanceClass) || Instant.class.isAssignableFrom(instanceClass)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
+                LocalDate.class) || ClassUtils.isAssignable(instanceClass, LocalDateTime.class) || ClassUtils
+                    .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
+                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 result = factory.makeDateEditor();
 
                 // Boolean
@@ -122,25 +119,23 @@ public class CellEditorSelector {
                 }
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass,
-                    INumberRange.class) && !instanceClass.equals(CharRange.class)) {
+                INumberRange.class) && !instanceClass.equals(CharRange.class)) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
-                        .parsableAs(initialValue, instanceClass, null)) {
+                    .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
                 } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
-                        .parsableAs(initialValue, instanceClass, null)) {
+                    .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
                 }
             }
-
         }
-
         return result;
     }
 
     private ICellEditor defaultEditor(ICell cell) {
         final String cellValue = cell.getStringValue();
         return cellValue != null && cellValue.indexOf('\n') >= 0 ? factory.makeMultilineEditor()
-                : factory.makeTextEditor();
+                                                                 : factory.makeTextEditor();
     }
 
 }

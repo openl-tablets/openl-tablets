@@ -734,10 +734,10 @@ public class DataTableBindHelper {
             String identifier = fieldNameNode.getIdentifier();
 
             IOpenField fieldInChain;
-            if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier
-                .equals(FPK)) {
+            if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier.equals(FPK)) {
                 if (!(fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Primary key was defined incorrectly.", fieldNameNode);
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils
+                        .createError("Primary key was defined incorrectly.", fieldNameNode);
                     processError(bindingContext, table, error);
                     continue;
                 }
@@ -808,7 +808,7 @@ public class DataTableBindHelper {
                 fieldInChain = getWritableField(bindingContext, fieldNameNode, table, loadedFieldType);
 
                 if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && (fieldInChain.getType()
-                    .isArray() || List.class.isAssignableFrom(fieldInChain.getType().getInstanceClass()))) {
+                    .isArray() || ClassUtils.isAssignable(fieldInChain.getType().getInstanceClass(), List.class))) {
                     fieldInChain = getWritableCollectionElement(bindingContext,
                         fieldNameNode,
                         table,
@@ -848,8 +848,8 @@ public class DataTableBindHelper {
                 newInstanceBuilders = new NewInstanceBuilder[fieldAccessorChain.length];
                 int j = 0;
                 for (IOpenField field : fieldAccessorChain) {
-                    if (field.getType().getInstanceClass() != null && SpreadsheetResult.class
-                        .isAssignableFrom(field.getType().getInstanceClass())) {
+                    if (field.getType().getInstanceClass() != null && ClassUtils
+                        .isAssignable(field.getType().getInstanceClass(), SpreadsheetResult.class)) {
                         newInstanceBuilders[j++] = STUB_SPR_NEW_INSTANCE_BUILDER;
                     }
                 }

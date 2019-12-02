@@ -60,7 +60,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
     public List<String> getValuesForSelect() {
         IOpenClass type = getType();
-        if (Boolean.class.isAssignableFrom(type.getInstanceClass())) {
+        if (type.getInstanceClass() == Boolean.class) {
             return Arrays.asList("", "true", "false");
         }
 

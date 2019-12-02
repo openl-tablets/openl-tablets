@@ -1,12 +1,5 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.faces.model.SelectItem;
-
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -14,6 +7,13 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
+
+import javax.faces.model.SelectItem;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Temporary class for holding table properties
@@ -41,7 +41,7 @@ public class TableProperty {
     public TableProperty(TablePropertyDefinition propDefinition) {
         this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
-        this.type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
+        this.type = Objects.requireNonNull(propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(), "type cannot be null");
         this.group = propDefinition.getGroup();
         this.format = propDefinition.getFormat();
         this.deprecation = propDefinition.getDeprecation();
@@ -55,7 +55,7 @@ public class TableProperty {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.value = builder.value;
-        this.type = builder.type;
+        this.type = Objects.requireNonNull(builder.type, "type cannot be null");
         this.group = builder.group;
         this.format = builder.format;
         this.deprecation = builder.deprecation;
@@ -115,12 +115,12 @@ public class TableProperty {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
     }
 
-    public boolean isExternalPropery() {
+    public boolean isExternalProperty() {
         return InheritanceLevel.EXTERNAL.equals(inheritanceLevel);
     }
 
     public boolean isInheritedProperty() {
-        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalPropery();
+        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalProperty();
     }
 
     public String getDisplayName() {
@@ -413,7 +413,7 @@ public class TableProperty {
 
     @Override
     public String toString() {
-        return new StringBuilder().append(getDisplayName()).append(" : ").append(getDisplayValue()).toString();
+        return getDisplayName() + " : " + getDisplayValue();
     }
 
     public String getInheritedTableName() {

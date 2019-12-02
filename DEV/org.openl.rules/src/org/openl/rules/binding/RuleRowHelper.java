@@ -49,6 +49,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
@@ -258,35 +259,36 @@ public final class RuleRowHelper {
         if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
             Class<?> expectedType = paramType.getInstanceClass();
             if (cell.getObjectValue() instanceof Date) {
-                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
-                return objectConvertor != ObjectToDataConvertorFactory.NO_Convertor
-                        ? objectConvertor.convert(cell.getNativeDate()) : null;
+                IObjectToDataConvertor objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                    Date.class);
+                return objectConverter != ObjectToDataConvertorFactory.NO_Convertor ? objectConverter
+                    .convert(cell.getNativeDate()) : null;
             }
 
-            if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class
-                .isAssignableFrom(expectedType)) {
+            if (ClassUtils.isAssignable(expectedType, BigDecimal.class) || ClassUtils.isAssignable(expectedType,
+                BigDecimalValue.class)) {
                 // Convert String -> BigDecimal instead of double ->BigDecimal,
                 // otherwise we lose in precision (part of EPBDS-5879)
                 res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), null);
             } else {
                 double value = cell.getNativeNumber();
-                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                IObjectToDataConvertor objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType,
                     double.class);
-                if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                    res = objectConvertor.convert(value);
+                if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+                    res = objectConverter.convert(value);
                 } else {
-                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
-                    if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                        res = objectConvertor.convert(value);
+                    objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
+                    if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+                        res = objectConverter.convert(value);
                     } else {
-                        objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
-                        if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                        objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                        if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
                             Date dateValue = cell.getNativeDate();
-                            res = objectConvertor.convert(dateValue);
+                            res = objectConverter.convert(dateValue);
                         } else if ((int) value == value) {
-                            objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                                res = objectConvertor.convert((int) value);
+                            objectConverter = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+                            if (objectConverter != ObjectToDataConvertorFactory.NO_Convertor) {
+                                res = objectConverter.convert((int) value);
                             }
 
                         }
