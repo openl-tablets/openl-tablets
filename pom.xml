@@ -88,13 +88,13 @@
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.3.4</org.apache.cxf.version>
-        <org.slf4j.version>1.7.28</org.slf4j.version>
+        <org.slf4j.version>1.7.29</org.slf4j.version>
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.22.v20191022</jetty.server.version>
+        <jetty.server.version>9.4.24.v20191120</jetty.server.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -1089,12 +1089,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.24.0</version>
+                <version>3.24.3</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
-                <version>1.5.24</version>
+                <version>1.6.0</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
