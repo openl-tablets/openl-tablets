@@ -4,6 +4,14 @@
 
 package org.openl.rules.datatype.binding;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -51,12 +59,6 @@ import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Bound node for datatype table component.
@@ -313,28 +315,22 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
-        if (idn.length >= 3 && ":".equals(idn[1].getIdentifier()) && idn[2].getIdentifier().startsWith("context")) {
-            String contextPropertyName;
-            if (idn.length == 3 && "context".equals(idn[2].getIdentifier())) {
-                contextPropertyName = idn[0].getIdentifier();
-            } else if (idn.length == 3 && idn[2].getIdentifier().startsWith("context.")) {
-                contextPropertyName = idn[2].getIdentifier().substring("context.".length());
-            } else if (idn.length == 4 && "context".equals(idn[2].getIdentifier()) && idn[3].getIdentifier()
-                .startsWith(".")) {
-                contextPropertyName = idn[3].getIdentifier().substring(1);
-            } else if (idn.length == 5 && "context".equals(idn[2].getIdentifier()) && "."
-                .equals(idn[3].getIdentifier())) {
-                contextPropertyName = idn[4].getIdentifier();
-            } else {
+        final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
+        if (code.contains(":context")) {
+            int c = code.indexOf(":context");
+            String contextPropertyName = code.substring(c + ":context".length());
+            if (contextPropertyName.startsWith(".")) {
+                contextPropertyName = contextPropertyName.substring(1);
+            }
+            return Pair.of(code.substring(0, c),
+                contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
+        } else {
+            if (idn.length != 1) {
                 String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+            } else {
+                return Pair.of(idn[0].getIdentifier(), null);
             }
-            return Pair.of(idn[0].getIdentifier(), contextPropertyName);
-        } else if (idn.length != 1) {
-            String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
-        } else {
-            return Pair.of(idn[0].getIdentifier(), null);
         }
     }
 
@@ -451,7 +447,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         if (metaInfoReader instanceof BaseMetaInfoReader) {
                             SimpleNodeUsage nodeUsage = RuleRowHelper
                                 .createConstantNodeUsage(constantOpenField, 0, defaultValue.length() - 1);
-                            ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+                            ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
                         }
                     }
                 } else {
