@@ -261,11 +261,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     public static IConditionEvaluator makeEvaluator(ICondition condition,
             IOpenClass inputParamType,
             IBindingContext bindingContext) throws SyntaxNodeException {
-
-        if (condition.hasFormulas()) {
-            return new DefaultConditionEvaluator();
-        }
-
         IParameterDeclaration[] params = condition.getParams();
 
         if (params.length == 1) {
