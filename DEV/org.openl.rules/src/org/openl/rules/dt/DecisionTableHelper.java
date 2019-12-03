@@ -3,7 +3,6 @@ package org.openl.rules.dt;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -41,7 +40,6 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -1352,30 +1350,6 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static void parseRec(ISyntaxNode node,
-            MutableBoolean chain,
-            boolean inChain,
-            List<IdentifierNode> identifierNodes) {
-        for (int i = 0; i < node.getNumberOfChildren(); i++) {
-            if ("identifier".equals(node.getChild(i).getType())) {
-                if (!chain.booleanValue()) {
-                    identifierNodes.add((IdentifierNode) node.getChild(i));
-                    if (inChain) {
-                        chain.setTrue();
-                    }
-                }
-            } else if ("chain".equals(node.getChild(i).getType())) {
-                boolean f = chain.booleanValue();
-                parseRec(node.getChild(i), chain, true, identifierNodes);
-                chain.setValue(f);
-            } else if ("function".equals(node.getChild(i).getType())) {
-                parseRec(node.getChild(i), new MutableBoolean(false), false, identifierNodes);
-            } else {
-                parseRec(node.getChild(i), chain, inChain, identifierNodes);
-            }
-        }
-    }
-
     @SafeVarargs
     private static String replaceIdentifierNodeNamesInCode(String code,
             List<IdentifierNode> identifierNodes,
@@ -1411,11 +1385,7 @@ public final class DecisionTableHelper {
             }
         }
 
-        List<IdentifierNode> identifierNodes = new ArrayList<>();
-        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(),
-            new MutableBoolean(false),
-            false,
-            identifierNodes);
+        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(definition);
 
         Map<String, IParameterDeclaration> localParameters = new HashMap<>();
         for (IParameterDeclaration localParameter : definition.getLocalParameters()) {

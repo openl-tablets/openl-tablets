@@ -1,5 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -10,6 +11,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableUtils;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.DecisionTableDataType;
@@ -19,6 +21,7 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
@@ -198,6 +201,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             ruleRow,
             ruleExecutionType,
             table.getSyntaxNode());
+        condition.setConditionParametersUsed(checkConditionParameterUsedInExpression(condition));
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
@@ -251,12 +255,20 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
     }
 
+    private static boolean checkConditionParameterUsedInExpression(ICondition condition) {
+        List<IdentifierNode> identifierNodes  = DecisionTableUtils.retrieveIdentifierNodes(condition);
+        for (IdentifierNode identifierNode : identifierNodes) {
+            for (IParameterDeclaration condParam : condition.getParams()) {
+                if (condParam.getName().equals(identifierNode.getIdentifier())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
-        String code = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule()
-            .getCode();
-        return makeOptimizedConditionMethodEvaluator(condition, signature, code);
+        return makeOptimizedConditionMethodEvaluator(condition, signature, DecisionTableUtils.getConditionSourceCode(condition));
     }
 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition,

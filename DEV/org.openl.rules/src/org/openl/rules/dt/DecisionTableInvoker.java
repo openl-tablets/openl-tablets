@@ -29,6 +29,15 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
+        try {
+            env.pushLocalFrame(new Object[] { new DecisionTableRuntimePool() });
+            return doInvoke(target, params, env);
+        } finally {
+            env.popLocalFrame();
+        }
+    }
+
+    private Object doInvoke(Object target, Object[] params, IRuntimeEnv env) {
         IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
         IIntIterator rulesIntIterator = algorithm.checkedRules(target, params, env);
 
