@@ -1,9 +1,14 @@
 package org.openl.rules.repository.git;
 
 import static org.junit.Assert.*;
-import static org.openl.rules.repository.git.TestGitUtils.*;
+import static org.openl.rules.repository.git.TestGitUtils.assertContains;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,8 +22,19 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.*;
-import org.openl.rules.repository.api.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
