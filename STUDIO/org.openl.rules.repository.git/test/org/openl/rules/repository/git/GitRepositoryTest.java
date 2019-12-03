@@ -1,9 +1,9 @@
 package org.openl.rules.repository.git;
 
 import static org.junit.Assert.*;
+import static org.openl.rules.repository.git.TestGitUtils.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -994,15 +994,6 @@ public class GitRepositoryTest {
         return repo;
     }
 
-    private FileData createFileData(String path, String text) {
-        FileData fileData = new FileData();
-        fileData.setName(path);
-        fileData.setSize(text.length());
-        fileData.setComment("Comment for " + path);
-        fileData.setAuthor("John Smith");
-        return fileData;
-    }
-
     private FileData getFileData(List<FileData> files, String fileName) {
         for (FileData fileData : files) {
             if (fileName.equals(fileData.getName())) {
@@ -1012,38 +1003,8 @@ public class GitRepositoryTest {
         return null;
     }
 
-    private static File createNewFile(File parent, String fileName, String text) throws IOException {
-        if (!parent.mkdirs() && !parent.exists()) {
-            throw new IOException("Could not create folder " + parent);
-        }
-        File file = new File(parent, fileName);
-        if (!file.createNewFile()) {
-            throw new IOException("Could not create file " + file.getAbsolutePath());
-        }
-        writeText(file, text);
-        return file;
-    }
-
-    private static void writeText(File file, String text) throws FileNotFoundException, UnsupportedEncodingException {
-        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.displayName())) {
-            writer.append(text);
-        }
-    }
-
     private static void addTag(Git git, RevCommit commit, int version) throws GitAPIException {
         git.tag().setObjectId(commit).setName(TAG_PREFIX + version).call();
-    }
-
-    private void assertContains(List<FileData> files, String fileName) {
-        boolean contains = false;
-        for (FileData file : files) {
-            if (fileName.equals(file.getName())) {
-                contains = true;
-                break;
-            }
-        }
-
-        assertTrue("Files list does not contain the file '" + fileName + "'", contains);
     }
 
     private FileData find(List<FileData> files, String fileName) {
