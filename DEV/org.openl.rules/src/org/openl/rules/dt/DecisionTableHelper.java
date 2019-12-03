@@ -754,31 +754,14 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext) throws OpenLCompilationException {
         validateCompoundReturnType(compoundReturnType);
 
-        final List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
+        List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
             .filter(e -> e instanceof FuzzyDTHeader && e.isReturn())
             .map(e -> (FuzzyDTHeader) e)
+            .filter(e -> e.getMethodsChain() != null)
             .collect(toList());
 
         if (fuzzyReturns.isEmpty()) {
             throw new IllegalStateException("DT headers are not found.");
-        }
-
-        // Write fuzzy DT header as simple DT header, because method chains refers to return type.
-        if (fuzzyReturns.size() == 1 && fuzzyReturns.get(0).getMethodsChain() == null) {
-            FuzzyDTHeader fuzzyDTHeader = fuzzyReturns.get(0);
-            SimpleReturnDTHeader simpleDTReturnHeader = new SimpleReturnDTHeader(fuzzyDTHeader.getStatement(),
-                fuzzyDTHeader.getTitle(),
-                fuzzyDTHeader.getColumn(),
-                fuzzyDTHeader.getWidth());
-            writeSimpleDTReturnHeader(tableSyntaxNode,
-                decisionTable,
-                originalTable,
-                grid,
-                simpleDTReturnHeader,
-                header,
-                0,
-                bindingContext);
-            return;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -923,7 +906,7 @@ public final class DecisionTableHelper {
         if (dtHeaders.stream()
             .filter(DTHeader::isReturn)
             .anyMatch(e -> e.getColumn() + e.getWidth() - 1 >= originalTable.getSource().getWidth())) {
-            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
+            throw new OpenLCompilationException("Wrong table structure: There is no column for return values.");
         }
 
         int retNum = 1;
@@ -942,7 +925,8 @@ public final class DecisionTableHelper {
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         bindingContext);
-                } else if (dtHeader instanceof SimpleReturnDTHeader) {
+                } else if (dtHeader instanceof SimpleReturnDTHeader || dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader)
+                    .getMethodsChain() == null) {
                     boolean isKey = false;
                     String header;
                     if (isCollect && tableSyntaxNode.getHeader()
@@ -954,11 +938,21 @@ public final class DecisionTableHelper {
                         header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
                                            : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++;
                     }
+                    SimpleReturnDTHeader simpleDTReturnHeader;
+                    if (dtHeader instanceof FuzzyDTHeader) {
+                        FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) dtHeader;
+                        simpleDTReturnHeader = new SimpleReturnDTHeader(fuzzyDTHeader.getStatement(),
+                            fuzzyDTHeader.getTitle(),
+                            fuzzyDTHeader.getColumn(),
+                            fuzzyDTHeader.getWidth());
+                    } else {
+                        simpleDTReturnHeader = (SimpleReturnDTHeader) dtHeader;
+                    }
                     writeSimpleDTReturnHeader(tableSyntaxNode,
                         decisionTable,
                         originalTable,
                         grid,
-                        (SimpleReturnDTHeader) dtHeader,
+                        simpleDTReturnHeader,
                         header,
                         collectParameterIndex,
                         bindingContext);
@@ -1678,6 +1672,7 @@ public final class DecisionTableHelper {
                             null,
                             sb.toString(),
                             methodChain,
+                            sourceTableColumn,
                             sourceTableColumn + w,
                             w0,
                             fuzzyResult,
@@ -1707,6 +1702,7 @@ public final class DecisionTableHelper {
                         conditionStatement.toString(),
                         sb.toString(),
                         methodsChain,
+                        sourceTableColumn,
                         sourceTableColumn + w,
                         w0,
                         fuzzyResult,
@@ -1773,6 +1769,11 @@ public final class DecisionTableHelper {
             }
 
             if (a1.isReturn() && b1.isReturn() && methodsChainsIsCrossed(a1.getMethodsChain(), b1.getMethodsChain())) {
+                return false;
+            }
+
+            if (!(a1.isHCondition() && b1.isHCondition() && a1.isCondition() && b1.isCondition() || a1.isAction() && b1
+                .isAction() || a1.isReturn() && b1.isReturn()) && a1.getTopColumn() == b1.getTopColumn()) {
                 return false;
             }
         }
@@ -2342,6 +2343,7 @@ public final class DecisionTableHelper {
                                 null,
                                 titleForColumn,
                                 null,
+                                column,
                                 column,
                                 width,
                                 returnTypeFuzzyExtractResult.get(0),

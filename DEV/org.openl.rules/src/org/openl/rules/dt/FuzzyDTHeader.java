@@ -9,17 +9,20 @@ class FuzzyDTHeader extends DTHeader {
     private IOpenMethod[] methodsChain;
     private String title;
     private FuzzyResult fuzzyResult;
+    private int topColumn;
     private boolean returnDTHeader;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
             String title,
             IOpenMethod[] methodsChain,
+            int topColumn,
             int column,
             int width,
             FuzzyResult fuzzyResult,
             boolean returnDTHeader) {
         super(new int[] { methodParameterIndex }, statement, column, width);
+        this.topColumn = topColumn;
         this.methodsChain = methodsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
@@ -72,5 +75,9 @@ class FuzzyDTHeader extends DTHeader {
             return RETURN_EMPTY_INDEXES;
         }
         return super.getMethodParameterIndexes();
+    }
+
+    public int getTopColumn() {
+        return topColumn;
     }
 }
