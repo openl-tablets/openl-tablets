@@ -20,7 +20,7 @@ public class DecisionTableUtils {
         return retrieveIdentifierNodes(definition.getCompositeMethod());
     }
 
-    private static List<IdentifierNode> retrieveIdentifierNodes(CompositeMethod dtCompositeMethod) {
+    public static List<IdentifierNode> retrieveIdentifierNodes(CompositeMethod dtCompositeMethod) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
         parseAndCollectIdentifierNodes(dtCompositeMethod.getMethodBodyBoundNode().getSyntaxNode(),
             new MutableBoolean(false),

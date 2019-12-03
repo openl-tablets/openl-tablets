@@ -1,0 +1,3 @@
+ERROR: Condition expression type is incompatible with condition parameter type.
+ERROR: Condition expression must return a boolean type.
+ERROR: Condition expression type is incompatible with condition parameter type.

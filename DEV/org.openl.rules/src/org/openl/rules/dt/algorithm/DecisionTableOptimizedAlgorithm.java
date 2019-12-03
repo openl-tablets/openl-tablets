@@ -295,12 +295,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IAggregateInfo aggregateInfo = conditionParamType.getAggregateInfo();
 
             if (aggregateInfo.isAggregate(conditionParamType)) {
-                ConditionCasts agregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
+                ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
                     .getComponentType(conditionParamType), inputParamType, bindingContext);
-                if (agregateConditionCasts.isCastToConditionTypeExists() || agregateConditionCasts
+                if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
                     .isCastToInputTypeExists() && !inputParamType.isArray()) {
                     return condition.getNumberOfEmptyRules(0) > 1 ? new ContainsInArrayIndexedEvaluatorV2(
-                        agregateConditionCasts) : new ContainsInArrayIndexedEvaluator(agregateConditionCasts);
+                        aggregateConditionCasts) : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
                 }
             }
 

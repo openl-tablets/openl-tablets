@@ -1,6 +1,13 @@
 package org.openl.rules.dt;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -15,6 +22,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
+import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
@@ -29,6 +37,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.Runnable;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -127,13 +136,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
-        Set<String> headerTokens = new HashSet<>();
         int[] headerIndexes = new int[4];
         int j = 0;
         int k = 0;
         while (j < tableStructure.length) {
             String d = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
-            headerTokens.add(d);
             if ("Title".equalsIgnoreCase(d)) {
                 headerIndexes[TITLE_INDEX] = j;
                 k++;
@@ -172,6 +179,21 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             i = i + originalTable.getSource().getCell(i, h - 1).getWidth();
         }
         return ArrayUtils.toPrimitive(t.toArray(new Integer[] {}));
+    }
+
+    private boolean isLocalParameterIsUsed(CompositeMethod compositeMethod,
+            Collection<List<IParameterDeclaration>> localParameters) {
+        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(compositeMethod);
+        for (IdentifierNode identifierNode : identifierNodes) {
+            for (List<IParameterDeclaration> parameterDeclarations : localParameters) {
+                for (IParameterDeclaration parameterDeclaration : parameterDeclarations) {
+                    if (Objects.equals(identifierNode.getIdentifier(), parameterDeclaration.getName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -355,6 +377,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         getXlsModuleOpenClass(),
                         dtHeaderBindingContext);
 
+                    validate(header, localParameters, expressionCellSourceCodeModule, compositeMethod, cxt);
+
                     if (!cxt.isExecutionMode()) {
                         addMetaInfoForExpression(compositeMethod, expressionCell);
                     }
@@ -366,6 +390,69 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             i = i + d;
         }
         syntaxNodeExceptionCollector.throwIfAny();
+    }
+
+    private void validate(IOpenMethodHeader header,
+            Map<String, List<IParameterDeclaration>> localParameters,
+            GridCellSourceCodeModule expressionCellSourceCodeModule,
+            CompositeMethod compositeMethod,
+            IBindingContext cxt) throws SyntaxNodeException {
+        if (isConditions()) {
+            if (compositeMethod.getType().getInstanceClass() != boolean.class && compositeMethod.getType()
+                .getInstanceClass() != Boolean.class) {
+                if (isSimplifiedSyntaxIsUsed(expressionCellSourceCodeModule.getCode(), header.getSignature())) {
+                    validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
+                } else {
+                    if (isLocalParameterIsUsed(compositeMethod, localParameters.values())) {
+                        throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
+                            null,
+                            null,
+                            expressionCellSourceCodeModule);
+                    } else {
+                        validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
+                    }
+                }
+            }
+        }
+    }
+
+    private void validateConditionType(CompositeMethod compositeMethod,
+            GridCellSourceCodeModule expressionCellSourceCodeModule,
+            Map<String, List<IParameterDeclaration>> localParameters,
+            IBindingContext cxt) throws SyntaxNodeException {
+        IOpenClass parameterType = null;
+        int localParameterCount = 0;
+        for (List<IParameterDeclaration> paramTypes : localParameters.values()) {
+            for (IParameterDeclaration paramType : paramTypes) {
+                localParameterCount++;
+                if (parameterType == null) {
+                    parameterType = paramType.getType();
+                } else if (!parameterType.equals(paramType.getType())) {
+                    throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
+                        null,
+                        null,
+                        expressionCellSourceCodeModule);
+                }
+            }
+        }
+        if (localParameterCount > 2 || !ConditionHelper
+            .findConditionCasts(parameterType, compositeMethod.getType(), cxt)
+            .atLeastOneExists()) {
+            throw SyntaxNodeExceptionUtils.createError(
+                "Condition expression type is incompatible with condition parameter type.",
+                null,
+                null,
+                expressionCellSourceCodeModule);
+        }
+    }
+
+    private boolean isSimplifiedSyntaxIsUsed(String code, IMethodSignature signature) {
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            if (Objects.equals(code, signature.getParameterName(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void addMetaInfoForExpression(CompositeMethod compositeMethod, ICell cell) {
@@ -397,4 +484,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         }
     }
 
+    protected abstract boolean isConditions();
+
+    protected abstract boolean isActions();
+
+    protected abstract boolean isReturns();
 }
