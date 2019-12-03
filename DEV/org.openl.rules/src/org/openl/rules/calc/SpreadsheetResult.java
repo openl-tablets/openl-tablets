@@ -77,11 +77,11 @@ public class SpreadsheetResult implements Serializable {
         this.columnNamesForResultModel = Objects.requireNonNull(columnNamesForResultModel);
         if (rowNames.length != rowNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of rowNames is not equal to the lenght of rowNamesForResultModel.");
+                "The length of rowNames is not equal to the length of rowNamesForResultModel.");
         }
         if (columnNames.length != columnNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of columnNames is not equal to the lenght of columnNamesForResultModel.");
+                "The length of columnNames is not equal to the length of columnNamesForResultModel.");
         }
         this.results = results;
 
