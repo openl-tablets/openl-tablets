@@ -13,12 +13,22 @@ import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.RuleExecutionObject;
-import org.openl.rules.helpers.*;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.NumberUtils;
+import org.openl.rules.helpers.StringRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.*;
+import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -29,6 +39,7 @@ public class Condition extends FunctionalRow implements ICondition {
     private IConditionEvaluator conditionEvaluator;
     private IOpenSourceCodeModule userDefinedOpenSourceCodeModule;
     private boolean conditionParametersUsed;
+    private boolean ruleIdOrRuleNameUsed;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -74,7 +85,7 @@ public class Condition extends FunctionalRow implements ICondition {
             return DecisionValue.NxA_VALUE;
         }
 
-        if (conditionParametersUsed) {
+        if (conditionParametersUsed || ruleIdOrRuleNameUsed) {
             return makeDecision(ruleN, target, dtParams, env);
         } else {
             /*
@@ -299,5 +310,15 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public void setConditionParametersUsed(boolean conditionParametersUsed) {
         this.conditionParametersUsed = conditionParametersUsed;
+    }
+
+    @Override
+    public boolean isRuleIdOrRuleNameUsed() {
+        return ruleIdOrRuleNameUsed;
+    }
+
+    @Override
+    public void setRuleIdOrRuleNameUsed(boolean ruleIdOrRuleNameUsed) {
+        this.ruleIdOrRuleNameUsed = ruleIdOrRuleNameUsed;
     }
 }

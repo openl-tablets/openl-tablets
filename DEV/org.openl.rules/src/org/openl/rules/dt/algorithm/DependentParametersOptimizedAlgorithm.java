@@ -10,10 +10,28 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.*;
-import org.openl.meta.*;
+import org.openl.binding.impl.BinaryOpNode;
+import org.openl.binding.impl.BinaryOpNodeAnd;
+import org.openl.binding.impl.BlockNode;
+import org.openl.binding.impl.FieldBoundNode;
+import org.openl.binding.impl.IndexNode;
+import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.*;
+import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
+import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
@@ -34,7 +52,7 @@ class DependentParametersOptimizedAlgorithm {
     static IConditionEvaluator makeEvaluator(ICondition condition,
             IMethodSignature signature,
             IBindingContext bindingContext) throws SyntaxNodeException {
-        if (condition.hasFormulas()) {
+        if (condition.hasFormulas() || condition.isRuleIdOrRuleNameUsed()) {
             return null;
         }
 

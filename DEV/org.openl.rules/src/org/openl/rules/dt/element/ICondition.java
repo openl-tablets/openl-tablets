@@ -32,4 +32,7 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
      */
     void setConditionParametersUsed(boolean conditionParametersUsed);
 
+    boolean isRuleIdOrRuleNameUsed();
+
+    void setRuleIdOrRuleNameUsed(boolean ruleIdOrRuleNameUsed);
 }

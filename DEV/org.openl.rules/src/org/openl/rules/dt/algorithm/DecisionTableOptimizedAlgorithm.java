@@ -3,7 +3,11 @@
  */
 package org.openl.rules.dt.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -12,13 +16,28 @@ import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
-import org.openl.rules.dt.algorithm.evaluator.*;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluatorV2;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
+import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
-import org.openl.rules.dt.type.*;
+import org.openl.rules.dt.type.BooleanAdaptorFactory;
+import org.openl.rules.dt.type.BooleanTypeAdaptor;
+import org.openl.rules.dt.type.CharRangeAdaptor;
+import org.openl.rules.dt.type.DateRangeAdaptor;
+import org.openl.rules.dt.type.DoubleRangeAdaptor;
+import org.openl.rules.dt.type.DoubleRangeForIntRangeAdaptor;
+import org.openl.rules.dt.type.IRangeAdaptor;
+import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.rules.dt.type.StringRangeAdaptor;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
@@ -262,7 +281,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IOpenClass inputParamType,
             IBindingContext bindingContext) throws SyntaxNodeException {
         IParameterDeclaration[] params = condition.getParams();
-
         if (params.length == 1) {
             IOpenClass conditionParamType = params[0].getType();
 

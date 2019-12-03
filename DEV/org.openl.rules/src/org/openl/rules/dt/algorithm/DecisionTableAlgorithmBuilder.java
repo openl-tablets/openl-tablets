@@ -22,7 +22,13 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.impl.SourceCodeMethodCaller;
@@ -202,6 +208,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             ruleExecutionType,
             table.getSyntaxNode());
         condition.setConditionParametersUsed(checkConditionParameterUsedInExpression(condition));
+        condition.setRuleIdOrRuleNameUsed(checkRuleIdOrRuleNameInExpression(condition));
+
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
@@ -220,7 +228,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getBodyType();
 
-        if (condition.isDependentOnAnyParams()) {
+        if (condition.isDependentOnAnyParams() || condition.isRuleIdOrRuleNameUsed()) {
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(methodType)) {
                 throw SyntaxNodeExceptionUtils
@@ -256,19 +264,26 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static boolean checkConditionParameterUsedInExpression(ICondition condition) {
-        List<IdentifierNode> identifierNodes  = DecisionTableUtils.retrieveIdentifierNodes(condition);
-        for (IdentifierNode identifierNode : identifierNodes) {
-            for (IParameterDeclaration condParam : condition.getParams()) {
-                if (condParam.getName().equals(identifierNode.getIdentifier())) {
-                    return true;
-                }
+        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
+        for (IParameterDeclaration condParam : condition.getParams()) {
+            if (identifierNodes.stream()
+                .anyMatch(identifierNode -> condParam.getName().equals(identifierNode.getIdentifier()))) {
+                return true;
             }
         }
         return false;
     }
 
+    private static boolean checkRuleIdOrRuleNameInExpression(ICondition condition) {
+        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
+        return identifierNodes.stream()
+            .anyMatch(e -> "$Rule".equals(e.getIdentifier()) || "$RuleId".equals(e.getIdentifier()));
+    }
+
     private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
-        return makeOptimizedConditionMethodEvaluator(condition, signature, DecisionTableUtils.getConditionSourceCode(condition));
+        return makeOptimizedConditionMethodEvaluator(condition,
+            signature,
+            DecisionTableUtils.getConditionSourceCode(condition));
     }
 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition,
