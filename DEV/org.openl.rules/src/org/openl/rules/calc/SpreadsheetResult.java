@@ -2,8 +2,15 @@ package org.openl.rules.calc;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -14,6 +21,7 @@ import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -69,11 +77,11 @@ public class SpreadsheetResult implements Serializable {
         this.columnNamesForResultModel = Objects.requireNonNull(columnNamesForResultModel);
         if (rowNames.length != rowNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of rowNames is not equal to the lenght of rowNamesForResultModel.");
+                "The length of rowNames is not equal to the length of rowNamesForResultModel.");
         }
         if (columnNames.length != columnNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of columnNames is not equal to the lenght of columnNamesForResultModel.");
+                "The length of columnNames is not equal to the length of columnNamesForResultModel.");
         }
         this.results = results;
 
@@ -101,14 +109,12 @@ public class SpreadsheetResult implements Serializable {
                             SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
                             new Point(j, i));
                         if (nonNullsRowsCount == 1) {
-                            StringBuilder sb1 = new StringBuilder();
-                            sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(columnNames[j]);
-                            fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
+                                new Point(j, i));
                         }
                         if (nonNullsColumnsCount == 1) {
-                            StringBuilder sb1 = new StringBuilder();
-                            sb1.append(SpreadsheetStructureBuilder.DOLLAR_SIGN).append(rowNames[i]);
-                            fieldsCoordinates.put(sb1.toString(), new Point(j, i));
+                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
+                                new Point(j, i));
                         }
                     }
                 }
@@ -384,7 +390,8 @@ public class SpreadsheetResult implements Serializable {
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
-            String[][] fieldNames = detailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
+            final boolean isDetailedPlainModel = detailedPlainModel;
+            String[][] fieldNames = isDetailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -401,7 +408,7 @@ public class SpreadsheetResult implements Serializable {
                             .getRow()] != null) {
                             values.put(e.getKey(),
                                 convertSpreadsheetResults(module, getValue(p.getRow(), p.getColumn())));
-                            if (detailedPlainModel) {
+                            if (isDetailedPlainModel) {
                                 fieldNames[p.getRow()][p.getColumn()] = e.getKey();
                             }
                         }
@@ -411,18 +418,16 @@ public class SpreadsheetResult implements Serializable {
                 for (int i = 0; i < rowNamesForResultModel.length; i++) {
                     for (int j = 0; j < columnNamesForResultModel.length; j++) {
                         if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
-                            String fName = null;
+                            String fName;
                             if (nonNullsColumnsCount == 1) {
                                 fName = rowNamesForResultModel[i];
                             } else if (nonNullsRowsCount == 1) {
                                 fName = columnNamesForResultModel[j];
                             } else {
-                                StringBuilder sb = new StringBuilder();
-                                sb.append(columnNamesForResultModel[j]).append("_").append(rowNamesForResultModel[i]);
-                                fName = sb.toString();
+                                fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
                             }
                             values.put(fName, convertSpreadsheetResults(module, getValue(i, j)));
-                            if (detailedPlainModel) {
+                            if (isDetailedPlainModel) {
                                 fieldNames[i][j] = fName;
                             }
                         }
@@ -474,7 +479,7 @@ public class SpreadsheetResult implements Serializable {
                 t = t.getComponentType();
             }
             int len = Array.getLength(v);
-            if (SpreadsheetResult.class.isAssignableFrom(t)) {
+            if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
                 Object tmpArray = Array
                     .newInstance(type != null && type.isArray() ? type.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {

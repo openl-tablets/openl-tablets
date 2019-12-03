@@ -6,8 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.*;
-import org.openl.gen.writers.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.openl.gen.writers.BeanByteCodeWriter;
+import org.openl.gen.writers.ConstructorWithParametersWriter;
+import org.openl.gen.writers.DefaultConstructorWriter;
+import org.openl.gen.writers.EqualsWriter;
+import org.openl.gen.writers.GettersWriter;
+import org.openl.gen.writers.HashCodeWriter;
+import org.openl.gen.writers.SettersWriter;
+import org.openl.gen.writers.ToStringWriter;
 import org.openl.runtime.ContextProperty;
 import org.openl.util.ClassUtils;
 
@@ -110,7 +121,7 @@ public class POJOByteCodeGenerator {
             FieldVisitor fieldVisitor = classWriter
                 .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
             if (field.getValue().isContextProperty()) {
-                visitOpenLContextAnnotation(field.getKey(), fieldVisitor);
+                visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }
         }
     }

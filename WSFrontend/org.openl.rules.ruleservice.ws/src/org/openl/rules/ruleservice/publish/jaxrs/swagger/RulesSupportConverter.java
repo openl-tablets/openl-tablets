@@ -1,19 +1,21 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.SimpleType;
-import io.swagger.converter.ModelConverter;
-import io.swagger.converter.ModelConverterContext;
-import io.swagger.models.Model;
-import io.swagger.models.properties.Property;
-
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Iterator;
+
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.SimpleType;
+
+import io.swagger.converter.ModelConverter;
+import io.swagger.converter.ModelConverterContext;
+import io.swagger.models.Model;
+import io.swagger.models.properties.Property;
 
 public class RulesSupportConverter implements ModelConverter {
 
@@ -61,7 +63,7 @@ public class RulesSupportConverter implements ModelConverter {
             }
         }
         if (type instanceof SimpleType) {
-            if (type != null && java.util.Optional.class.isAssignableFrom(((SimpleType) type).getRawClass())) {
+            if (java.util.Optional.class.isAssignableFrom(((SimpleType) type).getRawClass())) {
                 if (((JavaType) type).containedType(0) == null) {
                     type = Object.class;
                 }

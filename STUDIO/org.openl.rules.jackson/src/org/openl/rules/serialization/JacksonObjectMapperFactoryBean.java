@@ -10,6 +10,28 @@ package org.openl.rules.serialization;
  * #L%
  */
 
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+
+import org.openl.rules.serialization.jackson.Mixin;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -26,17 +48,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import org.openl.rules.serialization.jackson.Mixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.*;
-import org.openl.rules.variation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
 
 public class JacksonObjectMapperFactoryBean {
 

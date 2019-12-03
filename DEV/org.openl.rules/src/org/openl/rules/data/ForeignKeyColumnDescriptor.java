@@ -1,7 +1,11 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -368,7 +372,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
 
                 if (isSupportMultirows()) {
-                    populateLiteralByForeignKeyWithMultirowSupport(target,
+                    populateLiteralByForeignKeyWithMultiRowSupport(target,
                         valuesTable,
                         cxt,
                         foreignTable,
@@ -421,8 +425,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                     // Populate result array with values.
                     //
-                    boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
-                    boolean isSet = Set.class.isAssignableFrom(fieldType.getInstanceClass());
+                    boolean isList = ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class);
+                    boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
                     for (int i = 0; i < size; i++) {
                         Object value = values.get(i);
                         if (isList) {
@@ -436,14 +440,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     getField().set(target, v, env);
                 }
             }
-        } 
+        }
     }
 
     private IOpenClass getComponentType(IOpenClass fieldType) {
         return isValuesAnArray() ? fieldType.getAggregateInfo().getComponentType(fieldType) : JavaOpenClass.OBJECT;
     }
 
-    private void populateLiteralByForeignKeyWithMultirowSupport(Object target,
+    private void populateLiteralByForeignKeyWithMultiRowSupport(Object target,
             ILogicalTable valuesTable,
             IBindingContext cxt,
             ITable foreignTable,

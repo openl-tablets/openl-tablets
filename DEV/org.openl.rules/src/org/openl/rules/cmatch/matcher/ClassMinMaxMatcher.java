@@ -1,5 +1,7 @@
 package org.openl.rules.cmatch.matcher;
 
+import java.util.Objects;
+
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
@@ -8,7 +10,7 @@ public class ClassMinMaxMatcher implements IMatcher {
     private final boolean isMaxMode;
 
     public ClassMinMaxMatcher(Class<?> clazz, boolean isMaxMode) {
-        this.clazz = clazz;
+        this.clazz = Objects.requireNonNull(clazz, "clazz cannot be null");
         this.isMaxMode = isMaxMode;
 
         if (!Comparable.class.isAssignableFrom(clazz)) {
@@ -18,8 +20,8 @@ public class ClassMinMaxMatcher implements IMatcher {
 
     @Override
     public Object fromString(String checkValue) {
-        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(clazz);
-        return convertor.parse(checkValue, null);
+        IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(clazz);
+        return converter.parse(checkValue, null);
     }
 
     @Override

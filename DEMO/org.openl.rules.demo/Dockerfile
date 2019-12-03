@@ -1,6 +1,6 @@
 FROM openjdk:11.0.5-stretch
 
-ENV TOMCAT_VERSION=9.0.27
+ENV TOMCAT_VERSION=9.0.29
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \

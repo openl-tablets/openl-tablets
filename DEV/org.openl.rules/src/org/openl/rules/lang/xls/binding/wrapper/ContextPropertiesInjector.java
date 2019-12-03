@@ -1,10 +1,5 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
@@ -15,6 +10,11 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 class ContextPropertiesInjector {
 
@@ -31,17 +31,17 @@ class ContextPropertiesInjector {
                     .stream()
                     .filter(IOpenField::isContextProperty)
                     .forEach(field -> contextPropertyInjections.put(field.getContextProperty(),
-                        createaContextInjection(paramIndex, field, castFactory)));
-            } catch (Exception | LinkageError e) {
+                        createContextInjection(paramIndex, field, castFactory)));
+            } catch (Exception | LinkageError ignored) {
             }
             i++;
         }
         this.contextPropertyInjections = Collections.unmodifiableMap(contextPropertyInjections);
     }
 
-    private ContextPropertyInjection createaContextInjection(int paramIndex,
-            IOpenField field,
-            ICastFactory castFactory) {
+    private ContextPropertyInjection createContextInjection(int paramIndex,
+                                                            IOpenField field,
+                                                            ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
         if (contextType == null) {
             throw new IllegalStateException(
@@ -81,9 +81,9 @@ class ContextPropertiesInjector {
     }
 
     private static class ContextPropertyInjection {
-        int paramIndex;
-        IOpenField field;
-        IOpenCast openCast;
+        private int paramIndex;
+        private IOpenField field;
+        private IOpenCast openCast;
 
         public ContextPropertyInjection(int paramIndex, IOpenField field, IOpenCast openCast) {
             super();

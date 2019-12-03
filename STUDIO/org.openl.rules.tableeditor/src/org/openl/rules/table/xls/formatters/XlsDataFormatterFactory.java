@@ -1,5 +1,13 @@
 package org.openl.rules.table.xls.formatters;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.Locale;
+
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.FormattedCell;
@@ -15,14 +23,6 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.Locale;
-
 public final class XlsDataFormatterFactory {
 
     private XlsDataFormatterFactory() {
@@ -35,7 +35,7 @@ public final class XlsDataFormatterFactory {
      * Determine formatter depending on type retrieved from Excel. Warning! Don't invoke this method from core. It can
      * be memory and time consuming operation. Formatting values only from UI is allowed.
      *
-     * @param cell         formatting cell
+     * @param cell formatting cell
      * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
@@ -56,9 +56,10 @@ public final class XlsDataFormatterFactory {
                 }
 
                 // Date
-            } else if (Date.class.isAssignableFrom(instanceClass) || LocalDateTime.class
-                    .isAssignableFrom(instanceClass) || LocalDate.class.isAssignableFrom(instanceClass) || LocalTime.class
-                    .isAssignableFrom(instanceClass) || ZonedDateTime.class.isAssignableFrom(instanceClass) || Instant.class.isAssignableFrom(instanceClass)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
+                LocalDateTime.class) || ClassUtils.isAssignable(instanceClass, LocalDate.class) || ClassUtils
+                    .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
+                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 formatter = getDateFormatter(cell);
 
                 // Boolean

@@ -14,6 +14,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
+import org.openl.util.ClassUtils;
 
 public class JavaMapAggregateInfo implements IAggregateInfo {
 
@@ -74,7 +75,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
 
     @Override
     public boolean isAggregate(IOpenClass type) {
-        return Map.class.isAssignableFrom(type.getInstanceClass());
+        return ClassUtils.isAssignable(type.getInstanceClass(), Map.class);
     }
 
     @Override

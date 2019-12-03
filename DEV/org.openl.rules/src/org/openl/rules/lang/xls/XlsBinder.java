@@ -4,6 +4,8 @@
 
 package org.openl.rules.lang.xls;
 
+import java.util.*;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
@@ -72,8 +74,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Implements {@link IOpenBinder} abstraction for Excel files.
