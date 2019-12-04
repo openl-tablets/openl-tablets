@@ -479,70 +479,87 @@ public class Operators {
 
     // Bitwise operators
     //
+    @Deprecated
     public static byte bitand(byte x, byte y) {
         return (byte) (x & y);
     }
 
+    @Deprecated
     public static short bitand(short x, short y) {
         return (short) (x & y);
     }
 
+    @Deprecated
     public static int bitand(int x, int y) {
         return x & y;
     }
 
+    @Deprecated
     public static long bitand(long x, long y) {
         return x & y;
     }
 
+    @Deprecated
     public static byte bitnot(byte x) {
         return (byte) ~x;
     }
 
+    @Deprecated
     public static short bitnot(short x) {
         return (short) ~x;
     }
 
+    @Deprecated
     public static int bitnot(int x) {
         return ~x;
     }
 
+    @Deprecated
     public static long bitnot(long x) {
         return ~x;
     }
 
+    @Deprecated
     public static byte bitor(byte x, byte y) {
         return (byte) (x | y);
     }
 
+    @Deprecated
     public static short bitor(short x, short y) {
         return (short) (x | y);
     }
 
+    @Deprecated
     public static int bitor(int x, int y) {
         return x | y;
     }
 
+    @Deprecated
     public static long bitor(long x, long y) {
         return x | y;
     }
 
+    @Deprecated
     public static boolean bitxor(boolean x, boolean y) {
         return x ^ y;
     }
 
+    @Deprecated
     public static byte bitxor(byte x, byte y) {
         return (byte) (x ^ y);
     }
 
+    @Deprecated
     public static short bitxor(short x, short y) {
         return (short) (x ^ y);
     }
 
+    @Deprecated
     public static int bitxor(int x, int y) {
         return x ^ y;
     }
 
+    @Deprecated
     public static long bitxor(long x, long y) {
         return x ^ y;
     }
@@ -611,19 +628,23 @@ public class Operators {
         return x.add(BigDecimal.ONE);
     }
 
+    @Deprecated
     public static int lshift(int x, int y) {
         return x << y;
     }
 
+    @Deprecated
     public static long lshift(long x, int y) {
         return x << y;
     }
 
+    @Deprecated
     public static PrintStream lshift(PrintStream p, long x) {
         p.print(x);
         return p;
     }
 
+    @Deprecated
     public static PrintStream lshift(PrintStream p, Object x) {
         p.print(x);
         return p;
@@ -854,18 +875,22 @@ public class Operators {
                                                                  : (x == null || y == null) ? null : Boolean.TRUE;
     }
 
+    @Deprecated
     public static int rshift(int x, int y) {
         return x >> y;
     }
 
+    @Deprecated
     public static long rshift(long x, int y) {
         return x >> y;
     }
 
+    @Deprecated
     public static int rshiftu(int x, int y) {
         return x >>> y;
     }
 
+    @Deprecated
     public static long rshiftu(long x, int y) {
         return x >>> y;
     }
