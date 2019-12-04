@@ -4,15 +4,19 @@ import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.ActionType;
@@ -120,13 +124,10 @@ public class DecisionTableLoader {
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
-            try {
-                tableBody = DecisionTableHelper
-                    .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
-            } catch (OpenLCompilationException e) {
-                throw SyntaxNodeExceptionUtils
-                    .createError("Cannot create a header for a Simple Rules or Lookup Table.", e, tableSyntaxNode);
-            }
+            tableBody = preprocessDecisionTableWithoutHeaders(tableSyntaxNode,
+                decisionTable,
+                tableBody,
+                bindingContext);
         }
         ILogicalTable toParse = tableBody;
 
@@ -179,6 +180,94 @@ public class DecisionTableLoader {
         }
 
         validateMapReturnType(decisionTable, tableSyntaxNode);
+    }
+
+    private static class PreprocessDecisionTableWithoutHeadersErrors {
+        private SyntaxNodeException[] syntaxNodeExceptions;
+        private List<SyntaxNodeException> bindingSyntaxNodeException;
+        private Collection<OpenLMessage> openLMessages;
+        private OpenLCompilationException ex;
+
+        private PreprocessDecisionTableWithoutHeadersErrors(SyntaxNodeException[] syntaxNodeExceptions,
+                List<SyntaxNodeException> bindingSyntaxNodeException,
+                Collection<OpenLMessage> openLMessages,
+                OpenLCompilationException ex) {
+            this.syntaxNodeExceptions = Objects.requireNonNull(syntaxNodeExceptions,
+                "syntaxNodeExceptions cannot be null");
+            this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
+                "bindingSyntaxNodeException cannot be null");
+            this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
+            this.ex = ex;
+        }
+
+        private void applyErrors(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
+            bindingSyntaxNodeException.forEach(bindingContext::addError);
+            openLMessages.forEach(bindingContext::addMessage);
+            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
+        }
+
+        public OpenLCompilationException getEx() {
+            return ex;
+        }
+
+    }
+
+    private Pair<ILogicalTable, PreprocessDecisionTableWithoutHeadersErrors> preprocessDecisionTableWithoutHeadersWithRevertIfFails(
+            TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable tableBody,
+            IBindingContext bindingContext) {
+        SyntaxNodeException[] syntaxNodeExceptions = tableSyntaxNode.getErrors();
+        tableSyntaxNode.clearErrors();
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
+        try {
+            ILogicalTable logicalTable = DecisionTableHelper
+                .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
+            bindingContext.popErrors().forEach(bindingContext::addError);
+            bindingContext.popMessages().forEach(bindingContext::addMessage);
+            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
+            tableSyntaxNode.clearErrors();
+            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
+            Arrays.stream(newSyntaxNodeExceptions).forEach(tableSyntaxNode::addError);
+            return Pair.of(logicalTable, null);
+        } catch (OpenLCompilationException e) {
+            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
+            tableSyntaxNode.clearErrors();
+            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
+            return Pair.of(null,
+                new PreprocessDecisionTableWithoutHeadersErrors(newSyntaxNodeExceptions,
+                    bindingContext.popErrors(),
+                    bindingContext.popMessages(),
+                    e));
+        }
+    }
+
+    private ILogicalTable preprocessDecisionTableWithoutHeaders(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable tableBody,
+            IBindingContext bindingContext) throws SyntaxNodeException {
+        Pair<ILogicalTable, PreprocessDecisionTableWithoutHeadersErrors> horizontalPreprocessDecisionTable = preprocessDecisionTableWithoutHeadersWithRevertIfFails(
+            tableSyntaxNode,
+            decisionTable,
+            tableBody,
+            bindingContext);
+        if (horizontalPreprocessDecisionTable.getKey() != null) {
+            return horizontalPreprocessDecisionTable.getKey();
+        }
+        Pair<ILogicalTable, PreprocessDecisionTableWithoutHeadersErrors> verticalPreprocessDecisionTable = preprocessDecisionTableWithoutHeadersWithRevertIfFails(
+            tableSyntaxNode,
+            decisionTable,
+            tableBody.transpose(),
+            bindingContext);
+        if (verticalPreprocessDecisionTable.getKey() != null) {
+            return verticalPreprocessDecisionTable.getKey();
+        }
+        horizontalPreprocessDecisionTable.getValue().applyErrors(tableSyntaxNode, bindingContext);
+        throw SyntaxNodeExceptionUtils.createError(
+            "Cannot create a header for a Simple Rules, Lookup Table or Smart Table.",
+            horizontalPreprocessDecisionTable.getValue().getEx(),
+            tableSyntaxNode);
     }
 
     private void validateMapReturnType(DecisionTable decisionTable,

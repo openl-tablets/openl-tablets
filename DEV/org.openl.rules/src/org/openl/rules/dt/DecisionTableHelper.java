@@ -319,7 +319,6 @@ public final class DecisionTableHelper {
             virtualGrid);
 
         IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
-
         // If the new table header size bigger than the size of the old table we
         // use the new table size
         int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ? originalTable.getSource()

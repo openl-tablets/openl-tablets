@@ -38,8 +38,8 @@ public abstract class AGrid implements IGrid {
 
     @Override
     public IGridRegion getRegionContaining(int col, int row) {
-        int nregions = getNumberOfMergedRegions();
-        for (int i = 0; i < nregions; i++) {
+        int nRegions = getNumberOfMergedRegions();
+        for (int i = 0; i < nRegions; i++) {
             IGridRegion reg = getMergedRegion(i);
             if (IGridRegion.Tool.contains(reg, col, row)) {
                 return reg;

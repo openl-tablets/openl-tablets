@@ -51,7 +51,7 @@ public class TableSyntaxNode extends NaryNode {
     /**
      * Map with errors in the order in which they were inserted
      */
-    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors;
+    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
 
     private Object validationResult;
 
@@ -73,9 +73,6 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public void addError(SyntaxNodeException error) {
-        if (errors == null) {
-            errors = new LinkedHashMap<>();
-        }
         ErrorKey key = new ErrorKey(error);
         if (errors.get(key) != null) {
             String message = error.getMessage();
@@ -95,7 +92,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public void clearErrors() {
-        errors = null;
+        errors.clear();
     }
 
     public String getDisplayName() {
@@ -103,7 +100,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public SyntaxNodeException[] getErrors() {
-        return errors == null ? null : errors.values().toArray(new SyntaxNodeException[0]);
+        return errors.values().toArray(new SyntaxNodeException[0]);
     }
 
     public boolean hasErrors() {

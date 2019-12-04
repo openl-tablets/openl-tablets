@@ -59,10 +59,6 @@ public class CompositeGrid extends AGrid {
         init();
     }
 
-    public IGridTable asGridTable() {
-        return new GridTable(0, 0, height - 1, width - 1, this);
-    }
-
     @Override
     public ICell getCell(int column, int row) {
         if (!vertical) { // Merge header for horizontal table parts
@@ -73,7 +69,7 @@ public class CompositeGrid extends AGrid {
             ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
             if (row < delegate.getHeight()) {
                 IGridRegion reg = getRegionContaining(0, 0);
-                IGridRegion region = null;
+                IGridRegion region;
                 if (reg != null) {
                     region = new GridRegion(reg.getTop(),
                         reg.getLeft(),
@@ -98,7 +94,7 @@ public class CompositeGrid extends AGrid {
                                 if (column >= delegate1.getWidth() + delegate2.getWidth()) {
                                     IGridRegion reg = getRegionContaining(delegate1.getWidth() + delegate2.getWidth(),
                                         row);
-                                    IGridRegion region = null;
+                                    IGridRegion region;
                                     if (reg != null) {
                                         region = new GridRegion(reg.getTop(),
                                             reg.getLeft(),
@@ -175,12 +171,12 @@ public class CompositeGrid extends AGrid {
             return null;
         }
         if (t1.grid() != t2.grid()) {
-            for (int j = 0; j < gridTables.length; j++) {
+            for (IGridTable gridTable : gridTables) {
                 // check if table belongs to grid
-                if (gridTables[j].getGrid() != t2.grid()) {
+                if (gridTable.getGrid() != t2.grid()) {
                     continue;
                 }
-                IGridRegion region = gridTables[j].getRegion();
+                IGridRegion region = gridTable.getRegion();
                 return t2.grid().getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
             }
         }
@@ -253,9 +249,8 @@ public class CompositeGrid extends AGrid {
 
     private HashSet<IGrid> getGridSet() {
         HashSet<IGrid> gridSet = new HashSet<>();
-
-        for (int i = 0; i < gridTables.length; i++) {
-            gridSet.add(gridTables[i].getGrid());
+        for (IGridTable gridTable : gridTables) {
+            gridSet.add(gridTable.getGrid());
         }
         return gridSet;
     }
@@ -271,7 +266,7 @@ public class CompositeGrid extends AGrid {
 
         for (int i = 0; i < gridTables.length; i++) {
             IGridRegion reg = gridTables[i].getRegion();
-            GridRegion mapped = null;
+            GridRegion mapped;
             int last = i == gridTables.length - 1 ? 1 : 0;
 
             if (vertical) {
@@ -295,8 +290,8 @@ public class CompositeGrid extends AGrid {
      *
      */
     private void initWidthAndHeight() {
-        for (int i = 0; i < gridTables.length; i++) {
-            IGridRegion reg = gridTables[i].getRegion();
+        for (IGridTable gridTable : gridTables) {
+            IGridRegion reg = gridTable.getRegion();
             if (vertical) {
                 height += IGridRegion.Tool.height(reg);
                 width = Math.max(width, IGridRegion.Tool.width(reg));
@@ -304,7 +299,6 @@ public class CompositeGrid extends AGrid {
                 width += IGridRegion.Tool.width(reg);
                 height = Math.max(height, IGridRegion.Tool.height(reg));
             }
-
         }
     }
 
@@ -330,8 +324,15 @@ public class CompositeGrid extends AGrid {
                 IGridRegion reg = gridTables[i].getRegion();
 
                 // transform grid coordinates to table grid one.
-                int transformedCol = reg.getLeft() + col - mappedRegions[i].getLeft();
-                int transformedRow = reg.getTop() + row - mappedRegions[i].getTop();
+                int transformedCol;
+                int transformedRow;
+                if (gridTables[i].isNormalOrientation()) {
+                    transformedCol = reg.getLeft() + col - mappedRegions[i].getLeft();
+                    transformedRow = reg.getTop() + row - mappedRegions[i].getTop();
+                } else {
+                    transformedCol = gridTables[i].transpose().getRegion().getLeft() + row - mappedRegions[i].getTop();
+                    transformedRow = gridTables[i].transpose().getRegion().getTop() + col - mappedRegions[i].getLeft();
+                }
 
                 // return the transformer, with coordinates to source cell.
                 return new Transform(gridTables[i].getGrid(), transformedCol, transformedRow);
