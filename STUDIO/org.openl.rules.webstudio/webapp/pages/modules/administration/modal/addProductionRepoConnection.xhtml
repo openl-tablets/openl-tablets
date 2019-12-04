@@ -32,9 +32,6 @@
             <h:outputText value="Type:" styleClass="required"/>
             <h:selectOneMenu value="#{connectionProductionRepoController.repositoryConfiguration.type}">
                 <f:ajax event="change" execute="@this productionRepositoryName" render="modalAddRepoConnectionPanel productionParameters" />
-                <f:selectItem itemValue="local" itemLabel="Local" />
-                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                 <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                 <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
@@ -70,7 +67,7 @@
                          oncomplete="if(#{!facesContext.validationFailed} &amp;&amp; event.data.length == 0) #{rich:component('modalAddRepoConnection')}.hide(); else hideLoader();"
                          data="#{connectionProductionRepoController.errorMessage}"/>
             <a4j:commandButton id="cancelButton" action="#{connectionProductionRepoController.clearForm}"
-                         value="Cancel" render="modalAddRepoConnectionPanel securePanel repositoryProps"
+                         value="Cancel" render="modalAddRepoConnectionPanel productionParameters securePanel repositoryProps"
                          oncomplete="#{rich:component('modalAddRepoConnection')}.hide();"/>
         </footer>
     </h:form>

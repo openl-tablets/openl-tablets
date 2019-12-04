@@ -7,8 +7,4 @@ public interface VersionInfo extends Serializable {
     Date getCreatedAt();
 
     String getCreatedBy();
-
-    Date getModifiedAt();
-
-    String getModifiedBy();
 }

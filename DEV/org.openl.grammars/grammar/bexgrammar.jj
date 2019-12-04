@@ -255,7 +255,6 @@ TOKEN :
 | < NOT :
     "!"
   | "not" >
-| < TILDE : "~" >
 | < HOOK : "?" >
 | < COLON : ":" >
   //| < DOLLAR: "$" >
@@ -279,13 +278,7 @@ TOKEN :
 | < MINUS : "-" >
 | < STAR : "*" >
 | < SLASH : "/" >
-| < BIT_AND : "&" >
-| < BIT_OR : "|" >
-| < BIT_XOR : "^" >
 | < REM : "%" >
-| < LSHIFT : "<<" >
-| < RSIGNEDSHIFT : ">>" >
-| < RUNSIGNEDSHIFT : ">>>" >
 | < PLUSASSIGN : "+=" >
 | < MINUSASSIGN : "-=" >
 | < STARASSIGN : "*=" >
@@ -294,9 +287,6 @@ TOKEN :
 | < ORASSIGN : "|=" >
 | < XORASSIGN : "^=" >
 | < REMASSIGN : "%=" >
-| < LSHIFTASSIGN : "<<=" >
-| < RSIGNEDSHIFTASSIGN : ">>=" >
-| < RUNSIGNEDSHIFTASSIGN : ">>>=" >
 | < EXP : "**" >
 | < IMPL : "->" >
 | < STRING_LE : "string<=" >
@@ -658,57 +648,14 @@ void ConditionalAndExpression() :
   Token x;
 }
 {
-  BitwiseOrExpression()
+  EqualityExpression()
   (
     (
     x = < BOOL_AND >
     ) 
-    BitwiseOrExpression()
+    EqualityExpression()
     {
       syntaxBuilder.bop("op.binary.and", pos(x));
-    }
-  )*
-}
-
-void BitwiseOrExpression() :
-{
-  Token x;
-}
-{
-  BitwiseXorExpression()
-  (
-    LOOKAHEAD(2)
-    (x = < BIT_OR >) BitwiseXorExpression()
-    {
-      syntaxBuilder.bop("op.binary.bitor", pos(x));
-    }
-  )*
-}
-
-void BitwiseXorExpression() :
-{
-  Token x;
-}
-{
-  BitwiseAndExpression()
-  (
-    x = < BIT_XOR > BitwiseAndExpression()
-    {
-      syntaxBuilder.bop("op.binary.bitxor", pos(x));
-    }
-  )*
-}
-
-void BitwiseAndExpression() :
-{
-  Token x;
-}
-{
-  EqualityExpression()
-  (
-    (x = < BIT_AND >) EqualityExpression()
-    {
-      syntaxBuilder.bop("op.binary.bitand", pos(x));
     }
   )*
 }
@@ -772,7 +719,7 @@ void RelationalExpression() :
   String func = null;
 }
 {
-  ShiftExpression()
+  AdditiveExpression()
   (
     (
       x = < LT >
@@ -850,37 +797,6 @@ void RelationalExpression() :
     | x = < STRING_GT >
       {
         func = "op.binary.string_gt";
-      }
-    )
-    ShiftExpression()
-    {
-      {
-        syntaxBuilder.bop(func, pos(x));
-      }
-    }
-  )*
-}
-
-void ShiftExpression() :
-{
-  Token x;
-  String func = null;
-}
-{
-  AdditiveExpression()
-  (
-    (
-      x = < LSHIFT >
-      {
-        func = "op.binary.lshift";
-      }
-    | x = < RSIGNEDSHIFT >
-      {
-        func = "op.binary.rshift";
-      }
-    | x = < RUNSIGNEDSHIFT >
-      {
-        func = "op.binary.rshiftu";
       }
     )
     AdditiveExpression()
@@ -973,12 +889,7 @@ void UnaryExpression() :
   {
     syntaxBuilder.uop("op.unary.negative", pos(x));
   }
-| 
-  x = < TILDE > UnaryExpression()
-  {
-    syntaxBuilder.uop("op.unary.bitnot", pos(x));
-  }
-| 
+|
   x = < NOT > UnaryExpression()
   {
     syntaxBuilder.uop("op.unary.not", pos(x));
@@ -1165,7 +1076,6 @@ void CastLookahead() :
   (
     < PLUS >
   | < MINUS >
-  | < TILDE >
   | < NOT >
   | < LPAREN >
   | < LBRACKET >

@@ -73,7 +73,7 @@ public final class NameChecker {
             return false;
         }
 
-        // JCR path cannot starts with space
+        // Path cannot start with space
         if (artefactName.startsWith(" ")) {
             return false;
         }

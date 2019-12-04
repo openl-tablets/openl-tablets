@@ -1,5 +1,28 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.PreDestroy;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.validator.ValidatorException;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -23,7 +46,6 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
 import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
@@ -42,28 +64,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-
-import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.validator.ValidatorException;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 @ManagedBean
 @SessionScoped
@@ -121,7 +121,6 @@ public class InstallWizard {
 
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
-    private NewProductionRepoController newProductionRepoController;
 
     @ManagedProperty(value = "#{groupManagementService}")
     private GroupManagementService groupManagementService;
@@ -800,7 +799,7 @@ public class InstallWizard {
 
     public void groupsAreManagedInStudioChanged(AjaxBehaviorEvent e) {
         UIInput uiInput = (UIInput) e.getComponent();
-        groupsAreManagedInStudio = Boolean.valueOf(uiInput.getValue().toString());
+        groupsAreManagedInStudio = Boolean.parseBoolean(uiInput.getValue().toString());
     }
 
     public int getStep() {
@@ -982,10 +981,6 @@ public class InstallWizard {
         return connectionProductionRepoController;
     }
 
-    public NewProductionRepoController getNewProductionRepoController() {
-        return newProductionRepoController;
-    }
-
     @PreDestroy
     public void destroy() {
         destroyRepositoryObjects();
@@ -1026,12 +1021,6 @@ public class InstallWizard {
         connectionProductionRepoController
                 .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
         connectionProductionRepoController.clearForm();
-
-        newProductionRepoController = new NewProductionRepoController();
-        newProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
-        newProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
-        newProductionRepoController.setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
-        newProductionRepoController.clearForm();
     }
 
     private void destroyRepositoryObjects() {

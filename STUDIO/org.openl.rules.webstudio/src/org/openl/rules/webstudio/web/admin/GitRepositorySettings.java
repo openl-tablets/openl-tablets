@@ -10,6 +10,8 @@ import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
+    private boolean remoteRepository;
+
     private String uri;
     private String login;
     private String password;
@@ -77,6 +79,16 @@ public class GitRepositorySettings extends RepositorySettings {
         connectionTimeout = configManager.getLongProperty(CONNECTION_TIMEOUT, 60L).intValue();
         settingsPath = configManager.getStringProperty(SETTINGS_PATH);
         newBranchTemplate = configManager.getStringProperty(NEW_BRANCH_TEMPLATE);
+
+        remoteRepository = StringUtils.isNotBlank(uri);
+    }
+
+    public boolean isRemoteRepository() {
+        return remoteRepository;
+    }
+
+    public void setRemoteRepository(boolean remoteRepository) {
+        this.remoteRepository = remoteRepository;
     }
 
     public String getUri() {
@@ -179,7 +191,11 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
-        propertiesHolder.setProperty(URI, uri);
+        if (isRemoteRepository()) {
+            propertiesHolder.setProperty(URI, uri);
+        } else {
+            propertiesHolder.removeProperty(URI);
+        }
 
         if (StringUtils.isEmpty(login)) {
             propertiesHolder.removeProperty(LOGIN);
@@ -237,6 +253,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setConnectionTimeout(otherSettings.getConnectionTimeout());
             setCommentTemplate(otherSettings.getCommentTemplate());
             setSettingsPath(otherSettings.getSettingsPath());
+            setRemoteRepository(otherSettings.isRemoteRepository());
         }
     }
 

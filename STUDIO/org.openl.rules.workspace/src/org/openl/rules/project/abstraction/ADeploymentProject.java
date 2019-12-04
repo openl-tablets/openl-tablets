@@ -21,6 +21,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -28,7 +29,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +213,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         if (lockEngine == null) {
-            return LockInfoImpl.NO_LOCK;
+            return SimpleLockInfo.NO_LOCK;
         }
         return lockEngine.getLockInfo(getBranch(), getName());
     }

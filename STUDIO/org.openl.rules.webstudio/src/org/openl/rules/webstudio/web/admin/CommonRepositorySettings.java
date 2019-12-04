@@ -1,11 +1,8 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
-
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -13,7 +10,6 @@ public class CommonRepositorySettings extends RepositorySettings {
     private String password;
     private String uri;
     private boolean secure = false;
-    private String defaultLocalUri = null;
     private final RepositoryMode repositoryMode;
     private final RepositoryType repositoryType;
     private final ConfigurationManager configManager;
@@ -37,10 +33,6 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     private void load(ConfigurationManager configManager) {
-        if (repositoryType == RepositoryType.LOCAL) {
-            defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
-        }
-
         uri = configManager.getStringProperty(REPOSITORY_URI);
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
         password = configManager.getPassword(REPOSITORY_PASS);
@@ -94,14 +86,6 @@ public class CommonRepositorySettings extends RepositorySettings {
         String type = RepositorySettings.getTypePrefix(repositoryMode);
 
         switch (repositoryType) {
-            case LOCAL:
-                return defaultLocalUri != null ? defaultLocalUri
-                                               : PreferencesManager.INSTANCE
-                                                   .getWebStudioHomeDir() + File.separator + type + "-repository";
-            case RMI:
-                return "//localhost:1099/" + type + "-repository";
-            case WEBDAV:
-                return "http://localhost:8080/" + type + "-repository";
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";
             case JNDI:
@@ -144,9 +128,6 @@ public class CommonRepositorySettings extends RepositorySettings {
     protected void onTypeChanged(RepositoryType newRepositoryType) {
         super.onTypeChanged(newRepositoryType);
         uri = getDefaultPath(newRepositoryType);
-        if (RepositoryType.LOCAL == newRepositoryType) {
-            setSecure(false);
-        }
     }
 
     @Override
@@ -157,11 +138,6 @@ public class CommonRepositorySettings extends RepositorySettings {
             setPath(otherSettings.getPath());
             setLogin(otherSettings.getLogin());
             setPassword(otherSettings.getPassword());
-            // Needed for default local repository when creating or connecting to new repositories.
-            defaultLocalUri = otherSettings.defaultLocalUri;
-        } else {
-            // Needed for default local repository when creating or connecting to new repositories.
-            defaultLocalUri = null;
         }
     }
 
