@@ -6,6 +6,7 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,6 +54,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -97,7 +99,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         this.table = table;
         this.openl = openl;
         this.parentClassIdentifier = parentClassIdentifier;
-        this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : parentClassName;
+        this.parentClassName = parentClassIdentifier != null ? parentClassIdentifier.getIdentifier() : null;
         this.moduleOpenClass = moduleOpenClass;
     }
 
@@ -310,17 +312,26 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private Pair<String, Boolean> parseFieldNameCell(ILogicalTable row,
+    private Pair<String, String> parseFieldNameCell(ILogicalTable row,
             IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
-        if (idn.length == 3 && ":".equals(idn[1].getIdentifier()) && "context".equals(idn[2].getIdentifier())) {
-            return Pair.of(idn[0].getIdentifier(), true);
-        } else if (idn.length != 1) {
-            String errorMessage = String.format("Bad field name: %s", nameCellSource.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+        final String code = Arrays.stream(idn).map(IdentifierNode::getIdentifier).collect(Collectors.joining());
+        if (code.contains(":context")) {
+            int c = code.indexOf(":context");
+            String contextPropertyName = code.substring(c + ":context".length());
+            if (contextPropertyName.startsWith(".")) {
+                contextPropertyName = contextPropertyName.substring(1);
+            }
+            return Pair.of(code.substring(0, c),
+                contextPropertyName.isEmpty() ? code.substring(0, c) : contextPropertyName);
         } else {
-            return Pair.of(idn[0].getIdentifier(), false);
+            if (idn.length != 1) {
+                String errorMessage = String.format("Bad field name: '%s'.", nameCellSource.getCode());
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
+            } else {
+                return Pair.of(idn[0].getIdentifier(), null);
+            }
         }
     }
 
@@ -332,14 +343,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), bindingContext);
 
         if (canProcessRow(rowSrc)) {
-            Pair<String, Boolean> fieldNameCellParsed = parseFieldNameCell(row, bindingContext);
-            final String fieldName = fieldNameCellParsed.getKey();
+            Pair<String, String> fieldNameCellParsed = parseFieldNameCell(row, bindingContext);
+            final String fieldName = fieldNameCellParsed.getLeft();
 
             IOpenClass fieldType = getFieldType(bindingContext, row, rowSrc);
             DatatypeOpenField field = new DatatypeOpenField(dataType,
                 fieldName,
                 fieldType,
-                fieldNameCellParsed.getValue().booleanValue() ? fieldName : null);
+                fieldNameCellParsed.getValue());
 
             if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
@@ -400,30 +411,28 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .createError(t.getMessage(), t, null, getCellSource(row, bindingContext, 1));
             }
 
-            if (fieldNameCellParsed.getValue().booleanValue()) {
-                if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldName) == null) {
-                    throw SyntaxNodeExceptionUtils
-                        .createError(String.format("Property '%s' is not found in context. Supported properties: [%s].",
-                            fieldName,
-                            DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet()
-                                .stream()
-                                .collect(Collectors.joining(", "))),
-                            getCellSource(row, bindingContext, 1));
+            if (fieldNameCellParsed.getValue() != null) {
+                if (DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldNameCellParsed.getValue()) == null) {
+                    throw SyntaxNodeExceptionUtils.createError(
+                        String.format("Property '%s' is not found in context. Supported properties: [%s].",
+                            fieldNameCellParsed.getValue(),
+                            String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet())),
+                        getCellSource(row, bindingContext, 1));
                 }
                 IOpenClass contextPropertyType = JavaOpenClass
-                    .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldName));
+                    .getOpenClass(DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(fieldNameCellParsed.getValue()));
                 IOpenCast openCast = bindingContext.getCast(fieldType, contextPropertyType);
                 if (openCast == null || !openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum()) {
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
-                            fieldName,
+                            fieldNameCellParsed.getValue(),
                             fieldType.getName(),
                             contextPropertyType.getName()),
                         getCellSource(row, bindingContext, 1));
                 }
             }
 
-            fieldDescriptionBuilder.setContextProperty(fieldNameCellParsed.getValue());
+            fieldDescriptionBuilder.setContextPropertyName(fieldNameCellParsed.getValue());
 
             FieldDescription fieldDescription = null;
             if (row.getWidth() > 2) {
@@ -439,7 +448,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         if (metaInfoReader instanceof BaseMetaInfoReader) {
                             SimpleNodeUsage nodeUsage = RuleRowHelper
                                 .createConstantNodeUsage(constantOpenField, 0, defaultValue.length() - 1);
-                            ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+                            ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
                         }
                     }
                 } else {
@@ -460,7 +469,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     } catch (RuntimeException e) {
                         String message = String.format("Cannot parse cell value '%s'", defaultValue);
                         IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, bindingContext, 2);
-
                         if (e instanceof CompositeSyntaxNodeException) {
                             CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
                             if (exception.getErrors() != null && exception.getErrors().length == 1) {
@@ -532,7 +540,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
+            String errorMessage = MessageUtils.getTypeNotFoundMessage(tableSrc.getCode());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 

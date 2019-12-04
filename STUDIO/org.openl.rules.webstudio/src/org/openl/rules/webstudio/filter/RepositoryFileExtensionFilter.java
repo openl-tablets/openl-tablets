@@ -31,7 +31,7 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
             }
         }
 
-        extensions = extSet.toArray(new String[extSet.size()]);
+        extensions = extSet.toArray(new String[0]);
         // for each extension prepend period if it is not already there
         for (int i = 0; i < extensions.length; i++) {
             if (!extensions[i].startsWith(".")) {
@@ -41,9 +41,9 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
     }
 
     @Override
-    public boolean select(AProjectArtefact artefact) {
+    public boolean select(AProjectArtefact artifact) {
         for (String ext : extensions) {
-            if (artefact.getName().endsWith(ext)) {
+            if (artifact.getName().endsWith(ext)) {
                 return true;
             }
         }
@@ -52,6 +52,6 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return AProjectResource.class.isAssignableFrom(aClass);
+        return aClass != null && AProjectResource.class.isAssignableFrom(aClass);
     }
 }

@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 class SimpleReturnDTHeader extends DTHeader {
 
-    String title;
+    private String title;
 
     SimpleReturnDTHeader(String statement, String title, int column, int width) {
         super(new int[] {}, statement, column, width);

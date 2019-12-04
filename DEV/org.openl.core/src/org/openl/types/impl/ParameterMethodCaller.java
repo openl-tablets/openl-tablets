@@ -12,8 +12,9 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class ParameterMethodCaller implements IMethodCaller {
-    int parameterNumber;
-    IOpenMethod method;
+
+    private final int parameterNumber;
+    private final IOpenMethod method;
 
     public ParameterMethodCaller(IOpenMethod method, int parameterNumber) {
         this.method = method;

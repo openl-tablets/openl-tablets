@@ -4,11 +4,11 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
 class DeclaredDTHeader extends DTHeader {
-    IParameterDeclaration[][] columnParameters;
-    CompositeMethod compositeMethod;
-    MatchedDefinition matchedDefinition;
+    private IParameterDeclaration[][] columnParameters;
+    private CompositeMethod compositeMethod;
+    private MatchedDefinition matchedDefinition;
 
-    public DeclaredDTHeader(int[] methodParameterIndexes,
+    DeclaredDTHeader(int[] methodParameterIndexes,
             CompositeMethod compositeMethod,
             IParameterDeclaration[][] columnParameters,
             int column,
@@ -53,7 +53,7 @@ class DeclaredDTHeader extends DTHeader {
         return columnParameters;
     }
 
-    public MatchedDefinition getMatchedDefinition() {
+    MatchedDefinition getMatchedDefinition() {
         return matchedDefinition;
     }
 

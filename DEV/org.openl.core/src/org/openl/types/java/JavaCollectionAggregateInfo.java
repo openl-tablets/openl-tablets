@@ -14,6 +14,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
+import org.openl.util.ClassUtils;
 
 public class JavaCollectionAggregateInfo implements IAggregateInfo {
     static final IAggregateInfo COLLECTION_AGGREGATE = new JavaCollectionAggregateInfo();
@@ -46,7 +47,7 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
 
     @Override
     public boolean isAggregate(IOpenClass type) {
-        return Collection.class.isAssignableFrom(type.getInstanceClass());
+        return ClassUtils.isAssignable(type.getInstanceClass(), Collection.class);
     }
 
     @Override

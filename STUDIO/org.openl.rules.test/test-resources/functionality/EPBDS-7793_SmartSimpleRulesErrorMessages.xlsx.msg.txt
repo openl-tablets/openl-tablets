@@ -1,0 +1,3 @@
+ERROR: Decision table return type 'Discount' is incompatible with keyword 'Collect' in the table header, expected an array or a collection.
+ERROR: Decision table return type 'Discount' is incompatible with column header 'CRET1'.
+ERROR: Decision table return type 'Discount' is incompatible with keyword 'Collect' in the table header, expected an array or a collection. 

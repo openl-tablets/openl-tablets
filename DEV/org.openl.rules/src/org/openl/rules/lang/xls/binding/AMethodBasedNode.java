@@ -23,6 +23,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -198,7 +199,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenClass type,
             ILocation location,
             IOpenSourceCodeModule syntaxNode) {
-        String message = String.format("Type '%s' is defined with errors.", type.getName());
+        String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         getTableSyntaxNode().addError(error);
         bindingContext.addError(error);

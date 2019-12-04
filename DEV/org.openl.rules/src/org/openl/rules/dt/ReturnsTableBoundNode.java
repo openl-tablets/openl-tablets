@@ -32,4 +32,19 @@ public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
             getTableSyntaxNode());
     }
 
+    @Override
+    protected boolean isConditions() {
+        return false;
+    }
+
+    @Override
+    protected boolean isActions() {
+        return false;
+    }
+
+    @Override
+    protected boolean isReturns() {
+        return true;
+    }
+
 }

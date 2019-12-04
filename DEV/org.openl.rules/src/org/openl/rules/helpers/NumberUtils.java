@@ -4,7 +4,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 
 public final class NumberUtils {
 
@@ -31,8 +38,12 @@ public final class NumberUtils {
                 .isAssignableFrom(cls) || BigDecimalValue.class.isAssignableFrom(cls));
     }
 
-    public static boolean isNonFloatPointType(Class<?> clazz) {
-        return clazz != null && (byte.class == clazz || short.class == clazz || int.class == clazz || long.class == clazz || Byte.class == clazz || ByteValue.class == clazz || Short.class == clazz || ShortValue.class == clazz || Integer.class == clazz || IntValue.class == clazz || Long.class == clazz || LongValue.class == clazz || BigInteger.class == clazz || BigIntegerValue.class == clazz);
+    public static boolean isNonFloatPointType(Class<?> cls) {
+        return cls != null && (byte.class == cls || short.class == cls || int.class == cls || long.class == cls || Byte.class == cls || ByteValue.class
+            .isAssignableFrom(cls) || Short.class == cls || ShortValue.class
+                .isAssignableFrom(cls) || Integer.class == cls || IntValue.class
+                    .isAssignableFrom(cls) || Long.class == cls || LongValue.class.isAssignableFrom(
+                        cls) || BigInteger.class == cls || BigIntegerValue.class.isAssignableFrom(cls));
     }
 
     public static Double convertToDouble(Object object) {

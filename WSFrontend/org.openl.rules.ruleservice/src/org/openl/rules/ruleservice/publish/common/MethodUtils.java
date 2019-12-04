@@ -42,15 +42,12 @@ public final class MethodUtils {
 
     public static List<Method> sort(Collection<Method> m) {
         List<Method> methods = new ArrayList<>(m);
-        Collections.sort(methods, METHOD_COMPARATOR);
+        methods.sort(METHOD_COMPARATOR);
         return methods;
     }
 
     private static void validateAndUpdateParameterNames(String[] parameterNames) {
-        Set<String> allNames = new HashSet<>();
-        for (String s : parameterNames) {
-            allNames.add(s);
-        }
+        Set<String> allNames = new HashSet<>(Arrays.asList(parameterNames));
         Set<String> usedNames = new HashSet<>();
         for (int i = 0; i < parameterNames.length; i++) {
             if (allNames.contains(parameterNames[i])) {

@@ -84,7 +84,7 @@ public class JavaInterfaceGenerator {
                 String parameterName = method.getSignature().getParameterName(i);
                 buf.append(getClassName(ptypes[i].getInstanceClass()))
                     .append(' ')
-                    .append(parameterName == null ? "arg" + i : parameterName);
+                    .append(parameterName);
             }
             buf.append(')');
             buf.append(";\n\n");

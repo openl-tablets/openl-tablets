@@ -7,7 +7,6 @@ package org.openl.rules.lang.xls;
 import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.*;
@@ -69,6 +68,7 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
+import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
@@ -723,10 +723,10 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    protected IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
-            XlsModuleOpenClass module,
-            OpenL openl,
-            RulesModuleBindingContext rulesModuleBindingContext) {
+    private IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
+                                       XlsModuleOpenClass module,
+                                       OpenL openl,
+                                       RulesModuleBindingContext rulesModuleBindingContext) {
         try {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
         } catch (SyntaxNodeException error) {
@@ -775,7 +775,7 @@ public class XlsBinder implements IOpenBinder {
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
         boolean completed = false;
 
-        public XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
+        XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                 OpenL openl,
                 TableSyntaxNode tableSyntaxNode,
                 IMemberBoundNode[] childrens,

@@ -52,7 +52,7 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return Authentication.class.isAssignableFrom(authentication);
+        return authentication != null && Authentication.class.isAssignableFrom(authentication);
     }
 
     public void setGroupsAreManagedInStudio(boolean groupsAreManagedInStudio) {

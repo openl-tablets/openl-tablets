@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.ClassUtils;
 
 class FieldDescriptor {
     private final IOpenField field;

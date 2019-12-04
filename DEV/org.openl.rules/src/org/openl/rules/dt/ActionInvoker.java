@@ -6,6 +6,7 @@ import java.util.*;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -82,7 +83,7 @@ public class ActionInvoker implements Invokable {
             if (SortedMap.class == type.getInstanceClass()) {
                 return addReturnValues(new TreeMap<>(), returnValues, keyValues, f);
             }
-            if (Map.class.isAssignableFrom(type.getInstanceClass())) {
+            if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
                 try {
                     return addReturnValues((Map<Object, Object>) type.getInstanceClass().newInstance(),
                         returnValues,
@@ -101,7 +102,7 @@ public class ActionInvoker implements Invokable {
             if (SortedSet.class == type.getInstanceClass()) {
                 return addReturnValues(new TreeSet<>(), returnValues, f);
             }
-            if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
+            if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
                 try {
                     return addReturnValues((Collection<Object>) type.getInstanceClass().newInstance(), returnValues, f);
                 } catch (Exception e) {
