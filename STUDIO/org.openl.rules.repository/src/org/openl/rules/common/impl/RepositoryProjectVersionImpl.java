@@ -1,14 +1,11 @@
 package org.openl.rules.common.impl;
 
-import java.util.Map;
-
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 
 public class RepositoryProjectVersionImpl implements ProjectVersion {
     private static final long serialVersionUID = -5156747482692477220L;
-    public static final String DELIMETER = ".";
 
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
@@ -16,7 +13,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private transient String versionName;
     private VersionInfo versionInfo;
 
-    private Map<String, Object> versionProperties;
     private String versionComment;
     private boolean deleted = false;
 
@@ -39,19 +35,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         minor = version.getMinor();
         revision = version.getRevision();
         this.versionInfo = versionInfo;
-    }
-
-    public RepositoryProjectVersionImpl(CommonVersion version,
-            VersionInfo versionInfo,
-            String versionComment,
-            Map<String, Object> versionProperties) {
-        revision = version.getRevision();
-        this.major = version.getMajor();
-        this.minor = version.getMinor();
-
-        this.versionInfo = versionInfo;
-        this.versionComment = versionComment;
-        this.versionProperties = versionProperties;
     }
 
     public RepositoryProjectVersionImpl() {
@@ -119,14 +102,9 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
-                versionName = new StringBuilder().append(major)
-                    .append(".")
-                    .append(minor)
-                    .append(".")
-                    .append(revision)
-                    .toString();
+                versionName = major + "." + minor + "." + revision;
             } else {
-                versionName = new StringBuilder().append(revision).toString();
+                versionName = revision;
             }
         }
 
@@ -142,12 +120,4 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return result;
     }
 
-    @Override
-    public Map<String, Object> getVersionProperties() {
-        return versionProperties;
-    }
-
-    public void setVersionProperties(Map<String, Object> versionProperties) {
-        this.versionProperties = versionProperties;
-    }
 }
