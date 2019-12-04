@@ -10,21 +10,9 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
     private Date createdAt;
     private String createdBy;
 
-    private Date modifiedAt;
-    private String modifiedBy;
-
     public RepositoryVersionInfoImpl(Date createdAt, String createdBy) {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
-        this.modifiedAt = null;
-        this.modifiedBy = null;
-    }
-
-    public RepositoryVersionInfoImpl(Date createdAt, String createdBy, Date modifiedAt, String modifiedBy) {
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
-        this.modifiedAt = modifiedAt;
-        this.modifiedBy = modifiedBy;
     }
 
     @Override
@@ -37,13 +25,4 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
         return createdBy;
     }
 
-    @Override
-    public Date getModifiedAt() {
-        return modifiedAt;
-    }
-
-    @Override
-    public String getModifiedBy() {
-        return modifiedBy;
-    }
 }

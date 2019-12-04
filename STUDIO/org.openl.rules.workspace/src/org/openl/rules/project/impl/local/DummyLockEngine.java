@@ -15,6 +15,6 @@ public class DummyLockEngine implements LockEngine {
 
     @Override
     public LockInfo getLockInfo(String branch, String projectName) {
-        return new SimpleLockInfo(false, null, null);
+        return SimpleLockInfo.NO_LOCK;
     }
 }

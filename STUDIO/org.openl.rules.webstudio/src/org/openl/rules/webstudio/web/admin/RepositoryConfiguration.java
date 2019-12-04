@@ -146,9 +146,6 @@ public class RepositoryConfiguration {
 
     public String getFormType() {
         switch (repositoryType) {
-            case LOCAL:
-            case RMI:
-            case WEBDAV:
             case DB:
             case JNDI:
                 return "common";

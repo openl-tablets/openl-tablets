@@ -148,7 +148,7 @@ public class CopyBean {
 
     public int getMaxRevisionsCount() {
         RulesProject project = getCurrentProject();
-        return project == null ? 0 : project.getVersionsCount() - project.getFirstRevisionIndex();
+        return project == null ? 0 : project.getVersionsCount();
     }
 
     public String getErrorMessage() {

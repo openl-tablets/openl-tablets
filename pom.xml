@@ -95,7 +95,6 @@
         <org.apache.cxf.version>3.3.4</org.apache.cxf.version>
         <org.slf4j.version>1.7.29</org.slf4j.version>
         <org.apache.poi.version>4.1.1</org.apache.poi.version>
-        <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <org.bouncycastle.version>1.62</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.10.1</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
@@ -980,57 +979,6 @@
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${org.slf4j.version}</version>
             </dependency>
-            <!-- Jackrabbit content repository implementation -->
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-data</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-                <type>test-jar</type>
-                <classifier>tests</classifier>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-core</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-            </dependency>
-            <!-- JCR-RMI makes it possible to remotely access JCR content repositories. -->
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-jcr-rmi</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-            </dependency>
-            <!-- Jackrabbit SPI To WebDAV -->
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-spi2dav</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-            </dependency>
-            <!-- Jackrabbit JCR To SPI -->
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-jcr2spi</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-            </dependency>
-            <!-- Web application that hosts and serves a Jackrabbit content repository -->
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-webapp</artifactId>
-                <version>${org.apache.jackrabbit.version}</version>
-                <type>war</type>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <!-- Contains the core Apache Derby database engine, which also includes the embedded JDBC driver. -->
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>10.10.2.0</version>
-            </dependency>
             <!-- Byte code generation library -->
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -1699,16 +1647,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.repository</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.jcr</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

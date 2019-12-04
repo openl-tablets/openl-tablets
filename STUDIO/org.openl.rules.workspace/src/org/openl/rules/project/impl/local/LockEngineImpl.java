@@ -81,7 +81,7 @@ public class LockEngineImpl implements LockEngine {
         File branchFolder = getBranchFolder(branch, projectName);
         File file = new File(branchFolder, projectName);
         if (!file.exists() || !file.isFile()) {
-            return new SimpleLockInfo(false, null, null);
+            return SimpleLockInfo.NO_LOCK;
         }
 
         Properties properties = new Properties();
