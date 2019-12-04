@@ -1,0 +1,2 @@
+Type 'Double1' is not found.
+Type 'MyDatatype' is defined with errors.

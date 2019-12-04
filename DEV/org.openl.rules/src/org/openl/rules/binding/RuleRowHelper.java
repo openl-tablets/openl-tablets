@@ -57,6 +57,7 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
@@ -159,7 +160,7 @@ public final class RuleRowHelper {
         }
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {
-            throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", typeCode), node);
+            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getTypeNotFoundMessage(typeCode), node);
         }
         return type;
     }
