@@ -3762,34 +3762,6 @@ public final class RulesUtils {
         return ArrayUtils.addAll(array1, array2);
     }
 
-    public static Byte[] addAll(Byte[] array1, Byte[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Short[] addAll(Short[] array1, Short[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Integer[] addAll(Integer[] array1, Integer[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Long[] addAll(Long[] array1, Long[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Float[] addAll(Float[] array1, Float[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Double[] addAll(Double[] array1, Double[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Character[] addAll(Character[] array1, Character[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
     /**
      * <p>
      * Removes the element at the specified position from the specified array. All subsequent elements are shifted to
