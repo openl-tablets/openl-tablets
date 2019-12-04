@@ -187,7 +187,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         for (IdentifierNode identifierNode : identifierNodes) {
             for (List<IParameterDeclaration> parameterDeclarations : localParameters) {
                 for (IParameterDeclaration parameterDeclaration : parameterDeclarations) {
-                    if (Objects.equals(identifierNode.getIdentifier(), parameterDeclaration.getName())) {
+                    if (parameterDeclaration != null && Objects.equals(identifierNode.getIdentifier(),
+                        parameterDeclaration.getName())) {
                         return true;
                     }
                 }
@@ -425,17 +426,19 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         for (List<IParameterDeclaration> paramTypes : localParameters.values()) {
             for (IParameterDeclaration paramType : paramTypes) {
                 localParameterCount++;
-                if (parameterType == null) {
-                    parameterType = paramType.getType();
-                } else if (!parameterType.equals(paramType.getType())) {
-                    throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
-                        null,
-                        null,
-                        expressionCellSourceCodeModule);
+                if (paramType != null) {
+                    if (parameterType == null) {
+                        parameterType = paramType.getType();
+                    } else if (!Objects.equals(parameterType, paramType.getType())) {
+                        throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
+                            null,
+                            null,
+                            expressionCellSourceCodeModule);
+                    }
                 }
             }
         }
-        if (localParameterCount > 2 || !ConditionHelper
+        if (localParameterCount > 2 || parameterType != null && !ConditionHelper
             .findConditionCasts(parameterType, compositeMethod.getType(), cxt)
             .atLeastOneExists()) {
             throw SyntaxNodeExceptionUtils.createError(
