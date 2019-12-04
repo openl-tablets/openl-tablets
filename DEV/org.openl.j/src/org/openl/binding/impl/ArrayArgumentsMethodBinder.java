@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.method.NoVarArgOpenClass;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
@@ -95,7 +96,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
         // Try interpret array argument as multicall
         arrayArgArguments.addLast(arrayArgumentIndex);
-        unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
+        unwrappedArgumentsTypes[arrayArgumentIndex] = new NoVarArgOpenClass(argumentsTypes[arrayArgumentIndex].getComponentClass());
         multiCallMethodNode = last ? getMultiCallMethodNode(node,
             bindingContext,
             unwrappedArgumentsTypes,
