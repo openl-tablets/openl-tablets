@@ -114,7 +114,7 @@ public final class RepositoryValidators {
             RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
             DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
-            // Close connection to jcr before checking connection
+            // Close connection to repository before checking connection
             dtr.destroy();
             Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), repositoryMode);
             if (repository instanceof Closeable) {
@@ -133,7 +133,7 @@ public final class RepositoryValidators {
     static void validateConnection(RepositoryConfiguration repoConfig,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
         try {
-            /* Close connection to jcr before checking connection */
+            /* Close connection to repository before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
             Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(),
                 RepositoryMode.PRODUCTION);

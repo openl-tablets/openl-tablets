@@ -12,28 +12,26 @@ import org.openl.rules.project.abstraction.Deployment;
 public class FileSystemDataSourceTest {
     private FileSystemDataSource dataSource;
 
-    private static String FILE_SYSTEM_DATA_SOURCE_DIRECTORY = "target/filesystemdatasource";
-
     @Before
     public void setDataSource() {
-        dataSource = new FileSystemDataSource(new File(FILE_SYSTEM_DATA_SOURCE_DIRECTORY));
+        dataSource = new FileSystemDataSource(new File("target/filesystemdatasource"));
     }
 
     @Test
-    public void testJcrDataSource() {
+    public void testDataSource() {
         assertNotNull(dataSource);
     }
 
     @Test
     public void testGetDeployments() {
         Collection<Deployment> deployments = dataSource.getDeployments();
-        assertTrue(deployments.size() == 1);
+        assertEquals(1, deployments.size());
     }
 
     @Test
     public void testGetDeployment() {
         Collection<Deployment> deployments = dataSource.getDeployments();
-        assertTrue(deployments.size() == 1);
+        assertEquals(1, deployments.size());
         Deployment tmp = deployments.iterator().next();
         Deployment deployment = dataSource.getDeployment(tmp.getDeploymentName(), tmp.getCommonVersion());
         assertNotNull(deployment);
