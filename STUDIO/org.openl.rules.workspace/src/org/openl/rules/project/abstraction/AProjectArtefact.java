@@ -96,18 +96,10 @@ public class AProjectArtefact {
                 return new RepositoryProjectVersionImpl();
             }
 
-            if (versionsCount == 1) {
-                return getVersion(0);
-            }
-
-            return getVersion(getFirstRevisionIndex());
+            return getVersion(0);
         } catch (Exception e) {
             return new RepositoryProjectVersionImpl();
         }
-    }
-
-    public int getFirstRevisionIndex() {
-        return 0;
     }
 
     public List<ProjectVersion> getVersions() {
