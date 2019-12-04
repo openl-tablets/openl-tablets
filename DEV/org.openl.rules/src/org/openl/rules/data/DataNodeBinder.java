@@ -29,6 +29,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.util.MessageUtils;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -87,7 +88,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         // Check that table type loaded properly.
         //
         if (tableType.getInstanceClass() == null) {
-            String message = String.format("Type '%s' is defined with errors.", typeName);
+            String message = MessageUtils.getTypeDefinedErrorMessage(typeName);
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 

@@ -1,6 +1,13 @@
 package org.openl.rules.binding;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
@@ -19,13 +26,19 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +192,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     });
                 }
             } else {
-                throw new IllegalStateException(String.format("Type '%s' is not found.", typeName));
+                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(typeName));
             }
         }
         return super.findType(namespace, typeName);
@@ -195,7 +208,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 customSpreadsheetResultOpenClass.setMetaInfo(
                     new TableMetaInfo("Spreadsheet", method.getName(), method.getTableSyntaxNode().getUri()));
             } else {
-                throw new IllegalStateException(String.format("Type '%s' is not found.", sprTypeName));
+                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(sprTypeName));
             }
         }
         preBinderMethods.put(openMethodHeader, method);
@@ -230,8 +243,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
                 csroc.setIgnoreCompilation(true);
             } else {
-                throw new IllegalStateException(
-                    String.format("Type '%s' is not found.", customSpreadsheetResultTypeName));
+                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
         } else {
             openMethodBinders = Collections.singletonList(openMethodBinder);
@@ -247,10 +259,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 throw new IllegalStateException("Method compilaiton is failed with the circular reference to itself.");
             }
         }
-        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::startPreBind);
-        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::preBind);
-        openMethodBinders.stream().forEach(e -> preBinderMethods.remove(e.getHeader()));
-        openMethodBinders.stream().forEach(RecursiveOpenMethodPreBinder::finishPreBind);
+        openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
+        openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
+        openMethodBinders.forEach(e -> preBinderMethods.remove(e.getHeader()));
+        openMethodBinders.forEach(RecursiveOpenMethodPreBinder::finishPreBind);
 
         // After recursive compilation non initialized fields need to be initialized for CSR type in compile time and
         // meta info initialized.
@@ -259,16 +271,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
-                csroc.getFields().values().stream().forEach(IOpenField::getType);
+                csroc.getFields().values().forEach(IOpenField::getType);
             } else {
-                throw new IllegalStateException(
-                    String.format("Type '%s' is not found.", customSpreadsheetResultTypeName));
+                throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
         }
     }
 
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {
-        public static final String CURRENT_CONTEXT_METHOD_NAME = "getContext";
+        static final String CURRENT_CONTEXT_METHOD_NAME = "getContext";
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -329,7 +340,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class EmptyRuntimeContextMethod implements IOpenMethod {
-        public static final String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
+        static final String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -383,7 +394,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class RestoreRuntimeContextMethod implements IOpenMethod {
-        public static final String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
+        static final String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -443,7 +454,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class SetRuntimeContextMethod implements IOpenMethod {
-        public static final String SET_CONTEXT_METHOD_NAME = "setContext";
+        static final String SET_CONTEXT_METHOD_NAME = "setContext";
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -506,7 +517,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class ModifyRuntimeContextMethod implements IOpenMethod {
-        public static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
+        static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -569,7 +580,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public boolean isIgnoreCustomSpreadsheetResultCompilation() {
+    private boolean isIgnoreCustomSpreadsheetResultCompilation() {
         return ignoreCustomSpreadsheetResultCompilation;
     }
 

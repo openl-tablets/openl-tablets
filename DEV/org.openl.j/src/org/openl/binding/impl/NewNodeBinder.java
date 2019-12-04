@@ -13,6 +13,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.util.MessageUtils;
 
 /**
  * @author snshor
@@ -39,10 +40,10 @@ public class NewNodeBinder extends ANodeBinder {
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (type == null) {
-            return makeErrorNode(String.format("Type '%s' is not found.", typeName), typeNode, bindingContext);
+            return makeErrorNode(MessageUtils.getTypeNotFoundMessage(typeName), typeNode, bindingContext);
         }
         if (type.getInstanceClass() == null) {
-            return makeErrorNode(String.format("Type '%s' is defined with errors.", typeName), typeNode, bindingContext);
+            return makeErrorNode(MessageUtils.getTypeDefinedErrorMessage(typeName), typeNode, bindingContext);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);
@@ -55,8 +56,8 @@ public class NewNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            return makeErrorNode(String.format("Constructor '%s' is not found.",
-                MethodUtil.printMethod(type.getName(), types)), typeNode, bindingContext);
+            String constructor = MethodUtil.printMethod(type.getName(), types);
+            return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
         }
 
         return new MethodBoundNode(node, children, methodCaller);

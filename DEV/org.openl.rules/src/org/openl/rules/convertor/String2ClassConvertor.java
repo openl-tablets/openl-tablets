@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import org.openl.binding.IBindingContext;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.util.MessageUtils;
 
 class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2DataConverterWithContext<Class<?>> {
 
@@ -31,7 +32,7 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
         IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (openClass == null) {
-            throw new IllegalArgumentException(String.format("Type '%s' is not found.", data));
+            throw new IllegalArgumentException(MessageUtils.getTypeNotFoundMessage(data));
         }
 
         Class<?> clazz = openClass.getInstanceClass();

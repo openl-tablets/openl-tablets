@@ -54,6 +54,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -539,7 +540,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
+            String errorMessage = MessageUtils.getTypeNotFoundMessage(tableSrc.getCode());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 

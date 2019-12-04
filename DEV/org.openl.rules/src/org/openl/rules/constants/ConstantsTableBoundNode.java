@@ -29,6 +29,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
+import org.openl.util.MessageUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -91,8 +92,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
-            String errorMessage = String.format("Type '%s' is not found.", tableSrc.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
+            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getTypeNotFoundMessage(tableSrc.getCode()), null, null, tableSrc);
         }
 
         if (row.getWidth() < 2) {
