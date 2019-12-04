@@ -33,4 +33,17 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         // Only simple validation
         FacesUtils.validate(email.contains("@"), "Incorrect email");
     }
+
+    @Override
+    public void url(FacesContext context, UIComponent toValidate, Object value) {
+        String suffix = "gitUri";
+        String clientId = toValidate.getClientId();
+        if (clientId.endsWith(suffix)) {
+            String prefix = clientId.substring(0, clientId.length() - suffix.length());
+            String remoteRepository = context.getExternalContext().getRequestParameterMap().get(prefix + "gitRemoteRepository");
+            if ("on".equals(remoteRepository)) {
+                super.url(context, toValidate, value);
+            }
+        }
+    }
 }
