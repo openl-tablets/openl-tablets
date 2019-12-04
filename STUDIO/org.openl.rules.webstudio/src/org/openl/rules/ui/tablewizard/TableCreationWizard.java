@@ -1,9 +1,17 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -31,6 +39,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 /**
  * @author Aliaksandr Antonik.
@@ -52,6 +61,9 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     @NotBlank(message = "Cannot be empty")
     private String newWorksheetName;
+
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
 
     /**
      * New table identifier
@@ -251,8 +263,12 @@ public abstract class TableCreationWizard extends BaseWizard {
         return true;
     }
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     protected Map<String, Object> buildSystemProperties() {
-        String userMode = WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode");
+        String userMode = environment.getProperty("user.mode");
         Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();

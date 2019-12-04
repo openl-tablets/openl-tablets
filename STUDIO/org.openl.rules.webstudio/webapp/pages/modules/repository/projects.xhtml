@@ -60,7 +60,7 @@
               </rich:column>
               <rich:column style="text-align:center">
                 <h:outputText value="#{prj.modifiedAt}">
-                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
+                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}" />
                 </h:outputText>
               </rich:column>
               <rich:column>

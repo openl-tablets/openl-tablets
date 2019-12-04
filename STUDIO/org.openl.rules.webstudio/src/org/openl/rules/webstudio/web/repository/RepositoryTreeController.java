@@ -1,14 +1,28 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -26,7 +40,14 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.model.Module;
@@ -47,7 +68,11 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
-import org.openl.rules.webstudio.web.repository.project.*;
+import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
+import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
+import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -61,6 +86,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -68,6 +94,7 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -105,9 +132,6 @@ public class RepositoryTreeController {
     @ManagedProperty(value = "#{zipCharsetDetector}")
     private ZipCharsetDetector zipCharsetDetector;
 
-    @ManagedProperty(value = "#{systemConfig}")
-    private Map<String, Object> config;
-
     @ManagedProperty(value = "#{designRepositoryComments}")
     private Comments designRepoComments;
 
@@ -115,6 +139,9 @@ public class RepositoryTreeController {
     private Comments deployConfigRepoComments;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
+
+   @ManagedProperty(value = "#{environment}")
+   private Environment environment;
 
     private String projectName;
     private String projectFolder = "";
@@ -1932,8 +1959,9 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
-                .getRepository()).getBranches(selectedProject.getName()));
+            List<String> branches = new ArrayList<>(
+                ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
+                    .getBranches(selectedProject.getName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
@@ -2057,28 +2085,30 @@ public class RepositoryTreeController {
         this.zipCharsetDetector = zipCharsetDetector;
     }
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
-
-        projectUseCustomComment = Boolean
-            .parseBoolean(config.get("design-repository.comment-template.use-custom-comments").toString());
-
-        designCommentValidator = CommentValidator.forDesignRepo(config);
-
-        boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
-
-        if (separateDeployConfigRepo) {
-            deployConfigCommentValidator = CommentValidator.forDeployConfigRepo(config);
-        } else {
-            deployConfigCommentValidator = designCommentValidator;
-        }
-    }
-
     public void setDesignRepoComments(Comments designRepoComments) {
         this.designRepoComments = designRepoComments;
     }
 
     public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
         this.deployConfigRepoComments = deployConfigRepoComments;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.projectUseCustomComment = Boolean.parseBoolean(
+            environment.getProperty("design-repository.comment-template.use-custom-comments"));
+        designCommentValidator = CommentValidator.forDesignRepo();
+        boolean separateDeployConfigRepo = Boolean.parseBoolean(ApplicationContextProvider.getApplicationContext()
+            .getEnvironment()
+            .getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        if (separateDeployConfigRepo) {
+            deployConfigCommentValidator = CommentValidator.forDeployConfigRepo();
+        } else {
+            deployConfigCommentValidator = designCommentValidator;
+        }
     }
 }

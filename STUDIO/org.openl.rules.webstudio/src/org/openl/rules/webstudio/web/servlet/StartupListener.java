@@ -31,14 +31,7 @@ public class StartupListener implements ServletContextListener {
     }
 
     private void initSystemProperties() {
-        ConfigurationManager cm = new ConfigurationManager("openl-default.properties");
-        Map<String, Object> properties = cm.getProperties(true);
-
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
-        }
-
-        Boolean configured = PreferencesManager.INSTANCE.isAppConfigured();
+        boolean configured = PreferencesManager.INSTANCE.isAppConfigured();
 
         // If webstudio.mode is not defined, use either webstudio-beans.xml or installer-beans.xml.
         // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
@@ -57,26 +50,6 @@ public class StartupListener implements ServletContextListener {
             if (webStudioHomeDirProp == null) {
                 System.setProperty("webstudio.home", webStudioHomeDirPref);
             }
-        }
-
-        // When WebStudio is configured we can set user mode to load appropriate Spring configuration.
-        // If WebStudio is not configured we must not set user mode globally. Instead the property must be loaded
-        // directly
-        // from property files and then redefine property if needed (in Install Wizard for example). It'll be set
-        // globally
-        // later when configuration will be finished.
-        if (configured) {
-            ConfigurationManager systemConfig = new ConfigurationManager(
-                PreferencesManager.INSTANCE.getWebStudioHomeDir() + "/system-settings/system.properties",
-                "system.properties");
-
-            String userMode = systemConfig.getStringProperty("user.mode");
-            System.setProperty("user.mode", userMode);
-
-            String repoPassKey = StringUtils
-                .trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
-            // Make it globally available. It will not be changed during application execution.
-            System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
         }
 
     }

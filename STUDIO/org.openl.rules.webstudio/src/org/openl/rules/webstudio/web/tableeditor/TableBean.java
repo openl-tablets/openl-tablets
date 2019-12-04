@@ -1,12 +1,22 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.BENCHMARK;
+import static org.openl.rules.security.Privileges.CREATE_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.REMOVE_TABLES;
+import static org.openl.rules.security.Privileges.RUN;
+import static org.openl.rules.security.Privileges.TRACE;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -30,7 +40,13 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestMethodBoundNode;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
@@ -46,6 +62,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 /**
  * Request scope managed bean for Table page.
@@ -78,6 +95,9 @@ public class TableBean {
     private Collection<OpenLMessage> warnings;
     // Errors + Warnings
     private List<OpenLMessage> problems;
+
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
 
     private boolean targetTablesHasErrors;
 
@@ -439,6 +459,10 @@ public class TableBean {
         return true;
     }
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     public boolean beforeSaveAction() {
         String editorId = FacesUtils
             .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
@@ -454,9 +478,7 @@ public class TableBean {
         }
 
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
-            return EditHelper.updateSystemProperties(table,
-                editorModel,
-                WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+            return EditHelper.updateSystemProperties(table, editorModel, environment.getProperty("user.mode"));
         }
         return true;
     }

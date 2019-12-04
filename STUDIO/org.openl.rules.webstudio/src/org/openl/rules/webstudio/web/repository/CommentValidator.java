@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.Environment;
 
 public class CommentValidator {
     private static final int MAX_COMMENT_LENGTH = 255;
@@ -27,13 +28,24 @@ public class CommentValidator {
             "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
-    public static CommentValidator forDesignRepo(Map<String, Object> config) {
-        return new CommentValidator((String) config.get("design-repository.comment-validation-pattern"),
-            (String) config.get("design-repository.invalid-comment-message"));
+    public static CommentValidator forDesignRepo() {
+        Environment environment = ApplicationContextProvider.getApplicationContext()
+                .getEnvironment();
+        return new CommentValidator(
+            environment
+                .getProperty("design-repository.comment-validation-pattern"),
+            environment
+                .getProperty("design-repository.invalid-comment-message"));
     }
 
-    static CommentValidator forDeployConfigRepo(Map<String, Object> config) {
-        return new CommentValidator((String) config.get("deploy-config-repository.comment-validation-pattern"),
-            (String) config.get("deploy-config-repository.invalid-comment-message"));
+    static CommentValidator forDeployConfigRepo() {
+        Environment environment = ApplicationContextProvider.getApplicationContext()
+                .getEnvironment();
+        return new CommentValidator(
+            environment
+                .getProperty("deploy-config-repository.comment-validation-pattern"),
+            ApplicationContextProvider.getApplicationContext()
+                .getEnvironment()
+                .getProperty("deploy-config-repository.invalid-comment-message"));
     }
 }

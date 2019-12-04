@@ -40,7 +40,7 @@
       </rich:column>
       <rich:column>
         <h:outputText value="#{version.versionInfo.createdAt}">
-        	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+        	<f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
         </h:outputText>
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}">

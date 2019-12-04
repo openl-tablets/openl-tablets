@@ -109,7 +109,6 @@ public class InstallWizard {
     private CASSettings casSettings;
     private SAMLSettings samlSettings;
 
-    private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
 
@@ -130,7 +129,6 @@ public class InstallWizard {
     private String externalAdmins;
 
     public InstallWizard() {
-        appConfig = new ConfigurationManager("openl-default.properties");
         workingDir = PreferencesManager.INSTANCE.getWebStudioHomeDir();
     }
 

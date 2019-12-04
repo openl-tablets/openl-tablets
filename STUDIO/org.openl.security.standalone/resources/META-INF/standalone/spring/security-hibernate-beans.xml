@@ -13,9 +13,9 @@
 
     <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
           depends-on="driverRegister">
-        <property name="jdbcUrl" value="#{dbConfig['db.url']}"/>
-        <property name="username" value="#{dbConfig['db.user']}"/>
-        <property name="password" value="#{dbConfig['db.password']}"/>
+        <property name="jdbcUrl" value="${db.url}"/>
+        <property name="username" value="${db.user}"/>
+        <property name="password" value="${db.password}"/>
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
@@ -65,7 +65,7 @@
     </bean>
 
     <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-        <constructor-arg value="#{systemProperties['webstudio.bcrypt.strength']}"/>
+        <constructor-arg value="${webstudio.bcrypt.strength}"/>
     </bean>
 
     <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">

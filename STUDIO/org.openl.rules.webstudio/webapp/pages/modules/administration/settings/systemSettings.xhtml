@@ -510,7 +510,7 @@
                 </div>
             </div>
 
-            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{systemConfig['user.mode'] != 'single'}">
+            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{environment.getProperty('user.mode') != 'single'}">
                 <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
                     execute="@this" render="commonProps repositoryProps javaProps restartMessage"
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
@@ -519,7 +519,7 @@
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
                     styleClass="button-primary" title = "Apply changes"/>
             </h:panelGroup>
-            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{systemConfig['user.mode'] == 'single'}">
+            <h:panelGroup style="padding-left: 125px; margin-bottom: 15px" rendered="#{environment.getProperty('user.mode') == 'single'}">
                 <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
                     execute="@this" render="commonProps repositoryProps javaProps restartMessage"
                     title="Restore the default settings"/>

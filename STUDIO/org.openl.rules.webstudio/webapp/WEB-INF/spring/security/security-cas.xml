@@ -42,7 +42,7 @@
     </bean>
     <!-- Redirect to the CAS Server to signal Single Logout should be performed -->
     <bean id="logoutSuccessUrl" class="java.lang.String">
-        <constructor-arg value="#{systemConfig['security.cas.cas-server-url-prefix']}/logout" />
+        <constructor-arg value="${security.cas.cas-server-url-prefix}/logout" />
     </bean>
 
     <util:list id="logoutHandlers">
@@ -58,7 +58,7 @@
     </bean>
 
     <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
-        <property name="service" value="#{systemConfig['security.cas.app-url']}#{casServiceUrl}"/>
+        <property name="service" value="${security.cas.app-url}#{casServiceUrl}"/>
         <property name="authenticateAllArtifacts" value="true"/>
     </bean>
 
@@ -68,7 +68,7 @@
     </bean>
 
     <bean id="authenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
-        <property name="loginUrl" value="#{systemConfig['security.cas.cas-server-url-prefix']}/login"/>
+        <property name="loginUrl" value="${security.cas.cas-server-url-prefix}/login"/>
         <property name="serviceProperties" ref="serviceProperties"/>
     </bean>
 
@@ -76,15 +76,15 @@
         <property name="serviceProperties" ref="serviceProperties" />
         <property name="ticketValidator">
             <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-                <constructor-arg name="casServerUrlPrefix" value="#{systemConfig['security.cas.cas-server-ticket-validator-prefix']}"/>
+                <constructor-arg name="casServerUrlPrefix" value="${security.cas.cas-server-ticket-validator-prefix}"/>
                 <property name="encoding" value="UTF-8"/>
             </bean>
         </property>
         <property name="authenticationUserDetailsService">
             <bean class="org.openl.security.cas.CASAttributesToOpenLUserDetailsService">
-                <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.cas.attribute.first-name']}"/>
-                <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.cas.attribute.last-name']}"/>
-                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.cas.attribute.groups']}"/>
+                <constructor-arg name="firstNameAttribute" value="${security.cas.attribute.first-name}"/>
+                <constructor-arg name="lastNameAttribute" value="${security.cas.attribute.last-name}"/>
+                <constructor-arg name="groupsAttribute" value="${security.cas.attribute.groups}"/>
             </bean>
         </property>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
@@ -92,7 +92,7 @@
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{systemConfig['security.cas.attribute.groups'].isEmpty()}"/>
+        <constructor-arg type="boolean" value="${security.cas.attribute.groups'].isEmpty()}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
@@ -101,7 +101,7 @@
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <property name="defaultGroup" value="#{systemConfig['security.cas.default-group']}"/>
+                <property name="defaultGroup" value="${security.cas.default-group}"/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>

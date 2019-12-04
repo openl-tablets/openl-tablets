@@ -62,7 +62,7 @@
 
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGroup>
-        <h:panelGroup rendered="#{not (systemConfig['user.mode'] == 'single' and artefact.opened)}">
+        <h:panelGroup rendered="#{not (environment.getProperty('user.mode') == 'single' and artefact.opened)}">
           <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}" title="#{openMessage}"
                            onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
           <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision"
@@ -75,7 +75,7 @@
                            onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{systemConfig['user.mode'] == 'single' and artefact.opened}">
+        <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">
           <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;" title="#{openMessage}"/>
 	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();" title="#{openVersionMessage}">
               <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
@@ -168,7 +168,7 @@
                 </td>
                 <td>
                     <h:outputText value="#{node.createdAt}">
-                        <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
                     </h:outputText>
                 </td>
             </tr>
@@ -183,7 +183,7 @@
                     <td class="label">Modified At:</td>
                     <td>
                         <h:outputText value="#{node.modifiedAt}">
-                            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                            <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}"/>
                         </h:outputText>
                     </td>
                 </tr>

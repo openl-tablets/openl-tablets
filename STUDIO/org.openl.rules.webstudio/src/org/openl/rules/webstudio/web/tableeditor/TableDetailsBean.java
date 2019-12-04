@@ -1,9 +1,18 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
@@ -24,6 +33,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.core.env.Environment;
 
 @ManagedBean
 @ViewScoped
@@ -36,6 +46,9 @@ public class TableDetailsBean {
     private String newTableId;
     private String propertyToAdd;
     private String id;
+
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -59,6 +72,10 @@ public class TableDetailsBean {
                     uri) && !table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
             initPropertyGroups(table, table.getProperties());
         }
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public void initPropertyGroups(IOpenLTable table, ITableProperties props) {
@@ -277,9 +294,7 @@ public class TableDetailsBean {
 
         if (toSave) {
             if (studio.isUpdateSystemProperties()) {
-                EditHelper.updateSystemProperties(table,
-                    tableEditorModel,
-                    WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+                EditHelper.updateSystemProperties(table, tableEditorModel, environment.getProperty("user.mode"));
             }
             this.newTableId = tableEditorModel.save();
             studio.compile();
@@ -288,5 +303,4 @@ public class TableDetailsBean {
         table.getGridTable().stopEditing();
         FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
     }
-
 }
