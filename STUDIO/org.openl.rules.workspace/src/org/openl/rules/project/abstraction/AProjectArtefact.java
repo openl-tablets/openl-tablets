@@ -7,9 +7,9 @@ import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectArtefact {
@@ -195,7 +195,7 @@ public class AProjectArtefact {
     }
 
     public LockInfo getLockInfo() {
-        return LockInfoImpl.NO_LOCK;
+        return SimpleLockInfo.NO_LOCK;
     }
 
     public boolean isModified() {
