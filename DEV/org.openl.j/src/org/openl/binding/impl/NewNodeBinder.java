@@ -41,6 +41,9 @@ public class NewNodeBinder extends ANodeBinder {
         if (type == null) {
             return makeErrorNode(String.format("Type '%s' is not found.", typeName), typeNode, bindingContext);
         }
+        if (type.getInstanceClass() == null) {
+            return makeErrorNode(String.format("Type '%s' is defined with errors.", typeName), typeNode, bindingContext);
+        }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);
         if (hasErrorBoundNode(children)) {
