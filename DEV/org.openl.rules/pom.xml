@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl</groupId>
-            <artifactId>org.openl.j</artifactId>
+            <artifactId>org.openl.grammars</artifactId>
         </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
