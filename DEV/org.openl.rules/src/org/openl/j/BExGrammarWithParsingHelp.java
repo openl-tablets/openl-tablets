@@ -1,10 +1,47 @@
-package org.openl.grammar.bexgrammar;
+package org.openl.j;
 
-import org.openl.grammar.BracketMatcher;
-import org.openl.grammar.ParserErrorMessage;
+import org.openl.grammar.bexgrammar.BExGrammar;
+import org.openl.grammar.bexgrammar.ParseException;
+import org.openl.grammar.bexgrammar.Token;
+import org.openl.grammar.bexgrammar.TokenMgrError;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
+
+    private static String addEscapes(String str) {
+        StringBuilder retval = new StringBuilder();
+        char ch;
+        for (int i = 0; i < str.length(); i++) {
+            switch (str.charAt(i)) {
+                case 0:
+                    continue;
+                case '\b':
+                    retval.append("\\b");
+                    continue;
+                case '\t':
+                    retval.append("\\t");
+                    continue;
+                case '\n':
+                    retval.append("\\n");
+                    continue;
+                case '\f':
+                    retval.append("\\f");
+                    continue;
+                case '\r':
+                    retval.append("\\r");
+                    continue;
+                default:
+                    if ((ch = str.charAt(i)) < 0x20 || ch > 0x7e) {
+                        String s = "0000" + Integer.toString(ch, 16);
+                        retval.append("\\u" + s.substring(s.length() - 4, s.length()));
+                    } else {
+                        retval.append(ch);
+                    }
+                    continue;
+            }
+        }
+        return retval.toString();
+    }
 
     @Override
     public void parseTopNode(String type) {
@@ -32,8 +69,8 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
             syntaxBuilder.addError(sne);
         } catch (TokenMgrError err) {
             org.openl.util.text.TextInterval loc = new org.openl.util.text.TextInterval(
-                pos(err.getStartLine(), err.getStartCol()),
-                pos(err.getEndLine(), err.getEndCol()));
+                pos(0, 0),
+                pos(0, 0));
 
             syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(),
                 null,
@@ -67,7 +104,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
             BracketMatcher.BracketsStackObject bso = bm.addToken(t.image, t);
             if (bso != null) {
                 if (bso.getErrorCode() == BracketMatcher.UNEXPECTED) {
-                    String message = ParserErrorMessage.printUnexpectedBracket(t.image);
+                    String message = String.format("Unexpected bracket '%s'", addEscapes(t.image));
 
                     return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
                 }
@@ -75,7 +112,9 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                 if (bso.getErrorCode() == BracketMatcher.MISMATCHED) {
                     Token t2 = (Token) bso.getId();
 
-                    String message = ParserErrorMessage.printMismatchedBracket(t2.image.substring(0, 1), t.image);
+                    String message = String.format("Mismatched: opened with '%s' and closed with '%s'",
+                        addEscapes(t2.image.substring(0, 1)),
+                        addEscapes(t.image));
                     return new SyntaxNodeException(message, null, pos(t2, t), syntaxBuilder.getModule());
                 }
 
@@ -88,7 +127,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
         if (bso != null) {
             Token t = (Token) bso.getId();
 
-            String message = ParserErrorMessage.printUmatchedBracket(t.image);
+            String message = String.format("Need to close '%s'", addEscapes(t.image));
 
             return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
 

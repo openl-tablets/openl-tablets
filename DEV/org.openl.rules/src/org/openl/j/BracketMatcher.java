@@ -1,8 +1,8 @@
-package org.openl.grammar;
+package org.openl.j;
 
 import java.util.Stack;
 
-public class BracketMatcher {
+class BracketMatcher {
 
     enum Brackets {
         ROUND("()"),
@@ -39,9 +39,6 @@ public class BracketMatcher {
     }
 
     public static class BracketsStackObject {
-        public Brackets getBracket() {
-            return bracket;
-        }
 
         public Object getId() {
             return id;

@@ -3,7 +3,6 @@ package org.openl.j;
 import org.openl.OpenL;
 import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.grammar.bexgrammar.BExGrammarWithParsingHelp;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {

@@ -479,74 +479,6 @@ public class Operators {
 
     // Bitwise operators
     //
-    public static byte bitand(byte x, byte y) {
-        return (byte) (x & y);
-    }
-
-    public static short bitand(short x, short y) {
-        return (short) (x & y);
-    }
-
-    public static int bitand(int x, int y) {
-        return x & y;
-    }
-
-    public static long bitand(long x, long y) {
-        return x & y;
-    }
-
-    public static byte bitnot(byte x) {
-        return (byte) ~x;
-    }
-
-    public static short bitnot(short x) {
-        return (short) ~x;
-    }
-
-    public static int bitnot(int x) {
-        return ~x;
-    }
-
-    public static long bitnot(long x) {
-        return ~x;
-    }
-
-    public static byte bitor(byte x, byte y) {
-        return (byte) (x | y);
-    }
-
-    public static short bitor(short x, short y) {
-        return (short) (x | y);
-    }
-
-    public static int bitor(int x, int y) {
-        return x | y;
-    }
-
-    public static long bitor(long x, long y) {
-        return x | y;
-    }
-
-    public static boolean bitxor(boolean x, boolean y) {
-        return x ^ y;
-    }
-
-    public static byte bitxor(byte x, byte y) {
-        return (byte) (x ^ y);
-    }
-
-    public static short bitxor(short x, short y) {
-        return (short) (x ^ y);
-    }
-
-    public static int bitxor(int x, int y) {
-        return x ^ y;
-    }
-
-    public static long bitxor(long x, long y) {
-        return x ^ y;
-    }
-
     public static float dec(float x) {
         return x - 1;
     }
@@ -609,24 +541,6 @@ public class Operators {
 
     public static BigDecimal inc(BigDecimal x) {
         return x.add(BigDecimal.ONE);
-    }
-
-    public static int lshift(int x, int y) {
-        return x << y;
-    }
-
-    public static long lshift(long x, int y) {
-        return x << y;
-    }
-
-    public static PrintStream lshift(PrintStream p, long x) {
-        p.print(x);
-        return p;
-    }
-
-    public static PrintStream lshift(PrintStream p, Object x) {
-        p.print(x);
-        return p;
     }
 
     public static byte pow(byte x, byte y) {
@@ -851,22 +765,6 @@ public class Operators {
     public static Boolean and(Boolean x, Boolean y) {
         return Boolean.FALSE.equals(
             x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
-    }
-
-    public static int rshift(int x, int y) {
-        return x >> y;
-    }
-
-    public static long rshift(long x, int y) {
-        return x >> y;
-    }
-
-    public static int rshiftu(int x, int y) {
-        return x >>> y;
-    }
-
-    public static long rshiftu(long x, int y) {
-        return x >>> y;
     }
 
     // operator '%' implementations
