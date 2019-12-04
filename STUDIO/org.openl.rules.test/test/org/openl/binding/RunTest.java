@@ -137,12 +137,6 @@ public class RunTest {
 
         assertEquals("Integer x = 1; \"aaa\".substring(x)", "aaa".substring(1));
 
-        assertEquals("int x=5, y=7; x & y", 5 & 7);
-        assertEquals("int x=5, y=7; x | y", 5 | 7);
-        assertEquals("int x=5, y=7; x ^ y", 5 ^ 7);
-
-        assertEquals("boolean x=true, y=false; x ^ y", true ^ false);
-
         assertEquals("int x=5, y=7; x < y ? 'a'+1 : 'b'+1", 'a' + 1);
         assertEquals("int x=5, y=7; x < y ? 0.7 : 3", 0.7);
         assertEquals("int x=5, y=7; x >= y ? 3 : 0.7", 0.7);
@@ -150,14 +144,6 @@ public class RunTest {
         assertEquals("int x=5, y=7; x < y ? 0.7 : null", 0.7);
         assertEquals("int x=5, y=7; x < y ? 3 : (int)0.7", 3);
         assertEquals("Number x=new Integer(5);Integer y = 7; 5 < 4 ? x : y", 7);
-
-        assertEquals("int x=5, y=7; x << y ", 5 << 7);
-        assertEquals("long x=5;int y=7; x << y ", (long) 5 << 7);
-
-        assertEquals("long x=-1;int y=7; x >> y ", (long) -1 >> 7);
-        assertEquals("long x=-1;int y=60; x >>> y ", (long) -1 >>> 60);
-
-        assertEquals("System.out << 35 << \"zzzz\" ", System.out);
 
         assertEquals("|-10| ", 10);
         assertEquals("true ? 10 : 20", 10);
@@ -168,7 +154,6 @@ public class RunTest {
         assertEquals("10% of \n the  50", 5.0);
         assertEquals("10% of    the  50", 5.0);
 
-        assertEquals("long Of =-1;int y=60; Of >>> y ", (long) -1 >>> 60);
         assertEquals("5.0 ** 7.0 ", Math.pow(5, 7));
         assertEquals("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)));
         assertEquals("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000"));
