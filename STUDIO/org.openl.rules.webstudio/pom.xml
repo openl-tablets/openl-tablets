@@ -55,21 +55,6 @@
                         <exception>
                             <conflictingDependencies>
                                 <dependency>
-                                    <groupId>org.apache.jackrabbit</groupId>
-                                    <artifactId>jackrabbit-jcr-commons</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.apache.jackrabbit</groupId>
-                                    <artifactId>jackrabbit-jcr-rmi</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <classes>
-                                <class>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</class>
-                            </classes>
-                        </exception>
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
                                     <groupId>xmlpull</groupId>
                                     <artifactId>xmlpull</artifactId>
                                 </dependency>
@@ -156,20 +141,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository.jcr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jboss.spec.javax.transaction</groupId>
-                    <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

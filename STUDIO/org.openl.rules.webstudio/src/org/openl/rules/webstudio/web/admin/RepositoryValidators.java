@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.jcr.LoginException;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -34,7 +33,7 @@ public final class RepositoryValidators {
      * @throws RepositoryValidationException if repository was configured incorrectly
      */
     public static void validate(RepositoryConfiguration config) throws RepositoryValidationException {
-        validate(config, Collections.<RepositoryConfiguration> emptyList());
+        validate(config, Collections.emptyList());
     }
 
     /**
@@ -110,7 +109,7 @@ public final class RepositoryValidators {
         }
     }
 
-    public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
+    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
             DesignTimeRepository designTimeRepository,
             RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
@@ -131,7 +130,7 @@ public final class RepositoryValidators {
         }
     }
 
-    public static void validateConnection(RepositoryConfiguration repoConfig,
+    static void validateConnection(RepositoryConfiguration repoConfig,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
         try {
             /* Close connection to jcr before checking connection */
@@ -149,19 +148,7 @@ public final class RepositoryValidators {
             }
 
             if (repoConfig.getSettings() instanceof CommonRepositorySettings) {
-                CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
-
-                if (resultException instanceof LoginException) {
-                    if (!settings.isSecure()) {
-                        throw new RepositoryValidationException(
-                            String.format("Repository '%s' : Connection is secure. Please, insert login and password.",
-                                repoConfig.getName()));
-                    } else {
-                        throw new RepositoryValidationException(String.format(
-                            "Repository '%s' : Invalid login or password. Please, check login and password.",
-                            repoConfig.getName()));
-                    }
-                } else if (resultException instanceof FailedLoginException) {
+                if (resultException instanceof FailedLoginException) {
                     throw new RepositoryValidationException(
                         String.format("Repository '%s' : Invalid login or password. Please, check login and password.",
                             repoConfig.getName()));
