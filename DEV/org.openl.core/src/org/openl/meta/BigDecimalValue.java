@@ -401,7 +401,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return null;
         }
         // evaluate result
-        org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(Operators.abs(value.getValue()));
+        org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(value.getValue().abs());
         // create instance with information about last operation
         return new org.openl.meta.BigDecimalValue(result, NumberOperations.ABS, value);
     }

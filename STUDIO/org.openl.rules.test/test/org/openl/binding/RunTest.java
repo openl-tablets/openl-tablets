@@ -145,7 +145,6 @@ public class RunTest {
         assertEquals("int x=5, y=7; x < y ? 3 : (int)0.7", 3);
         assertEquals("Number x=new Integer(5);Integer y = 7; 5 < 4 ? x : y", 7);
 
-        assertEquals("|-10| ", 10);
         assertEquals("true ? 10 : 20", 10);
         assertEquals("true ? 10 : 20", 10);
         assertEquals("false ? 10 : 20", 20);

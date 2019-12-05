@@ -313,7 +313,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
             return null;
         }
         // evaluate result
-        org.openl.meta.IntValue result = new org.openl.meta.IntValue(Operators.abs(value.getValue()));
+        org.openl.meta.IntValue result = new org.openl.meta.IntValue(Math.abs(value.getValue()));
         // create instance with information about last operation
         return new org.openl.meta.IntValue(result, NumberOperations.ABS, value);
     }

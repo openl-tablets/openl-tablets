@@ -324,7 +324,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
             return null;
         }
         // evaluate result
-        org.openl.meta.LongValue result = new org.openl.meta.LongValue(Operators.abs(value.getValue()));
+        org.openl.meta.LongValue result = new org.openl.meta.LongValue(Math.abs(value.getValue()));
         // create instance with information about last operation
         return new org.openl.meta.LongValue(result, NumberOperations.ABS, value);
     }

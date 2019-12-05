@@ -319,7 +319,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
             return null;
         }
         // evaluate result
-        org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(Operators.abs(value.getValue()));
+        org.openl.meta.ShortValue result = new org.openl.meta.ShortValue((short) Math.abs(value.getValue()));
         // create instance with information about last operation
         return new org.openl.meta.ShortValue(result, NumberOperations.ABS, value);
     }
