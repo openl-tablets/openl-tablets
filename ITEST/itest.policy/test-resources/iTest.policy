@@ -36,7 +36,7 @@ grant {
 grant {
 
         //Registration and cancellation of virtual-machine shutdown hooks
-        //ex: AbstractJcrRepositoryFactory
+        //ex: jgit: CloneCommand.call()
         permission java.lang.RuntimePermission "shutdownHooks";
 
         //accessClassInPackages
@@ -57,7 +57,7 @@ grant {
         permission java.lang.RuntimePermission "defineClass";
 
         //Modification of threads
-        //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
+        //ex: ChangesMonitor.release()
         permission java.lang.RuntimePermission "modifyThread";
 
         //Retrieval of the ProtectionDomain for a class
