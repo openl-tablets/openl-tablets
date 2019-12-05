@@ -60,10 +60,10 @@ public class TableSyntaxNode extends NaryNode {
     public TableSyntaxNode(String type,
             GridLocation pos,
             XlsSheetSourceCodeModule module,
-            IGridTable gridtable,
+            IGridTable gridTable,
             HeaderSyntaxNode header) {
         super(type, pos, null, module);
-        table = LogicalTableHelper.logicalTable(gridtable);
+        table = LogicalTableHelper.logicalTable(gridTable);
         headerNode = header;
         header.setParent(this);
     }

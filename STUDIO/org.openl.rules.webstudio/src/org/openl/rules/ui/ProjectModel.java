@@ -249,21 +249,20 @@ public class ProjectModel {
         // TableSyntaxNode[] nodes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
-        for (int i = 0; i < nodes.length; i++) {
-            if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUriParser())) {
-                TableSyntaxNode tsn = nodes[i];
-                if (XlsNodeTypes.XLS_TABLEPART.equals(tsn.getNodeType())) {
-                    for (int j = 0; j < nodes.length; j++) {
-                        IGridTable table = nodes[j].getGridTable();
+        for (TableSyntaxNode node : nodes) {
+            if (XlsUrlUtils.intersects(p1, node.getGridTable().getUriParser())) {
+                if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
+                    for (TableSyntaxNode tableSyntaxNode : nodes) {
+                        IGridTable table = tableSyntaxNode.getGridTable();
                         if (table.getGrid() instanceof CompositeGrid) {
                             CompositeGrid compositeGrid = (CompositeGrid) table.getGrid();
                             if (findInCompositeGrid(compositeGrid, p1)) {
-                                return nodes[j];
+                                return tableSyntaxNode;
                             }
                         }
                     }
                 }
-                return tsn;
+                return node;
             }
         }
 
@@ -275,11 +274,8 @@ public class ProjectModel {
         int count = 0;
         if (compiledOpenClass != null) {
             TableSyntaxNode[] nodes = getTableSyntaxNodes();
-
-            for (int i = 0; i < nodes.length; i++) {
-                TableSyntaxNode tsn = nodes[i];
-
-                if (tsn.getErrors() != null) {
+            for (TableSyntaxNode tsn : nodes) {
+                if (tsn.hasErrors()) {
                     count++;
                 }
             }
@@ -647,12 +643,7 @@ public class ProjectModel {
      */
     public boolean isTablePart(String uri) {
         IGridTable grid = this.getGridTable(uri);
-
-        if (grid != null && grid.getGrid() instanceof CompositeGrid) {
-            return true;
-        }
-
-        return false;
+        return grid != null && grid.getGrid() instanceof CompositeGrid;
     }
 
     public boolean isCurrentModuleLoadedByExtension() {
@@ -778,7 +769,7 @@ public class ProjectModel {
             }
         }
 
-        return nodes.toArray(new TableSyntaxNode[nodes.size()]);
+        return nodes.toArray(new TableSyntaxNode[0]);
     }
 
     public int getNumberOfTables() {
