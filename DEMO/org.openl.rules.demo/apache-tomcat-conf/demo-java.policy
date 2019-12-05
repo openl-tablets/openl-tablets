@@ -81,10 +81,6 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         //ability to control the logging configuration
         permission java.util.logging.LoggingPermission "control";
 
-        //LocalJackrabbitRepositoryFactory
-        permission javax.security.auth.AuthPermission "modifyPrincipals";
-        permission javax.security.auth.AuthPermission "modifyPublicCredentials";
-
         permission java.lang.reflect.ReflectPermission "*";
 
         //com.sun.faces.config.ConfigureListener
