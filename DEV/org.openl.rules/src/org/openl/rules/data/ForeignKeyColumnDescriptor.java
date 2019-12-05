@@ -207,7 +207,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             IBindingContext bindingContext) {
 
         String message = String
-            .format("Index Key %s is not found in the foreign table '%s'.", src, foreignTable.getName());
+            .format("Index Key '%s' is not found in the foreign table '%s'.", src, foreignTable.getName());
 
         return SyntaxNodeExceptionUtils
             .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
@@ -342,7 +342,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
                         foreignTable.getTableSyntaxNode().addError(ex);
-                        throw createIndexNotFoundError(foreignTable, valuesTable, s, ex, cxt);
+                        cxt.addError(ex);
+                        return;
                     }
                     if (result != null) {
                         ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
