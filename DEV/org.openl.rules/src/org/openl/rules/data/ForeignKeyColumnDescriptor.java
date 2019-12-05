@@ -32,6 +32,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
+import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -206,11 +207,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             Exception ex,
             IBindingContext bindingContext) {
 
-        String message = String
-            .format("Index Key '%s' is not found in the foreign table '%s'.", src, foreignTable.getName());
-
-        return SyntaxNodeExceptionUtils
-            .createError(message, ex, null, new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
+        String message = MessageUtils.getUnknownForeignKeyIndexErrorMessage(src, foreignTable.getName());
+        return SyntaxNodeExceptionUtils.createError(message, ex, null,
+                new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
     }
 
     /**
@@ -238,8 +237,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            throw SyntaxNodeExceptionUtils
-                .createError(String.format("Column '%s' is not found.", columnName), null, foreignKey);
+            String message = MessageUtils.getConstructorNotFoundMessage(columnName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -324,8 +323,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
                 if (foreignKeyIndex == -1) {
-                    throw SyntaxNodeExceptionUtils.createError(String.format("Column '%s' is not found.",
-                        foreignKey.getIdentifier()), null, foreignKey);
+                    String message = MessageUtils.getColumnNotFoundErrorMessage(foreignKey.getIdentifier());
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
                 // table will have 1xN size
@@ -394,11 +393,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             s);
                         IOpenCast cast = cxt.getCast(resType, fieldType);
                         if (cast == null || !cast.isImplicit()) {
-                            String message = String.format(
-                                "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
-                                getField().getName(),
-                                fieldType,
-                                resType);
+                            String message = MessageUtils.getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
                             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                         }
                         getField().set(target, cast.convert(res), env);
@@ -514,11 +509,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     s);
                 IOpenCast cast = cxt.getCast(resType, fieldType);
                 if (cast == null || !cast.isImplicit()) {
-                    String message = String.format(
-                        "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
-                        getField().getName(),
-                        fieldType,
-                        resType);
+                    String message = MessageUtils.getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                 }
                 getField().set(target, cast.convert(res), env);
@@ -528,10 +519,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
         if (foreignTable == null) {
-            String message = String.format("Table '%s' is not found.", foreignKeyTableName);
+            String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = String.format("Foreign table '%s' has errors.", foreignKeyTableName);
+            String message = MessageUtils.getForeignTableCompilationErrorsMessage(foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
     }

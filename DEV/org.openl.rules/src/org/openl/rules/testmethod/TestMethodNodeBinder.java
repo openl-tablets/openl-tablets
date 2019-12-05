@@ -38,6 +38,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.MessageUtils;
 
 /**
  * @author snshor
@@ -210,7 +211,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             return bestCaseTestMethodBoundNode;
         }
 
-        String message = String.format("Table '%s' is not found.", methodName);
+        String message = MessageUtils.getTableNotFoundErrorMessage(methodName);
         throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
     }
 
