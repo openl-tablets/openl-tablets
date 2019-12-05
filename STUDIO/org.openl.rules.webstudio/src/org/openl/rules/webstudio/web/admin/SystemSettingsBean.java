@@ -76,7 +76,7 @@ public class SystemSettingsBean {
                 configManager,
                 RepositoryMode.DEPLOY_CONFIG,
                 true);
-            if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
+            if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
             }

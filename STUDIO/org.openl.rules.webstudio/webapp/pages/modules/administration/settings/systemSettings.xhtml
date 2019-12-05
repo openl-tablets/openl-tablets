@@ -350,7 +350,7 @@
                                             </h:selectOneMenu>
                                             <h:outputText value=""/>
                                             <h:panelGroup id="deployConfigRepoTypeMessage">
-                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not empty deployConfigRepo.errorMessage}" styleClass="error"/>
+                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not systemSettingsBean.useDesignRepo and not empty deployConfigRepo.errorMessage}" styleClass="error"/>
                                             </h:panelGroup>
                                         </h:panelGrid>
                                         <h:panelGroup id="deployConfigParameters" rendered="#{not systemSettingsBean.useDesignRepo}">
