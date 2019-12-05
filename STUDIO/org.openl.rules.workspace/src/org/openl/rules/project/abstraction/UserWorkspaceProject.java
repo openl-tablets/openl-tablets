@@ -131,9 +131,8 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public String getBranch() {
-        Repository designRepository = getDesignRepository();
-        if (designRepository.supports().branches()) {
-            return ((BranchRepository) designRepository).getBranch();
+        if (isSupportsBranches()) {
+            return ((BranchRepository) getDesignRepository()).getBranch();
         }
 
         return null;
