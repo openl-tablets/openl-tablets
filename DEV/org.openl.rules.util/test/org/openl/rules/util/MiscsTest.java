@@ -1,10 +1,20 @@
 package org.openl.rules.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.openl.rules.util.Miscs.*;
+import static org.openl.rules.util.Miscs.isEmpty;
+import static org.openl.rules.util.Miscs.isInfinite;
+import static org.openl.rules.util.Miscs.isNaN;
+import static org.openl.rules.util.Miscs.isNotEmpty;
+import static org.openl.rules.util.Miscs.length;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
 
 import org.junit.Test;
 
@@ -36,18 +46,8 @@ public class MiscsTest {
             }
         }));
 
-        assertTrue(isEmpty(new Iterable() {
-            @Override
-            public Iterator iterator() {
-                return Collections.emptyIterator();
-            }
-        }));
-        assertFalse(isEmpty(new Iterable() {
-            @Override
-            public Iterator iterator() {
-                return new Scanner("NotEmptyString");
-            }
-        }));
+        assertTrue(isEmpty((Iterable) () -> Collections.emptyIterator()));
+        assertFalse(isEmpty((Iterable) () -> new Scanner("NotEmptyString")));
     }
 
     @Test
@@ -77,16 +77,25 @@ public class MiscsTest {
             }
         }));
 
-        assertFalse(isNotEmpty(new Iterable() {
-            @Override
-            public Iterator iterator() {
-                return Collections.emptyIterator();
+        assertFalse(isNotEmpty((Iterable) () -> Collections.emptyIterator()));
+        assertTrue(isNotEmpty((Iterable) () -> new Scanner("NotEmptyString")));
+    }
+
+    @Test
+    public void testLength() {
+        assertEquals(0, length((HashSet<?>) null));
+        assertEquals(0, length(new HashSet()));
+        assertEquals(1, length(new HashSet() {
+            {
+                add(false);
             }
         }));
-        assertTrue(isNotEmpty(new Iterable() {
-            @Override
-            public Iterator iterator() {
-                return new Scanner("NotEmptyString");
+
+        assertEquals(0, length((Map<?, ?>) null));
+        assertEquals(0, length(new HashMap<>()));
+        assertEquals(1, length(new HashMap() {
+            {
+                put(false, true);
             }
         }));
     }
