@@ -604,9 +604,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
-                        throw new IOException("Incorrect login or password for git repository.");
+                    if (credentialsProvider != null) {
+                        if (credentialsProvider.isHasAuthorizationFailure()) {
+                            throw new IOException("Incorrect login or password for git repository.");
+                        }
+                    } else {
+                        String message = e.getMessage();
+                        if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
+                            throw new IOException(
+                                "Authentication is required but login and password has not been specified.");
+                        }
                     }
+                    // For other cases like temporary connection loss we should not fail. The local repository exists,
+                    // will fetch later.
                 }
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
@@ -724,7 +734,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         if (treeWalk == null) {
-            throw new FileNotFoundException(String.format("Did not find expected path '%s' in tree '%s'", path , tree.getName() ));
+            throw new FileNotFoundException(
+                String.format("Did not find expected path '%s' in tree '%s'", path, tree.getName()));
         }
         return treeWalk;
     }
@@ -740,7 +751,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private boolean isEmpty() throws IOException {
-        Ref headRef = git.getRepository().exactRef( Constants.HEAD );
+        Ref headRef = git.getRepository().exactRef(Constants.HEAD);
         return headRef == null || headRef.getObjectId() == null;
     }
 
@@ -1314,7 +1325,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         addTagToCommit(commit, commit.getId().getName(), mergeAuthor);
     }
 
-    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException,
+                                                                                             IOException {
         pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {

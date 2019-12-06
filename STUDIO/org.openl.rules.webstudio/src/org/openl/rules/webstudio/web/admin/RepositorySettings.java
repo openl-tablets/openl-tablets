@@ -145,9 +145,9 @@ public abstract class RepositorySettings {
     }
 
     private void load(ConfigurationManager configManager) {
-        includeVersionInDeploymentName = Boolean.valueOf(configManager.getStringProperty(VERSION_IN_DEPLOYMENT_NAME));
+        includeVersionInDeploymentName = Boolean.parseBoolean(configManager.getStringProperty(VERSION_IN_DEPLOYMENT_NAME));
 
-        useCustomComments = Boolean.valueOf(configManager.getStringProperty(USE_CUSTOM_COMMENTS));
+        useCustomComments = Boolean.parseBoolean(configManager.getStringProperty(USE_CUSTOM_COMMENTS));
         commentValidationPattern = configManager.getStringProperty(COMMENT_VALIDATION_PATTERN);
         invalidCommentMessage = configManager.getStringProperty(INVALID_COMMENT_MESSAGE);
         commentTemplate = configManager.getStringProperty(COMMENT_TEMPLATE);
@@ -180,22 +180,22 @@ public abstract class RepositorySettings {
             propertiesHolder.setProperty(DEFAULT_COMMENT_COPIED_FROM, defaultCommentCopiedFrom);
             propertiesHolder.setProperty(DEFAULT_COMMENT_RESTORED_FROM, defaultCommentRestoredFrom);
         } else {
-            propertiesHolder.removeProperty(COMMENT_VALIDATION_PATTERN);
-            propertiesHolder.removeProperty(INVALID_COMMENT_MESSAGE);
+            propertiesHolder.revertProperty(COMMENT_VALIDATION_PATTERN);
+            propertiesHolder.revertProperty(INVALID_COMMENT_MESSAGE);
 
-            propertiesHolder.removeProperty(COMMENT_TEMPLATE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_SAVE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_CREATE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_ARCHIVE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_ERASE);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_COPIED_FROM);
-            propertiesHolder.removeProperty(DEFAULT_COMMENT_RESTORED_FROM);
+            propertiesHolder.revertProperty(COMMENT_TEMPLATE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_SAVE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_CREATE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_ARCHIVE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_RESTORE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_ERASE);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_COPIED_FROM);
+            propertiesHolder.revertProperty(DEFAULT_COMMENT_RESTORED_FROM);
         }
     }
 
     protected void revert(ConfigurationManager configurationManager) {
-        configurationManager.removeProperties(VERSION_IN_DEPLOYMENT_NAME,
+        configurationManager.revertProperties(VERSION_IN_DEPLOYMENT_NAME,
             USE_CUSTOM_COMMENTS,
             COMMENT_VALIDATION_PATTERN,
             INVALID_COMMENT_MESSAGE,

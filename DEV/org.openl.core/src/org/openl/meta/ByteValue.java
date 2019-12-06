@@ -316,7 +316,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
             return null;
         }
         // evaluate result
-        org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(Operators.abs(value.getValue()));
+        org.openl.meta.ByteValue result = new org.openl.meta.ByteValue((byte) Math.abs(value.getValue()));
         // create instance with information about last operation
         return new org.openl.meta.ByteValue(result, NumberOperations.ABS, value);
     }

@@ -1,12 +1,5 @@
-/*
- * Created on Jun 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
-import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -20,8 +13,6 @@ import org.openl.rules.util.dates.DateInterval;
  *
  */
 public class Operators {
-
-    public static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
 
     // Add
 
@@ -270,10 +261,6 @@ public class Operators {
         return x.subtract(y);
     }
 
-    public static boolean xor(boolean x, boolean y) {
-        return x ^ y;
-    }
-
     // Multiply
     public static byte multiply(byte x, byte y) {
         return (byte) (x * y);
@@ -436,137 +423,119 @@ public class Operators {
         return x.divide(y, MathContext.DECIMAL128);
     }
 
-    // Less or Equals Than
-
-    // Abs
-    public static byte abs(byte x) {
-        return (byte) Math.abs(x);
-    }
-
-    public static short abs(short x) {
-        return (short) Math.abs(x);
-    }
-
-    public static int abs(int x) {
-        return Math.abs(x);
-    }
-
-    public static long abs(long x) {
-        return Math.abs(x);
-    }
-
-    public static float abs(float x) {
-        return Math.abs(x);
-    }
-
-    public static double abs(double x) {
-        return Math.abs(x);
-    }
-
-    public static BigInteger abs(BigInteger x) {
-        if (x == null) {
-            return null;
-        }
-        return x.abs();
-    }
-
-    public static BigDecimal abs(BigDecimal x) {
-        if (x == null) {
-            return null;
-        }
-        return x.abs();
-    }
-
     // Bitwise operators
     //
+    @Deprecated
     public static float dec(float x) {
         return x - 1;
     }
 
+    @Deprecated
     public static double dec(double x) {
         return x - 1;
     }
 
+    @Deprecated
     public static byte dec(byte x) {
         return (byte) (x - 1);
     }
 
+    @Deprecated
     public static short dec(short x) {
         return (short) (x - 1);
     }
 
+    @Deprecated
     public static int dec(int x) {
         return x - 1;
     }
 
+    @Deprecated
     public static long dec(long x) {
         return x - 1;
     }
 
+    @Deprecated
     public static BigInteger dec(BigInteger x) {
         return x.subtract(BigInteger.ONE);
     }
 
+    @Deprecated
     public static BigDecimal dec(BigDecimal x) {
         return x.subtract(BigDecimal.ONE);
     }
 
+    @Deprecated
     public static byte inc(byte x) {
         return (byte) (x + 1);
     }
 
+    @Deprecated
     public static short inc(short x) {
         return (short) (x + 1);
     }
 
+    @Deprecated
     public static float inc(float x) {
         return x + 1;
     }
 
+    @Deprecated
     public static double inc(double x) {
         return x + 1;
     }
 
+    @Deprecated
     public static int inc(int x) {
         return x + 1;
     }
 
+    @Deprecated
     public static long inc(long x) {
         return x + 1;
     }
 
+    @Deprecated
     public static BigInteger inc(BigInteger x) {
         return x.add(BigInteger.ONE);
     }
 
+    @Deprecated
     public static BigDecimal inc(BigDecimal x) {
         return x.add(BigDecimal.ONE);
     }
 
+    @Deprecated
     public static byte pow(byte x, byte y) {
         return (byte) Math.pow(x, y);
     }
 
+    @Deprecated
     public static short pow(short x, short y) {
         return (short) Math.pow(x, y);
     }
 
+    @Deprecated
     public static int pow(int x, int y) {
         return (int) Math.pow(x, y);
     }
 
+    @Deprecated
     public static long pow(long x, long y) {
         return (long) Math.pow(x, y);
     }
 
+    @Deprecated
     public static float pow(float x, float y) {
         return (float) Math.pow(x, y);
     }
 
+    @Deprecated
     public static double pow(double x, double y) {
         return Math.pow(x, y);
     }
 
+    @Deprecated
     public static Byte pow(Byte x, Byte y) {
         if (x == null) {
             return null;
@@ -576,6 +545,7 @@ public class Operators {
         return (byte) Math.pow(x, y);
     }
 
+    @Deprecated
     public static Short pow(Short x, Short y) {
         if (x == null) {
             return null;
@@ -585,6 +555,7 @@ public class Operators {
         return (short) Math.pow(x, y);
     }
 
+    @Deprecated
     public static Integer pow(Integer x, Integer y) {
         if (x == null) {
             return null;
@@ -594,6 +565,7 @@ public class Operators {
         return (int) Math.pow(x, y);
     }
 
+    @Deprecated
     public static Long pow(Long x, Long y) {
         if (x == null) {
             return null;
@@ -603,6 +575,7 @@ public class Operators {
         return (long) Math.pow(x, y);
     }
 
+    @Deprecated
     public static Float pow(Float x, Float y) {
         if (x == null) {
             return null;
@@ -612,6 +585,7 @@ public class Operators {
         return (float) Math.pow(x, y);
     }
 
+    @Deprecated
     public static Double pow(Double x, Double y) {
         if (x == null) {
             return null;
@@ -621,6 +595,7 @@ public class Operators {
         return Math.pow(x, y);
     }
 
+    @Deprecated
     public static BigInteger pow(BigInteger x, BigInteger y) {
         if (x == null) {
             return null;
@@ -630,6 +605,7 @@ public class Operators {
         return x.pow(y.intValue());
     }
 
+    @Deprecated
     public static BigDecimal pow(BigDecimal x, BigDecimal y) {
         if (x == null) {
             return null;
@@ -769,34 +745,42 @@ public class Operators {
 
     // operator '%' implementations
 
+    @Deprecated
     public static byte rem(byte x, byte y) {
         return (byte) (x % y);
     }
 
+    @Deprecated
     public static short rem(short x, short y) {
         return (short) (x % y);
     }
 
+    @Deprecated
     public static int rem(int x, int y) {
         return x % y;
     }
 
+    @Deprecated
     public static long rem(long x, long y) {
         return x % y;
     }
 
+    @Deprecated
     public static float rem(float x, float y) {
         return x % y;
     }
 
+    @Deprecated
     public static double rem(double x, double y) {
         return x % y;
     }
 
+    @Deprecated
     public static BigInteger rem(BigInteger x, BigInteger y) {
         return x.remainder(y);
     }
 
+    @Deprecated
     public static BigDecimal rem(BigDecimal x, BigDecimal y) {
         return x.remainder(y);
     }

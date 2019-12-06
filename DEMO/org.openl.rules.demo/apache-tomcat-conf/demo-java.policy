@@ -28,7 +28,7 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/WEB-INF/-" {
 grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         //Registration and cancellation of virtual-machine shutdown hooks
-        //ex: AbstractJcrRepositoryFactory
+        //ex: jgit: CloneCommand.call()
         permission java.lang.RuntimePermission "shutdownHooks";
 
         //accessClassInPackages
@@ -49,7 +49,7 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "defineClass";
 
         //Modification of threads
-        //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
+        //ex: ChangesMonitor.release()
         permission java.lang.RuntimePermission "modifyThread";
 
         //Retrieval of the ProtectionDomain for a class
@@ -80,10 +80,6 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         //ability to control the logging configuration
         permission java.util.logging.LoggingPermission "control";
-
-        //LocalJackrabbitRepositoryFactory
-        permission javax.security.auth.AuthPermission "modifyPrincipals";
-        permission javax.security.auth.AuthPermission "modifyPublicCredentials";
 
         permission java.lang.reflect.ReflectPermission "*";
 
@@ -145,7 +141,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.loader";
 
         //Modification of threads
-        //ex: LocalJackrabbitRepositoryFactory.initialize Session logout
+        //ex: ChangesMonitor.release()
         permission java.lang.RuntimePermission "modifyThread";
 
         //Retrieval of the ProtectionDomain for a class

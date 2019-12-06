@@ -158,7 +158,7 @@
                                             </h:panelGrid>
                                             <h:outputText value=""/>
                                             <h:panelGroup id="deployConfigRepoTypeMessage">
-                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not empty deployConfigRepo.errorMessage}" styleClass="error"/>
+                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not installWizard.useDesignRepo and not empty deployConfigRepo.errorMessage}" styleClass="error"/>
                                             </h:panelGroup>
                                             <h:panelGroup id="deployConfigParameters" rendered="#{not installWizard.useDesignRepo}">
                                                 <h:panelGroup rendered="#{deployConfigRepo.formType == 'common'}">

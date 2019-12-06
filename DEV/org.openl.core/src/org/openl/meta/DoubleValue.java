@@ -431,7 +431,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             return null;
         }
         // evaluate result
-        double result = Operators.abs(value.getValue());
+        double result = Math.abs(value.getValue());
         // create instance with information about last operation
         return new org.openl.meta.DoubleValue(result, NumberOperations.ABS, value);
     }

@@ -191,15 +191,18 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
+        boolean clearLogin = StringUtils.isEmpty(login);
+
         if (isRemoteRepository()) {
             propertiesHolder.setProperty(URI, uri);
         } else {
-            propertiesHolder.removeProperty(URI);
+            propertiesHolder.setProperty(URI, "");
+            clearLogin = true;
         }
 
-        if (StringUtils.isEmpty(login)) {
-            propertiesHolder.removeProperty(LOGIN);
-            propertiesHolder.removeProperty(PASSWORD);
+        if (clearLogin) {
+            propertiesHolder.setProperty(LOGIN, "");
+            propertiesHolder.setPassword(PASSWORD, "");
         } else {
             propertiesHolder.setProperty(LOGIN, getLogin());
             propertiesHolder.setPassword(PASSWORD, getPassword());
@@ -220,7 +223,7 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(URI,
+        configurationManager.revertProperties(URI,
             LOGIN,
             PASSWORD,
             USER_DISPLAY_NAME,

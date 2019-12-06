@@ -26,7 +26,7 @@ public class InMemoryProperties implements PropertiesHolder {
         }
 
         if (value == null) {
-            removeProperty(key);
+            revertProperty(key);
             return;
         }
 
@@ -34,7 +34,7 @@ public class InMemoryProperties implements PropertiesHolder {
     }
 
     @Override
-    public void removeProperty(String key) {
+    public void revertProperty(String key) {
         changes.remove(key);
     }
 

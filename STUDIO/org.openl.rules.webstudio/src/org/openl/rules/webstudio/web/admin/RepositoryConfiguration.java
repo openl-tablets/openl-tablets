@@ -120,8 +120,8 @@ public class RepositoryConfiguration {
     }
 
     void revert() {
-        configManager.removeProperty(REPOSITORY_NAME);
-        configManager.removeProperty(REPOSITORY_FACTORY);
+        configManager.revertProperty(REPOSITORY_NAME);
+        configManager.revertProperty(REPOSITORY_FACTORY);
         load(false);
 
         settings.revert(configManager);

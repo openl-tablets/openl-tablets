@@ -283,10 +283,6 @@ TOKEN :
 | < MINUSASSIGN : "-=" >
 | < STARASSIGN : "*=" >
 | < SLASHASSIGN : "/=" >
-| < ANDASSIGN : "&=" >
-| < ORASSIGN : "|=" >
-| < XORASSIGN : "^=" >
-| < REMASSIGN : "%=" >
 | < EXP : "**" >
 | < IMPL : "->" >
 | < STRING_LE : "string<=" >
@@ -572,22 +568,6 @@ void Expression() :
     | x = < SLASHASSIGN >
       {
         func = "op.assign.divide";
-      }
-    | x = < ANDASSIGN >
-      {
-        func = "op.assign.bitand";
-      }
-    | x = < ORASSIGN >
-      {
-        func = "op.assign.bitor";
-      }
-    | x = < XORASSIGN >
-      {
-        func = "op.assign.bitnot";
-      }
-    | x = < REMASSIGN >
-      {
-        func = "op.assign.rem";
       }
     )
     Expression()
@@ -981,9 +961,7 @@ void PrimaryPrefix() :
   CommaSeparatedList()
 | 
   Literal()
-| 
-  AbsExpression()
-| 
+|
   < LPAREN > Expression() < RPAREN >
 | 
   AllocationExpression()
@@ -1432,17 +1410,6 @@ void IndexOperator() :
       }
     }
   )
-}
-
-void AbsExpression() :
-{
-  Token x1, x2;
-}
-{
-  x1 = "|" Expression() x2 = "|"
-  {
-    syntaxBuilder.uop("op.unary.abs", pos(x1, x2));
-  }
 }
 
 void Literal() :

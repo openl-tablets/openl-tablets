@@ -120,7 +120,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
+        configurationManager.revertProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
         load(configManager);
     }
 
