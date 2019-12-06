@@ -3250,39 +3250,6 @@ public final class RulesUtils {
 
     /**
      * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element, unless the element itself is null, in which case the return type is Object[]
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, null)      = [null]
-     * ArrayUtils.add(null, "a")       = ["a"]
-     * ArrayUtils.add(["a"], null)     = ["a", null]
-     * ArrayUtils.add(["a"], "b")      = ["a", "b"]
-     * ArrayUtils.add(["a", "b"], "c") = ["a", "b", "c"]
-     * </pre>
-     *
-     * @param array the array to "add" the element to, may be <code>null</code>
-     * @param element the object to add, may be <code>null</code>
-     * @return A new array containing the existing elements plus the new element The returned array type will be that of
-     *         the input array (unless null), in which case it will have the same type as the element.
-     */
-    public static <T> T[] add(T[] array, T element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
      * Inserts the specified element at the specified position in the array. Shifts the element currently at that
      * position (if any) and any subsequent elements to the right (adds one to their indices).
      * </p>
@@ -3349,28 +3316,12 @@ public final class RulesUtils {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Byte[] add(Byte[] array, Byte element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    public static Short[] add(Short[] array, Short element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Short[] add(Short[] array, int index, Short element) {
         return ArrayUtils.add(array, index, element);
     }
 
     public static Integer[] add(Integer[] array, int index, Integer element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Integer[] add(Integer[] array, Integer element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    public static Long[] add(Long[] array, Long element) {
-        return ArrayUtils.add(array, element);
     }
 
     public static Long[] add(Long[] array, int index, Long element) {
@@ -3381,32 +3332,16 @@ public final class RulesUtils {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Float[] add(Float[] array, Float element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Double[] add(Double[] array, int index, Double element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Double[] add(Double[] array, Double element) {
-        return ArrayUtils.add(array, element);
     }
 
     public static Character[] add(Character[] array, int index, Character element) {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Character[] add(Character[] array, Character element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Boolean[] add(Boolean[] array, int index, Boolean element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Boolean[] add(Boolean[] array, Boolean element) {
-        return ArrayUtils.add(array, element);
     }
 
     /**
@@ -3679,36 +3614,6 @@ public final class RulesUtils {
      * <p/>
      *
      * <pre>
-     * ArrayUtils.addAll(null, null)     = null
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * ArrayUtils.addAll([null], [null]) = [null, null]
-     * ArrayUtils.addAll(["a", "b", "c"], ["1", "2", "3"]) = ["a", "b", "c", "1", "2", "3"]
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array, may be <code>null</code>
-     * @param array2 the second array whose elements are added to the new array, may be <code>null</code>
-     * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
-     *         type of the first array, unless the first array is null, in which case the type is the same as the second
-     *         array.
-     * @throws IllegalArgumentException if the array types are incompatible
-     */
-    public static <T> T[] addAll(T[] array1, T[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
      * ArrayUtils.addAll([], [])         = []
@@ -3719,34 +3624,6 @@ public final class RulesUtils {
      * @return The new short[] array.
      */
     public static short[] addAll(short[] array1, short[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Byte[] addAll(Byte[] array1, Byte[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Short[] addAll(Short[] array1, Short[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Integer[] addAll(Integer[] array1, Integer[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Long[] addAll(Long[] array1, Long[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Float[] addAll(Float[] array1, Float[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Double[] addAll(Double[] array1, Double[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    public static Character[] addAll(Character[] array1, Character[] array2) {
         return ArrayUtils.addAll(array1, array2);
     }
 
