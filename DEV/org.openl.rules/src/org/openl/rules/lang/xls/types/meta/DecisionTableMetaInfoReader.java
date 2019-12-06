@@ -1,6 +1,14 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +20,18 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.dt.*;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableBoundNode;
+import org.openl.rules.dt.DecisionTableHelper;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.*;
+import org.openl.rules.table.CellKey;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -29,27 +45,10 @@ import org.slf4j.LoggerFactory;
 public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionTableBoundNode> {
     private final Logger log = LoggerFactory.getLogger(DecisionTableMetaInfoReader.class);
     private final DecisionTable decisionTable;
-
-    /**
-     * Map for condition cells in header to parameter index
-     */
-    private final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = new HashMap<>();
-
-    /**
-     * Map for action cells in header to parameter index
-     */
-    private final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = new HashMap<>();
-
-    /**
-     * Map for compound return column descriptions in SimpleRules header
-     */
-    private final Map<CellKey, ReturnMetaInfo> simpleRulesReturnDescriptions = new HashMap<>();
-
     private CellMetaInfo[][] preparedMetaInfos;
     private int top;
     private int left;
-
-    private List<Pair<String, String>> inputParametersToReturn = new ArrayList<>();
+    private final Deque<MetaInfoHolder> stack;
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         this(boundNode, null);
@@ -58,15 +57,78 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode, DecisionTable decisionTable) {
         super(boundNode);
         this.decisionTable = decisionTable;
+        this.stack = new ArrayDeque<>();
+        this.stack.push(new MetaInfoHolder());
+    }
+
+    public static class MetaInfoHolder {
+        /**
+         * Map for condition cells in header to parameter index
+         */
+        private final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = new HashMap<>();
+
+        /**
+         * Map for action cells in header to parameter index
+         */
+        private final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = new HashMap<>();
+
+        /**
+         * Map for compound return column descriptions in SimpleRules header
+         */
+        private final Map<CellKey, ReturnMetaInfo> simpleRulesReturnMap = new HashMap<>();
+
+        /**
+         * List for inputParameter mapping details for smart dt
+         */
+        private final List<Pair<String, String>> inputParametersToReturn = new ArrayList<>();
+
+        public Map<CellKey, HeaderMetaInfo> getSimpleRulesConditionMap() {
+            return simpleRulesConditionMap;
+        }
+
+        public Map<CellKey, HeaderMetaInfo> getSimpleRulesActionMap() {
+            return simpleRulesActionMap;
+        }
+
+        public Map<CellKey, ReturnMetaInfo> getSimpleRulesReturnMap() {
+            return simpleRulesReturnMap;
+        }
+
+        public List<Pair<String, String>> getInputParametersToReturn() {
+            return inputParametersToReturn;
+        }
+
+        public void merge(MetaInfoHolder metaInfoHolder) {
+            if (metaInfoHolder == null) {
+                return;
+            }
+            simpleRulesConditionMap.putAll(metaInfoHolder.simpleRulesConditionMap);
+            simpleRulesActionMap.putAll(metaInfoHolder.simpleRulesActionMap);
+            simpleRulesReturnMap.putAll(metaInfoHolder.simpleRulesReturnMap);
+            inputParametersToReturn.addAll(metaInfoHolder.inputParametersToReturn);
+        }
+    }
+
+    public void pushMetaInfos() {
+        stack.push(new MetaInfoHolder());
+    }
+
+    public MetaInfoHolder popMetaInfos() {
+        return stack.pop();
+    }
+
+    public MetaInfoHolder getMetaInfos() {
+        return stack.getFirst();
     }
 
     @Override
     protected String getAdditionalMetaInfoForTableReturnType() {
+        final List<Pair<String, String>> inputParametersToReturn = getMetaInfos().getInputParametersToReturn();
         if (inputParametersToReturn.isEmpty()) {
             return null;
         } else {
             StringBuilder sb = new StringBuilder();
-            Collections.sort(inputParametersToReturn, (o1, o2) -> o1.getKey().compareTo(o2.getKey()));
+            inputParametersToReturn.sort(Map.Entry.comparingByKey());
             for (Pair<String, String> p : inputParametersToReturn) {
                 if (sb.length() > 0) {
                     sb.append("\n");
@@ -253,15 +315,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveSimpleRulesMetaInfo(IGridRegion region) {
+        final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = getMetaInfos().getSimpleRulesConditionMap();
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesConditionMap.entrySet()) {
             setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForCondition);
         }
+        final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = getMetaInfos().getSimpleRulesActionMap();
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesActionMap.entrySet()) {
             setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForAction);
         }
     }
 
     private void saveCompoundReturnColumn(IGridRegion region) {
+        final Map<CellKey, ReturnMetaInfo> simpleRulesReturnDescriptions = getMetaInfos().getSimpleRulesReturnMap();
         for (Map.Entry<CellKey, ReturnMetaInfo> entry : simpleRulesReturnDescriptions.entrySet()) {
             CellKey key = entry.getKey();
             int row = key.getRow();
@@ -297,8 +362,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IOpenClass[] columnTypes,
             String url,
             String additionalDetails) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
+        getMetaInfos().getSimpleRulesConditionMap()
+            .put(CellKey.CellKeyFactory.getCellKey(col, row),
+                new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
     }
 
     public void addSimpleRulesAction(int row,
@@ -309,13 +375,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IOpenClass[] columnTypes,
             String url,
             String additionalInfo) {
-        simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalInfo));
+        getMetaInfos().getSimpleRulesActionMap()
+            .put(CellKey.CellKeyFactory.getCellKey(col, row),
+                new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalInfo));
     }
 
     public void addSimpleRulesReturn(int row, int col, String details, String uri) {
-        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new ReturnMetaInfo(details, uri));
+        getMetaInfos().getSimpleRulesReturnMap()
+            .put(CellKey.CellKeyFactory.getCellKey(col, row), new ReturnMetaInfo(details, uri));
+    }
+
+    public void addInputParametersToReturn(String statementInInputParameters, String statementInReturn) {
+        getMetaInfos().getInputParametersToReturn().add(Pair.of(statementInInputParameters, statementInReturn));
     }
 
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
@@ -523,10 +594,5 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         public IOpenClass[] getColumnTypes() {
             return columnTypes;
         }
-
-    }
-
-    public void addInputParametersToReturn(String statementInInputParameters, String statementInReturn) {
-        this.inputParametersToReturn.add(Pair.of(statementInInputParameters, statementInReturn));
     }
 }
