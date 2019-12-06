@@ -87,7 +87,7 @@ public final class MethodSearch {
                         } else if (cast2 == null || !cast2.isImplicit()) {
                             m.put(typeNames[i], t);
                         } else {
-                            if (cast2.getDistance() < cast1.getDistance()) {
+                            if (cast1.getDistance() < cast2.getDistance()) {
                                 m.put(typeNames[i], t);
                             }
                         }
