@@ -223,7 +223,7 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(URI,
+        configurationManager.revertProperties(URI,
             LOGIN,
             PASSWORD,
             USER_DISPLAY_NAME,
