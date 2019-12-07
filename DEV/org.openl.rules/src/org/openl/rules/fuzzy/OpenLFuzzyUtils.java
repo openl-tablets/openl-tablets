@@ -166,10 +166,6 @@ public final class OpenLFuzzyUtils {
                 if (!field.isStatic() && !field.isConst()) {
                     if (writable ? field.isWritable() : field.isReadable()) {
                         String fieldName = field.getName();
-                        IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
-                        if (openField == null) {
-                            continue;
-                        }
                         String t = OpenLFuzzyUtils.toTokenString(fieldName);
                         LinkedList<IOpenField> fields = new LinkedList<>();
                         fields.add(field);
