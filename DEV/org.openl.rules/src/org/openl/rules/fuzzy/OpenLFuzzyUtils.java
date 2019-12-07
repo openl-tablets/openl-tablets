@@ -15,52 +15,43 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 public final class OpenLFuzzyUtils {
 
     private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85d;
     private static final int DEEP_LEVEL = 5;
 
-    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>>> openClassRecursivelyCacheForWritableFields = ThreadLocal
         .withInitial(HashMap::new);
 
-    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForGetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>>> openClassRecursivelyCacheForReadableFields = ThreadLocal
         .withInitial(HashMap::new);
 
-    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenField[]>>> openClassCacheForWritableFields = ThreadLocal
         .withInitial(HashMap::new);
 
     private OpenLFuzzyUtils() {
     }
 
     public static void clearCaches() {
-        openlClassCacheForSetterMethods.remove();
-        openlClassRecursivelyCacheForGetterMethods.remove();
-        openlClassRecursivelyCacheForSetterMethods.remove();
+        openClassCacheForWritableFields.remove();
+        openClassRecursivelyCacheForReadableFields.remove();
+        openClassRecursivelyCacheForWritableFields.remove();
     }
 
-    public static Map<Token, IOpenMethod[]> tokensMapToOpenClassSetterMethods(IOpenClass openClass) {
-        Map<IOpenClass, Map<Token, IOpenMethod[]>> cache = openlClassCacheForSetterMethods.get();
-        Map<Token, IOpenMethod[]> ret = cache.get(openClass);
+    public static Map<Token, IOpenField[]> tokensMapToOpenClassWritableFields(IOpenClass openClass) {
+        Map<IOpenClass, Map<Token, IOpenField[]>> cache = openClassCacheForWritableFields.get();
+        Map<Token, IOpenField[]> ret = cache.get(openClass);
         if (ret == null) {
             ret = new HashMap<>();
-            Map<Token, LinkedList<IOpenMethod>> map = new HashMap<>();
+            Map<Token, LinkedList<IOpenField>> map = new HashMap<>();
             if (!openClass.isSimple()) {
-                for (IOpenMethod method : openClass.getMethods()) {
-                    if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-                        .startsWith("set")) {
-                        String fieldName = method.getName().substring(3);
-                        IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
-                        if (openField == null) {
-                            continue;
-                        }
-
+                for (IOpenField field : openClass.getFields().values()) {
+                    if (!field.isStatic() && !field.isConst()) {
+                        String fieldName = field.getName();
                         String t = OpenLFuzzyUtils.toTokenString(fieldName);
-
-                        LinkedList<IOpenMethod> m = null;
-                        for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
+                        LinkedList<IOpenField> m = null;
+                        for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
                             Token token = entry.getKey();
                             if (token.getValue().equals(t)) {
                                 m = entry.getValue();
@@ -70,64 +61,64 @@ public final class OpenLFuzzyUtils {
 
                         if (m == null) {
                             m = new LinkedList<>();
-                            m.add(method);
+                            m.add(field);
                             map.put(new Token(t, 0), m);
                         } else {
-                            m.add(method);
+                            m.add(field);
                         }
                     }
                 }
             }
-            for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
-                ret.put(entry.getKey(), entry.getValue().toArray(new IOpenMethod[] {}));
+            for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
+                ret.put(entry.getKey(), entry.getValue().toArray(new IOpenField[] {}));
             }
             cache.put(openClass, ret);
         }
         return ret;
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null, 0);
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass) {
+        return tokensMapToOpenClassWritableFieldsRecursively(openClass, null, 0);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass,
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, true);
+        return tokensMapToOpenClassFieldsRecursively(openClass, tokenPrefix, startLevel, true);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null, 0);
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass) {
+        return tokensMapToOpenClassReadableFieldsRecursively(openClass, null, 0);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass,
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, false);
+        return tokensMapToOpenClassFieldsRecursively(openClass, tokenPrefix, startLevel, false);
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
+    private static Map<Token, IOpenField[][]> tokensMapToOpenClassFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel,
-            boolean setterMethods) {
-        Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache;
-        if (setterMethods) {
-            cache = openlClassRecursivelyCacheForSetterMethods.get();
+            boolean writable) {
+        Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>> cache;
+        if (writable) {
+            cache = openClassRecursivelyCacheForWritableFields.get();
         } else {
-            cache = openlClassRecursivelyCacheForGetterMethods.get();
+            cache = openClassRecursivelyCacheForReadableFields.get();
         }
-        Map<String, Map<Token, IOpenMethod[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
+        Map<String, Map<Token, IOpenField[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
         final String tokenizedPrefix = toTokenString(tokenPrefix);
-        Map<Token, IOpenMethod[][]> ret = cache1.get(tokenizedPrefix);
+        Map<Token, IOpenField[][]> ret = cache1.get(tokenizedPrefix);
         if (ret == null) {
-            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map;
+            Map<Token, LinkedList<LinkedList<IOpenField>>> map;
             if (StringUtils.isBlank(tokenPrefix)) {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
+                map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
             } else {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
-                Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
-                for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
+                map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
+                Map<Token, LinkedList<LinkedList<IOpenField>>> updatedMap = new HashMap<>(map);
+                for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                     Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
                         entry.getKey().getDistance());
                     updatedMap.put(updatedToken, entry.getValue());
@@ -135,17 +126,17 @@ public final class OpenLFuzzyUtils {
                 map = updatedMap;
             }
 
-            Map<Token, LinkedList<IOpenMethod>[]> tmp = new HashMap<>();
-            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
+            Map<Token, LinkedList<IOpenField>[]> tmp = new HashMap<>();
+            for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                 tmp.put(entry.getKey(), entry.getValue().toArray(new LinkedList[] {}));
             }
 
             ret = new HashMap<>();
-            for (Entry<Token, LinkedList<IOpenMethod>[]> entry : tmp.entrySet()) {
-                IOpenMethod[][] m = new IOpenMethod[entry.getValue().length][];
+            for (Entry<Token, LinkedList<IOpenField>[]> entry : tmp.entrySet()) {
+                IOpenField[][] m = new IOpenField[entry.getValue().length][];
                 int i = 0;
-                for (LinkedList<IOpenMethod> x : entry.getValue()) {
-                    m[i] = x.toArray(new IOpenMethod[] {});
+                for (LinkedList<IOpenField> x : entry.getValue()) {
+                    m[i] = x.toArray(new IOpenField[] {});
                     i++;
                 }
                 ret.put(entry.getKey(), m);
@@ -155,91 +146,72 @@ public final class OpenLFuzzyUtils {
         return ret;
     }
 
-    public static boolean isEqualsMethodChains(IOpenMethod[] methodChain1, IOpenMethod[] methodChain2) {
-        if (methodChain1 == methodChain2) {
+    public static boolean isEqualsFieldsChains(IOpenField[] fieldsChain1, IOpenField[] fieldsChain2) {
+        if (fieldsChain1 == fieldsChain2) {
             return true;
         }
-        return Arrays.deepEquals(methodChain1, methodChain2);
+        return Arrays.deepEquals(fieldsChain1, fieldsChain2);
     }
 
-    public static boolean isSetterMethod(IOpenMethod method) {
-        return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-            .startsWith("set") && JavaOpenClass.isVoid(method.getType());
-    }
-
-    public static boolean isGetterMethod(IOpenMethod method) {
-        return !method.isStatic() && method.getSignature().getNumberOfParameters() == 0 && method.getName()
-            .startsWith("get");
-    }
-
-    private static Map<Token, LinkedList<LinkedList<IOpenMethod>>> buildTokensMapToOpenClassMethodsRecursively(
+    private static Map<Token, LinkedList<LinkedList<IOpenField>>> buildTokensMapToOpenClassFieldsRecursively(
             IOpenClass openClass,
             int deepLevel,
-            boolean setterMethods) {
+            boolean writable) {
         if (deepLevel >= DEEP_LEVEL) {
             return Collections.emptyMap();
         }
-        Map<Token, LinkedList<LinkedList<IOpenMethod>>> ret = new HashMap<>();
+        Map<Token, LinkedList<LinkedList<IOpenField>>> ret = new HashMap<>();
         if (!openClass.isSimple()) {
-            for (IOpenMethod method : openClass.getMethods()) {
-                boolean g;
-                if (setterMethods) {
-                    g = isSetterMethod(method);
-                } else {
-                    g = isGetterMethod(method);
-                }
-                if (g) {
-                    String fieldName = method.getName().substring(3);
-                    IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
-                    if (openField == null) {
-                        continue;
-                    }
-                    String t = OpenLFuzzyUtils.toTokenString(fieldName);
-                    LinkedList<IOpenMethod> methods = new LinkedList<>();
-                    methods.add(method);
-                    LinkedList<LinkedList<IOpenMethod>> x = null;
-                    for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : ret.entrySet()) {
-                        Token token = entry.getKey();
-                        if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
-                            x = entry.getValue();
-                            break;
+            for (IOpenField field : openClass.getFields().values()) {
+                if (!field.isStatic() && !field.isConst()) {
+                    if (writable ? field.isWritable() : field.isReadable()) {
+                        String fieldName = field.getName();
+                        IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
+                        if (openField == null) {
+                            continue;
                         }
-                    }
-                    if (x == null) {
-                        x = new LinkedList<>();
-                        x.add(methods);
-                        ret.put(new Token(t, deepLevel), x);
-                    } else {
-                        x.add(methods);
-                    }
+                        String t = OpenLFuzzyUtils.toTokenString(fieldName);
+                        LinkedList<IOpenField> fields = new LinkedList<>();
+                        fields.add(field);
+                        LinkedList<LinkedList<IOpenField>> x = null;
+                        for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
+                            Token token = entry.getKey();
+                            if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
+                                x = entry.getValue();
+                                break;
+                            }
+                        }
+                        if (x == null) {
+                            x = new LinkedList<>();
+                            x.add(fields);
+                            ret.put(new Token(t, deepLevel), x);
+                        } else {
+                            x.add(fields);
+                        }
 
-                    IOpenClass type;
-                    if (setterMethods) {
-                        type = method.getSignature().getParameterType(0);
-                    } else {
-                        type = method.getType();
-                    }
-
-                    if (!type.isSimple() && !type.isArray()) {
-                        Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassMethodsRecursively(
-                            type,
-                            deepLevel + 1,
-                            setterMethods);
-                        for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
-                            if (!entry.getValue().isEmpty()) {
-                                Token k = new Token(t + " " + entry.getKey().getValue(),
-                                    entry.getKey().getDistance() + 1);
-                                LinkedList<LinkedList<IOpenMethod>> v = ret.computeIfAbsent(k, e -> new LinkedList<>());
-                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
-                                    y1.addFirst(method);
-                                    v.add(y1);
-                                }
-                                v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
-                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
-                                    y1.addFirst(method);
-                                    v.add(y1);
+                        IOpenClass type = field.getType();
+                        if (!type.isSimple() && !type.isArray()) {
+                            Map<Token, LinkedList<LinkedList<IOpenField>>> map = buildTokensMapToOpenClassFieldsRecursively(
+                                type,
+                                deepLevel + 1,
+                                writable);
+                            for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
+                                if (!entry.getValue().isEmpty()) {
+                                    Token k = new Token(t + " " + entry.getKey().getValue(),
+                                        entry.getKey().getDistance() + 1);
+                                    LinkedList<LinkedList<IOpenField>> v = ret.computeIfAbsent(k,
+                                        e -> new LinkedList<>());
+                                    for (LinkedList<IOpenField> y : entry.getValue()) {
+                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        y1.addFirst(field);
+                                        v.add(y1);
+                                    }
+                                    v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
+                                    for (LinkedList<IOpenField> y : entry.getValue()) {
+                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        y1.addFirst(field);
+                                        v.add(y1);
+                                    }
                                 }
                             }
                         }
