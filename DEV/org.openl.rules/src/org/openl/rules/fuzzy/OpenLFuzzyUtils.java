@@ -49,7 +49,7 @@ public final class OpenLFuzzyUtils {
                 for (IOpenField field : openClass.getFields().values()) {
                     if (!field.isStatic() && !field.isConst()) {
                         String fieldName = field.getName();
-                        String t = OpenLFuzzyUtils.toTokenString(fieldName);
+                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
                         LinkedList<IOpenField> m = null;
                         for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
                             Token token = entry.getKey();
@@ -166,7 +166,7 @@ public final class OpenLFuzzyUtils {
                 if (!field.isStatic() && !field.isConst()) {
                     if (writable ? field.isWritable() : field.isReadable()) {
                         String fieldName = field.getName();
-                        String t = OpenLFuzzyUtils.toTokenString(fieldName);
+                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
                         LinkedList<IOpenField> fields = new LinkedList<>();
                         fields.add(field);
                         LinkedList<LinkedList<IOpenField>> x = null;
@@ -216,6 +216,13 @@ public final class OpenLFuzzyUtils {
             }
         }
         return ret;
+    }
+
+    public static String phoneticFix(String value) {
+        if (value.length() > 1 && Character.isLowerCase(value.charAt(0)) && Character.isUpperCase(value.charAt(1))) {
+            value = Character.toUpperCase(value.charAt(0)) + value.substring(1);
+        }
+        return value;
     }
 
     private static String[] concatTokens(String[] tokens, String pattern) {
@@ -365,7 +372,7 @@ public final class OpenLFuzzyUtils {
         return ret;
     }
 
-    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
+    public static List<FuzzyResult> fuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");

@@ -695,7 +695,7 @@ public final class DecisionTableHelper {
             FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
+                    .fuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
                 if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
                     .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
                     fuzzyResult = fuzzyResults.get(0);
@@ -1604,7 +1604,8 @@ public final class DecisionTableHelper {
             }
         }
         for (int i = 0; i < numberOfParameters; i++) {
-            String tokenString = OpenLFuzzyUtils.toTokenString(decisionTable.getSignature().getParameterName(i));
+            String tokenString = OpenLFuzzyUtils
+                .toTokenString(OpenLFuzzyUtils.phoneticFix(decisionTable.getSignature().getParameterName(i)));
             Token token = new Token(tokenString, 0);
             tokenToParameterIndex.put(token, i);
             tokens.add(token);
@@ -1655,7 +1656,7 @@ public final class DecisionTableHelper {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
+                    .fuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     IOpenField[][] fieldsChains = fuzzyContext.getFieldsChainsForReturnToken(fuzzyResult.getToken());
                     Objects.requireNonNull(fieldsChains);
@@ -1675,7 +1676,7 @@ public final class DecisionTableHelper {
             }
             if (!onlyReturns) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
+                    .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
                     IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
@@ -2336,7 +2337,7 @@ public final class DecisionTableHelper {
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
                     if (fuzzyContext.isFuzzySupportsForReturnType()) {
                         List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
-                            .openlFuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
+                            .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
                         if (!returnTypeFuzzyExtractResult.isEmpty()) {
                             dtHeaders.add(new FuzzyDTHeader(column,
                                 null,
