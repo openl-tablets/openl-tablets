@@ -2072,12 +2072,12 @@ public final class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> fitFuzzyDtHeaders(List<List<DTHeader>> fits) {
-        long fuzzyConditionsCounts = fits.stream()
+        long fuzzyHeadersCounts = fits.stream()
             .mapToLong(e -> e.stream().filter(x -> x instanceof FuzzyDTHeader).map(x -> (FuzzyDTHeader) x).count())
             .max()
             .orElse(0);
-        for (int i = 0; i < fuzzyConditionsCounts; i++) {
-            final int currentFuzzyConditionsCounts = i;
+        for (int i = 0; i < fuzzyHeadersCounts; i++) {
+            final int currentFuzzyHeadersCounts = i;
             fits = filterHeadersByMax(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2087,7 +2087,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
+                    .count() != currentFuzzyHeadersCounts);
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2097,8 +2097,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
-
+                    .count() != currentFuzzyHeadersCounts);
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2108,7 +2107,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
+                    .count() != currentFuzzyHeadersCounts);
         }
         return fits;
     }
@@ -2237,7 +2236,15 @@ public final class DecisionTableHelper {
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count(), e -> true);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count(), e -> true);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count(), e -> true);
-
+            if (fits.stream().anyMatch(e -> e instanceof FuzzyDTHeader)) {
+                fits = filterHeadersByMax(fits,
+                    e -> e.stream()
+                        .filter(e1 -> e1 instanceof FuzzyDTHeader)
+                        .mapToLong(
+                            e1 -> (long) ((FuzzyDTHeader) e1).getFuzzyResult().getAcceptableSimilarity() * 1000000L)
+                        .sum() / e.stream().filter(e1 -> e1 instanceof FuzzyDTHeader).count(),
+                    e -> true);
+            }
             return fits.get(0);
         }
 

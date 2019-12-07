@@ -1,6 +1,13 @@
 package org.openl.rules.fuzzy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -13,7 +20,7 @@ import org.openl.types.java.JavaOpenClass;
 
 public final class OpenLFuzzyUtils {
 
-    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
+    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85d;
     private static final int DEEP_LEVEL = 5;
 
     private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
@@ -104,7 +111,7 @@ public final class OpenLFuzzyUtils {
             String tokenPrefix,
             int startLevel,
             boolean setterMethods) {
-        Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache = null;
+        Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache;
         if (setterMethods) {
             cache = openlClassRecursivelyCacheForSetterMethods.get();
         } else {
@@ -114,7 +121,7 @@ public final class OpenLFuzzyUtils {
         final String tokenizedPrefix = toTokenString(tokenPrefix);
         Map<Token, IOpenMethod[][]> ret = cache1.get(tokenizedPrefix);
         if (ret == null) {
-            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
+            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map;
             if (StringUtils.isBlank(tokenPrefix)) {
                 map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
             } else {
@@ -206,7 +213,7 @@ public final class OpenLFuzzyUtils {
                         x.add(methods);
                     }
 
-                    IOpenClass type = null;
+                    IOpenClass type;
                     if (setterMethods) {
                         type = method.getSignature().getParameterType(0);
                     } else {
@@ -290,7 +297,7 @@ public final class OpenLFuzzyUtils {
         if (source == null) {
             return StringUtils.EMPTY;
         }
-        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
+        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_]|\\.|,|;)");
 
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
@@ -309,6 +316,87 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
+    // Matching (graph theory) in bigraph
+    // Ford–Fulkerson algorithm
+    public static List<Pair<Integer, Integer>> findMaximumMatching(List<Pair<Integer, Integer>> edges) {
+        int n1 = 0;
+        int n2 = 0;
+        // Find vertex numbers
+        for (Pair<Integer, Integer> e : edges) {
+            if (e.getLeft() > n1) {
+                n1 = e.getLeft();
+            }
+            if (e.getRight() > n2) {
+                n2 = e.getRight();
+            }
+        }
+        n1++;
+        n2++;
+        int n = n1 + n2 + 2;
+        int s = n1 + n2;
+        int t = n1 + n2 + 1;
+        int[][] edgesMatrix = new int[n][n];
+        // Build graph
+        for (int i = 0; i < n1; i++) {
+            edgesMatrix[s][i] = 1;
+        }
+        for (int i = n1; i < n1 + n2; i++) {
+            edgesMatrix[i][t] = 1;
+        }
+        for (Pair<Integer, Integer> e : edges) {
+            edgesMatrix[e.getLeft()][n1 + e.getRight()] = 1;
+        }
+        while (true) {
+            int[] m = new int[n];
+            Arrays.fill(m, -1);
+            m[s] = 0;
+            boolean[] f = new boolean[n];
+            Arrays.fill(f, true);
+            int[] d = new int[n];
+            Arrays.fill(d, Integer.MAX_VALUE);
+            d[s] = 0;
+            // Deijstra to find a path
+            for (int i = 0; i < n; i++) {
+                int k = -1;
+                int min = Integer.MAX_VALUE;
+                for (int j = 0; j < n; j++) {
+                    if (f[j] && d[j] < min) {
+                        min = d[j];
+                        k = j;
+                    }
+                }
+                if (k < 0) {
+                    break;
+                }
+                f[k] = false;
+                for (int j = 0; j < n; j++) {
+                    if (edgesMatrix[k][j] > 0 && (d[k] != Integer.MAX_VALUE && d[k] + edgesMatrix[k][j] < d[j])) {
+                        d[j] = d[k] + edgesMatrix[k][j];
+                        m[j] = k;
+                    }
+                }
+            }
+            if (d[t] == Integer.MAX_VALUE || d[t] == 0) {
+                break;
+            }
+            int j = t;
+            while (j != s) {
+                edgesMatrix[m[j]][j] = edgesMatrix[m[j]][j] - 1;
+                edgesMatrix[j][m[j]] = edgesMatrix[j][m[j]] + 1;
+                j = m[j];
+            }
+        }
+        List<Pair<Integer, Integer>> ret = new ArrayList<>();
+        for (int i = 0; i < n1; i++) {
+            for (int j = n1; j < n1 + n2; j++) {
+                if (edgesMatrix[j][i] > 0) {
+                    ret.add(Pair.of(i, j - n1));
+                }
+            }
+        }
+        return ret;
+    }
+
     public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
@@ -319,54 +407,39 @@ public final class OpenLFuzzyUtils {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
-        List<Pair<String, String>> similarity = new ArrayList<>();
-
-        String[] sortedSourceTokens = new String[sourceTokens.length];
-        System.arraycopy(sourceTokens, 0, sortedSourceTokens, 0, sourceTokens.length);
-        Arrays.sort(sortedSourceTokens);
-        int[] f = new int[tokensList.length];
-        int foundTokensMax = 0;
-        for (int i = 0; i < tokensList.length; i++) {
-            String[] sortedTokens = new String[tokensList[i].length];
-            System.arraycopy(tokensList[i], 0, sortedTokens, 0, tokensList[i].length);
-            Arrays.sort(sortedTokens);
-            int l = 0;
-            int r = 0;
-            int c = 0;
-            List<String> source1 = new ArrayList<>();
-            List<String> target1 = new ArrayList<>();
-            while (l < sortedSourceTokens.length && r < sortedTokens.length) {
-                double d = StringUtils.getJaroWinklerDistance(sortedSourceTokens[l], sortedTokens[r]);
-                if (d > ACCEPTABLE_SIMILARITY_VALUE) {
-                    source1.add(sortedSourceTokens[l]);
-                    target1.add(sortedTokens[r]);
-                    l++;
-                    r++;
-                    c++;
+        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(1.0d, sourceTokens, tokensList).invoke();
+        BuildBySimilarity buildBySimilarity = new BuildBySimilarity(ACCEPTABLE_SIMILARITY_VALUE,
+            sourceTokens,
+            tokensList).invoke();
+        int maxMatchedTokens = buildBySimilarity.getMaxMatchedTokens();
+        if (buildBySimilarity1.getMaxMatchedTokens() == buildBySimilarity.getMaxMatchedTokens()) {
+            buildBySimilarity = buildBySimilarity1;
+        } else {
+            double a = ACCEPTABLE_SIMILARITY_VALUE;
+            double b = 1.0d;
+            while (b - a > 1e-4) {
+                double p = (a + b) / 2;
+                BuildBySimilarity pSimilarity = new BuildBySimilarity(p, sourceTokens, tokensList).invoke();
+                if (pSimilarity.maxMatchedTokens == maxMatchedTokens) {
+                    a = p;
+                    buildBySimilarity = pSimilarity;
                 } else {
-                    if (sortedSourceTokens[l].compareTo(sortedTokens[r]) < 0) {
-                        l++;
-                    } else {
-                        r++;
-                    }
+                    b = p;
                 }
             }
-            if (foundTokensMax < c) {
-                foundTokensMax = c;
-            }
-            f[i] = c;
-
-            similarity.add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
         }
 
-        if (foundTokensMax == 0) {
+        List<Pair<String, String>> similarity = buildBySimilarity.getSimilarity();
+        int[] f = buildBySimilarity.getF();
+
+        if (maxMatchedTokens == 0) {
             return Collections.emptyList();
         }
 
         int missedTokensMin = Integer.MAX_VALUE;
         int minDistance = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == foundTokensMax) {
+            if (f[i] == maxMatchedTokens) {
                 if (missedTokensMin > tokensList[i].length - f[i]) {
                     missedTokensMin = tokensList[i].length - f[i];
                 }
@@ -380,7 +453,7 @@ public final class OpenLFuzzyUtils {
         int best = 0;
         int bestL = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == foundTokensMax && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
+            if (f[i] == maxMatchedTokens && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
                 .getDistance() == minDistance)) {
                 Pair<String, String> pair = similarity.get(i);
                 if (!ignoreDistances) {
@@ -409,20 +482,24 @@ public final class OpenLFuzzyUtils {
                 }
             }
         }
-        int foundTokensMax1 = foundTokensMax;
         int missedTokensMin1 = missedTokensMin;
-        return ret.stream().map(e -> new FuzzyResult(e, foundTokensMax1, missedTokensMin1)).collect(Collectors.toList());
+        double acceptableSimilarity = buildBySimilarity.getAcceptableSimilarity();
+        return ret.stream()
+            .map(e -> new FuzzyResult(e, maxMatchedTokens, missedTokensMin1, acceptableSimilarity))
+            .collect(Collectors.toList());
     }
 
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
         Token token;
         int foundTokensCount;
         int missedTokensCount;
+        double acceptableSimilarity;
 
-        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount) {
+        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount, double acceptableSimilarity) {
             this.token = token;
             this.foundTokensCount = foundTokensCount;
             this.missedTokensCount = missedTokensCount;
+            this.acceptableSimilarity = acceptableSimilarity;
         }
 
         @Override
@@ -439,7 +516,13 @@ public final class OpenLFuzzyUtils {
             if (this.missedTokensCount < o.missedTokensCount) {
                 return -1;
             }
-            return Integer.compare(this.token.getDistance(), o.token.getDistance());
+            if (this.token.getDistance() < o.token.getDistance()) {
+                return -1;
+            }
+            if (this.token.getDistance() > o.token.getDistance()) {
+                return 1;
+            }
+            return Double.compare(o.acceptableSimilarity, this.acceptableSimilarity);
         }
 
         public Token getToken() {
@@ -452,6 +535,77 @@ public final class OpenLFuzzyUtils {
 
         public int getMissedTokensCount() {
             return missedTokensCount;
+        }
+
+        public double getAcceptableSimilarity() {
+            return acceptableSimilarity;
+        }
+    }
+
+    private static class BuildBySimilarity {
+        private String[] sourceTokens;
+        private String[][] tokensList;
+        private List<Pair<String, String>> similarity;
+        private int maxMatchedTokens;
+        private int[] f;
+        private double acceptableSimilarity;
+
+        public BuildBySimilarity(double acceptableSimilarity, String[] sourceTokens, String[]... tokensList) {
+            this.sourceTokens = sourceTokens;
+            this.tokensList = tokensList;
+            this.acceptableSimilarity = acceptableSimilarity;
+        }
+
+        public List<Pair<String, String>> getSimilarity() {
+            return similarity;
+        }
+
+        public int getMaxMatchedTokens() {
+            return maxMatchedTokens;
+        }
+
+        public int[] getF() {
+            return f;
+        }
+
+        public double getAcceptableSimilarity() {
+            return acceptableSimilarity;
+        }
+
+        public BuildBySimilarity invoke() {
+            similarity = new ArrayList<>();
+            maxMatchedTokens = 0;
+            f = new int[tokensList.length];
+            for (int i = 0; i < tokensList.length; i++) {
+                int c = 0;
+                List<String> source1 = new ArrayList<>();
+                List<String> target1 = new ArrayList<>();
+                List<Pair<Integer, Integer>> edges = new ArrayList<>();
+                for (int k = 0; k < sourceTokens.length; k++) {
+                    for (int q = 0; q < tokensList[i].length; q++) {
+                        double d = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                        if (d >= acceptableSimilarity) {
+                            edges.add(Pair.of(k, q));
+                        }
+                    }
+                }
+                List<Pair<Integer, Integer>> maximumMatching = findMaximumMatching(edges);
+                for (Pair<Integer, Integer> pair : maximumMatching) {
+                    source1.add(sourceTokens[pair.getLeft()]);
+                    target1.add(tokensList[i][pair.getRight()]);
+                    c++;
+                }
+
+                if (maxMatchedTokens < c) {
+                    maxMatchedTokens = c;
+                }
+                f[i] = c;
+                source1.sort(String::compareTo);
+                target1.sort(String::compareTo);
+                similarity
+                    .add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
+            }
+            return this;
         }
     }
 }
