@@ -68,7 +68,6 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.AOpenClass;
@@ -339,8 +338,8 @@ public final class DecisionTableHelper {
         if (numberOfHCondition == 0) {
             IOpenClass returnType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
             if (isCompoundReturnType(returnType)) {
-                Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = OpenLFuzzyUtils
-                    .tokensMapToOpenClassSetterMethodsRecursively(returnType, returnType.getName(), 1);
+                Map<Token, IOpenField[][]> returnTypeFuzzyTokens = OpenLFuzzyUtils
+                    .tokensMapToOpenClassWritableFieldsRecursively(returnType, returnType.getName(), 1);
                 Token[] returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
                 return new FuzzyContext(parameterTokens, returnTokens, returnTypeFuzzyTokens, returnType);
             }
@@ -397,8 +396,8 @@ public final class DecisionTableHelper {
             return false;
         } else {
             int count = 0;
-            for (IOpenMethod method : compoundType.getMethods()) {
-                if (OpenLFuzzyUtils.isSetterMethod(method)) {
+            for (IOpenField field : compoundType.getFields().values()) {
+                if (!field.isConst() && !field.isStatic() && field.isWritable()) {
                     count++;
                 }
             }
@@ -410,10 +409,9 @@ public final class DecisionTableHelper {
         if (IGNORED_CLASSES_FOR_COMPOUND_TYPE.contains(type.getInstanceClass())) {
             return false;
         }
-
         int count = 0;
-        for (IOpenMethod method : type.getMethods()) {
-            if (OpenLFuzzyUtils.isGetterMethod(method)) {
+        for (IOpenField field : type.getFields().values()) {
+            if (!field.isConst() && !field.isStatic() && field.isReadable()) {
                 count++;
             }
         }
@@ -463,21 +461,17 @@ public final class DecisionTableHelper {
         return compoundType;
     }
 
-    private static Pair<String, IOpenClass> buildStatementByMethodsChain(IOpenClass type, IOpenMethod[] methodsChain) {
-        StringBuilder fieldChainSb = new StringBuilder();
-        for (int i = 0; i < methodsChain.length; i++) {
-            IOpenField openField = type.getField(methodsChain[i].getName().substring(3), false);
-            fieldChainSb.append(openField.getName());
-            if (i < methodsChain.length - 1) {
-                fieldChainSb.append(".");
+    private static Pair<String, IOpenClass> buildStatementByFieldsChain(IOpenClass type, IOpenField[] fieldsChain) {
+        StringBuilder fieldsChainSb = new StringBuilder();
+        for (int i = 0; i < fieldsChain.length; i++) {
+            IOpenField openField = type.getField(fieldsChain[i].getName(), false);
+            fieldsChainSb.append(openField.getName());
+            if (i < fieldsChain.length - 1) {
+                fieldsChainSb.append(".");
             }
-            if (methodsChain[i].getSignature().getNumberOfParameters() == 0) {
-                type = methodsChain[i].getType();
-            } else {
-                type = methodsChain[i].getSignature().getParameterType(0);
-            }
+            type = fieldsChain[i].getType();
         }
-        return Pair.of(fieldChainSb.toString(), type);
+        return Pair.of(fieldsChainSb.toString(), type);
     }
 
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
@@ -599,21 +593,21 @@ public final class DecisionTableHelper {
     private static final String FUZZY_RET_VARIABLE_NAME = "$R$E$T$U$R$N";
 
     private static IOpenClass writeReturnStatement(IOpenClass type,
-            IOpenMethod[] methodChain,
+            IOpenField[] fieldsChain,
             Set<String> generatedNames,
-            Map<String, Map<IOpenMethod, String>> variables,
+            Map<String, Map<IOpenField, String>> variables,
             String insertStatement,
             StringBuilder sb) {
-        if (methodChain == null) {
+        if (fieldsChain == null) {
             return type;
         }
         String currentVariable = FUZZY_RET_VARIABLE_NAME;
-        for (int j = 0; j < methodChain.length; j++) {
+        for (int j = 0; j < fieldsChain.length; j++) {
             String var;
-            type = methodChain[j].getSignature().getParameterType(0);
-            if (j < methodChain.length - 1) {
-                Map<IOpenMethod, String> vm = variables.get(currentVariable);
-                if (vm == null || vm.get(methodChain[j]) == null) {
+            type = fieldsChain[j].getType();
+            if (j < fieldsChain.length - 1) {
+                Map<IOpenField, String> vm = variables.get(currentVariable);
+                if (vm == null || vm.get(fieldsChain[j]) == null) {
                     var = RandomStringUtils.random(8, true, false);
                     while (generatedNames.contains(var)) { // Prevent
                         // variable
@@ -628,23 +622,23 @@ public final class DecisionTableHelper {
                         .append(type.getName())
                         .append("();");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
-                    vm.put(methodChain[j], var);
+                    vm.put(fieldsChain[j], var);
 
                     sb.append(currentVariable).append(".");
-                    sb.append(methodChain[j].getName());
-                    sb.append("(");
+                    sb.append(fieldsChain[j].getName());
+                    sb.append(" = ");
                     sb.append(var);
-                    sb.append(");");
+                    sb.append(";");
                 } else {
-                    var = vm.get(methodChain[j]);
+                    var = vm.get(fieldsChain[j]);
                 }
                 currentVariable = var;
             } else {
                 sb.append(currentVariable).append(".");
-                sb.append(methodChain[j].getName());
-                sb.append("(");
+                sb.append(fieldsChain[j].getName());
+                sb.append(" = ");
                 sb.append(insertStatement);
-                sb.append(");");
+                sb.append(";");
             }
         }
         return type;
@@ -664,7 +658,7 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             Set<String> generatedNames,
-            Map<String, Map<IOpenMethod, String>> variables,
+            Map<String, Map<IOpenField, String>> variables,
             StringBuilder sb,
             IBindingContext bindingContext) {
         List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
@@ -672,13 +666,13 @@ public final class DecisionTableHelper {
             .map(e -> (FuzzyDTHeader) e)
             .filter(FuzzyDTHeader::isReturn)
             .collect(toList());
-        Map<IOpenMethod[], List<Token>> m = new HashMap<>();
+        Map<IOpenField[], List<Token>> m = new HashMap<>();
         for (Token token : fuzzyContext.getFuzzyReturnTokens()) {
-            IOpenMethod[][] returnTypeMethodChains = fuzzyContext.getMethodChainsForReturnToken(token);
-            for (IOpenMethod[] returnTypeMethodChain : returnTypeMethodChains) {
+            IOpenField[][] returnTypeFieldsChains = fuzzyContext.getFieldsChainsForReturnToken(token);
+            for (IOpenField[] returnTypeFieldsChain : returnTypeFieldsChains) {
                 boolean f = false;
-                for (Entry<IOpenMethod[], List<Token>> entry : m.entrySet()) {
-                    if (OpenLFuzzyUtils.isEqualsMethodChains(entry.getKey(), returnTypeMethodChain)) {
+                for (Entry<IOpenField[], List<Token>> entry : m.entrySet()) {
+                    if (OpenLFuzzyUtils.isEqualsFieldsChains(entry.getKey(), returnTypeFieldsChain)) {
                         entry.getValue().add(token);
                         f = true;
                         break;
@@ -687,21 +681,21 @@ public final class DecisionTableHelper {
                 if (!f) {
                     List<Token> tokens = new ArrayList<>();
                     tokens.add(token);
-                    m.put(returnTypeMethodChain, tokens);
+                    m.put(returnTypeFieldsChain, tokens);
                 }
             }
         }
-        for (Entry<IOpenMethod[], List<Token>> entry : m.entrySet()) {
-            final IOpenMethod[] methodChain = entry.getKey();
+        for (Entry<IOpenField[], List<Token>> entry : m.entrySet()) {
+            final IOpenField[] fieldsChain = entry.getKey();
             final boolean foundInReturns = fuzzyReturns.stream()
-                .anyMatch(e -> OpenLFuzzyUtils.isEqualsMethodChains(e.getMethodsChain(), methodChain));
+                .anyMatch(e -> OpenLFuzzyUtils.isEqualsFieldsChains(e.getFieldsChain(), fieldsChain));
             if (foundInReturns) {
                 continue;
             }
             FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
+                    .fuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
                 if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
                     .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
                     fuzzyResult = fuzzyResults.get(0);
@@ -711,10 +705,10 @@ public final class DecisionTableHelper {
                 Token paramToken = fuzzyResult.getToken();
                 final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(paramToken);
                 IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
-                final IOpenMethod[] paramMethodChain = fuzzyContext.getParameterTokens().getMethodsChain(paramToken);
+                final IOpenField[] paramFieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(paramToken);
                 final String statement;
-                if (paramMethodChain != null) {
-                    Pair<String, IOpenClass> v = buildStatementByMethodsChain(type, paramMethodChain);
+                if (paramFieldsChain != null) {
+                    Pair<String, IOpenClass> v = buildStatementByFieldsChain(type, paramFieldsChain);
                     statement = decisionTable.getSignature().getParameterName(paramIndex) + "." + v.getKey();
                     type = v.getValue();
                 } else {
@@ -722,17 +716,17 @@ public final class DecisionTableHelper {
                 }
 
                 if (!isCompoundInputType(type)) {
-                    Pair<String, IOpenClass> p = buildStatementByMethodsChain(fuzzyContext.getFuzzyReturnType(),
-                        methodChain);
+                    Pair<String, IOpenClass> p = buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
+                        fieldsChain);
                     IOpenCast cast = bindingContext.getCast(type, p.getValue());
                     if (cast != null && cast.isImplicit()) {
                         writeReturnStatement(fuzzyContext
-                            .getFuzzyReturnType(), methodChain, generatedNames, variables, statement, sb);
+                            .getFuzzyReturnType(), fieldsChain, generatedNames, variables, statement, sb);
                         if (!bindingContext.isExecutionMode()) {
                             final String statementInReturn = fuzzyContext.getFuzzyReturnType()
-                                .getDisplayName(INamedThing.SHORT) + "." + buildStatementByMethodsChain(
+                                .getDisplayName(INamedThing.SHORT) + "." + buildStatementByFieldsChain(
                                     fuzzyContext.getFuzzyReturnType(),
-                                    methodChain).getKey();
+                                    fieldsChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
                         }
                     }
@@ -756,7 +750,7 @@ public final class DecisionTableHelper {
         List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
             .filter(e -> e instanceof FuzzyDTHeader && e.isReturn())
             .map(e -> (FuzzyDTHeader) e)
-            .filter(e -> e.getMethodsChain() != null)
+            .filter(e -> e.getFieldsChain() != null)
             .collect(toList());
 
         if (fuzzyReturns.isEmpty()) {
@@ -776,7 +770,7 @@ public final class DecisionTableHelper {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
-        Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
+        Map<String, Map<IOpenField, String>> variables = new HashMap<>();
 
         writeInputParametersToReturn(decisionTable,
             fuzzyContext,
@@ -789,7 +783,7 @@ public final class DecisionTableHelper {
         int i = 0;
         for (FuzzyDTHeader fuzzyDTHeader : fuzzyReturns) {
             IOpenClass type = writeReturnStatement(compoundReturnType,
-                fuzzyDTHeader.getMethodsChain(),
+                fuzzyDTHeader.getFieldsChain(),
                 generatedNames,
                 variables,
                 compoundColumnParamNames[i],
@@ -809,7 +803,7 @@ public final class DecisionTableHelper {
                     fuzzyDTHeader.getColumn(),
                     originalTable.getCell(0, 0).getHeight());
                 ICell cell = originalTable.getSource().getCell(fuzzyDTHeader.getColumn(), lastRowInHeader);
-                String statement = buildStatementByMethodsChain(compoundReturnType, fuzzyDTHeader.getMethodsChain())
+                String statement = buildStatementByFieldsChain(compoundReturnType, fuzzyDTHeader.getFieldsChain())
                     .getKey();
                 StringBuilder sb1 = new StringBuilder();
                 sb1.append("Return: ").append(header);
@@ -925,7 +919,7 @@ public final class DecisionTableHelper {
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         bindingContext);
                 } else if (dtHeader instanceof SimpleReturnDTHeader || dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader)
-                    .getMethodsChain() == null) {
+                    .getFieldsChain() == null) {
                     boolean isKey = false;
                     String header;
                     if (isCollect && tableSyntaxNode.getHeader()
@@ -1583,26 +1577,26 @@ public final class DecisionTableHelper {
     private static ParameterTokens buildParameterTokens(DecisionTable decisionTable) {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         Map<Token, Integer> tokenToParameterIndex = new HashMap<>();
-        Map<Token, IOpenMethod[]> tokenToMethodsChain = new HashMap<>();
+        Map<Token, IOpenField[]> tokenToFieldsChain = new HashMap<>();
         Set<Token> tokens = new HashSet<>();
         Set<Token> tokensToIgnore = new HashSet<>();
         for (int i = 0; i < numberOfParameters; i++) {
             IOpenClass parameterType = decisionTable.getSignature().getParameterType(i);
             if (isCompoundInputType(parameterType) && !parameterType.isArray()) {
-                Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzyUtils
-                    .tokensMapToOpenClassGetterMethodsRecursively(parameterType,
+                Map<Token, IOpenField[][]> openClassFuzzyTokens = OpenLFuzzyUtils
+                    .tokensMapToOpenClassReadableFieldsRecursively(parameterType,
                         decisionTable.getSignature().getParameterName(i),
                         1);
-                for (Map.Entry<Token, IOpenMethod[][]> entry : openClassFuzzyTokens.entrySet()) {
+                for (Map.Entry<Token, IOpenField[][]> entry : openClassFuzzyTokens.entrySet()) {
                     if (entry.getValue().length == 1 && !tokensToIgnore.contains(entry.getKey())) {
                         if (!tokens.contains(entry.getKey())) {
                             tokens.add(entry.getKey());
                             tokenToParameterIndex.put(entry.getKey(), i);
-                            tokenToMethodsChain.put(entry.getKey(), entry.getValue()[0]);
+                            tokenToFieldsChain.put(entry.getKey(), entry.getValue()[0]);
                         } else {
                             tokens.remove(entry.getKey());
                             tokenToParameterIndex.remove(entry.getKey());
-                            tokenToMethodsChain.remove(entry.getKey());
+                            tokenToFieldsChain.remove(entry.getKey());
                             tokensToIgnore.add(entry.getKey());
                         }
                     }
@@ -1610,13 +1604,14 @@ public final class DecisionTableHelper {
             }
         }
         for (int i = 0; i < numberOfParameters; i++) {
-            String tokenString = OpenLFuzzyUtils.toTokenString(decisionTable.getSignature().getParameterName(i));
+            String tokenString = OpenLFuzzyUtils
+                .toTokenString(OpenLFuzzyUtils.phoneticFix(decisionTable.getSignature().getParameterName(i)));
             Token token = new Token(tokenString, 0);
             tokenToParameterIndex.put(token, i);
             tokens.add(token);
         }
 
-        return new ParameterTokens(tokens.toArray(new Token[] {}), tokenToParameterIndex, tokenToMethodsChain);
+        return new ParameterTokens(tokens.toArray(new Token[] {}), tokenToParameterIndex, tokenToFieldsChain);
     }
 
     private static void matchWithFuzzySearchRec(DecisionTable decisionTable,
@@ -1661,16 +1656,16 @@ public final class DecisionTableHelper {
             String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(sb.toString());
             if (fuzzyContext.isFuzzySupportsForReturnType()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
+                    .fuzzyExtract(sb.toString(), fuzzyContext.getFuzzyReturnTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
-                    IOpenMethod[][] methodChains = fuzzyContext.getMethodChainsForReturnToken(fuzzyResult.getToken());
-                    Objects.requireNonNull(methodChains);
-                    for (IOpenMethod[] methodChain : methodChains) {
-                        Objects.requireNonNull(methodChain);
+                    IOpenField[][] fieldsChains = fuzzyContext.getFieldsChainsForReturnToken(fuzzyResult.getToken());
+                    Objects.requireNonNull(fieldsChains);
+                    for (IOpenField[] fieldsChain : fieldsChains) {
+                        Objects.requireNonNull(fieldsChain);
                         dtHeaders.add(new FuzzyDTHeader(-1,
                             null,
                             sb.toString(),
-                            methodChain,
+                            fieldsChain,
                             sourceTableColumn,
                             sourceTableColumn + w,
                             w0,
@@ -1681,17 +1676,16 @@ public final class DecisionTableHelper {
             }
             if (!onlyReturns) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                    .openlFuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
+                    .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
                     int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
-                    IOpenMethod[] methodsChain = fuzzyContext.getParameterTokens()
-                        .getMethodsChain(fuzzyResult.getToken());
+                    IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
                     StringBuilder conditionStatement = new StringBuilder(
                         decisionTable.getSignature().getParameterName(paramIndex));
-                    if (methodsChain != null) {
-                        Pair<String, IOpenClass> c = buildStatementByMethodsChain(
+                    if (fieldsChain != null) {
+                        Pair<String, IOpenClass> c = buildStatementByFieldsChain(
                             decisionTable.getSignature().getParameterType(paramIndex),
-                            methodsChain);
+                            fieldsChain);
                         String chainStatement = c.getLeft();
                         conditionStatement.append(".");
                         conditionStatement.append(chainStatement);
@@ -1700,7 +1694,7 @@ public final class DecisionTableHelper {
                     dtHeaders.add(new FuzzyDTHeader(paramIndex,
                         conditionStatement.toString(),
                         sb.toString(),
-                        methodsChain,
+                        fieldsChain,
                         sourceTableColumn,
                         sourceTableColumn + w,
                         w0,
@@ -1763,11 +1757,11 @@ public final class DecisionTableHelper {
             FuzzyDTHeader b1 = (FuzzyDTHeader) b;
             if (a1.isCondition() && b1
                 .isCondition() && a1.getMethodParameterIndex() == b1.getMethodParameterIndex() && Arrays
-                    .deepEquals(a1.getMethodsChain(), b1.getMethodsChain())) {
+                    .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
                 return false;
             }
 
-            if (a1.isReturn() && b1.isReturn() && methodsChainsIsCrossed(a1.getMethodsChain(), b1.getMethodsChain())) {
+            if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
                 return false;
             }
 
@@ -1979,7 +1973,7 @@ public final class DecisionTableHelper {
             .collect(toList());
     }
 
-    private static boolean methodsChainsIsCrossed(IOpenMethod[] m1, IOpenMethod[] m2) {
+    private static boolean fieldsChainsIsCrossed(IOpenField[] m1, IOpenField[] m2) {
         if (m1 == null && m2 == null) {
             return true;
         }
@@ -2072,12 +2066,12 @@ public final class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> fitFuzzyDtHeaders(List<List<DTHeader>> fits) {
-        long fuzzyConditionsCounts = fits.stream()
+        long fuzzyHeadersCounts = fits.stream()
             .mapToLong(e -> e.stream().filter(x -> x instanceof FuzzyDTHeader).map(x -> (FuzzyDTHeader) x).count())
             .max()
             .orElse(0);
-        for (int i = 0; i < fuzzyConditionsCounts; i++) {
-            final int currentFuzzyConditionsCounts = i;
+        for (int i = 0; i < fuzzyHeadersCounts; i++) {
+            final int currentFuzzyHeadersCounts = i;
             fits = filterHeadersByMax(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2087,7 +2081,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
+                    .count() != currentFuzzyHeadersCounts);
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2097,8 +2091,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
-
+                    .count() != currentFuzzyHeadersCounts);
             fits = filterHeadersByMin(fits,
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
@@ -2108,7 +2101,7 @@ public final class DecisionTableHelper {
                 e -> e.stream()
                     .filter(x -> x instanceof FuzzyDTHeader)
                     .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyConditionsCounts);
+                    .count() != currentFuzzyHeadersCounts);
         }
         return fits;
     }
@@ -2237,7 +2230,15 @@ public final class DecisionTableHelper {
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isReturn).count(), e -> true);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isAction).count(), e -> true);
             fits = filterHeadersByMin(fits, e -> e.stream().filter(DTHeader::isCondition).count(), e -> true);
-
+            if (fits.stream().anyMatch(e -> e instanceof FuzzyDTHeader)) {
+                fits = filterHeadersByMax(fits,
+                    e -> e.stream()
+                        .filter(e1 -> e1 instanceof FuzzyDTHeader)
+                        .mapToLong(
+                            e1 -> (long) ((FuzzyDTHeader) e1).getFuzzyResult().getAcceptableSimilarity() * 1000000L)
+                        .sum() / e.stream().filter(e1 -> e1 instanceof FuzzyDTHeader).count(),
+                    e -> true);
+            }
             return fits.get(0);
         }
 
@@ -2336,7 +2337,7 @@ public final class DecisionTableHelper {
                     lastSimpleReturnDTHeader = new SimpleReturnDTHeader(null, titleForColumn, column, width);
                     if (fuzzyContext.isFuzzySupportsForReturnType()) {
                         List<FuzzyResult> returnTypeFuzzyExtractResult = OpenLFuzzyUtils
-                            .openlFuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
+                            .fuzzyExtract(titleForColumn, new Token[] { new Token(returnTokenString, -1) }, true);
                         if (!returnTypeFuzzyExtractResult.isEmpty()) {
                             dtHeaders.add(new FuzzyDTHeader(column,
                                 null,
@@ -3022,8 +3023,8 @@ public final class DecisionTableHelper {
         IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
         if (condition instanceof FuzzyDTHeader) {
             FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
-            if (fuzzyCondition.getMethodsChain() != null) {
-                type = fuzzyCondition.getMethodsChain()[fuzzyCondition.getMethodsChain().length - 1].getType();
+            if (fuzzyCondition.getFieldsChain() != null) {
+                type = fuzzyCondition.getFieldsChain()[fuzzyCondition.getFieldsChain().length - 1].getType();
             }
         }
         return type;
@@ -3134,18 +3135,18 @@ public final class DecisionTableHelper {
     private static final class ParameterTokens {
         Token[] tokens;
         Map<Token, Integer> tokensToParameterIndex;
-        Map<Token, IOpenMethod[]> tokenToMethodsChain;
+        Map<Token, IOpenField[]> tokenToFieldsChain;
 
         ParameterTokens(Token[] tokens,
                 Map<Token, Integer> tokensToParameterIndex,
-                Map<Token, IOpenMethod[]> tokenToMethodsChain) {
+                Map<Token, IOpenField[]> tokenToFieldsChain) {
             this.tokens = tokens;
             this.tokensToParameterIndex = tokensToParameterIndex;
-            this.tokenToMethodsChain = tokenToMethodsChain;
+            this.tokenToFieldsChain = tokenToFieldsChain;
         }
 
-        IOpenMethod[] getMethodsChain(Token value) {
-            return tokenToMethodsChain.get(value);
+        IOpenField[] getFieldsChain(Token value) {
+            return tokenToFieldsChain.get(value);
         }
 
         int getParameterIndex(Token value) {
@@ -3193,7 +3194,7 @@ public final class DecisionTableHelper {
     private static class FuzzyContext {
         ParameterTokens parameterTokens;
         Token[] returnTokens = null;
-        Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens = null;
+        Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
         IOpenClass fuzzyReturnType;
 
         private FuzzyContext(ParameterTokens parameterTokens) {
@@ -3202,7 +3203,7 @@ public final class DecisionTableHelper {
 
         private FuzzyContext(ParameterTokens parameterTokens,
                 Token[] returnTokens,
-                Map<Token, IOpenMethod[][]> returnTypeFuzzyTokens,
+                Map<Token, IOpenField[][]> returnTypeFuzzyTokens,
                 IOpenClass returnType) {
             this(parameterTokens);
             this.returnTokens = returnTokens;
@@ -3218,7 +3219,7 @@ public final class DecisionTableHelper {
             return returnTokens;
         }
 
-        IOpenMethod[][] getMethodChainsForReturnToken(Token token) {
+        IOpenField[][] getFieldsChainsForReturnToken(Token token) {
             return returnTypeFuzzyTokens.get(token);
         }
 

@@ -8,11 +8,14 @@ package org.openl.types;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -22,6 +25,43 @@ import org.openl.vm.IRuntimeEnv;
 public class NullOpenClass implements IOpenClass {
 
     public static final NullOpenClass the = new NullOpenClass();
+
+    private static final IAggregateInfo AGGREGATE_INFO = new IAggregateInfo() {
+        @Override
+        public IOpenClass getComponentType(IOpenClass aggregateType) {
+            return null;
+        }
+
+        @Override
+        public IOpenIndex getIndex(IOpenClass aggregateType) {
+            return null;
+        }
+
+        @Override
+        public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
+            return JavaOpenClass.OBJECT.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.OBJECT);
+        }
+
+        @Override
+        public Iterator<Object> getIterator(Object aggregate) {
+            return OpenIterator.fromArrayObj(aggregate);
+        }
+
+        @Override
+        public boolean isAggregate(IOpenClass type) {
+            return false;
+        }
+
+        @Override
+        public Object makeIndexedAggregate(IOpenClass componentType, int size) {
+            return null;
+        }
+    };
 
     public static boolean isAnyNull(IOpenClass... args) {
         for (IOpenClass arg : args) {
@@ -38,7 +78,7 @@ public class NullOpenClass implements IOpenClass {
 
     @Override
     public IAggregateInfo getAggregateInfo() {
-        return null;
+        return AGGREGATE_INFO;
     }
 
     @Override
@@ -57,7 +97,7 @@ public class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) {
+    public IOpenField getField(String fName, boolean strictMatch) {
         return null;
     }
 

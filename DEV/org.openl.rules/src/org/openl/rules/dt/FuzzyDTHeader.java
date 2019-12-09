@@ -1,12 +1,12 @@
 package org.openl.rules.dt;
 
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
-import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenField;
 
 class FuzzyDTHeader extends DTHeader {
     private static final int[] RETURN_EMPTY_INDEXES = new int[] {};
 
-    private IOpenMethod[] methodsChain;
+    private IOpenField[] fieldsChain;
     private String title;
     private FuzzyResult fuzzyResult;
     private int topColumn;
@@ -15,7 +15,7 @@ class FuzzyDTHeader extends DTHeader {
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
             String title,
-            IOpenMethod[] methodsChain,
+            IOpenField[] fieldsChain,
             int topColumn,
             int column,
             int width,
@@ -23,7 +23,7 @@ class FuzzyDTHeader extends DTHeader {
             boolean returnDTHeader) {
         super(new int[] { methodParameterIndex }, statement, column, width);
         this.topColumn = topColumn;
-        this.methodsChain = methodsChain;
+        this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
         this.fuzzyResult = fuzzyResult;
@@ -52,8 +52,8 @@ class FuzzyDTHeader extends DTHeader {
         return returnDTHeader;
     }
 
-    IOpenMethod[] getMethodsChain() {
-        return methodsChain;
+    IOpenField[] getFieldsChain() {
+        return fieldsChain;
     }
 
     @Override

@@ -27,6 +27,14 @@ public final class Miscs {
         return false;
     }
 
+    public static int length(Collection<?> array) {
+        return array == null ? 0 : array.size();
+    }
+
+    public static int length(Map<?, ?> map) {
+        return map == null ? 0 : map.size();
+    }
+
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
