@@ -1,0 +1,4 @@
+ERROR: Cannot parse cell value 'key1'. Expected value of type 'Integer'.
+ERROR: Cannot parse cell value 'key2'. Expected value of type 'Integer'.
+ERROR: Cannot parse cell value 'key3'. Expected value of type 'Integer'.
+ERROR: Cannot parse cell value 'key4'. Expected value of type 'Integer'.
