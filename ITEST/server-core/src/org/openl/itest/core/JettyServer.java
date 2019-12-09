@@ -13,14 +13,6 @@ public class JettyServer {
 
     private final Server server;
 
-    public JettyServer() {
-        this(System.getProperty("webservice-webapp"), false);
-    }
-
-    public JettyServer(boolean sharedClassloader) {
-        this(System.getProperty("webservice-webapp"), sharedClassloader);
-    }
-
     private JettyServer(String explodedWar, boolean sharedClassloader) {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
@@ -32,8 +24,16 @@ public class JettyServer {
         this.server.setHandler(webAppContext);
     }
 
-    public void start() throws Exception {
-        server.start();
+    public static JettyServer start() throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false);
+        jetty.server.start();
+        return jetty;
+    }
+
+    public static JettyServer startSharingClassLoader() throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true);
+        jetty.server.start();
+        return jetty;
     }
 
     public void stop() throws Exception {

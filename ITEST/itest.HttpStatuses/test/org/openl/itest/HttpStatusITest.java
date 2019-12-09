@@ -12,8 +12,7 @@ public class HttpStatusITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer(true);
-        server.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 

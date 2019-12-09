@@ -110,9 +110,7 @@ public class RunStoreLogDataITest {
             .build());
         cluster.start();
 
-        server = new JettyServer(true);
-        server.start();
-
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
 
         elasticRunner = new ElasticsearchClusterRunner();
