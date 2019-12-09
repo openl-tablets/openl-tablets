@@ -47,4 +47,8 @@ public class GridTableUtils {
         }
         return regions;
     }
+
+    public static boolean isSingleCellTable(ILogicalTable table) {
+        return table.getHeight() == 1 && table.getWidth() == 1;
+    }
 }

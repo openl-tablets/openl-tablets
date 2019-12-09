@@ -20,9 +20,12 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -31,6 +34,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.util.ClassUtils;
+import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
@@ -152,17 +156,24 @@ public class Condition extends FunctionalRow implements ICondition {
 
     @Override
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
-            IMethodSignature signature,
-            IOpenClass methodParamType,
-            IOpenClass declaringClass,
-            OpenL openl,
-            IBindingContext bindingContext) throws Exception {
+                                                        IMethodSignature signature,
+                                                        IOpenClass methodParamType,
+                                                        IOpenClass declaringClass,
+                                                        OpenL openl,
+                                                        IBindingContext bindingContext) throws Exception {
+
+        if (!GridTableUtils.isSingleCellTable(getCodeTable())) {
+            ILogicalTable redundantRow = getCodeTable().getRow(1); //Bind error to the redundant expression definition
+            IOpenSourceCodeModule errorSrc = new GridCellSourceCodeModule(redundantRow.getSource(), bindingContext);
+            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getConditionMultipleExpressionErrorMessage(getName()), errorSrc);
+        }
+
         IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
-            signature,
-            methodParamType,
-            declaringClass,
-            openl,
-            bindingContext);
+                signature,
+                methodParamType,
+                declaringClass,
+                openl,
+                bindingContext);
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {
