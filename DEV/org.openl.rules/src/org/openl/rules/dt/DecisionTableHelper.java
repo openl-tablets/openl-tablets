@@ -1084,28 +1084,40 @@ public final class DecisionTableHelper {
             .getConvertor(type.getInstanceClass());
         while (h < height) {
             ICell cell1 = originalTable.getSource().getCell(column, h);
-            String s1 = cell1.getStringValue();
-            Object o1 = string2DataConvertor.parse(s1, null);
-
-            ICell cell2 = originalTable.getSource()
-                .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
-            String s2 = cell2.getStringValue();
-            Object o2 = string2DataConvertor.parse(s2, null);
-
-            if (JavaOpenClass.STRING.equals(type)) {
-                o1 = NumericComparableString.valueOf((String) o1);
-                o2 = NumericComparableString.valueOf((String) o2);
-            }
-
-            if (o1 instanceof Comparable && o2 instanceof Comparable) {
-                if (((Comparable) o1).compareTo(o2) > 0) {
-                    t1++;
-                } else if (((Comparable) o1).compareTo(o2) < 0) {
-                    t2++;
+            try {
+                String s1 = cell1.getStringValue();
+                Object o1;
+                try {
+                    o1 = string2DataConvertor.parse(s1, null);
+                } catch (IllegalArgumentException e) {
+                    continue;
                 }
-            }
 
-            h = h + cell1.getHeight();
+                ICell cell2 = originalTable.getSource()
+                    .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
+                String s2 = cell2.getStringValue();
+                Object o2;
+                try {
+                    o2 = string2DataConvertor.parse(s2, null);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                if (JavaOpenClass.STRING.equals(type)) {
+                    o1 = NumericComparableString.valueOf((String) o1);
+                    o2 = NumericComparableString.valueOf((String) o2);
+                }
+
+                if (o1 instanceof Comparable && o2 instanceof Comparable) {
+                    if (((Comparable) o1).compareTo(o2) > 0) {
+                        t1++;
+                    } else if (((Comparable) o1).compareTo(o2) < 0) {
+                        t2++;
+                    }
+                }
+            } finally {
+                h = h + cell1.getHeight();
+            }
         }
         return t1 <= t2;
     }
@@ -2420,9 +2432,11 @@ public final class DecisionTableHelper {
                 .max()
                 .orElse(0);
 
-            int numberOfLinesForHCondition = numberOfColumnsUnderTitleCounter.get(originalTable.getSource().getWidth() - 1);
+            int numberOfLinesForHCondition = numberOfColumnsUnderTitleCounter
+                .get(originalTable.getSource().getWidth() - 1);
             column = originalTable.getSource().getWidth() - 1;
-            while (column > maxColumnMatched && numberOfColumnsUnderTitleCounter.get(column - 1) == numberOfLinesForHCondition) {
+            while (column > maxColumnMatched && numberOfColumnsUnderTitleCounter
+                .get(column - 1) == numberOfLinesForHCondition) {
                 column--;
             }
 
