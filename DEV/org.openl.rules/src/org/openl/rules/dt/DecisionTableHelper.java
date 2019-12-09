@@ -65,7 +65,6 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -474,51 +473,6 @@ public final class DecisionTableHelper {
         return Pair.of(fieldsChainSb.toString(), type);
     }
 
-    private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-        int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
-        IOpenClass type = decisionTable.getType();
-        if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
-            Collection.class)) && parametersCount > 1) {
-            throw new OpenLCompilationException(
-                String.format("Error: Cannot bind node: '%s'. Found more than one parameter for '%s'.",
-                    Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                    type.getComponentClass().getDisplayName(0)));
-        }
-        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
-            if (parametersCount > 2) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Found more than two parameter for '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        type.getDisplayName(0)));
-            }
-            if (parametersCount == 1) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Found only one parameter for '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        type.getDisplayName(0)));
-            }
-        }
-        for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
-            if (t == null) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Cannot find type: '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        parameterType));
-            } else {
-                if (type.isArray() && bindingContext.getCast(t, type.getComponentClass()) == null) {
-                    throw new OpenLCompilationException(
-                        String.format("Error: Cannot bind node: '%s'. Incompatible types: '%s' and '%s'.",
-                            Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                            type.getComponentClass().getDisplayName(0),
-                            t.getDisplayName(0)));
-                }
-            }
-        }
-    }
-
     private static void writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             IWritableGrid grid,
@@ -880,11 +834,7 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        boolean isCollect = isCollect(tableSyntaxNode);
-
-        if (isCollect) {
-            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, bindingContext);
-        }
+        final boolean isCollect = isCollect(tableSyntaxNode);
 
         if (isLookup(tableSyntaxNode)) {
             int firstReturnColumn = dtHeaders.stream()

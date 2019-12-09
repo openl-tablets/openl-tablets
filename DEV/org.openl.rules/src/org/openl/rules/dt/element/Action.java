@@ -12,6 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
@@ -102,7 +103,10 @@ public class Action extends FunctionalRow implements IAction {
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) {
+    private IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
+        IOpenClass type = header.getType();
         if (type.isArray()) {
             return type.getComponentClass();
         }
@@ -131,7 +135,7 @@ public class Action extends FunctionalRow implements IAction {
             methodType = header.getType();
         } else {
             if (isCollectReturnAction()) {
-                methodType = exctractMethodTypeForCollectReturnAction(header.getType());
+                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
                     methodType = JavaOpenClass.OBJECT;
