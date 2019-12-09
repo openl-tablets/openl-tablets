@@ -43,6 +43,15 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         assertNotFound( ClassWithGenerics.class, "method3", byte[].class, byte[].class);
 
+        assertNotFound( ClassWithGenerics.class, "method4", byte[].class);
+        assertInvoke( "M8", ClassWithGenerics.class, "method4", byte[].class, byte[].class);
+        assertNotFound( ClassWithGenerics.class, "method4", byte[].class, byte[].class, byte[].class);
+        assertInvoke( "M8", ClassWithGenerics.class, "method4", byte[].class, byte.class, byte.class);
+
+        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class);
+        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class);
+        assertInvoke( "M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class, byte[].class);
+
         Object t = new Object();
         assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[] { Object.class }, new Object[] { t });
         Double[] d = new Double[] {};
@@ -96,6 +105,14 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         public <T> String method3(T[] arg1, T arg2) {
             return "M7";
+        }
+
+        public <T> String method4(T[] arg1, T[] arg2) {
+            return "M8";
+        }
+
+        public <T> String method5(T[]... arg1) {
+            return "M9";
         }
 
         public <T> T copy(T t) {

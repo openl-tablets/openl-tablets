@@ -13,8 +13,7 @@ public class RunITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer();
-        server.start();
+        server = JettyServer.start();
         client = server.client();
     }
 

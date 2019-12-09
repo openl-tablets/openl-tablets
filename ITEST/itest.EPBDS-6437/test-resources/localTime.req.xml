@@ -1,0 +1,11 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:def="http://DefaultNamespace"
+               xmlns:con="http://context.rules.openl.org">
+    <soap:Header/>
+    <soap:Body>
+        <def:checkRulesModule>
+            <def:runtimeContext>
+                <con:requestDate>2017-12-31T22:00:00</con:requestDate>
+            </def:runtimeContext>
+        </def:checkRulesModule>
+    </soap:Body>
+</soap:Envelope>

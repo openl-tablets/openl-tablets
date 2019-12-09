@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:getGenderResponse xmlns:ns1="http://DefaultNamespace">
+            <ns1:return>male</ns1:return>
+        </ns1:getGenderResponse>
+    </soap:Body>
+</soap:Envelope>

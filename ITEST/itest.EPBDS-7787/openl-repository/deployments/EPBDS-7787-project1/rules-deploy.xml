@@ -3,11 +3,7 @@
     <isProvideVariations>false</isProvideVariations>
     <serviceName>EPBDS-7787-project1</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
-    <!-- STATIC INTERFACE -->
-    <serviceClass>org.openl.itest.project1.Project1Service</serviceClass>
-    <!-- //STATIC INTERFACE -->
     <url>EPBDS-7787-project1</url>
 </rules-deploy>

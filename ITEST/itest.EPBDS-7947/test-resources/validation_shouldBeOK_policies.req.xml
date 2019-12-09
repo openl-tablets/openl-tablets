@@ -1,0 +1,275 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:checkArrayValidation xmlns:ns1="http://DefaultNamespace">
+            <ns1:policies>
+                <ns2:Policy xmlns:ns2="http://beans.generated.openl.org"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Policy">
+                    <ns2:brandCodes>
+                        <ns1:int>10</ns1:int>
+                        <ns1:int>20</ns1:int>
+                        <ns1:int>30</ns1:int>
+                    </ns2:brandCodes>
+                    <ns2:id>786bf43c-5594-463d-a6d3-a51db8b6e8ad</ns2:id>
+                    <ns2:paymentMatrix>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                    </ns2:paymentMatrix>
+                    <ns2:transaction>NEW_BUSINESS</ns2:transaction>
+                    <ns2:vehicles>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>7d4abda8-e559-443e-90a9-181ce7c0785c</ns2:id>
+                        </ns2:Vehicle>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>6669be62-3235-4e85-84a1-6e4e41b129fe</ns2:id>
+                        </ns2:Vehicle>
+                    </ns2:vehicles>
+                </ns2:Policy>
+                <ns2:Policy xmlns:ns2="http://beans.generated.openl.org"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Policy">
+                    <ns2:brandCodes>
+                        <ns1:int>10</ns1:int>
+                        <ns1:int>20</ns1:int>
+                        <ns1:int>30</ns1:int>
+                    </ns2:brandCodes>
+                    <ns2:id>bf55a6ce-b155-4427-9dd2-4c381164b38b</ns2:id>
+                    <ns2:paymentMatrix>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                    </ns2:paymentMatrix>
+                    <ns2:transaction>NEW_BUSINESS</ns2:transaction>
+                    <ns2:vehicles>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>c7dbf650-6cce-405c-bc78-f6f238fac2ed</ns2:id>
+                        </ns2:Vehicle>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>0012c61f-4224-432b-b7db-d1c0b892931d</ns2:id>
+                        </ns2:Vehicle>
+                    </ns2:vehicles>
+                </ns2:Policy>
+                <ns2:Policy xmlns:ns2="http://beans.generated.openl.org"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:Policy">
+                    <ns2:brandCodes>
+                        <ns1:int>10</ns1:int>
+                        <ns1:int>20</ns1:int>
+                        <ns1:int>30</ns1:int>
+                    </ns2:brandCodes>
+                    <ns2:id>6ed844e8-f495-4f45-806e-0eed2a5cb049</ns2:id>
+                    <ns2:paymentMatrix>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                        <ns2:ArrayOfPaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                            <ns2:PaymentPlan xsi:type="ns2:PaymentPlan">
+                                <ns2:name>ANNUAL</ns2:name>
+                            </ns2:PaymentPlan>
+                        </ns2:ArrayOfPaymentPlan>
+                    </ns2:paymentMatrix>
+                    <ns2:transaction>NEW_BUSINESS</ns2:transaction>
+                    <ns2:vehicles>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>45b0d192-dc2a-45c9-984e-dae0954eac05</ns2:id>
+                        </ns2:Vehicle>
+                        <ns2:Vehicle xsi:type="ns2:Vehicle">
+                            <ns2:coverages>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV1</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV2</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV3</ns2:name>
+                                </ns2:Coverage>
+                                <ns2:Coverage xsi:type="ns2:Coverage">
+                                    <ns2:name>COV4</ns2:name>
+                                </ns2:Coverage>
+                            </ns2:coverages>
+                            <ns2:driver xsi:type="ns2:Driver">
+                                <ns2:birthDate>2019-12-09T21:50:30.735+03:00</ns2:birthDate>
+                                <ns2:gender>male</ns2:gender>
+                            </ns2:driver>
+                            <ns2:id>55fac23b-2c42-4341-999f-ff02bb80aec4</ns2:id>
+                        </ns2:Vehicle>
+                    </ns2:vehicles>
+                </ns2:Policy>
+            </ns1:policies>
+        </ns1:checkArrayValidation>
+    </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:checkValidationResponse xmlns:ns1="http://DefaultNamespace">
+            <ns1:return>OK</ns1:return>
+        </ns1:checkValidationResponse>
+    </soap:Body>
+</soap:Envelope>

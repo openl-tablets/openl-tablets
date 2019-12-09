@@ -2812,36 +2812,6 @@ public final class RulesUtils {
 
     /**
      * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, true)          = [true]
-     * ArrayUtils.add([true], false)       = [true, false]
-     * ArrayUtils.add([true, false], true) = [true, false, true]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static boolean[] add(boolean[] array, boolean element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
      * Inserts the specified element at the specified position in the array. Shifts the element currently at that
      * position (if any) and any subsequent elements to the right (adds one to their indices).
      * </p>
@@ -2899,70 +2869,10 @@ public final class RulesUtils {
      * @param array the array to copy and add the element to, may be <code>null</code>
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
-     */
-    public static byte[] add(byte[] array, byte element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
      * @since 2.1
      */
     public static byte[] add(byte[] array, int index, byte element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, '0')       = ['0']
-     * ArrayUtils.add(['1'], '0')      = ['1', '0']
-     * ArrayUtils.add(['1', '0'], '1') = ['1', '0', '1']
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static char[] add(char[] array, char element) {
-        return ArrayUtils.add(array, element);
     }
 
     /**
@@ -2998,36 +2908,6 @@ public final class RulesUtils {
      */
     public static char[] add(char[] array, int index, char element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static double[] add(double[] array, double element) {
-        return ArrayUtils.add(array, element);
     }
 
     /**
@@ -3090,68 +2970,8 @@ public final class RulesUtils {
      * @param element the object to add at the last index of the new array
      * @return A new array containing the existing elements plus the new element
      */
-    public static float[] add(float[] array, float element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
     public static float[] add(float[] array, int index, float element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static int[] add(int[] array, int element) {
-        return ArrayUtils.add(array, element);
     }
 
     /**
@@ -3224,36 +3044,6 @@ public final class RulesUtils {
 
     /**
      * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static long[] add(long[] array, long element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
      * Inserts the specified element at the specified position in the array. Shifts the element currently at that
      * position (if any) and any subsequent elements to the right (adds one to their indices).
      * </p>
@@ -3290,39 +3080,6 @@ public final class RulesUtils {
 
     /**
      * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element, unless the element itself is null, in which case the return type is Object[]
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, null)      = [null]
-     * ArrayUtils.add(null, "a")       = ["a"]
-     * ArrayUtils.add(["a"], null)     = ["a", null]
-     * ArrayUtils.add(["a"], "b")      = ["a", "b"]
-     * ArrayUtils.add(["a", "b"], "c") = ["a", "b", "c"]
-     * </pre>
-     *
-     * @param array the array to "add" the element to, may be <code>null</code>
-     * @param element the object to add, may be <code>null</code>
-     * @return A new array containing the existing elements plus the new element The returned array type will be that of
-     *         the input array (unless null), in which case it will have the same type as the element.
-     */
-    public static <T> T[] add(T[] array, T element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    /**
-     * <p>
      * Inserts the specified element at the specified position in the array. Shifts the element currently at that
      * position (if any) and any subsequent elements to the right (adds one to their indices).
      * </p>
@@ -3355,46 +3112,8 @@ public final class RulesUtils {
         return ArrayUtils.add(array, index, element);
     }
 
-    /**
-     * <p>
-     * Copies the given array and adds the given element at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given element in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.add(null, 0)   = [0]
-     * ArrayUtils.add([1], 0)    = [1, 0]
-     * ArrayUtils.add([1, 0], 1) = [1, 0, 1]
-     * </pre>
-     *
-     * @param array the array to copy and add the element to, may be <code>null</code>
-     * @param element the object to add at the last index of the new array
-     * @return A new array containing the existing elements plus the new element
-     */
-    public static short[] add(short[] array, short element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Byte[] add(Byte[] array, int index, Byte element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Byte[] add(Byte[] array, Byte element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    public static Short[] add(Short[] array, Short element) {
-        return ArrayUtils.add(array, element);
     }
 
     public static Short[] add(Short[] array, int index, Short element) {
@@ -3405,14 +3124,6 @@ public final class RulesUtils {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Integer[] add(Integer[] array, Integer element) {
-        return ArrayUtils.add(array, element);
-    }
-
-    public static Long[] add(Long[] array, Long element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Long[] add(Long[] array, int index, Long element) {
         return ArrayUtils.add(array, index, element);
     }
@@ -3421,32 +3132,16 @@ public final class RulesUtils {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Float[] add(Float[] array, Float element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Double[] add(Double[] array, int index, Double element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Double[] add(Double[] array, Double element) {
-        return ArrayUtils.add(array, element);
     }
 
     public static Character[] add(Character[] array, int index, Character element) {
         return ArrayUtils.add(array, index, element);
     }
 
-    public static Character[] add(Character[] array, Character element) {
-        return ArrayUtils.add(array, element);
-    }
-
     public static Boolean[] add(Boolean[] array, int index, Boolean element) {
         return ArrayUtils.add(array, index, element);
-    }
-
-    public static Boolean[] add(Boolean[] array, Boolean element) {
-        return ArrayUtils.add(array, element);
     }
 
     /**
@@ -3538,228 +3233,6 @@ public final class RulesUtils {
     @Deprecated
     public static Object[] addArrayElementIgnoreNull(Object[] array, Object element) {
         return addIgnoreNull(array, element);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new boolean[] array.
-     */
-    public static boolean[] addAll(boolean[] array1, boolean[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new byte[] array.
-     */
-    public static byte[] addAll(byte[] array1, byte[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new char[] array.
-     */
-    public static char[] addAll(char[] array1, char[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new double[] array.
-     */
-    public static double[] addAll(double[] array1, double[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new float[] array.
-     */
-    public static float[] addAll(float[] array1, float[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new int[] array.
-     */
-    public static int[] addAll(int[] array1, int[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new long[] array.
-     */
-    public static long[] addAll(long[] array1, long[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(null, null)     = null
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * ArrayUtils.addAll([null], [null]) = [null, null]
-     * ArrayUtils.addAll(["a", "b", "c"], ["1", "2", "3"]) = ["a", "b", "c", "1", "2", "3"]
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array, may be <code>null</code>
-     * @param array2 the second array whose elements are added to the new array, may be <code>null</code>
-     * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
-     *         type of the first array, unless the first array is null, in which case the type is the same as the second
-     *         array.
-     * @throws IllegalArgumentException if the array types are incompatible
-     */
-    public static <T> T[] addAll(T[] array1, T[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>array1</code> followed by all of the elements
-     * <code>array2</code>. When an array is returned, it is always a new array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * ArrayUtils.addAll(array1, null)   = cloned copy of array1
-     * ArrayUtils.addAll(null, array2)   = cloned copy of array2
-     * ArrayUtils.addAll([], [])         = []
-     * </pre>
-     *
-     * @param array1 the first array whose elements are added to the new array.
-     * @param array2 the second array whose elements are added to the new array.
-     * @return The new short[] array.
-     */
-    public static short[] addAll(short[] array1, short[] array2) {
-        return ArrayUtils.addAll(array1, array2);
     }
 
     /**
