@@ -1628,14 +1628,12 @@ public final class DecisionTableHelper {
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
         int prev = sb.length();
-        if (sb.length() == 0) {
-            sb.append(d);
-        } else {
+        if (sb.length() != 0) {
             sb.append(StringUtils.SPACE);
             sb.append("/");
             sb.append(StringUtils.SPACE);
-            sb.append(d);
         }
+        sb.append(d);
         if (h + h0 < firstColumnHeight) {
             int w2 = w;
             while (w2 < w + w0) {
@@ -2416,11 +2414,17 @@ public final class DecisionTableHelper {
                 throw new OpenLCompilationException("No input parameter found for horizontal condition.");
             }
 
-            column = fit.stream()
+            int maxColumnMatched = fit.stream()
                 .filter(e -> e.isCondition() || e.isAction())
                 .mapToInt(e -> e.getColumn() + e.getWidth())
                 .max()
                 .orElse(0);
+
+            int numberOfLinesForHCondition = numberOfColumnsUnderTitleCounter.get(originalTable.getSource().getWidth() - 1);
+            column = originalTable.getSource().getWidth() - 1;
+            while (column > maxColumnMatched && numberOfColumnsUnderTitleCounter.get(column - 1) == numberOfLinesForHCondition) {
+                column--;
+            }
 
             List<DTHeader> fitWithHConditions = new ArrayList<>(fit);
             int j = 0;
