@@ -1,0 +1,11 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Server</faultcode>
+            <faultstring>Object 'OTHER' is outside of valid domain 'PlanName'. Valid values: [ANNUAL, NONANNUAL]</faultstring>
+            <detail>
+                <type>VALIDATION</type>
+            </detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

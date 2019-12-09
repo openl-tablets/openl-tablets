@@ -1,0 +1,11 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Server</faultcode>
+            <faultstring>Object 'COV10' is outside of valid domain 'CoverageName'. Valid values: [COV1, COV2, COV3, COV4]</faultstring>
+            <detail>
+                <type>VALIDATION</type>
+            </detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

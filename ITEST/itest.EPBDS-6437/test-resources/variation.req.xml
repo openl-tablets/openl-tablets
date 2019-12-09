@@ -1,0 +1,29 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:calVehicleYear1 xmlns:ns1="http://DefaultNamespace">
+            <ns1:runtimeContext/>
+            <ns1:v xmlns:ns2="http://beans.generated.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:type="ns2:Vehicle">
+                <ns2:modelYear>2007</ns2:modelYear>
+                <ns2:vehEffectiveYear>2016-12-31T22:00:00</ns2:vehEffectiveYear>
+            </ns1:v>
+            <ns1:variationPack xmlns:ns2="http://variation.rules.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:type="ns2:VariationsPack">
+                <ns2:variations>
+                    <ns2:Variation xsi:type="ns2:JXPathVariation">
+                        <ns2:variationID>variation_0</ns2:variationID>
+                        <ns2:path>/vehEffectiveYear</ns2:path>
+                        <ns2:updatedArgumentIndex>0</ns2:updatedArgumentIndex>
+                        <ns2:valueToSet xmlns:ns3="http://www.w3.org/2001/XMLSchema" xsi:type="ns3:dateTime">2016-12-31T22:00:00</ns2:valueToSet>
+                    </ns2:Variation>
+                    <ns2:Variation xsi:type="ns2:JXPathVariation">
+                        <ns2:variationID>variation_1</ns2:variationID>
+                        <ns2:path>/vehEffectiveYear</ns2:path>
+                        <ns2:updatedArgumentIndex>0</ns2:updatedArgumentIndex>
+                        <ns2:valueToSet xmlns:ns3="http://www.w3.org/2001/XMLSchema" xsi:type="ns3:dateTime">2016-12-31T22:00:00Z</ns2:valueToSet>
+                    </ns2:Variation>
+                </ns2:variations>
+            </ns1:variationPack>
+        </ns1:calVehicleYear1>
+    </soap:Body>
+</soap:Envelope>

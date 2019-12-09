@@ -32,9 +32,8 @@ public class JettyServer {
         this.server.setHandler(webAppContext);
     }
 
-    public String start() throws Exception {
+    public void start() throws Exception {
         server.start();
-        return "http://localhost:" + ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
     public void stop() throws Exception {

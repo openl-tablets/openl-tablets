@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:getDayDiff xmlns:ns1="http://DefaultNamespace">
+            <ns1:sd>123</ns1:sd>
+        </ns1:getDayDiff>
+    </soap:Body>
+</soap:Envelope>
