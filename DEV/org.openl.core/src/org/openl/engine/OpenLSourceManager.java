@@ -1,15 +1,6 @@
 package org.openl.engine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
@@ -33,8 +24,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class that defines OpenL engine manager implementation for source processing operations.
@@ -93,12 +82,12 @@ public class OpenLSourceManager extends OpenLHolder {
         if (dependencyManager == null) {
             return Arrays.asList(dependencies);
         }
-        Set<String> dependencyNames = new HashSet<>();
+        Set<String> dependencyNames;
         Collection<String> deps = dependencyManager.getAllDependencies();
         if (deps.isEmpty()) {
             return Arrays.asList(dependencies);
         } else {
-            dependencyNames.addAll(deps);
+            dependencyNames = new HashSet<>(deps);
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();
@@ -124,9 +113,7 @@ public class OpenLSourceManager extends OpenLHolder {
         return result;
     }
 
-    private static final Comparator<IDependency> COMP = (a, b) -> {
-        return a.getNode().getIdentifier().compareTo(b.getNode().getIdentifier());
-    };
+    private static final Comparator<IDependency> COMP = Comparator.comparing(a -> a.getNode().getIdentifier());
 
     /**
      * Parses and binds source.
@@ -163,7 +150,7 @@ public class OpenLSourceManager extends OpenLHolder {
             List<IDependency> dependencies = new ArrayList<>(dependencyManagerDependencies);
             dependencies.addAll(externalDependencies);
 
-            Collections.sort(dependencies, COMP);
+            dependencies.sort(COMP);
 
             Set<CompiledDependency> compiledDependencies = new LinkedHashSet<>();
             if (CollectionUtils.isNotEmpty(dependencies)) {
@@ -185,12 +172,11 @@ public class OpenLSourceManager extends OpenLHolder {
                                 extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                             }
 
-                            for (OpenLMessage message : compiledOpenClass.getMessages()) { // Save
-                                // messages
-                                // from
-                                // dependencies
-                                messages.add(message);
-                            }
+                            // Save
+                            // messages
+                            // from
+                            // dependencies
+                            messages.addAll(compiledOpenClass.getMessages());
 
                         } catch (Exception e) {
                             messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
@@ -231,9 +217,7 @@ public class OpenLSourceManager extends OpenLHolder {
 
         IOpenBinder binder = getOpenL().getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
-        for (OpenLMessage message : boundCode.getMessages()) {
-            messages.add(message);
-        }
+        messages.addAll(boundCode.getMessages());
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 

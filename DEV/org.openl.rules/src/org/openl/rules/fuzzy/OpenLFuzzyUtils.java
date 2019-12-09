@@ -1,6 +1,13 @@
 package org.openl.rules.fuzzy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -8,52 +15,43 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 public final class OpenLFuzzyUtils {
 
-    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
+    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85d;
     private static final int DEEP_LEVEL = 5;
 
-    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>>> openClassRecursivelyCacheForWritableFields = ThreadLocal
         .withInitial(HashMap::new);
 
-    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>>> openlClassRecursivelyCacheForGetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>>> openClassRecursivelyCacheForReadableFields = ThreadLocal
         .withInitial(HashMap::new);
 
-    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
+    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenField[]>>> openClassCacheForWritableFields = ThreadLocal
         .withInitial(HashMap::new);
 
     private OpenLFuzzyUtils() {
     }
 
     public static void clearCaches() {
-        openlClassCacheForSetterMethods.remove();
-        openlClassRecursivelyCacheForGetterMethods.remove();
-        openlClassRecursivelyCacheForSetterMethods.remove();
+        openClassCacheForWritableFields.remove();
+        openClassRecursivelyCacheForReadableFields.remove();
+        openClassRecursivelyCacheForWritableFields.remove();
     }
 
-    public static Map<Token, IOpenMethod[]> tokensMapToOpenClassSetterMethods(IOpenClass openClass) {
-        Map<IOpenClass, Map<Token, IOpenMethod[]>> cache = openlClassCacheForSetterMethods.get();
-        Map<Token, IOpenMethod[]> ret = cache.get(openClass);
+    public static Map<Token, IOpenField[]> tokensMapToOpenClassWritableFields(IOpenClass openClass) {
+        Map<IOpenClass, Map<Token, IOpenField[]>> cache = openClassCacheForWritableFields.get();
+        Map<Token, IOpenField[]> ret = cache.get(openClass);
         if (ret == null) {
             ret = new HashMap<>();
-            Map<Token, LinkedList<IOpenMethod>> map = new HashMap<>();
+            Map<Token, LinkedList<IOpenField>> map = new HashMap<>();
             if (!openClass.isSimple()) {
-                for (IOpenMethod method : openClass.getMethods()) {
-                    if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-                        .startsWith("set")) {
-                        String fieldName = method.getName().substring(3);
-                        IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
-                        if (openField == null) {
-                            continue;
-                        }
-
-                        String t = OpenLFuzzyUtils.toTokenString(fieldName);
-
-                        LinkedList<IOpenMethod> m = null;
-                        for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
+                for (IOpenField field : openClass.getFields().values()) {
+                    if (!field.isStatic() && !field.isConst()) {
+                        String fieldName = field.getName();
+                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
+                        LinkedList<IOpenField> m = null;
+                        for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
                             Token token = entry.getKey();
                             if (token.getValue().equals(t)) {
                                 m = entry.getValue();
@@ -63,64 +61,64 @@ public final class OpenLFuzzyUtils {
 
                         if (m == null) {
                             m = new LinkedList<>();
-                            m.add(method);
+                            m.add(field);
                             map.put(new Token(t, 0), m);
                         } else {
-                            m.add(method);
+                            m.add(field);
                         }
                     }
                 }
             }
-            for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
-                ret.put(entry.getKey(), entry.getValue().toArray(new IOpenMethod[] {}));
+            for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
+                ret.put(entry.getKey(), entry.getValue().toArray(new IOpenField[] {}));
             }
             cache.put(openClass, ret);
         }
         return ret;
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null, 0);
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass) {
+        return tokensMapToOpenClassWritableFieldsRecursively(openClass, null, 0);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass,
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, true);
+        return tokensMapToOpenClassFieldsRecursively(openClass, tokenPrefix, startLevel, true);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null, 0);
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass) {
+        return tokensMapToOpenClassReadableFieldsRecursively(openClass, null, 0);
     }
 
-    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass,
+    public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel) {
-        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, startLevel, false);
+        return tokensMapToOpenClassFieldsRecursively(openClass, tokenPrefix, startLevel, false);
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
+    private static Map<Token, IOpenField[][]> tokensMapToOpenClassFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel,
-            boolean setterMethods) {
-        Map<IOpenClass, Map<String, Map<Token, IOpenMethod[][]>>> cache = null;
-        if (setterMethods) {
-            cache = openlClassRecursivelyCacheForSetterMethods.get();
+            boolean writable) {
+        Map<IOpenClass, Map<String, Map<Token, IOpenField[][]>>> cache;
+        if (writable) {
+            cache = openClassRecursivelyCacheForWritableFields.get();
         } else {
-            cache = openlClassRecursivelyCacheForGetterMethods.get();
+            cache = openClassRecursivelyCacheForReadableFields.get();
         }
-        Map<String, Map<Token, IOpenMethod[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
+        Map<String, Map<Token, IOpenField[][]>> cache1 = cache.computeIfAbsent(openClass, e -> new HashMap<>());
         final String tokenizedPrefix = toTokenString(tokenPrefix);
-        Map<Token, IOpenMethod[][]> ret = cache1.get(tokenizedPrefix);
+        Map<Token, IOpenField[][]> ret = cache1.get(tokenizedPrefix);
         if (ret == null) {
-            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
+            Map<Token, LinkedList<LinkedList<IOpenField>>> map;
             if (StringUtils.isBlank(tokenPrefix)) {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
+                map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
             } else {
-                map = buildTokensMapToOpenClassMethodsRecursively(openClass, startLevel, setterMethods);
-                Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>(map);
-                for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
+                map = buildTokensMapToOpenClassFieldsRecursively(openClass, startLevel, writable);
+                Map<Token, LinkedList<LinkedList<IOpenField>>> updatedMap = new HashMap<>(map);
+                for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                     Token updatedToken = new Token(toTokenString(tokenizedPrefix + " " + entry.getKey().getValue()),
                         entry.getKey().getDistance());
                     updatedMap.put(updatedToken, entry.getValue());
@@ -128,17 +126,17 @@ public final class OpenLFuzzyUtils {
                 map = updatedMap;
             }
 
-            Map<Token, LinkedList<IOpenMethod>[]> tmp = new HashMap<>();
-            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
+            Map<Token, LinkedList<IOpenField>[]> tmp = new HashMap<>();
+            for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
                 tmp.put(entry.getKey(), entry.getValue().toArray(new LinkedList[] {}));
             }
 
             ret = new HashMap<>();
-            for (Entry<Token, LinkedList<IOpenMethod>[]> entry : tmp.entrySet()) {
-                IOpenMethod[][] m = new IOpenMethod[entry.getValue().length][];
+            for (Entry<Token, LinkedList<IOpenField>[]> entry : tmp.entrySet()) {
+                IOpenField[][] m = new IOpenField[entry.getValue().length][];
                 int i = 0;
-                for (LinkedList<IOpenMethod> x : entry.getValue()) {
-                    m[i] = x.toArray(new IOpenMethod[] {});
+                for (LinkedList<IOpenField> x : entry.getValue()) {
+                    m[i] = x.toArray(new IOpenField[] {});
                     i++;
                 }
                 ret.put(entry.getKey(), m);
@@ -148,91 +146,68 @@ public final class OpenLFuzzyUtils {
         return ret;
     }
 
-    public static boolean isEqualsMethodChains(IOpenMethod[] methodChain1, IOpenMethod[] methodChain2) {
-        if (methodChain1 == methodChain2) {
+    public static boolean isEqualsFieldsChains(IOpenField[] fieldsChain1, IOpenField[] fieldsChain2) {
+        if (fieldsChain1 == fieldsChain2) {
             return true;
         }
-        return Arrays.deepEquals(methodChain1, methodChain2);
+        return Arrays.deepEquals(fieldsChain1, fieldsChain2);
     }
 
-    public static boolean isSetterMethod(IOpenMethod method) {
-        return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
-            .startsWith("set") && JavaOpenClass.isVoid(method.getType());
-    }
-
-    public static boolean isGetterMethod(IOpenMethod method) {
-        return !method.isStatic() && method.getSignature().getNumberOfParameters() == 0 && method.getName()
-            .startsWith("get");
-    }
-
-    private static Map<Token, LinkedList<LinkedList<IOpenMethod>>> buildTokensMapToOpenClassMethodsRecursively(
+    private static Map<Token, LinkedList<LinkedList<IOpenField>>> buildTokensMapToOpenClassFieldsRecursively(
             IOpenClass openClass,
             int deepLevel,
-            boolean setterMethods) {
+            boolean writable) {
         if (deepLevel >= DEEP_LEVEL) {
             return Collections.emptyMap();
         }
-        Map<Token, LinkedList<LinkedList<IOpenMethod>>> ret = new HashMap<>();
+        Map<Token, LinkedList<LinkedList<IOpenField>>> ret = new HashMap<>();
         if (!openClass.isSimple()) {
-            for (IOpenMethod method : openClass.getMethods()) {
-                boolean g;
-                if (setterMethods) {
-                    g = isSetterMethod(method);
-                } else {
-                    g = isGetterMethod(method);
-                }
-                if (g) {
-                    String fieldName = method.getName().substring(3);
-                    IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
-                    if (openField == null) {
-                        continue;
-                    }
-                    String t = OpenLFuzzyUtils.toTokenString(fieldName);
-                    LinkedList<IOpenMethod> methods = new LinkedList<>();
-                    methods.add(method);
-                    LinkedList<LinkedList<IOpenMethod>> x = null;
-                    for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : ret.entrySet()) {
-                        Token token = entry.getKey();
-                        if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
-                            x = entry.getValue();
-                            break;
+            for (IOpenField field : openClass.getFields().values()) {
+                if (!field.isStatic() && !field.isConst()) {
+                    if (writable ? field.isWritable() : field.isReadable()) {
+                        String fieldName = field.getName();
+                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
+                        LinkedList<IOpenField> fields = new LinkedList<>();
+                        fields.add(field);
+                        LinkedList<LinkedList<IOpenField>> x = null;
+                        for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : ret.entrySet()) {
+                            Token token = entry.getKey();
+                            if (token.getValue().equals(t) && entry.getKey().getDistance() == deepLevel) {
+                                x = entry.getValue();
+                                break;
+                            }
                         }
-                    }
-                    if (x == null) {
-                        x = new LinkedList<>();
-                        x.add(methods);
-                        ret.put(new Token(t, deepLevel), x);
-                    } else {
-                        x.add(methods);
-                    }
+                        if (x == null) {
+                            x = new LinkedList<>();
+                            x.add(fields);
+                            ret.put(new Token(t, deepLevel), x);
+                        } else {
+                            x.add(fields);
+                        }
 
-                    IOpenClass type = null;
-                    if (setterMethods) {
-                        type = method.getSignature().getParameterType(0);
-                    } else {
-                        type = method.getType();
-                    }
-
-                    if (!type.isSimple() && !type.isArray()) {
-                        Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassMethodsRecursively(
-                            type,
-                            deepLevel + 1,
-                            setterMethods);
-                        for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
-                            if (!entry.getValue().isEmpty()) {
-                                Token k = new Token(t + " " + entry.getKey().getValue(),
-                                    entry.getKey().getDistance() + 1);
-                                LinkedList<LinkedList<IOpenMethod>> v = ret.computeIfAbsent(k, e -> new LinkedList<>());
-                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
-                                    y1.addFirst(method);
-                                    v.add(y1);
-                                }
-                                v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
-                                for (LinkedList<IOpenMethod> y : entry.getValue()) {
-                                    LinkedList<IOpenMethod> y1 = new LinkedList<>(y);
-                                    y1.addFirst(method);
-                                    v.add(y1);
+                        IOpenClass type = field.getType();
+                        if (!type.isSimple() && !type.isArray()) {
+                            Map<Token, LinkedList<LinkedList<IOpenField>>> map = buildTokensMapToOpenClassFieldsRecursively(
+                                type,
+                                deepLevel + 1,
+                                writable);
+                            for (Entry<Token, LinkedList<LinkedList<IOpenField>>> entry : map.entrySet()) {
+                                if (!entry.getValue().isEmpty()) {
+                                    Token k = new Token(t + " " + entry.getKey().getValue(),
+                                        entry.getKey().getDistance() + 1);
+                                    LinkedList<LinkedList<IOpenField>> v = ret.computeIfAbsent(k,
+                                        e -> new LinkedList<>());
+                                    for (LinkedList<IOpenField> y : entry.getValue()) {
+                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        y1.addFirst(field);
+                                        v.add(y1);
+                                    }
+                                    v = ret.computeIfAbsent(entry.getKey(), e -> new LinkedList<>());
+                                    for (LinkedList<IOpenField> y : entry.getValue()) {
+                                        LinkedList<IOpenField> y1 = new LinkedList<>(y);
+                                        y1.addFirst(field);
+                                        v.add(y1);
+                                    }
                                 }
                             }
                         }
@@ -241,6 +216,13 @@ public final class OpenLFuzzyUtils {
             }
         }
         return ret;
+    }
+
+    public static String phoneticFix(String value) {
+        if (value.length() > 1 && Character.isLowerCase(value.charAt(0)) && Character.isUpperCase(value.charAt(1))) {
+            value = Character.toUpperCase(value.charAt(0)) + value.substring(1);
+        }
+        return value;
     }
 
     private static String[] concatTokens(String[] tokens, String pattern) {
@@ -290,7 +272,7 @@ public final class OpenLFuzzyUtils {
         if (source == null) {
             return StringUtils.EMPTY;
         }
-        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
+        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_]|\\.|,|;)");
 
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
@@ -309,7 +291,88 @@ public final class OpenLFuzzyUtils {
         return sb.toString();
     }
 
-    public static List<FuzzyResult> openlFuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
+    // Matching (graph theory) in bigraph
+    // Ford–Fulkerson algorithm
+    public static List<Pair<Integer, Integer>> findMaximumMatching(List<Pair<Integer, Integer>> edges) {
+        int n1 = 0;
+        int n2 = 0;
+        // Find vertex numbers
+        for (Pair<Integer, Integer> e : edges) {
+            if (e.getLeft() > n1) {
+                n1 = e.getLeft();
+            }
+            if (e.getRight() > n2) {
+                n2 = e.getRight();
+            }
+        }
+        n1++;
+        n2++;
+        int n = n1 + n2 + 2;
+        int s = n1 + n2;
+        int t = n1 + n2 + 1;
+        int[][] edgesMatrix = new int[n][n];
+        // Build graph
+        for (int i = 0; i < n1; i++) {
+            edgesMatrix[s][i] = 1;
+        }
+        for (int i = n1; i < n1 + n2; i++) {
+            edgesMatrix[i][t] = 1;
+        }
+        for (Pair<Integer, Integer> e : edges) {
+            edgesMatrix[e.getLeft()][n1 + e.getRight()] = 1;
+        }
+        while (true) {
+            int[] m = new int[n];
+            Arrays.fill(m, -1);
+            m[s] = 0;
+            boolean[] f = new boolean[n];
+            Arrays.fill(f, true);
+            int[] d = new int[n];
+            Arrays.fill(d, Integer.MAX_VALUE);
+            d[s] = 0;
+            // Deijstra to find a path
+            for (int i = 0; i < n; i++) {
+                int k = -1;
+                int min = Integer.MAX_VALUE;
+                for (int j = 0; j < n; j++) {
+                    if (f[j] && d[j] < min) {
+                        min = d[j];
+                        k = j;
+                    }
+                }
+                if (k < 0) {
+                    break;
+                }
+                f[k] = false;
+                for (int j = 0; j < n; j++) {
+                    if (edgesMatrix[k][j] > 0 && (d[k] != Integer.MAX_VALUE && d[k] + edgesMatrix[k][j] < d[j])) {
+                        d[j] = d[k] + edgesMatrix[k][j];
+                        m[j] = k;
+                    }
+                }
+            }
+            if (d[t] == Integer.MAX_VALUE || d[t] == 0) {
+                break;
+            }
+            int j = t;
+            while (j != s) {
+                edgesMatrix[m[j]][j] = edgesMatrix[m[j]][j] - 1;
+                edgesMatrix[j][m[j]] = edgesMatrix[j][m[j]] + 1;
+                j = m[j];
+            }
+        }
+        List<Pair<Integer, Integer>> ret = new ArrayList<>();
+        for (int i = 0; i < n1; i++) {
+            for (int j = n1; j < n1 + n2; j++) {
+                if (edgesMatrix[j][i] > 0) {
+                    ret.add(Pair.of(i, j - n1));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static List<FuzzyResult> fuzzyExtract(String source, Token[] tokens, boolean ignoreDistances) {
         source = toTokenString(source);
 
         String[] sourceTokens = source.split(" ");
@@ -319,54 +382,39 @@ public final class OpenLFuzzyUtils {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
-        List<Pair<String, String>> similarity = new ArrayList<>();
-
-        String[] sortedSourceTokens = new String[sourceTokens.length];
-        System.arraycopy(sourceTokens, 0, sortedSourceTokens, 0, sourceTokens.length);
-        Arrays.sort(sortedSourceTokens);
-        int[] f = new int[tokensList.length];
-        int foundTokensMax = 0;
-        for (int i = 0; i < tokensList.length; i++) {
-            String[] sortedTokens = new String[tokensList[i].length];
-            System.arraycopy(tokensList[i], 0, sortedTokens, 0, tokensList[i].length);
-            Arrays.sort(sortedTokens);
-            int l = 0;
-            int r = 0;
-            int c = 0;
-            List<String> source1 = new ArrayList<>();
-            List<String> target1 = new ArrayList<>();
-            while (l < sortedSourceTokens.length && r < sortedTokens.length) {
-                double d = StringUtils.getJaroWinklerDistance(sortedSourceTokens[l], sortedTokens[r]);
-                if (d > ACCEPTABLE_SIMILARITY_VALUE) {
-                    source1.add(sortedSourceTokens[l]);
-                    target1.add(sortedTokens[r]);
-                    l++;
-                    r++;
-                    c++;
+        BuildBySimilarity buildBySimilarity1 = new BuildBySimilarity(1.0d, sourceTokens, tokensList).invoke();
+        BuildBySimilarity buildBySimilarity = new BuildBySimilarity(ACCEPTABLE_SIMILARITY_VALUE,
+            sourceTokens,
+            tokensList).invoke();
+        int maxMatchedTokens = buildBySimilarity.getMaxMatchedTokens();
+        if (buildBySimilarity1.getMaxMatchedTokens() == buildBySimilarity.getMaxMatchedTokens()) {
+            buildBySimilarity = buildBySimilarity1;
+        } else {
+            double a = ACCEPTABLE_SIMILARITY_VALUE;
+            double b = 1.0d;
+            while (b - a > 1e-4) {
+                double p = (a + b) / 2;
+                BuildBySimilarity pSimilarity = new BuildBySimilarity(p, sourceTokens, tokensList).invoke();
+                if (pSimilarity.maxMatchedTokens == maxMatchedTokens) {
+                    a = p;
+                    buildBySimilarity = pSimilarity;
                 } else {
-                    if (sortedSourceTokens[l].compareTo(sortedTokens[r]) < 0) {
-                        l++;
-                    } else {
-                        r++;
-                    }
+                    b = p;
                 }
             }
-            if (foundTokensMax < c) {
-                foundTokensMax = c;
-            }
-            f[i] = c;
-
-            similarity.add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
         }
 
-        if (foundTokensMax == 0) {
+        List<Pair<String, String>> similarity = buildBySimilarity.getSimilarity();
+        int[] f = buildBySimilarity.getF();
+
+        if (maxMatchedTokens == 0) {
             return Collections.emptyList();
         }
 
         int missedTokensMin = Integer.MAX_VALUE;
         int minDistance = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == foundTokensMax) {
+            if (f[i] == maxMatchedTokens) {
                 if (missedTokensMin > tokensList[i].length - f[i]) {
                     missedTokensMin = tokensList[i].length - f[i];
                 }
@@ -380,7 +428,7 @@ public final class OpenLFuzzyUtils {
         int best = 0;
         int bestL = Integer.MAX_VALUE;
         for (int i = 0; i < tokensList.length; i++) {
-            if (f[i] == foundTokensMax && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
+            if (f[i] == maxMatchedTokens && tokensList[i].length - f[i] == missedTokensMin && (ignoreDistances || tokens[i]
                 .getDistance() == minDistance)) {
                 Pair<String, String> pair = similarity.get(i);
                 if (!ignoreDistances) {
@@ -409,20 +457,24 @@ public final class OpenLFuzzyUtils {
                 }
             }
         }
-        int foundTokensMax1 = foundTokensMax;
         int missedTokensMin1 = missedTokensMin;
-        return ret.stream().map(e -> new FuzzyResult(e, foundTokensMax1, missedTokensMin1)).collect(Collectors.toList());
+        double acceptableSimilarity = buildBySimilarity.getAcceptableSimilarity();
+        return ret.stream()
+            .map(e -> new FuzzyResult(e, maxMatchedTokens, missedTokensMin1, acceptableSimilarity))
+            .collect(Collectors.toList());
     }
 
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
         Token token;
         int foundTokensCount;
         int missedTokensCount;
+        double acceptableSimilarity;
 
-        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount) {
+        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount, double acceptableSimilarity) {
             this.token = token;
             this.foundTokensCount = foundTokensCount;
             this.missedTokensCount = missedTokensCount;
+            this.acceptableSimilarity = acceptableSimilarity;
         }
 
         @Override
@@ -439,7 +491,13 @@ public final class OpenLFuzzyUtils {
             if (this.missedTokensCount < o.missedTokensCount) {
                 return -1;
             }
-            return Integer.compare(this.token.getDistance(), o.token.getDistance());
+            if (this.token.getDistance() < o.token.getDistance()) {
+                return -1;
+            }
+            if (this.token.getDistance() > o.token.getDistance()) {
+                return 1;
+            }
+            return Double.compare(o.acceptableSimilarity, this.acceptableSimilarity);
         }
 
         public Token getToken() {
@@ -452,6 +510,77 @@ public final class OpenLFuzzyUtils {
 
         public int getMissedTokensCount() {
             return missedTokensCount;
+        }
+
+        public double getAcceptableSimilarity() {
+            return acceptableSimilarity;
+        }
+    }
+
+    private static class BuildBySimilarity {
+        private String[] sourceTokens;
+        private String[][] tokensList;
+        private List<Pair<String, String>> similarity;
+        private int maxMatchedTokens;
+        private int[] f;
+        private double acceptableSimilarity;
+
+        public BuildBySimilarity(double acceptableSimilarity, String[] sourceTokens, String[]... tokensList) {
+            this.sourceTokens = sourceTokens;
+            this.tokensList = tokensList;
+            this.acceptableSimilarity = acceptableSimilarity;
+        }
+
+        public List<Pair<String, String>> getSimilarity() {
+            return similarity;
+        }
+
+        public int getMaxMatchedTokens() {
+            return maxMatchedTokens;
+        }
+
+        public int[] getF() {
+            return f;
+        }
+
+        public double getAcceptableSimilarity() {
+            return acceptableSimilarity;
+        }
+
+        public BuildBySimilarity invoke() {
+            similarity = new ArrayList<>();
+            maxMatchedTokens = 0;
+            f = new int[tokensList.length];
+            for (int i = 0; i < tokensList.length; i++) {
+                int c = 0;
+                List<String> source1 = new ArrayList<>();
+                List<String> target1 = new ArrayList<>();
+                List<Pair<Integer, Integer>> edges = new ArrayList<>();
+                for (int k = 0; k < sourceTokens.length; k++) {
+                    for (int q = 0; q < tokensList[i].length; q++) {
+                        double d = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                        if (d >= acceptableSimilarity) {
+                            edges.add(Pair.of(k, q));
+                        }
+                    }
+                }
+                List<Pair<Integer, Integer>> maximumMatching = findMaximumMatching(edges);
+                for (Pair<Integer, Integer> pair : maximumMatching) {
+                    source1.add(sourceTokens[pair.getLeft()]);
+                    target1.add(tokensList[i][pair.getRight()]);
+                    c++;
+                }
+
+                if (maxMatchedTokens < c) {
+                    maxMatchedTokens = c;
+                }
+                f[i] = c;
+                source1.sort(String::compareTo);
+                target1.sort(String::compareTo);
+                similarity
+                    .add(Pair.of(String.join(StringUtils.SPACE, source1), String.join(StringUtils.SPACE, target1)));
+            }
+            return this;
         }
     }
 }

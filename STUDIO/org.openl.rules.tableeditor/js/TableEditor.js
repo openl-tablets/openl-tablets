@@ -39,6 +39,7 @@ var TableEditor = Class.create({
     fillColorPicker: null,
     fontColorPicker: null,
     hasChanges: false,
+    editModeObserversInitiated: false,
 
     // Constructor
     initialize: function(editorId, url, editCell, actions, mode, editable) {
@@ -124,19 +125,22 @@ var TableEditor = Class.create({
 
         this.decorator = new Decorator('te_selected');
 
-        // Handle Table Editor events START
-        Event.observe(document, "click", function(e) {
-            self.handleClick(e);
-        });
+        if (this.editModeObserversInitiated === false) {
+            // Handle Table Editor events START
+            Event.observe(document, "click", function (e) {
+                self.handleClick(e);
+            });
 
-        Event.observe(document, "keydown", function(e) {
-            self.handleKeyDown(e);
-        });
+            Event.observe(document, "keydown", function (e) {
+                self.handleKeyDown(e);
+            });
 
-        Event.observe(document, "keypress", function(e) {
-            self.handleKeyPress(e);
-        });
-        // Handle Table Editor events END
+            Event.observe(document, "keypress", function (e) {
+                self.handleKeyPress(e);
+            });
+            this.editModeObserversInitiated = true;
+            // Handle Table Editor events END
+        }
 
         self.toolbar.show();
 

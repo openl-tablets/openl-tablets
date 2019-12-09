@@ -4,6 +4,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +38,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.MessageUtils;
 
 /**
  * @author snshor
@@ -115,11 +117,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         for (IOpenMethod testedMethod : testedMethods) {
             tableSyntaxNode.clearErrors();
-            if (errors != null) {
-                for (SyntaxNodeException error : errors) {
-                    tableSyntaxNode.addError(error);
-                }
-            }
+            Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode,
                 module,
                 bindingContext);
@@ -189,25 +187,18 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         if (bestCaseTestMethodBoundNode != null) {
             tableSyntaxNode.clearErrors();
-            if (errors != null) {
-                for (SyntaxNodeException error : errors) {
-                    tableSyntaxNode.addError(error);
-                }
-            }
+            Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             bestCaseTestMethodBoundNode.setTable(bestDataTable);
 
             DataNodeBinder.putSubTableForBussinesView(tableSyntaxNode, bestTestMethodOpenClass);
-
-            for (SyntaxNodeException error : bestCaseErrors) {
-                tableSyntaxNode.addError(error);
+            if (bestCaseErrors != null) {
+                Arrays.stream(bestCaseErrors).forEach(tableSyntaxNode::addError);
             }
-
-            for (OpenLMessage message : bestMessages) {
-                bindingContext.addMessage(message);
+            if (bestMessages != null) {
+                bestMessages.forEach(bindingContext::addMessage);
             }
-
-            for (SyntaxNodeException syntaxNodeException : bestBindingContextErrors) {
-                bindingContext.addError(syntaxNodeException);
+            if (bestBindingContextErrors != null) {
+                Arrays.stream(bestBindingContextErrors).forEach(bindingContext::addError);
             }
 
             if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode())
@@ -220,7 +211,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             return bestCaseTestMethodBoundNode;
         }
 
-        String message = String.format("Table '%s' is not found.", methodName);
+        String message = MessageUtils.getTableNotFoundErrorMessage(methodName);
         throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
     }
 

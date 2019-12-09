@@ -6,5 +6,4 @@ public interface ProjectDescriptor<T extends CommonVersion> {
 
     T getProjectVersion();
 
-    void setProjectVersion(T version) throws ProjectException;
 }

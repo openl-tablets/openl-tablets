@@ -197,16 +197,16 @@ public class ConfigurationManager implements PropertiesHolder {
                 }
             }
         } else if (key != null) {
-            removeProperty(key);
+            revertProperty(key);
         }
     }
 
     @Override
-    public void removeProperty(String key) {
+    public void revertProperty(String key) {
         getConfigurationToSave().clearProperty(key);
     }
 
-    public void removeProperties(String... keys) {
+    public void revertProperties(String... keys) {
         FileConfiguration config = getConfigurationToSave();
         for (String key : keys) {
             config.clearProperty(key);

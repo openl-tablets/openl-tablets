@@ -7,11 +7,8 @@ package org.openl.rules.table;
  */
 public class TransposedGridTable extends AGridTableDecorator {
 
-    private boolean isNormalOrientation;
-
     public TransposedGridTable(IGridTable gridTable) {
         super(gridTable);
-        this.isNormalOrientation = !table.isNormalOrientation();
     }
 
     @Override
@@ -36,7 +33,18 @@ public class TransposedGridTable extends AGridTableDecorator {
 
     @Override
     public boolean isNormalOrientation() {
-        return isNormalOrientation;
+        return !table.isNormalOrientation();
+    }
+
+    @Override
+    public IGridRegion getRegion() {
+        int left = table.getRegion().getTop();
+        int top = table.getRegion().getLeft();
+
+        int right = table.getRegion().getBottom();
+        int bottom = table.getRegion().getRight();
+
+        return new GridRegion(top, left, bottom, right);
     }
 
     @Override

@@ -1,12 +1,5 @@
-/*
- * Created on Jun 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
-import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -268,11 +261,6 @@ public class Operators {
         return x.subtract(y);
     }
 
-    @Deprecated
-    public static boolean xor(boolean x, boolean y) {
-        return x ^ y;
-    }
-
     // Multiply
     public static byte multiply(byte x, byte y) {
         return (byte) (x * y);
@@ -435,142 +423,8 @@ public class Operators {
         return x.divide(y, MathContext.DECIMAL128);
     }
 
-    // Less or Equals Than
-
-    // Abs
-    @Deprecated
-    public static byte abs(byte x) {
-        return (byte) Math.abs(x);
-    }
-
-    @Deprecated
-    public static short abs(short x) {
-        return (short) Math.abs(x);
-    }
-
-    @Deprecated
-    public static int abs(int x) {
-        return Math.abs(x);
-    }
-
-    @Deprecated
-    public static long abs(long x) {
-        return Math.abs(x);
-    }
-
-    @Deprecated
-    public static float abs(float x) {
-        return Math.abs(x);
-    }
-
-    @Deprecated
-    public static double abs(double x) {
-        return Math.abs(x);
-    }
-
-    @Deprecated
-    public static BigInteger abs(BigInteger x) {
-        if (x == null) {
-            return null;
-        }
-        return x.abs();
-    }
-
-    @Deprecated
-    public static BigDecimal abs(BigDecimal x) {
-        if (x == null) {
-            return null;
-        }
-        return x.abs();
-    }
-
     // Bitwise operators
     //
-    @Deprecated
-    public static byte bitand(byte x, byte y) {
-        return (byte) (x & y);
-    }
-
-    @Deprecated
-    public static short bitand(short x, short y) {
-        return (short) (x & y);
-    }
-
-    @Deprecated
-    public static int bitand(int x, int y) {
-        return x & y;
-    }
-
-    @Deprecated
-    public static long bitand(long x, long y) {
-        return x & y;
-    }
-
-    @Deprecated
-    public static byte bitnot(byte x) {
-        return (byte) ~x;
-    }
-
-    @Deprecated
-    public static short bitnot(short x) {
-        return (short) ~x;
-    }
-
-    @Deprecated
-    public static int bitnot(int x) {
-        return ~x;
-    }
-
-    @Deprecated
-    public static long bitnot(long x) {
-        return ~x;
-    }
-
-    @Deprecated
-    public static byte bitor(byte x, byte y) {
-        return (byte) (x | y);
-    }
-
-    @Deprecated
-    public static short bitor(short x, short y) {
-        return (short) (x | y);
-    }
-
-    @Deprecated
-    public static int bitor(int x, int y) {
-        return x | y;
-    }
-
-    @Deprecated
-    public static long bitor(long x, long y) {
-        return x | y;
-    }
-
-    @Deprecated
-    public static boolean bitxor(boolean x, boolean y) {
-        return x ^ y;
-    }
-
-    @Deprecated
-    public static byte bitxor(byte x, byte y) {
-        return (byte) (x ^ y);
-    }
-
-    @Deprecated
-    public static short bitxor(short x, short y) {
-        return (short) (x ^ y);
-    }
-
-    @Deprecated
-    public static int bitxor(int x, int y) {
-        return x ^ y;
-    }
-
-    @Deprecated
-    public static long bitxor(long x, long y) {
-        return x ^ y;
-    }
-
     @Deprecated
     public static float dec(float x) {
         return x - 1;
@@ -649,28 +503,6 @@ public class Operators {
     @Deprecated
     public static BigDecimal inc(BigDecimal x) {
         return x.add(BigDecimal.ONE);
-    }
-
-    @Deprecated
-    public static int lshift(int x, int y) {
-        return x << y;
-    }
-
-    @Deprecated
-    public static long lshift(long x, int y) {
-        return x << y;
-    }
-
-    @Deprecated
-    public static PrintStream lshift(PrintStream p, long x) {
-        p.print(x);
-        return p;
-    }
-
-    @Deprecated
-    public static PrintStream lshift(PrintStream p, Object x) {
-        p.print(x);
-        return p;
     }
 
     @Deprecated
@@ -909,26 +741,6 @@ public class Operators {
     public static Boolean and(Boolean x, Boolean y) {
         return Boolean.FALSE.equals(
             x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
-    }
-
-    @Deprecated
-    public static int rshift(int x, int y) {
-        return x >> y;
-    }
-
-    @Deprecated
-    public static long rshift(long x, int y) {
-        return x >> y;
-    }
-
-    @Deprecated
-    public static int rshiftu(int x, int y) {
-        return x >>> y;
-    }
-
-    @Deprecated
-    public static long rshiftu(long x, int y) {
-        return x >>> y;
     }
 
     // operator '%' implementations

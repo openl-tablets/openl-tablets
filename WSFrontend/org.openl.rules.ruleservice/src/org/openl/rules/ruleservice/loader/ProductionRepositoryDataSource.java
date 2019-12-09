@@ -130,7 +130,7 @@ public class ProductionRepositoryDataSource implements DataSource {
      */
     @PreDestroy
     public void destroy() throws Exception {
-        log.debug("JCR data source releasing");
+        log.debug("Data source releasing");
         if (repository instanceof Closeable) {
             ((Closeable) repository).close();
         }

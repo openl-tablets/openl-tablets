@@ -26,7 +26,12 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -80,6 +85,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> list(String path) throws IOException {
+        if (isEmpty()) {
+            return Collections.emptyList();
+        }
         return iterate(path, new ListCommand(resolveBranchId()));
     }
 
@@ -128,7 +136,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(multipleFiles): lock");
             writeLock.lock();
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
             for (FileItem fileItem : fileItems) {
                 RevCommit commit = createCommit(fileItem.getData(), fileItem.getStream());
                 if (firstCommitId == null) {
@@ -162,7 +172,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             String parentVersion = data.getVersion();
             boolean checkoutOldVersion = isCheckoutOldVersion(data.getName(), parentVersion);
-            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+            }
             RevCommit commit = createCommit(data, stream);
             commitId = commit.getId().getName();
 
@@ -205,7 +217,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
 
             String name = data.getName();
             File file = new File(localRepositoryPath, name);
@@ -275,7 +289,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
 
             File src = new File(localRepositoryPath, srcName);
             File dest = new File(localRepositoryPath, destData.getName());
@@ -348,7 +364,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
 
             RevCommit commit;
             if (version == null) {
@@ -360,9 +378,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setMessage(commitMessage)
                     .setOnly(name)
                     .call();
-                commitId = commit.getId().getName();
-
-                addTagToCommit(commit, author);
             } else {
                 FileData fileData = checkHistory(name, version);
                 if (fileData == null) {
@@ -383,10 +398,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setMessage(commitMessage)
                     .setOnly(markerFile)
                     .call();
-                commitId = commit.getId().getName();
-
-                addTagToCommit(commit, author);
             }
+
+            commitId = commit.getId().getName();
+            addTagToCommit(commit, author);
 
             push();
         } catch (IOException e) {
@@ -418,7 +433,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
 
             File src = new File(localRepositoryPath, srcName);
             if (src.isDirectory()) {
@@ -479,9 +496,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             File local = new File(localRepositoryPath);
 
-            boolean shouldClone;
+            boolean shouldCloneOrInit;
             if (!local.exists()) {
-                shouldClone = true;
+                shouldCloneOrInit = true;
             } else {
                 File[] files = local.listFiles();
                 if (files == null) {
@@ -492,22 +509,24 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
                         log.debug("Reuse existing local repository {}", local);
                         try (Repository repository = Git.open(local).getRepository()) {
-                            String remoteUrl = repository.getConfig()
-                                .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
-                                    Constants.DEFAULT_REMOTE_NAME,
-                                    ConfigConstants.CONFIG_KEY_URL);
-                            if (!uri.equals(remoteUrl)) {
-                                URI proposedUri = getUri(uri);
-                                URI savedUri = getUri(remoteUrl);
-                                if (!proposedUri.equals(savedUri)) {
-                                    throw new IOException(String.format(
-                                        "Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
-                                        local,
-                                        remoteUrl));
+                            if (uri != null) {
+                                String remoteUrl = repository.getConfig()
+                                    .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
+                                        Constants.DEFAULT_REMOTE_NAME,
+                                        ConfigConstants.CONFIG_KEY_URL);
+                                if (!uri.equals(remoteUrl)) {
+                                    URI proposedUri = getUri(uri);
+                                    URI savedUri = getUri(remoteUrl);
+                                    if (!proposedUri.equals(savedUri)) {
+                                        throw new IOException(String.format(
+                                            "Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                            local,
+                                            remoteUrl));
+                                    }
                                 }
                             }
                         }
-                        shouldClone = false;
+                        shouldCloneOrInit = false;
                     } else {
                         // Cannot overwrite existing files that is definitely not git repository
                         throw new IOException(String.format(
@@ -515,25 +534,30 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             local));
                     }
                 } else {
-                    shouldClone = true;
+                    shouldCloneOrInit = true;
                 }
             }
 
-            if (shouldClone) {
+            if (shouldCloneOrInit) {
                 try {
-                    CloneCommand cloneCommand = Git.cloneRepository()
-                        .setURI(uri)
-                        .setDirectory(local)
-                        .setBranch(branch)
-                        .setCloneAllBranches(true);
+                    if (uri != null) {
+                        CloneCommand cloneCommand = Git.cloneRepository()
+                            .setURI(uri)
+                            .setDirectory(local)
+                            .setBranch(branch)
+                            .setCloneAllBranches(true);
 
-                    CredentialsProvider credentialsProvider = getCredentialsProvider();
-                    if (credentialsProvider != null) {
-                        cloneCommand.setCredentialsProvider(credentialsProvider);
+                        CredentialsProvider credentialsProvider = getCredentialsProvider();
+                        if (credentialsProvider != null) {
+                            cloneCommand.setCredentialsProvider(credentialsProvider);
+                        }
+
+                        Git cloned = cloneCommand.call();
+                        cloned.close();
+                    } else {
+                        Git repo = Git.init().setDirectory(local).call();
+                        repo.close();
                     }
-
-                    Git cloned = cloneCommand.call();
-                    cloned.close();
                 } catch (Exception e) {
                     FileUtils.deleteQuietly(local);
                     throw e;
@@ -573,16 +597,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
             }
 
-            if (!shouldClone) {
+            if (!shouldCloneOrInit && uri != null) {
                 try {
                     FetchResult fetchResult = fetchAll();
                     doFastForward(fetchResult);
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (credentialsProvider != null && credentialsProvider.isHasAuthorizationFailure()) {
-                        throw new IOException("Incorrect login or password for git repository.");
+                    if (credentialsProvider != null) {
+                        if (credentialsProvider.isHasAuthorizationFailure()) {
+                            throw new IOException("Incorrect login or password for git repository.");
+                        }
+                    } else {
+                        String message = e.getMessage();
+                        if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
+                            throw new IOException(
+                                "Authentication is required but login and password has not been specified.");
+                        }
                     }
+                    // For other cases like temporary connection loss we should not fail. The local repository exists,
+                    // will fetch later.
                 }
 
                 boolean branchAbsents = git.getRepository().findRef(branch) == null;
@@ -700,7 +734,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         if (treeWalk == null) {
-            throw new FileNotFoundException(String.format("Did not find expected path '%s' in tree '%s'", path , tree.getName() ));
+            throw new FileNotFoundException(
+                String.format("Did not find expected path '%s' in tree '%s'", path, tree.getName()));
         }
         return treeWalk;
     }
@@ -713,6 +748,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             start,
             getFileId(dirWalk),
             escapedCommentTemplate);
+    }
+
+    private boolean isEmpty() throws IOException {
+        Ref headRef = git.getRepository().exactRef(Constants.HEAD);
+        return headRef == null || headRef.getObjectId() == null;
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -744,34 +784,39 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     ObjectId getLastRevision() throws GitAPIException, IOException {
-        FetchResult fetchResult;
+        FetchResult fetchResult = null;
 
         Lock readLock = repositoryLock.readLock();
-        try {
-            readLock.lock();
 
-            boolean remoteLocked = remoteRepoLock.tryLock();
-            if (!remoteLocked) {
-                // Skip because is already fetching by other thread.
-                return null;
-            }
+        if (uri != null) {
             try {
-                fetchResult = fetchAll();
+                readLock.lock();
+
+                boolean remoteLocked = remoteRepoLock.tryLock();
+                if (!remoteLocked) {
+                    // Skip because is already fetching by other thread.
+                    return null;
+                }
+                try {
+                    fetchResult = fetchAll();
+                } finally {
+                    remoteRepoLock.unlock();
+                }
             } finally {
-                remoteRepoLock.unlock();
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
 
-        boolean branchesChanged;
+        boolean branchesChanged = false;
         Lock writeLock = repositoryLock.writeLock();
         try {
-            log.debug("pull(): lock");
+            log.debug("getLastRevision(): lock write");
             writeLock.lock();
 
-            branchesChanged = doFastForward(fetchResult);
-            fastForwardNotMergedCommits(fetchResult);
+            if (fetchResult != null) {
+                branchesChanged = doFastForward(fetchResult);
+                fastForwardNotMergedCommits(fetchResult);
+            }
 
             TreeSet<String> availableBranches = getAvailableBranches();
             for (List<String> projectBranches : branches.values()) {
@@ -782,7 +827,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
         } finally {
             writeLock.unlock();
-            log.debug("pull(): unlock");
+            log.debug("getLastRevision(): unlock write");
         }
 
         if (branchesChanged) {
@@ -808,7 +853,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             RefUpdate.Result result = refUpdate.getResult();
             switch (result) {
                 case FAST_FORWARD:
-                    git.checkout().setName(refUpdate.getRemoteName()).call();
+                    if (!isEmpty()) {
+                        git.checkout().setName(refUpdate.getRemoteName()).call();
+                    }
 
                     // It's assumed that we don't have unpushed commits at this point so there must be no additional
                     // merge
@@ -891,6 +938,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void pull(String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+        if (uri == null) {
+            return;
+        }
+
         FetchResult fetchResult;
         try {
             remoteRepoLock.lock();
@@ -1031,6 +1082,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void push() throws GitAPIException, IOException {
+        if (uri == null) {
+            return;
+        }
+
         try {
             remoteRepoLock.lock();
 
@@ -1089,6 +1144,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.lock();
 
             org.eclipse.jgit.lib.Repository repository = git.getRepository();
+            if (isEmpty()) {
+                return command.apply(repository, null, path);
+            }
+
             try (RevWalk walk = new RevWalk(repository)) {
                 RevCommit commit = walk.parseCommit(resolveBranchId());
                 RevTree tree = commit.getTree();
@@ -1115,6 +1174,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("iterateHistory(): lock");
             readLock.lock();
+
+            if (isEmpty()) {
+                return historyVisitor.getResult();
+            }
+
             Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).addPath(name).call().iterator();
 
             List<Ref> tags = git.tagList().call();
@@ -1148,6 +1212,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             List<Ref> tags = git.tagList().call();
 
             try (RevWalk walk = new RevWalk(git.getRepository())) {
+                if (isEmpty()) {
+                    return historyVisitor.getResult();
+                }
+
                 RevCommit commit = walk.parseCommit(getCommitByVersion(version));
                 historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 return historyVisitor.getResult();
@@ -1257,7 +1325,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         addTagToCommit(commit, commit.getId().getName(), mergeAuthor);
     }
 
-    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException,
+                                                                                             IOException {
         pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {
@@ -1306,7 +1375,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("save(folderItems, changesetType): lock");
             writeLock.lock();
             reset();
-            git.checkout().setName(branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(branch).call();
+            }
             for (FolderItem folderItem : folderItems) {
                 RevCommit commit = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
                 if (firstCommitId == null) {
@@ -1343,7 +1414,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             String parentVersion = folderData.getVersion();
             boolean checkoutOldVersion = isCheckoutOldVersion(folderData.getName(), parentVersion);
-            git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+            if (!isEmpty()) {
+                git.checkout().setName(checkoutOldVersion ? parentVersion : branch).call();
+            }
 
             RevCommit commit = createCommit(folderData, files, changesetType);
             commitId = commit.getId().getName();
@@ -1539,6 +1612,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             boolean branchAbsents = git.getRepository().findRef(newBranch) == null;
             if (branchAbsents) {
                 // Checkout existing branch
+                if (isEmpty()) {
+                    throw new IOException("Can't create a branch on the empty repository.");
+                }
                 git.checkout().setName(branch).call();
 
                 // Create new branch
@@ -1766,6 +1842,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void pushBranch(RefSpec refSpec) throws GitAPIException, IOException {
+        if (uri == null) {
+            return;
+        }
+
         PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
         CredentialsProvider credentialsProvider = getCredentialsProvider();

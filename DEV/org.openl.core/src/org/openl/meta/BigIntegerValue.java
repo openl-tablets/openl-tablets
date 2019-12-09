@@ -334,7 +334,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
             return null;
         }
         // evaluate result
-        org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(Operators.abs(value.getValue()));
+        org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(value.getValue().abs());
         // create instance with information about last operation
         return new org.openl.meta.BigIntegerValue(result, NumberOperations.ABS, value);
     }

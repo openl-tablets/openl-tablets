@@ -109,7 +109,7 @@ public abstract class AbstractProductionRepoController {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def",
             getProductionConfigManager("def"),
             RepositoryMode.PRODUCTION);
-        repositoryConfiguration.setType(RepositoryType.LOCAL.name().toLowerCase());
+        repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
         return repositoryConfiguration;
     }
 

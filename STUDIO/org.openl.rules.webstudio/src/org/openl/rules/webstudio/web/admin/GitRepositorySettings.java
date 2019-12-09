@@ -10,6 +10,8 @@ import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
+    private boolean remoteRepository;
+
     private String uri;
     private String login;
     private String password;
@@ -77,6 +79,16 @@ public class GitRepositorySettings extends RepositorySettings {
         connectionTimeout = configManager.getLongProperty(CONNECTION_TIMEOUT, 60L).intValue();
         settingsPath = configManager.getStringProperty(SETTINGS_PATH);
         newBranchTemplate = configManager.getStringProperty(NEW_BRANCH_TEMPLATE);
+
+        remoteRepository = StringUtils.isNotBlank(uri);
+    }
+
+    public boolean isRemoteRepository() {
+        return remoteRepository;
+    }
+
+    public void setRemoteRepository(boolean remoteRepository) {
+        this.remoteRepository = remoteRepository;
     }
 
     public String getUri() {
@@ -179,11 +191,18 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
-        propertiesHolder.setProperty(URI, uri);
+        boolean clearLogin = StringUtils.isEmpty(login);
 
-        if (StringUtils.isEmpty(login)) {
-            propertiesHolder.removeProperty(LOGIN);
-            propertiesHolder.removeProperty(PASSWORD);
+        if (isRemoteRepository()) {
+            propertiesHolder.setProperty(URI, uri);
+        } else {
+            propertiesHolder.setProperty(URI, "");
+            clearLogin = true;
+        }
+
+        if (clearLogin) {
+            propertiesHolder.setProperty(LOGIN, "");
+            propertiesHolder.setPassword(PASSWORD, "");
         } else {
             propertiesHolder.setProperty(LOGIN, getLogin());
             propertiesHolder.setPassword(PASSWORD, getPassword());
@@ -204,7 +223,7 @@ public class GitRepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(URI,
+        configurationManager.revertProperties(URI,
             LOGIN,
             PASSWORD,
             USER_DISPLAY_NAME,
@@ -237,6 +256,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setConnectionTimeout(otherSettings.getConnectionTimeout());
             setCommentTemplate(otherSettings.getCommentTemplate());
             setSettingsPath(otherSettings.getSettingsPath());
+            setRemoteRepository(otherSettings.isRemoteRepository());
         }
     }
 

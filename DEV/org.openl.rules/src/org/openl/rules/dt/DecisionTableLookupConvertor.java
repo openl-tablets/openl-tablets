@@ -55,7 +55,7 @@ public class DecisionTableLookupConvertor {
 
         IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupGridColumn, grid);
 
-        Integer lookupValuesTableHeight = getlookupValuesTableHeight(table, grid);
+        Integer lookupValuesTableHeight = getLookupValuesTableHeight(table, grid);
 
         isMultiplier(lookupValuesTable);
 
@@ -164,29 +164,28 @@ public class DecisionTableLookupConvertor {
         validateHCHeaders(hcHeaderTable);
     }
 
-    private IGridTable getLookupValuesTable(ILogicalTable originaltable,
+    private IGridTable getLookupValuesTable(ILogicalTable originalTable,
             int firstLookupGridColumn,
             IGrid grid) throws OpenLCompilationException {
-        ILogicalTable valueTable = originaltable.getRows(DISPLAY_ROW + 1);
+        ILogicalTable valueTable = originalTable.getRows(DISPLAY_ROW + 1);
         GridRegion lookupValuesRegion;
         if (valueTable != null) {
             lookupValuesRegion = new GridRegion(valueTable.getSource().getRegion());
         } else {
-            String message = String.format("The table must have at least one row with values.");
-            throw new OpenLCompilationException(message);
+            throw new OpenLCompilationException("The table must have at least one row with values.");
         }
         lookupValuesRegion.setLeft(firstLookupGridColumn);
 
         return new GridTable(lookupValuesRegion, grid);
     }
 
-    private Integer getlookupValuesTableHeight(ILogicalTable originaltable, IGrid grid) {
-        String stringValue = originaltable.getCell(0, 0).getStringValue();
+    private Integer getLookupValuesTableHeight(ILogicalTable originalTable, IGrid grid) {
+        String stringValue = originalTable.getCell(0, 0).getStringValue();
         if (stringValue == null) {
             stringValue = "";
         }
         stringValue = stringValue.toUpperCase();
-        ILogicalTable valueTable = originaltable.getRows(DISPLAY_ROW + 1);
+        ILogicalTable valueTable = originalTable.getRows(DISPLAY_ROW + 1);
         if (DecisionTableHelper.isValidRuleHeader(stringValue) || DecisionTableHelper
             .isValidMergedConditionHeader(stringValue)) {
             return valueTable.getHeight();

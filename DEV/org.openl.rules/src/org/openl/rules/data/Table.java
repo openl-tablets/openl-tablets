@@ -1,7 +1,13 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -18,6 +24,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.BiMap;
+import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Table implements ITable {
@@ -190,14 +197,13 @@ public class Table implements ITable {
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
-                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index.",
-                    new GridCellSourceCodeModule(gridTable));
+                throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY, new GridCellSourceCodeModule(gridTable));
             }
 
             key = key.trim();
 
             if (index.containsKey(key)) {
-                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
+                throw SyntaxNodeExceptionUtils.createError(MessageUtils.getDuplicatedKeyIndexErrorMessage(key),
                     new GridCellSourceCodeModule(gridTable));
             }
 
@@ -222,12 +228,12 @@ public class Table implements ITable {
             Object value = gridTable.getCell(0, 0).getObjectValue();
 
             if (value == null) {
-                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index.",
+                throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
                     new GridCellSourceCodeModule(gridTable));
             }
 
             if (values.contains(value)) {
-                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + value,
+                throw SyntaxNodeExceptionUtils.createError(MessageUtils.getDuplicatedKeyIndexErrorMessage(String.valueOf(value)),
                     new GridCellSourceCodeModule(gridTable));
             }
 

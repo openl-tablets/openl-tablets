@@ -92,7 +92,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     protected void revert(ConfigurationManager configurationManager) {
         super.revert(configurationManager);
 
-        configurationManager.removeProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
+        configurationManager.revertProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
         load(configurationManager);
     }
 

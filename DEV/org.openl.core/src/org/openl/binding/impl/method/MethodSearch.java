@@ -379,6 +379,9 @@ public final class MethodSearch {
                                                                          .isArray());
         if (filtered.iterator().hasNext()) {
             for (int i = params.length - 1; i >= 0; i--) {
+                if (params[i] instanceof NoVarArgOpenClass) {
+                    return null;
+                }
                 IOpenClass[] args = new IOpenClass[i + 1];
                 System.arraycopy(params, 0, args, 0, i);
                 IOpenClass varArgType = params[i];

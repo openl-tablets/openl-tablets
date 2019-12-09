@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.kafka</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - RMI</name>
+    <name>OpenL - RuleService - Kafka</name>
     <description>OpenL Rules Rulesevice Kafka</description>
     <url>https://openl-tablets.org</url>
     <dependencies>

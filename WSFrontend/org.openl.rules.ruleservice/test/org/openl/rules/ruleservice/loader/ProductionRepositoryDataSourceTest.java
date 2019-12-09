@@ -31,7 +31,7 @@ public class ProductionRepositoryDataSourceTest {
     private DataSource dataSource;
 
     @Test
-    public void testJcrDataSource() {
+    public void testDataSource() {
         assertNotNull(dataSource);
     }
 

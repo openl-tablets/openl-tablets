@@ -1,2 +1,5 @@
 ERROR: Empty key in an unique index.
-ERROR: Foreign table 'Policydata' has errors.
+ERROR: Foreign table 'EmptyKeyData' has errors.
+ERROR: Duplicated key in an unique index: P0001
+ERROR: Foreign table 'DuplicateKeyData' has errors.
+ERROR: Index Key 'P0005' is not found in the foreign table 'PolicyData'.

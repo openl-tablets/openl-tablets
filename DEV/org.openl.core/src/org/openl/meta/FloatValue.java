@@ -386,7 +386,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
             return null;
         }
         // evaluate result
-        float result = Operators.abs(value.getValue());
+        float result = Math.abs(value.getValue());
         // create instance with information about last operation
         return new org.openl.meta.FloatValue(result, NumberOperations.ABS, value);
     }

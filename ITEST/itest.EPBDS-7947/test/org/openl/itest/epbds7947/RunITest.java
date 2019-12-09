@@ -1,10 +1,5 @@
 package org.openl.itest.epbds7947;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,14 +15,13 @@ import org.openl.generated.beans.Policy;
 import org.openl.generated.beans.Vehicle;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.core.SoapClientFactory;
 import org.openl.itest.epbds7947.project.MainService;
-import org.openl.itest.responsedto.ErrorResponse;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class RunITest {
 
@@ -35,7 +29,6 @@ public class RunITest {
     private static String baseURI;
 
     private MainService soapClient;
-    private RestTemplate rest;
 
     private Policy policy;
     private Policy[] policies;
@@ -56,7 +49,6 @@ public class RunITest {
     @Before
     public void before() {
         soapClient = new SoapClientFactory<>(baseURI + "/parent-datatype-validation", MainService.class).createProxy();
-        rest = new RestClientFactory(baseURI + "/REST/parent-datatype-validation").create();
 
         policy = createPolicyBean();
         policies = new Policy[3];
@@ -247,15 +239,6 @@ public class RunITest {
                 "Object 'OTHER' is outside of valid domain 'PlanName'. Valid values: [ANNUAL, NONANNUAL]",
                 e);
         }
-    }
-
-    private static void assertRestValidationResponse(String expectedMsg, ResponseEntity<ErrorResponse> response) {
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-        ErrorResponse error = response.getBody();
-        assertNotNull(error);
-        assertEquals(ExceptionType.VALIDATION.name(), error.getType());
-        assertEquals(expectedMsg, error.getMessage());
-        assertNull(error.getDetails());
     }
 
     private static void assertSoapValidationFault(String expectedMsg, SoapFault e) {

@@ -6,7 +6,9 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 
-class SimpleLockInfo implements LockInfo {
+public class SimpleLockInfo implements LockInfo {
+    public static final SimpleLockInfo NO_LOCK = new SimpleLockInfo(false, null, null);
+
     private final boolean locked;
     private final Date date;
     private final String userName;

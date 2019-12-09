@@ -278,9 +278,6 @@
                                         <h:outputText value="Type:" />
                                         <h:selectOneMenu value="#{designRepository.type}">
                                             <f:ajax event="change" render="designParameters deployConfigFolderStructureParams designRepoTypeMessage" />
-                                            <f:selectItem itemValue="local" itemLabel="Local" />
-                                            <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                            <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                                             <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                                             <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                             <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
@@ -346,9 +343,6 @@
                                             <h:outputText value="Type:" rendered="#{not systemSettingsBean.useDesignRepo}" />
                                             <h:selectOneMenu value="#{deployConfigRepo.type}" rendered="#{not systemSettingsBean.useDesignRepo}">
                                                 <f:ajax event="change" render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage" />
-                                                <f:selectItem itemValue="local" itemLabel="Local" />
-                                                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                                                 <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                                                 <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
@@ -356,7 +350,7 @@
                                             </h:selectOneMenu>
                                             <h:outputText value=""/>
                                             <h:panelGroup id="deployConfigRepoTypeMessage">
-                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not empty deployConfigRepo.errorMessage}" styleClass="error"/>
+                                                <h:outputText value="#{deployConfigRepo.errorMessage}" rendered="#{not systemSettingsBean.useDesignRepo and not empty deployConfigRepo.errorMessage}" styleClass="error"/>
                                             </h:panelGroup>
                                         </h:panelGrid>
                                         <h:panelGroup id="deployConfigParameters" rendered="#{not systemSettingsBean.useDesignRepo}">
@@ -410,9 +404,6 @@
                                             <h:outputText value="Type:" />
                                             <h:selectOneMenu value="#{repository.type}">
                                                 <f:ajax event="change" render="productionParameters" />
-                                                <f:selectItem itemValue="local" itemLabel="Local" />
-                                                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                                                 <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                                                 <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
@@ -463,11 +454,6 @@
                             </div>
 
                             <div class="addRepositoryConfig">
-                                <a4j:commandButton onclick="#{rich:component('modalCreateRepo')}.show();return false;"
-                                    title="Create local deployment repository"
-                                    styleClass="toolbarButton menuButton" render="repositoryProps"
-                                    value="Create Deployment Repository" >
-                                </a4j:commandButton>
                                 <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
                                     title="Add connection to deployment repository"
                                     styleClass="toolbarButton menuButton" render="repositoryProps"
@@ -530,7 +516,6 @@
 
             </h:form>
             <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
-            <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
             <ui:include src="/pages/modules/showInfo.xhtml" />
         </div>
     </div>

@@ -140,22 +140,6 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    public int getFirstRevisionIndex() {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        if (fileDatas.isEmpty()) {
-            return 0;
-        }
-
-        // In JCR repository first revision is "technical". It does not contain any file and comment.
-        // In this case first real revision is 1, not 0.
-        // In other situations it's impossible to create empty project in repository.
-        // In other repository types first revision is always 0.
-        FileData fd = fileDatas.get(0);
-        boolean technicalRevision = fd.getSize() == 0 && StringUtils.isEmpty(fd.getComment());
-        return technicalRevision ? 1 : 0;
-    }
-
-    @Override
     public void setFileData(FileData fileData) {
         super.setFileData(fileData);
         historyFileDatas = null;

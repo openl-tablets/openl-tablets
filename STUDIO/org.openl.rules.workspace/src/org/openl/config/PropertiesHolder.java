@@ -7,7 +7,7 @@ public interface PropertiesHolder {
 
     void setProperty(String key, Object value);
 
-    void removeProperty(String key);
+    void revertProperty(String key);
 
     void setPassword(String key, String pass);
 }
