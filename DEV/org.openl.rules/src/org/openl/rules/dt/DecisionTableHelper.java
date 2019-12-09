@@ -1080,7 +1080,7 @@ public final class DecisionTableHelper {
         int height = originalTable.getSource().getHeight();
         int t1 = 0;
         int t2 = 0;
-        IString2DataConvertor<?> string2DataConvertor = String2DataConvertorFactory
+        IString2DataConvertor<?> string2DataConverter = String2DataConvertorFactory
             .getConvertor(type.getInstanceClass());
         while (h < height) {
             ICell cell1 = originalTable.getSource().getCell(column, h);
@@ -1088,7 +1088,7 @@ public final class DecisionTableHelper {
                 String s1 = cell1.getStringValue();
                 Object o1;
                 try {
-                    o1 = string2DataConvertor.parse(s1, null);
+                    o1 = string2DataConverter.parse(s1, null);
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
@@ -1098,7 +1098,7 @@ public final class DecisionTableHelper {
                 String s2 = cell2.getStringValue();
                 Object o2;
                 try {
-                    o2 = string2DataConvertor.parse(s2, null);
+                    o2 = string2DataConverter.parse(s2, null);
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
