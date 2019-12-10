@@ -49,6 +49,9 @@
                             <webservice-webapp>
                                 ..\..\WSFrontend\org.openl.rules.ruleservice.ws.full\target\webservice-full
                             </webservice-webapp>
+                            <someExternalProperty>
+                                #{${geocodeProvider}.mapSuggestion}
+                            </someExternalProperty>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
