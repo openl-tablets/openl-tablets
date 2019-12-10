@@ -1,10 +1,10 @@
 package org.openl.rules.util;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * A set of util methods to work with arrays.
@@ -162,6 +162,27 @@ public final class Arrays {
      */
     public static <T> T[] add(T... elements) {
         return elements;
+    }
+
+    public static <T> T[] add(T[] array, T element) {
+        Class<?> type;
+        int length = 0;
+        if (array != null) {
+            type = array.getClass().getComponentType();
+            length = array.length;
+        } else if (element != null) {
+            type = element.getClass();
+        } else {
+            throw new IllegalArgumentException("Arguments cannot both be null");
+        }
+        length += 1;
+
+        ArrayList<T> arr = new ArrayList<>(length);
+        if (array != null) {
+            Collections.addAll(arr, array);
+        }
+        Collections.addAll(arr, element);
+        return arr.toArray((T[]) Array.newInstance(type, 0));
     }
 
     /**
