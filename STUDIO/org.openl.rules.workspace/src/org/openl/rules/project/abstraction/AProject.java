@@ -208,7 +208,8 @@ public class AProject extends AProjectFolder {
 
     public boolean isDeleted() {
         try {
-            return getFileData().isDeleted();
+            FileData fileData = getFileData();
+            return fileData == null || fileData.isDeleted();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;

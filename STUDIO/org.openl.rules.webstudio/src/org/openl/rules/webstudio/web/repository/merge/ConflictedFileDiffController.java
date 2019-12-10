@@ -12,11 +12,9 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -55,7 +53,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 return;
             }
 
-            MergeConflictInfo mergeConflict = getMergeConflict();
+            MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
 
@@ -130,17 +128,13 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             return null;
         }
 
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         if (mergeConflict != null) {
             MergeConflictException exception = mergeConflict.getException();
             return exception.getDiffs().get(conflictedFile);
         }
 
         return null;
-    }
-
-    private MergeConflictInfo getMergeConflict() {
-        return (MergeConflictInfo) FacesUtils.getSessionMap().get(Constants.SESSION_PARAM_MERGE_CONFLICT);
     }
 
     private boolean isExcelFile(String conflictedFile) {

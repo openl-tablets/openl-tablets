@@ -117,7 +117,7 @@ public class ConflictService {
 
         StreamingOutput streamingOutput = output -> {
             Map<String, ConflictResolution> conflictResolutions = ConflictUtils
-                .getConflictsFromSession(request.getSession());
+                .getResolutionsFromSession(request.getSession());
             ConflictResolution conflictResolution = conflictResolutions.get(name);
             try (InputStream input = conflictResolution.getCustomResolutionFile().getInput()) {
                 IOUtils.copy(input, output);

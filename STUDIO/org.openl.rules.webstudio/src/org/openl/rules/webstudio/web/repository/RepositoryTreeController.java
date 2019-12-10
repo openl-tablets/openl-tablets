@@ -46,6 +46,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -56,7 +57,6 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -222,7 +222,7 @@ public class RepositoryTreeController {
     public String saveProject() {
         UserWorkspaceProject project = null;
         try {
-            FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            ConflictUtils.removeMergeConflict();
             project = repositoryTreeState.getSelectedProject();
             if (!project.isModified()) {
                 log.warn("Tried to save a project without any changes.");
@@ -239,11 +239,11 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof MergeConflictException) {
-                log.debug("Failed to save the project because of merge conflict.", e);
+                log.debug("Failed to save the project because of merge conflict.", cause);
                 if (project instanceof RulesProject) {
                     MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause,
                         (RulesProject) project);
-                    FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_MERGE_CONFLICT, info);
+                    ConflictUtils.saveMergeConflict(info);
                 }
             } else {
                 String msg = e.getMessage();
@@ -975,7 +975,19 @@ public class RepositoryTreeController {
                         Comments comments = getComments(project);
                         comment = comments.eraseProject(project.getName());
                     }
-                    project.erase(userWorkspace.getUser(), comment);
+                    try {
+                        project.erase(userWorkspace.getUser(), comment);
+                    } catch (ProjectException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof MergeConflictException) {
+                            log.debug("Failed to erase the project because of merge conflict.", cause);
+                            // Try to erase second time. It should resolve the issue if conflict in
+                            // openl-projects.properties file.
+                            project.erase(userWorkspace.getUser(), comment);
+                        } else {
+                            throw e;
+                        }
+                    }
                 }
             }
             deleteProjectHistory(project.getName());
@@ -1932,8 +1944,9 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
 
-            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
-                .getRepository()).getBranches(selectedProject.getName()));
+            List<String> branches = new ArrayList<>(
+                ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
+                    .getBranches(selectedProject.getName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);

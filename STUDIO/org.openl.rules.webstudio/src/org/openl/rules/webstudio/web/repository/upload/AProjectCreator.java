@@ -9,6 +9,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -51,29 +52,49 @@ public abstract class AProjectCreator {
             projectBuilder.save();
             projectBuilder.getProject().open();
         } catch (Exception e) {
-            log.error("Error creating project.", e);
-
-            if (projectBuilder != null) {
-                projectBuilder.cancel();
-            }
-
-            errorMessage = e.getMessage();
-
-            // add detailed information
             Throwable cause = e.getCause();
-
-            if (cause != null) {
-                while (cause.getCause() != null) {
-                    cause = cause.getCause();
+            if (projectBuilder != null && cause instanceof MergeConflictException) {
+                log.debug("Failed to save the project because of merge conflict.", cause);
+                // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
+                try {
+                    projectBuilder.save();
+                    projectBuilder.getProject().open();
+                } catch (Exception ex) {
+                    log.error("Error creating project.", e);
+                    projectBuilder.cancel();
+                    errorMessage = getErrorMessage(e);
                 }
-
-                if (cause.getMessage() != null && !cause.getMessage().equals(errorMessage)) {
-                    errorMessage += " Cause: " + cause.getMessage();
+            } else {
+                log.error("Error creating project.", e);
+                if (projectBuilder != null) {
+                    projectBuilder.cancel();
                 }
+                errorMessage = getErrorMessage(e);
+            }
+        }
+        return errorMessage;
+    }
+
+    private String getErrorMessage(Exception e) {
+        String errorMessage = e.getMessage();
+
+        Throwable cause = e.getCause();
+        // add detailed information
+        if (cause != null) {
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
             }
 
-            if (errorMessage == null) {
-                errorMessage = "Error creating project";
+            if (cause.getMessage() != null && !cause.getMessage().equals(errorMessage)) {
+                errorMessage += " Cause: " + cause.getMessage();
+            }
+        }
+
+        if (errorMessage == null) {
+            if (cause instanceof MergeConflictException) {
+                errorMessage = "Merge conflict when create a project.";
+            } else {
+                errorMessage = "Error creating project.";
             }
         }
         return errorMessage;
