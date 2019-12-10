@@ -69,4 +69,11 @@ public class RunITest {
     public void testCalVehicleYearVariationsPack_SOAP() throws VariationException {
         client.post("/EPBDS-6437", "/variation.req.xml", "/variation.resp.xml");
     }
+
+    @Test
+    public void testFromDifferentDateFormats_JSON() {
+        client.post("/REST/EPBDS-9201/spr", "/milliseconds.req.json", "/milliseconds.resp.json");
+        client.post("/REST/EPBDS-9201/spr", "/defaultDateFormat.req.json", "/defaultDateFormat.resp.json");
+        client.post("/REST/EPBDS-9201/spr", "/iso8601WithoutTime.req.json", "/iso8601WithoutTime.resp.json");
+    }
 }
