@@ -241,15 +241,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
             Formulas.REM);
     }
 
-    // ADD
-    public static String add(DoubleValue value1, String value2) {
-        return value1 + value2;
-    }
-
-    public static String add(String value1, DoubleValue value2) {
-        return value1 + value2;
-    }
-
     /**
      * Adds left hand operand to right hand operand
      *

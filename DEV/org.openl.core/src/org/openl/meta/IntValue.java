@@ -127,15 +127,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
             Formulas.REM);
     }
 
-    // ADD
-    public static String add(IntValue value1, String value2) {
-        return value1 + value2;
-    }
-
-    public static String add(String value1, IntValue value2) {
-        return value1 + value2;
-    }
-
     /**
      * Adds left hand operand to right hand operand
      *
