@@ -12,6 +12,9 @@ import org.openl.types.impl.CompositeMethod;
 
 public class DecisionTableUtils {
 
+    private DecisionTableUtils() {
+    }
+
     public static List<IdentifierNode> retrieveIdentifierNodes(ICondition dtCondition) {
         return retrieveIdentifierNodes(((CompositeMethod) dtCondition.getMethod()));
     }
