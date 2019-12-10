@@ -31,7 +31,10 @@ public class ServiceConfigurationDefaultDateFormatFactoryBean extends ServiceCon
             try {
                 return new ExtendedStdDateFormat(defaultDateFormat);
             } catch (Exception e) {
-                throw new ServiceConfigurationException("Invalid date format is used in the rule service's default configuration.", e);
+                throw new ServiceConfigurationException(
+                    String.format("Invalid date format is used in the service '%s' configuration.",
+                        getServiceDescription().getName()),
+                    e);
             }
         }
         return null;
