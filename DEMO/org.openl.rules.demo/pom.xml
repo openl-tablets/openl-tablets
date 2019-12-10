@@ -18,7 +18,7 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <tomcat.version>9.0.29</tomcat.version>
+        <tomcat.version>9.0.27</tomcat.version>
         <tomcat.root>apache-tomcat-${tomcat.version}</tomcat.root>
         <tomcat.webapps>${tomcat.root}/webapps</tomcat.webapps>
         <tomcat.lib>${tomcat.root}/lib</tomcat.lib>
