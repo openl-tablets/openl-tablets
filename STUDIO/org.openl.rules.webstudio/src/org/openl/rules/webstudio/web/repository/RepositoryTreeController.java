@@ -685,13 +685,8 @@ public class RepositoryTreeController {
                 IOUtils.closeQuietly(content);
             }
             for (String modulePath : modulePaths) {
-                Iterator<Module> itr = projectDescriptor.getModules().iterator();
-                while (itr.hasNext()) {
-                    Module module = itr.next();
-                    if (modulePath.equals(module.getRulesRootPath().getPath())) {
-                        itr.remove();
-                    }
-                }
+                projectDescriptor.getModules()
+                    .removeIf(module -> modulePath.equals(module.getRulesRootPath().getPath()));
             }
             String xmlString = serializer.serialize(projectDescriptor);
             InputStream newContent = IOUtils.toInputStream(xmlString);
@@ -769,28 +764,25 @@ public class RepositoryTreeController {
             if (parent != null && parent.getData() != null) {
                 parent.refresh();
             }
-            if (selectedNode != activeProjectNode) {
-                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || UiConst.TYPE_PROJECT
-                    .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly();
-                if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
-                    repositoryTreeState.refreshSelectedNode();
-                } else {
-                    repositoryTreeState.deleteSelectedNodeFromTree();
+
+            if (projectArtefact instanceof UserWorkspaceProject) {
+                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
+                    if (selectedNode != activeProjectNode) {
+                        repositoryTreeState.deleteSelectedNodeFromTree();
+                    } else {
+                        repositoryTreeState.deleteNode(selectedNode);
+                        repositoryTreeState.invalidateSelection();
+                    }
                     if (isSupportsBranches()) {
                         repositoryTreeState.invalidateTree();
                     }
+                } else {
+                    repositoryTreeState.refreshSelectedNode();
                 }
             } else {
-                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
-                    repositoryTreeState.deleteNode(selectedNode);
-                    repositoryTreeState.invalidateSelection();
-                    if (isSupportsBranches()) {
-                        repositoryTreeState.invalidateTree();
-                    }
-                } else {
-                    repositoryTreeState.refreshSelectedNode();
-                }
+                repositoryTreeState.deleteSelectedNodeFromTree();
             }
+
             activeProjectNode = null;
             resetStudioModel();
 
