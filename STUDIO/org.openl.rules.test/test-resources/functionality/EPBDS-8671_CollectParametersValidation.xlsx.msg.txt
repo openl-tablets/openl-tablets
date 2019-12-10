@@ -2,3 +2,7 @@ ERROR: Cannot parse cell value 'key1'. Expected value of type 'Integer'.
 ERROR: Cannot parse cell value 'key2'. Expected value of type 'Integer'.
 ERROR: Cannot parse cell value 'key3'. Expected value of type 'Integer'.
 ERROR: Cannot parse cell value 'key4'. Expected value of type 'Integer'.
+ERROR: Cannot convert a key value '"key1"' to type 'java.lang.Double'.
+ERROR: Cannot convert a key value '"key2"' to type 'java.lang.Double'.
+ERROR: Cannot convert a key value '"key3"' to type 'java.lang.Double'.
+ERROR: Cannot convert a key value '"key4"' to type 'java.lang.Double'.

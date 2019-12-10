@@ -15,6 +15,8 @@ import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultField;
 import org.openl.rules.calc.StubSpreadSheetResult;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
@@ -961,9 +963,9 @@ public class DataTableBindHelper {
             if (loadedFieldType instanceof TestMethodOpenClass) {
                 StringBuilder sb = new StringBuilder();
                 MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
-                errorMessage = String.format("Found '%s', but expected one of the parameters from the method '%s'.",
-                    fieldName,
-                    sb.toString());
+                errorMessage = String.format("Expected one of the parameters from the method '%s', but found '%s'.",
+                    sb.toString(),
+                    fieldName);
             } else {
                 errorMessage = String
                     .format("Field '%s' is not found in type '%s'.", fieldName, loadedFieldType.getName());
@@ -1025,8 +1027,9 @@ public class DataTableBindHelper {
         if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
             field.getType().getInstanceClass(),
             List.class) && !field.getType().isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
-            String message = String
-                .format("Field '%s' is not a collection! The field type is '%s'.", name, field.getType().toString());
+            String message = String.format("Expected a collection type for field '%s', but found type '%s'.",
+                name,
+                field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(bindingContext, table, error);
             return null;
@@ -1060,9 +1063,14 @@ public class DataTableBindHelper {
             if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
                 Object mapKey;
                 try {
-                    mapKey = getCollectionKey(currentFieldNameNode);
+                    mapKey = getCollectionKey(currentFieldNameNode,
+                        loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
+                        bindingContext);
+                } catch (SyntaxNodeException e) {
+                    processError(bindingContext, table, e);
+                    return null;
                 } catch (Exception e) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse map key.",
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                         currentFieldNameNode);
                     processError(bindingContext, table, error);
                     return null;
@@ -1077,7 +1085,7 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse array index.",
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                         currentFieldNameNode);
                     processError(bindingContext, table, error);
                     return null;
@@ -1111,6 +1119,38 @@ public class DataTableBindHelper {
         }
 
         return collectionAccessField;
+    }
+
+    private static Object getCollectionKey(IdentifierNode currentFieldNameNode,
+            TestMethodOpenClass testMethodOpenClass,
+            IBindingContext bindingContext) throws SyntaxNodeException {
+        String s = currentFieldNameNode.getIdentifier();
+        s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
+        if (testMethodOpenClass != null && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod) {
+            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass.getTestedMethod();
+            TableSyntaxNode tableSyntaxNode = executableRulesMethod.getSyntaxNode();
+            if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
+                IOpenClass keyOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                    tableSyntaxNode.getHeader().getCollectParameters()[0]);
+                if (keyOpenClass != null) {
+                    if (keyOpenClass.getInstanceClass() == String.class) {
+                        if (StringUtils.matches(QUOTED, s)) {
+                            s = s.substring(1, s.length() - 1);
+                        }
+                    }
+                    try {
+                        IString2DataConvertor<?> converter = String2DataConvertorFactory
+                            .getConvertor(keyOpenClass.getInstanceClass());
+                        return converter.parse(s, null);
+                    } catch (Exception e) {
+                        throw SyntaxNodeExceptionUtils.createError(
+                            String.format("Cannot convert a key value '%s' to type '%s'.", s, keyOpenClass.getName()),
+                            currentFieldNameNode);
+                    }
+                }
+            }
+        }
+        return getCollectionKey(currentFieldNameNode);
     }
 
     public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
