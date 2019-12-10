@@ -2,16 +2,18 @@ package org.openl.rules.webstudio.web.repository.merge;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
 
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -20,7 +22,6 @@ import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
@@ -53,7 +54,7 @@ public class MergeConflictBean {
     private String uploadError;
 
     public List<ConflictGroup> getConflictGroups() {
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         if (mergeConflict == null) {
             return Collections.emptyList();
         }
@@ -109,7 +110,7 @@ public class MergeConflictBean {
     }
 
     public String getRealPath(String path) {
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         if (mergeConflict == null) {
             return path;
         }
@@ -123,17 +124,17 @@ public class MergeConflictBean {
     }
 
     public String getYourCommit() {
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         return mergeConflict == null ? null : mergeConflict.getException().getYourCommit();
     }
 
     public String getTheirCommit() {
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         return mergeConflict == null ? null : mergeConflict.getException().getTheirCommit();
     }
 
     public String getBaseCommit() {
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         return mergeConflict == null ? null : mergeConflict.getException().getBaseCommit();
     }
 
@@ -153,7 +154,7 @@ public class MergeConflictBean {
 
     public Map<String, ConflictResolution> getConflictResolutions() {
         if (conflictResolutions.isEmpty()) {
-            MergeConflictInfo conflictException = getMergeConflict();
+            MergeConflictInfo conflictException = ConflictUtils.getMergeConflict();
             if (conflictException != null) {
                 for (String conflictedFile : conflictException.getException().getConflictedFiles()) {
                     conflictResolutions.put(conflictedFile, new ConflictResolution());
@@ -205,7 +206,7 @@ public class MergeConflictBean {
 
     public void saveAndResolve() {
         // Validate
-        MergeConflictInfo mergeConflict = getMergeConflict();
+        MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
         if (mergeConflict == null) {
             mergeError = "Nothing to merge";
             return;
@@ -283,7 +284,7 @@ public class MergeConflictBean {
     public void init() {
         try {
             conflictResolutions.clear();
-            ConflictUtils.saveConflictsToSession(FacesUtils.getSession(), conflictResolutions);
+            ConflictUtils.saveResolutionsToSession(conflictResolutions);
             conflictedFile = null;
 
             mergeMessage = generateMergeMessage();
@@ -306,7 +307,7 @@ public class MergeConflictBean {
 
     private String generateMergeMessage() {
         try {
-            MergeConflictInfo mergeConflict = getMergeConflict();
+            MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
 
@@ -354,14 +355,7 @@ public class MergeConflictBean {
     }
 
     public void clearMergeStatus() {
-        FacesContext facesContext = FacesUtils.getFacesContext();
-        if (facesContext != null) {
-            facesContext.getExternalContext().getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
-            HttpSession session = FacesUtils.getSession();
-            if (session != null) {
-                ConflictUtils.clear(session);
-            }
-        }
+        ConflictUtils.removeMergeConflict();
         conflictResolutions.clear();
         existInRepositoryCache.clear();
         conflictedFile = null;
@@ -376,7 +370,7 @@ public class MergeConflictBean {
     public boolean hasLocalFile(String name) {
         try {
             String rulesLocation = getRulesLocation();
-            String localName = name.substring(rulesLocation.length());
+            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length()) : name;
             return getUserWorkspace().getLocalWorkspace().getRepository().check(localName) != null;
         } catch (WorkspaceException | IOException e) {
             log.error(e.getMessage(), e);
@@ -407,10 +401,6 @@ public class MergeConflictBean {
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
         WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext().getAuthentication().getName());
         return workspaceManager.getUserWorkspace(user);
-    }
-
-    private MergeConflictInfo getMergeConflict() {
-        return (MergeConflictInfo) FacesUtils.getSessionMap().get(Constants.SESSION_PARAM_MERGE_CONFLICT);
     }
 
     private String getRulesLocation() throws WorkspaceException {

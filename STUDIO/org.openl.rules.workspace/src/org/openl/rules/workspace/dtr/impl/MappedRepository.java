@@ -183,31 +183,34 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         if (data.getVersion() == null) {
             try {
-                ByteArrayInputStream inputStream;
+                ByteArrayInputStream inputStream = null;
 
                 Lock lock = mappingLock.writeLock();
                 try {
                     lock.lock();
 
-                    Map<String, String> newMap = new HashMap<>(externalToInternal);
-                    newMap.remove(data.getName());
-                    inputStream = getStreamFromProperties(newMap);
+                    if (externalToInternal.containsKey(data.getName())) {
+                        Map<String, String> newMap = new HashMap<>(externalToInternal);
+                        newMap.remove(data.getName());
+                        inputStream = getStreamFromProperties(newMap);
 
-                    externalToInternal = newMap;
+                        externalToInternal = newMap;
+                    }
                 } finally {
                     lock.unlock();
                 }
 
-                FileData configData = new FileData();
-                configData.setName(configFile);
-                configData.setAuthor(data.getAuthor());
-                configData.setComment(data.getComment());
-                delegate.save(configData, inputStream);
+                if (inputStream != null) {
+                    FileData configData = new FileData();
+                    configData.setName(configFile);
+                    configData.setAuthor(data.getAuthor());
+                    configData.setComment(data.getComment());
+                    delegate.save(configData, inputStream);
+                }
 
                 // Use mapping before modification
                 return delegate.deleteHistory(toInternal(mapping, data));
             } catch (IOException | RuntimeException e) {
-                log.error(e.getMessage(), e);
                 refreshMapping();
                 throw e;
             }

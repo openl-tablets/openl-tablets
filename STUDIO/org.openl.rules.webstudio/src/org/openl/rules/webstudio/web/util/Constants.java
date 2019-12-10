@@ -20,7 +20,6 @@ public final class Constants {
 
     public static final String SESSION_PARAM_EXPLANATOR = "explanator";
     public static final String SESSION_PARAM_PARAMETERS = "parameters";
-    public static final String SESSION_PARAM_MERGE_CONFLICT = "mergeConflict";
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
 

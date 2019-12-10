@@ -138,15 +138,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
             Formulas.REM);
     }
 
-    // ADD
-    public static String add(BigIntegerValue value1, String value2) {
-        return value1 + value2;
-    }
-
-    public static String add(String value1, BigIntegerValue value2) {
-        return value1 + value2;
-    }
-
     /**
      * Adds left hand operand to right hand operand
      *
