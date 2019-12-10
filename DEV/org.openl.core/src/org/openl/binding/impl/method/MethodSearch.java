@@ -68,6 +68,7 @@ public final class MethodSearch {
                     if (arrayDim > 0) {
                         return NO_MATCH;
                     }
+                    t = unwrapPrimitiveClassIfNeeded(t);
                     if (genericTypes.containsKey(typeNames[i])) {
                         IOpenClass existedType = genericTypes.get(typeNames[i]);
                         IOpenCast cast1 = casts.getCast(existedType, t);
@@ -88,7 +89,7 @@ public final class MethodSearch {
                             }
                         }
                     } else {
-                        genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(t));
+                        genericTypes.put(typeNames[i], t);
                     }
                 }
                 i++;
