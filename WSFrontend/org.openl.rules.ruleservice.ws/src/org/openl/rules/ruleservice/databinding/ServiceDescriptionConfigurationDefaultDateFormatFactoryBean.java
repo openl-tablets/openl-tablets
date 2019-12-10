@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.databinding;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.ruleservice.core.ServiceDescription;
@@ -33,7 +32,7 @@ public class ServiceDescriptionConfigurationDefaultDateFormatFactoryBean extends
         String value = getValueAsString(DEFAULT_DATE_FORMAT);
         if (StringUtils.isNotBlank(value)) {
             try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(value);
+                ExtendedStdDateFormat simpleDateFormat = new ExtendedStdDateFormat(value);
                 log.info("Service '{}' uses default date format '{}'.", getServiceDescription().getName(), value);
                 return simpleDateFormat;
             } catch (Exception e) {
