@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:checkRulesModuleResponse xmlns:ns1="http://DefaultNamespace">
+            <ns1:return>20170101</ns1:return>
+        </ns1:checkRulesModuleResponse>
+    </soap:Body>
+</soap:Envelope>

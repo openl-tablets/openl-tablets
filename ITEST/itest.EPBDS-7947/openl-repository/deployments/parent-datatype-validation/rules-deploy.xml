@@ -7,8 +7,5 @@
     <publisher>WEBSERVICE</publisher>
     <publisher>RESTFUL</publisher>
   </publishers>
-  <!-- STATIC INTERFACE -->
-  <serviceClass>org.openl.itest.epbds7947.project.MainService</serviceClass>
-  <!-- //STATIC INTERFACE -->
   <url>parent-datatype-validation</url>
 </rules-deploy>

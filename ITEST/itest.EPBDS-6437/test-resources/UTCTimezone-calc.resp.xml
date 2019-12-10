@@ -1,0 +1,7 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:calVehicleYearResponse xmlns:ns1="http://DefaultNamespace">
+            <ns1:return>10</ns1:return>
+        </ns1:calVehicleYearResponse>
+    </soap:Body>
+</soap:Envelope>

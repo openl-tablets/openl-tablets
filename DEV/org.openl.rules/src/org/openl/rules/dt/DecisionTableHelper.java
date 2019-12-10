@@ -65,7 +65,6 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -474,51 +473,6 @@ public final class DecisionTableHelper {
         return Pair.of(fieldsChainSb.toString(), type);
     }
 
-    private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-        int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
-        IOpenClass type = decisionTable.getType();
-        if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
-            Collection.class)) && parametersCount > 1) {
-            throw new OpenLCompilationException(
-                String.format("Error: Cannot bind node: '%s'. Found more than one parameter for '%s'.",
-                    Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                    type.getComponentClass().getDisplayName(0)));
-        }
-        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
-            if (parametersCount > 2) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Found more than two parameter for '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        type.getDisplayName(0)));
-            }
-            if (parametersCount == 1) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Found only one parameter for '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        type.getDisplayName(0)));
-            }
-        }
-        for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
-            if (t == null) {
-                throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Cannot find type: '%s'.",
-                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                        parameterType));
-            } else {
-                if (type.isArray() && bindingContext.getCast(t, type.getComponentClass()) == null) {
-                    throw new OpenLCompilationException(
-                        String.format("Error: Cannot bind node: '%s'. Incompatible types: '%s' and '%s'.",
-                            Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                            type.getComponentClass().getDisplayName(0),
-                            t.getDisplayName(0)));
-                }
-            }
-        }
-    }
-
     private static void writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             IWritableGrid grid,
@@ -880,11 +834,7 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        boolean isCollect = isCollect(tableSyntaxNode);
-
-        if (isCollect) {
-            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, bindingContext);
-        }
+        final boolean isCollect = isCollect(tableSyntaxNode);
 
         if (isLookup(tableSyntaxNode)) {
             int firstReturnColumn = dtHeaders.stream()
@@ -1080,32 +1030,44 @@ public final class DecisionTableHelper {
         int height = originalTable.getSource().getHeight();
         int t1 = 0;
         int t2 = 0;
-        IString2DataConvertor<?> string2DataConvertor = String2DataConvertorFactory
+        IString2DataConvertor<?> string2DataConverter = String2DataConvertorFactory
             .getConvertor(type.getInstanceClass());
         while (h < height) {
             ICell cell1 = originalTable.getSource().getCell(column, h);
-            String s1 = cell1.getStringValue();
-            Object o1 = string2DataConvertor.parse(s1, null);
-
-            ICell cell2 = originalTable.getSource()
-                .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
-            String s2 = cell2.getStringValue();
-            Object o2 = string2DataConvertor.parse(s2, null);
-
-            if (JavaOpenClass.STRING.equals(type)) {
-                o1 = NumericComparableString.valueOf((String) o1);
-                o2 = NumericComparableString.valueOf((String) o2);
-            }
-
-            if (o1 instanceof Comparable && o2 instanceof Comparable) {
-                if (((Comparable) o1).compareTo(o2) > 0) {
-                    t1++;
-                } else if (((Comparable) o1).compareTo(o2) < 0) {
-                    t2++;
+            try {
+                String s1 = cell1.getStringValue();
+                Object o1;
+                try {
+                    o1 = string2DataConverter.parse(s1, null);
+                } catch (IllegalArgumentException e) {
+                    continue;
                 }
-            }
 
-            h = h + cell1.getHeight();
+                ICell cell2 = originalTable.getSource()
+                    .getCell(column + numberOfColumnsUnderTitleCounter.getWidth(column, 0), h);
+                String s2 = cell2.getStringValue();
+                Object o2;
+                try {
+                    o2 = string2DataConverter.parse(s2, null);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                if (JavaOpenClass.STRING.equals(type)) {
+                    o1 = NumericComparableString.valueOf((String) o1);
+                    o2 = NumericComparableString.valueOf((String) o2);
+                }
+
+                if (o1 instanceof Comparable && o2 instanceof Comparable) {
+                    if (((Comparable) o1).compareTo(o2) > 0) {
+                        t1++;
+                    } else if (((Comparable) o1).compareTo(o2) < 0) {
+                        t2++;
+                    }
+                }
+            } finally {
+                h = h + cell1.getHeight();
+            }
         }
         return t1 <= t2;
     }
@@ -1628,14 +1590,12 @@ public final class DecisionTableHelper {
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
         int prev = sb.length();
-        if (sb.length() == 0) {
-            sb.append(d);
-        } else {
+        if (sb.length() != 0) {
             sb.append(StringUtils.SPACE);
             sb.append("/");
             sb.append(StringUtils.SPACE);
-            sb.append(d);
         }
+        sb.append(d);
         if (h + h0 < firstColumnHeight) {
             int w2 = w;
             while (w2 < w + w0) {
@@ -2416,11 +2376,19 @@ public final class DecisionTableHelper {
                 throw new OpenLCompilationException("No input parameter found for horizontal condition.");
             }
 
-            column = fit.stream()
+            int maxColumnMatched = fit.stream()
                 .filter(e -> e.isCondition() || e.isAction())
                 .mapToInt(e -> e.getColumn() + e.getWidth())
                 .max()
                 .orElse(0);
+
+            int numberOfLinesForHCondition = numberOfColumnsUnderTitleCounter
+                .get(originalTable.getSource().getWidth() - 1);
+            column = originalTable.getSource().getWidth() - 1;
+            while (column > maxColumnMatched && numberOfColumnsUnderTitleCounter
+                .get(column - 1) == numberOfLinesForHCondition) {
+                column--;
+            }
 
             List<DTHeader> fitWithHConditions = new ArrayList<>(fit);
             int j = 0;

@@ -12,7 +12,13 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.*;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -102,15 +108,39 @@ public class Action extends FunctionalRow implements IAction {
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) {
+    private IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
+        IOpenClass cType = null;
+        if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
+            cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                tableSyntaxNode.getHeader().getCollectParameters()[0]);
+        }
+        return cType != null ? cType : JavaOpenClass.OBJECT;
+    }
+
+    private IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
+        IOpenClass type = header.getType();
         if (type.isArray()) {
             return type.getComponentClass();
         }
         if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
-            return JavaOpenClass.OBJECT;
+            IOpenClass cType = null;
+            if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
+                cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                    tableSyntaxNode.getHeader().getCollectParameters()[0]);
+            }
+            return cType != null ? cType : JavaOpenClass.OBJECT;
         }
         if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
-            return JavaOpenClass.OBJECT;
+            IOpenClass cType = null;
+            if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
+                cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                    tableSyntaxNode.getHeader().getCollectParameters()[1]);
+            }
+            return cType != null ? cType : JavaOpenClass.OBJECT;
         }
         return type;
     }
@@ -131,10 +161,10 @@ public class Action extends FunctionalRow implements IAction {
             methodType = header.getType();
         } else {
             if (isCollectReturnAction()) {
-                methodType = exctractMethodTypeForCollectReturnAction(header.getType());
+                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
-                    methodType = JavaOpenClass.OBJECT;
+                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, header, bindingContext);
                 }
             }
         }

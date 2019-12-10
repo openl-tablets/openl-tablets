@@ -33,9 +33,8 @@ public class RunKafkaSmokeITest {
             .build());
         
         cluster.start();
-        
-        server = new JettyServer();
-        server.start();
+
+        server = JettyServer.start();
     }
 
     @Test
