@@ -10,7 +10,11 @@ import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.binding.impl.module.VariableInContextFinder;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOwnTargetMethod;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -29,7 +33,7 @@ public class TypeBindingContext extends BindingContextDelegator {
         CustomJavaOpenClass annotation = instanceClass == null ? null
                                                                : instanceClass.getAnnotation(CustomJavaOpenClass.class);
         VariableInContextFinder context;
-        if (annotation != null && annotation.variableInContextFinder() != null) {
+        if (annotation != null) {
             context = createCustomVariableFinder(annotation, localVar);
         } else {
             context = new RootDictionaryContext(new IOpenField[] { localVar }, 1);

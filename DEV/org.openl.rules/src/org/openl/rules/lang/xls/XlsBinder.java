@@ -4,7 +4,15 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
@@ -291,7 +299,7 @@ public class XlsBinder implements IOpenBinder {
 
             bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, rulesModuleBindingContext);
 
-            IBoundNode topNode = null;
+            IBoundNode topNode;
 
             // Bind constants
             TableSyntaxNode[] constantNodes = selectNodes(moduleNode, constantsSelector);
@@ -500,32 +508,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode, ISelector<ISyntaxNode> childSelector) {
-        return selectAndSortNodes(moduleSyntaxNode, childSelector, null);
-    }
-
-    private TableSyntaxNode[] selectAndSortNodes(XlsModuleSyntaxNode moduleSyntaxNode,
-            ISelector<ISyntaxNode> childSelector,
-            Comparator<TableSyntaxNode> nodesComparator) {
-
-        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<>();
-
-        for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
-
-            if (childSelector == null || childSelector.select(tsn)) {
-                childSyntaxNodes.add(tsn);
-            }
-        }
-
-        TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
-
-        if (nodesComparator != null) {
-            try {
-                Arrays.sort(tableSyntaxNodes, nodesComparator);
-            } catch (Exception e) {
-                // ignore sort exceptions.
-            }
-        }
-        return tableSyntaxNodes;
+        return selectTableSyntaxNodes(moduleSyntaxNode, childSelector);
     }
 
     private TableSyntaxNode[] selectTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
@@ -539,7 +522,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        return childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
+        return childSyntaxNodes.toArray(new TableSyntaxNode[0]);
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
@@ -565,10 +548,10 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext rulesModuleBindingContext) {
         if (OpenLSystemProperties.isCustomSpreadsheetType(rulesModuleBindingContext.getExternalParams())) {
             Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new ArrayList<>();
-            for (int i = 0; i < tableSyntaxNodes.length; i++) {
-                if (isCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
+            for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+                if (isCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode)) {
                     final String sprResTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + TableSyntaxNodeHelper
-                        .getTableName(tableSyntaxNodes[i]);
+                        .getTableName(tableSyntaxNode);
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
                         CustomSpreadsheetResultOpenClass csroc = new CustomSpreadsheetResultOpenClass(sprResTypeName,
                             rulesModuleBindingContext.getModule());
@@ -724,9 +707,9 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private IMemberBoundNode beginBind(TableSyntaxNode tableSyntaxNode,
-                                       XlsModuleOpenClass module,
-                                       OpenL openl,
-                                       RulesModuleBindingContext rulesModuleBindingContext) {
+            XlsModuleOpenClass module,
+            OpenL openl,
+            RulesModuleBindingContext rulesModuleBindingContext) {
         try {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
         } catch (SyntaxNodeException error) {
@@ -912,7 +895,6 @@ public class XlsBinder implements IOpenBinder {
                         }
                     } finally {
                         rulesModuleBindingContext.popErrors()
-                            .stream()
                             .forEach(syntaxNodeExceptionHolder::addBindingContextError);
                     }
                 }
