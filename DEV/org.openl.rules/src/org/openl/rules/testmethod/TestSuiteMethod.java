@@ -87,7 +87,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
         TreeSet<Integer> result = new TreeSet<>();
 
-        String ranges[] = StringUtils.split(ids.trim(), ',');
+        String[] ranges = StringUtils.split(ids.trim(), ',');
         for (String range : ranges) {
             if (range.isEmpty() && indeces.containsKey(",")) {
                 result.add(indeces.get(","));
@@ -98,7 +98,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 result.add(indeces.get(v));
                 continue;
             }
-            String edges[] = StringUtils.split(v, '-');
+            String[] edges = StringUtils.split(v, '-');
             if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
                 edges = DASH_SEPARATOR.split(v);
             }
@@ -179,12 +179,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public int getColumnIndex(String columnName) {
         ColumnDescriptor[] descriptors = getDataModel().getDescriptors();
-        for (int i = 0; i < descriptors.length; i++) {
-            if (descriptors[i] == null) {
+        for (ColumnDescriptor descriptor : descriptors) {
+            if (descriptor == null) {
                 continue;
             }
-            if (descriptors[i].getName().equals(columnName)) {
-                return descriptors[i].getColumnIdx();
+            if (descriptor.getName().equals(columnName)) {
+                return descriptor.getColumnIdx();
             }
         }
 
@@ -410,6 +410,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             for (IOpenField field : fieldSequence) {
                                 if (field == null) {
                                     hasNull = true;
+                                    break;
                                 }
                             }
                             if (!hasNull) {
