@@ -1,19 +1,25 @@
 package org.openl.rules.ruleservice.databinding;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.ruleservice.databinding.util.ExtendedStdDateFormat;
 
 public class ServiceConfigurationDefaultDateFormatFactoryBean extends ServiceConfigurationFactoryBean<DateFormat> {
     private static final String DEFAULT_DATE_FORMAT = "jacksondatabinding.defaultDateFormat";
 
+    private String defaultDateFormat;
+
+    public void setDefaultDateFormat(String defaultDateFormat) {
+        this.defaultDateFormat = defaultDateFormat;
+    }
+
     @Override
     protected DateFormat createInstance() throws Exception {
-        Object value = getValue(DEFAULT_DATE_FORMAT);
-        if (value instanceof String) {
-            String v = (String) value;
+        String value = getValueAsString(DEFAULT_DATE_FORMAT);
+        if (StringUtils.isNotBlank(value)) {
             try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(v.trim());
-                return simpleDateFormat;
+                return new ExtendedStdDateFormat(value);
             } catch (Exception e) {
                 throw new ServiceConfigurationException(
                     String.format("Invalid date format is used for '%s' in the configuration for service '%s'.",
@@ -21,12 +27,11 @@ public class ServiceConfigurationDefaultDateFormatFactoryBean extends ServiceCon
                         getServiceDescription().getName()),
                     e);
             }
-        } else {
-            if (value != null) {
-                throw new ServiceConfigurationException(
-                    String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                        DEFAULT_DATE_FORMAT,
-                        getServiceDescription().getName()));
+        } else if (StringUtils.isNotBlank(defaultDateFormat)) {
+            try {
+                return new ExtendedStdDateFormat(defaultDateFormat);
+            } catch (Exception e) {
+                throw new ServiceConfigurationException("Invalid date format is used in the rule service's default configuration.", e);
             }
         }
         return null;

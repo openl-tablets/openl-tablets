@@ -18,7 +18,9 @@
     </bean>
 
     <bean id="JAXRSserviceConfigurationDefaultDateFormatFactoryBean"
-        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean" scope="prototype"/>
+        class="org.openl.rules.ruleservice.databinding.ServiceConfigurationDefaultDateFormatFactoryBean" scope="prototype">
+        <property name="defaultDateFormat" value="${ruleservice.jackson.defaultDateFormat}"/>
+    </bean>
 
     <bean id="JAXRSserviceConfigurationSerializationInclusionFactoryBean"
         class="org.openl.rules.ruleservice.databinding.ServiceConfigurationSerializationInclusionFactoryBean"
