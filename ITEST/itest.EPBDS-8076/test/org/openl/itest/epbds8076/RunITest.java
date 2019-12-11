@@ -24,12 +24,12 @@ public class RunITest {
 
     @Test
     public void testRest() {
-        client.post("/REST/EPBDS-8076/EPBDS-8076/m1", "/empty.req.json", "/const1.resp.json");
-        client.post("/REST/EPBDS-8076/EPBDS-8076/m2", "/empty.req.json", "/const2.resp.json");
-        client.post("/REST/EPBDS-8076/EPBDS-8076/s1", "/empty.req.json", "/const1.resp.json");
-        client.post("/REST/EPBDS-8076/EPBDS-8076/s2", "/empty.req.json", "/const2.resp.json");
-        client.post("/REST/EPBDS-8076/EPBDS-8076/t1", "/empty.req.json", "/const1.resp.json");
-        client.post("/REST/EPBDS-8076/EPBDS-8076/t2", "/empty.req.json", "/const2.resp.json");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/m1", "/empty.req.json", "/const1.resp.txt");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/m2", "/empty.req.json", "/const2.resp.txt");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/s1", "/empty.req.json", "/const1.resp.txt");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/s2", "/empty.req.json", "/const2.resp.txt");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/t1", "/empty.req.json", "/const1.resp.txt");
+        client.post("/REST/EPBDS-8076/EPBDS-8076/t2", "/empty.req.json", "/const2.resp.txt");
     }
 
     @Test
