@@ -25,7 +25,6 @@ public class ExtendedStdDateFormat extends StdDateFormat {
         this.pattern = pattern;
         this._timezone = TimeZone.getDefault();
         this.dateFormat = new SimpleDateFormat(pattern);
-        this.dateFormat.setTimeZone(TimeZone.getDefault());
     }
 
     private ExtendedStdDateFormat(String pattern,
@@ -37,7 +36,6 @@ public class ExtendedStdDateFormat extends StdDateFormat {
         super(tz, loc, lenient, formatTzOffsetWithColon);
         this.pattern = pattern;
         this.dateFormat = new SimpleDateFormat(pattern);
-        this.dateFormat.setTimeZone(TimeZone.getDefault());
     }
 
     /**
@@ -53,12 +51,12 @@ public class ExtendedStdDateFormat extends StdDateFormat {
      */
     @Override
     public Date parse(String dateStr) throws ParseException {
+        SimpleDateFormat df = cloneDateFormat();
         try {
-            return super.parse(dateStr);
+            return df.parse(dateStr);
         } catch (ParseException e1) {
-            SimpleDateFormat df = cloneDateFormat();
             try {
-                return df.parse(dateStr);
+                return super.parse(dateStr);
             } catch (ParseException e2) {
                 ParseException e = new ParseException(String.format(PARSE_ERROR_MSG, dateStr, getAllAllowedFormats()),
                     e2.getErrorOffset());

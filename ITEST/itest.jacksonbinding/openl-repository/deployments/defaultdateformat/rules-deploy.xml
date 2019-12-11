@@ -10,7 +10,7 @@
     <configuration>
         <entry>
             <string>jacksondatabinding.defaultDateFormat</string>
-            <string>yyMMddHHmmss</string>
+            <string>dd/MM/yyyy HH:mm:ss</string>
         </entry>
     </configuration>
 
