@@ -6,12 +6,11 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
-import org.openl.rules.serialization.JsonUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -19,11 +18,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriTemplateHandler;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -33,6 +30,8 @@ import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -45,6 +44,8 @@ public class HttpClient {
     private static final String ANY_BODY = "F0gupfmZFkK0RaK1NbnV";
     private static final String NO_BODY = "JhSC9dXQ1dkqZ7qHP1qZ";
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private RestTemplate rest;
 
     private HttpClient(RestTemplate rest) {
@@ -53,18 +54,8 @@ public class HttpClient {
 
     static HttpClient create(String baseURI) {
         RestTemplate rest = new RestTemplate();
-        for (HttpMessageConverter<?> converter : rest.getMessageConverters()) {
-            if (converter instanceof MappingJackson2HttpMessageConverter) {
-                JacksonObjectMapperFactoryBean objectMapperFactory = new JacksonObjectMapperFactoryBean();
-                objectMapperFactory.setSupportVariations(true);
-                ((MappingJackson2HttpMessageConverter) converter)
-                    .setObjectMapper(objectMapperFactory.createJacksonObjectMapper());
-            }
-        }
 
-        DefaultUriTemplateHandler uriHandler = new DefaultUriTemplateHandler();
-        uriHandler.setBaseUrl(baseURI);
-        rest.setUriTemplateHandler(uriHandler);
+        rest.setUriTemplateHandler(new DefaultUriBuilderFactory(baseURI));
         rest.setErrorHandler(NO_ERROR_HANDLER);
         return new HttpClient(rest);
     }
@@ -272,13 +263,12 @@ public class HttpClient {
     private void compareJson(String responseFile, Resource body) {
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-            Map<String, Object> expectedMap = mapper.readValue(file, Map.class);
+            Map<String, Object> actualMap = OBJECT_MAPPER.readValue(actual, Map.class);
+            Map<String, Object> expectedMap = OBJECT_MAPPER.readValue(file, Map.class);
             assertEquals(actualMap.keySet(), expectedMap.keySet());
             for (String expectedKey : expectedMap.keySet()) {
-                compareJsonObjects(JsonUtils.toJSON(expectedMap.get(expectedKey)),
-                    JsonUtils.toJSON(actualMap.get(expectedKey)));
+                compareJsonObjects(toJSON(expectedMap.get(expectedKey)),
+                    toJSON(actualMap.get(expectedKey)));
             }
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -287,8 +277,8 @@ public class HttpClient {
 
     private void compareJsonObjects(String expectedJson, String actualJson) {
         try {
-            Map<String, String> expectedJsonMap = JsonUtils.splitJSON(expectedJson);
-            Map<String, String> actualJsonMap = JsonUtils.splitJSON(actualJson);
+            Map<String, String> expectedJsonMap = splitJSON(expectedJson);
+            Map<String, String> actualJsonMap = splitJSON(actualJson);
             assertEquals(expectedJsonMap.keySet(), actualJsonMap.keySet());
             if (expectedJsonMap.keySet().size() == 0) {
                 String regExp = expectedJson.replaceAll("\\[", "\\\\[")
@@ -305,11 +295,26 @@ public class HttpClient {
                 }
             }
             for (String expectedKey : expectedJsonMap.keySet()) {
-                compareJsonObjects(JsonUtils.toJSON(expectedJsonMap.get(expectedKey)),
-                    JsonUtils.toJSON(actualJsonMap.get(expectedKey)));
+                compareJsonObjects(toJSON(expectedJsonMap.get(expectedKey)),
+                    toJSON(actualJsonMap.get(expectedKey)));
             }
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private static String toJSON(Object obj) throws JsonProcessingException {
+        return OBJECT_MAPPER.writeValueAsString(obj);
+    }
+
+    private static Map<String, String> splitJSON(String jsonString) throws IOException {
+        JsonNode rootNode = OBJECT_MAPPER.readTree(jsonString);
+        Map<String, String> splitMap = new HashMap<>();
+        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
+        while (fieldsIterator.hasNext()) {
+            Map.Entry<String, JsonNode> field = fieldsIterator.next();
+            splitMap.put(field.getKey(), OBJECT_MAPPER.writeValueAsString(field.getValue()));
+        }
+        return splitMap;
     }
 }
