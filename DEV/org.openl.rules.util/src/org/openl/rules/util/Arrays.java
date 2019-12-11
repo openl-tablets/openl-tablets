@@ -129,8 +129,62 @@ public final class Arrays {
         return type == null ? null : arr.toArray((T[]) Array.newInstance(type, 0));
     }
 
+    @Deprecated
     public static <T> T[] addAll(T[] a1, T[] a2) {
         return add(a1, a2);
+    }
+
+    /**
+     * <p>
+     * Inserts the specified element at the specified position in the array. Shifts the element currently at that
+     * position (if any) and any subsequent elements to the right (adds one to their indices).
+     * </p>
+     * <p/>
+     * <p>
+     * This method returns a new array with the same elements of the input array plus the given element on the specified
+     * position. The component type of the returned array is always the same as that of the input array.
+     * </p>
+     * <p/>
+     * <p>
+     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
+     * the element.
+     * </p>
+     * <p/>
+     *
+     * <pre>
+     * Arrays.add(null, 0, null)      = [null]
+     * Arrays.add(null, 0, "a")       = ["a"]
+     * Arrays.add(["a"], 1, null)     = ["a", null]
+     * Arrays.add(["a"], 1, "b")      = ["a", "b"]
+     * Arrays.add(["a", "b"], 3, "c") = ["a", "b", "c"]
+     * </pre>
+     *
+     * @param array the array to add the element to, may be <code>null</code>
+     * @param index the position of the new object
+     * @param elements the objects to add
+     * @return A new array containing the existing elements and the new element
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
+     */
+    public static <T> T[] add(T[] array, int index, T... elements) {
+        Class<?> type = null;
+        int length = 0;
+        if (elements != null) {
+            type = elements.getClass().getComponentType();
+            length = elements.length;
+        }
+        if (array != null) {
+            type = array.getClass().getComponentType();
+            length += array.length;
+        }
+
+        ArrayList<T> arr = new ArrayList<>(length);
+        if (array != null) {
+            Collections.addAll(arr, array);
+        }
+        if (isNotEmpty(elements)) {
+            arr.addAll(index, java.util.Arrays.asList(elements));
+        }
+        return type == null ? null : arr.toArray((T[]) Array.newInstance(type, 0));
     }
 
     // SLICE
