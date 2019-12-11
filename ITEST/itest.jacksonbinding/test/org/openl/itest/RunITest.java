@@ -1,5 +1,8 @@
 package org.openl.itest;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,16 +25,29 @@ public class RunITest {
 
     private static JettyServer server;
     private static String baseURI;
+    private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+    private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
     @BeforeClass
     public static void setUp() throws Exception {
+        Locale.setDefault(Locale.US);
+
+        // set +2 as default
+        TimeZone defaultTimeZone = TimeZone.getTimeZone("Europe/Helsinki");
+        TimeZone.setDefault(defaultTimeZone);
+
         server = new JettyServer();
         baseURI = server.start();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        server.stop();
+        try {
+            server.stop();
+        } finally {
+            Locale.setDefault(DEFAULT_LOCALE);
+            TimeZone.setDefault(DEFAULT_TIMEZONE);
+        }
     }
 
     @Before
