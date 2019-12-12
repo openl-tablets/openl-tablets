@@ -2382,11 +2382,13 @@ public final class DecisionTableHelper {
                 .max()
                 .orElse(0);
 
-            int numberOfLinesForHCondition = numberOfColumnsUnderTitleCounter
-                .get(originalTable.getSource().getWidth() - 1);
+            int numberOfRowsForHCondition = calculateRowsCount(originalTable,
+                originalTable.getSource().getWidth() - 1,
+                firstColumnHeight);
             column = originalTable.getSource().getWidth() - 1;
-            while (column > maxColumnMatched && numberOfColumnsUnderTitleCounter
-                .get(column - 1) == numberOfLinesForHCondition) {
+            while (column > maxColumnMatched && calculateRowsCount(originalTable,
+                column,
+                firstColumnHeight) == numberOfRowsForHCondition) {
                 column--;
             }
 
