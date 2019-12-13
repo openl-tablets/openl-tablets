@@ -11,6 +11,7 @@ import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 
 public class SpreadsheetContext extends ComponentBindingContext {
 
@@ -20,8 +21,8 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
     @Override
     public IOpenField findRange(String namespace,
-            String rangeStartName,
-            String rangeEndName) throws OpenLCompilationException {
+                                String rangeStartName,
+                                String rangeEndName) throws OpenLCompilationException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
         IOpenField fstart = findVar(namespace, rangeStartName, true);
@@ -56,28 +57,34 @@ public class SpreadsheetContext extends ComponentBindingContext {
         iterateThroughTheRange(sx, sy, w, h, rangeTypeCollector);
         IOpenClass rangeType = rangeTypeCollector.getRangeType();
 
+        if (NullOpenClass.class.isAssignableFrom(rangeType.getClass())) {
+            throw new OpenLCompilationException(String.format("Range %s:%s contains only undefined type values.",
+                    rangeStartName,
+                    rangeEndName));
+        }
+
         CastsCollector castsCollector = new CastsCollector(rangeType, w, h);
         iterateThroughTheRange(sx, sy, w, h, castsCollector);
 
-        if (castsCollector.isImplicitCastNotSupported()) {
+        if (castsCollector.isImplicitCastNotSupported() || rangeType.getInstanceClass() == null) {
             throw new OpenLCompilationException(String.format("Types in range %s:%s cannot be implicit casted to '%s'.",
-                rangeStartName,
-                rangeEndName,
-                rangeType.getDisplayName(0)));
+                    rangeStartName,
+                    rangeEndName,
+                    rangeType.getDisplayName(0)));
         }
 
         return new SpreadsheetRangeField(key,
-            (SpreadsheetCellField) fstart,
-            (SpreadsheetCellField) fend,
-            rangeType,
-            castsCollector.getCasts());
+                (SpreadsheetCellField) fstart,
+                (SpreadsheetCellField) fend,
+                rangeType,
+                castsCollector.getCasts());
     }
 
     private void iterateThroughTheRange(int startColumn,
-            int startRow,
-            int columnsInRange,
-            int rowsInRange,
-            SpreadsheetFieldCollector collector) {
+                                        int startRow,
+                                        int columnsInRange,
+                                        int rowsInRange,
+                                        SpreadsheetFieldCollector collector) {
         ComponentOpenClass componentOpenClass = getComponentOpenClass();
         ComponentBindingContext componentBindingContext = this;
         while (componentOpenClass != null) {
