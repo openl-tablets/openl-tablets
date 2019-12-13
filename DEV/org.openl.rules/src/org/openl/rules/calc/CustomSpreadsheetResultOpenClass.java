@@ -1,6 +1,8 @@
 package org.openl.rules.calc;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -49,6 +52,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile boolean beanClassInitializing = false;
     private boolean ignoreCompilation = false;
+    private ILogicalTable logicalTable;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -83,7 +87,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
         this.detailedPlainModel = detailedPlainModel;
     }
 
-    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
+    public CustomSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module, ILogicalTable logicalTable) {
         this(name,
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
@@ -95,6 +99,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             false);
         this.simpleRefBeanByRow = true;
         this.simpleRefBeanByColumn = true;
+        this.logicalTable = logicalTable;
     }
 
     @Override
@@ -320,17 +325,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass {
             }
         }
         type.setMetaInfo(getMetaInfo());
+        type.logicalTable = this.logicalTable;
         return type;
     }
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        return new SpreadsheetResult(new Object[rowNames.length][columnNames.length],
+        SpreadsheetResult spr = new SpreadsheetResult(new Object[rowNames.length][columnNames.length],
             rowNames,
             columnNames,
             rowNamesForResultModel,
             columnNamesForResultModel,
             fieldsCoordinates);
+        spr.setLogicalTable(logicalTable);
+        return spr;
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) throws IllegalAccessException,

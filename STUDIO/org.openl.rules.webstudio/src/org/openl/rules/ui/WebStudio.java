@@ -57,6 +57,7 @@ import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
@@ -225,7 +226,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void saveProject(HttpSession session) {
         RulesProject project = null;
         try {
-            FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            ConflictUtils.removeMergeConflict();
             project = getCurrentProject();
             if (project == null) {
                 return;
@@ -243,7 +244,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 log.debug(msg, e);
             } else if (cause instanceof MergeConflictException) {
                 MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause, project);
-                FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_MERGE_CONFLICT, info);
+                ConflictUtils.saveMergeConflict(info);
                 msg = "Failed to save the project because of merge conflict.";
                 log.debug(msg, e);
                 return;
@@ -257,7 +258,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isMergeConflict() {
-        return FacesUtils.getSessionMap().containsKey(Constants.SESSION_PARAM_MERGE_CONFLICT);
+        return ConflictUtils.getMergeConflict() != null;
     }
 
     public boolean isRenamed(RulesProject project) {

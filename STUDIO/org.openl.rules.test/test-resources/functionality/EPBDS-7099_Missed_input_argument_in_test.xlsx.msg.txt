@@ -1,2 +1,2 @@
-ERROR: Found '[0]', but expected one of the parameters from the method 'Object proxy(Bean[] x)'.
-ERROR: Found '[0]', but expected one of the parameters from the method 'Object proxy2(Integer[] x)'.
+ERROR: Expected one of the parameters from the method 'Object proxy(Bean[] x)', but found '[0]'.
+ERROR: Expected one of the parameters from the method 'Object proxy2(Integer[] x)', but found '[0]'.

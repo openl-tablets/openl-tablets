@@ -254,7 +254,7 @@ public class DeploymentController {
         }
 
         for (RulesProject project : workspaceProjects) {
-            if (!(existing.contains(project.getName()) || project.isLocalOnly())) {
+            if (!(existing.contains(project.getName()) || project.isLocalOnly() || project.isDeleted())) {
                 selectItems.add(new SelectItem(project.getName()));
             }
         }

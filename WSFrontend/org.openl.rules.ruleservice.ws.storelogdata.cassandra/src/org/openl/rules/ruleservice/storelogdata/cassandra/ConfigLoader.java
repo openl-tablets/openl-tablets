@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -23,6 +25,19 @@ final class ConfigLoader {
     private ConfigLoader() {
     }
 
+    private static boolean validateProperty(Environment env, String propName) {
+        try {
+            env.getProperty(propName);
+            return true;
+        } catch (Exception e) {
+            final Logger log = LoggerFactory.getLogger(ConfigLoader.class);
+            if (log.isWarnEnabled()) {
+                log.warn("Failed to load spring property '{}'.", propName, e);
+            }
+            return false;
+        }
+    }
+
     @SuppressWarnings("rawtypes")
     private static Properties getApplicationContextProperties(ApplicationContext applicationContext) {
         Environment env = applicationContext.getEnvironment();
@@ -32,6 +47,7 @@ final class ConfigLoader {
             .filter(ps -> ps instanceof EnumerablePropertySource)
             .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
             .flatMap(Arrays::<String> stream)
+            .filter(propName -> validateProperty(env, propName))
             .forEach(propName -> props.setProperty(propName, env.getProperty(propName)));
         return props;
     }

@@ -1,36 +1,24 @@
 package org.openl.itest;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.openl.itest.core.RestClientFactory;
-import org.springframework.web.client.RestTemplate;
 
 public class HttpStatusITest {
     private static JettyServer server;
-    private static String baseURI;
     private static HttpClient client;
-
-    private RestTemplate rest;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer(true);
-        baseURI = server.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-    }
-
-    @Before
-    public void before() {
-        rest = new RestClientFactory(baseURI + "/REST/").create();
     }
 
     @Test

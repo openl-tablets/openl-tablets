@@ -27,7 +27,7 @@ public class KafkaDeployConfigurationDefaultDateFormatFactoryBean extends Servic
             try {
                 kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescription());
             } catch (IOException e) {
-                throw new ServiceConfigurationException("Failed to load kafka configuration.", e);
+                throw new ServiceConfigurationException("Failed to load configuration for Kafka publisher.", e);
             }
         }
         return kafkaDeploy;
@@ -37,7 +37,7 @@ public class KafkaDeployConfigurationDefaultDateFormatFactoryBean extends Servic
         if (kafkaConfig == null) {
             kafkaConfig = KafkaConfigHolder.getInstance().getKafkaConfig();
             if (kafkaConfig == null) {
-                throw new ServiceConfigurationException("Failed to locate kafka config.");
+                throw new ServiceConfigurationException("Failed to find configuration for Kafka publisher.");
             }
         }
         return kafkaConfig;

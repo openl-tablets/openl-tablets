@@ -45,24 +45,24 @@ public class CassandraOperations {
         return session;
     }
 
-    public static final ResultSet cassandraExecute(String query) {
+    public static ResultSet cassandraExecute(String query) {
         return CassandraOperations.getInstance().getSession().execute(query);
     }
 
-    public static final ResultSet cassandraExecute(String query, Object... values) {
+    public static ResultSet cassandraExecute(String query, Object... values) {
         SimpleStatement statement = SimpleStatement.builder(query).addPositionalValues(values).build();
         return CassandraOperations.getInstance().getSession().execute(statement);
     }
 
-    public static final ResultSet cassandraExecute(String query, Map<String, Object> values) {
+    public static ResultSet cassandraExecute(String query, Map<String, Object> values) {
         SimpleStatementBuilder statementBuilder = SimpleStatement.builder(query);
         if (values != null) {
-            values.entrySet().forEach(e -> statementBuilder.addNamedValue(e.getKey(), e.getValue()));
+            values.forEach(statementBuilder::addNamedValue);
         }
         return CassandraOperations.getInstance().getSession().execute(statementBuilder.build());
     }
 
-    public static final ResultSet cassandraExecute(Statement<?> statement) {
+    public static ResultSet cassandraExecute(Statement<?> statement) {
         return CassandraOperations.getInstance().getSession().execute(statement);
     }
 }

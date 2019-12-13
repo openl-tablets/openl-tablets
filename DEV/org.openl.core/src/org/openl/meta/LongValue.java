@@ -134,15 +134,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
             Formulas.REM);
     }
 
-    // ADD
-    public static String add(LongValue value1, String value2) {
-        return value1 + value2;
-    }
-
-    public static String add(String value1, LongValue value2) {
-        return value1 + value2;
-    }
-
     /**
      * Adds left hand operand to right hand operand
      *

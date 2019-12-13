@@ -67,6 +67,7 @@ import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
@@ -81,7 +82,6 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -248,7 +248,7 @@ public class RepositoryTreeController {
     public String saveProject() {
         UserWorkspaceProject project = null;
         try {
-            FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_MERGE_CONFLICT);
+            ConflictUtils.removeMergeConflict();
             project = repositoryTreeState.getSelectedProject();
             if (!project.isModified()) {
                 log.warn("Tried to save a project without any changes.");
@@ -265,11 +265,11 @@ public class RepositoryTreeController {
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof MergeConflictException) {
-                log.debug("Failed to save the project because of merge conflict.", e);
+                log.debug("Failed to save the project because of merge conflict.", cause);
                 if (project instanceof RulesProject) {
                     MergeConflictInfo info = new MergeConflictInfo((MergeConflictException) cause,
                         (RulesProject) project);
-                    FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_MERGE_CONFLICT, info);
+                    ConflictUtils.saveMergeConflict(info);
                 }
             } else {
                 String msg = e.getMessage();
@@ -711,13 +711,8 @@ public class RepositoryTreeController {
                 IOUtils.closeQuietly(content);
             }
             for (String modulePath : modulePaths) {
-                Iterator<Module> itr = projectDescriptor.getModules().iterator();
-                while (itr.hasNext()) {
-                    Module module = itr.next();
-                    if (modulePath.equals(module.getRulesRootPath().getPath())) {
-                        itr.remove();
-                    }
-                }
+                projectDescriptor.getModules()
+                    .removeIf(module -> modulePath.equals(module.getRulesRootPath().getPath()));
             }
             String xmlString = serializer.serialize(projectDescriptor);
             InputStream newContent = IOUtils.toInputStream(xmlString);
@@ -795,28 +790,25 @@ public class RepositoryTreeController {
             if (parent != null && parent.getData() != null) {
                 parent.refresh();
             }
-            if (selectedNode != activeProjectNode) {
-                boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || UiConst.TYPE_PROJECT
-                    .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly();
-                if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
-                    repositoryTreeState.refreshSelectedNode();
-                } else {
-                    repositoryTreeState.deleteSelectedNodeFromTree();
+
+            if (projectArtefact instanceof UserWorkspaceProject) {
+                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
+                    if (selectedNode != activeProjectNode) {
+                        repositoryTreeState.deleteSelectedNodeFromTree();
+                    } else {
+                        repositoryTreeState.deleteNode(selectedNode);
+                        repositoryTreeState.invalidateSelection();
+                    }
                     if (isSupportsBranches()) {
                         repositoryTreeState.invalidateTree();
                     }
+                } else {
+                    repositoryTreeState.refreshSelectedNode();
                 }
             } else {
-                if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
-                    repositoryTreeState.deleteNode(selectedNode);
-                    repositoryTreeState.invalidateSelection();
-                    if (isSupportsBranches()) {
-                        repositoryTreeState.invalidateTree();
-                    }
-                } else {
-                    repositoryTreeState.refreshSelectedNode();
-                }
+                repositoryTreeState.deleteSelectedNodeFromTree();
             }
+
             activeProjectNode = null;
             resetStudioModel();
 
@@ -1001,7 +993,19 @@ public class RepositoryTreeController {
                         Comments comments = getComments(project);
                         comment = comments.eraseProject(project.getName());
                     }
-                    project.erase(userWorkspace.getUser(), comment);
+                    try {
+                        project.erase(userWorkspace.getUser(), comment);
+                    } catch (ProjectException e) {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof MergeConflictException) {
+                            log.debug("Failed to erase the project because of merge conflict.", cause);
+                            // Try to erase second time. It should resolve the issue if conflict in
+                            // openl-projects.properties file.
+                            project.erase(userWorkspace.getUser(), comment);
+                        } else {
+                            throw e;
+                        }
+                    }
                 }
             }
             deleteProjectHistory(project.getName());

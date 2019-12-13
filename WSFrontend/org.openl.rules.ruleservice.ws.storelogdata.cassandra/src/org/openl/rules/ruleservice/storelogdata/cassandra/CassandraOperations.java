@@ -61,7 +61,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if (session != null) {
             try {
                 session.close();
@@ -106,11 +106,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
                 entityClass.getTypeName()));
         } else {
             Class<? extends EntityOperations<?, ?>> entityOperationsClass = entitySupport.value();
-            if (entityOperationsClass == null) {
-                throw new DaoCreationException(String.format(
-                    "Failed to save cassandra entity. Value is empty for annotation @EntitySupport in class '%s'.",
-                    entityClass.getTypeName()));
-            }
             @SuppressWarnings("unchecked")
             EntityOperations<Object, Object> entityOperations = (EntityOperations<Object, Object>) entityOperationsClass
                 .newInstance();
@@ -149,7 +144,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     public void createSchemaIfMissed(Class<?> entityClass) {
-        if (isCreateShemaEnabled()) {
+        if (isCreateSchemaEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -199,7 +194,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
-    public boolean isCreateShemaEnabled() {
+    public boolean isCreateSchemaEnabled() {
         return schemaCreationEnabled;
     }
 
@@ -208,7 +203,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         try {
             init();
         } catch (Exception e) {

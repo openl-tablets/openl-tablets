@@ -32,6 +32,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 
@@ -138,10 +139,47 @@ public class DecisionTableLoader {
         }
     }
 
+    private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            IBindingContext bindingContext) throws SyntaxNodeException {
+        int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
+        IOpenClass type = decisionTable.getType();
+        if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
+            Collection.class)) && parametersCount > 1) {
+            throw SyntaxNodeExceptionUtils
+                .createError(String.format("Expected exactly one parameter for return type '%s'.",
+                    type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
+        }
+        if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
+            if (parametersCount != 2) {
+                throw SyntaxNodeExceptionUtils
+                    .createError(String.format("Expected two parameters for return type '%s'.",
+                        type.getComponentClass().getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
+            }
+        }
+        for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
+            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
+            if (t == null) {
+                throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", parameterType),
+                    tableSyntaxNode.getHeader().getCellSource());
+            } else {
+                if (type.isArray() && bindingContext.getCast(t, type.getComponentClass()) == null) {
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Incompatible types: '%s' and '%s'.",
+                        type.getComponentClass().getDisplayName(0),
+                        t.getDisplayName(0)), tableSyntaxNode.getHeader().getCellSource());
+                }
+            }
+        }
+    }
+
     private TableStructure loadTableStructure(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             boolean transponse,
             IBindingContext bindingContext) throws SyntaxNodeException {
+
+        if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
+            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, bindingContext);
+        }
 
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
 

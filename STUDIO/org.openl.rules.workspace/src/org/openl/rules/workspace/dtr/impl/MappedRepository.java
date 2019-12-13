@@ -1,8 +1,22 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -183,31 +197,34 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         if (data.getVersion() == null) {
             try {
-                ByteArrayInputStream inputStream;
+                ByteArrayInputStream inputStream = null;
 
                 Lock lock = mappingLock.writeLock();
                 try {
                     lock.lock();
 
-                    Map<String, String> newMap = new HashMap<>(externalToInternal);
-                    newMap.remove(data.getName());
-                    inputStream = getStreamFromProperties(newMap);
+                    if (externalToInternal.containsKey(data.getName())) {
+                        Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
+                        newMap.remove(data.getName());
+                        inputStream = getStreamFromProperties(newMap);
 
-                    externalToInternal = newMap;
+                        externalToInternal = newMap;
+                    }
                 } finally {
                     lock.unlock();
                 }
 
-                FileData configData = new FileData();
-                configData.setName(configFile);
-                configData.setAuthor(data.getAuthor());
-                configData.setComment(data.getComment());
-                delegate.save(configData, inputStream);
+                if (inputStream != null) {
+                    FileData configData = new FileData();
+                    configData.setName(configFile);
+                    configData.setAuthor(data.getAuthor());
+                    configData.setComment(data.getComment());
+                    delegate.save(configData, inputStream);
+                }
 
                 // Use mapping before modification
                 return delegate.deleteHistory(toInternal(mapping, data));
             } catch (IOException | RuntimeException e) {
-                log.error(e.getMessage(), e);
                 refreshMapping();
                 throw e;
             }
@@ -481,7 +498,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private Map<String, String> toExternalKeys(Map<String, String> externalToInternal, Map<String, String> internal) {
-        Map<String, String> external = new HashMap<>(internal.size());
+        Map<String, String> external = new LinkedHashMap<>(internal.size());
 
         for (Map.Entry<String, String> entry : internal.entrySet()) {
             external.put(toExternal(externalToInternal, entry.getKey()), entry.getValue());
@@ -527,16 +544,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             String configFile,
             String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
-        Map<String, String> externalToInternal = new HashMap<>();
+        Map<String, String> externalToInternal = new LinkedHashMap<>();
         FileItem fileItem = delegate.read(configFile);
         if (fileItem == null) {
             log.debug("Repository configuration file {} is not found.", configFile);
             return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
         }
 
-        Properties prop;
+        PropertiesStorage prop;
         try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
-            prop = new Properties();
+            prop = new PropertiesStorage();
             prop.load(in);
         }
 
@@ -594,7 +611,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     private Map<String, String> generateExternalToInternalMap(FolderRepository delegate,
             RepositoryMode repositoryMode,
             String baseFolder) throws IOException {
-        Map<String, String> externalToInternal = new HashMap<>();
+        Map<String, String> externalToInternal = new LinkedHashMap<>();
         List<FileData> allFiles = delegate.list("");
         for (FileData fileData : allFiles) {
             String fullName = fileData.getName();
@@ -657,7 +674,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
-            Map<String, String> newMap = new HashMap<>(externalToInternal);
+            Map<String, String> newMap = new LinkedHashMap<>(externalToInternal);
             newMap.put(folderData.getName(), mappingData.getInternalPath());
 
             ByteArrayInputStream configInputStream = getStreamFromProperties(newMap);
@@ -671,7 +688,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     private ByteArrayInputStream getStreamFromProperties(Map<String, String> newMap) throws IOException {
         String parent = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
 
-        Properties prop = new Properties();
+        PropertiesStorage prop = new PropertiesStorage();
         int i = 1;
         for (Map.Entry<String, String> entry : newMap.entrySet()) {
             if (entry.getKey().length() <= parent.length()) {
@@ -688,7 +705,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            prop.store(writer, null);
+            prop.store(writer);
         }
 
         return new ByteArrayInputStream(outputStream.toByteArray());

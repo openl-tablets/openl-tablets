@@ -22,6 +22,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
+import javax.naming.directory.InvalidSearchFilterException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
@@ -558,6 +559,10 @@ public class InstallWizard {
                 ldapAuthenticationProvider.setSearchFilter(ldapFilter);
                 ldapAuthenticationProvider.authenticate(authenticationToken);
             } catch (AuthenticationException e) {
+                if (e.getCause() instanceof InvalidSearchFilterException) {
+                    String message = "Invalid search filter: " + e.getCause().getMessage();
+                    throw new ValidatorException(FacesUtils.createErrorMessage(message));
+                }
                 throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
             } catch (RuntimeException e) {
                 throw new ValidatorException(FacesUtils.createErrorMessage(getCauseExceptionMessage(e)));

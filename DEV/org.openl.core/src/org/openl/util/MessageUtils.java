@@ -7,6 +7,9 @@ public class MessageUtils {
 
     public static final String EMPTY_UNQ_IDX_KEY = "Empty key in an unique index.";
 
+    private MessageUtils() {
+    }
+
     public static String getTypeNotFoundMessage(String typeName) {
         return String.format("Type '%s' is not found.", typeName);
     }
@@ -44,6 +47,10 @@ public class MessageUtils {
 
     public static String getForeignTableCompilationErrorsMessage(String foreignKeyTableName) {
         return String.format("Foreign table '%s' has errors.", foreignKeyTableName);
+    }
+
+    public static String getConditionMultipleExpressionErrorMessage(String conditionName) {
+        return String.format("Multiple expressions are defined for '%s' condition.", conditionName);
     }
 
 }

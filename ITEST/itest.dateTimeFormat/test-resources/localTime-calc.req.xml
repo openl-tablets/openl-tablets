@@ -1,0 +1,12 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:calVehicleYear xmlns:ns1="http://DefaultNamespace">
+            <ns1:runtimeContext/>
+            <ns1:v xmlns:ns2="http://beans.generated.openl.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:type="ns2:Vehicle">
+                <ns2:modelYear>2007</ns2:modelYear>
+                <ns2:vehEffectiveYear>2016-12-31T22:00:00</ns2:vehEffectiveYear>
+            </ns1:v>
+        </ns1:calVehicleYear>
+    </soap:Body>
+</soap:Envelope>
