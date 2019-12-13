@@ -338,7 +338,7 @@ public class CopyBean {
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()
-                    .getProperty("design-repository.new-branch-pattern");
+                    .getProperty("repository.design.new-branch-pattern");
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {

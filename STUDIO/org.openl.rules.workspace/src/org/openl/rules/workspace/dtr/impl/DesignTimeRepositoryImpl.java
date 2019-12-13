@@ -28,13 +28,13 @@ import org.springframework.core.env.Environment;
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "deploy-config-repository.separate-repository";
-    private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.base.path";
-    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "deploy-config-repository.base.path";
-    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "design-repository.folder-structure.flat";
-    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "design-repository.folder-structure.configuration";
-    private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "deploy-config-repository.folder-structure.flat";
-    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "deploy-config-repository.folder-structure.configuration";
+    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "repository.deploy-config.separate-repository";
+    private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
+    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
+    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.design.folder-structure.flat";
+    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "repository.design.folder-structure.configuration";
+    private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "repository.deploy-config.folder-structure.flat";
+    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "repository.deploy-config.folder-structure.configuration";
 
     private volatile Repository repository;
     private volatile Repository deployConfigRepository;
@@ -50,11 +50,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
-    private Map<String, Object> config;
     private Environment environment;
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public void init() {
@@ -76,7 +75,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             boolean flatProjects = Boolean.parseBoolean(environment.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
             boolean flatDeployConfig = Boolean.parseBoolean(environment.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN, flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            repository = createRepo(RepositoryMode.DESIGN.name(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
 
             if (!separateDeployConfigRepo) {
                 if (flatProjects || !(repository instanceof MappedRepository)) {
@@ -86,7 +85,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((MappedRepository) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG,
+                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.name(),
                     flatDeployConfig,
                     DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                     deploymentConfigurationLocation);
@@ -106,12 +105,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(RepositoryMode repositoryMode,
+    private Repository createRepo(String configName,
             boolean flatStructure,
             String folderConfig,
             String baseFolder) {
         try {
-            Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
+            Repository repo = RepositoryFactoryInstatiator.newFactory(environment, configName);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
@@ -119,7 +118,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
                 MappedRepository mappedRepository = new MappedRepository();
                 mappedRepository.setDelegate(delegate);
-                mappedRepository.setRepositoryMode(repositoryMode);
+                mappedRepository.setRepositoryMode(null);
                 mappedRepository.setConfigFile(configFile);
                 mappedRepository.setBaseFolder(baseFolder);
                 mappedRepository.initialize();
@@ -384,10 +383,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public String getRulesLocation() {
         return rulesLocation;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     private static class RepositoryListener implements Listener {

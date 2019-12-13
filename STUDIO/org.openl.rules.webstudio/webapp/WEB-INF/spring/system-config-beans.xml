@@ -20,9 +20,6 @@
     <bean id="configManager" factory-bean="systemConfigManagerFactory" factory-method="getConfigurationManager">
         <constructor-arg name="propertiesName" value="system.properties" />
     </bean>
-    <bean id="systemConfig" class="java.util.HashMap">
-        <constructor-arg value="#{configManager.properties}" />
-    </bean>
 
     <bean id="projectDescriptorSerializerFactory" class="org.openl.rules.project.xml.ProjectDescriptorSerializerFactory">
         <constructor-arg value="${default.openl.compatibility.version}"/>

@@ -26,6 +26,7 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 /**
  * Deployment controller.
@@ -58,6 +59,9 @@ public class DeploymentController {
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
+    @ManagedProperty("#{environment}")
+    private Environment environment;
+
     public void onPageLoad() {
         if (repositoryTreeState == null || getSelectedProject() == null) {
             canDeploy = false;
@@ -72,6 +76,10 @@ public class DeploymentController {
             checker.addProjects(project);
             canDeploy = checker.check();
         }
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public synchronized String addItem() {
@@ -178,7 +186,7 @@ public class DeploymentController {
                 .getConfigurationManager(repositoryConfigName);
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
                 productionConfig,
-                RepositoryMode.PRODUCTION);
+                RepositoryMode.PRODUCTION, environment);
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
@@ -384,7 +392,7 @@ public class DeploymentController {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
                 productionConfig,
-                RepositoryMode.PRODUCTION);
+                RepositoryMode.PRODUCTION, environment);
             repos.add(config);
         }
 

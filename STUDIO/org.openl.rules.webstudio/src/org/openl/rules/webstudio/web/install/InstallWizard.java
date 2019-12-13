@@ -30,6 +30,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -181,14 +182,14 @@ public class InstallWizard {
                     designRepositoryConfiguration = new RepositoryConfiguration("",
                             systemConfig,
                             RepositoryMode.DESIGN,
-                            true);
+                            true, null);
                     if (designRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(designRepositoryConfiguration.getErrorMessage());
                     }
                     deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
                             systemConfig,
                             RepositoryMode.DEPLOY_CONFIG,
-                            true);
+                            true, null);
                     if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                     }
@@ -252,19 +253,19 @@ public class InstallWizard {
 
     private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
                                                 RepositoryMode repositoryMode) throws RepositoryValidationException {
-        try {
-            Map<String, Object> config = designRepositoryConfiguration.getProperties();
-            Repository repository = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
-            if (repository instanceof Closeable) {
-                // Release resources after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
-        } catch (RRepositoryException e) {
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
-                    .getMessage() : rootCause.getMessage());
-            throw new RepositoryValidationException(message, e);
-        }
+//        try {
+//            Map<String, Object> config = designRepositoryConfiguration.getProperties();
+////            Repository repository = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
+////            if (repository instanceof Closeable) {
+////                 Release resources after validation
+////                IOUtils.closeQuietly((Closeable) repository);
+////            }
+//        } catch (RRepositoryException e) {
+//            Throwable rootCause = ExceptionUtils.getRootCause(e);
+//            String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
+//                    .getMessage() : rootCause.getMessage());
+//            throw new RepositoryValidationException(message, e);
+//        }
     }
 
     private void initializeTemporaryContext() {
@@ -1007,11 +1008,11 @@ public class InstallWizard {
                 "/rules-production.properties",
                 workingDir + "/system-settings/",
                 "");
-        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-        productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
-        productionRepositoryEditor = new ProductionRepositoryEditor(systemConfig,
-                productionConfigManagerFactory,
-                productionRepositoryFactoryProxy);
+        productionRepositoryFactoryProxy = null;
+        //productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
+//        productionRepositoryEditor = new ProductionRepositoryEditor(systemConfig,
+//                productionConfigManagerFactory,
+//                productionRepositoryFactoryProxy);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
         connectionProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);

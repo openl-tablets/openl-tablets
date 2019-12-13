@@ -7,7 +7,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.SystemConfiguration;
+import org.openl.rules.repository.config.PassCoder;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -285,7 +290,7 @@ public class ConfigurationManager implements PropertiesHolder {
 
     private static String getRepoPassKey(PropertiesHolder propertiesHolder) {
         Map<String, Object> properties = propertiesHolder.getProperties();
-        return properties.containsKey(REPO_PASS_KEY) ? (String) properties.get(REPO_PASS_KEY) : "";
+        return properties.containsKey(REPO_PASS_KEY) ? StringUtils.trimToEmpty((String) properties.get(REPO_PASS_KEY)) : "";
     }
 
 }

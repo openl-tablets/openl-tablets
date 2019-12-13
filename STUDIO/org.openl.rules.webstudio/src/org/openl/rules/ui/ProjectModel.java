@@ -58,6 +58,7 @@ import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
+import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -73,6 +74,7 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 public class ProjectModel {
 
@@ -110,6 +112,7 @@ public class ProjectModel {
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
     private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
+    private Environment environment;
 
     /**
      * For tests only
@@ -123,6 +126,7 @@ public class ProjectModel {
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
+        this.environment = ApplicationContextProvider.getApplicationContext().getEnvironment();
     }
 
     public RulesProject getProject() {
@@ -871,8 +875,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = OpenLSystemProperties
-            .isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
+        boolean isParallel = Boolean.parseBoolean(environment.getProperty("test.run.parallel"));
         return runTest(test, isParallel);
     }
 
@@ -1174,10 +1177,11 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projecthistoryHome = studio.getSystemConfigManager().getStringProperty("project.history.home");
-            Integer maxFilesInStorage = studio.getSystemConfigManager().getIntegerProperty("project.history.count");
-            boolean unlimitedStorage = studio.getSystemConfigManager().getBooleanProperty("project.history.unlimited");
-            String storagePath = projecthistoryHome + File.separator + getProject().getName();
+            String projectHistoryHome = environment.getProperty("project.history.home");
+            String projectHistoryCount = environment.getProperty("project.history.count");
+            Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
+            boolean unlimitedStorage = Boolean.parseBoolean(environment.getProperty("project.history.unlimited"));
+            String storagePath = projectHistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }
         return historyManager;

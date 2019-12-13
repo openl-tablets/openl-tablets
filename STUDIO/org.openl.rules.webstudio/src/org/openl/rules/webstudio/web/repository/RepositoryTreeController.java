@@ -86,7 +86,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -140,8 +139,8 @@ public class RepositoryTreeController {
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-   @ManagedProperty(value = "#{environment}")
-   private Environment environment;
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
 
     private String projectName;
     private String projectFolder = "";
@@ -2099,12 +2098,11 @@ public class RepositoryTreeController {
 
     @PostConstruct
     public void init() {
-        this.projectUseCustomComment = Boolean.parseBoolean(
-            environment.getProperty("design-repository.comment-template.use-custom-comments"));
+        this.projectUseCustomComment = Boolean
+            .parseBoolean(environment.getProperty("repository.design.comment-template.use-custom-comments"));
         designCommentValidator = CommentValidator.forDesignRepo();
-        boolean separateDeployConfigRepo = Boolean.parseBoolean(ApplicationContextProvider.getApplicationContext()
-            .getEnvironment()
-            .getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        boolean separateDeployConfigRepo = Boolean
+            .parseBoolean(environment.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
         if (separateDeployConfigRepo) {
             deployConfigCommentValidator = CommentValidator.forDeployConfigRepo();
         } else {

@@ -27,6 +27,7 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 @ManagedBean
 @SessionScoped
@@ -43,6 +44,9 @@ public class ProductionRepositoriesTreeState {
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
+
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
      * Root node for RichFaces's tree. It is not displayed.
@@ -50,6 +54,10 @@ public class ProductionRepositoriesTreeState {
     private TreeRepository root;
 
     private IFilter<AProjectArtefact> filter = new AllFilter<>();
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 
     private void buildTree() {
         if (root != null) {
@@ -113,7 +121,7 @@ public class ProductionRepositoriesTreeState {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
                 productionConfig,
-                RepositoryMode.PRODUCTION);
+                RepositoryMode.PRODUCTION, environment);
             repos.add(config);
         }
 

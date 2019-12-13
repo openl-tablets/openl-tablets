@@ -13,8 +13,6 @@
 
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
           init-method="init" destroy-method="destroy">
-        <!--TODO: remove config from there -->
-        <property name="config" value="#{systemConfig}"/>
         <property name="environment" value="#{environment}"/>
     </bean>
 
@@ -25,7 +23,7 @@
 
     <bean id="productionRepositoryFactoryProxy"
           class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
-        <property name="configManagerFactory" ref="productionRepositoryConfigManagerFactory"/>
+        <constructor-arg ref="environment"/>
     </bean>
 
     <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
@@ -39,35 +37,35 @@
 
     <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
         <constructor-arg name="saveProjectTemplate"
-                         value="${design-repository.comment-template.user-message.default.save}"/>
+                         value="${repository.design.comment-template.user-message.default.save}"/>
         <constructor-arg name="createProjectTemplate"
-                         value="${design-repository.comment-template.user-message.default.create}"/>
+                         value="${repository.design.comment-template.user-message.default.create}"/>
         <constructor-arg name="archiveProjectTemplate"
-                         value="${design-repository.comment-template.user-message.default.archive}"/>
+                         value="${repository.design.comment-template.user-message.default.archive}"/>
         <constructor-arg name="restoreProjectTemplate"
-                         value="${design-repository.comment-template.user-message.default.restore}"/>
+                         value="${repository.design.comment-template.user-message.default.restore}"/>
         <constructor-arg name="eraseProjectTemplate"
-                         value="${design-repository.comment-template.user-message.default.erase}"/>
+                         value="${repository.design.comment-template.user-message.default.erase}"/>
         <constructor-arg name="copiedFromTemplate"
-                         value="${design-repository.comment-template.user-message.default.copied-from}"/>
+                         value="${repository.design.comment-template.user-message.default.copied-from}"/>
         <constructor-arg name="restoredFromTemplate"
-                         value="${design-repository.comment-template.user-message.default.restored-from}"/>
+                         value="${repository.design.comment-template.user-message.default.restored-from}"/>
     </bean>
 
     <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
         <constructor-arg name="saveProjectTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.save}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.save}"/>
         <constructor-arg name="createProjectTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.create}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.create}"/>
         <constructor-arg name="archiveProjectTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.archive}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.archive}"/>
         <constructor-arg name="restoreProjectTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.restore}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.restore}"/>
         <constructor-arg name="eraseProjectTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.erase}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.erase}"/>
         <constructor-arg name="copiedFromTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.copied-from}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.copied-from}"/>
         <constructor-arg name="restoredFromTemplate"
-                         value="${deploy-config-repository.comment-template.user-message.default.restored-from}"/>
+                         value="${repository.deploy-config.comment-template.user-message.default.restored-from}"/>
     </bean>
 </beans>

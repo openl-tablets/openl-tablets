@@ -25,6 +25,7 @@ import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -54,6 +55,9 @@ public class SystemSettingsBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
+
     private ConfigurationManager configManager;
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
@@ -61,12 +65,16 @@ public class SystemSettingsBean {
     private ProductionRepositoryEditor productionRepositoryEditor;
     private SystemSettingsValidator validator;
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     @PostConstruct
     public void afterPropertiesSet() {
         try {
             configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
-            designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN, true);
+            designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN, true, environment);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(designRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
@@ -75,7 +83,7 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
                 configManager,
                 RepositoryMode.DEPLOY_CONFIG,
-                true);
+                true, environment);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -83,7 +91,8 @@ public class SystemSettingsBean {
 
             productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
                 productionConfigManagerFactory,
-                productionRepositoryFactoryProxy);
+                productionRepositoryFactoryProxy,
+                    environment);
 
             validator = new SystemSettingsValidator(this);
         } catch (Exception e) {
@@ -97,7 +106,7 @@ public class SystemSettingsBean {
     }
 
     public String getUserWorkspaceHome() {
-        return configManager.getStringProperty(USER_WORKSPACE_HOME);
+        return environment.getProperty(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
@@ -105,7 +114,7 @@ public class SystemSettingsBean {
     }
 
     public String getDatePattern() {
-        return configManager.getStringProperty(DATE_PATTERN);
+        return environment.getProperty(DATE_PATTERN);
     }
 
     public void setDatePattern(String datePattern) {
@@ -113,7 +122,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUpdateSystemProperties() {
-        return configManager.getBooleanProperty(UPDATE_SYSTEM_PROPERTIES);
+        return Boolean.parseBoolean(environment.getProperty(UPDATE_SYSTEM_PROPERTIES));
     }
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
@@ -121,7 +130,7 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+        return environment.getProperty(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
@@ -132,7 +141,7 @@ public class SystemSettingsBean {
         if (isUnlimitHistory()) {
             return "0";
         } else {
-            return Integer.toString(configManager.getIntegerProperty(PROJECT_HISTORY_COUNT));
+            return environment.getProperty(PROJECT_HISTORY_COUNT);
         }
     }
 
@@ -141,7 +150,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUnlimitHistory() {
-        return configManager.getBooleanProperty(PROJECT_HISTORY_UNLIMITED);
+        return Boolean.parseBoolean(environment.getProperty(PROJECT_HISTORY_UNLIMITED));
     }
 
     public void setUnlimitHistory(boolean unlimited) {
@@ -157,8 +166,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isUseDesignRepo() {
-        return !Boolean
-            .parseBoolean(configManager.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+        return !Boolean.parseBoolean(environment.getProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
     }
 
     public void setUseDesignRepo(boolean useDesignRepo) {
@@ -182,11 +190,11 @@ public class SystemSettingsBean {
     }
 
     public boolean isDispatchingValidationEnabled() {
-        return OpenLSystemProperties.isDispatchingValidationEnabled(configManager.getProperties());
+        return Boolean.parseBoolean(environment.getProperty(OpenLSystemProperties.DISPATCHING_VALIDATION));
     }
 
     public boolean isRunTestsInParallel() {
-        return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
+        return Boolean.parseBoolean(environment.getProperty(OpenLSystemProperties.RUN_TESTS_IN_PARALLEL));
     }
 
     public void setRunTestsInParallel(boolean runTestsInParallel) {
@@ -194,7 +202,7 @@ public class SystemSettingsBean {
     }
 
     public String getTestRunThreadCount() {
-        return Integer.toString(OpenLSystemProperties.getTestRunThreadCount(configManager.getProperties()));
+        return environment.getProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY);
     }
 
     public void setTestRunThreadCount(String testRunThreadCount) {
@@ -203,7 +211,7 @@ public class SystemSettingsBean {
     }
 
     public boolean isAutoCompile() {
-        return OpenLSystemProperties.isAutoCompile(configManager.getProperties());
+        return Boolean.parseBoolean(environment.getProperty(OpenLSystemProperties.AUTO_COMPILE));
     }
 
     public void setAutoCompile(boolean autoCompile) {

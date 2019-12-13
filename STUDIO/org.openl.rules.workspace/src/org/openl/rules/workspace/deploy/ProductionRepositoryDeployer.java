@@ -1,8 +1,20 @@
 package org.openl.rules.workspace.deploy;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
@@ -14,7 +26,12 @@ import javax.xml.xpath.XPathFactory;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
@@ -23,6 +40,7 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.xml.sax.InputSource;
 import org.yaml.snakeyaml.Yaml;
 
@@ -78,7 +96,7 @@ public class ProductionRepositoryDeployer {
         Repository deployRepo = null;
         try {
             // Initialize repo
-            deployRepo = RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
+           // deployRepo = RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
             String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
             if (deployPath == null) {
@@ -87,7 +105,7 @@ public class ProductionRepositoryDeployer {
                 deployPath += "/";
             }
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);
+            deployInternal(zipFile, deployRepo, skipExist, Boolean.parseBoolean(includeVersion), deployPath);
         } finally {
             // Close repo
             if (deployRepo != null) {

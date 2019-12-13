@@ -6,34 +6,35 @@
 
     <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
           destroy-method="close">
-        <constructor-arg name="factory" value="${production-repository.factory}"/>
-        <constructor-arg name="params">
-            <map>
-                <entry key="uri" value="${production-repository.uri}"/>
-                <entry key="login" value="${production-repository.login}"/>
-                <entry key="password">
-                    <bean class="org.openl.config.PassCoder" factory-method="decode">
-                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
-                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
-                    </bean>
-                </entry>
-                <!-- AWS S3 specific -->
-                <entry key="bucketName" value="${production-repository.bucket-name}"/>
-                <entry key="regionName" value="${production-repository.region-name}"/>
-                <entry key="accessKey" value="${production-repository.access-key}"/>
-                <entry key="secretKey" value="${production-repository.secret-key}"/>
-                <!-- Git specific -->
-                <entry key="localRepositoryPath" value="${production-repository.local-repository-path}"/>
-                <entry key="branch" value="${production-repository.branch}"/>
-                <entry key="tagPrefix" value="${production-repository.tag-prefix}"/>
-                <entry key="commentTemplate" value="${production-repository.comment-template}"/>
-                <entry key="userDisplayName" value="${production-repository.user-display-name}"/>
-                <entry key="userEmail" value="${production-repository.user-email}"/>
-                <entry key="connectionTimeout" value="${production-repository.connection-timeout}"/>
-                <!-- AWS S3 and Git specific -->
-                <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
-            </map>
-        </constructor-arg>
+        <constructor-arg name="configName" value="${production-repository.factory}"/>
+        <constructor-arg name="environment" ref="environment"/>
+        <!--        <constructor-arg name="params">-->
+        <!--            <map>-->
+        <!--                <entry key="uri" value="${production-repository.uri}"/>-->
+        <!--                <entry key="login" value="${production-repository.login}"/>-->
+        <!--                <entry key="password">-->
+        <!--                    <bean class="org.openl.rules.repository.config.PassCoder" factory-method="decode">-->
+        <!--                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>-->
+        <!--                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>-->
+        <!--                    </bean>-->
+        <!--                </entry>-->
+        <!--                &lt;!&ndash; AWS S3 specific &ndash;&gt;-->
+        <!--                <entry key="bucketName" value="${production-repository.bucket-name}"/>-->
+        <!--                <entry key="regionName" value="${production-repository.region-name}"/>-->
+        <!--                <entry key="accessKey" value="${production-repository.access-key}"/>-->
+        <!--                <entry key="secretKey" value="${production-repository.secret-key}"/>-->
+        <!--                &lt;!&ndash; Git specific &ndash;&gt;-->
+        <!--                <entry key="localRepositoryPath" value="${production-repository.local-repository-path}"/>-->
+        <!--                <entry key="branch" value="${production-repository.branch}"/>-->
+        <!--                <entry key="tagPrefix" value="${production-repository.tag-prefix}"/>-->
+        <!--                <entry key="commentTemplate" value="${production-repository.comment-template}"/>-->
+        <!--                <entry key="userDisplayName" value="${production-repository.user-display-name}"/>-->
+        <!--                <entry key="userEmail" value="${production-repository.user-email}"/>-->
+        <!--                <entry key="connectionTimeout" value="${production-repository.connection-timeout}"/>-->
+        <!--                &lt;!&ndash; AWS S3 and Git specific &ndash;&gt;-->
+        <!--                <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>-->
+        <!--            </map>-->
+        <!--        </constructor-arg>-->
     </bean>
 
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">

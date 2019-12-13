@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStreamException;
+import org.springframework.core.env.Environment;
 
 /**
  * @author Aleh Bykhavets
@@ -63,6 +64,9 @@ public class SmartRedeployController {
 
     @ManagedProperty(value = "#{deployConfigRepositoryComments}")
     private Comments deployConfigRepoComments;
+
+    @ManagedProperty(value = "#{environment}")
+    private Environment environment;
 
     private List<DeploymentProjectItem> items;
 
@@ -254,6 +258,10 @@ public class SmartRedeployController {
         return null;
     }
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
     public String redeploy() {
         AProject project = getSelectedProject();
         if (project == null) {
@@ -305,7 +313,7 @@ public class SmartRedeployController {
             .getConfigurationManager(repositoryConfigName);
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
             productionConfig,
-            RepositoryMode.PRODUCTION);
+            RepositoryMode.PRODUCTION, environment);
         return repo.getName();
     }
 
@@ -418,7 +426,7 @@ public class SmartRedeployController {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
                 productionConfig,
-                RepositoryMode.PRODUCTION);
+                RepositoryMode.PRODUCTION, environment);
             repos.add(config);
         }
 

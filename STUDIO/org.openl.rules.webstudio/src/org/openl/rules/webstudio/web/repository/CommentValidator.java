@@ -33,9 +33,9 @@ public class CommentValidator {
                 .getEnvironment();
         return new CommentValidator(
             environment
-                .getProperty("design-repository.comment-validation-pattern"),
+                .getProperty("repository.design.comment-validation-pattern"),
             environment
-                .getProperty("design-repository.invalid-comment-message"));
+                .getProperty("repository.design.invalid-comment-message"));
     }
 
     static CommentValidator forDeployConfigRepo() {
@@ -43,9 +43,9 @@ public class CommentValidator {
                 .getEnvironment();
         return new CommentValidator(
             environment
-                .getProperty("deploy-config-repository.comment-validation-pattern"),
+                .getProperty("repository.deploy-config.comment-validation-pattern"),
             ApplicationContextProvider.getApplicationContext()
                 .getEnvironment()
-                .getProperty("deploy-config-repository.invalid-comment-message"));
+                .getProperty("repository.deploy-config.invalid-comment-message"));
     }
 }

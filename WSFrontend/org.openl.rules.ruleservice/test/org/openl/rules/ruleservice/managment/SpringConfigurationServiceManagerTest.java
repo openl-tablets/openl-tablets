@@ -18,8 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {
-        "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
-        "production-repository.uri = test-resources/openl-repository",
+        "repository.production.factory = org.openl.rules.repository.file.FileSystemRepository",
+        "repository.production.uri = test-resources/openl-repository",
         "version-in-deployment-name = true" })
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext

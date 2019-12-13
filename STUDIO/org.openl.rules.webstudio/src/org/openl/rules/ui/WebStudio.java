@@ -75,6 +75,8 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.ApplicationContextProvider;
+import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -83,6 +85,7 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.thoughtworks.xstream.XStreamException;
@@ -144,6 +147,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
+    private Environment environment = ApplicationContextProvider.getApplicationContext().getEnvironment();
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
 
@@ -162,8 +166,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         initWorkspace(session);
         initUserSettings();
-        updateSystemProperties = systemConfigManager
-            .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
+        updateSystemProperties = Boolean
+            .parseBoolean(environment.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
     }
 
@@ -179,9 +183,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private void initUserSettings() {
-        String settingsLocation = systemConfigManager
-            .getStringProperty("user.settings.home") + File.separator + rulesUserSession
-                .getUserName() + File.separator + USER_SETTINGS_FILENAME;
+        String settingsLocation = environment.getProperty("user.settings.home") + File.separator + rulesUserSession
+            .getUserName() + File.separator + USER_SETTINGS_FILENAME;
 
         userSettingsManager = new ConfigurationManager(settingsLocation, USER_SETTINGS_FILENAME, true);
 
@@ -446,16 +449,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             // Keep only projects existing in user workspace.
             if (files != null) {
-                files = Arrays.stream(files).filter(
-                    projectFolder -> {
-                        try {
-                            return getProject(projectFolder.getName()) != null;
-                        } catch (Exception e) {
-                            log.warn(e.getMessage(), e);
-                            return false;
-                        }
+                files = Arrays.stream(files).filter(projectFolder -> {
+                    try {
+                        return getProject(projectFolder.getName()) != null;
+                    } catch (Exception e) {
+                        log.warn(e.getMessage(), e);
+                        return false;
                     }
-                ).toArray(File[]::new);
+                }).toArray(File[]::new);
 
                 projects = projectResolver.resolve(files);
                 for (ProjectDescriptor pd : projects) {
@@ -496,7 +497,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     boolean isAutoCompile() {
-        return OpenLSystemProperties.isAutoCompile(getSystemConfigManager().getProperties());
+        return BooleanUtils.toBoolean(environment.getProperty("compile.auto"));
     }
 
     public boolean isManualCompileNeeded() {

@@ -12,6 +12,7 @@ import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.Environment;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
@@ -36,14 +37,16 @@ public class RepositoryConfiguration {
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
-            RepositoryMode repositoryMode) {
-        this(configName, configManager, repositoryMode, false);
+            RepositoryMode repositoryMode,
+            Environment environment) {
+        this(configName, configManager, repositoryMode, false, environment);
     }
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
             RepositoryMode repositoryMode,
-            boolean fallbackToDefault) {
+            boolean fallbackToDefault,
+            Environment environment) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
         this.repositoryMode = repositoryMode;
@@ -62,14 +65,14 @@ public class RepositoryConfiguration {
                 throw new UnsupportedOperationException();
         }
 
-        REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
-        REPOSITORY_NAME = CONFIG_PREFIX + "name";
+        REPOSITORY_FACTORY = CONFIG_PREFIX + ".factory";
+        REPOSITORY_NAME = CONFIG_PREFIX + ".name";
 
-        load(fallbackToDefault);
+        load(fallbackToDefault, environment);
     }
 
-    private void load(boolean fallbackToDefault) {
-        String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
+    private void load(boolean fallbackToDefault, Environment environment) {
+        String factoryClassName = environment.getProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
             // Fallback to default value and save error message
@@ -81,7 +84,7 @@ public class RepositoryConfiguration {
                 throw new IllegalArgumentException(errorMessage);
             }
         }
-        name = configManager.getStringProperty(REPOSITORY_NAME);
+        name = environment.getProperty(REPOSITORY_NAME);
 
         settings = createSettings(repositoryType);
 
@@ -122,7 +125,7 @@ public class RepositoryConfiguration {
     void revert() {
         configManager.revertProperty(REPOSITORY_NAME);
         configManager.revertProperty(REPOSITORY_FACTORY);
-        load(false);
+        load(false, null);
 
         settings.revert(configManager);
     }

@@ -23,14 +23,15 @@ import org.openl.rules.repository.db.DBRepository;
 import org.openl.rules.repository.db.JdbcDBRepositoryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {
-        "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
-        "production-repository.uri = test-resources/openl-repository",
+        "repository.production.factory = org.openl.rules.repository.file.FileSystemRepository",
+        "repository.production.uri = test-resources/openl-repository",
         "version-in-deployment-name = true" })
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml" })
@@ -87,11 +88,10 @@ public class LocalTemporaryDeploymentsStorageTest {
 
         LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy-temp");
         assertFalse(storage.containsDeployment(deploymentName, version));
-
-        Map<String, String> params = new HashMap<>();
-        params.put("uri", "jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1");
-        try (DBRepository repository = (DBRepository) RepositoryInstatiator
-            .newRepository(JdbcDBRepositoryFactory.class.getName(), params)) {
+        MockEnvironment mockEnvironment = new MockEnvironment();
+        mockEnvironment.setProperty("uri", "jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1");
+        mockEnvironment.setProperty("repository.local.factory.name", JdbcDBRepositoryFactory.class.getName());
+        try (DBRepository repository = (DBRepository) RepositoryInstatiator.newRepository("local",mockEnvironment)) {
             // First version deploy
             updateProject(repository, deploymentName, "project1", false);
             updateProject(repository, deploymentName, "project2", false);

@@ -11,6 +11,7 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
+import org.springframework.core.env.Environment;
 
 public class ProductionRepositoryEditor {
     private final ConfigurationManager configManager;
@@ -20,12 +21,16 @@ public class ProductionRepositoryEditor {
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
+    private Environment environment;
+
     public ProductionRepositoryEditor(ConfigurationManager configManager,
             ConfigurationManagerFactory productionConfigManagerFactory,
-            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
+            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+            Environment environment) {
         this.configManager = configManager;
         this.productionConfigManagerFactory = productionConfigManagerFactory;
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
+        this.environment = environment;
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -40,12 +45,12 @@ public class ProductionRepositoryEditor {
         productionRepositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(
-            configManager.getStringProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+            environment.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
                 productionConfig,
-                RepositoryMode.PRODUCTION);
+                RepositoryMode.PRODUCTION, environment);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -135,7 +140,7 @@ public class ProductionRepositoryEditor {
         String newConfigName = getConfigName(prodConfig.getName());
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
             getProductionConfigManager(newConfigName),
-            RepositoryMode.PRODUCTION);
+            RepositoryMode.PRODUCTION, environment);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 

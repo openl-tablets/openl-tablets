@@ -8,11 +8,13 @@ import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.IOUtils;
+import org.springframework.core.env.Environment;
 
 /**
  * Repository Factory Proxy.
@@ -21,31 +23,35 @@ import org.openl.util.IOUtils;
  */
 public class ProductionRepositoryFactoryProxy {
 
-    private ConfigurationManagerFactory configManagerFactory;
-
     private Map<String, Repository> factories = new HashMap<>();
 
-    public Repository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
-        if (!factories.containsKey(propertiesFileName)) {
+    private Environment environment;
+
+    public ProductionRepositoryFactoryProxy(Environment environment) {
+        this.environment = environment;
+    }
+
+    public Repository getRepositoryInstance(String configName) throws RRepositoryException {
+        if (!factories.containsKey(configName)) {
             synchronized (this) {
-                if (!factories.containsKey(propertiesFileName)) {
-                    factories.put(propertiesFileName, createFactory(propertiesFileName));
+                if (!factories.containsKey(configName)) {
+                    factories.put(configName, createFactory(configName));
                 }
             }
         }
 
-        return factories.get(propertiesFileName);
+        return factories.get(configName);
     }
 
-    public void releaseRepository(String propertiesFileName) {
+    public void releaseRepository(String configName) {
         synchronized (this) {
-            Repository repository = factories.get(propertiesFileName);
+            Repository repository = factories.get(configName);
             if (repository != null) {
                 if (repository instanceof Closeable) {
                     // Close repo connection after validation
                     IOUtils.closeQuietly((Closeable) repository);
                 }
-                factories.remove(propertiesFileName);
+                factories.remove(configName);
             }
         }
     }
@@ -62,25 +68,21 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
 
-    public void setConfigManagerFactory(ConfigurationManagerFactory configManagerFactory) {
-        this.configManagerFactory = configManagerFactory;
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
-    private Repository createFactory(String propertiesFileName) throws RRepositoryException {
-        PropertiesHolder propertiesHolder = configManagerFactory.getConfigurationManager(propertiesFileName);
-        Map<String, Object> properties = propertiesHolder.getProperties();
-
-        return RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
+    private Repository createFactory(String configName) throws RRepositoryException {
+        return RepositoryInstatiator.newRepository(configName, environment);
     }
 
-    public boolean isIncludeVersionInDeploymentName(String propertiesFileName) {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        return Boolean.valueOf(configurationManager.getStringProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
+    public boolean isIncludeVersionInDeploymentName(String configName) {
+        return Boolean.parseBoolean(environment.getProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
     }
 
-    public String getDeploymentsPath(String propertiesFileName) {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        String deployPath = configurationManager.getStringProperty("production-repository.base.path");
+    public String getDeploymentsPath(String configName) {
+        String deployPath = environment.getProperty("repository." + configName + ".base.path");
         return deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
     }
 }

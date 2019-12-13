@@ -190,7 +190,7 @@
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Workspace Directory:" />
                                         <h:inputText id="workspace-dir" value="#{systemSettingsBean.userWorkspaceHome}"
-                                            disabled="#{jsffn:isSystemProp('user.workspace.home')}"
+                                            disabled="#{environment.getProperty('user.workspace.home') != null}"
                                             validator="#{validator.workSpaceDirValidator}"/>
                                     </h:panelGrid>
                                 </div>
@@ -201,19 +201,19 @@
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="History Directory:" />
                                         <h:inputText value="#{systemSettingsBean.projectHistoryHome}"
-                                            disabled="#{jsffn:isSystemProp('project.history.home')}"
+                                            disabled="#{environment.getProperty('project.history.home') != null}"
                                            validator="#{validator.historyDirValidator}"/>
                                     </h:panelGrid>
-                                    <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
+                                    <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{environment.getProperty('project.history.unlimited') ? 'display:none' : ''}">
                                         <h:outputText value="The maximum count of saved changes for each project:" />
                                         <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
-                                            disabled="#{jsffn:isSystemProp('project.history.count')}"
+                                            disabled="#{environment.getProperty('project.history.count') != null}"
                                             validator="#{validator.historyCountValidator}"/>
                                     </h:panelGrid>
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Unlimited numbers of copies" />
                                         <h:selectBooleanCheckbox id="unlimitHistory" value="#{systemSettingsBean.unlimitHistory}"
-                                            disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="showMaxCountInHistory()"/>
+                                            disabled="#{environment.getProperty('project.history.unlimited') != null}" onclick="showMaxCountInHistory()"/>
                                     </h:panelGrid>
                                     <h:panelGrid rendered="#{!emptyHistoryDir}">
                                         <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvailableProjectsInHistory(true)">Clean history</a>
@@ -254,10 +254,10 @@
                                     <h:panelGrid columns="2" columnClasses="titleColumn">
                                         <h:outputText value="Update table properties ('createdOn', 'modifiedBy' etc.) on editing: " />
                                         <h:selectBooleanCheckbox value="#{systemSettingsBean.updateSystemProperties}"
-                                            disabled="#{jsffn:isSystemProp('update.system.properties')}"/>
+                                            disabled="#{environment.getProperty('update.system.properties') != null}"/>
                                         <h:outputText value="Date Format:" />
                                         <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
-                                            disabled="#{jsffn:isSystemProp('data.format.date')}"
+                                            disabled="#{environment.getProperty('data.format.date') != null}"
                                             validator = "#{validator.dateFormatValidator}"/>
                                     </h:panelGrid>
                                 </div>
