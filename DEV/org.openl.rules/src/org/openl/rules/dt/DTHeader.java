@@ -51,8 +51,10 @@ abstract class DTHeader {
             return "CONDITION";
         } else if (isAction()) {
             return "ACTION";
-        } else {
+        } else if (isReturn()) {
             return "RETURN";
+        } else {
+            return "UNKNOWN";
         }
     }
 
