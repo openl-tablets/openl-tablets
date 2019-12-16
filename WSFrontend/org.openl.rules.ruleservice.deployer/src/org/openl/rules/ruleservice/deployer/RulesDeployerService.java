@@ -29,7 +29,6 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -55,33 +54,34 @@ public class RulesDeployerService implements Closeable {
     }
 
     /**
-     * Initializes repository using environment
+     * Initializes repository using target properties
      *
-     * @param environment repository settings
+     * @param properties repository settings
      */
-    public RulesDeployerService(Environment environment) {
-        String deployPath = environment.getProperty("repository.production.base.path");
+    public RulesDeployerService(Properties properties) {
+        String deployPath = properties.getProperty("production-repository.base.path");
         this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
-        Map<String, String> params = new HashMap<>();
-        params.put("uri", environment.getProperty("repository.production.uri"));
-        params.put("login", environment.getProperty("repository.production.login"));
-        params.put("password", environment.getProperty("repository.production.password"));
-        // AWS S3 specific
-        params.put("bucketName", environment.getProperty("repository.production.bucket-name"));
-        params.put("regionName", environment.getProperty("repository.production.region-name"));
-        params.put("accessKey", environment.getProperty("repository.production.access-key"));
-        params.put("secretKey", environment.getProperty("repository.production.secret-key"));
-        // Git specific
-        params.put("localRepositoryPath", environment.getProperty("repository.production.local-repository-path"));
-        params.put("branch", environment.getProperty("repository.production.branch"));
-        params.put("tagPrefix", environment.getProperty("repository.production.tag-prefix"));
-        params.put("commentTemplate", environment.getProperty("repository.production.comment-template"));
-        params.put("connection-timeout", environment.getProperty("repository.production.connection-timeout"));
-        // AWS S3 and Git specific
-        params.put("listener-timer-period", environment.getProperty("repository.production.listener-timer-period"));
 
-        this.deployRepo = RepositoryInstatiator.newRepository("production",
-            environment);
+        Map<String, String> params = new HashMap<>();
+        params.put("uri", properties.getProperty("production-repository.uri"));
+        params.put("login", properties.getProperty("production-repository.login"));
+        params.put("password", properties.getProperty("production-repository.password"));
+        // AWS S3 specific
+        params.put("bucketName", properties.getProperty("production-repository.bucket-name"));
+        params.put("regionName", properties.getProperty("production-repository.region-name"));
+        params.put("accessKey", properties.getProperty("production-repository.access-key"));
+        params.put("secretKey", properties.getProperty("production-repository.secret-key"));
+        // Git specific
+        params.put("localRepositoryPath", properties.getProperty("production-repository.local-repository-path"));
+        params.put("branch", properties.getProperty("production-repository.branch"));
+        params.put("tagPrefix", properties.getProperty("production-repository.tag-prefix"));
+        params.put("commentTemplate", properties.getProperty("production-repository.comment-template"));
+        params.put("connection-timeout", properties.getProperty("production-repository.connection-timeout"));
+        // AWS S3 and Git specific
+        params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
+
+        this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
+            params);
     }
 
     /**

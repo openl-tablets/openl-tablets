@@ -23,88 +23,55 @@ public class RepositoryConfiguration {
     private String oldName = null;
 
     private String configName;
-    private final ConfigurationManager configManager;
-    private final RepositoryMode repositoryMode;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
-
-    private final String CONFIG_PREFIX;
 
     private RepositorySettings settings;
 
     private String errorMessage;
 
-    public RepositoryConfiguration(String configName,
-            ConfigurationManager configManager,
-            RepositoryMode repositoryMode,
-            Environment environment) {
-        this(configName, configManager, repositoryMode, false, environment);
-    }
-
-    public RepositoryConfiguration(String configName,
-            ConfigurationManager configManager,
-            RepositoryMode repositoryMode,
-            boolean fallbackToDefault,
-            Environment environment) {
+    public RepositoryConfiguration(String configName, Environment environment) {
         this.configName = configName.toLowerCase();
-        this.configManager = configManager;
-        this.repositoryMode = repositoryMode;
+        REPOSITORY_FACTORY = configName + ".factory";
+        REPOSITORY_NAME = configName + ".name";
 
-        switch (repositoryMode) {
-            case DESIGN:
-                CONFIG_PREFIX = RepositoryFactoryInstatiator.DESIGN_REPOSITORY;
-                break;
-            case DEPLOY_CONFIG:
-                CONFIG_PREFIX = RepositoryFactoryInstatiator.DEPLOY_CONFIG_REPOSITORY;
-                break;
-            case PRODUCTION:
-                CONFIG_PREFIX = RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        REPOSITORY_FACTORY = CONFIG_PREFIX + ".factory";
-        REPOSITORY_NAME = CONFIG_PREFIX + ".name";
-
-        load(fallbackToDefault, environment);
+        load(environment, this.configName);
     }
 
-    private void load(boolean fallbackToDefault, Environment environment) {
-        String factoryClassName = environment.getProperty(REPOSITORY_FACTORY);
+    private void load(Environment environment, String configName) {
+        String factoryClassName = environment.getProperty("repository." + REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
             // Fallback to default value and save error message
             errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ".";
-            if (fallbackToDefault) {
-                repositoryType = RepositoryType.values()[0];
-                errorMessage += " Was replaced with " + repositoryType.getFactoryClassName() + ".";
-            } else {
-                throw new IllegalArgumentException(errorMessage);
-            }
+            // if (fallbackToDefault) {
+            // repositoryType = RepositoryType.values()[0];
+            // errorMessage += " Was replaced with " + repositoryType.getFactoryClassName() + ".";
+            // } else {
+            // throw new IllegalArgumentException(errorMessage);
+            // }
         }
-        name = environment.getProperty(REPOSITORY_NAME);
-
-        settings = createSettings(repositoryType);
+        name = environment.getProperty("repository." + REPOSITORY_NAME);
+        configName = "repository." + configName;
+        settings = createSettings(repositoryType, environment, configName);
 
         fixState();
     }
 
-    private RepositorySettings createSettings(RepositoryType repositoryType) {
+    private RepositorySettings createSettings(RepositoryType repositoryType,
+            Environment environment,
+            String configPrefix) {
         RepositorySettings newSettings;
         switch (repositoryType) {
             case AWS_S3:
-                newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
+                newSettings = new AWSS3RepositorySettings(environment, configPrefix);
                 break;
             case GIT:
-                newSettings = new GitRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode);
+                newSettings = new GitRepositorySettings(environment, configPrefix);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(configManager,
-                    CONFIG_PREFIX,
-                    repositoryMode,
-                    repositoryType);
+                newSettings = new CommonRepositorySettings(environment, configPrefix, repositoryType);
                 break;
         }
 
@@ -123,16 +90,16 @@ public class RepositoryConfiguration {
     }
 
     void revert() {
-        configManager.revertProperty(REPOSITORY_NAME);
-        configManager.revertProperty(REPOSITORY_FACTORY);
-        load(false, null);
-
-        settings.revert(configManager);
+        // configManager.revertProperty(REPOSITORY_NAME);
+        // configManager.revertProperty(REPOSITORY_FACTORY);
+        // load(false, null, null);
+        //
+        // settings.revert(configManager);
     }
 
     void commit() {
         fixState();
-        store(configManager);
+        // store(configManager);
     }
 
     public String getErrorMessage() {
@@ -173,7 +140,7 @@ public class RepositoryConfiguration {
             }
             repositoryType = newRepositoryType;
             errorMessage = null;
-            RepositorySettings newSettings = createSettings(newRepositoryType);
+            RepositorySettings newSettings = createSettings(newRepositoryType, null, null);
             newSettings.copyContent(settings);
             settings = newSettings;
             settings.onTypeChanged(newRepositoryType);
@@ -185,12 +152,14 @@ public class RepositoryConfiguration {
     }
 
     public boolean save() {
-        store(configManager);
-        return configManager.save();
+        // store(configManager);
+        // return configManager.save();
+        return false;
     }
 
     public boolean delete() {
-        return configManager.delete();
+        // return configManager.delete();
+        return false;
     }
 
     public void copyContent(RepositoryConfiguration other) {
@@ -205,11 +174,11 @@ public class RepositoryConfiguration {
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
     }
 
-    public Map<String, Object> getProperties() {
-        InMemoryProperties propertiesHolder = new InMemoryProperties(configManager.getProperties());
-        store(propertiesHolder);
-        return propertiesHolder.getProperties();
-    }
+    // public Map<String, Object> getProperties() {
+    // InMemoryProperties propertiesHolder = new InMemoryProperties(configManager.getProperties());
+    // store(propertiesHolder);
+    // return propertiesHolder.getProperties();
+    // }
 
     public RepositorySettings getSettings() {
         return settings;

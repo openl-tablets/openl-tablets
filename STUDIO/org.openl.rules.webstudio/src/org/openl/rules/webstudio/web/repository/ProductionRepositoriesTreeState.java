@@ -118,14 +118,11 @@ public class ProductionRepositoriesTreeState {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
             repos.add(config);
         }
 
-        Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
+        repos.sort(RepositoryConfiguration.COMPARATOR);
 
         return repos;
     }

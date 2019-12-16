@@ -52,6 +52,9 @@ public class StartupListener implements ServletContextListener {
             }
         }
 
+        if(configured){
+            System.setProperty("user.mode", "single");
+        }
     }
 
     @Override

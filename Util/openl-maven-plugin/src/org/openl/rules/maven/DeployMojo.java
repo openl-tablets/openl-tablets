@@ -61,14 +61,14 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Properties properties = new Properties();
         if ("jdbc".equals(deployType)) {
-            properties.put("repository.production.factory", "org.openl.rules.repository.db.JdbcDBRepositoryFactory");
+            properties.put("production-repository.factory", "org.openl.rules.repository.db.JdbcDBRepositoryFactory");
         }
-        properties.put("repository.production.uri", deployUrl);
-        properties.put("repository.production.login", server.getUsername());
-        properties.put("repository.production.password", server.getPassword());
-        properties.put("repository.production.base.path", "deploy/");
-        //todo: change logic there
-        try (RulesDeployerService deployerService = new RulesDeployerService(null)) {
+        properties.put("production-repository.uri", deployUrl);
+        properties.put("production-repository.login", server.getUsername());
+        properties.put("production-repository.password", server.getPassword());
+        properties.put("production-repository.base.path", "deploy/");
+
+        try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
             deployerService.deploy(FileUtils.getBaseName(zipFile.getName()), new FileInputStream(zipFile), false);
         }
     }

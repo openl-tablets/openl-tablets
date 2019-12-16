@@ -74,16 +74,16 @@ public class SystemSettingsBean {
         try {
             configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
-            designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN, true, environment);
+            designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.name().toLowerCase(),
+                environment);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(designRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
             }
 
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration("",
-                configManager,
-                RepositoryMode.DEPLOY_CONFIG,
-                true, environment);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(
+                "deploy-config",
+                environment);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -92,7 +92,7 @@ public class SystemSettingsBean {
             productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
                 productionConfigManagerFactory,
                 productionRepositoryFactoryProxy,
-                    environment);
+                environment);
 
             validator = new SystemSettingsValidator(this);
         } catch (Exception e) {

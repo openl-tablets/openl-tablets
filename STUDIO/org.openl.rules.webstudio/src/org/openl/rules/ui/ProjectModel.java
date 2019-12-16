@@ -117,8 +117,8 @@ public class ProjectModel {
     /**
      * For tests only
      */
-    ProjectModel(WebStudio studio) {
-        this(studio, null);
+    ProjectModel(WebStudio studio, Environment environment) {
+        this(studio, null, environment);
     }
 
     public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
@@ -127,6 +127,14 @@ public class ProjectModel {
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
         this.environment = ApplicationContextProvider.getApplicationContext().getEnvironment();
+    }
+
+    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor, Environment environment) {
+        this.studio = studio;
+        this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
+        this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
+        this.testSuiteExecutor = testSuiteExecutor;
+        this.environment = environment;
     }
 
     public RulesProject getProject() {

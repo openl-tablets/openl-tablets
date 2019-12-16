@@ -13,6 +13,7 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -75,7 +76,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             boolean flatProjects = Boolean.parseBoolean(environment.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
             boolean flatDeployConfig = Boolean.parseBoolean(environment.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN.name(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            repository = createRepo(RepositoryMode.DESIGN.name().toLowerCase(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
 
             if (!separateDeployConfigRepo) {
                 if (flatProjects || !(repository instanceof MappedRepository)) {
@@ -85,7 +86,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((MappedRepository) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.name(),
+                deployConfigRepository = createRepo("deploy-config",
                     flatDeployConfig,
                     DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                     deploymentConfigurationLocation);
@@ -110,7 +111,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             String folderConfig,
             String baseFolder) {
         try {
-            Repository repo = RepositoryFactoryInstatiator.newFactory(environment, configName);
+            Repository repo = RepositoryInstatiator.newRepository(configName, environment);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;

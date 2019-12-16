@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
+import java.util.Map;
 
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.config.PassCoder;
@@ -45,6 +46,23 @@ public class RepositoryInstatiator {
         return repository;
     }
 
+    /**
+     * Create new repository instance.
+     *
+     * @param factory the class name to instantiate.
+     * @param params the initialization parameters.
+     * @return the initialized repository.
+     */
+    public static Repository newRepository(String factory, Map<String, String> params) {
+        Repository repository = newInstance(factory);
+        if (params != null) {
+            setParams(repository, params);
+        }
+        initialize(repository);
+
+        return repository;
+    }
+
     private static Repository newInstance(String factory) {
         Object instance;
         try {
@@ -62,6 +80,48 @@ public class RepositoryInstatiator {
             throw new IllegalStateException(String.format("%s must be an implementation of %s.",
                 instance.getClass().getTypeName(),
                 Repository.class.getTypeName()), e);
+        }
+    }
+
+    private static void setParams(Object instance, Map<String, String> params) {
+        Class<?> clazz = instance.getClass();
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            String value = param.getValue();
+            if (StringUtils.isNotBlank(value)) {
+                String name = param.getKey();
+                String setter = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                try {
+                    Method setMethod = clazz.getMethod(setter, String.class);
+                    setMethod.invoke(instance, value);
+                } catch (NoSuchMethodException e) {
+                    Method[] methods = clazz.getMethods();
+                    for (Method method : methods) {
+                        if (method.getName().equals(setter)) {
+                            Class<?>[] parameterTypes = method.getParameterTypes();
+                            if (parameterTypes.length == 1) {
+                                try {
+                                    method.invoke(instance, convert(parameterTypes[0], value));
+                                    // Found needed setter
+                                    break;
+                                } catch (NoSuchMethodException | IllegalAccessException ignore) {
+                                    // Cannot convert using this method. Skip.
+                                } catch (InvocationTargetException e1) {
+                                    // The underlying method throws an exception
+                                    throw new IllegalStateException(
+                                            "Failed to invoke " + setter + "(" + parameterTypes[0]
+                                                    .getSimpleName() + ") method in: " + clazz,
+                                            e1);
+                                }
+                            }
+                        }
+                    }
+                    // Didn't find setter, skip this param. For example not always exists setUri(String).
+                } catch (Exception e) {
+                    throw new IllegalStateException(
+                            String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), name),
+                            e);
+                }
+            }
         }
     }
 
