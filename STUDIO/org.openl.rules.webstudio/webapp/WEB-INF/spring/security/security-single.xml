@@ -10,8 +10,11 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
-  <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
-    of "securityContextPersistenceFilter" in the list below -->
+  <import resource="db-services.xml"/>
+  <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
+    <constructor-arg name="userDao" ref="openlUserDao"/>
+    <constructor-arg name="userName" value="DEFAULT"/>
+  </bean>
 
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
     <security:filter-chain-map request-matcher="ant">

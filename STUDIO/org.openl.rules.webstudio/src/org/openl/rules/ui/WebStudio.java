@@ -26,7 +26,6 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -54,6 +53,7 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -142,7 +142,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean collapseProperties = true;
 
     private ConfigurationManager systemConfigManager;
-    private ConfigurationManager userSettingsManager;
+    private final UserSettingManagementService userSettingsManager;
 
     private boolean needRestart = false;
     private boolean forcedCompile = true;
@@ -162,6 +162,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
+        userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
         systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
 
@@ -184,20 +185,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private void initUserSettings() {
-        String settingsLocation = environment.getProperty("user.settings.home") + File.separator + rulesUserSession
-            .getUserName() + File.separator + USER_SETTINGS_FILENAME;
+        String userName = rulesUserSession.getUserName();
 
-        userSettingsManager = new ConfigurationManager(settingsLocation, USER_SETTINGS_FILENAME, true);
+        treeView = getTreeView(userSettingsManager.getStringProperty(userName, "rules.tree.view"));
+        tableView = userSettingsManager.getStringProperty(userName, "table.view");
+        showFormulas = userSettingsManager.getBooleanProperty(userName, "table.formulas.show");
+        testsPerPage = userSettingsManager.getIntegerProperty(userName, "test.tests.perpage");
+        testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, "test.failures.only");
+        testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
+        showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
 
-        treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
-        tableView = userSettingsManager.getStringProperty("table.view");
-        showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
-        testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
-        testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
-        testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
-        showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-
-        String defaultModuleMode = userSettingsManager.getStringProperty("project.module.default.mode");
+        String defaultModuleMode = userSettingsManager.getStringProperty(userName, "project.module.default.mode");
         if (StringUtils.isNotEmpty(defaultModuleMode)) {
             try {
                 this.defaultModuleMode = ModuleMode.valueOf(defaultModuleMode.toUpperCase());
@@ -209,10 +207,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public ConfigurationManager getSystemConfigManager() {
         return systemConfigManager;
-    }
-
-    public ConfigurationManager getUserSettingsManager() {
-        return userSettingsManager;
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -416,7 +410,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTableView(String tableView) {
         this.tableView = tableView;
-        userSettingsManager.setProperty("table.view", tableView);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.view", tableView);
     }
 
     public boolean isShowHeader() {
@@ -928,7 +922,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void setTreeView(RulesTreeView treeView) {
         this.treeView = treeView;
         model.redraw();
-        userSettingsManager.setProperty("rules.tree.view", treeView.getName());
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "rules.tree.view", treeView.getName());
     }
 
     public void setTreeView(String name) {
@@ -968,7 +962,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
-        userSettingsManager.setProperty("table.formulas.show", showFormulas);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.formulas.show", showFormulas);
     }
 
     public int getTestsPerPage() {
@@ -977,7 +971,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsPerPage(int testsPerPage) {
         this.testsPerPage = testsPerPage;
-        userSettingsManager.setProperty("test.tests.perpage", testsPerPage);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.tests.perpage", testsPerPage);
     }
 
     public boolean isTestsFailuresOnly() {
@@ -986,7 +980,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsFailuresOnly(boolean testsFailuresOnly) {
         this.testsFailuresOnly = testsFailuresOnly;
-        userSettingsManager.setProperty("test.failures.only", testsFailuresOnly);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.only", testsFailuresOnly);
     }
 
     public int getTestsFailuresPerTest() {
@@ -995,7 +989,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setTestsFailuresPerTest(int testsFailuresPerTest) {
         this.testsFailuresPerTest = testsFailuresPerTest;
-        userSettingsManager.setProperty("test.failures.pertest", testsFailuresPerTest);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.pertest", testsFailuresPerTest);
     }
 
     public boolean isCollapseProperties() {
@@ -1012,7 +1006,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
-        userSettingsManager.setProperty("test.result.complex.show", showComplexResult);
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.result.complex.show", showComplexResult);
     }
 
     public boolean isSingleModuleModeByDefault() {
@@ -1025,7 +1019,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setSingleModuleModeByDefault(boolean singleMode) {
         this.defaultModuleMode = singleMode ? ModuleMode.SINGLE : ModuleMode.MULTI;
-        userSettingsManager.setProperty("project.module.default.mode", defaultModuleMode.name());
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "project.module.default.mode", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {

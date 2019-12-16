@@ -52,6 +52,10 @@
         <property name="sessionFactory" ref="openlSessionFactory"/>
     </bean>
 
+    <bean id="openlUserSettingDao" class="org.openl.rules.security.standalone.dao.HibernateUserSettingDao">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+
     <bean id="dbMigration" class="org.openl.rules.security.standalone.DBMigrationBean" init-method="init">
         <property name="dataSource" ref="openlDataSource"/>
     </bean>

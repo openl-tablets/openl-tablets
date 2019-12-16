@@ -18,4 +18,9 @@
         <property name="userDao" ref="openlUserDao" />
     </bean>
 
+    <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
+        <constructor-arg name="userSettingDao" ref="openlUserSettingDao"/>
+        <constructor-arg name="environment" ref="environment"/>
+    </bean>
+
 </beans>
