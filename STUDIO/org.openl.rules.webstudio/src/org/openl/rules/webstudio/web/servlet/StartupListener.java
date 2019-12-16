@@ -51,10 +51,6 @@ public class StartupListener implements ServletContextListener {
                 System.setProperty("webstudio.home", webStudioHomeDirPref);
             }
         }
-
-        if(configured){
-            System.setProperty("user.mode", "single");
-        }
     }
 
     @Override
