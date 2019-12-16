@@ -40,7 +40,7 @@ public abstract class AbstractProductionRepoController {
     @PostConstruct
     public void afterPropertiesSet() {
         setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
-        repositoryConfiguration = createDummyRepositoryConfiguration();
+//        repositoryConfiguration = createDummyRepositoryConfiguration();
         systemSettingsBean = null;
     }
 
@@ -77,9 +77,7 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name),
-            getProductionConfigManager(name),
-            RepositoryMode.PRODUCTION, environment);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), environment);
 
         repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
@@ -88,9 +86,7 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name,
-            getProductionConfigManager(name),
-            RepositoryMode.PRODUCTION, environment);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, environment);
 
         repoConfig.copyContent(repositoryConfiguration);
 
@@ -114,9 +110,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def",
-            getProductionConfigManager("def"),
-            RepositoryMode.PRODUCTION, environment);
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", environment);
         repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
         return repositoryConfiguration;
     }

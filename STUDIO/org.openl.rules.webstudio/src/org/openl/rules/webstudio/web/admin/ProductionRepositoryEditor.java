@@ -47,10 +47,7 @@ public class ProductionRepositoryEditor {
         String[] repositoryConfigNames = split(
             environment.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = getProductionConfigManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -138,9 +135,7 @@ public class ProductionRepositoryEditor {
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-            getProductionConfigManager(newConfigName),
-            RepositoryMode.PRODUCTION, environment);
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, environment);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 

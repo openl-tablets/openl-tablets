@@ -76,7 +76,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             boolean flatProjects = Boolean.parseBoolean(environment.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
             boolean flatDeployConfig = Boolean.parseBoolean(environment.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN.name(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            repository = createRepo(RepositoryMode.DESIGN.name().toLowerCase(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
 
             if (!separateDeployConfigRepo) {
                 if (flatProjects || !(repository instanceof MappedRepository)) {
@@ -86,7 +86,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((MappedRepository) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.name(),
+                deployConfigRepository = createRepo("deploy-config",
                     flatDeployConfig,
                     DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                     deploymentConfigurationLocation);

@@ -182,11 +182,7 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory
-                .getConfigurationManager(repositoryConfigName);
-            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName,
-                productionConfig,
-                RepositoryMode.PRODUCTION, environment);
+            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, environment);
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
@@ -389,10 +385,7 @@ public class DeploymentController {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
-            RepositoryConfiguration config = new RepositoryConfiguration(configName,
-                productionConfig,
-                RepositoryMode.PRODUCTION, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
             repos.add(config);
         }
 

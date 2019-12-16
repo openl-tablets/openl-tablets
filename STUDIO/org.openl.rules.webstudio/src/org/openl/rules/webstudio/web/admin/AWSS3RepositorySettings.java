@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
+import org.springframework.core.env.Environment;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
     private String bucketName;
@@ -16,23 +17,23 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String SECRET_KEY;
     private final String LISTENER_TIMER_PERIOD;
 
-    AWSS3RepositorySettings(ConfigurationManager configManager, String configPrefix) {
-        super(configManager, configPrefix);
-        BUCKET_NAME = configPrefix + "bucket-name";
-        REGION_NAME = configPrefix + "region-name";
-        ACCESS_KEY = configPrefix + "access-key";
-        SECRET_KEY = configPrefix + "secret-key";
-        LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
+    AWSS3RepositorySettings(Environment environment, String configPrefix) {
+        super(environment, configPrefix);
+        BUCKET_NAME = configPrefix + ".bucket-name";
+        REGION_NAME = configPrefix + ".region-name";
+        ACCESS_KEY = configPrefix + ".access-key";
+        SECRET_KEY = configPrefix + ".secret-key";
+        LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
 
-        load(configManager);
+        load(environment);
     }
 
-    private void load(ConfigurationManager configManager) {
-        bucketName = configManager.getStringProperty(BUCKET_NAME);
-        regionName = configManager.getStringProperty(REGION_NAME);
-        accessKey = configManager.getStringProperty(ACCESS_KEY);
-        secretKey = configManager.getStringProperty(SECRET_KEY);
-        listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
+    private void load(Environment environment) {
+        bucketName = environment.getProperty(BUCKET_NAME);
+        regionName = environment.getProperty(REGION_NAME);
+        accessKey = environment.getProperty(ACCESS_KEY);
+        secretKey = environment.getProperty(SECRET_KEY);
+        listenerTimerPeriod = Integer.parseInt(environment.getProperty(LISTENER_TIMER_PERIOD, "10"));
     }
 
     public String getBucketName() {
@@ -93,7 +94,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         super.revert(configurationManager);
 
         configurationManager.revertProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
-        load(configurationManager);
+        load(null);
     }
 
     @Override
