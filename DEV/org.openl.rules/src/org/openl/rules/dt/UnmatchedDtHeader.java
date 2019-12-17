@@ -1,7 +1,7 @@
 package org.openl.rules.dt;
 
-class EmptyDtHeader extends DTHeader {
-    EmptyDtHeader(int[] methodParameterIndexes, String statement, int column, int width) {
+class UnmatchedDtHeader extends DTHeader {
+    UnmatchedDtHeader(int[] methodParameterIndexes, String statement, int column, int width) {
         super(methodParameterIndexes, statement, column, width);
     }
 
