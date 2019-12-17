@@ -93,7 +93,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
         if (nodes.length > 2) {
-            String errMsg = "Parameter format: <type> <name>";
+            String errMsg = "Parameter cell format: <type> <name>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
@@ -272,8 +272,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
                     }
                 } catch (CompositeSyntaxNodeException e) {
-                    GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                        expressionTable,
+                    GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
                         cxt);
                     throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'",
                         eGridCellSourceCodeModule.getCode()), e, null, eGridCellSourceCodeModule);
@@ -289,8 +288,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 while (j < d) {
                     IGridTable pCodeTable = tableBody1.getSource()
                         .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
-                    GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
-                        cxt);
+                    GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
                     IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
                         cxt);
                     parametersForMergedTitle.add(parameterDeclaration);
@@ -298,7 +296,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         if (parameterDeclaration.getName() != null) {
                             if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
                                 throw SyntaxNodeExceptionUtils.createError(
-                                    "Parameter '" + parameterDeclaration.getName() + "' has already been defined.",
+                                    "Parameter '" + parameterDeclaration.getName() + "' is already defined.",
                                     pGridCellSourceCodeModule);
                             }
                             uniqueSetOfParameters.add(parameterDeclaration.getName());
@@ -328,8 +326,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                             GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                 tCodeTable,
                                 cxt);
-                            throw SyntaxNodeExceptionUtils.createError(
-                                "Title '" + title1 + "' has already been defined.",
+                            throw SyntaxNodeExceptionUtils.createError("Title '" + title1 + "' is already defined.",
                                 tGridCellSourceCodeModule);
                         }
                         uniqueSetOfTitles.add(title);
@@ -344,8 +341,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 nullPCodeTable,
                                 cxt);
                             String errMsg = "Parameter cell format: <type> <name>";
-                            throw SyntaxNodeExceptionUtils
-                                .createError(errMsg, null, null, eGridCellSourceCodeModule);
+                            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, eGridCellSourceCodeModule);
                         }
 
                         localParameters.put(title, parametersForMergedTitle);
@@ -363,8 +359,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 IMethodSignature newSignature = ((MethodSignature) header.getSignature())
                     .merge(allParameterDeclarations);
 
-                GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(
-                    expressionTable,
+                GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
                     cxt);
 
                 CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
