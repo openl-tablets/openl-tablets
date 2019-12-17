@@ -10,10 +10,6 @@ public class ApplicationContextProvider implements ApplicationContextAware {
         return context;
     }
 
-    public static ApplicationContext getContext() {
-        return context;
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext ac) {
         context = ac;
