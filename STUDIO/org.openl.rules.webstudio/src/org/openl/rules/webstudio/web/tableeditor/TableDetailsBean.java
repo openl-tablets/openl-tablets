@@ -33,7 +33,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 @ManagedBean
 @ViewScoped
@@ -48,7 +48,7 @@ public class TableDetailsBean {
     private String id;
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -74,8 +74,8 @@ public class TableDetailsBean {
         }
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public void initPropertyGroups(IOpenLTable table, ITableProperties props) {
@@ -294,7 +294,7 @@ public class TableDetailsBean {
 
         if (toSave) {
             if (studio.isUpdateSystemProperties()) {
-                EditHelper.updateSystemProperties(table, tableEditorModel, environment.getProperty("user.mode"));
+                EditHelper.updateSystemProperties(table, tableEditorModel, propertyResolver.getProperty("user.mode"));
             }
             this.newTableId = tableEditorModel.save();
             studio.compile();

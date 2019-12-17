@@ -7,10 +7,9 @@ import javax.faces.bean.ManagedProperty;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Pavel Tarasevich
@@ -32,7 +31,7 @@ public abstract class AbstractProductionRepoController {
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     @ManagedProperty(value = "#{environment}")
-    Environment environment;
+    PropertyResolver propertyResolver;
 
     private RepositoryConfiguration defaultRepoConfig;
     private List<RepositoryConfiguration> productionRepositoryConfigurations;
@@ -44,8 +43,8 @@ public abstract class AbstractProductionRepoController {
         systemSettingsBean = null;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
@@ -77,7 +76,7 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), environment);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), propertyResolver);
 
         repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
@@ -86,7 +85,7 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, environment);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, propertyResolver);
 
         repoConfig.copyContent(repositoryConfiguration);
 
@@ -110,7 +109,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", environment);
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", propertyResolver);
         repositoryConfiguration.setType(RepositoryType.DB.name().toLowerCase());
         return repositoryConfiguration;
     }

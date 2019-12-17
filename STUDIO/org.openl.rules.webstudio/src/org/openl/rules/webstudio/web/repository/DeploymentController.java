@@ -8,7 +8,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -20,13 +19,12 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Deployment controller.
@@ -60,7 +58,7 @@ public class DeploymentController {
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
     @ManagedProperty("#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     public void onPageLoad() {
         if (repositoryTreeState == null || getSelectedProject() == null) {
@@ -78,8 +76,8 @@ public class DeploymentController {
         }
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public synchronized String addItem() {
@@ -182,7 +180,7 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
-            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, environment);
+            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
@@ -385,11 +383,11 @@ public class DeploymentController {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 
-        Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
+        repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }
 

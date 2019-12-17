@@ -8,10 +8,9 @@ import java.util.List;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class ProductionRepositoryEditor {
     private final ConfigurationManager configManager;
@@ -21,16 +20,16 @@ public class ProductionRepositoryEditor {
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     public ProductionRepositoryEditor(ConfigurationManager configManager,
             ConfigurationManagerFactory productionConfigManagerFactory,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
-            Environment environment) {
+            PropertyResolver propertyResolver) {
         this.configManager = configManager;
         this.productionConfigManagerFactory = productionConfigManagerFactory;
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-        this.environment = environment;
+        this.propertyResolver = propertyResolver;
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
@@ -45,9 +44,9 @@ public class ProductionRepositoryEditor {
         productionRepositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(
-            environment.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
+            propertyResolver.getProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS));
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -135,7 +134,7 @@ public class ProductionRepositoryEditor {
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, environment);
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, propertyResolver);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 

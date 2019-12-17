@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
     private String bucketName;
@@ -17,23 +17,23 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String SECRET_KEY;
     private final String LISTENER_TIMER_PERIOD;
 
-    AWSS3RepositorySettings(Environment environment, String configPrefix) {
-        super(environment, configPrefix);
+    AWSS3RepositorySettings(PropertyResolver propertyResolver, String configPrefix) {
+        super(propertyResolver, configPrefix);
         BUCKET_NAME = configPrefix + ".bucket-name";
         REGION_NAME = configPrefix + ".region-name";
         ACCESS_KEY = configPrefix + ".access-key";
         SECRET_KEY = configPrefix + ".secret-key";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
 
-        load(environment);
+        load(propertyResolver);
     }
 
-    private void load(Environment environment) {
-        bucketName = environment.getProperty(BUCKET_NAME);
-        regionName = environment.getProperty(REGION_NAME);
-        accessKey = environment.getProperty(ACCESS_KEY);
-        secretKey = environment.getProperty(SECRET_KEY);
-        listenerTimerPeriod = Integer.parseInt(environment.getProperty(LISTENER_TIMER_PERIOD, "10"));
+    private void load(PropertyResolver propertyResolver) {
+        bucketName = propertyResolver.getProperty(BUCKET_NAME);
+        regionName = propertyResolver.getProperty(REGION_NAME);
+        accessKey = propertyResolver.getProperty(ACCESS_KEY);
+        secretKey = propertyResolver.getProperty(SECRET_KEY);
+        listenerTimerPeriod = Integer.parseInt(propertyResolver.getProperty(LISTENER_TIMER_PERIOD, "10"));
     }
 
     public String getBucketName() {

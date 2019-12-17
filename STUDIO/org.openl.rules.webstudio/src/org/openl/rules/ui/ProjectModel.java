@@ -10,7 +10,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
@@ -74,7 +73,7 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class ProjectModel {
 
@@ -112,13 +111,13 @@ public class ProjectModel {
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
     private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     /**
      * For tests only
      */
-    ProjectModel(WebStudio studio, Environment environment) {
-        this(studio, null, environment);
+    ProjectModel(WebStudio studio, PropertyResolver propertyResolver) {
+        this(studio, null, propertyResolver);
     }
 
     public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
@@ -126,15 +125,15 @@ public class ProjectModel {
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
-        this.environment = ApplicationContextProvider.getApplicationContext().getEnvironment();
+        this.propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
     }
 
-    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor, Environment environment) {
+    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor, PropertyResolver propertyResolver) {
         this.studio = studio;
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
-        this.environment = environment;
+        this.propertyResolver = propertyResolver;
     }
 
     public RulesProject getProject() {
@@ -883,7 +882,7 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Boolean.parseBoolean(environment.getProperty("test.run.parallel"));
+        boolean isParallel = Boolean.parseBoolean(propertyResolver.getProperty("test.run.parallel"));
         return runTest(test, isParallel);
     }
 
@@ -1185,10 +1184,10 @@ public class ProjectModel {
 
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
-            String projectHistoryHome = environment.getProperty("project.history.home");
-            String projectHistoryCount = environment.getProperty("project.history.count");
+            String projectHistoryHome = propertyResolver.getProperty("project.history.home");
+            String projectHistoryCount = propertyResolver.getProperty("project.history.count");
             Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Boolean.parseBoolean(environment.getProperty("project.history.unlimited"));
+            boolean unlimitedStorage = Boolean.parseBoolean(propertyResolver.getProperty("project.history.unlimited"));
             String storagePath = projectHistoryHome + File.separator + getProject().getName();
             historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }

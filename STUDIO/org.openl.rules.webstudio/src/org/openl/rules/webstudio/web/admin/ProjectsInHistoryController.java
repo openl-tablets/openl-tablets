@@ -14,14 +14,14 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 @ManagedBean(name = "projectsInHistory")
 @RequestScoped
 public class ProjectsInHistoryController {
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     public static class ProjectBean {
         private String projectName;
@@ -108,10 +108,10 @@ public class ProjectsInHistoryController {
     }
 
     public String getProjectHistoryHome() {
-        return environment.getProperty(PROJECT_HISTORY_HOME);
+        return propertyResolver.getProperty(PROJECT_HISTORY_HOME);
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 }

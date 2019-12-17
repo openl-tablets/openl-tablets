@@ -12,7 +12,7 @@ import org.openl.rules.repository.config.PassCoder;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * A factory to create repositories using Java reflection. This instantiator uses the following workflow:
@@ -34,13 +34,13 @@ public class RepositoryInstatiator {
     /**
      * Create new repository instance.
      *
-     * @param environment the environment of the app.
+     * @param propertyResolver the propertyResolver of the app.
      * @return the initialized repository.
      */
-    public static Repository newRepository(String configName, Environment environment) {
-        String factoryClass = environment.getProperty("repository." + configName + ".factory");
+    public static Repository newRepository(String configName, PropertyResolver propertyResolver) {
+        String factoryClass = propertyResolver.getProperty("repository." + configName + ".factory");
         Repository repository = newInstance(factoryClass);
-        setParams(repository, environment, configName);
+        setParams(repository, propertyResolver, configName);
         initialize(repository);
 
         return repository;
@@ -108,9 +108,9 @@ public class RepositoryInstatiator {
                                 } catch (InvocationTargetException e1) {
                                     // The underlying method throws an exception
                                     throw new IllegalStateException(
-                                            "Failed to invoke " + setter + "(" + parameterTypes[0]
-                                                    .getSimpleName() + ") method in: " + clazz,
-                                            e1);
+                                        "Failed to invoke " + setter + "(" + parameterTypes[0]
+                                            .getSimpleName() + ") method in: " + clazz,
+                                        e1);
                                 }
                             }
                         }
@@ -118,21 +118,21 @@ public class RepositoryInstatiator {
                     // Didn't find setter, skip this param. For example not always exists setUri(String).
                 } catch (Exception e) {
                     throw new IllegalStateException(
-                            String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), name),
-                            e);
+                        String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), name),
+                        e);
                 }
             }
         }
     }
 
-    private static void setParams(Object instance, Environment environment, String configName) {
+    private static void setParams(Object instance, PropertyResolver propertyResolver, String configName) {
         Class<?> clazz = instance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
             String propertyName = buildPropertyName(configName, fieldName);
             String propertyValue = null;
             try {
-                propertyValue = getValue(environment, propertyName);
+                propertyValue = getValue(propertyResolver, propertyName);
             } catch (RRepositoryException e) {
                 e.printStackTrace();
             }
@@ -174,11 +174,11 @@ public class RepositoryInstatiator {
 
     }
 
-    private static String getValue(Environment environment, String propertyName) throws RRepositoryException {
+    private static String getValue(PropertyResolver propertyResolver, String propertyName) throws RRepositoryException {
         String result = "";
-        String property = environment.getProperty(propertyName);
+        String property = propertyResolver.getProperty(propertyName);
         if ("password".equals(propertyName)) {
-            String privateKey = StringUtils.trimToEmpty(environment.getProperty("repository.encode.decode.key"));
+            String privateKey = StringUtils.trimToEmpty(propertyResolver.getProperty("repository.encode.decode.key"));
             try {
                 result = PassCoder.decode(property, privateKey);
                 return String.valueOf(result);

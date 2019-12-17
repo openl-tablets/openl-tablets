@@ -6,7 +6,7 @@ import org.openl.rules.repository.config.PassCoder;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class CommonRepositorySettings extends RepositorySettings {
     private final Logger log = LoggerFactory.getLogger(CommonRepositorySettings.class);
@@ -19,26 +19,28 @@ public class CommonRepositorySettings extends RepositorySettings {
     final String REPOSITORY_URI;
     final String REPOSITORY_LOGIN;
     final String REPOSITORY_PASS;
-    private Environment environment;
+    private PropertyResolver propertyResolver;
     private String CONFIG_PREFIX;
 
-    public CommonRepositorySettings(Environment environment, String configPrefix, RepositoryType repositoryType) {
-        super(environment, configPrefix);
+    public CommonRepositorySettings(PropertyResolver propertyResolver,
+            String configPrefix,
+            RepositoryType repositoryType) {
+        super(propertyResolver, configPrefix);
         CONFIG_PREFIX = configPrefix;
         this.repositoryType = repositoryType;
         REPOSITORY_URI = configPrefix + ".uri";
         REPOSITORY_LOGIN = configPrefix + ".login";
         REPOSITORY_PASS = configPrefix + ".password";
-        this.environment = environment;
-        load(environment);
+        this.propertyResolver = propertyResolver;
+        load(propertyResolver);
     }
 
-    private void load(Environment environment) {
-        uri = environment.getProperty(REPOSITORY_URI);
-        login = environment.getProperty(REPOSITORY_LOGIN);
-        String propertyKeyValue = environment.getProperty("repository.encode.decode.key");
+    private void load(PropertyResolver propertyResolver) {
+        uri = propertyResolver.getProperty(REPOSITORY_URI);
+        login = propertyResolver.getProperty(REPOSITORY_LOGIN);
+        String propertyKeyValue = propertyResolver.getProperty("repository.encode.decode.key");
         String key = propertyKeyValue != null ? StringUtils.trimToEmpty(propertyKeyValue) : "";
-        String pass = environment.getProperty(REPOSITORY_PASS);
+        String pass = propertyResolver.getProperty(REPOSITORY_PASS);
         String encodedPassword = null;
         if (StringUtils.isEmpty(key)) {
             encodedPassword = pass;
@@ -69,7 +71,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     public boolean isRepositoryPathSystem() {
-        return environment.getProperty(REPOSITORY_URI) != null;
+        return propertyResolver.getProperty(REPOSITORY_URI) != null;
     }
 
     public String getLogin() {

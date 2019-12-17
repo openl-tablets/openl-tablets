@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.service;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
 import org.openl.rules.security.standalone.persistence.UserSetting;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class UserSettingManagementService {
     private final UserSettingDao userSettingDao;
@@ -10,18 +10,18 @@ public class UserSettingManagementService {
     /**
      * Needed to retrieve default values
      */
-    private final Environment environment;
+    private final PropertyResolver propertyResolver;
 
-    public UserSettingManagementService(UserSettingDao userSettingDao, Environment environment) {
+    public UserSettingManagementService(UserSettingDao userSettingDao, PropertyResolver propertyResolver) {
         this.userSettingDao = userSettingDao;
-        this.environment = environment;
+        this.propertyResolver = propertyResolver;
     }
 
     public String getStringProperty(String login, String key) {
         UserSetting setting = userSettingDao.getProperty(login, key);
         if (setting == null) {
             // A value for specified user not found. Return default value.
-            return environment.getProperty(key);
+            return propertyResolver.getProperty(key);
         }
 
         return setting.getSettingValue();
@@ -48,7 +48,7 @@ public class UserSettingManagementService {
     }
 
     public void setProperty(String login, String key, String value) {
-        String defVal = environment.getProperty(key);
+        String defVal = propertyResolver.getProperty(key);
         if (defVal == null) {
             throw new IllegalArgumentException("Default value for the key " + key + " is absent.");
         }

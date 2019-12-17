@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -93,10 +92,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and performing repository actions.
@@ -140,7 +139,7 @@ public class RepositoryTreeController {
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     private String projectName;
     private String projectFolder = "";
@@ -2096,17 +2095,17 @@ public class RepositoryTreeController {
         this.deployConfigRepoComments = deployConfigRepoComments;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     @PostConstruct
     public void init() {
         this.projectUseCustomComment = Boolean
-            .parseBoolean(environment.getProperty("repository.design.comment-template.use-custom-comments"));
+            .parseBoolean(propertyResolver.getProperty("repository.design.comment-template.use-custom-comments"));
         designCommentValidator = CommentValidator.forDesignRepo();
         boolean separateDeployConfigRepo = Boolean
-            .parseBoolean(environment.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
+            .parseBoolean(propertyResolver.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
         if (separateDeployConfigRepo) {
             deployConfigCommentValidator = CommentValidator.forDeployConfigRepo();
         } else {

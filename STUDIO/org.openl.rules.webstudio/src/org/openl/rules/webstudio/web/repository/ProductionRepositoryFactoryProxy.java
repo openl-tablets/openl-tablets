@@ -4,17 +4,12 @@ import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
-import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.IOUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Repository Factory Proxy.
@@ -25,10 +20,10 @@ public class ProductionRepositoryFactoryProxy {
 
     private Map<String, Repository> factories = new HashMap<>();
 
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
-    public ProductionRepositoryFactoryProxy(Environment environment) {
-        this.environment = environment;
+    public ProductionRepositoryFactoryProxy(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public Repository getRepositoryInstance(String configName) throws RRepositoryException {
@@ -68,21 +63,20 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
 
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     private Repository createFactory(String configName) throws RRepositoryException {
-        return RepositoryInstatiator.newRepository(configName, environment);
+        return RepositoryInstatiator.newRepository(configName, propertyResolver);
     }
 
     public boolean isIncludeVersionInDeploymentName(String configName) {
-        return Boolean.parseBoolean(environment.getProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
+        return Boolean.parseBoolean(propertyResolver.getProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
     }
 
     public String getDeploymentsPath(String configName) {
-        String deployPath = environment.getProperty("repository." + configName + ".base.path");
+        String deployPath = propertyResolver.getProperty("repository." + configName + ".base.path");
         return deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
     }
 }

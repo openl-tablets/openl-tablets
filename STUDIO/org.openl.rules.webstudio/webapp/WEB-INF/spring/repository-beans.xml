@@ -13,7 +13,7 @@
 
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
           init-method="init" destroy-method="destroy">
-        <property name="environment" value="#{environment}"/>
+        <property name="propertyResolver" value="#{environment}"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">

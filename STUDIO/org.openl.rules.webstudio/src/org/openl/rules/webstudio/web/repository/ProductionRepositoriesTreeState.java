@@ -9,11 +9,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.AllFilter;
@@ -27,7 +25,7 @@ import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 @ManagedBean
 @SessionScoped
@@ -45,7 +43,7 @@ public class ProductionRepositoriesTreeState {
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -55,8 +53,8 @@ public class ProductionRepositoriesTreeState {
 
     private IFilter<AProjectArtefact> filter = new AllFilter<>();
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     private void buildTree() {
@@ -118,7 +116,7 @@ public class ProductionRepositoriesTreeState {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 

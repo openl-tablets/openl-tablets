@@ -20,7 +20,7 @@
 
     <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
         <constructor-arg name="userSettingDao" ref="openlUserSettingDao"/>
-        <constructor-arg name="environment" ref="environment"/>
+        <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
 </beans>

@@ -62,7 +62,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Request scope managed bean for Table page.
@@ -97,7 +97,7 @@ public class TableBean {
     private List<OpenLMessage> problems;
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     private boolean targetTablesHasErrors;
 
@@ -459,8 +459,8 @@ public class TableBean {
         return true;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public boolean beforeSaveAction() {
@@ -478,7 +478,7 @@ public class TableBean {
         }
 
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
-            return EditHelper.updateSystemProperties(table, editorModel, environment.getProperty("user.mode"));
+            return EditHelper.updateSystemProperties(table, editorModel, propertyResolver.getProperty("user.mode"));
         }
         return true;
     }

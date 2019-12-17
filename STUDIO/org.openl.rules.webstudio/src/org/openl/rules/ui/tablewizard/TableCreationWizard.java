@@ -39,7 +39,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Aliaksandr Antonik.
@@ -63,7 +63,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     private String newWorksheetName;
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     /**
      * New table identifier
@@ -263,12 +263,12 @@ public abstract class TableCreationWizard extends BaseWizard {
         return true;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     protected Map<String, Object> buildSystemProperties() {
-        String userMode = environment.getProperty("user.mode");
+        String userMode = propertyResolver.getProperty("user.mode");
         Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();

@@ -3,7 +3,12 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.ArtefactPath;
@@ -12,16 +17,21 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Aleh Bykhavets
@@ -51,10 +61,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public void init() {
@@ -63,20 +73,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 return;
             }
 
-            rulesLocation = environment.getProperty(RULES_LOCATION_CONFIG_NAME);
+            rulesLocation = propertyResolver.getProperty(RULES_LOCATION_CONFIG_NAME);
             if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
                 rulesLocation += "/";
             }
-            deploymentConfigurationLocation = environment.getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
+            deploymentConfigurationLocation = propertyResolver
+                .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
             if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
                 deploymentConfigurationLocation += "/";
             }
             boolean separateDeployConfigRepo = Boolean
-                .parseBoolean(environment.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
-            boolean flatProjects = Boolean.parseBoolean(environment.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
-            boolean flatDeployConfig = Boolean.parseBoolean(environment.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
+                .parseBoolean(propertyResolver.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
+            boolean flatProjects = Boolean.parseBoolean(propertyResolver.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
+            boolean flatDeployConfig = Boolean
+                .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN.name().toLowerCase(), flatProjects, PROJECTS_NESTED_FOLDER_CONFIG, rulesLocation);
+            repository = createRepo(RepositoryMode.DESIGN.name().toLowerCase(),
+                flatProjects,
+                PROJECTS_NESTED_FOLDER_CONFIG,
+                rulesLocation);
 
             if (!separateDeployConfigRepo) {
                 if (flatProjects || !(repository instanceof MappedRepository)) {
@@ -106,16 +121,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(String configName,
-            boolean flatStructure,
-            String folderConfig,
-            String baseFolder) {
+    private Repository createRepo(String configName, boolean flatStructure, String folderConfig, String baseFolder) {
         try {
-            Repository repo = RepositoryInstatiator.newRepository(configName, environment);
+            Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                String configFile = environment.getProperty(folderConfig);
+                String configFile = propertyResolver.getProperty(folderConfig);
 
                 MappedRepository mappedRepository = new MappedRepository();
                 mappedRepository.setDelegate(delegate);

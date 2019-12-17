@@ -2,17 +2,12 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.math.BigInteger;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
@@ -31,47 +26,41 @@ public class RepositoryConfiguration {
 
     private String errorMessage;
 
-    public RepositoryConfiguration(String configName, Environment environment) {
+    public RepositoryConfiguration(String configName, PropertyResolver propertyResolver) {
         this.configName = configName.toLowerCase();
-        REPOSITORY_FACTORY = configName + ".factory";
-        REPOSITORY_NAME = configName + ".name";
+        String nameWithPrefix = "repository." + configName.toLowerCase();
+        REPOSITORY_FACTORY = nameWithPrefix + ".factory";
+        REPOSITORY_NAME = nameWithPrefix + ".name";
 
-        load(environment, this.configName);
+        load(propertyResolver, nameWithPrefix);
     }
 
-    private void load(Environment environment, String configName) {
-        String factoryClassName = environment.getProperty("repository." + REPOSITORY_FACTORY);
+    private void load(PropertyResolver propertyResolver, String configName) {
+        String factoryClassName = propertyResolver.getProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
         if (repositoryType == null) {
             // Fallback to default value and save error message
             errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ".";
-            // if (fallbackToDefault) {
-            // repositoryType = RepositoryType.values()[0];
-            // errorMessage += " Was replaced with " + repositoryType.getFactoryClassName() + ".";
-            // } else {
-            // throw new IllegalArgumentException(errorMessage);
-            // }
         }
-        name = environment.getProperty("repository." + REPOSITORY_NAME);
-        configName = "repository." + configName;
-        settings = createSettings(repositoryType, environment, configName);
+        name = propertyResolver.getProperty(REPOSITORY_NAME);
+        settings = createSettings(repositoryType, propertyResolver, configName);
 
         fixState();
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
-            Environment environment,
+            PropertyResolver propertyResolver,
             String configPrefix) {
         RepositorySettings newSettings;
         switch (repositoryType) {
             case AWS_S3:
-                newSettings = new AWSS3RepositorySettings(environment, configPrefix);
+                newSettings = new AWSS3RepositorySettings(propertyResolver, configPrefix);
                 break;
             case GIT:
-                newSettings = new GitRepositorySettings(environment, configPrefix);
+                newSettings = new GitRepositorySettings(propertyResolver, configPrefix);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(environment, configPrefix, repositoryType);
+                newSettings = new CommonRepositorySettings(propertyResolver, configPrefix, repositoryType);
                 break;
         }
 

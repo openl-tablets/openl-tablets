@@ -24,8 +24,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -40,7 +39,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.xml.sax.InputSource;
 import org.yaml.snakeyaml.Yaml;
 
@@ -96,7 +94,7 @@ public class ProductionRepositoryDeployer {
         Repository deployRepo = null;
         try {
             // Initialize repo
-           // deployRepo = RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
+//            deployRepo = RepositoryInstatiator.newRepository("production", properties);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
             String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
             if (deployPath == null) {

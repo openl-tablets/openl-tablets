@@ -4,7 +4,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * Factory class to instantiate repository factories by class name
@@ -23,9 +23,9 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static Repository newFactory(Environment environment, String configName) throws RRepositoryException {
+    public static Repository newFactory(PropertyResolver propertyResolver, String configName) throws RRepositoryException {
         try {
-            return RepositoryInstatiator.newRepository(configName.toLowerCase(), environment);
+            return RepositoryInstatiator.newRepository(configName.toLowerCase(), propertyResolver);
         } catch (Exception e) {
             String className = "";
             String message = "Failed to initialize repository: " + className;

@@ -34,7 +34,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
 
@@ -69,7 +69,7 @@ public class SmartRedeployController {
     private Comments deployConfigRepoComments;
 
     @ManagedProperty(value = "#{environment}")
-    private Environment environment;
+    private PropertyResolver propertyResolver;
 
     private List<DeploymentProjectItem> items;
 
@@ -261,8 +261,8 @@ public class SmartRedeployController {
         return null;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     public String redeploy() {
@@ -312,7 +312,7 @@ public class SmartRedeployController {
     }
 
     protected String getRepositoryName(String repositoryConfigName) {
-        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, environment);
+        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
         return repo.getName();
     }
 
@@ -422,7 +422,7 @@ public class SmartRedeployController {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, environment);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
             repos.add(config);
         }
 

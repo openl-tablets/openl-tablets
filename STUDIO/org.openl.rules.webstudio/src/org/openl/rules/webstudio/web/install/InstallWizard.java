@@ -958,11 +958,11 @@ public class InstallWizard {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(systemConfig, RepositoryMode.DESIGN);
+        return new FolderStructureSettings(null, RepositoryMode.DESIGN.name());
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(systemConfig, RepositoryMode.DEPLOY_CONFIG);
+        return new FolderStructureSettings(null, "deploy-config");
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

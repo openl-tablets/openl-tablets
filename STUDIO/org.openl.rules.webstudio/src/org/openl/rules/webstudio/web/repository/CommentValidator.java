@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.spring.env.ApplicationContextProvider;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public class CommentValidator {
     private static final int MAX_COMMENT_LENGTH = 255;
@@ -29,23 +29,14 @@ public class CommentValidator {
     }
 
     public static CommentValidator forDesignRepo() {
-        Environment environment = ApplicationContextProvider.getApplicationContext()
-                .getEnvironment();
-        return new CommentValidator(
-            environment
-                .getProperty("repository.design.comment-validation-pattern"),
-            environment
-                .getProperty("repository.design.invalid-comment-message"));
+        PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+        return new CommentValidator(propertyResolver.getProperty("repository.design.comment-validation-pattern"),
+            propertyResolver.getProperty("repository.design.invalid-comment-message"));
     }
 
     static CommentValidator forDeployConfigRepo() {
-        Environment environment = ApplicationContextProvider.getApplicationContext()
-                .getEnvironment();
-        return new CommentValidator(
-            environment
-                .getProperty("repository.deploy-config.comment-validation-pattern"),
-            ApplicationContextProvider.getApplicationContext()
-                .getEnvironment()
-                .getProperty("repository.deploy-config.invalid-comment-message"));
+        PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+        return new CommentValidator(propertyResolver.getProperty("repository.deploy-config.comment-validation-pattern"),
+            propertyResolver.getProperty("repository.deploy-config.invalid-comment-message"));
     }
 }

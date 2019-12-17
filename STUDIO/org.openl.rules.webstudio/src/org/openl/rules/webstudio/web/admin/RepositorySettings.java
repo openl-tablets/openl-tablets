@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.PropertiesHolder;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertyResolver;
 
 public abstract class RepositorySettings {
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
@@ -32,7 +32,7 @@ public abstract class RepositorySettings {
 
     private boolean useCustomComments;
 
-    RepositorySettings(Environment environment, String configPrefix) {
+    RepositorySettings(PropertyResolver propertyResolver, String configPrefix) {
         USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
         COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-validation-pattern";
         INVALID_COMMENT_MESSAGE = configPrefix + ".invalid-comment-message";
@@ -45,7 +45,7 @@ public abstract class RepositorySettings {
         DEFAULT_COMMENT_COPIED_FROM = configPrefix + ".comment-template.user-message.default.copied-from";
         DEFAULT_COMMENT_RESTORED_FROM = configPrefix + ".comment-template.user-message.default.restored-from";
 
-        load(environment);
+        load(propertyResolver);
     }
 
     public boolean isIncludeVersionInDeploymentName() {
@@ -144,20 +144,20 @@ public abstract class RepositorySettings {
         this.defaultCommentRestoredFrom = defaultCommentRestoredFrom;
     }
 
-    private void load(Environment environment) {
-        includeVersionInDeploymentName = Boolean.parseBoolean(environment.getProperty(VERSION_IN_DEPLOYMENT_NAME));
+    private void load(PropertyResolver propertyResolver) {
+        includeVersionInDeploymentName = Boolean.parseBoolean(propertyResolver.getProperty(VERSION_IN_DEPLOYMENT_NAME));
 
-        useCustomComments = Boolean.parseBoolean(environment.getProperty(USE_CUSTOM_COMMENTS));
-        commentValidationPattern = environment.getProperty(COMMENT_VALIDATION_PATTERN);
-        invalidCommentMessage = environment.getProperty(INVALID_COMMENT_MESSAGE);
-        commentTemplate = environment.getProperty(COMMENT_TEMPLATE);
-        defaultCommentSave = environment.getProperty(DEFAULT_COMMENT_SAVE);
-        defaultCommentCreate = environment.getProperty(DEFAULT_COMMENT_CREATE);
-        defaultCommentArchive = environment.getProperty(DEFAULT_COMMENT_ARCHIVE);
-        defaultCommentRestore = environment.getProperty(DEFAULT_COMMENT_RESTORE);
-        defaultCommentErase = environment.getProperty(DEFAULT_COMMENT_ERASE);
-        defaultCommentCopiedFrom = environment.getProperty(DEFAULT_COMMENT_COPIED_FROM);
-        defaultCommentRestoredFrom = environment.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
+        useCustomComments = Boolean.parseBoolean(propertyResolver.getProperty(USE_CUSTOM_COMMENTS));
+        commentValidationPattern = propertyResolver.getProperty(COMMENT_VALIDATION_PATTERN);
+        invalidCommentMessage = propertyResolver.getProperty(INVALID_COMMENT_MESSAGE);
+        commentTemplate = propertyResolver.getProperty(COMMENT_TEMPLATE);
+        defaultCommentSave = propertyResolver.getProperty(DEFAULT_COMMENT_SAVE);
+        defaultCommentCreate = propertyResolver.getProperty(DEFAULT_COMMENT_CREATE);
+        defaultCommentArchive = propertyResolver.getProperty(DEFAULT_COMMENT_ARCHIVE);
+        defaultCommentRestore = propertyResolver.getProperty(DEFAULT_COMMENT_RESTORE);
+        defaultCommentErase = propertyResolver.getProperty(DEFAULT_COMMENT_ERASE);
+        defaultCommentCopiedFrom = propertyResolver.getProperty(DEFAULT_COMMENT_COPIED_FROM);
+        defaultCommentRestoredFrom = propertyResolver.getProperty(DEFAULT_COMMENT_RESTORED_FROM);
     }
 
     protected void fixState() {

@@ -19,7 +19,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
 
 public final class RepositoryValidators {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
@@ -115,14 +114,15 @@ public final class RepositoryValidators {
             DesignTimeRepository designTimeRepository,
             RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
-//            DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
-//            // Close connection to repository before checking connection
-//            dtr.destroy();
-//            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), repositoryMode);
-//            if (repository instanceof Closeable) {
-//                // Close repo connection after validation
-//                IOUtils.closeQuietly((Closeable) repository);
-//            }
+            // DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
+            // // Close connection to repository before checking connection
+            // dtr.destroy();
+            // Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(),
+            // repositoryMode);
+            // if (repository instanceof Closeable) {
+            // // Close repo connection after validation
+            // IOUtils.closeQuietly((Closeable) repository);
+            // }
         } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
@@ -134,33 +134,33 @@ public final class RepositoryValidators {
 
     static void validateConnection(RepositoryConfiguration repoConfig,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
-//        try {
-//            /* Close connection to repository before checking connection */
-//            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-//            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getProperties(),
-//                RepositoryMode.PRODUCTION);
-//            if (repository instanceof Closeable) {
-//                // Close repo connection after validation
-//                IOUtils.closeQuietly((Closeable) repository);
-//            }
-//        } catch (RRepositoryException e) {
-//            Throwable resultException = ExceptionUtils.getRootCause(e);
-//            if (resultException == null) {
-//                resultException = e;
-//            }
-//
-//            if (repoConfig.getSettings() instanceof CommonRepositorySettings) {
-//                if (resultException instanceof FailedLoginException) {
-//                    throw new RepositoryValidationException(
-//                        String.format("Repository '%s' : Invalid login or password. Please, check login and password.",
-//                            repoConfig.getName()));
-//                } else if (resultException instanceof ConnectException) {
-//                    throw new RepositoryValidationException("Connection refused. Please, check repository URL.");
-//                }
-//            }
-//
-//            throw new RepositoryValidationException(
-//                String.format("Repository '%s' : %s.", repoConfig.getName(), resultException.getMessage()));
-//        }
+        // try {
+        // /* Close connection to repository before checking connection */
+        // productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+        // Repository repository = RepositoryInstatiator.newRepository(repoConfig.getProperties(),
+        // RepositoryMode.PRODUCTION);
+        // if (repository instanceof Closeable) {
+        // // Close repo connection after validation
+        // IOUtils.closeQuietly((Closeable) repository);
+        // }
+        // } catch (RRepositoryException e) {
+        // Throwable resultException = ExceptionUtils.getRootCause(e);
+        // if (resultException == null) {
+        // resultException = e;
+        // }
+        //
+        // if (repoConfig.getSettings() instanceof CommonRepositorySettings) {
+        // if (resultException instanceof FailedLoginException) {
+        // throw new RepositoryValidationException(
+        // String.format("Repository '%s' : Invalid login or password. Please, check login and password.",
+        // repoConfig.getName()));
+        // } else if (resultException instanceof ConnectException) {
+        // throw new RepositoryValidationException("Connection refused. Please, check repository URL.");
+        // }
+        // }
+        //
+        // throw new RepositoryValidationException(
+        // String.format("Repository '%s' : %s.", repoConfig.getName(), resultException.getMessage()));
+        // }
     }
 }
