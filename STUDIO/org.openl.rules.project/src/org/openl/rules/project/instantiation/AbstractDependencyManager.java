@@ -331,4 +331,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     public Map<String, Object> getExternalParameters() {
         return Collections.unmodifiableMap(externalParameters);
     }
+
+    @Override
+    public boolean isEmptyDependencyCompilationStack() {
+        Deque<String> compilationStack = getCompilationStack();
+        return compilationStack == null || compilationStack.isEmpty();
+    }
 }
