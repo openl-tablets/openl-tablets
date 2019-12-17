@@ -235,4 +235,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         }
     }
 
+    @Override
+    public boolean isEmptyDependencyCompilationStack() {
+        return moduleCompilationStack.isEmpty();
+    }
 }

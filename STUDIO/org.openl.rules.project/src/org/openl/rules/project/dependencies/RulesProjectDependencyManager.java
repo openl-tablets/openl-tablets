@@ -25,4 +25,8 @@ public class RulesProjectDependencyManager extends DependencyManager {
         return null;
     }
 
+    @Override
+    public boolean isEmptyDependencyCompilationStack() {
+        return true;
+    }
 }
