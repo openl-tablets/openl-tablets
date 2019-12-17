@@ -16,7 +16,6 @@ import javax.faces.bean.ViewScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
@@ -48,9 +47,6 @@ public class SystemSettingsBean {
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
-
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
@@ -77,8 +73,6 @@ public class SystemSettingsBean {
     @PostConstruct
     public void afterPropertiesSet() {
         try {
-            configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
-
             designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.name().toLowerCase(),
                 propertyResolver);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
@@ -93,7 +87,6 @@ public class SystemSettingsBean {
             }
 
             productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
-                productionConfigManagerFactory,
                 productionRepositoryFactoryProxy,
                 propertyResolver);
 
@@ -289,10 +282,6 @@ public class SystemSettingsBean {
         saveSystemConfig();
 
         productionRepositoryEditor.reload();
-    }
-
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {

@@ -7,14 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.config.ConfigurationManager;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
 public class ProductionRepositoryEditor {
     private final ConfigurationManager configManager;
-    private final ConfigurationManagerFactory productionConfigManagerFactory;
     private final ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
@@ -23,11 +21,9 @@ public class ProductionRepositoryEditor {
     private PropertyResolver propertyResolver;
 
     public ProductionRepositoryEditor(ConfigurationManager configManager,
-            ConfigurationManagerFactory productionConfigManagerFactory,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
             PropertyResolver propertyResolver) {
         this.configManager = configManager;
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
         this.propertyResolver = propertyResolver;
     }
@@ -133,7 +129,7 @@ public class ProductionRepositoryEditor {
 
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
         // Move config to a new file
-        String newConfigName = getConfigName(prodConfig.getName());
+        String newConfigName = prodConfig.getName();
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, propertyResolver);
         newConfig.copyContent(prodConfig);
         newConfig.save();
@@ -154,20 +150,6 @@ public class ProductionRepositoryEditor {
         prodConfig.delete();
 
         return newConfig;
-    }
-
-    private ConfigurationManager getProductionConfigManager(String configName) {
-        return productionConfigManagerFactory.getConfigurationManager(configName);
-    }
-
-    private String getConfigName(String repositoryName) {
-        String configName = "rules-";
-        if (repositoryName != null) {
-            configName += repositoryName.toLowerCase();
-        }
-        configName += ".properties";
-
-        return configName;
     }
 
     private String[] split(String s) {

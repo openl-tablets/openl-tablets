@@ -29,7 +29,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             rootClassLoader,
             singleModuleMode,
             false,
-            studio.getSystemConfigManager().getProperties());
+            studio.getSystemProperties());
     }
 
     private List<ProjectDescriptor> getDependentProjects(Module module) {

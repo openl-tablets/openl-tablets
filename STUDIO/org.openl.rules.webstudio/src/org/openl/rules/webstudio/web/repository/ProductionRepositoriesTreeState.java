@@ -9,7 +9,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.Repository;
@@ -35,9 +34,6 @@ public class ProductionRepositoriesTreeState {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
-
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
 
     @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
@@ -175,13 +171,6 @@ public class ProductionRepositoriesTreeState {
         this.deploymentManager = deploymentManager;
     }
 
-    public ConfigurationManagerFactory getProductionConfigManagerFactory() {
-        return productionConfigManagerFactory;
-    }
-
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
 
     public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
         return productionRepositoryFactoryProxy;

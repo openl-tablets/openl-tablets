@@ -2,9 +2,15 @@ package org.openl.rules.webstudio.web;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -15,6 +21,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Andrei Astrouski
@@ -25,9 +32,8 @@ public class RevertProjectChangesBean {
 
     private final Logger log = LoggerFactory.getLogger(RevertProjectChangesBean.class);
 
-    public String dateModifiedPattern = WebStudioUtils.getWebStudio()
-        .getSystemConfigManager()
-        .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
+    @ManagedProperty("#{environment}")
+    private PropertyResolver propertyResolver;
 
     public RevertProjectChangesBean() {
     }
@@ -45,7 +51,8 @@ public class RevertProjectChangesBean {
             String sourceName = historyMap.get(modifiedOn).getName();
 
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
-            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(new Date(modifiedOn));
+            String pattern = propertyResolver.getProperty("data.format.date") + " 'at' hh:mm:ss a";
+            String modifiedOnStr = new SimpleDateFormat(pattern).format(new Date(modifiedOn));
             historyItem.setVersion(modifiedOn);
             historyItem.setModifiedOn(modifiedOnStr);
             historyItem.setSourceName(sourceName);
@@ -130,4 +137,7 @@ public class RevertProjectChangesBean {
         return versionsToCompare;
     }
 
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 }

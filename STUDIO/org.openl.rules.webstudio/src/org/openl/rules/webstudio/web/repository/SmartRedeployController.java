@@ -17,7 +17,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -58,9 +57,6 @@ public class SmartRedeployController {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
-
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
@@ -324,9 +320,6 @@ public class SmartRedeployController {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
-    }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;

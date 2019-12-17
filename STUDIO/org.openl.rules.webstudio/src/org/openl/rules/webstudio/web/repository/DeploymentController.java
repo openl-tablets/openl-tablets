@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -8,7 +13,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -50,9 +54,6 @@ public class DeploymentController {
 
     @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
-
-    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
-    private ConfigurationManagerFactory productionConfigManagerFactory;
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
@@ -345,10 +346,6 @@ public class DeploymentController {
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
-    }
-
-    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
-        this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {

@@ -10,9 +10,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +27,6 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -86,6 +87,9 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -141,7 +145,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private boolean collapseProperties = true;
 
-    private ConfigurationManager systemConfigManager;
     private final UserSettingManagementService userSettingsManager;
 
     private boolean needRestart = false;
@@ -163,7 +166,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
-        systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
 
         initWorkspace(session);
@@ -203,10 +205,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 log.warn(e.getMessage(), e);
             }
         }
-    }
-
-    public ConfigurationManager getSystemConfigManager() {
-        return systemConfigManager;
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -953,7 +951,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
         this.updateSystemProperties = updateSystemProperties;
-        systemConfigManager.setProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
+        // systemConfigManager.setProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {
@@ -1019,7 +1017,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setSingleModuleModeByDefault(boolean singleMode) {
         this.defaultModuleMode = singleMode ? ModuleMode.SINGLE : ModuleMode.MULTI;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "project.module.default.mode", defaultModuleMode.name());
+        userSettingsManager
+            .setProperty(rulesUserSession.getUserName(), "project.module.default.mode", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {
@@ -1156,6 +1155,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public HashMap<String, Object> getSystemProperties() {
+        HashMap<String, Object> result = new HashMap<>();
+        MutablePropertySources propSrcs = ((AbstractEnvironment) propertyResolver).getPropertySources();
+        StreamSupport.stream(propSrcs.spliterator(), false)
+            .filter(ps -> ps instanceof EnumerablePropertySource)
+            .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+            .flatMap(Arrays::stream)
+            .filter(x -> propertyResolver.containsProperty(x))
+            .forEach(propName -> result.put(propName, propertyResolver.getProperty(propName)));
+        return result;
     }
 
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {

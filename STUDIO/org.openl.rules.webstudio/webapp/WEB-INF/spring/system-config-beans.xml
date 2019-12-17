@@ -1,27 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
-    default-autowire="no">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
+       default-autowire="no">
 
-<!--    всё в application.properties-->
-    <bean id="systemConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-        <constructor-arg name="defaultPropertiesLocation" value="system.properties" />
-        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
-    </bean>
-
-    <bean id="productionRepositoryConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-        <constructor-arg name="defaultPropertiesLocation" value="rules-production.properties" />
-        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
-        <constructor-arg name="propertiesInContextFolder" value="" />
-    </bean>
-
-    <bean id="configManager" factory-bean="systemConfigManagerFactory" factory-method="getConfigurationManager">
-        <constructor-arg name="propertiesName" value="system.properties" />
-    </bean>
-
-    <bean id="projectDescriptorSerializerFactory" class="org.openl.rules.project.xml.ProjectDescriptorSerializerFactory">
+    <bean id="projectDescriptorSerializerFactory"
+          class="org.openl.rules.project.xml.ProjectDescriptorSerializerFactory">
         <constructor-arg value="${default.openl.compatibility.version}"/>
     </bean>
 

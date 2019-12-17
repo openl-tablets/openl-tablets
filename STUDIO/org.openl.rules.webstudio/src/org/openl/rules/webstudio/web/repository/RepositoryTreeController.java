@@ -92,10 +92,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and performing repository actions.
@@ -1036,8 +1036,8 @@ public class RepositoryTreeController {
 
     public void deleteProjectHistory(String projectName) {
         try {
-            String projectHistoryPath = studio.getSystemConfigManager()
-                .getStringProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
+            String projectHistoryPath = propertyResolver
+                .getProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
             File dir = new File(projectHistoryPath);
             // Project can contain no history
             if (dir.exists()) {
