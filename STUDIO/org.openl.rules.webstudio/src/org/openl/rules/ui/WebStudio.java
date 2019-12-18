@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
@@ -152,6 +153,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean needCompile = true;
     private boolean manualCompile = false;
     private PropertyResolver propertyResolver = ApplicationContextProvider.getApplicationContext().getEnvironment();
+    private Map<String, Object> externalProperties;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
 
@@ -173,6 +175,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         updateSystemProperties = Boolean
             .parseBoolean(propertyResolver.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES));
         projectResolver = ProjectResolver.instance();
+        externalProperties = initSystemProperties(propertyResolver);
     }
 
     private void initWorkspace(HttpSession session) {
@@ -1157,16 +1160,21 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    public HashMap<String, Object> getSystemProperties() {
+    @SuppressWarnings("rawtypes")
+    public HashMap<String, Object> initSystemProperties(PropertyResolver pr) {
         HashMap<String, Object> result = new HashMap<>();
-        MutablePropertySources propSrcs = ((AbstractEnvironment) propertyResolver).getPropertySources();
+        MutablePropertySources propSrcs = ((AbstractEnvironment) pr).getPropertySources();
         StreamSupport.stream(propSrcs.spliterator(), false)
             .filter(ps -> ps instanceof EnumerablePropertySource)
             .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
             .flatMap(Arrays::stream)
-            .filter(x -> propertyResolver.containsProperty(x))
-            .forEach(propName -> result.put(propName, propertyResolver.getProperty(propName)));
+            .filter(pr::containsProperty)
+            .forEach(propName -> result.put(propName, pr.getProperty(propName)));
         return result;
+    }
+
+    public Map<String, Object> getExternalProperties() {
+        return externalProperties;
     }
 
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {

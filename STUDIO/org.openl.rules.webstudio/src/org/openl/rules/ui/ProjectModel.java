@@ -1035,7 +1035,7 @@ public class ProjectModel {
         if (singleModuleMode) {
             instantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager);
-            externalParameters = studio.getSystemProperties();
+            externalParameters = studio.getExternalProperties();
         } else {
             List<Module> modules = this.moduleInfo.getProject().getModules();
             instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
@@ -1043,7 +1043,7 @@ public class ProjectModel {
                 false);
 
             externalParameters = ProjectExternalDependenciesHelper
-                .getExternalParamsWithProjectDependencies(studio.getSystemProperties(), modules);
+                .getExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
