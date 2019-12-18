@@ -6,13 +6,21 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -47,7 +55,11 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IModuleInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -84,6 +96,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
     private String csrBeansPackage;
+
+    private boolean clearedData = false;
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -534,9 +548,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void clearOddDataForExecutionMode() {
+        if (clearedData) {
+            return;
+        }
         super.clearOddDataForExecutionMode();
         dataBase = null;
         rulesModuleBindingContext = null;
+        for (CompiledDependency dependency : getDependencies()) {
+            IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+            if (openClass instanceof ComponentOpenClass) {
+                ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
+            }
+        }
+        clearedData = true;
     }
 
     public void completeOpenClassBuilding() {

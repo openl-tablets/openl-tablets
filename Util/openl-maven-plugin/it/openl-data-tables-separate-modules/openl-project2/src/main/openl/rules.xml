@@ -1,0 +1,15 @@
+<project>
+    <name>Project2</name>
+    <modules>
+        <module>
+            <name>ModuleP</name>
+            <rules-root path="Module3.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>MyProject</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
