@@ -973,7 +973,7 @@ public final class DecisionTableHelper {
                     writeMetaInfoForAction(originalTable,
                         decisionTable,
                         firstTitleColumn,
-                        firstColumnHeight,
+                        0,
                         header,
                         parameterNames.toArray(new String[] {}),
                         declaredDtHeader.getStatement(),
@@ -983,7 +983,7 @@ public final class DecisionTableHelper {
                     writeMetaInfoForVCondition(originalTable,
                         decisionTable,
                         firstTitleColumn,
-                        firstColumnHeight,
+                        0,
                         header,
                         parameterNames.toArray(new String[] {}),
                         declaredDtHeader.getStatement(),
@@ -1178,9 +1178,11 @@ public final class DecisionTableHelper {
                 grid.setCellValue(column, 0, header);
                 final int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
                 IOpenClass type = getTypeForCondition(decisionTable, condition);
-                if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && type
-                    .getInstanceClass() != null && (type.getInstanceClass()
-                        .isPrimitive() || ClassUtils.isAssignable(type.getInstanceClass(), Comparable.class))) {
+                if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && condition
+                    .getWidth() == numberOfColumnsUnderTitleCounter.getWidth(column,
+                        0) + numberOfColumnsUnderTitleCounter.getWidth(column, 1) && type
+                            .getInstanceClass() != null && (type.getInstanceClass()
+                                .isPrimitive() || ClassUtils.isAssignable(type.getInstanceClass(), Comparable.class))) {
                     boolean minMaxOrder = getMinMaxOrder(originalTable,
                         numberOfColumnsUnderTitleCounter,
                         firstColumnHeight,
@@ -1219,7 +1221,7 @@ public final class DecisionTableHelper {
                             writeMetaInfoForVCondition(originalTable,
                                 decisionTable,
                                 column,
-                                firstColumnHeight,
+                                0,
                                 header,
                                 minMaxOrder ? MIN_MAX_ORDER : MAX_MIN_ORDER,
                                 statement,
@@ -1252,7 +1254,7 @@ public final class DecisionTableHelper {
                             writeMetaInfoForVCondition(originalTable,
                                 decisionTable,
                                 column,
-                                firstColumnHeight,
+                                numberOfColumnsUnderTitleCounter.get(column) > 1 ? firstColumnHeight - 1 : 0,
                                 header,
                                 typeOfValue.getLeft().length == 1 ? null : new String[] { typeOfValue.getLeft()[1] },
                                 typeOfValue.getRight(),
@@ -1280,7 +1282,7 @@ public final class DecisionTableHelper {
     private static void writeMetaInfoForVCondition(ILogicalTable originalTable,
             DecisionTable decisionTable,
             int column,
-            int firstColumnHeight,
+            int row,
             String header,
             String[] parameterNames,
             String conditionStatement,
@@ -1290,7 +1292,7 @@ public final class DecisionTableHelper {
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
-            ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
+            ICell cell = originalTable.getSource().getCell(column, row);
             cell = cell.getTopLeftCellFromRegion();
             metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
                 cell.getAbsoluteColumn(),
@@ -1319,7 +1321,7 @@ public final class DecisionTableHelper {
     private static void writeMetaInfoForAction(ILogicalTable originalTable,
             DecisionTable decisionTable,
             int column,
-            int firstColumnHeight,
+            int row,
             String header,
             String[] parameterNames,
             String conditionStatement,
@@ -1329,7 +1331,7 @@ public final class DecisionTableHelper {
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
-            ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
+            ICell cell = originalTable.getSource().getCell(column, row);
             cell = cell.getTopLeftCellFromRegion();
             metaInfoReader.addSimpleRulesAction(cell.getAbsoluteRow(),
                 cell.getAbsoluteColumn(),
@@ -1639,6 +1641,7 @@ public final class DecisionTableHelper {
     private static void matchWithFuzzySearchRec(DecisionTable decisionTable,
             IGridTable gridTable,
             FuzzyContext fuzzyContext,
+            NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             int w,
@@ -1650,6 +1653,7 @@ public final class DecisionTableHelper {
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
         int prev = sb.length();
+        String prevTitle = sb.toString();
         if (sb.length() != 0) {
             sb.append(StringUtils.SPACE);
             sb.append("/");
@@ -1663,6 +1667,7 @@ public final class DecisionTableHelper {
                 matchWithFuzzySearchRec(decisionTable,
                     gridTable,
                     fuzzyContext,
+                    numberOfColumnsUnderTitleCounter,
                     dtHeaders,
                     firstColumnHeight,
                     w2,
@@ -1697,38 +1702,99 @@ public final class DecisionTableHelper {
             if (!onlyReturns) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                     .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
-                for (FuzzyResult fuzzyResult : fuzzyResults) {
-                    int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
-                    IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
-                    StringBuilder conditionStatement = new StringBuilder(
-                        decisionTable.getSignature().getParameterName(paramIndex));
-                    if (fieldsChain != null) {
-                        Pair<String, IOpenClass> c = buildStatementByFieldsChain(
-                            decisionTable.getSignature().getParameterType(paramIndex),
-                            fieldsChain);
-                        String chainStatement = c.getLeft();
-                        conditionStatement.append(".");
-                        conditionStatement.append(chainStatement);
-                    }
+                addFuzzyCondition(decisionTable,
+                    gridTable,
+                    fuzzyContext,
+                    w,
+                    h,
+                    sb,
+                    sourceTableColumn,
+                    w0,
+                    fuzzyResults,
+                    dtHeaders,
+                    false);
 
-                    dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                        conditionStatement.toString(),
-                        sb.toString(),
-                        fieldsChain,
+                if (w == 0 && numberOfColumnsUnderTitleCounter.get(sourceTableColumn) == 2) {
+                    String tokenizedPrevTitleString = OpenLFuzzyUtils.toTokenString(prevTitle);
+                    List<FuzzyResult> fuzzyResultsForMinMax = OpenLFuzzyUtils
+                        .fuzzyExtract(tokenizedPrevTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
+                    addFuzzyCondition(decisionTable,
+                        gridTable,
+                        fuzzyContext,
+                        w,
+                        h,
+                        sb,
                         sourceTableColumn,
-                        sourceTableColumn + w,
                         w0,
-                        fuzzyResult,
-                        false));
+                        fuzzyResultsForMinMax,
+                        dtHeaders,
+                        true);
                 }
             }
         }
         sb.delete(prev, sb.length());
     }
 
+    private static void addFuzzyCondition(DecisionTable decisionTable,
+            IGridTable gridTable,
+            FuzzyContext fuzzyContext,
+            int w,
+            int h,
+            StringBuilder sb,
+            int sourceTableColumn,
+            int w0,
+            List<FuzzyResult> fuzzyResults,
+            List<DTHeader> dtHeaders,
+            boolean minMaxCondition) {
+        for (FuzzyResult fuzzyResult : fuzzyResults) {
+            int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
+            IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
+            StringBuilder conditionStatement = new StringBuilder(
+                decisionTable.getSignature().getParameterName(paramIndex));
+            IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
+            if (fieldsChain != null) {
+                Pair<String, IOpenClass> c = buildStatementByFieldsChain(
+                    decisionTable.getSignature().getParameterType(paramIndex),
+                    fieldsChain);
+                String chainStatement = c.getLeft();
+                conditionStatement.append(".");
+                conditionStatement.append(chainStatement);
+                type = c.getRight();
+            }
+            if (minMaxCondition) {
+                if (type.getInstanceClass() != null && (type.getInstanceClass().isPrimitive() || ClassUtils
+                    .isAssignable(type.getInstanceClass(), Comparable.class))) {
+                    int totalW = gridTable.getCell(0, 0).getWidth();
+                    int firstW = gridTable.getCell(w, h).getWidth();
+                    String title = sb.toString() + " / " + gridTable.getCell(w + firstW, h).getStringValue();
+                    dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                        conditionStatement.toString(),
+                        title,
+                        fieldsChain,
+                        sourceTableColumn,
+                        sourceTableColumn,
+                        totalW,
+                        fuzzyResult,
+                        false));
+                }
+            } else {
+                dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                    conditionStatement.toString(),
+                    sb.toString(),
+                    fieldsChain,
+                    sourceTableColumn,
+                    sourceTableColumn + w,
+                    w0,
+                    fuzzyResult,
+                    false));
+            }
+        }
+    }
+
     private static List<DTHeader> matchWithFuzzySearch(DecisionTable decisionTable,
             ILogicalTable originalTable,
             FuzzyContext fuzzyContext,
+            NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             int column,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
@@ -1742,6 +1808,7 @@ public final class DecisionTableHelper {
         matchWithFuzzySearchRec(decisionTable,
             gt,
             fuzzyContext,
+            numberOfColumnsUnderTitleCounter,
             newDtHeaders,
             firstColumnHeight,
             0,
@@ -1785,7 +1852,7 @@ public final class DecisionTableHelper {
                 return false;
             }
 
-            if (!(a1.isHCondition() && b1.isHCondition() && a1.isCondition() && b1.isCondition() || a1.isAction() && b1
+            if (!(a1.isHCondition() && b1.isHCondition() || a1.isCondition() && b1.isCondition() || a1.isAction() && b1
                 .isAction() || a1.isReturn() && b1.isReturn()) && a1.getTopColumn() == b1.getTopColumn()) {
                 return false;
             }
@@ -1826,6 +1893,9 @@ public final class DecisionTableHelper {
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
             List<DTHeader> fit = new ArrayList<>(used);
+            while (fit.size() > 0 && fit.get(fit.size() - 1) instanceof UnmatchedDtHeader) {
+                fit.remove(fit.size() - 1);
+            }
             fits.add(Collections.unmodifiableList(fit));
         }
         boolean noReturnUsableForThisColumn = false;
@@ -2389,6 +2459,7 @@ public final class DecisionTableHelper {
                 List<DTHeader> fuzzyHeaders = matchWithFuzzySearch(decisionTable,
                     originalTable,
                     fuzzyContext,
+                    numberOfColumnsUnderTitleCounter,
                     column,
                     dtHeaders,
                     firstColumnHeight,
@@ -2425,6 +2496,7 @@ public final class DecisionTableHelper {
                     matchWithFuzzySearch(decisionTable,
                         originalTable,
                         fuzzyContext,
+                        numberOfColumnsUnderTitleCounter,
                         column,
                         dtHeaders,
                         firstColumnHeight,
