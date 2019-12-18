@@ -81,7 +81,7 @@ public class GitRepositorySettings extends RepositorySettings {
             encodedPassword = pass;
         } else {
             try {
-                encodedPassword = PassCoder.encode(pass, propertyKeyValue);
+                encodedPassword = PassCoder.decode(pass, propertyKeyValue);
             } catch (Exception e) {
                 log.error("Error when getting password property: {}", key, e);
             }

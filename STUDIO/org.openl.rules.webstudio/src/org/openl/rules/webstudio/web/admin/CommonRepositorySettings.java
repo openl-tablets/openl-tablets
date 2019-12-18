@@ -46,7 +46,7 @@ public class CommonRepositorySettings extends RepositorySettings {
             encodedPassword = pass;
         } else {
             try {
-                encodedPassword = PassCoder.encode(pass, key);
+                encodedPassword = PassCoder.decode(pass, key);
             } catch (Exception e) {
                 log.error("Error when getting password property: {}", key, e);
             }
