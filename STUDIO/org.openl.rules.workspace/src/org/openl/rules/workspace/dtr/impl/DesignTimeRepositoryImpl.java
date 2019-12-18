@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.config.ConfigNames;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -88,7 +89,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             boolean flatDeployConfig = Boolean
                 .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
 
-            repository = createRepo(RepositoryMode.DESIGN.name().toLowerCase(),
+            repository = createRepo(ConfigNames.DESIGN_CONFIG,
                 flatProjects,
                 PROJECTS_NESTED_FOLDER_CONFIG,
                 rulesLocation);
@@ -101,7 +102,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((MappedRepository) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo("deploy-config",
+                deployConfigRepository = createRepo(ConfigNames.DEPLOY_CONFIG,
                     flatDeployConfig,
                     DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
                     deploymentConfigurationLocation);
@@ -131,7 +132,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
                 MappedRepository mappedRepository = new MappedRepository();
                 mappedRepository.setDelegate(delegate);
-                mappedRepository.setRepositoryMode(null);
+                RepositoryMode repositoryMode = RepositoryMode.PRODUCTION;
+                switch (configName) {
+                    case ConfigNames.DEPLOY_CONFIG:
+                        repositoryMode = RepositoryMode.DEPLOY_CONFIG;
+                        break;
+                    case ConfigNames.DESIGN_CONFIG:
+                        repositoryMode = RepositoryMode.DESIGN;
+                        break;
+                }
+                mappedRepository.setRepositoryMode(repositoryMode);
                 mappedRepository.setConfigFile(configFile);
                 mappedRepository.setBaseFolder(baseFolder);
                 mappedRepository.initialize();

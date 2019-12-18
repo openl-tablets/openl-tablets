@@ -15,6 +15,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigNames;
 import org.openl.config.ConfigurationManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.RepositoryMode;
@@ -73,14 +74,14 @@ public class SystemSettingsBean {
     @PostConstruct
     public void afterPropertiesSet() {
         try {
-            designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.name().toLowerCase(),
-                propertyResolver);
+            designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, propertyResolver);
             if (designRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(designRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect design repository configuration, please fix it.");
             }
 
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration("deploy-config", propertyResolver);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
+                propertyResolver);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 FacesUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -171,11 +172,11 @@ public class SystemSettingsBean {
     }
 
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, RepositoryMode.DESIGN.name());
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DESIGN_CONFIG);
     }
 
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(propertyResolver, "deploy-config");
+        return new FolderStructureSettings(propertyResolver, ConfigNames.DEPLOY_CONFIG);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

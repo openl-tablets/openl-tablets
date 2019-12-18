@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,17 +23,13 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigNames;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -54,7 +49,6 @@ import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
@@ -158,7 +152,7 @@ public class InstallWizard {
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                         validateConnectionToDesignRepo(deployConfigRepositoryConfiguration,
-                                RepositoryMode.DEPLOY_CONFIG);
+                            RepositoryMode.DEPLOY_CONFIG);
                     }
 
                     productionRepositoryEditor.validate();
@@ -180,14 +174,14 @@ public class InstallWizard {
                     // Make it globally available. It will not be changed during application execution.
                     System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
 
-                    designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.name()
-                        .toLowerCase(), null);
+                    // TODO: put there propertyResolver
+                    designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, null);
                     if (designRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(designRepositoryConfiguration.getErrorMessage());
                     }
-                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(
-                        "deploy-config",
-                        null);
+
+                    // TODO: put there propertyResolver
+                    deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, null);
                     if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                         log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                     }
@@ -957,12 +951,14 @@ public class InstallWizard {
         systemConfig.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
+    // todo: put there property resolver
     public FolderStructureSettings getDesignFolderStructure() {
-        return new FolderStructureSettings(null, RepositoryMode.DESIGN.name());
+        return new FolderStructureSettings(null, ConfigNames.DESIGN_CONFIG);
     }
 
+    // todo: put there property resolver
     public FolderStructureSettings getDeployConfigFolderStructure() {
-        return new FolderStructureSettings(null, "deploy-config");
+        return new FolderStructureSettings(null, ConfigNames.DEPLOY_CONFIG);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

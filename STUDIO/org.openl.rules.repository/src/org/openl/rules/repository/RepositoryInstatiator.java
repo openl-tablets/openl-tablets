@@ -12,6 +12,8 @@ import org.openl.rules.repository.config.PassCoder;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 /**
@@ -31,19 +33,29 @@ public class RepositoryInstatiator {
 
     public static final String REPOSITORY_PREFIX = "repository.";
 
+    private static Logger log() {
+        return LoggerFactory.getLogger(RepositoryInstatiator.class);
+    }
+
     /**
      * Create new repository instance.
      *
      * @param propertyResolver the propertyResolver of the app.
      * @return the initialized repository.
      */
-    public static Repository newRepository(String configName, PropertyResolver propertyResolver) {
+    public static Repository newRepository(String configName,
+            PropertyResolver propertyResolver) throws RRepositoryException {
         String factoryClass = propertyResolver.getProperty("repository." + configName + ".factory");
-        Repository repository = newInstance(factoryClass);
-        setParams(repository, propertyResolver, configName);
-        initialize(repository);
-
-        return repository;
+        try {
+            Repository repository = newInstance(factoryClass);
+            setParams(repository, propertyResolver, configName);
+            initialize(repository);
+            return repository;
+        } catch (Exception e) {
+            String message = "Failed to initialize repository: " + configName;
+            log().error(message, e);
+            throw new RRepositoryException(message, e);
+        }
     }
 
     /**
@@ -125,17 +137,15 @@ public class RepositoryInstatiator {
         }
     }
 
-    private static void setParams(Object instance, PropertyResolver propertyResolver, String configName) {
+    private static void setParams(Object instance,
+            PropertyResolver propertyResolver,
+            String configName) throws RRepositoryException {
         Class<?> clazz = instance.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
             String propertyName = buildPropertyName(configName, fieldName);
             String propertyValue = null;
-            try {
-                propertyValue = getValue(propertyResolver, propertyName);
-            } catch (RRepositoryException e) {
-                e.printStackTrace();
-            }
+            propertyValue = getValue(propertyResolver, propertyName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);
             if (propertyExists) {
                 String setter = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
