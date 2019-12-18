@@ -54,7 +54,7 @@ public class TestSuite implements INamedThing {
 
     public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor,
             final IOpenClass openClass,
-            final long ntimes) {
+            final int ntimes) {
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
 
@@ -88,7 +88,7 @@ public class TestSuite implements INamedThing {
         return testUnitResults;
     }
 
-    public TestUnitsResults invokeSequentially(final IOpenClass openClass, long ntimes) {
+    public TestUnitsResults invokeSequentially(final IOpenClass openClass, int ntimes) {
 
         TestUnitsResults testUnitResults = new TestUnitsResults(this);
         for (int i = 0; i < getNumberOfTests(); i++) {
@@ -99,7 +99,7 @@ public class TestSuite implements INamedThing {
         return testUnitResults;
     }
 
-    private ITestUnit executeTest(IOpenClass openClass, int test, long ntimes) {
+    public ITestUnit executeTest(IOpenClass openClass, int test, int ntimes) {
         TestDescription currentTest = getTest(test);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final Object target = openClass.newInstance(env);
@@ -111,7 +111,7 @@ public class TestSuite implements INamedThing {
 
         for (int i = 0; i < getNumberOfTests(); i++) {
             TestDescription currentTest = getTest(i);
-            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, cloner, 1L);
+            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, cloner, 1);
             testUnitResults.addTestUnit(testUnit);
         }
 

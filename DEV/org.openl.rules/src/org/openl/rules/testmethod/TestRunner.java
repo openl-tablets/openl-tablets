@@ -18,7 +18,7 @@ public class TestRunner {
             Object target,
             IRuntimeEnv env,
             OpenLArgumentsCloner cloner,
-            long ntimes) {
+            int ntimes) {
         if (ntimes <= 0) {
             return runTest(test, target, env, cloner, 1);
         } else {

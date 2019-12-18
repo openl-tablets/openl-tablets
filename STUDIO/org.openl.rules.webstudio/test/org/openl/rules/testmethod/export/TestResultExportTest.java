@@ -62,7 +62,7 @@ public class TestResultExportTest {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         for (int i = 0; i < tests.length; i++) {
             TestSuiteMethod test = tests[i];
-            results[i] = new TestSuite(test).invokeSequentially(openClass, 1L);
+            results[i] = new TestSuite(test).invokeSequentially(openClass, 1);
         }
 
         // Tests can appear in a random order. For testing convenience sort them alphabetically
@@ -86,7 +86,7 @@ public class TestResultExportTest {
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {
             if (test.getName().equals(testName)) {
-                return new TestSuite(test, indices).invokeSequentially(openClass, 1L);
+                return new TestSuite(test, indices).invokeSequentially(openClass, 1);
             }
         }
 

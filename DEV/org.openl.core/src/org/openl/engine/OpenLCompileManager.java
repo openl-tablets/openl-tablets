@@ -82,6 +82,7 @@ public class OpenLCompileManager extends OpenLHolder {
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
+        boolean isRootModule = dependencyManager == null || dependencyManager.isEmptyDependencyCompilationStack();
         ProcessedCode processedCode;
         if (executionMode) {
             IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
@@ -106,7 +107,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
         messages.addAll(processedCode.getMessages());
 
-        if (executionMode && openClass instanceof ComponentOpenClass) {
+        if (executionMode && isRootModule && openClass instanceof ComponentOpenClass) {
             ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
         }
 

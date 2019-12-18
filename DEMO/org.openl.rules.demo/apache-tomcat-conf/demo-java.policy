@@ -3,6 +3,7 @@ grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
         permission java.security.AllPermission;
 };
 
+
 // These permissions apply to the servlet API classes
 // and those that are shared across all class loaders
 // located in the "lib" directory
@@ -113,6 +114,9 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.security.SecurityPermission "insertProvider.BC";
         permission java.security.SecurityPermission "putProviderProperty.BC";
 
+        //tomcat
+        permission java.net.NetPermission "specifyStreamHandler";
+
 };
 
 // WEBSERVICE
@@ -127,7 +131,6 @@ grant codeBase "file:${catalina.home}/webapps/webservice/WEB-INF/-" {
 };
 
 grant codeBase "file:${catalina.home}/webapps/webservice/-" {
-
         //accessClassInPackages
         permission java.lang.RuntimePermission "accessClassInPackage.org.apache.*";
         permission java.lang.RuntimePermission "accessClassInPackage.com.sun.*";
@@ -186,4 +189,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission javax.management.MBeanServerPermission "createMBeanServer";
         permission javax.management.MBeanPermission "*", "*";
         permission javax.management.MBeanTrustPermission "register";
+
+        //tomcat
+        permission java.net.NetPermission "specifyStreamHandler";
 };
