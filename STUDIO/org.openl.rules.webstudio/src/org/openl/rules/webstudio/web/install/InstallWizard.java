@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -49,6 +50,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
@@ -56,9 +58,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 @ManagedBean
@@ -123,8 +127,12 @@ public class InstallWizard {
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
 
-    public InstallWizard() {
-        workingDir = PreferencesManager.INSTANCE.getWebStudioHomeDir();
+    @ManagedProperty(value = "#{environment}")
+    private PropertyResolver propertyResolver;
+
+    @PostConstruct
+    public void init() {
+        workingDir = propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY);
     }
 
     public String getPreviousPage() {
@@ -390,7 +398,7 @@ public class InstallWizard {
             }
 
             System.setProperty("user.mode", userMode);
-            PreferencesManager.INSTANCE.webStudioConfigured();
+            PreferencesManager.INSTANCE.webStudioConfigured(getAppName());
 
             destroyRepositoryObjects();
             destroyTemporaryContext();
@@ -814,7 +822,12 @@ public class InstallWizard {
         this.workingDir = workingDir;
 
         // Other configurations depend on this property
-        PreferencesManager.INSTANCE.setWebStudioHomeDir(this.workingDir);
+        PreferencesManager.INSTANCE.setWebStudioHomeDir(getAppName(), this.workingDir);
+    }
+
+    private String getAppName() {
+        return PropertySourcesLoader.getAppName(WebApplicationContextUtils
+            .getRequiredWebApplicationContext(FacesUtils.getServletContext()));
     }
 
     public String getGroupsAreManagedInStudio() {
@@ -1043,5 +1056,9 @@ public class InstallWizard {
 
     public void setGroupManagementService(GroupManagementService groupManagementService) {
         this.groupManagementService = groupManagementService;
+    }
+
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 }

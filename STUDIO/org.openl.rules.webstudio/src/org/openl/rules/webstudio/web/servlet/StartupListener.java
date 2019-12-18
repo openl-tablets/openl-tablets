@@ -5,6 +5,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.openl.rules.webstudio.util.PreferencesManager;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,29 +24,17 @@ public class StartupListener implements ServletContextListener {
         String name = context.getServletContextName();
         log.info("Starting {}...", name);
 
-        initSystemProperties();
+        initSystemProperties(context);
     }
 
-    private void initSystemProperties() {
-        boolean configured = PreferencesManager.INSTANCE.isAppConfigured();
+    private void initSystemProperties(ServletContext context) {
+        boolean configured = PreferencesManager.INSTANCE.isAppConfigured(WebStudioUtils.getApplicationName(context));
 
         // If webstudio.mode is not defined, use either webstudio-beans.xml or installer-beans.xml.
         // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
         String webStudioMode = System.getProperty("webstudio.mode");
         if (webStudioMode == null) {
             System.setProperty("webstudio.mode", configured ? "webstudio" : "installer");
-        }
-
-        String webStudioHomeDirProp = System.getProperty("webstudio.home");
-        String webStudioHomeDirPref = PreferencesManager.INSTANCE.getWebStudioHomeDir();
-
-        if (webStudioHomeDirProp == null && webStudioHomeDirPref == null) {
-            String webStudioHome = System.getProperty("webstudio.home.default");
-            PreferencesManager.INSTANCE.setWebStudioHomeDir(webStudioHome);
-        } else {
-            if (webStudioHomeDirProp == null) {
-                System.setProperty("webstudio.home", webStudioHomeDirPref);
-            }
         }
     }
 

@@ -91,8 +91,8 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.io.FilePermission "${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "${java.io.tmpdir}/-", "read,write,delete";
 
-        permission java.io.FilePermission "${webstudio.home}", "read,write,delete";
-        permission java.io.FilePermission "${webstudio.home}/-", "read,write,delete";
+        permission java.io.FilePermission "${openl.home}", "read,write,delete";
+        permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
         permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
         permission java.io.FilePermission "${catalina.base}/logs", "read,write,delete";
 
@@ -179,8 +179,6 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.io.FilePermission "${catalina.base}", "read";
         permission java.io.FilePermission "${catalina.base}/-", "read";
 
-        permission java.io.FilePermission "${webstudio.home}", "read,write,delete";
-        permission java.io.FilePermission "${webstudio.home}/-", "read,write,delete";
         permission java.io.FilePermission "${catalina.base}/logs/-", "write,delete";
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";

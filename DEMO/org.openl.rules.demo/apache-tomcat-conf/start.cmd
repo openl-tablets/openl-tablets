@@ -187,7 +187,7 @@ echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
 @set JAVA_OPTS=%JAVA_OPTS% %_JAVA_MEMORY% %_JAVA_OPTS%
-@set CATALINA_OPTS=-DDEMO=DEMO -Dwebstudio.home=openl-demo -Dwebstudio.configured=true -Dws.port=8080 %CATALINA_OPTS%
+@set CATALINA_OPTS=-DDEMO=DEMO -Dwebstudio.configured=true -Dws.port=8080 %CATALINA_OPTS%
 @echo Memory size:           "%_MEMORY%GBytes"
 @echo Java version:          "%_JAVA_VERSION%"
 @echo Using JRE_HOME:        "%_JRE_HOME%"

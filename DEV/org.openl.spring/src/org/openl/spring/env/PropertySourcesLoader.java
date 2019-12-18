@@ -201,8 +201,11 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         this.appContext = appContext;
     }
 
-    private String getAppName(ApplicationContext appContext) {
-        String appName = appContext.getApplicationName();
+    public static String getAppName(ApplicationContext appContext) {
+        return normalizeAppName(appContext.getApplicationName());
+    }
+
+    public static String normalizeAppName(String appName) {
         if (appName.isEmpty()) {
             return "";
         }

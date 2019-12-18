@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,10 +24,11 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
+    private String webStudioHomePath;
+
     @Before
     public void setUp() throws Exception {
-        System.setProperty("webstudio.home", tempFolder.getRoot().getPath());
-
+        webStudioHomePath = tempFolder.getRoot().getPath();
         File webStudioHome = tempFolder.newFolder(CustomTemplatesResolver.PROJECT_TEMPLATES_FOLDER);
 
         // Create project templates
@@ -46,26 +46,20 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         touch(new File(rulesFolder, "Rating.xlsx"));
     }
 
-    @After
-    public void tearDown() throws Exception {
-        System.clearProperty("webstudio.home");
-    }
-
     @Test
-    public void testGetCategories() throws Exception {
-        Collection<String> categories = new CustomTemplatesResolver().getCategories();
+    public void testGetCategories() {
+        Collection<String> categories = new CustomTemplatesResolver(webStudioHomePath).getCategories();
         assertEquals(2, categories.size());
         assertTrue(categories.containsAll(Arrays.asList(CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY)));
 
-        System.setProperty("webstudio.home", tempFolder.getRoot().getPath() + "/not-exist");
-        Collection<String> categories2 = new CustomTemplatesResolver().getCategories();
+        String absentWebStudioHome = tempFolder.getRoot().getPath() + "/not-exist";
+        Collection<String> categories2 = new CustomTemplatesResolver(absentWebStudioHome).getCategories();
         assertTrue(categories2.isEmpty());
-        System.clearProperty("webstudio.home");
     }
 
     @Test
-    public void testGetTemplates() throws Exception {
-        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver();
+    public void testGetTemplates() {
+        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
 
         Collection<String> templates1 = templatesResolver.getTemplates(CUSTOM_TEMPLATES_CATEGORY);
         assertEquals(2, templates1.size());
@@ -77,8 +71,8 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     }
 
     @Test
-    public void testGetProjectFiles() throws Exception {
-        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver();
+    public void testGetProjectFiles() {
+        CustomTemplatesResolver templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
         ProjectFile[] projectFiles = templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "Sample1 project");
         assertEquals(1, projectFiles.length);
         assertTrue(contains(projectFiles, "Main1.xls"));

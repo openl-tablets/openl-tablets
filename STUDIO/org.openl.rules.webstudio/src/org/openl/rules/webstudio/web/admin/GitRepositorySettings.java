@@ -68,8 +68,8 @@ public class GitRepositorySettings extends RepositorySettings {
 
         String localPath = propertyResolver.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
-                                                    : PreferencesManager.INSTANCE
-                                                        .getWebStudioHomeDir() + File.separator + type + "-repository";
+                                                    : propertyResolver.getProperty(
+                                                        PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY) + File.separator + type + "-repository";
 
         uri = propertyResolver.getProperty(URI);
         login = propertyResolver.getProperty(LOGIN);
