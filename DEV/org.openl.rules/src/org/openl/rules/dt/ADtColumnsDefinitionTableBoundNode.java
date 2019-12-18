@@ -88,12 +88,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     protected IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
+            boolean singleParameter,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
         if (nodes.length > 2) {
-            String errMsg = "Parameter cell format: <type> <name>";
+            String errMsg = "Parameter cell format: <type> or <type> <name>.";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
@@ -284,12 +285,16 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 Set<String> uniqueSetOfParameters = new HashSet<>();
                 Set<String> uniqueSetOfTitles = new HashSet<>();
                 String title = null;
-                IGridTable nullPCodeTable = null;
+                Boolean singleParameter = null;
                 while (j < d) {
                     IGridTable pCodeTable = tableBody1.getSource()
                         .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
+                    if (singleParameter == null) {
+                        singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
+                    }
                     GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
                     IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
+                        singleParameter,
                         cxt);
                     parametersForMergedTitle.add(parameterDeclaration);
                     if (parameterDeclaration != null) {
@@ -306,8 +311,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j);
                             addMetaInfoForParameter(parameterDeclaration, parameterCell);
                         }
-                    } else {
-                        nullPCodeTable = nullPCodeTable == null ? pCodeTable : nullPCodeTable;
                     }
 
                     if (j1 <= j) {
@@ -335,15 +338,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
                     j = j + pCodeTable.getCell(0, 0).getHeight();
                     if (j1 <= j || j >= d) {
-                        if (parametersForMergedTitle.size() > 1 && parametersForMergedTitle.stream()
-                            .anyMatch(Objects::isNull)) {
-                            GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                nullPCodeTable,
-                                cxt);
-                            String errMsg = "Parameter cell format: <type> <name>";
-                            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, eGridCellSourceCodeModule);
-                        }
-
                         localParameters.put(title, parametersForMergedTitle);
                         parametersForMergedTitle = new ArrayList<>();
                     }
@@ -388,6 +382,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             GridCellSourceCodeModule expressionCellSourceCodeModule,
             CompositeMethod compositeMethod,
             IBindingContext cxt) throws SyntaxNodeException {
+        if (StringUtils.isBlank(expressionCellSourceCodeModule.getCell().getStringValue())) {
+            if (isConditions()) {
+                throw SyntaxNodeExceptionUtils
+                    .createError("Expression is required for a condition.", null, null, expressionCellSourceCodeModule);
+            } else if (isActions()) {
+                throw SyntaxNodeExceptionUtils
+                    .createError("Expression is required for an action.", null, null, expressionCellSourceCodeModule);
+            }
+        }
         if (isConditions()) {
             if (compositeMethod.getType().getInstanceClass() != boolean.class && compositeMethod.getType()
                 .getInstanceClass() != Boolean.class) {
