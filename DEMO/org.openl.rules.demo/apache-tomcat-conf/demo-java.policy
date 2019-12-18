@@ -158,6 +158,9 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //Reading of the value of the specified environment variable
         permission java.lang.RuntimePermission "getenv.*";
 
+        //access to the java.util.prefs.Preferences implementations
+        permission java.lang.RuntimePermission "preferences";
+
         permission java.lang.RuntimePermission "reflectionFactoryAccess";
 
         //allows anyone to listen on dynamic ports (DB, LDAP, SSO...)
